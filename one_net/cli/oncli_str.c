@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,11 @@
 #ifdef _CLOCK_OUT_DIVIDE_BY_TWO
     const char * const ONCLI_STARTUP_FMT = "ONE-NET Clock Test Version %d.%d";
 #else
-    const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
+    #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+        const char * const ONCLI_STARTUP_FMT = "ONE-NET NACK w/Rsn Version %d.%d";
+    #else
+        const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
+    #endif
 #endif
 
 //! Tail end of the startup banner, because the va_args does not seem to be able to 

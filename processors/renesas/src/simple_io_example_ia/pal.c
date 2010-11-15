@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@
 //! \defgroup PAL_SW_EX_const
 //! \ingroup PAL_SW_EX
 //! @{
-
+    
 //! The rate the low speed oscillator runs at (in Hz)
 #define LOW_SPEED_OSCILLATOR 125000
 
@@ -107,9 +107,9 @@ extern void update_tick_count(const tick_t UPDATE);
 
 /*!
     \brief Initializes the ports that MUST be initialized before anything else.
-
+    
     \param void
-
+    
     \return void
 */
 void init_ports(void)
@@ -224,19 +224,19 @@ void processor_sleep(const UInt32 MS)
     {
         // value (+1) to set tx reg to for very short times
         TX_SHORT = 125,
-
+        
         // value (+1) to set tx to for longer durations
         TX_LONG = 250
     };
 
     tick_t delay, ticks_slept, tick;
-
+    
     // used to include scaling to ticks when calculating how long the processor
     // really slept for
     UInt16 scale = 0;
 
     UInt8 last_sw_pos = SW;
-
+    
     // timer settings
     UInt8 timer_src_multiplier;
     UInt8 n, m;                     // from data sheet to represent prex & tx
@@ -251,23 +251,23 @@ void processor_sleep(const UInt32 MS)
     {
         if(delay < 256)
         {
-            txck0 = 0;              // Timer X count source = f1
+            txck0 = 0;              // Timer X count source = f1 
             txck1 = 0;
 
             // don't need to scale to ticks when computing ticks_slept
             scale = 0;
 
             timer_src_multiplier = 1;
-            n = delay;              // Setting Prescaler X register
-            m = TX_SHORT;           // Setting timer X register
+            n = delay;              // Setting Prescaler X register 
+            m = TX_SHORT;           // Setting timer X register 
         } // if delay < 256 //
         else if(delay <= 1000)
         {
             UInt32 temp;
 
-            txck0 = 1;              // Timer X count source = f2
+            txck0 = 1;              // Timer X count source = f2 
             txck1 = 1;
-
+            
             // need to scale to ticks when computing ticks_slept
             scale = 1;
 
@@ -277,19 +277,19 @@ void processor_sleep(const UInt32 MS)
             temp = (UInt32)LOW_SPEED_OSCILLATOR / (UInt32)TICK_1S
               * (UInt32)delay / (UInt32)timer_src_multiplier / (UInt32)TX_LONG;
             n = (UInt8)temp;
-            m = TX_LONG;            // Setting timer X register
+            m = TX_LONG;            // Setting timer X register 
         } // else if delay <= 1000 //
         else
         {
-            txck0 = 1;              // Timer X count source = f2
+            txck0 = 1;              // Timer X count source = f2 
             txck1 = 1;
 
             // need to scale to ticks when computing ticks_slept
             scale = 1;
 
             timer_src_multiplier = 2;
-            n = TX_LONG;           // Setting Prescaler X register
-            m = TX_LONG;           // Setting timer X register
+            n = TX_LONG;           // Setting Prescaler X register 
+            m = TX_LONG;           // Setting timer X register 
         } // else //
 
         tick = get_tick_count();
@@ -309,7 +309,7 @@ void processor_sleep(const UInt32 MS)
             asm("NOP");
             asm("NOP");
         } // if the switch has not moved //
-
+        
         DISABLE_GLOBAL_INTERRUPTS();
         DISABLE_SW_INTERRUPT();
         DISABLE_TICK_TIMER();
@@ -330,7 +330,7 @@ void processor_sleep(const UInt32 MS)
         {
             delay -= (ticks_slept < delay ? ticks_slept + 1 : delay);
         } // if doing a timed sleep //
-
+        
         // subtract the number of times the tick has changed since we started
         // the sleep process
         if(ticks_slept > tick)

@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ one_net_status_t ona_send_switch_command(
 );
 
 one_net_status_t ona_send_switch_query(
-        UInt8 SRC_UNIT, UInt8 DST_UNIT,
+        UInt8 SRC_UNIT, UInt8 DST_UNIT, 
         const one_net_raw_did_t *RAW_DST);
 
 one_net_status_t ona_parse_switch(

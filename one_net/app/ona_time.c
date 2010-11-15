@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -163,7 +163,7 @@ enum
     \brief Send a time status msg
 
     \param[in] HOUR, the hour in 24-hour format
-    \param[in] MINUTE, the minute
+    \param[in] MINUTE, the minute 
     \param[in] SECOND, The second.
     \param[in] RAW_DST, the destination device id
 
@@ -193,7 +193,7 @@ one_net_status_t ona_send_time_status(const UInt8 HOUR, const UInt8 MINUTE,
       |= (SECOND >> ONA_SECOND_HIGH_SHIFT) & ONA_SECOND_BUILD_HIGH_MASK;
     payload[ONA_SECOND_LOW_IDX + ONA_MSG_DATA_IDX]
       = (SECOND << ONA_SECOND_LOW_SHIFT) & ONA_SECOND_BUILD_LOW_MASK;
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload),
       ONE_NET_LOW_PRIORITY, RAW_DST, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT);

@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -183,7 +183,7 @@ one_net_status_t ona_send_date_status(const UInt16 YEAR,
     payload[ONA_DAY_IDX + ONA_MSG_DATA_IDX] |= DAY & ONA_DAY_MASK;
     payload[ONA_DOW_IDX + ONA_MSG_DATA_IDX] = ((UInt8)DOW << ONA_DOW_SHIFT)
       & ONA_DAY_MASK;
-
+    
     // send payload
     return (*send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT);

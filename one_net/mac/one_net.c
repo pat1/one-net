@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -156,6 +156,11 @@ static UInt8 data_rate_result;
       TRUE, ONT_MH_TIMER, 0, 0, 0, sizeof(mh_pkt), mh_pkt};
 #endif
 
+#ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+#if 0   // used when trying to force NACK's to test NACK with reason field
+    static UInt8 force_nonce_fail_toggle = 1;
+#endif
+#endif
 
 //! @} ONE-NET_pri_var
 //                              PRIVATE VARIABLES END
@@ -924,15 +929,33 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
       const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE)
 #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 {
+#ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+    enum 
+    { ON_RESP_DEFAULT_NACK_REASON = 0x01 };
+    UInt8 data[ON_RESP_NACK_WITH_REASON_LEN];
+    UInt8 new_pid;
+#else
     UInt8 data[ON_RESP_NONCE_LEN];
+#endif
 
     #ifdef _ONE_NET_MULTI_HOP
+        #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN+1
+              + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
+              || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
+        #else
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
               + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
               || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
+        #endif
     #else // ifdef _ONE_NET_MULTI_HOP //
+        #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN+1
+              || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
+        #else
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
               || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
+        #endif
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
     {
         return ONS_BAD_PARAM;
@@ -948,13 +971,47 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
       (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
       & ON_RESP_NONCE_BUILD_LOW_MASK;
 
+    #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+        // pack the six bit NACK reason onto the end of the payload
+        if (PID == ONE_NET_ENCODED_SINGLE_DATA_NACK)
+        {
+            data[ON_RESP_NACK_RSN_HIGH_IDX] |=
+              (ON_RESP_DEFAULT_NACK_REASON >> ON_RESP_NACK_RSN_BUILD_HIGH_SHIFT)
+              & ON_RESP_NACK_RSN_BUILD_HIGH_MASK;
+            data[ON_RESP_NACK_RSN_LOW_IDX] =
+              (ON_RESP_DEFAULT_NACK_REASON << ON_RESP_NACK_RSN_BUILD_LOW_SHIFT)
+              & ON_RESP_NACK_RSN_BUILD_LOW_MASK;
+            new_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+            #ifdef _ONE_NET_DEBUG
+            #if 0
+                one_net_debug(ONE_NET_DEBUG_NACK_WITH_RSN_TEST, data, 3);
+                one_net_debug(ONE_NET_DEBUG_NACK_WITH_RSN3_TEST, &TXN_NONCE, 1);
+                one_net_debug(ONE_NET_DEBUG_NACK_WITH_RSN4_TEST, &EXPECTED_NONCE, 1);
+            #endif
+            #endif
+        }
+        else
+        {
+            new_pid = PID;
+        }
+    #endif
 
     #ifdef _ONE_NET_MULTI_HOP
+        #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+            return on_build_pkt(pkt, pkt_size, new_pid, ENCODED_DST, data,
+              ON_RESP_NONCE_WORD_SIZE+1, MAX_HOPS);
+        #else
             return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
               ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
+        #endif
     #else // ifdef _ONE_NET_MULTI_HOP //
+        #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+            return on_build_pkt(pkt, pkt_size, new_pid, ENCODED_DST, data,
+            ON_RESP_NONCE_WORD_SIZE+1);
+        #else
             return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
             ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
+        #endif
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 } // on_build_response_pkt //
 
@@ -1576,18 +1633,12 @@ BOOL one_net(on_txn_t ** txn)
                 #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
                 {
                     // general timer is now the response timer
-
-                    // TODO: RWM: maybe we should only set the general timer to 
-                    // ONE_NET_TRN_END_TIME_OUT for the ON_SEND_SINGLE_DATA_RESP case
-                    // and use ONE_NET_RESPONSE_TIME_OUT for the other cases as it was
-                    // before 3/11/09 when we changed to ONE_NET_TRN_END_TIME_OUT?
-                    
                     #ifdef _ONE_NET_MULTI_HOP
                         ont_set_timer(ONT_GENERAL_TIMER, ((*txn)->max_hops + 1)
-                          * ONE_NET_TRN_END_TIME_OUT);
+                          * ONE_NET_RESPONSE_TIME_OUT);
                     #else // ifdef _ONE_NET_MULTI_HOP //
                         ont_set_timer(ONT_GENERAL_TIMER,
-                          ONE_NET_TRN_END_TIME_OUT);
+                          ONE_NET_RESPONSE_TIME_OUT);
                     #endif // else _ONE_NET_MULTI_HOP is not defined //
                 } // else not waiting for a stream response //
 
@@ -2113,27 +2164,20 @@ static BOOL check_for_clr_channel(void)
 /*!
     \brief Receive the possible responses to a single data packet.
 
-    This function is called from the ON_WAIT_FOR_SINGLE_DATA_RESP state.
-    It only receives Single Data ACK, Single Data NACK, or Single
+    This function only receives Single Data ACK, Single Data NACK, or Single
     Data ACK Stay Awake Packets.  These are expected in response to a Single
-    Data Packet this device sent.<p>
-
-    This function may change on_state:<br>
-    If the nonce check fails and the maximum retries has been exeeded
-    on_state is set to ON_LISTEN_FOR_DATA.<br>
-    For ONE_NET_ENCODED_SINGLE_DATA_NACK and ONE_NET_ENCODED_MH_SINGLE_DATA_NACK 
-    packet types, on_state is set to ON_SEND_SINGLE_DATA_PKT.
+    Data Packet this device sent.
 
     \param[in] txn The transaction being carried out.
 
-    \return ONS_NOT_INIT If the device was not initialized<br>
-            ONS_BAD_PARAM If the parameter is not valid<br>
+    \return ONS_NOT_INIT If the device was not initialized
+            ONS_BAD_PARAM If the parameter is not valid
             ONS_BAD_PKT_TYPE If a packet type was received that this device is
-              not looking for.<br>
-            ONS_SINGLE_FAIL If the transaction has been tried too many times.<br>
+              not looking for.
+            ONS_SINGLE_FAIL If the transaction has been tried too many times.
             ONS_INCORRECT_NONCE If the received transaction nonce is not what is
-              expected.<br>
-            ONS_INVALID_DATA If received data was not correct<br>
+              expected.
+            ONS_INVALID_DATA If received data was not correct
             For more response values, see rx_pkt_addr, on_decode,
               single_resp_hdlr.
 */
@@ -2196,9 +2240,9 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
           && pid != ONE_NET_ENCODED_SINGLE_DATA_NACK)
     #endif // else _ONE_NET_MULTI_HOP is not defined //
     {
-    #ifdef _ONE_NET_DEBUG
+#ifdef _ONE_NET_DEBUG
         one_net_debug(ONE_NET_DEBUG_ONS_BAD_PKT_TYPE, &pid, 1);
-    #endif
+#endif
         return ONS_BAD_PKT_TYPE;
     } // if the packet is not what the device is expecting //
 
@@ -2248,6 +2292,26 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
         {
             return ONS_INCORRECT_NONCE;
         } // if the nonce did not match //
+        #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+        #if 0
+        else
+        {
+            //
+            // force a nonce failure every other time we see a good nonce to
+            // help test NACK with reason field processing.
+            //
+            if (force_nonce_fail_toggle == 1)
+            {
+                force_nonce_fail_toggle = 0;
+                return ONS_INCORRECT_NONCE;
+            }
+            else
+            {
+                force_nonce_fail_toggle = 1;
+            }
+        }
+        #endif
+        #endif
     } // if the nonce did not match or it was a NACK //
 
     // If _ONE_NET_MULTI_HOP is defined, the hops field should be read here, but
@@ -2366,12 +2430,9 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
 
-    //
     // pkt in txn contains the ack packet that was sent which contains
     // the encoded address (the destination did in the packet) that the
-    // response is expected from. rx_pkt_addr will filter on this 
-    // address.
-    //
+    // response is expected from.
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
         if((status = rx_pkt_addr((const on_encoded_did_t * const)
           &((*txn)->pkt[ONE_NET_ENCODED_DST_DID_IDX]), &src_did, 0))

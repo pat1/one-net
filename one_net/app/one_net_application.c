@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@
     \file one_net_application.c
     \brief Global ONE-NET application layer implementation.
 
-    This is the global implementation of the application layer
-    of ONE-NET.  Any ONE-NET device will want to include and use
-    this code for their application.
+    This is the global implementation of the application layer 
+    of ONE-NET.  Any ONE-NET device will want to include and use 
+    this code for their application.    
 */
 
 #include "one_net.h"
@@ -117,12 +117,12 @@
 
 /*!
     \brief Parse a single packet payload to obtain message class and type.
-
+    
     @depricates parse_msg_class_and_type
 
     \param[in] MSG_DATA, msg data
     \param[out] msg_class, the message class of the payload provided (MSG_DATA).
-    \param[out] msg_type, the message type of the payload provided (MSG_DATA).
+    \param[out] msg_type, the message type of the payload provided (MSG_DATA). 
 
     \return the status of the parse
 */
@@ -152,7 +152,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
     one_net_status_t ona_send_unit_type_count_status(const one_net_raw_did_t *RAW_DST)
     {
         UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
-
+       
         put_msg_hdr(ONA_STATUS|ONA_UNIT_TYPE_COUNT, payload);
 
         //put_first_msg_byte(???) // maybe put random stuff here???
@@ -178,7 +178,7 @@ one_net_status_t ona_send_unit_type_count_query(
   const one_net_raw_did_t *RAW_DST)
 {
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
-
+   
     put_msg_hdr(ONA_QUERY|ONA_UNIT_TYPE_COUNT, payload);
 
     // TBD: make this random?
@@ -197,7 +197,7 @@ one_net_status_t ona_send_unit_type_count_query(
         \brief Sends a ONA_UNIT_TYPE status msg
 
         Called by application code to send a ONA_UNIT_TYPE status msg,
-        usually in response to a ONA_UNIT_TYPE query msg.
+        usually in response to a ONA_UNIT_TYPE query msg.  
 
         \param[in] UNIT_TYPE_IDX, The index of the unit type to send the status
           for.
@@ -241,7 +241,7 @@ one_net_status_t ona_send_unit_type_count_query(
 
     \return the status of the send action
 */
-one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX,
+one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX, 
   const one_net_raw_did_t *RAW_DST)
 {
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
@@ -254,7 +254,7 @@ one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX,
     // TBD: make this random?
     //put_second_msg_byte(???);
     //put_third_msg_byte(???);
-
+    
     return (*one_net_send_single)(payload, sizeof(payload), sizeof(payload),
       ONE_NET_LOW_PRIORITY, RAW_DST, ONE_NET_DEV_UNIT);
 } // ona_send_unit_type_query //

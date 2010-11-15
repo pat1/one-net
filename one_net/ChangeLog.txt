@@ -2,10 +2,6 @@ ONE-NET Change Log.
 
 Version 	Date            Description
 --------------------------------------------------------------------------------
-
-            2010.11.10      This file has not been updated since January, 2008,
-                            so it is completely out of date.
-
 0.10        2008.01.02      Added ability for MASTER to assign itself as a peer.
 
                             Fixed a few bugs with the _ONE_NET_SIMPLE_DEV

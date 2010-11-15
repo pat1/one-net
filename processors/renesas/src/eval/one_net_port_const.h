@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -77,9 +77,6 @@ enum
 
     //! Time in ticks a device waits for a response (50ms)
     ONE_NET_RESPONSE_TIME_OUT = MS_TO_TICK(50),
-
-    //! Time in ticks a device waits for a transaction to end (ACK or new transaction) (100ms)
-    ONE_NET_TRN_END_TIME_OUT = MS_TO_TICK(100),
 
     //! The base time in ticks for the retransmit delay for low priority
     //! transactions (10ms)

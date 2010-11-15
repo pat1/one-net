@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -45,12 +45,12 @@
 */
 
 /*
-    Note from RFM on SPI speed :
+    Note from RFM on SPI speed : 
     When reading the RX FIFO, the internal access time is limited to Fxtal/4, or
     2.5MHz, so you can only run the SPI (FIFO read ONLY!) at 2.5MHz max.  If you
-    attempt to read it faster then you'll get lots of data errors.  Writing
+    attempt to read it faster then you'll get lots of data errors.  Writing 
     internal registers and TX register can be done at full speed, which is
-    around 20MHz.
+    around 20MHz. 
 */
 
 #include "hal_ia.h"
@@ -77,34 +77,34 @@ enum
 
     //! Buffer underflow in tx mode, or buffer overflow in receive mode
     STATUS_BUF_ERR = 0x2000,
-
+    
     //! Wake up timer overflow
     STATUS_WAKE = 0x1000,
-
+    
     //! High to low logic level change on interrupt pin (pin 16)
     STATUS_INT_PIN_16 = 0x0800,
-
+    
     //! Battery level low
     STATUS_BATT = 0x0400,
-
+    
     //! rx fifo empty
     STATUS_RX_FIFO_EMPTY = 0x0200,
-
+    
     //! RSSI above preprogrammed threshold
     STATUS_RSSI = 0x0100,
-
+    
     //! Indicates good data
     STATUS_GOOD_DATA = 0x0080,
-
+    
     //! Clock recovery is locked
     STATUS_CLK_LOCK = 0x0040,
-
+    
     //! AFC cycle bit
     STATUS_AFC_CYCLE = 0x0020,
-
+    
     //! Frequency difference (1 - higher, 0 - lower)
     STATUS_FREQ_DIF = 0x0010,
-
+    
     //! Frequency offset mask
     STATUS_FREQ_OFFSET_MASK = 0x000F
 };
@@ -113,7 +113,7 @@ enum
 enum
 {
     CFG_REG = 0x8000,               //!< Configuration register address
-
+    
     CFG_DATA_REG_ENABLE = 0x0080,   //!< Enables the data register
     CFG_FIFO_ENABLE = 0x0040,       //!< Enable receive fifo
 
@@ -121,7 +121,7 @@ enum
     CFG_433_BAND = 0x0010,          //!< The 433Mhz band
     CFG_868_BAND = 0x0020,          //!< The 868Mhz band
     CFG_915_BAND = 0x0030,          //!< The 915Mhz band
-
+    
     // crystal load capacapties
     CFG_CRYSTAL_LOAD_10_5 = 0x0004  //!< Crystal has a 10.5pF capacitance
 };
@@ -130,19 +130,19 @@ enum
 enum
 {
     AFA_REG = 0xC400,               //!< The register address
-
+    
     // Mode Selection
     AFM_OFF = 0x0000,               //!< AFA off
     AFM_PWR_UP = 0x0040,            //!< Run once after power up
     AFM_RCV_ONLY = 0x0080,          //!< Offset during receive only
     AFM_VID_INDEPENDENT = 0x00C0,   //!< Offset independent of VDI state
-
+    
     // Allowable frequence offset
     AFO_NO_LIMIT = 0x0000,          //!< No allowable frequency offset limit
     AFO_15_16_LIMIT = 0x0010,       //!< (+15/-16)*fres allowable freq offset
     AFO_7_8_LIMIT = 0x0020,         //!< (+7/-8)*fres allowable freq offset
     AFO_3_4_LIMIT = 0x0030,         //!< (+3/-4)*fres allowable freq offset
-
+    
     AFA_FREQ_STROBE = 0x0008,       //!< Starts a manual freq adjustment strobe
     AFA_HIGH_ACCURACY = 0x0004,     //!< freq adjustment to high accuracy mode
     AFA_FREQ_REG_ENABLE = 0x0002,   //!< Offset sample added to freq ctl of PLL
@@ -153,9 +153,9 @@ enum
 enum
 {
     TXCR_REG = 0x9800,              //!< Register address
-
+    
     TXCR_MODULATION_POL = 0x0100,   //!< Modulation polarity
-
+    
     // Modulation bandwidth
     TXCR_FREQ_DEV_15 = 0x0000,      //!< 15kHz frequency deviation
     TXCR_FREQ_DEV_30 = 0x0010,      //!< 30kHz frequency deviation
@@ -173,7 +173,7 @@ enum
     TXCR_FREQ_DEV_210 = 0x00D0,     //!< 210kHz frequency deviation
     TXCR_FREQ_DEV_225 = 0x00E0,     //!< 225kHz frequency deviation
     TXCR_FREQ_DEV_240 = 0x00F0,     //!< 240kHz frequency deviation
-
+    
     // Output transmit power
     TXCR_TX_PWR_MAX = 0x0000,       //!< max transmit output power
     TXCR_TX_PWR_3 = 0x0001,         //!< -3dB transmit output power
@@ -195,17 +195,17 @@ enum
 enum
 {
     RXCR_REG = 0x9000,              //!< Receiver Control Register
-
+    
     // Pin16 function select
     RXCR_P16_INT_INPUT = 0x0000,    //!< Pin16 Interrupt input
     RXCR_P16_VDI_OUTPUT = 0x0400,   //!< Pin16 Valid data indicator output
-
+    
     // valid data detector response time
     RXCR_DATA_RESP_FAST = 0x0000,   //!< fast sync detect
     RXCR_DATA_RESP_MID = 0x0100,    //!< Medium sync detect
     RXCR_DATA_RESP_SLOW = 0x0200,   //!< Slow sync detect
     RXCR_DATA_RESP_CONT = 0x0300,   //!< Continuous sync detect
-
+    
     // Receiver baseband bandwidth
     RXCR_RX_BW_400 = 0x0020,        //!< 400kHz baseband bandwidth
     RXCR_RX_BW_340 = 0x0040,        //!< 340kHz baseband bandwidth
@@ -213,13 +213,13 @@ enum
     RXCR_RX_BW_200 = 0x0080,        //!< 200kHz baseband bandwidth
     RXCR_RX_BW_134 = 0x00A0,        //!< 134kHz baseband bandwidth
     RXCR_RX_BW_67 = 0x00C0,         //!< 67kHz baseband bandwidth
-
+    
     // Receiver LNA Gain
     RXCR_LNA_GAIN_0 = 0x0000,       //!< 0dB LNA Gain
     RXCR_LNA_GAIN_14 = 0x0008,      //!< -14dB LNA Gain
     RXCR_LNA_GAIN_6 = 0x0010,       //!< -6dB LNA Gain
     RXCR_LNA_GAIN_20 = 0x0018,      //!< -20dB LNA Gain
-
+    
     // Digital RSSI threshold
     RXCR_RSSI_103 = 0x0000,         //!< -103 digital rssi threshold
     RXCR_RSSI_97 = 0x0001,          //!< -97 digital rssi threshold
@@ -235,7 +235,7 @@ enum
 enum
 {
     BASEBAND_FILTER_REG = 0xC200,   //!< Baseband filter register
-
+    
     BASEBAND_AUTO_CLK = 0x0080,     //!< Automatic clock recovery
     BASEBAND_AUTO_CLK_CTL = 0x0040, //!< Manual clock recovery lock control
     BASEBAND_D_FILTER = 0x0010,     //!< Digital filter
@@ -245,22 +245,22 @@ enum
 enum
 {
     FCFG_REG = 0xCA00,              //!< FIFO & resent configuration reg
-
+    
     // FIFO fill bit count threshold values
     FCFG_FILL_8 = 0x0080,           //!< Rx 8 bits before generating interrupt
-
+    
     // Sync detect length
     FCFG_SYNC_WORD = 0x0000,        //!< Sync on a 2 byte value (0x2DXX)
     FCFG_SYNC_BYTE = 0x0008,        //!< Sync on a 1 byte value
-
+    
     // FIFO fill conditions
     FCFG_FILL_SYNC = 0x0000,        //!< FIFO fills when sync is detected
     FCFG_FILL_CONT = 0x0004,        //!< FIFO fills continuously
-
+    
     // Sync pattern fifo fill
     FCFG_SYNC_FILL_EN = 0x0002,     //!< Enable FIFO filling on sync detect
     FCFG_SYNC_FILL_DIS = 0x0000,    //!< Disable FIFO filling on sync detect
-
+    
     FCFG_RST_DISABLE = 0x0001       //!< Disable reset mode
 };
 
@@ -276,7 +276,7 @@ enum
     DR_REG = 0xC600,                //!< Data rate setup register
 
     DR_PRE_ENABLE = 0x0080,         //!< Enable data rate prescaler
-
+    
     // Data rate settings
     DR_38_4 = 0x0008                //!< 38400 (38314) baud
 };
@@ -285,12 +285,12 @@ enum
 enum
 {
     PWR_REG = 0x8200,               //!< Power Management register
-
+    
     PWR_RX_EN = 0x0080,             //!< Enables everything needed to rx
     PWR_TX_EN = 0x0020,             //!< Enables everything needed to tx
 
     PWR_CLK_DIS = 0x0001,           //!< Disables clock output
-
+    
     //! Power management settings that do not change when either the reciever
     //! or the transmitter are turned on
     PWR_CONST_SETTINGS = PWR_CLK_DIS
@@ -333,14 +333,14 @@ enum
     PLL_SLEW_5 = 0x0000,            //!< >5Mhz
     PLL_SLEW_3 = 0x0020,            //!< 3 Mhz
     PLL_SLEW_2_5 = 0x0040,          //!< <2.5Mhz
-
+    
     // Crystal startup time
     PLL_CRYSTAL_START_1 = 0x0000,   //!< 1ms startup, 620uA
     PLL_CRYSTAL_START_2 = 0x0010,   //!< 2ms startup, 460uA
-
+    
     PLL_PHASE_DETECT_DLY = 0x0008,  //!< Phase detector delay enable
     PLL_PHASE_DITHER_DIS = 0x0004,  //!< Disable dithering
-
+    
     PLL_BW_L90 = 0x0000,            //!< PLL Bandwidth < 90kbps
     PLL_BW_G90 = 0x0001             //!< PLL bandwidth > 90kbps
 };
@@ -378,7 +378,7 @@ static const UInt16 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS] =
 
 /*!
     \brief The initial register values for the xe1205
-
+    
     Output Frequency    =       918.500 MHz
     Deviation           = +/-   240.000 kHz
     Bit Rate            =       38.400 kBaud
@@ -415,7 +415,7 @@ static const UInt16 INIT_REG_VAL[] =
 
     // Wake-up Timer period register
     WAKE_REG,
-
+    
     // Duty cycle register
     DUTY_REG,
 
@@ -435,7 +435,7 @@ enum
 
 /*!
     \brief The register settings for setting the desired data rate.
-
+    
     These values need to coincide with the data rates to be supported.  See
     data_rate_t in one_net.h for data rates.
 */
@@ -513,7 +513,7 @@ static BOOL write_reg(const UInt16 REG);
     This function is transceiver specific. It should configure the transceiver
     for ONE-NET operation so that switching between modes (receive/transmit)
     can be accomplished with as few commands as possible.
-
+    
     This function also makes the call to initialize the pins needed by this
     transceiver.
 
@@ -535,7 +535,7 @@ void tal_init_transceiver(void)
     } // loop to initialize transceiver //
 
     write_reg(CHANNEL_SETTING[current_channel]);
-} // tal_init_transceiver //
+} // tal_init_transceiver //    
 
 
 /*!
@@ -613,7 +613,7 @@ BOOL one_net_channel_is_clear(void)
         // not clear
         return !(status & STATUS_RSSI);
     } // if reading the register was successful //
-
+    
     return FALSE;
 } // one_net_channel_is_clear //
 
@@ -633,13 +633,13 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
 {
     tick_t end = one_net_tick() + DURATION;
 
-    TAL_TURN_ON_RECEIVER();
+    TAL_TURN_ON_RECEIVER();   
 
     rf_count = 0;
     rf_idx = 0;
 
     while(!VDI)
-    {
+    {   
         if(one_net_tick() >= end)
         {
 		    return ONS_TIME_OUT;
@@ -694,7 +694,7 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                   26 - ONE_NET_ENCODED_DST_DID_IDX);
                 break;
             } // (repeat)single data case //
-
+            
             #ifndef _ONE_NET_SIMPLE_CLIENT
                 case ONE_NET_ENCODED_BLOCK_DATA:        // fall through
                 case ONE_NET_ENCODED_REPEAT_BLOCK_DATA: // fall through
@@ -705,7 +705,7 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                     break;
                 } // (repeat)block, stream data case //
             #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
-
+            
             case ONE_NET_ENCODED_DATA_RATE_TEST:
             {
                 rf_count += rx_rf_data_bytes(&(rf_data[rf_count]),
@@ -731,13 +731,13 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
 UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
 {
     UInt16 bytes_to_read;
-
+    
     // check the parameters, and check to see if there is data to be read
     if(!data || !LEN || rf_idx >= rf_count)
     {
         return 0;
     } // if the parameters are invalid, or there is no more data to read //
-
+    
     if(rf_idx + LEN > rf_count)
     {
         // more bytes have been requested than are available, so give the
@@ -748,10 +748,10 @@ UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
     {
         bytes_to_read = LEN;
     } // else read number of bytes requested //
-
+    
     one_net_memmove(data, &(rf_data[rf_idx]), bytes_to_read);
     rf_idx += bytes_to_read;
-
+    
     return bytes_to_read;
 } // one_net_read //
 
@@ -761,7 +761,7 @@ UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
 
     This function is application specific and will need to be implemented by
     the application designer.
-
+    
     Does not return until all the data has been transmitted out of the rf
     interface.
 
@@ -826,7 +826,7 @@ BOOL one_net_write_done(void)
 
     \param[out] data Buffer to return the read data in.
     \param[in] LEN The number of bytes to read (data must be at least this big)
-
+    
     \return The number of bytes read.
 */
 static UInt16 rx_rf_data_bytes(UInt8 * const data, const UInt16 LEN)
@@ -838,7 +838,7 @@ static UInt16 rx_rf_data_bytes(UInt8 * const data, const UInt16 LEN)
         // Max number of ticks to wait in between characters
         MAX_CH_DLY = 50
     };
-
+    
     tick_t timeout;
     UInt16 bytes_read;
     UInt8 mask;
@@ -864,7 +864,7 @@ static UInt16 rx_rf_data_bytes(UInt8 * const data, const UInt16 LEN)
                     return bytes_read ? bytes_read - 1 : 0;
                 } // if timed out waiting for data to become available //
             } // loop to wait for data to become available //
-
+            
             SCLK = 1;
             if(MISO)
             {
@@ -881,10 +881,10 @@ static UInt16 rx_rf_data_bytes(UInt8 * const data, const UInt16 LEN)
 
 /*!
     \brief Sends data to the IA to be transmitted through the rf interface.
-
+    
     This function is considered "protected."  Currently, only 1 byte will be
     transmitted at a time.
-
+    
     \param[in] DATA Pointer to data to send.  Currently, should only be 1 byte
     \param[in] LEN The number of bytes to send (again, will currently only send
       1 byte).
@@ -899,7 +899,7 @@ UInt8 send_rf_data(const UInt8 * DATA, const UInt16 LEN)
     {
         return 0;
     } // if the parameters are invalid //
-
+    
     write_reg(TX_DATA_REG | (UInt16)*DATA);
     return 1;
 } // send_rf_data //
@@ -907,9 +907,9 @@ UInt8 send_rf_data(const UInt8 * DATA, const UInt16 LEN)
 
 /*!
     \brief Reads the status register.
-
+    
     \param[out] status Returns the value in the status register.
-
+    
     \return TRUE if the register was successfully read.
             FALSE if there was an error reading the status register.
 */
@@ -927,7 +927,7 @@ static BOOL read_status_reg(UInt16 * const status)
     rv = spi_transfer(0, 0, (UInt8 * const)&status_byte_stream,
       sizeof(status_byte_stream));
     SSNOT = 1;
-
+    
     *status = one_net_byte_stream_to_int16(
       (const UInt8 * const)&status_byte_stream);
     return rv;
@@ -936,19 +936,19 @@ static BOOL read_status_reg(UInt16 * const status)
 
 /*!
     \brief Write to a configuration register.
-
+    
     The register and value are passed as 1 16bit value that is sent to the IA.
     Register addresses are not always the same size.
-
+    
     \param[in] REG The register data to send to the IA.
-
+    
     \return void
 */
 static BOOL write_reg(const UInt16 REG)
 {
     UInt16 reg_val;                 // byte stream register value to write
     BOOL rv;
-
+    
     if(!REG)
     {
         return FALSE;
@@ -958,7 +958,7 @@ static BOOL write_reg(const UInt16 REG)
     SSNOT = 0;
     rv = spi_transfer((const UInt8 * const)&reg_val, sizeof(reg_val), 0, 0);
     SSNOT = 1;
-
+    
     return rv;
 } // write_reg //
 

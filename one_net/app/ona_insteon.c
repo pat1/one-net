@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
     \file ona_insteon.c
     \brief Implementation of insteon msg functions.
 
-    This is the implementation of functions to send an parse
+    This is the implementation of functions to send an parse 
     insteon msgs.
 */
 
@@ -102,7 +102,7 @@
     \return the status of the send action
 */
 one_net_status_t ona_send_insteon_to_addr(const UInt8 SRC_UNIT,
-  const UInt8 DST_UNIT, const insteon_addr_t TO_ADDR,
+  const UInt8 DST_UNIT, const insteon_addr_t TO_ADDR, 
   const one_net_raw_did_t * RAW_DST)
 {
     one_net_status_t rv = ONS_SUCCESS;
@@ -127,7 +127,7 @@ one_net_status_t ona_send_insteon_to_addr(const UInt8 SRC_UNIT,
     \param[in] SRC_UNIT, the source unit of the humidity message
     \param[in] DST_UNIT, the destination unit for humidity message
     \param[in] FLAGS, insteon flags
-    \param[in] CMD, the Insteon command1/command2 field
+    \param[in] CMD, the Insteon command1/command2 field 
     \param[in] RAW_DST, the destination device id
 
     \return the status of the send action
@@ -141,7 +141,7 @@ one_net_status_t ona_send_insteon_command(const UInt8 SRC_UNIT,
 
     one_net_int16_to_byte_stream(ONA_INSTEON_COMMAND,
       &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_ION_FLAG_IDX + ONA_MSG_DATA_IDX] = FLAGS;
     payload[ONA_ION_CMD1_IDX + ONA_MSG_DATA_IDX] = CMD[0];
     payload[ONA_ION_CMD2_IDX + ONA_MSG_DATA_IDX] = CMD[1];
@@ -163,7 +163,7 @@ one_net_status_t ona_send_insteon_command(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, insteon_addr_t * to_addr)
 {
     BOOL proceed = TRUE;
@@ -181,7 +181,7 @@ one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA,
         // get addr
         one_net_memmove(*to_addr, MSG_DATA, INSTEON_ADDR_LEN);
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_insteon_to_addr //
 
@@ -196,7 +196,7 @@ one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_insteon_command(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_insteon_command(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * flags, insteon_command_t * insteon_command)
 {
     BOOL proceed = TRUE;
@@ -215,9 +215,9 @@ one_net_status_t ona_parse_insteon_command(const UInt8 * const MSG_DATA,
         *flags = MSG_DATA[ONA_ION_FLAG_IDX];
         *insteon_command[0] = MSG_DATA[ONA_ION_CMD1_IDX];
         *insteon_command[1] = MSG_DATA[ONA_ION_CMD2_IDX];
-
+    
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_insteon_command //
 

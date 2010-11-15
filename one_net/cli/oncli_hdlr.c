@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -1338,8 +1338,6 @@ static oncli_status_t list_cmd_hdlr(void)
             oncli_send_msg("Client count: %d\n", master_param->client_count);
             for (i=0; i<master_param->client_count; i++)
             {
-				// Derek_S 11/3/2010 - slight pause so display doesn't get garbled
-				delay_ms(40);
                 on_decode(&tmp_client_did[0], client_list[i].did, ONE_NET_RAW_DID_LEN);
                 oncli_send_msg("  client %d DID: %03x\n", i, did_to_u16(&tmp_client_did));
             }

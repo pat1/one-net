@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -174,7 +174,7 @@ one_net_status_t ona_send_color_status(const UInt8 SRC_UNIT,
       = (GREEN << ONA_COLOR_GREEN_LOW_SHIFT) & ONA_COLOR_GREEN_BUILD_LOW_MASK;
     payload[ONA_COLOR_BLUE_IDX + ONA_MSG_DATA_IDX]
       |= BLUE & ONA_COLOR_BLUE_MASK;
-
+    
     // send payload
     return (*send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);

@@ -18,9 +18,6 @@
 #include "one_net_eval_hal.h"
 #include "pal.h"
 
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    #include "uart.h"
-#endif
 
 //=============================================================================
 //                                  CONSTANTS
@@ -32,14 +29,6 @@ extern const one_net_xtea_key_t EVAL_KEY;
 
 const ona_unit_type_count_t ONE_NET_DEVICE_UNIT_TYPE[ONE_NET_NUM_UNIT_TYPES]
   = {{ONA_SIMPLE_SWITCH, ONE_NET_NUM_UNITS}};
-
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    extern UInt8 client_send_ping_response;
-    extern const UInt8 CLIENT_PING_REQUEST[];
-    extern const UInt8 CLIENT_PING_REPONSE[];
-
-#endif
-
 
 //! @} ONE-NET_client_eval_const
 //                                  CONSTANTS END
@@ -379,31 +368,6 @@ void client_eval(void)
 {
     client_check_user_pins();
     one_net_client();
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    if (client_send_ping_response == TRUE)
-    {
-        one_net_status_t status;
-
-        enum
-        {
-            SRC_UNIT = 0, 
-            DST_UNIT = 0
-        };
-
-        UInt8 MASTER_DID[2] = {0x00, 0x10};
-
-        //
-        // send the client ping response (single data simple text message)
-        //
-        status = send_simple_text_command((UInt8 *)&(CLIENT_PING_REPONSE[0]), (UInt8) SRC_UNIT,
-          (UInt8) DST_UNIT, (one_net_raw_did_t *) MASTER_DID);
-        if (status != ONS_RSRC_FULL)
-        {
-            client_send_ping_response = FALSE;
-
-        }
-    }
-#endif
 } // client_eval //
 
 //! @} ONE-NET_client_eval_pri_func

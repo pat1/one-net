@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -86,14 +86,14 @@
 
 #if 0 // 4/29/08: Energy messages will be changing, we need the program memory now,
       // so I am #if'g the old functions out
-static one_net_status_t ona_send_energy(const UInt16 CLASS, const UInt8 TYPE,
+static one_net_status_t ona_send_energy(const UInt16 CLASS, const UInt8 TYPE, 
   const UInt8 SRC_UNIT, const UInt8 DST_UNIT, const UInt8 ENERGY_STATUS,
   const one_net_raw_did_t * const RAW_DST);
 #endif
 
 static UInt32 convert_to_watt_seconds(const ona_msg_class_t MSG_TYPE, UInt16 raw_energy);
 
-static one_net_status_t ona_send_energy(const UInt16 CLASS, const ona_msg_type_t TYPE,
+static one_net_status_t ona_send_energy(const UInt16 CLASS, const ona_msg_type_t TYPE, 
   const UInt8 SRC_UNIT, const UInt8 DST_UNIT, const UInt16 ENERGY_STATUS,
   const one_net_raw_did_t * const RAW_DST);
 
@@ -199,7 +199,7 @@ one_net_status_t ona_send_energy_query(const one_net_raw_did_t * const RAW_DST)
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     // send payload
     return (*ona_net_send_single)(payload, sizeof(payload),
       ONE_NET_LOW_PRIORITY, RAW_DST, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT);
@@ -293,24 +293,24 @@ one_net_status_t ona_send_energy_2_watt_seconds_status(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-static one_net_status_t ona_send_energy(const UInt16 CLASS, const ona_msg_type_t TYPE,
+static one_net_status_t ona_send_energy(const UInt16 CLASS, const ona_msg_type_t TYPE, 
   const UInt8 SRC_UNIT, const UInt8 DST_UNIT, const UInt16 ENERGY_STATUS,
   const one_net_raw_did_t * const RAW_DST)
 {
     const UInt16 CLASS_TYPE = CLASS | TYPE;
 
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
-
-    if(((CLASS != ONA_COMMAND) && (CLASS != ONA_STATUS)) ||
-      ((TYPE != ONA_ENERGY_2_WATT_SECONDS) &&
+   
+    if(((CLASS != ONA_COMMAND) && (CLASS != ONA_STATUS)) || 
+      ((TYPE != ONA_ENERGY_2_WATT_SECONDS) && 
       (TYPE != ONA_ENERGY_20_WATT_SECONDS)) )
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
-
+    
     // set the message class and type fields in the payload
     put_msg_hdr(CLASS_TYPE, payload);
-
+ 
     // set source and destination unit numbers
     put_src_unit(SRC_UNIT, payload);
     put_dst_unit(DST_UNIT, payload);
@@ -320,7 +320,7 @@ static one_net_status_t ona_send_energy(const UInt16 CLASS, const ona_msg_type_t
 
     // send a single packet with this payload
     return (*one_net_send_single)(payload, sizeof(payload),
-      ONA_ENERGY_DST_UNIT_IDX + ONA_MSG_DATA_IDX,
+      ONA_ENERGY_DST_UNIT_IDX + ONA_MSG_DATA_IDX, 
       ONE_NET_LOW_PRIORITY, RAW_DST, SRC_UNIT);
 } // ona_send_energy //
 

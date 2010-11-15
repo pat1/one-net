@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
     \file io_port_mapping.h
     \brief Contains the port definitions for the ONE-NET switch example project
       using an ADI transceiver.
-
+      
     The specific mapping of i/o ports to other components may vary from board to
     board.  This file contains symbolic names for port functions that are mapped
     to the i/o ports on the ONE-NET Example Boards using an ADI tranceiver and
@@ -110,7 +110,7 @@
     #define INPUT2     p1_1
     #define INPUT3     p1_0
     #define INPUT4     p4_5
-
+    
     #define INPUT1_DIR pd1_6
     #define INPUT2_DIR pd1_1
     #define INPUT3_DIR pd1_0
@@ -118,7 +118,7 @@
 #elif defined(_DUAL_OUTPUT) // ifdef _QUAD_INPUT //
     #define OUTPUT1     p1_6
     #define OUTPUT2     p1_1
-
+    
     #define OUTPUT1_DIR pd1_6
     #define OUTPUT2_DIR pd1_1
 #elif defined(_QUAD_OUTPUT) // ifdef _DUAL_OUTPUT_INPUT //
@@ -126,7 +126,7 @@
     #define OUTPUT2     p1_1
     #define OUTPUT3     p1_0
     #define OUTPUT4     p4_5
-
+    
     #define OUTPUT1_DIR pd1_6
     #define OUTPUT2_DIR pd1_1
     #define OUTPUT3_DIR pd1_0

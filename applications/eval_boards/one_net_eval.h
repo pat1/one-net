@@ -199,12 +199,6 @@ void eval_single_txn_status(one_net_status_t STATUS, const UInt8 *DATA,
 one_net_status_t send_switch_command(UInt8 SWITCH_STATUS, UInt8 SRC_UNIT, 
                              UInt8 DST_UNIT, const one_net_raw_did_t *DST);
 
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT, 
-        UInt8 DST_UNIT, const one_net_raw_did_t *DST);
-#endif
-
-
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //=============================================================================

@@ -5,7 +5,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
     You must create a transceiver specific version of this file for each
     transceiver.  The tal.h file in each transceiver directory defines the
     interface that should be used to access all transceiver specific
-    functionality.
+    functionality. 
 */
 
 //==============================================================================
@@ -96,7 +96,7 @@ void tal_init_ports(void);
 
 
 /*!
-    \brief Initialize the transceiver.
+    \brief Initialize the transceiver. 
 
     This function should perform any one of a kind transceiver initialization.
     There are other functions for turning on the transmitter and receiver.

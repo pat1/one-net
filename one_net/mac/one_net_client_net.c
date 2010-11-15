@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -364,155 +364,92 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
 
 
 /*!
-    \brief Unassigns peer connection(s)
-
-    SRC_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
-    PEER_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
-    PEER_DID is a wildcard if it is NULL.
-	
-	The peer table is traversed record by record and three comparisons are
-	made for each record/peer assignment in the table:
-	
-	1. Does the source unit in the record match SRC_UNIT?
-	2. Does the peer unit in the record match PEER_UNIT?
-    3. Does the DID in the record match PEER_DID?
-	
-	If the parameter passed to the function is a wildcard, the comparison is
-	considered true.
-	
-	If all three comparisons are true, theen the record/peer assignment is deleted.
-
-
-
-    \param[in] SRC_UNIT The source unit(s) of the peer connection to remove.
-    \param[in] PEER_DID The device ID(s) of the peer whose connection is being
-      removed.
-    \param[in] PEER_UNIT The peer unit(s) of the connection being removed
+    \brief Unassigns a peer connection
     
-    \return ONS_SUCCESS If the table was successfully adjusted (or the
-              no adjustment was needed).
-            ONS_BAD_PARAM If any of the parameters are invalid.
+    If SRC_UNIT and PEER_UNIT both equal ONE_NET_DEV_UNIT, then all peer
+    connections that send to PEER_DID are removed.
+
+    \param[in] SRC_UNIT The source unit of the peer connection to remove.
+    \param[in] PEER_DID The device ID of the peer whose connection is being
+      removed.
+    \param[in] PEER_UNIT The peer unit of the connection being removed
+    
+    \return ONS_SUCCESS If the device was successfully removed (or the
+              connection did not exist).
+            ONS_BAD_PARAM If any of the parameters are invalid
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
     UInt16 dev_idx;
-    UInt8 peer_unit_idx, src_unit;
-	BOOL src_unit_match, peer_unit_match, dev_idx_match, delete, rm_device;
-	one_net_status_t status;
-
-    if((SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT >= ONE_NET_NUM_UNITS) ||
-	    PEER_UNIT > ONE_NET_DEV_UNIT)
-    {
-        return ONS_INVALID_DATA;
-    } // if the received data is not valid //
-	
-	if(PEER_DID == NULL)
-	{
-		// Wildcard did.  Go through the entire list.
-		for(dev_idx = 0; dev_idx < ON_NUM_PEER_DEV; dev_idx++)
-		{
-			status = on_client_net_unassign_peer(SRC_UNIT, &(peer->dev[dev_idx].did),
-			    PEER_UNIT);
-				
-			if(status != ONS_SUCCESS)
-			{
-				return status; // some error somewhere
-			}
-		}
-		
-		return ONS_SUCCESS;
-	}
+    UInt8 peer_unit_idx;
+    UInt8 src_unit = SRC_UNIT;
+    BOOL rm_device = FALSE;
 
     if((dev_idx = on_client_net_peer_dev_idx((const on_encoded_did_t * const)
       PEER_DID)) == ON_INVALID_PEER)
     {
-        // there are no peer assignments with this did.  Nothing to delete
+        // the connection doesn't exist, so consider the removal successful
         return ONS_SUCCESS;
-    }
-	
-	// The rm_device flag represents whether the peer->dev[] array needs to have
-	// an element deleted.  This flag should be set true if EVERY peer assignment
-	// with the did in question is being deleted in this function.  If so, there
-	// are no more peer assignments with that did as the target did.  If that's
-	// true, then an entry needs to be removed from the peer->dev[] array.
-	
-	// set rm_device to true.  If we find a peer assignemnt with that did that is
-	// NOT deleted, we'll change it to false.
-	
-	rm_device = TRUE;
-	
-	// due to the fact that src_unit is unsigned we check for overflow by
-	// making sure that it's less than ONE_NET_NUM_UNITS rather than checking
-	// that it is >= 0, which it always will be.
-	for(src_unit = ONE_NET_NUM_UNITS - 1; src_unit < ONE_NET_NUM_UNITS;
-	    src_unit--)
-	{
-		src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || src_unit == SRC_UNIT);
-		
-		// due to the fact that peer_unit_idx is unsigned we check for overflow by
-		// making sure that it's less than ONE_NET_PEER_PER_UNIT rather than checking
-		// that it is >= 0, which it always will be.
-        for(peer_unit_idx = ONE_NET_PEER_PER_UNIT - 1;
-		    peer_unit_idx < ONE_NET_PEER_PER_UNIT; peer_unit_idx--)
-		{
-			if(peer->unit[src_unit][peer_unit_idx].peer_unit == ONE_NET_DEV_UNIT)
-			{
-				continue;
-			}
-			
-			peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT ||
-			    PEER_UNIT == peer->unit[src_unit][peer_unit_idx].peer_unit);
-				
-			dev_idx_match = (dev_idx ==
-			    peer->unit[src_unit][peer_unit_idx].peer_dev_idx);
-				
-			delete = (src_unit_match && peer_unit_match && dev_idx_match);
-			
-			if(dev_idx_match && !delete)
-			{
-				rm_device = FALSE; // we'll end up with at least one peer assignment with
-				                   // this did still in the peer assignment array, so we
-								   // don't want to delete it from the array of dids that
-								   // are the target of at least one peer assignment.
-			}
-			
-			if(delete)
-			{
-				// there is one fewer peer assignment for this source.  We need to delete
-				// an element by flagging it as unused and then fill in any gaps.
-				
-				// For example if src is 1 and peer_unit_idx is 3 and the number of possible
-				// peers per unit is 8, we would want to make the following 4 moves to remove
-				// the gap at the second index 3 (note that 8 - 3 - 1 = 4):
-				
-				// peer->unit[1][4] --> peer->unit[1][3]
-				// peer->unit[1][5] --> peer->unit[1][4]
-				// peer->unit[1][6] --> peer->unit[1][5]
-				// peer->unit[1][7] --> peer->unit[1][6]
-				
-				// We accomplish this with a single one_net_mem_move call.
-				// Finally, after this mocve is complete, we mark peer->unit[1][7] as unused by
-				// giving it a peer unit value of ONE_NET_DEV_UNIT.
+    } // if the device does not exist //
 
-								
-				if(peer_unit_idx < ONE_NET_PEER_PER_UNIT - 1)
-				{
-				    one_net_memmove(&peer->unit[src_unit][peer_unit_idx],
-				        &peer->unit[src_unit][peer_unit_idx + 1], 
-						(ONE_NET_PEER_PER_UNIT - peer_unit_idx- 1) * sizeof(on_peer_unit_t));					
-				}
-				
-				peer->unit[src_unit][ONE_NET_PEER_PER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
-			}
-		}
-	}
+    if(src_unit == ONE_NET_DEV_UNIT && PEER_UNIT == ONE_NET_DEV_UNIT)
+    {
+        // Remove all peer connections to the given device.
+        rm_device = TRUE;
+        src_unit = 0;               // start from the first source peer
+    } // if both units are the ONE_NET_DEV_UNIT //
+    else if(src_unit > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
+    {
+        return ONS_INVALID_DATA;
+    } // else if the received data is not valid //
+
+    do
+    {
+        peer_unit_idx = 0;
+        while(peer_unit_idx < ONE_NET_PEER_PER_UNIT)
+        {
+            if(peer->unit[src_unit][peer_unit_idx].peer_dev_idx
+              == dev_idx && (rm_device
+              || peer->unit[src_unit][peer_unit_idx].peer_unit
+              == PEER_UNIT))
+            {
+                // Move the items down in the list so that there are no holes
+                if(peer_unit_idx < ONE_NET_PEER_PER_UNIT - 1)
+                {
+                    one_net_memmove(&(peer->unit[src_unit][peer_unit_idx]),
+                      &(peer->unit[src_unit][peer_unit_idx + 1]),
+                      (ONE_NET_PEER_PER_UNIT - peer_unit_idx - 1)
+                      * sizeof(on_peer_unit_t));
+                } // if not the last unit //
+
+                peer->unit[src_unit][ONE_NET_PEER_PER_UNIT - 1].peer_dev_idx
+                  = ON_INVALID_PEER;
+                peer->unit[src_unit][ONE_NET_PEER_PER_UNIT - 1].peer_unit
+                  = ONE_NET_DEV_UNIT;
+                
+                if(!rm_device)
+                {
+                    // Not removing all the devices, so don't need
+                    // to search anymore peer assignments.
+                    break;
+                } // if not removing the entire device //
+                
+                // don't adjust the peer_unit_idx since we shifted everything
+                // down by 1 (so if we started in slot N, then N + 1 is now in
+                // N, so check slot N again since it's really a new record
+                continue;
+            } // if a match was found //
+            
+            peer_unit_idx++;
+        } // loop through the units peers //
+    } while(rm_device && ++src_unit < ONE_NET_NUM_UNITS);
 
     if(rm_device || !on_client_net_send_to_peer_dev(dev_idx))
     {
         on_client_net_rm_dev(dev_idx);
-    } // no more peer assignemnts for this did
+    } // if no one else sends to that device //
 
     return ONS_SUCCESS;
 } // on_client_net_unassign_peer //
@@ -790,6 +727,7 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
                     on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
                     one_net_client_single_txn_status(ONS_SINGLE_END, 0, 
                                                  data, &raw_did);
+                //    delay_ms(100);
                 }
             } // if queueing the transaction failed //
 

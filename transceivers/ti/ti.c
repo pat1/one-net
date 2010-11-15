@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -1275,7 +1275,7 @@ static UInt8 current_channel = 0;
 //! \defgroup TI_pri_func
 //! \ingroup TI
 //! @{
-
+    
 static BOOL command_strobe(const UInt8 CMD_STROBE);
 static UInt8 status_reg(UInt8 reg);
 static BOOL read_reg(UInt8 reg, UInt8 * data, const UInt8 SIZE);
@@ -1300,12 +1300,12 @@ static BOOL write_reg(UInt8 reg, const UInt8 * DATA, const UInt8 LEN);
 
     This function also makes the call to initialize the pins needed by this
     transceiver.
-
+    
     \param void
-
+    
     \return void
 */
-void tal_init_transceiver(void)
+void tal_init_transceiver(void) 
 {
     TAL_INIT_PORTS();
     ENABLE_TRANSCEIVER();
@@ -1358,7 +1358,7 @@ void tal_turn_on_transmitter(void)
     \brief  Get the current ONE_NET channel.
 
     This function is transceiver specific. The ONE-NET channel
-    number is be used to configure the frequency
+    number is be used to configure the frequency 
     used by the transceiver.
 
     \param void
@@ -1426,7 +1426,7 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
     return ONS_SUCCESS;
 } // one_net_look_for_pkt //
 
-/*
+/* 
     This function blocks until LEN bytes are read.
 
     This needs to be called fast enough to not overflow the rx fifo as the data
@@ -1547,7 +1547,7 @@ UInt16 one_net_write(const UInt8 * DATA, const UInt16 LEN)
 BOOL one_net_write_done(void)
 {
     #define TX_FIFO_UNDERFLOW_INDICATOR MISO
-
+    
     if(!TX_FIFO_UNDERFLOW_INDICATOR)
     {
         return FALSE;

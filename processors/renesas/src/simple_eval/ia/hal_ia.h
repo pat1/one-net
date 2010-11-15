@@ -7,7 +7,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -132,9 +132,9 @@ extern void turn_on_rx_led(void);
 
 /*!
     \brief turns on the transmit LED
-
+    
     \param void
-
+    
     \return void
 */
 #define TURN_ON_TX_LED() turn_on_tx_led()
@@ -142,9 +142,9 @@ extern void turn_on_rx_led(void);
 
 /*!
     \brief turns on the receive LED
-
+    
     \param void
-
+    
     \return void
 */
 #define TURN_ON_RX_LED() turn_on_rx_led()

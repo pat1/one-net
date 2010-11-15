@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
 */
 
 /*!
-    \file one_net_master_port_const.h
+    \file on_net_master_port_const.h
     \brief ONE-NET MASTER specific constants.
 
     These are constants that are specific to each ONE-NET MASTER device.  This

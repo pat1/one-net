@@ -5,7 +5,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -90,9 +90,9 @@ void flash_erase_check(void);
 /*!
     \brief Checks to see if the data flash should be erased (and erases it if
       it does).
-
+    
     \param void
-
+    
     \return void
 */
 #define FLASH_ERASE_CHECK() flash_erase_check()

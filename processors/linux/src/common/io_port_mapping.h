@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
     \file io_port_mapping.h
     \brief Contains the port definitions for the ONE-NET switch example project
       using an ADI transceiver.
-
+      
     The specific mapping of i/o ports to other components may vary from board to
     board.  This file contains symbolic names for port functions that are mapped
     to the i/o ports on the ONE-NET Example Boards using an ADI tranceiver and

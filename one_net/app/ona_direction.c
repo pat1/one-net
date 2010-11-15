@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -106,12 +106,12 @@ one_net_status_t ona_send_direction_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_DIRECTION;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_DIRECTION_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(DIRECTION,
       &payload[ONA_DIRECTION_DIRECTION_IDX + ONA_MSG_DATA_IDX]);
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -138,7 +138,7 @@ one_net_status_t ona_send_direction_command(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_DIRECTION;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_DIRECTION_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(DIRECTION, &payload[ONA_DIRECTION_DIRECTION_IDX
@@ -169,7 +169,7 @@ one_net_status_t ona_send_direction_query(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_DIRECTION;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_DIRECTION_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
 
     // send payload
@@ -211,9 +211,9 @@ one_net_status_t ona_parse_direction(const UInt8 * const MSG_DATA,
         // get direction
         *direction = one_net_byte_stream_to_int16(
           &MSG_DATA[ONA_DIRECTION_DIRECTION_IDX]);
-
+    
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_direction //
 

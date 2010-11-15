@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -108,11 +108,11 @@ one_net_status_t ona_send_x10_simple(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
     UInt8 temp = 0x00;
 
     one_net_int16_to_byte_stream(ONA_X10_SIMPLE, &payload[ONA_MSG_HDR_IDX]);
-
+ 
     // message data format for x10 simple:
     //     payload[2]        payload[3]         payload[4]
     // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-    // | HOUSE |    UNIT   | X10_CMD |       PADDING        |
+    // | HOUSE |    UNIT   | X10_CMD |       PADDING        | 
 
     // put house into high 4 bits
     temp = HOUSE;
@@ -169,7 +169,7 @@ one_net_status_t ona_send_x10_stream(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
     BOOL proceed = TRUE;
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
     UInt8 temp = 0x00;
-
+    
     switch(MESSAGE_TYPE)
     {
         case ONA_X10_START_STREAM:                      // fall through
@@ -180,23 +180,23 @@ one_net_status_t ona_send_x10_stream(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
               &payload[ONA_MSG_HDR_IDX]);
             break;
         } // X10_START_STREAM/X10_STREAM/X10_STOP_STREAM //
-
+    
         default:
         {
             proceed = FALSE;
             rv = ONS_BAD_PARAM;
             break;
         } // default //
-
+    
     } // switch on MESSAGE_TYPE
-
+    
     if(proceed)
     {
         // message data format for x10 stream:
         //     payload[2]        payload[3]         payload[4]
         // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-        // |HOUSE 1| UNIT/CMD1 |HOUSE 2| UNIT/CMD2 |  PADDING   |
-
+        // |HOUSE 1| UNIT/CMD1 |HOUSE 2| UNIT/CMD2 |  PADDING   | 
+     
         // put house 1 into high 4 bits
         temp = HOUSE_1 & 0x0F;      // only 4 bits allowed
         temp <<= 4;                 // move to high nibble
@@ -204,7 +204,7 @@ one_net_status_t ona_send_x10_stream(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
 
         // put unit/cmd 1 into low 4 bits & high 1 bit of next byte
         temp = UNIT_CMD_1 & 0x1F;   // only 5 bits allowed
-        temp >>= 1;                 // lose low order bit
+        temp >>= 1;                 // lose low order bit 
         payload[2] |= temp;
 
         temp = UNIT_CMD_1 & 0x01;   // just get low bit
@@ -223,7 +223,7 @@ one_net_status_t ona_send_x10_stream(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
 
         temp = UNIT_CMD_2 & 0x03;   // mask off low 2 bits
         temp <<= 6;                 // move to high 2 bits
-        payload[4] = temp;
+        payload[4] = temp; 
 
         // send payload
         rv = (*send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
@@ -257,11 +257,11 @@ one_net_status_t ona_send_x10_extended(const UInt8 SRC_UNIT,
     UInt8 temp = 0x00;
 
     one_net_int16_to_byte_stream(ONA_X10_EXTENDED, &payload[ONA_MSG_HDR_IDX]);
-
+ 
     // message data format for x10 extended:
     //     payload[2]        payload[3]         payload[4]
     // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-    // | HOUSE |  UNIT  |    DATA_BYTE    |     CMD_BYTE    |
+    // | HOUSE |  UNIT  |    DATA_BYTE    |     CMD_BYTE    | 
 
     // put house into high 4 bits
     temp = HOUSE & 0x0F;            // only 4 bits allowed
@@ -297,7 +297,7 @@ one_net_status_t ona_send_x10_extended(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * house, UInt8 * unit, UInt8 * cmd)
 {
     BOOL proceed = TRUE;
@@ -315,8 +315,8 @@ one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA,
         // message data format for x10 simple:
         //    MSG_DATA[0]       MSG_DATA[1]       MSG_DATA[2]
         // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-        // | HOUSE |    UNIT   | X10_CMD |       PADDING        |
-
+        // | HOUSE |    UNIT   | X10_CMD |       PADDING        | 
+        
         // get house
         UInt8 temp = MSG_DATA[0];
         temp &= 0xF0;
@@ -337,7 +337,7 @@ one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA,
         *cmd = temp;
 
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_x10_simple //
 
@@ -373,8 +373,8 @@ one_net_status_t ona_parse_x10_stream(const UInt8 * const MSG_DATA,
         // message data format for x10 stream:
         //     MSG_DATA[0]       MSG_DATA[1]       MSG_DATA[2]
         // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-        // |HOUSE 1| UNIT/CMD1 |HOUSE 2| UNIT/CMD2 |  PADDING   |
-
+        // |HOUSE 1| UNIT/CMD1 |HOUSE 2| UNIT/CMD2 |  PADDING   | 
+        
         // get house
         UInt8 temp = MSG_DATA[0];
         temp &= 0xF0;
@@ -402,7 +402,7 @@ one_net_status_t ona_parse_x10_stream(const UInt8 * const MSG_DATA,
         temp <<= 2;                 // shift for 2 already in there
         *unit_cmd_2 |= temp;
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_x10_stream //
 
@@ -419,7 +419,7 @@ one_net_status_t ona_parse_x10_stream(const UInt8 * const MSG_DATA,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * house, UInt8 * unit, UInt8 * data_byte,
   UInt8 * cmd_byte)
 {
@@ -438,8 +438,8 @@ one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA,
         // message data format for x10 extended:
         //     MSG_DATA[0]       MSG_DATA[1]       MSG_DATA[2]
         // |- - - - - - - - | - - - - - - - - | - - - - - - - - |
-        // | HOUSE |  UNIT  |    DATA_BYTE    |     CMD_BYTE    |
-
+        // | HOUSE |  UNIT  |    DATA_BYTE    |     CMD_BYTE    | 
+        
         // get house
         UInt8 temp = MSG_DATA[0] & 0xF0;
         temp >>= 4;
@@ -447,16 +447,16 @@ one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA,
 
         // get unit
         temp = MSG_DATA[0] & 0x0F;
-        *unit = temp;
+        *unit = temp;        
 
         // get data byte
         *data_byte = MSG_DATA[1];
-
+        
         // get cmd byte
         *cmd_byte = MSG_DATA[2];
 
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_x10_extended //
 

@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@
       updated.
 */
 
-#include "config_options.h"
 #include "one_net_timer_port_const.h"
 
 #include "tick.h"

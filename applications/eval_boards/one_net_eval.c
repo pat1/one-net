@@ -159,12 +159,6 @@ static UInt16 block_data_type = NO_BLOCK_TXN;
 //! should be called in the main loop
 static void(*node_loop_func)(void) = 0;
 
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    UInt8 client_send_ping_response = FALSE;
-    const UInt8 CLIENT_PING_REQUEST[2] = { 'p', 'i' };
-    const UInt8 CLIENT_PING_REPONSE[2] = { 'n', 'g' };
-#endif
-
 //! @} ONE-NET_eval_pri_var
 //                              PRIVATE VARIABLES END
 //=============================================================================
@@ -1252,45 +1246,6 @@ one_net_status_t send_switch_command(UInt8 SWITCH_STATUS, UInt8 SRC_UNIT,
                             3, ONE_NET_SEND_SINGLE_PRIORITY, DST, SRC_UNIT);
 } // send_switch_command //
 
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-/*!
-    \brief Sends a simple text command message.
-    
-    \param[in] TEXT Pointer to the two characters to send.
-    \param[in] SRC_UNIT The unit in this device the message pertains to.
-    \param[in] DST_UNIT The unit in the receiving device that is to receive
-      this message.
-    \param[in] DST The device that is to receive this message.
-    
-    \return ONS_SUCCESS if the message was successfully queued.
-            ONS_INTERNAL_ERR If the send single function could not be retrieved.
-            See one_net_client_send_single & one_net_master_send_single for
-            more return values.
-*/
-
-one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT, 
-        UInt8 DST_UNIT, const one_net_raw_did_t *DST)
-{
-    one_net_send_single_func_t send_single_func;
-    UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0}; // Initialize to all zeros
-
-    put_msg_hdr(ONA_COMMAND|ONA_SIMPLE_TEXT, payload);
-    put_src_unit(SRC_UNIT, payload);
-    put_dst_unit(DST_UNIT, payload);
-    put_second_msg_byte(TEXT[0], payload);
-    put_third_msg_byte(TEXT[1], payload);
-    
-    if(!(send_single_func = oncli_get_send_single_txn_func()))
-    {
-        return ONS_INTERNAL_ERR;
-    } // if getting the single function failed //
-
-    // third argument < second means that it will go through peer list
-    return send_single_func(payload, sizeof(payload),
-                            3, ONE_NET_SEND_SINGLE_PRIORITY, DST, SRC_UNIT);
-} // send_switch_command //
-#endif
-
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //=============================================================================
@@ -1452,16 +1407,6 @@ static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
 #endif
 
     oncli_send_msg(ONCLI_RX_TXT_FMT, did_to_u16(SRC_ADDR), TXT_LEN, TXT);
-
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-    //
-    // see if this simple text message is a ping request from the master
-    //
-    if ((TXT[0] == CLIENT_PING_REQUEST[0]) && (TXT[1] == CLIENT_PING_REQUEST[1]))
-    {
-        client_send_ping_response = TRUE;
-    }
-#endif
 
 } // print_text_packet //
 
@@ -1655,17 +1600,9 @@ void main(void)
         
         if(eval_load(DFI_ST_ONE_NET_CLIENT_SETTINGS, &len, &PARAM))
         {
-			// Derek_S 11/3/2010 - harness the return value.  If any problems (i.e. not in
-			// a network, reset the client).  Any pin assignments will be lost.  Client will
-			// not be in a network and will look for an invite.
-            if(one_net_client_init(PARAM, len) != ONS_SUCCESS)
-			{
-				oncli_reset_client();
-				goto initialize_done;
-			}
-			
+            one_net_client_init(PARAM, len);
             one_net_copy_to_nv_param(PARAM, len);
-			
+            
             if(eval_load(DFI_ST_APP_DATA_1, &len, &PARAM))
             {
                 UInt8 i;
@@ -1675,7 +1612,6 @@ void main(void)
                     oncli_set_user_pin_type(i, PARAM[i]);
                 } // loop to set the user pin type //
             } // if there is user pin data //
-			
         } // if previous settings were stored //
         else
         {
@@ -1701,10 +1637,6 @@ void main(void)
         init_auto_client(node_type);
     } // else CLIENT3 //
 #endif
-
-
-// Derek_S 11/3/2010 - added label for goto statement.
-initialize_done:
 
     oncli_print_prompt();
     while(1)

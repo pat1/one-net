@@ -138,7 +138,7 @@ int init_shm(void)
 
     //attach shared memory
     shm_ptr = shmat(shm_id, NULL, 0);
-    if(shm_ptr == (void*)-1)
+    if((int)shm_ptr == -1)
     {
         printf("ERROR: couldn't attach shared memory\n");
         fflush(NULL);
