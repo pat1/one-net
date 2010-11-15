@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 
 /*!
     \file flash_sim.c
-    \brief Contains implementation for interacting with the simulated data flash
+    \brief Contains implementation for interacting with the simulated data flash 
     (like the data flash on the R8C family of processors).
 */
 
@@ -57,7 +57,7 @@ enum
     //! Command written in the first bus cycle to start reading the data flash
     //! at the given address.
     READ_ARRAY = 0xFF,
-
+    
     //! Command written in the first bus cycle to read the status register
     READ_STATUS_REG = 0x70,
 
@@ -162,7 +162,7 @@ void clr_status_reg(UInt8 * addr);
     \brief Writes data to the data flash block
 
     No data is written if the data to be written will cross data flash block
-    boundries.
+    boundries.    
 
     \param[in] ADDR The data flash address to start the write from
     \param[in] DATA The data to be written
@@ -179,7 +179,7 @@ UInt16 write_data_flash(UInt16 ADDR, const UInt8 * DATA, UInt8 LEN)
     {
         return 0;
     } // if the parameters are invalid //
-
+    
     if(ADDR + LEN >= DF_BLOCK_END)
     {
         return 0;
@@ -237,7 +237,7 @@ BOOL erase_data_flash(UInt16 ADDR)
 
     for (i=0; i<DF_BLOCK_SIZE; i++)
     {
-        *ptr_sim_df_block++ = 0xff; // TODO: RWM: change to #define when INVALID_FLASH_DATA
+        *ptr_sim_df_block++ = 0xff; // TODO: RWM: change to #define when INVALID_FLASH_DATA 
                                     // is moved to dfi.h
     }
 

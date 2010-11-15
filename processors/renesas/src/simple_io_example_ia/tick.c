@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -108,19 +108,19 @@ void update_tick_count(const tick_t UPDATE);
 */
 void init_tick(void)
 {
-    txck0 = 0;                      // Timer X count source = f1
+    txck0 = 0;                      // Timer X count source = f1 
     txck1 = 0;
 
     // Setting main cycle timer
     // 16MHz * 1/1 * 256 * 250 = 4ms
     // 8MHz * 1/1 * 100 * 80 = 1ms
-    prex = 100 - 1;             // Setting Prescaler X register
-    tx   = 80 - 1;              // Setting timer X register
+    prex = 100 - 1;             // Setting Prescaler X register 
+    tx   = 80 - 1;              // Setting timer X register 
 
-    txmr &= 0x04;                   // Timer X : timer mode
-    txic = 5;                       // Interrupt priority level = 5
+    txmr &= 0x04;                   // Timer X : timer mode 
+    txic = 5;                       // Interrupt priority level = 5 
 
-    ir_txic = 0;                    // Interrupt request flag clear
+    ir_txic = 0;                    // Interrupt request flag clear 
     ENABLE_TICK_TIMER();            // Timer X count start flag = start
 } // init_tick //
 
@@ -172,7 +172,7 @@ void polled_tick_update(void)
 */
 void delay_ms(UInt16 count)
 {
-    UInt16 i;
+    UInt16 i; 
 
     while(count-- != 0)
     {
@@ -226,7 +226,7 @@ void delay_100s_us(UInt16 count)
 
 /*!
     \brief Updates the tick count
-
+    
     This function is considered private, but it is used in processor_sleep in
     pal.c, but it is not to be used anywhere else.
 

@@ -5,7 +5,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@
 
 
 //==============================================================================
-//                                  CONSTANTS
+//                                  CONSTANTS 
 //! \defgroup DELAY_const
 //! \ingroup DELAY
 //! @{
@@ -59,7 +59,7 @@
 
 
 //==============================================================================
-//                                  TYPEDEFS
+//                                  TYPEDEFS 
 //! \defgroup DELAY_typedefs
 //! \ingroup DELAY
 //! @{

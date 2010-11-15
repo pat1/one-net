@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ one_net_status_t ona_send_humidity_command(const UInt8 SRC_UNIT,
 one_net_status_t ona_send_humidity_query(const UInt8 SRC_UNIT,
   const UInt8 DST_UNIT, const one_net_raw_did_t * const RAW_DST);
 
-one_net_status_t ona_parse_humidity(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_humidity(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * unit, UInt16 * humi);
 
 //! @} ONE-NET_APP_humidity_pub_func

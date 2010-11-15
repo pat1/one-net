@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@
 //! \defgroup PAL_SW_EX_const
 //! \ingroup PAL_SW_EX
 //! @{
-
+    
 //! The rate the low speed oscillator runs at (in Hz)
 #define LOW_SPEED_OSCILLATOR 125000
 
@@ -107,9 +107,9 @@ extern void update_tick_count(const tick_t UPDATE);
 
 /*!
     \brief Initializes the ports that MUST be initialized before anything else.
-
+    
     \param void
-
+    
     \return void
 */
 void init_ports(void)

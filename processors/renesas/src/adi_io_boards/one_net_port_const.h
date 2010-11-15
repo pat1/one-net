@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
     These are constants that are specific to each ONE-NET device.  This file
     should be copied to a project specific location and renamed to
     one_net_port_const.h.
-
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -77,10 +77,6 @@ enum
 
     //! Time in ticks a device waits for a response (50ms)
     ONE_NET_RESPONSE_TIME_OUT = MS_TO_TICK(50),
-
-    // dje: Added November 10, 2010
-    //! Time in ticks a device waits for a transaction to end (ACK or new transaction) (100ms)
-    ONE_NET_TRN_END_TIME_OUT = MS_TO_TICK(100),
 
     //! The base time in ticks for the retransmit delay for low priority
     //! transactions (10ms)
@@ -133,7 +129,7 @@ typedef enum
     ONE_NET_US_CHANNEL_24,                              //!< 926.0Mhz
     ONE_NET_US_CHANNEL_25,                              //!< 927.0Mhz
     ONE_NET_MAX_US_CHANNEL = ONE_NET_US_CHANNEL_25,     //!< Max US frequency
-
+    
     // European frequencies
     ONE_NET_MIN_EUR_CHANNEL,                            //!< Min European freq.
     ONE_NET_EUR_CHANNEL_1 = ONE_NET_MIN_EUR_CHANNEL,    //!< 865.8Mhz
@@ -154,7 +150,7 @@ typedef enum
 //! \defgroup ONE-NET_port_const_typedefs
 //! \ingroup ONE-NET_port_const
 //! @{
-
+    
 //! @} ONE-NET_port_const_typedefs
 //                                  TYPEDEFS END
 //==============================================================================

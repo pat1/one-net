@@ -7,7 +7,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
     These are constants that are specific to each ONE-NET device.  This file
     should be copied to a project specific location and renamed to
     one_net_timer_port_const.h.
-
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -58,7 +58,7 @@
 
 /*!
     \brief Timers used by the application
-
+    
     If the application wishes to use the one_net_timer module, it must add
     the the timers it uses before NUM_APP_TIMERS, starting with 0, and
     incrementing with each timer used.  These timer enurations are how
@@ -80,7 +80,7 @@ enum
 //! \defgroup ONE-NET_TIMER_PORT_CONST_typedefs
 //! \ingroup ONE-NET_TIMER_PORT_CONST
 //! @{
-
+    
 //! @} ONE-NET_TIMER_PORT_CONST_typedefs
 //                                  TYPEDEFS END
 //=============================================================================

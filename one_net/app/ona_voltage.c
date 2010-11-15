@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -250,7 +250,7 @@ one_net_status_t ona_send_voltage_query(const one_net_raw_did_t * RAW_DST)
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload), sizeof(payload),
       ONE_NET_LOW_PRIORITY, RAW_DST, ONE_NET_DEV_UNIT);
@@ -379,7 +379,7 @@ static one_net_status_t ona_send_voltage(UInt8 TYPE,
 
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
     UInt8 voltage_data[ONA_MSG_NUM_BYTES];
-
+    
     if((TYPE != ONA_VOLTAGE_VOLTS && TYPE != ONA_VOLTAGE_10THS_VOLTS
       && TYPE != ONA_VOLTAGE_100THS_VOLTS)
       || VOLTAGE_SRC & ~(ONA_VOLTAGE_EXT_BAT_STATUS)
@@ -394,7 +394,7 @@ static one_net_status_t ona_send_voltage(UInt8 TYPE,
 
     //
     // concatenate the three voltage fields in a three byte buffer
-    // 2 bits voltage source, 11 bits battery voltage,
+    // 2 bits voltage source, 11 bits battery voltage, 
     // 11 bits external voltage
     //
 
@@ -416,7 +416,7 @@ static one_net_status_t ona_send_voltage(UInt8 TYPE,
 
     // store the concatenated voltage fields in the payload
     put_three_message_bytes_to_payload(voltage_data, payload);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload), sizeof(payload),
       ONE_NET_LOW_PRIORITY, RAW_DST, ONE_NET_DEV_UNIT);
@@ -454,7 +454,7 @@ static one_net_status_t ona_parse_voltage(const UInt8 * PAYLOAD,
     *battery_voltage = ((UInt16) (msg_byte & ONA_VOLTAGE_BATTERY_BUILD_HIGH_MASK))
       << ONA_VOLTAGE_BATTERY_HIGH_SHIFT;
     msg_byte = get_second_msg_byte(PAYLOAD);
-    *battery_voltage |=
+    *battery_voltage |= 
       (UInt16) ((msg_byte >> ONA_VOLTAGE_BATTERY_LOW_SHIFT)) & ONA_VOLTAGE_BATTERY_PARSE_LOW_MASK;
 
     // parse external voltage

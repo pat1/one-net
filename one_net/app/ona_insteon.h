@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ enum
 
 enum
 {
-    //! Index of Insteon address in data portion of Insteon to Address payload
+    //! Index of Insteon address in data portion of Insteon to Address payload 
     ONA_ION_ADDR_IDX = 0,
 
     //! Index of flag field in data portion of Insteon Command payload
@@ -141,7 +141,7 @@ one_net_status_t ona_send_insteon_command(const UInt8 SRC_UNIT,
   const UInt8 DST_UNIT, const UInt8 FLAGS, const ona_insteon_command_t CMD,
   const one_net_raw_did_t * const RAW_DST);
 
-one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_insteon_to_addr(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, ona_insteon_addr_t * to_addr);
 
 one_net_status_t ona_parse_insteon_command(const UInt8 * const MSG_DATA,

@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -125,7 +125,7 @@ void processor_sleep(const UInt32 MS);
 
 /*!
     \brief Converts a string to a long.
-
+    
     This macro is here because of the R8C library declared some of the pointers
     as _far pointers.  Other processors don't know about different pointer
     sizes, so this keeps the processor independance of the files where strtol

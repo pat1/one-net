@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@
     \return the status of the send action
 */
 one_net_status_t ona_send_switch_status(
-        UInt8 SRC_UNIT, UInt8 DST_UNIT, UInt16 SWITCH_STATUS,
+        UInt8 SRC_UNIT, UInt8 DST_UNIT, UInt16 SWITCH_STATUS, 
         const one_net_raw_did_t *RAW_DST)
 {
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
@@ -110,7 +110,7 @@ one_net_status_t ona_send_switch_status(
     put_src_unit(SRC_UNIT, payload);
     put_dst_unit(DST_UNIT, payload);
     put_msg_data(SWITCH_STATUS, payload);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload),
       ONA_MSG_NUM_BYTES, ONE_NET_HIGH_PRIORITY,
@@ -156,7 +156,7 @@ one_net_status_t ona_send_switch_command(
     \return the status of the send action
 */
 one_net_status_t ona_send_switch_query(
-        UInt8 SRC_UNIT, UInt8 DST_UNIT,
+        UInt8 SRC_UNIT, UInt8 DST_UNIT, 
         const one_net_raw_did_t *RAW_DST)
 {
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
@@ -188,7 +188,7 @@ one_net_status_t ona_send_switch_query(
          must hold a valid value (ON, OFF, TOGGLE)
 */
 one_net_status_t ona_parse_switch(
-        const UInt8 *MSG_DATA,
+        const UInt8 *MSG_DATA, 
         UInt8 *src_unit, UInt8 *dst_unit, UInt16 *switch_status)
 {
     // error checking
@@ -204,7 +204,7 @@ one_net_status_t ona_parse_switch(
 
     // switch status
     *switch_status = get_msg_data(MSG_DATA);
-
+    
     // make sure a valid value was received
     switch(*switch_status)
     {
@@ -214,7 +214,7 @@ one_net_status_t ona_parse_switch(
         {
             break;
         } // valid values case //
-
+        
         default:
         {
             return ONS_INVALID_DATA;

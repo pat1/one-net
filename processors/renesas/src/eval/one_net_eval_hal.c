@@ -297,6 +297,7 @@ BOOL eval_load(const UInt8 NV_DATA_TYPE, UInt16 * const len,
 */
 BOOL eval_save(void)
 {
+
     // 
     // using the dfi interface for accessing data flash from the eval board.
     //
@@ -310,8 +311,6 @@ BOOL eval_save(void)
     //
     // data flash segment type DFI_ST_APP_DATA_2 will be used to store peer assignment
     // date (see extra_device_* variables below).
-    //
-
     //
     //
     // for the client,
@@ -329,7 +328,6 @@ BOOL eval_save(void)
     UInt16 extra_device_data_len;
     dfi_segment_type_t settings_segment_type;
     UInt8 pin_type[NUM_USER_PINS];
-	
 
     //
     // force the save since the data may contain nonces which will cause the crc
@@ -392,7 +390,7 @@ BOOL eval_save(void)
             return FALSE;
         }
     } 
-	   
+    
     return TRUE;
 } // eval_save //
 

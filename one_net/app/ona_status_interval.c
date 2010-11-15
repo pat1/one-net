@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 
     This is the implementation to send and parse status interval msgs.
     Any ONE-NET devices that sends or receives status interval msgs will
-    include and use this code.
+    include and use this code.  
 */
 
 #include "ona_status_interval.h"
@@ -95,7 +95,7 @@
     \param[in] SRC_UNIT, source unit of msg
     \param[in] DST_UNIT, destination unit of msg
     \param[in] RAW_DST, the destination device id
-
+    
     \return the status of the send action
 */
 one_net_status_t send_status_interval_query(const UInt8 SRC_UNIT,
@@ -139,7 +139,7 @@ one_net_status_t ona_send_status_interval_status(
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
     one_net_status_t rv = ONS_SUCCESS;
     BOOL proceed = TRUE;
-
+    
     UInt16 class_type = ONA_STATUS;
 
     payload[ONA_STI_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
@@ -153,13 +153,13 @@ one_net_status_t ona_send_status_interval_status(
             class_type |= ONA_STATUS_INTERVAL_SECONDS;
             break;
         } // ONA_SECONDS //
-
+        
         case ONA_MINUTES:
         {
             class_type |= ONA_STATUS_INTERVAL_MINUTES;
             break;
         } // ONA_MINUTES //
-
+        
         case ONA_HOURS:
         {
             class_type |= ONA_STATUS_INTERVAL_HOURS;
@@ -205,7 +205,7 @@ one_net_status_t ona_send_status_interval_command(
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
     one_net_status_t rv = ONS_SUCCESS;
     BOOL proceed = TRUE;
-
+    
     UInt16 class_type = ONA_COMMAND;
 
     payload[ONA_STI_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
@@ -219,13 +219,13 @@ one_net_status_t ona_send_status_interval_command(
             class_type |= ONA_STATUS_INTERVAL_SECONDS;
             break;
         } // ONA_SECONDS //
-
+        
         case ONA_MINUTES:
         {
             class_type |= ONA_STATUS_INTERVAL_MINUTES;
             break;
         } // ONA_MINUTES //
-
+        
         case ONA_HOURS:
         {
             class_type |= ONA_STATUS_INTERVAL_HOURS;

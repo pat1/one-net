@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,7 @@ void processor_sleep(const UInt32 MS);
 
 /*!
     \brief Initializes the SPI port
-
+    
     \param[in] MASTER TRUE if the device is a SPI MASTER
                       FALSE if the device is a SPI SLAVE
     \param[in] CLK_POLARITY 0 for cpol = 0 (read on rising edge, change on
@@ -154,7 +154,7 @@ void processor_sleep(const UInt32 MS);
                      !0 for cpha = 1
     \param[in] MSB TRUE to send most significant bit first.
                    FALSE to send least significant bit first.
-
+    
     \return void
 */
 #define INIT_SPI(MASTER, CLK_POLARITY, PHASE, MSB) \

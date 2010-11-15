@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -109,12 +109,12 @@ one_net_status_t ona_send_percent_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_PERCENT;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_PCT_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_PCT_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_PCT_STATUS_IDX + ONA_MSG_DATA_IDX] = PERCENT_STATUS;
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -133,7 +133,7 @@ one_net_status_t ona_send_percent_status(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_send_percent_command(const UInt8 SRC_UNIT,
+one_net_status_t ona_send_percent_command(const UInt8 SRC_UNIT, 
   const UInt8 DST_UNIT, const UInt8 PERCENT_STATUS,
   const one_net_raw_did_t * const RAW_DST)
 {
@@ -142,7 +142,7 @@ one_net_status_t ona_send_percent_command(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_PERCENT;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_PCT_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_PCT_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_PCT_STATUS_IDX + ONA_MSG_DATA_IDX] = PERCENT_STATUS;
@@ -172,13 +172,13 @@ one_net_status_t ona_send_percent_query(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_PERCENT;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_PCT_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_PCT_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
 
     // TBD: make this random ?
     payload[ONA_PCT_STATUS_IDX + ONA_MSG_DATA_IDX] = 0x00;
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -198,7 +198,7 @@ one_net_status_t ona_send_percent_query(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_percent(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_percent(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit, UInt8 * percent_status)
 {
     BOOL proceed = TRUE;
@@ -220,7 +220,7 @@ one_net_status_t ona_parse_percent(const UInt8 * const MSG_DATA,
         // percent status
         *percent_status = MSG_DATA[ONA_PCT_STATUS_IDX];
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_percent //
 

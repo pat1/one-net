@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -106,12 +106,12 @@ one_net_status_t ona_send_temperature_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_TEMPERATURE;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_TEMPERATURE_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(TEMPERATURE,
       &payload[ONA_TEMPERATURE_TEMPERATURE_IDX + ONA_MSG_DATA_IDX]);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload),
       ONA_TEMPERATURE_UNIT_IDX + ONA_MSG_DATA_IDX, ONE_NET_LOW_PRIORITY,
@@ -136,12 +136,12 @@ one_net_status_t ona_send_temperature_command(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_TEMPERATURE;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_TEMPERATURE_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(TEMPERATURE,
       &payload[ONA_TEMPERATURE_TEMPERATURE_IDX + ONA_MSG_DATA_IDX]);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload),
       ONA_TEMPERATURE_UNIT_IDX + ONA_MSG_DATA_IDX,
@@ -165,7 +165,7 @@ one_net_status_t ona_send_temperature_query(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_TEMPERATURE;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_TEMPERATURE_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
 
     // send payload
@@ -184,7 +184,7 @@ one_net_status_t ona_send_temperature_query(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_temperature(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_temperature(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * unit, UInt16 * temperature)
 {
     // error checking

@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 
     This is the implementation of the application layer of ONE-NET
     for a humidity sensor.  Any ONE-NET device that includes
-    a humidity sensor will want to include and use this code.
+    a humidity sensor will want to include and use this code.  
 */
 
 #include "ona_humidity.h"
@@ -110,14 +110,14 @@ one_net_status_t ona_send_humidity_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_HUMIDITY;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_HUMIDITY_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(HUMI,
       &payload[ONA_HUMIDITY_HUMIDITY_IDX + ONA_MSG_DATA_IDX]);
-
+    
     // send payload
-    return (*one_net_send_single)(payload, sizeof(payload),
+    return (*one_net_send_single)(payload, sizeof(payload), 
       ONA_HUMIDITY_UNIT_IDX + ONA_MSG_DATA_IDX, ONE_NET_LOW_PRIORITY, RAW_DST,
       SRC_UNIT);
 } // ona_send_humidity_status //
@@ -140,12 +140,12 @@ one_net_status_t ona_send_humidity_command(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_HUMIDITY;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_HUMIDITY_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     one_net_int16_to_byte_stream(HUMI,
       &payload[ONA_HUMIDITY_HUMIDITY_IDX + ONA_MSG_DATA_IDX]);
-
+    
     // send payload
     return (*one_net_send_single)(payload, sizeof(payload),
       ONA_HUMIDITY_UNIT_IDX + ONA_MSG_DATA_IDX, ONE_NET_LOW_PRIORITY, RAW_DST,
@@ -169,7 +169,7 @@ one_net_status_t ona_send_humidity_query(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_HUMIDITY;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_HUMIDITY_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
 
     // send payload
@@ -189,7 +189,7 @@ one_net_status_t ona_send_humidity_query(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_humidity(const UInt8 * const MESSAGE_DATA,
+one_net_status_t ona_parse_humidity(const UInt8 * const MESSAGE_DATA, 
   const UInt8 LEN, UInt8 * unit, UInt16 * humi)
 {
     if(!MESSAGE_DATA || !unit || !humi || LEN != ONA_MSG_DATA_LEN)

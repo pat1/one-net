@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ typedef enum
 {
     //! Value that represents start of unused flash data
     INVALID_FLASH_DATA = 0xFF,
-
+    
     //! Value that represents the start of ONE-NET paramets
     ONE_NET_CLIENT_FLASH_DATA = 0x00
 } nv_data_t;
@@ -153,9 +153,9 @@ const UInt8 * read_param(UInt16 * const len)
 
 /*!
     \brief Clears the contents of the data flash.
-
+    
     \param void
-
+    
     \return void
 */
 void clr_flash(void)
@@ -174,9 +174,9 @@ void clr_flash(void)
 
     Checks if the uart rx & tx pins are connected to indicate that the flash
     should be erased.
-
+    
     \param void
-
+    
     \return void
 */
 void flash_erase_check(void)
@@ -186,7 +186,7 @@ void flash_erase_check(void)
 #else
     tick_t timer;
     UInt8 i, j;
-
+    
     FLASH_CHECK_TX_PIN_DIR = OUTPUT;
     FLASH_CHECK_RX_PIN_DIR = INPUT;
 
@@ -203,14 +203,14 @@ void flash_erase_check(void)
             } // if the pins aren't connected //
         } // loop to poll the rx pin and make sure it matches the tx pin //
     } // outer loop to check if rx & tx
-
+    
     FLASH_CHECK_TX_PIN = 0;
     RX_LED = 0;
     TX_LED = 1;
     timer = one_net_tick() + (TICK_1S << 1);
     // the flash should be erased
     clr_flash();
-
+    
     while(one_net_tick() < timer);
     TX_LED = 0;
 #endif
@@ -240,7 +240,7 @@ void one_net_client_save_settings(const UInt8 * PARAM, const UInt16 PARAM_LEN)
         {
             EXIT();
         } // could not erase the blocks //
-
+        
         nv_addr = (UInt8 *)DF_BLOCK_START;
     } // if the address is not in range //
 

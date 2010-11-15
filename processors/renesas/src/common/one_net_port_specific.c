@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -91,40 +91,7 @@
 //! \ingroup ONE-NET_impl_specific
 //! @{
 
-
-
-/*
- * dje: The next function (short version of memmove) was used in
- * versions before 1.6.0.
- * It has the problem that it doesn't handle cases where the source
- * is below the destination and the buffers overlap.  It really,
- * really (really) shouldn't have been named one_net_memmove. 
- * (It should have been named one_net_memcpy or some such thing.)
- * 
- * Anyhow...
- *
- * Versions of one-net before 1.6.0 apparently used it without ever
- * calling it with fatal overlaps.  This is a Bad Thing, and, in fact
- * programmers working on 1.6 didn't know it was unsafe and wasted
- * a lot of time running down the bug.  (In my opinion, the unfortunate
- * choice of the name was just not a matter of bad style, but it was
- * a bug waiting to manifest itself.  Really.)
- *
- * So...
- *
- * I'll leave it here 'just in case,' but I'll disable it in favor of
- * the "real" memmove (the safe one) that follows.
- *
- * Dave Evans
- * Threshold Corporation
- * November 5, 2010
- *
- */
-
-#ifdef _USE_UNSAFE_MEMMOVE
-/*
- * This is the Bad Boy
-*/
+#ifndef _USE_NEW_MEMMOVE
 void * one_net_memmove(void * dst, const void * SRC, size_t len)
 {
     const UInt8 * S = SRC;
@@ -145,53 +112,31 @@ void * one_net_memmove(void * dst, const void * SRC, size_t len)
     return dst;
 } // one_net_memmove //
 #else
-
-
-/* 
- * Safe copy src to dst is consistent with standard C library
- * function memmove, and handles all cases whether the
- * buffers overlap or not.
- *
- * Note that this takes 23 more bytes than the above function.
- *
- * If you really, really can't spare the 23 bytes, then you can try
- * the simpler one, but if you do, it is up to you to make
- * absoutely sure that it is guarandamnteed that you don't
- * call it with a bad overlap.  In fact, you should rename it
- * to one_net_memcpy and change all calls in your source code.
- *
- * dje: The previous version of this one had a (really) fatal bug:
- * It copied the destination buffer to source!
- *
- * Fixed and tested Novermber 5, 2010.
- * Dave Evans
- * Threshold Corporation
- *
+/* Safe copy src to dst is consistent with standard C library
+ * function mammove (but is larger than the old one_net_memmove).
  */
-void *one_net_memmove(void *dst, const void *src, size_t n)
+void * one_net_memmove(void * dst, const void * src, size_t n)
 {
-    UInt8 *d = dst;
-    const UInt8 *s = src;
-
-    if (!d || !s) { /* no recovery but at least don't crash */
+    UInt8 *d;
+    UInt8 *s;
+    d = dst;
+    s = src;
+    if (!d || !s) { // no recovery but don't crash
         return NULL;
     }
-	
-	// copy from beginning to end a byte at a time
-    if ((d < s) && (s < (d + n))) {
-        for (; n > 0; --n) {
-            *(d++) = *(s++);
+    if ((d < s) && (s < (d + n))) {/* copy from high to low */
+        for (s += n,d += n; n > 0; --n) {
+            *(--s) = *(--d);
         }
     }
-	// copy in reverse order from end to beginning a byte at a time
     else {
-        for (d += n, s += n; n > 0; --n) {
-            *(--d) = *(--s);
+        for (; n > 0; --n) {
+            *(s++) = *(d++);
         }
     }
     return dst;
 }
-#endif //_USE_SAFE_MEMMOVE
+#endif
 
 SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 {
@@ -302,6 +247,3 @@ UInt32 one_net_tick_to_ms(const tick_t TICK)
 //==============================================================================
 
 //! @} ONE-NET_impl_specific
-
-
-

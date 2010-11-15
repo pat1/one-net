@@ -7,7 +7,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
     \brief Declarations for ONE-NET status interval msgs
 
     These functions SHOULD be called by application code to send and
-    process status interval msgs.
+    process status interval msgs.  
 */
 
 #include "one_net.h"

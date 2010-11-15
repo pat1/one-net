@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
     \file ona_opening.c
     \brief Implementation of opening msg functions.
 
-    This is the implementation of functions to send an parse
+    This is the implementation of functions to send an parse 
     opening msgs.
 */
 
@@ -111,12 +111,12 @@ one_net_status_t ona_send_opening_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_OPENING;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_OPEN_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_OPEN_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_OPEN_STATUS_IDX + ONA_MSG_DATA_IDX] = (UInt8)OPENING_STATUS;
-
+    
     // send payload
     rv = (*ona_net_send_single)(payload, sizeof(payload), ONE_NET_HIGH_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -135,7 +135,7 @@ one_net_status_t ona_send_opening_status(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_send_opening_command(const UInt8 SRC_UNIT,
+one_net_status_t ona_send_opening_command(const UInt8 SRC_UNIT, 
   const UInt8 DST_UNIT, const ona_opening_status_t OPENING_STATUS,
   const one_net_raw_did_t * const RAW_DST)
 {
@@ -144,7 +144,7 @@ one_net_status_t ona_send_opening_command(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_OPENING;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_OPEN_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_OPEN_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_OPEN_STATUS_IDX + ONA_MSG_DATA_IDX] = (UInt8)OPENING_STATUS;
@@ -174,13 +174,13 @@ one_net_status_t ona_send_opening_query(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_OPENING;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_OPEN_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_OPEN_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
 
     // TBD: make this random ?
     payload[ONA_OPEN_STATUS_IDX + ONA_MSG_DATA_IDX] = 0x00;
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_HIGH_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -200,8 +200,8 @@ one_net_status_t ona_send_opening_query(const UInt8 SRC_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_opening(const UInt8 * const MSG_DATA,
-  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit,
+one_net_status_t ona_parse_opening(const UInt8 * const MSG_DATA, 
+  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit, 
   ona_opening_status_t * opening_status)
 {
     BOOL proceed = TRUE;
@@ -223,7 +223,7 @@ one_net_status_t ona_parse_opening(const UInt8 * const MSG_DATA,
         // opening status
         *opening_status = (opening_status_t)MSG_DATA[ONA_OPEN_STATUS_IDX];
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_opening //
 

@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -111,10 +111,10 @@ void tal_init_ports(void)
 
     IRQ0_DIR = INPUT;
     DCLK_IRQ1_DIR = INPUT;
-
+    
     NSS_CFG_DIR = OUTPUT;
     NSS_DATA_DIR = OUTPUT;
-
+    
     NSS_CFG = 1;
     NSS_DATA = 1;
 } // tal_init_ports //
@@ -136,22 +136,22 @@ void init_rf_interrupts(void)
     // TIMER z count source = f1
     DISABLE_TX_BIT_INTERRUPTS();
     DISABLE_RX_BIT_INTERRUPTS();
-
+    
     tzck0 = 0;
     tzck1 = 0;
-
+    
     /*
         Prescaler and timer register initialization
-
+        
         19.5MHz : 254 * 2 ~ 26.05us for 38400 bits/sec
         possible)
     */
     prez = 254 - 1;                 // Setting Prescaler Z register
     tzpr = 2 - 1;                   // Setting timer Z register
-
+    
     tzmr = 0x00;                    // Timer Z : timer mode
     tzic = 5;                       // Interrupt priority level = 5
-
+    
     ir_tzic = 0;                    // Interrupt request flag clear
 
     // initialize the INT1 interrupt to handle DATACLK for receive mode
@@ -190,7 +190,7 @@ void tx_bit_isr(void)
     {
         RF_DATA = 0;
     } // else the bit is low //
-
+    
     bit_mask >>= 1;
     if(bit_mask == 0x00)
     {

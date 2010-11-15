@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
     \brief ONE-NET MASTER functionality implementation
 
     Derives from ONE-NET.  MASTER dependent functionality.
-
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -51,9 +51,6 @@
 #include "one_net_master_port_specific.h"
 #include "one_net_timer.h"
 #include "one_net_prand.h"
-
-//Derek_S 11/4/2010
-#include "one_net_eval.h"
 
 #ifdef _ONE_NET_EVAL
     #include "oncli.h"
@@ -168,12 +165,6 @@ typedef struct
     UInt8 pkt_data[ONE_NET_MAX_ENCODED_PKT_LEN];
 } pkt_mgr_t;
 
-
-// Derek_S 11/4/2010 - from master_eval.c.  needed to remove peer assignments
-//                     when removing a device.
-oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit);
-
 //! @} ONE-NET_MASTER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -196,7 +187,7 @@ extern on_state_t on_state;
 //! non-volatile memory.  Parameters will point to locations in the array
 static UInt8 nv_param[sizeof(on_base_param_t) + sizeof(on_master_param_t)
   + ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t)];
-
+  
 //! "Protected" base parameters variable inherited from one_net.c
 extern on_base_param_t * on_base_param;
 
@@ -449,11 +440,6 @@ static BOOL b_s_in_progress(const UInt8 TYPE,
 
 static one_net_status_t build_txn_data_pkt(const UInt8 TXN);
 
-// Derek_S 11/1/2010 - some functions to help convert between types
-static UInt8 raw_did_to_did_used_index(const one_net_raw_did_t* const raw_client_did);
-static UInt8 raw_did_to_client_list_index(const one_net_raw_did_t* const raw_client_did);
-static UInt8 client_list_index_to_did_used_index(UInt8 client_list_index);
-
 static on_client_t * get_free_client_info(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static void rm_client(const on_encoded_did_t * const CLIENT_DID);
@@ -489,12 +475,12 @@ static void save_param(void);
 
 /*!
     \brief Starts a new ONE-NET network.
-
+    
     This should be called the very first time the MASTER starts up.  It creates
     a new ONE-NET network.  Once the network has been created, call
     one_net_master_init to initialize the MASTER with the network created when
     this function is called.
-
+    
     \param[in] SID The raw SID of the MASTER.
     \param[in] KEY The xtea key to use for single and block transactions.
     \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
@@ -502,7 +488,7 @@ static void save_param(void);
     \param[in] STREAM_KEY The xtea key to use for stream transactions.
     \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
       when they are sent.
-
+    
     \return ONS_SUCCESS if the network was created.
             ONS_BAD_PARAM if the parameter was invalid
 */
@@ -512,8 +498,6 @@ one_net_status_t one_net_master_create_network(
   const one_net_xtea_key_t * const STREAM_KEY,
   const UInt8 STREAM_ENCRYPT_METHOD)
 {
-	UInt8 i;
-
     if(!SID || !KEY
       || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
       || !STREAM_KEY || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
@@ -543,24 +527,15 @@ one_net_status_t one_net_master_create_network(
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
 
-
-    // Derek_S 11/1/2010
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		master_param->did_used[i] = FALSE;
-	}
-
-	// Derek_S 11/2/2010 - Let update_client_count function handle this.
-    update_client_count(master_param);
-    //master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-    //master_param->client_count = 0;
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    master_param->client_count = 0;
 
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
     ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
     ont_set_timer(ONT_CHANGE_KEY_TIMER, ONE_NET_MASTER_CHANNEL_SCAN_TIME);
     on_state = ON_JOIN_NETWORK;
-
+    
     return ONS_SUCCESS;
 } // one_net_master_create_network //
 
@@ -588,34 +563,28 @@ one_net_status_t one_net_master_create_network(
 one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN)
 {
-	UInt8 i;
-
     // The number of bytes in the non-volatile parameter buffer that have been
     // initialized so far.
     static UInt16 param_size_initialized = 0;
 
     // The number of bytes expected to initialize the parameters
     UInt16 param_size_expected;
-
-
+    
+    UInt8 i;
 
     if(!PARAM || !PARAM_LEN)
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-
+    
     if(sizeof(nv_param) < param_size_initialized + PARAM_LEN)
     {
         param_size_initialized = 0;
         return ONS_INVALID_DATA;
     } // if more data passed in than expected //
-
+    
     one_net_memmove(&(nv_param[param_size_initialized]), PARAM, PARAM_LEN);
     param_size_initialized += PARAM_LEN;
-
-
-    // Derek_S 11/1/2010 - I'm confused by this comment below.  It seems to me
-	// that the client count should have been initialized by now.
 
     // don't worry about master_param->client count not being initialized yet
     // since that will be checked before this value is used
@@ -648,10 +617,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
         param_size_initialized = 0;
         return ONS_INVALID_DATA;
     } // if the parameter version does not match or crc's don't match //
-
-	// Derek_S 11/2/2010 - The call below should be unnecessary, but can't hurt
-	update_client_count(master_param);
-
+    
     for(i = 0; i < master_param->client_count; i++)
     {
         if((client_list[i].features & ON_MH_CAPABLE) &&
@@ -661,13 +627,10 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
             break;
         } // if a mh repeater capable CLIENT was found //
     } // loop to look for any Multi-Hop repeaters //
-
+    
     init_internal();
-
+    
     on_state = ON_LISTEN_FOR_DATA;
-
-    // Derek_S 11/2/2010 - What does client count have to do with whether
-	// we're in the middle of changing the key?
 
     // check to see if in the middle of changing the key
     if(master_param->client_count)
@@ -675,174 +638,20 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
         check_key_update(FALSE);
         check_stream_key_update(FALSE);
     } // if there are devices in the network //
-
+    
     param_size_initialized = 0;
-
-	// Derek_S 10/25/2010 added call to save_param() below.  "list" command
-	// does not work without it after a "save" and power cycle.
-	// TO-DO : Is this the proper place for this call to save_param() and is
-	// the if condition below necessary (i.e. is there a downside/upside to calling
-	// save_param() when there are no clients?)
-	if(master_param->client_count > 0)
-	{
-		save_param(); // This function changes a NULL pointer to a real pointer.
-		              // "list" needs the real pointer to be accurate.
-	}
-
     return ONS_SUCCESS;
 } // one_net_master_init //
 
 
-// Derek_S 11/1/2010
-/*!
-    \brief Updates the master's parameters to reflect the dids used.
-
-    Updates the master's client count, adjusts the array of dids that
-	are already assigned, and c\figures out what the next did to be
-	assigned should be
-
-    \param[in] master_param Master settings of the network.
-*/
-void update_client_count(on_master_param_t* master_param)
-{
-	// TO DO : Possibly change this function to take no parameters, since
-	// master_param is global.
-    UInt8 i;
-	BOOL found_next_client_did;
-
-	found_next_client_did = FALSE;
-	master_param->client_count = 0;
-	master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		if(master_param->did_used[i])
-		{
-			(master_param->client_count)++;
-			if(!found_next_client_did)
-			{
-			    (master_param->next_client_did) += ON_CLIENT_DID_INCREMENT;
-			}
-		}
-		else
-		{
-			found_next_client_did = TRUE;
-		}
-	}
-}
-
-
-// Derek_S 11/1/2010
-/*!
-    \brief Helper function for some conversions.
-	
-    A quick conversion of raw_did to a usable array index.
-	0020 is the lowest possible client did, so it will map to 0.
-	0030 is the next lowest client did, so it will map to 1.
-	0040 is the next lowest client did, so it will map to 2.
-	0050 maps to 3, 0060 maps to 4, and do on
-
-    \param[in] raw_client_did Raw did of a client
-
-    \return The corresponding "index" for that possible client did
-*/
-static UInt8 raw_did_to_did_used_index(const one_net_raw_did_t* const raw_client_did)
-{
-	UInt16 uint16_cli_id; // quick conversion from array to UInt16 so we can do math
-	UInt8 index;
-
-	uint16_cli_id = (*raw_client_did)[0];
-	uint16_cli_id *= 256;  // MSB portion.   Meaningless since always 0.  Well maybe not always
-	uint16_cli_id += (*raw_client_did)[1];
-
-	index = (UInt8)((uint16_cli_id - ONE_NET_INITIAL_CLIENT_DID) / ON_CLIENT_DID_INCREMENT);
-    return index; // this should be a number from 0 to ONE_NET_MASTER_MAX_CLIENTS - 1,
-	              // inclusive.  Shoiuld there be a test for this?
-}
-
-
-/*!
-    \brief Helper function for some conversions between arrays.
-	
-	If the master has the following clients: 0030, 0040, 0060
-	and raw_client_did is 0030, this function would return 0.
-	If raw_client is 0040, this function would return 1.
-	If raw_client is 0060, this function would return 2.
-	
-	If there are no gaps in dids in the network, this function will return the
-	same value as a call to raw_did_to_did_used_index.  If there ARE gaps in the
-	dids for this network, the return value of this function will be less than a
-	call to raw_did_to_did_used_index.
-
-    \param[in] raw_client_did Raw did of a client
-
-    \return index of that client in the master's table.
-*/
-static UInt8 raw_did_to_client_list_index(const one_net_raw_did_t* const raw_client_did)
-{
-	UInt8 i;
-	UInt8 did_used_index;
-	UInt8 index;
-
-	// get the index for the master_param->did_used array
-	did_used_index = raw_did_to_did_used_index(raw_client_did);
-
-    index = 0;
-	for(i = 0; i < did_used_index; i++)
-	{
-		if(master_param->did_used[i])
-		{
-			index++;
-		}
-	}
-
-    return index; // this should be a number from 0 to ONE_NET_MASTER_MAX_CLIENTS - 1,
-	              // inclusive.  Shoiuld there be a test for this?
-}
-
-
-/*!
-    \brief Helper function for some conversions between arrays.
-
-    \param[in] client_list_index What needs to be looked up.
-
-    \return an index or 0xFF for error/not found
-*/
-// returns an index or 0xFF for error/not found
-static UInt8 client_list_index_to_did_used_index(UInt8 client_list_index)
-{
-	UInt8 i;
-	UInt8 num_clients_found = 0;
-
-    if(master_param->client_count <= client_list_index)
-	{
-	    return 0xFF;
-	}
-
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-	    if(master_param->did_used[i])
-		{
-			num_clients_found++;
-			if(num_clients_found > client_list_index)
-			{
-				return i;
-			}
-		}
-	}
-
-	return 0xFF; // error - not found
-}
-
-
 /*!
     \brief Returns the channel the MASTER is on.
-
+    
     If the MASTER has not yet picked a channel, ONE_NET_NUM_CHANNELS is
     returned.
-
+    
     \param void
-
+    
     \return The channel the MASTER is on or ONE_NET_NUM_CHANNELS
 */
 UInt8 one_net_master_get_channel(void)
@@ -851,7 +660,7 @@ UInt8 one_net_master_get_channel(void)
     {
         return ONE_NET_NUM_CHANNELS;
     } // if the channel has not yet been picked //
-
+    
     return on_base_param->channel;
 } // one_net_master_get_channel //
 
@@ -866,7 +675,7 @@ UInt8 one_net_master_get_channel(void)
     the raw destination address, while the remaining bytes will be left to
     contain the raw data (not all bytes will be used as the raw size is less
     than the encoded size).
-
+    
     This function may not use all the parameters.  The parameter list is
     identical to the client send single function so that the application
     layer can use function pointers.
@@ -933,7 +742,7 @@ one_net_status_t one_net_master_send_single(UInt8 * data,
     {
         free_txn(txn);
     } // else encoding failed //
-
+    
     return status;
 } // one_net_master_send_single //
 
@@ -977,7 +786,7 @@ one_net_status_t one_net_master_block_stream_request(UInt8 TYPE, BOOL SEND,
     {
         return status;
     } // if encoding the destination (of the admin packet) was not successful //
-
+    
     // make sure the address is valid //
     if(client_info((const on_encoded_did_t * const)&dst) == 0)
     {
@@ -1065,7 +874,7 @@ one_net_status_t one_net_master_change_client_data_rate(
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
-
+    
     if((status = on_encode(dst, *RAW_DID, sizeof(dst))) != ONS_SUCCESS)
     {
         return status;
@@ -1132,7 +941,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
 /*!
     \brief Changes the fragment delay of the MASTER or a CLIENT device depending
       on RAW_DST.
-
+    
     \param[in] RAW_DST The device to update
     \param[in] PRIORITY The fragment delay priority to update (high or low).
     \param[in] DELAY The new [low/high] fragment delay (in ms)
@@ -1166,7 +975,7 @@ one_net_status_t one_net_master_change_frag_dly(
     {
         return status;
     } // if encoding the dst did failed //
-
+        
     if(on_encoded_did_equal((const on_encoded_did_t * const)&dst,
       (const on_encoded_did_t * const)
       &(on_base_param->sid[ON_ENCODED_NID_LEN])))
@@ -1220,7 +1029,7 @@ one_net_status_t one_net_master_change_key(
   const one_net_xtea_key_fragment_t KEY_FRAGMENT)
 {
     UInt16 i;
-
+    
     if(on_state == ON_INIT_STATE || on_state == ON_JOIN_NETWORK)
     {
         return ONS_NOT_INIT;
@@ -1250,7 +1059,7 @@ one_net_status_t one_net_master_change_key(
       sizeof(one_net_xtea_key_fragment_t));
 
     save_param();
-
+    
     if(!master_param->client_count)
     {
         one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, 0, TRUE);
@@ -1278,7 +1087,7 @@ one_net_status_t one_net_master_change_stream_key(
   const one_net_xtea_key_t * const NEW_STREAM_KEY)
 {
     UInt16 i;
-
+    
     if(!NEW_STREAM_KEY)
     {
         return ONS_BAD_PARAM;
@@ -1301,7 +1110,7 @@ one_net_status_t one_net_master_change_stream_key(
     {
         client_list[i].use_current_stream_key = FALSE;
     } // loop to clear all the flags //
-
+    
     one_net_memmove(master_param->old_stream_key,
       on_base_param->stream_key, sizeof(master_param->old_stream_key));
     one_net_memmove(on_base_param->stream_key, *NEW_STREAM_KEY,
@@ -1350,7 +1159,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     on_encoded_did_t dst;
     UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
     UInt8 admin_type;
-
+    
     BOOL master_is_peer = FALSE;
 
     if(!PEER_DID || !DST_DID)
@@ -1471,7 +1280,7 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
             ONS_INCORRECT_ADDR If RAW_DST or RAW_PEER are not part of the
               network.
             ONS_INVALID_DATA If the peer is not operating at the data rate
-              passed in or the destination device
+              passed in or the destination device 
 */
 one_net_status_t one_net_master_change_peer_data_rate(
   const one_net_raw_did_t * const RAW_DST,
@@ -1624,7 +1433,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
-
+    
     if(on_state == ON_INIT_STATE || on_state == ON_JOIN_NETWORK)
     {
         return ONS_NOT_INIT;
@@ -1680,7 +1489,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY)
           ONE_NET_MASTER_INVITE_SEND_TIME);
         ont_set_timer(ONT_INVITE_TIMER, ONE_NET_MASTER_INVITE_DURATION);
     } // if the invite has successfully been created //
-
+    
     if(status != ONS_SUCCESS)
     {
         one_net_master_cancel_invite(
@@ -1717,7 +1526,7 @@ one_net_status_t one_net_master_cancel_invite(
     free_txn(invite_idx);
     ont_stop_timer(ONT_INVITE_TIMER);
     invite_idx = ONE_NET_MASTER_MAX_TXN;
-
+    
     for(i = 0; i < ONE_NET_XTEA_KEY_LEN; i++)
     {
         invite_key[i] = 0x00;
@@ -1729,7 +1538,7 @@ one_net_status_t one_net_master_cancel_invite(
 
 /*!
     \brief Starts the process to remove a device from the network.
-
+    
     \param[in] RAW_DST The device to remove from the network
 
     \return ONS_SUCCESS If the process to remove the device was started
@@ -1738,12 +1547,9 @@ one_net_status_t one_net_master_cancel_invite(
 one_net_status_t one_net_master_remove_device(
   const one_net_raw_did_t * const RAW_DST)
 {
-    // Derek_s 11/4/2010
-	UInt8 i;
-	on_encoded_did_t*  client_enc_did;
-	one_net_raw_did_t client_raw_did;
     on_encoded_did_t dst;
     one_net_status_t status;
+
     UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
 
     if(!RAW_DST)
@@ -1766,36 +1572,6 @@ one_net_status_t one_net_master_remove_device(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
 
-
-	oncli_send_msg("Deleting did %03x.  First removing all relevant peer assignments to did %03x.\n",
-	    did_to_u16(RAW_DST), did_to_u16(RAW_DST));
-
-	for(i = 0; i < master_param->client_count; i++)
-	{
-		client_enc_did = &(client_list[i].did);
-
-		if(on_encoded_did_equal(client_enc_did, &dst))
-		{
-			// it's the device we're removing anyway, so don't bother with any peer un-assignments
-			continue;
-		}
-
-		if(on_decode(client_raw_did, *client_enc_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
-		{
-			// error.  couldn't decode.  Skip this one.
-			continue;
-		}
-
-		// send out an unassign peer message to the client.  For the unit numbers, use ONE_NET_DEV_UNIT,
-		// which will remove ALL peeer assignments where the did we are deleting is the target.
-		one_net_master_peer_assignment(FALSE, RAW_DST, ONE_NET_DEV_UNIT, &client_raw_did,
-		    ONE_NET_DEV_UNIT);
-	}
-
-    // Now remove any master peer assignments to the device being deleted.
-    master_unassigned_peer(RAW_DST, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT);
-
-    // all client peer assignments to this did are removed.  Now remove the device itself
     return send_admin_pkt(ON_RM_DEV, ON_ADMIN_MSG,
       (const on_encoded_did_t * const)&dst, ONE_NET_LOW_PRIORITY, pld,
       sizeof(pld));
@@ -1813,27 +1589,6 @@ void one_net_master(void)
 {
     // The current transaction
     static on_txn_t * txn = 0;
-
-    // Derek_S 11/10/2010 - Call to save_param() seems to now be commented
-	// out.  Not sure what happened, but apparently there was a change and
-	// things seem to work.
-	
-	// TO-DO : Find out what replaced the call to save_param() and if the
-	// comment below is truly obsolete, as it appears to be, delete it so
-	// it doesn't confuse things.
-
-	// Derek_S 10/25/2010 - fixing problem with CLI "list" command
-	// force a "save" (note that "save" DOES NOT save to non-volatile
-	// memory.  It is separate from the CLI "save" command) so that
-	// the "list" command will have an appropriate flag.  If you type
-	// in "list" before anything "interesting" happens(i.e. key change, new
-	// client, etc., "list" won't perform properly upon a power cycle after
-	// a save.  So we call save_param() as sort of a memory jog, not because
-	// we are saving things.  "list" requires things to be "saved" at least once
-	// to work
-	//#ifdef _ONE_NET_EVAL
-	//    save_param();
-    //#endif
 
     // Do the appropriate action for the state the device is in.
     switch(on_state)
@@ -2177,7 +1932,7 @@ void one_net_master(void)
             check_stream_key_update(TRUE);
             break;
         } // listen_for_data case //
-
+        
         case ON_JOIN_NETWORK:
         {
             if(one_net_channel_is_clear())
@@ -2251,7 +2006,7 @@ void one_net_master(void)
 
                     single_txn_data_count--;
                     b_s_req.type = ON_NO_TXN;
-
+                    
                     if(txn_list[cur_txn_info].txn.msg_type == ON_ADMIN_MSG)
                     {
                         // if an admin message was used to set up the
@@ -2270,7 +2025,7 @@ void one_net_master(void)
 
                 cur_txn_info = ONE_NET_MASTER_MAX_TXN;
             } // if the transaction was completed successfully //
-
+            
             break;
         } // default case //
     } // switch(on_state) //
@@ -2282,11 +2037,9 @@ void one_net_master(void)
         save_param();
     } // if the parameters should be saved //
 } // one_net_master //
-
-
 /*!
     \brief Add a client to the current network.
-
+    
     This function can be used when you need to add a client
     to the current network and you do not want to use the normal
     invite/join process. A client is added with the information
@@ -2295,27 +2048,21 @@ void one_net_master(void)
 
     \param[in] CAPABILITIES Pointer to a structure holding the client's capabilities.
     \param[out] config Pointer to a structure used to return networl configuration information.
-
+    
     \return ONS_SUCCESS if the client was added.
             ONS_BAD_PARAM if the parameter was invalid.
             ONS_DEVICE_LIMIT if there is no room to hold another client.
             See on_decode error returns for the other values that may
             be returned.
 */
-// Derek_S 11/3/2010 - this function is a bit hard to test since we've been testing it by
-// inviting/deleting it the normal way.
-// TO -DO : test this to make sure nothing was missed.
 one_net_status_t one_net_master_add_client(
   const one_net_master_add_client_in_t * CAPABILITIES,
   one_net_master_add_client_out_t * config)
 {
-    // instead of separate arguments for values returned.
+    // instead of seperate arguments for values returned.
     one_net_status_t status;
-
-	UInt8 i;
-	UInt8 client_list_index;
     on_client_t * client;
-    UInt8 byte_stream_did[sizeof(UInt16)]; // Derek_S 11/2/2010 - perhaps make this sizeof(one_net_raw_did_t)?
+    UInt8 byte_stream_did[sizeof(UInt16)];
     UInt16 new_client_did;
     UInt16 raw_master_did;
     on_encoded_did_t encoded_client_did;
@@ -2323,45 +2070,32 @@ one_net_status_t one_net_master_add_client(
 
     // the following code was copied from the handle_admin_pkt function
     // and modified as needed
-
-    // a device is being added, find the next available client_t
-    // structure
+    
+    // a device is being added, find the next available client_t 
+    // structure 
     client = get_free_client_info();
 
     if(!client)
     {
-        // the master can't handle any more devices
+        // the master can't handle anymore devices
         status = ONS_DEVICE_LIMIT;
         return status;
     } // if the pointer is 0 //
 
-    // Derek_S 11/2/2010 - If it's in a gap, we want to shift downwards to make room.
-    new_client_did = master_param->next_client_did;
-	one_net_int16_to_byte_stream(new_client_did, byte_stream_did);
-	client_list_index = raw_did_to_client_list_index((one_net_raw_did_t*) byte_stream_did);
-
-	// if there's a gap, move things down to make room.
-	if(client_list_index < master_param->client_count)
-	{
-	    one_net_memmove(&(client_list[client_list_index + 1]),
-		    &(client_list[client_list_index]), (master_param->client_count -
-			client_list_index) * sizeof(on_client_t));
-	}
-
     // create an encoded version of this new client's DID
+    new_client_did = master_param->next_client_did;
+    one_net_int16_to_byte_stream(new_client_did, byte_stream_did); 
     on_encode(encoded_client_did, byte_stream_did, sizeof(on_encoded_did_t));
 
     //
-    // adjust the client fields in master_param
+    // adjust the client fields in master_param 
     //
-	// Derek_S 11/1/2010
-	master_param->did_used[(new_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	    ON_CLIENT_DID_INCREMENT] = TRUE;
-	update_client_count(master_param);
+    master_param->next_client_did += ON_CLIENT_DID_INCREMENT;
+    master_param->client_count++;
 
     //
     // initialize the fields in the client_t structure for this new client
-    //
+    // 
     one_net_memmove(client->did, encoded_client_did, sizeof(on_encoded_did_t));
     client->expected_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
     client->last_nonce = ON_MAX_NONCE + 1;
@@ -2395,7 +2129,7 @@ one_net_status_t one_net_master_add_client(
         features |= ON_MAC_FEATURES;
     }
     features |= (CAPABILITIES->max_peers_per_unit & 0x0f); //TODO: MR1: could not find a ONE-NET const for 0x0f
-
+    
     //
     // fill in the network configuration values this new client
     // will need to operate in this ONE-NET network.
@@ -2409,11 +2143,11 @@ one_net_status_t one_net_master_add_client(
       != ONS_SUCCESS)
     {
         return status;
-    }
-
+    } 
+    
     // extract the raw master DID from the end of the raw SID, before replacing it
     raw_master_did = config->raw_sid[ONE_NET_RAW_NID_LEN-1]<<8;// pick up the two byte DID
-    raw_master_did |= config->raw_sid[ONE_NET_RAW_NID_LEN];
+    raw_master_did |= config->raw_sid[ONE_NET_RAW_NID_LEN]; 
     raw_master_did <<= 4;                                   // and shift out the end of the NID
     config->master_did[0] = (raw_master_did>>8) & 0xff;     // store DID as a big endian
     config->master_did[1] = raw_master_did & 0xff;          // 16 bit value left justified
@@ -2445,7 +2179,7 @@ one_net_status_t one_net_master_add_client(
 
 /*!
     \brief Delete the last client added to the current network.
-
+    
     This function can be used when you need to delete the last client
     that was added to the current network. This will be necessary if
     you added a client using the one_net_master_add_client function
@@ -2453,10 +2187,10 @@ one_net_status_t one_net_master_add_client(
     obtained from the one_net_master_add_client call. The device ID (DID)
     of the client to be deleted is supplied to make sure the correct
     client is deleted. The DID provided must match the DID of the last
-    client add to the master's list of clients.
+    client add to the master's list of clients. 
 
     \param[in] raw_client_did Pointer to the raw DID of the client to be deleted.
-
+    
     \return ONS_SUCCESS if the client was deleted.
             ONS_INVALID_DATA if the client was not deleted.
 */
@@ -2465,7 +2199,6 @@ one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_clie
     one_net_status_t status;
     on_client_t * client;
     on_encoded_did_t encoded_client_did;
-	UInt8 index;
 
     // make sure there is at least one client
     if(master_param->client_count == 0)
@@ -2473,22 +2206,20 @@ one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_clie
         return ONS_INVALID_DATA;
     }
 
-	index = raw_did_to_client_list_index(raw_client_did);
-    client = &(client_list[index]);
+    // get the client information for the last client in the list
+    client = &(client_list[(master_param->client_count)-1]);
 
     // make sure the last client DID matches the DID provided
-    // encode the raw DID since the DID is stored in encoded form
+    // encode the raw DID since the DID is stored in encoded form 
     // in the client_t record
     on_encode(encoded_client_did, (UInt8 *)raw_client_did, sizeof(on_encoded_did_t));
     if ((encoded_client_did[0] != client->did[0]) || (encoded_client_did[1] != client->did[1]))
     {
         return ONS_INVALID_DATA;
     }
-
-    // delete this client by adjusting the did_used_array
-	index = raw_did_to_did_used_index(raw_client_did);
-	master_param->did_used[index] = FALSE;
-    update_client_count(master_param);
+    
+    // delete the last client by adjusting the client_count
+    master_param->client_count--;
 
     // save the new client list
     save = TRUE;
@@ -2510,17 +2241,17 @@ one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_clie
 
 /*!
     \brief Initializes internal data structures.
-
+    
     This will also initialize the base one_net functionality.
-
+    
     \param void
-
+    
     \return void
 */
 static void init_internal(void)
 {
     on_pkt_hdlr_set_t pkt_hdlr;
-
+    
     UInt8 i;
 
     data_rate_test.recv_idx = ONE_NET_MASTER_MAX_TXN;
@@ -2531,10 +2262,10 @@ static void init_internal(void)
       sizeof(data_rate_test.send_did));
     data_rate_test.timer = ONT_DATA_RATE_TEST_TIMER;
 
-    txn_head = ONE_NET_MASTER_MAX_TXN;
+    txn_head = ONE_NET_MASTER_MAX_TXN;    
     invite_idx = ONE_NET_MASTER_MAX_TXN;
     new_channel_clear_time_out = 0;
-
+    
     // Assign the timers that each transaction uses
     for(i = 0; i < ONE_NET_MASTER_MAX_TXN; i++)
     {
@@ -2582,7 +2313,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
     one_net_status_t status = ONS_INTERNAL_ERR;
     on_client_t * client;
 
-    one_net_raw_did_t raw_src_did;
+    one_net_raw_did_t raw_src_did;    
 
     UInt8 txn_nonce, resp_nonce, msg_type;
     BOOL tried_new_key = FALSE;
@@ -2602,7 +2333,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 
         return ONS_BAD_PARAM;
     } // if any parameter is invalid //
-
+    
     if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
       != ONS_SUCCESS)
     {
@@ -2683,7 +2414,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                   ONE_NET_RAW_SINGLE_DATA_LEN, &client);
                 break;
             } // admin message case //
-
+            
             case ON_EXTENDED_ADMIN_MSG:
             {
                 // MASTER does not currently receive any extended admin packets
@@ -2732,7 +2463,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
             }while(client->expected_nonce == client->last_nonce);
 
             response_txn.data_len = response_txn.pkt_size;
-
+            
             // if it's a repeat multi-hop packet, allow MAX_HOPS since it may
             // take more hops to get back than it took for the packet to arrive.
             #ifdef _ONE_NET_MULTI_HOP
@@ -3189,7 +2920,7 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
     {
         return ONS_INCORRECT_ADDR;
     } // if decoding the address was successful //
-
+    
     if((client = client_info(SRC_DID)) == 0)
     {
         return ONS_INCORRECT_ADDR;
@@ -3274,7 +3005,7 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
             {
                 pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_BLOCK_DATA_ACK
                   : ONE_NET_ENCODED_BLOCK_DATA_ACK;
-
+                
                 // if it's a repeat multi-hop packet, allow MAX_HOPS since it
                 // may take more hops to get back than it took for the packet
                 // to arrive.
@@ -3289,7 +3020,7 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
             } // else it's a stream transaction;
 
             client->last_nonce = client->expected_nonce;
-
+            
             // loop to make sure the expected nonce and last nonce don't match
             do
             {
@@ -3895,7 +3626,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-
+    
     #ifdef _ONE_NET_EVAL
         oncli_print_admin_msg(ON_ADMIN_MSG, ON_SINGLE,
           DATA[ON_ADMIN_MSG_ID_IDX], &(DATA[ON_ADMIN_DATA_IDX]),
@@ -3912,17 +3643,6 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
     {
         case ON_STATUS_RESP:
         {
-			// Derek_S 11/2/2010
-			UInt8 i;
-			UInt8 client_list_index;
-		    //on_client_t * client;
-		    UInt8 byte_stream_did[sizeof(UInt16)]; // Derek_S 11/2/2010 - perhaps make this sizeof(one_net_raw_did_t)?
-		    UInt16 new_client_did;
-		    //UInt16 raw_master_did;
-		    //on_encoded_did_t encoded_client_did;
-		    //UInt8 features = 0;
-
-
             // Make sure the version is something the MASTER handles
             if(DATA[ON_STATUS_VER_IDX + ON_ADMIN_DATA_IDX] != ON_VERSION)
             {
@@ -3953,7 +3673,11 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
                 } // if not inviting a CLIENT //
 
                 // the device was added
-
+                //// TODO: it seems like this needs to be tied to the DID 
+                //// that was given to the client during the invite message
+                //// rather than relying on the incremental allocation
+                //// of DIDs. We might to change get_free_client_info
+                //// to something such as get_client_info_for(DID)
                 *client = get_free_client_info();
 
                 if(!(*client))
@@ -3962,26 +3686,8 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
                     break;
                 } // if the pointer is 0 //
 
-				// Derek_S 11/2/2010 - If it's in a gap, we want to shift downwards to make room.
-                new_client_did = master_param->next_client_did;
-	            one_net_int16_to_byte_stream(new_client_did, byte_stream_did);
-	            client_list_index = raw_did_to_client_list_index((one_net_raw_did_t*) byte_stream_did);
-
-                // To DO : Now that one_net_memmove has been fixed, get rid of the
-				// loop and make it be one single one_net_memmove statement.
-				// I had thought I had done that and checked it in, but apparently
-				// not.
-				for(i = master_param->client_count; i > client_list_index; i--)
-				{
-				    one_net_memmove(&(client_list[i]), &(client_list[i-1]),
-			            sizeof(on_client_t));
-				}
-
-            	// Derek_S 11/1/2010
-	            master_param->did_used[(master_param->next_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	                ON_CLIENT_DID_INCREMENT] = TRUE;
-	            update_client_count(master_param);
-
+                master_param->next_client_did += ON_CLIENT_DID_INCREMENT;
+                master_param->client_count++;
                 one_net_master_invite_result(ONS_SUCCESS, invite_key,
                   &raw_src_did);
                 one_net_master_cancel_invite(
@@ -3996,7 +3702,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
                 (*client)->data_rate = on_base_param->data_rate;
                 (*client)->use_current_key = TRUE;
                 (*client)->max_hops = 0;
-
+                
                 // save the new client
                 save = TRUE;
             } // if the client was not found in the list //
@@ -4219,7 +3925,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
             } // if the transaction was not found //
             else
             {
-                free_txn(cur_txn_info);
+                free_txn(cur_txn_info);               
                 one_net_master_stream_txn_status(ONS_STREAM_END,
                   (const one_net_raw_did_t * const)&raw_did);
                 status = ONS_STREAM_END;
@@ -4253,7 +3959,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
             } // else the data is valid //
             break;
         } // data rate response case //
-
+        
         case ON_STREAM_KEY_QUERY:
         {
             status = send_stream_key_update(SRC_DID);
@@ -4513,7 +4219,7 @@ static one_net_status_t admin_txn_hdlr(const UInt8 ADMIN_ID,
     \brief Handles the end of a single data extended admin transaction.
 
     \param[in] ADMIN_ID The type of admin transaction that just ended.  Only
-
+      
     \param[in] DATA The admin data that was sent.
     \param[in/out] txn The transaction that just ended.
     \param[in] STATUS The status of the transaction.  This should only be
@@ -4536,7 +4242,7 @@ static one_net_status_t extended_admin_single_txn_hdlr(const UInt8 ADMIN_ID,
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-
+    
     switch(ADMIN_ID)
     {
         case ON_RECV_BLOCK_LOW:
@@ -4658,10 +4364,10 @@ static void check_key_update(const BOOL ONLY_IF_ACTIVE)
 
 /*!
     \brief Finishes up a key update for the given device id.
-
+    
     Removes any queued key updates since the device just confirmed the update
     being sent.
-
+    
     \param[in] client The CLIENT whose key has been confirmed
 
     \return void
@@ -4677,7 +4383,7 @@ static void key_update_confirmed(on_client_t * const client)
     } // if the parameter is invalid //
 
     client->use_current_key = TRUE;
-
+    
     // It is possible the change key got through to the CLIENT but the ack did
     // not make it back to update the nonce.  The CLIENT transaction to validate
     // that it received the new key may still succeed, so the next time the
@@ -4710,7 +4416,7 @@ static void key_update_confirmed(on_client_t * const client)
 
         cur = txn_list[cur].next;
     } // loop through the queued transactions //
-
+    
     // move on to another device
     ont_set_timer(ONT_CHANGE_KEY_TIMER, 0);
 } // key_update_confirmed //
@@ -4829,7 +4535,7 @@ static void stream_key_update_confirmed(on_client_t * const client)
     } // if the parameter is invalid //
 
     client->use_current_stream_key = TRUE;
-
+    
     // move on to another device
     ont_set_timer(ONT_CHANGE_STREAM_KEY_TIMER, 0);
 } // stream_key_update_confirmed //
@@ -4917,7 +4623,7 @@ static BOOL get_next_b_s_pld(const UInt8 TXN_INFO)
     {
         return FALSE;
     } // if the parameter is invalid //
-
+    
     if(txn_list[TXN_INFO].txn.msg_type == ON_APP_MSG)
     {
         return get_b_s_app_data(TXN_INFO);
@@ -4926,7 +4632,7 @@ static BOOL get_next_b_s_pld(const UInt8 TXN_INFO)
     {
         return get_b_s_extended_admin_data(TXN_INFO);
     } // else if an extended admin message //
-
+    
     // Should not get here.
     return FALSE;
 } // get_next_b_s_pld //
@@ -5189,7 +4895,7 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
     one_net_status_t status;
     UInt8 pid, admin_type, txn_nonce, data_len;
     UInt8 data[ON_MAX_RAW_PLD_LEN];
-
+    
     // flag to indicate if a multi-hop packet should be sent.
     BOOL multi_hop = FALSE;
 
@@ -5235,7 +4941,7 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
                 pid = multi_hop ? ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA
                   : ONE_NET_ENCODED_REPEAT_BLOCK_DATA;
             } // else this is a repeat block //
-
+            
             KEY = &(on_base_param->current_key);
             break;
         } // ON_BLOCK case //
@@ -5290,7 +4996,7 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
               CLIENT->max_hops);
             break;
         } // ON_ADMIN_MSG case //
-
+        
         case ON_EXTENDED_ADMIN_MSG:
         {
             if(txn_list[TXN].type == ON_SINGLE)
@@ -5339,9 +5045,9 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
 
 /*!
     \brief Returns an unused location to store CLIENT information.
-
+    
     \param void
-
+    
     \return A free unused location to store CLIENT information.
             0 if no location exists.
 */
@@ -5352,8 +5058,7 @@ static on_client_t * get_free_client_info(void)
         return 0;
     } // if the MASTER has reached it's device limit //
 
-    return &(client_list[(master_param->next_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	    ON_CLIENT_DID_INCREMENT]);
+    return &(client_list[master_param->client_count]);
 } // get_free_client_info //
 
 
@@ -5374,7 +5079,7 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
     {
         return 0;
     } // if the parameter is invalid //
-
+    
     for(i = 0; i < master_param->client_count; i++)
     {
         if(on_encoded_did_equal(CLIENT_DID,
@@ -5390,50 +5095,32 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 
 /*!
     \brief Removes the CLIENT from the network (by removing it from the table)
-
+    
     \param[in] DID The device ID of the CLIENT to remove
-
+    
     \return void
 */
 static void rm_client(const on_encoded_did_t * const DID)
 {
     UInt16 i;
-	UInt8 did_used_index;
-
+    
     if(!DID)
     {
         return;
     } // if the parameter is invalid //
-
+    
     for(i = 0; i < master_param->client_count; i++)
     {
         if(on_encoded_did_equal(DID,
           (const on_encoded_did_t * const)&client_list[i].did))
         {
-			// Derek_S 11/2/2010
-			// potentially there could be overflow if i > 255 since
-			// client_list_index_to_did_used returns a UInt8.
-			did_used_index = client_list_index_to_did_used_index(i);
-
-			// Derek_S 11/2/2010 - error condition - abort if below is true
-			if(did_used_index == 0xFF)
-			{
-				return;
-			}
-
             if(i + 1 < master_param->client_count)
             {
-				// we have a gap.  Shift the array to fill the gap.
                 one_net_memmove(&(client_list[i]), &(client_list[i + 1]),
                   sizeof(on_client_t) * (master_param->client_count - i - 1));
-            }
-
-			master_param->did_used[did_used_index] = FALSE;
-			update_client_count(master_param);
-
-			// Derek_S 11/2/2010 - seems like we should have a break and a call to save_param() here.
-			save_param();
-			break;
+            } // move the remaining info down in the table //
+            
+            master_param->client_count--;
         } // if the CLIENT was found //
     } // loop to find the CLIENT //
 } // rm_client //
@@ -5810,9 +5497,9 @@ static UInt8 txn_nonce_for_client(const on_encoded_did_t * const DID)
 
 /*!
     \brief Saves the parameters that need it to non-volatile storage.
-
+    
     \param void
-
+    
     \return void
 */
 static void save_param(void)
@@ -5822,15 +5509,6 @@ static void save_param(void)
       + sizeof(on_master_param_t) + master_param->client_count
       * sizeof(on_client_t) - sizeof(on_base_param->crc), ON_PARAM_INIT_CRC,
       ON_PARAM_CRC_ORDER);
-
-	// Derek_S 10/25/2010 - The call to one_net_master_save_settings()
-	// changes a UInt8* called ONE_NET_PARAM from NULL (when uninitialized)
-	// to a data block containing some master settings, including client count.
-	// The CLI "list" command needs this pointer to be accurate, so that is one
-	// reason to call one_net_master_save_settings, but not the only reason.
-	// note that the call to the one_net_save_master_save_settings does
-	// NOT actually save the settings to non-volatile memory.  That is done
-	// with the "save" command.
     one_net_master_save_settings(nv_param, sizeof(on_base_param_t)
       + sizeof(on_master_param_t) + master_param->client_count
       * sizeof(on_client_t));
@@ -5840,13 +5518,13 @@ static void save_param(void)
 #ifdef _ONE_NET_EVAL
     /*!
         \brief Forces the MASTER to save it's parameters.
-
+        
         This is a "protected" function used only by the eval project to force
         the MASTER to save it's parameters.  It is not even declared in the
         ONE-NET files.
-
+        
         \param void
-
+        
         \return void
     */
     void on_master_force_save(void)

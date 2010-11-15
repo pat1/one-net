@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -116,11 +116,11 @@ void init_tick(void);
 
 /*!
     \brief Converts milliseconds to ticks
-
+    
     Integer math is used (as opposed to float).
-
+    
     \param[in] MS The number of milliseconds to convert
-
+    
     \return The number of ticks for the given ms value
 */
 #define MS_TO_TICK(MS) ((MS) / TICK_1MS)
@@ -132,7 +132,7 @@ void init_tick(void);
     Integer math is used (as opposed to float).
 
     \param[in] TICK The number of ticks to convert
-
+    
     \return The number of milliseconds for the given tick value
 */
 #define TICK_TO_MS(TICK) ((TICK) * TICK_1MS)

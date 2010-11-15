@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 
     Derives from ONE-NET.  CLIENT dependent functionality.  This module is
     dependent on one_net_client_net, and must initialize one_net_client_net.
-
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -55,8 +55,6 @@
 
 #ifdef _ONE_NET_EVAL
     #include "oncli.h"
-    extern BOOL client_joined_network; // Derek_S 10/25/2010 for CLI "list" command
-    extern one_net_raw_did_t client_did; // Derek_S 11/4/2010 for CLI "list" command
 #endif // ifdef ONE_NET_EVAL //
 
 
@@ -107,7 +105,7 @@ enum
 
     The ONE_NET_ENCODED_PID_IDX is added to these values, to make sure the data
     does not overlap the ENCODED_PID_IDX for transactions who are ready to be
-    sent (data rate & invites).  Otherwise the difference between valid data or
+    sent (data rate & invites).  Otherwise the difference between valid data or 
     one of these other PIDs can not be determined.
 */
 enum
@@ -190,13 +188,21 @@ extern on_base_param_t * on_base_param;
 
 #ifdef _ONE_NET_MULTI_HOP
     //! location to store the encoded data for an ack/nack packet
+    #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+        UInt8 on_client_response_pkt[ON_ACK_NACK_LEN + ON_ENCODED_HOPS_SIZE + 1];
+    #else
         UInt8 on_client_response_pkt[ON_ACK_NACK_LEN + ON_ENCODED_HOPS_SIZE];
+    #endif
 
     //! location to store the encoded data for the single transaction
     UInt8 on_single_pkt[ON_ENCODED_SINGLE_DATA_LEN + ON_ENCODED_HOPS_SIZE];
 #else // ifdef _ONE_NET_MULTI_HOP //
     //! location to store the encoded data for an ack/nack packet
+    #ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+        UInt8 on_client_response_pkt[ON_ACK_NACK_LEN + 1];
+    #else
         UInt8 on_client_response_pkt[ON_ACK_NACK_LEN];
+    #endif
 
     //! location to store the encoded data for the single transaction
     UInt8 on_single_pkt[ON_ENCODED_SINGLE_DATA_LEN];
@@ -365,7 +371,7 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
         one_net_status_t on_client_b_s_txn_hdlr(on_txn_t ** txn,
           const UInt8 NEXT_NONCE, const one_net_status_t STATUS);
     #endif // else _ONE_NET_MULTI_HOP is not defined //
-
+    
     static one_net_status_t handle_extended_block_admin_msg(
       const UInt8 * const DATA, const client_txn_t * const BLOCK_TXN);
 #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
@@ -398,12 +404,12 @@ static void save_param(void);
 
 /*!
     \brief Initializes a CLIENT to start looking for an invite message.
-
+    
     This function should be called the first time a device starts up, or when
     the device should attempt to join another network.  Once a device has
     joined a network, one_net_client_init should be called to reinitialize the
     CLIENT.
-
+    
     \param INVITE_KEY The unique key of this CLIENT to decrypt invite packets
       with.
     \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
@@ -426,11 +432,6 @@ static void save_param(void);
 #endif // else _ONE_NET_SIMPLE_CLIENT is defined //
 {
     one_net_status_t status;
-
-#ifdef _ONE_NET_EVAL
-    // Derek_S 11/3/2010
-    client_joined_network = FALSE;
-#endif
 
     #ifndef _ONE_NET_SIMPLE_CLIENT
         if(!INVITE_KEY
@@ -464,7 +465,7 @@ static void save_param(void);
     master->device.expected_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
     master->device.last_nonce = one_net_prand(one_net_tick() - 1, ON_MAX_NONCE);
     master->device.send_nonce = 0;
-
+    
     #ifdef _ONE_NET_MULTI_HOP
         master->device.max_hops = 0;
     #endif // ifdef _ONE_NET_MULTI_HOP //
@@ -477,7 +478,7 @@ static void save_param(void);
 
     ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
     on_state = ON_JOIN_NETWORK;
-
+    
     return ONS_SUCCESS;
 } // one_net_client_look_for_invite //
 
@@ -516,7 +517,7 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
     {
         return ONS_INVALID_DATA;
     } // if the parameter version does not match or crc's don't match //
-
+    
     if(!(MASTER_PARAM->settings.flags & ON_JOINED))
     {
         return ONS_NOT_JOINED;
@@ -532,22 +533,8 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
     } // if initializing the internals failed //
 
     on_state = ON_LISTEN_FOR_DATA;
-
-    //dje: wired around these for boards that do not have CLI
-    // November 10, 2010
-    #ifdef _ONE_NET_EVAL
-        // Derek_S 10/25/2010, 11/4/2010
-        //
-        // save data for use by the CLI
-        //
-        client_joined_network = TRUE;
-        save_param(); // Derek_S 11/4/2010 - needed for CLI
-        return on_decode(&client_did[0], &(on_base_param->sid[ON_ENCODED_NID_LEN]), sizeof(one_net_raw_did_t));
-
-    #else
-        save_param(); // TO DO : Is this call to save_param() needed?
-        return ONS_SUCCESS;
-    #endif
+    
+    return ONS_SUCCESS;
 } // one_net_client_init //
 
 
@@ -760,12 +747,12 @@ void one_net_client_raw_master_did(one_net_raw_did_t * const master_did)
 
     /*!
         \brief Sends the stream key query to the MASTER
-
+        
         If the resource is not available, a timer is started to keep querying
         until the key is updated.
-
+    
         \param void
-
+    
         \return ONS_SUCCESS If setting up the query was successful
                 ONS_RSRC_FULL If the resources are unavailable
     */
@@ -813,33 +800,20 @@ tick_t one_net_client(void)
     {
         case ON_LISTEN_FOR_DATA:
         {
-            //
-            // Listen for a new transaction.
-            // Also check to see if there are any events
-            // associated with timers that need attention
-            //
-
+            //TODO: JAY? listen for response? no, just looking look for pkt
             if(ont_inactive_or_expired(ONT_STAY_AWAKE_TIMER))
             {
-                //
-                // we are not waiting on ONT_STAY_AWAKE_TIME
-                //
                 #ifndef _ONE_NET_SIMPLE_CLIENT
                     BOOL requesting = FALSE;
                 #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
 
                 txn = 0;
 
-                //
-                // NO_PRIORITY for single txn means nothing is queued
+                //TODO: JAY? what does priority NO_PRI mean?
+                // NO_PRIORITY for single txn means nothing is queued 
                 // nothing waiting to be sent, not waiting for ACK
-                //
                 if(on_single_txn.txn.priority != ONE_NET_NO_PRIORITY)
                 {
-                    //
-                    // a transaction is active,
-                    // see what we need to do next.
-                    //
                     txn = &(on_single_txn.txn);
 
                     if(txn->pkt[ONE_NET_ENCODED_PID_IDX]
@@ -869,12 +843,10 @@ tick_t one_net_client(void)
                     else if(ont_active(ONT_STREAM_KEY_TIMER)
                       && ont_expired(ONT_STREAM_KEY_TIMER))
                     {
-                        //
-                        // we are waiting for the stream key
-                        // and the timer has expired, so
+                        // we are waiting for the stream key 
+                        // and the timer has expired, so 
                         // reset the stream key timer and reissue
                         // the query for the stream key
-                        //
                         one_net_client_stream_key_query();
                     } // else if time to query for the stream key //
 
@@ -1229,10 +1201,9 @@ tick_t one_net_client(void)
             } // if device not waiting for something && single txn pending //
 
             #ifndef _ONE_NET_SIMPLE_CLIENT
-                //
+            //TODO: JAY? 
                 // becasue we are not in the middle of a transfer,
                 // time to actually listen for data pkts, ...
-                //
                 switch(on_rx_data_pkt(&ON_ENCODED_BROADCAST_DID, &txn))
                 {
                     case ONS_BLOCK_FAIL:
@@ -1267,7 +1238,6 @@ tick_t one_net_client(void)
         case ON_JOIN_NETWORK:
         {
             //TODO: waiting to join a network.
-
             if(look_for_invite())
             {
                 ont_stop_timer(ONT_STAY_AWAKE_TIMER);
@@ -1293,11 +1263,7 @@ tick_t one_net_client(void)
 
         default:
         {
-            //
-            // one_net() will handle the common state machine states based on
-            // the transaction passed in and return true if that transactiom
-            // completed.
-            //
+            //TODO: JAY? if default is not an error, what cases will be handled by one_net
             if(one_net(&txn) && txn)
             {
                 // Only clr the txn if the CLIENT joined the network.
@@ -1375,7 +1341,6 @@ tick_t one_net_client(void)
     // TODO: JAY? calculate the sleep time? yes
     // Get the time the application can sleep for,
     // and see what house cleaning we can do.
-
     switch(on_state)
     {
         case ON_LISTEN_FOR_DATA:
@@ -1387,7 +1352,7 @@ tick_t one_net_client(void)
                 save_param();
                 save = FALSE;
             } // if need to save settings //
-
+            
             if(removed)
             {
                 one_net_xtea_key_t empty_key = {0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1405,24 +1370,7 @@ tick_t one_net_client(void)
                 save_param();
                 removed = FALSE;
                 on_state = ON_INIT_STATE;
-
-                //dje: wired around oncli stuff for non-eval boards
-                //     since they don't have cli
-                //     November 10, 2010
-                #ifdef _ONE_NET_EVAL
-                    // Derek_S 11/3/2010
-                    oncli_send_msg("Removed from network by master.  No longer joined.\n");
-                    oncli_send_msg("Now resetting the device and looking for an invite.\n");
-                #endif
-
                 one_net_client_client_remove_device();
-
-                #ifdef _ONE_NET_EVAL
-                    oncli_reset_client();
-                    oncli_print_prompt();
-                #endif
-                save_param();
-                break;
             } // if the device was removed from the network //
 
             if(ont_active(ONT_STAY_AWAKE_TIMER)
@@ -1539,11 +1487,11 @@ tick_t one_net_client(void)
 
 /*!
     \brief Initializes internal data structures.
-
+    
     This will also initialize the base one_net functionality.
-
+    
     \param void
-
+    
     \return ONS_SUCCESS if the internals were successfully initialized
             ONS_INTERNAL_ERR if initializing the net layer was not successful
 */
@@ -1553,7 +1501,7 @@ static one_net_status_t init_internal(void)
     one_net_status_t status;
 
     UInt8 i;
-
+    
     // initialize the network layer
     if((status = on_client_net_init(nv_param + sizeof(on_base_param_t)
       + sizeof(on_master_t), sizeof(nv_param) - sizeof(on_base_param_t)
@@ -1571,7 +1519,7 @@ static one_net_status_t init_internal(void)
           = one_net_prand(one_net_tick(), ON_MAX_NONCE);
         sending_dev_list[i].sender.last_nonce = ON_MAX_NONCE + 1;
         sending_dev_list[i].sender.send_nonce = 0;
-
+        
         #ifdef _ONE_NET_MULTI_HOP
             sending_dev_list[i].sender.max_hops = 0;
         #endif // ifdef _ONE_NET_MULTI_HOP //
@@ -1588,7 +1536,7 @@ static one_net_status_t init_internal(void)
     #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
     pkt_hdlr.data_rate_hdlr = &on_client_data_rate_hdlr;
     one_net_init(&pkt_hdlr);
-
+    
     return ONS_SUCCESS;
 } // init_internal //
 
@@ -1616,7 +1564,7 @@ void on_client_encoded_master_did(on_encoded_did_t * const master_did)
       peers to the MASTER as well.
 
     \param void
-
+    
     \return TRUE if messages sent to peers should be sent to the MASTER as well.
             FALSE if messages sent to peers should not be sent to the MASTER.
 */
@@ -1654,7 +1602,7 @@ one_net_status_t on_client_send_single(const UInt8 * const DATA,
     if(!DATA || DATA_LEN > ONE_NET_RAW_SINGLE_DATA_LEN
       || PRIORITY < ONE_NET_LOW_PRIORITY
       || PRIORITY > ONE_NET_HIGH_PRIORITY
-
+      
       || !DST)
     {
         return ONS_BAD_PARAM;
@@ -1667,11 +1615,6 @@ one_net_status_t on_client_send_single(const UInt8 * const DATA,
 
     if(on_single_txn.txn.priority != ONE_NET_NO_PRIORITY)
     {
-        //
-        // this seems to be where we make sure that any single
-        // data transaction (resceiving or sending) is complete
-        // before we start sending a new transaction,
-        //
         return ONS_RSRC_FULL;
     } // if the resource is in use //
 
@@ -1696,9 +1639,9 @@ one_net_status_t on_client_send_single(const UInt8 * const DATA,
 /*!
     \brief Returns the complete client transaction data associated with the
       transaction.
-
+    
     \param[in] The transaction to retrieve the complete info for.
-
+    
     \return The client transaction info for the given transaction.  0 Will be
       returned in the case of an error (bad parameter or the client transaction
       info can't be found).
@@ -1722,7 +1665,7 @@ client_txn_t * get_client_txn(const on_txn_t * const txn)
             } // else if the stream transaction //
         #endif // ifndef _SIMPLE_CLIENT //
     } // if the parameter is valid //
-
+    
     return 0;
 } // get_client_txn //
 
@@ -1757,7 +1700,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
     {
         return 0;
     } // if parameter is invalid //
-
+    
     max_lru_idx = match_idx = 0;
 
     if(on_encoded_did_equal(DID,
@@ -1825,7 +1768,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 static UInt8 device_txn_nonce(const on_encoded_did_t * const DID)
 {
     on_sending_device_t * sender;
-
+    
     UInt8 nonce;
 
     if(!DID)
@@ -1869,7 +1812,7 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
     {
         return;
     } // if the parameters are invalid //
-
+    
     if(on_encoded_did_equal(DID,
       (const on_encoded_did_t * const)&(master->device.did)))
     {
@@ -1890,12 +1833,12 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
 #ifdef _ONE_NET_MULTI_HOP
     /*!
         \brief Returns a pointer to the hops field for the given device.
-
+    
         The hops field is the max number of hops to allow a packet to take when
         sent to the device.
-
+    
         \param[in] DID The device whose hops field is to be retrieved.
-
+    
         \return A pointer to the hops field for the given device.  If the device
           could not be found, 0 is returned.
     */
@@ -1907,7 +1850,7 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
         {
             return 0;
         } // if the parameter is invalid //
-
+    
         if(on_encoded_did_equal(DID,
           (const on_encoded_did_t * const)&(master->device.did)))
         {
@@ -1922,17 +1865,17 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
                 hops_field = &(sender->max_hops);
             } // if a device that sends to this one //
         } // if one of the peers //
-
+    
         return hops_field;
     } // device_hops_field //
 
 
     /*!
         \brief Updates the number hops it takes for a packet to reach a device.
-
+    
         The hops field is only updated if HOPS_TAKEN is less than the number of
         hops that is stored for the device.
-
+    
         \param[in] DID The device whose hops field is to be updated.
         \param[in] HOPS_TAKEN The number of hops it took for the packet to reach
           the device.
@@ -1948,7 +1891,7 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
         {
             return;
         } // if any of the parameters are invalid //
-
+    
         if(((hops_field = device_hops_field(DID)) != NULL) && HOPS_TAKEN < *hops_field)
         {
             *hops_field = HOPS_TAKEN;
@@ -2388,7 +2331,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
         } // if the txn is non-NULL //
 
         #ifdef _ONE_NET_DEBUG
-        #if 1
+        #if 0
             one_net_debug(ONE_NET_DEBUG_ONS_BAD_PARAM, "1", 1);
         #endif
         #endif
@@ -2451,7 +2394,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
                   ONE_NET_RAW_SINGLE_DATA_LEN);
                 break;
             } // admin message case //
-
+            
             #ifndef _ONE_NET_SIMPLE_CLIENT
                 case ON_EXTENDED_ADMIN_MSG:
                 {
@@ -2525,10 +2468,6 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
     } // if it's a new packet //
     else if(status == ONS_SUCCESS)
     {
-        //
-        // since the nonce in the packet is not equal to the exptected nonce,
-        // this is not a new packet
-        //
         response_txn.data_len = response_txn.pkt_size;
         #ifdef _ONE_NET_MULTI_HOP
             if((PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
@@ -2624,9 +2563,9 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 {
     one_net_status_t rv;
-
+    
     UInt8 pld[ON_RAW_SINGLE_PLD_SIZE];
-
+    
     #ifdef _ONE_NET_MULTI_HOP
         if(!txn || !(*txn) || !(*txn)->pkt || HOPS_TAKEN > ON_MAX_HOPS_LIMIT)
     #else // ifdef _ONE_NET_MULTI_HOP //
@@ -2676,7 +2615,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
             one_net_client_joined_network(
               (const one_net_raw_did_t * const)&local_did,
               (const one_net_raw_did_t * const)&master_did);
-
+              
             if(STATUS == ONS_RX_STAY_AWAKE)
             {
                 ont_set_timer(ONT_STAY_AWAKE_TIMER, ONE_NET_STAY_AWAKE_TIME);
@@ -2741,7 +2680,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
     if(STATUS == ONS_SUCCESS || STATUS == ONS_RX_STAY_AWAKE)
     {
         rv = single_success_hdlr(txn, &(pld[ON_PLD_DATA_IDX]));
-
+        
         if(STATUS == ONS_RX_STAY_AWAKE)
         {
             ont_set_timer(ONT_STAY_AWAKE_TIMER, ONE_NET_STAY_AWAKE_TIME);
@@ -2772,14 +2711,14 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 
 /*!
     \brief Handles receiving a NACK
-
+    
     \param[in/out] txn The single transaction that the nack was received for.
     \param[in] NEXT_NONCE The nonce to use when sending to the device.
     \param[in] raw_pld_data The app/admin data that was sent (actual data,
       does not include the nonces, and other header information that gets
       encrypted with the data).
     \param[in] HOPS The max number of hops to allow when sending.
-
+    
     \return ONS_SUCCESS If handling the completed transaction was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
@@ -2831,12 +2770,12 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 
 /*!
     \brief Handles a successful single transaction.
-
+    
     \param[in/out] txn The single transaction that was completed
     \param[in] RAW_PLD_DATA The app/admin data that was sent (actual data,
       does not include the nonces, and other header information that gets
       encrypted with the data).
-
+    
     \return ONS_SUCCESS If handling the completed transaction was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
@@ -2887,12 +2826,12 @@ static one_net_status_t single_success_hdlr(on_txn_t ** txn,
 
 /*!
     \brief Handles a failed transaction
-
+    
     \param[in/out] txn The single transaction that failed
     \param[in] RAW_PLD_DATA The app/admin data that was sent (actual data,
       does not include the nonces, and other header information that gets
       encrypted with the data).
-
+    
     \return ONS_SUCCESS If handling the completed transaction was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
@@ -2977,7 +2916,7 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
             } // if the txn should be tried with more hops //
         } // if more hops should be tried //
     #endif // ifdef _ONE_NET_MULTI_HOP //
-
+    
     (*txn)->priority = ONE_NET_NO_PRIORITY;
 
     if((*txn)->msg_type == ON_APP_MSG)
@@ -3020,7 +2959,7 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
               (const one_net_raw_did_t * const)&raw_did);
         } // else if stream transaction //
     #endif // _ONE_NET_SIMPLE_CLIENT //
-
+    
     return ONS_SUCCESS;
 } // single_fail_hdlr //
 
@@ -3239,7 +3178,7 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
                     {
                         pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_BLOCK_DATA_ACK
                           : ONE_NET_ENCODED_BLOCK_DATA_ACK;
-
+                        
                         // if it's a repeat multi-hop packet, allow MAX_HOPS
                         // since it may take more hops to get back than it took
                         // for the packet to arrive.
@@ -3531,7 +3470,7 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
 
                     on_block_txn.txn.priority = ONE_NET_NO_PRIORITY;
                     *txn = &response_txn;
-
+                    
                     if(on_block_txn.txn.msg_type == ON_APP_MSG)
                     {
                         one_net_client_block_txn_status(ONS_BLOCK_END,
@@ -3634,14 +3573,14 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
 
         return rv;
     } // on_client_b_s_txn_hdlr //
-
-
+    
+    
     /*!
         \brief Handles reception of a block fragment extended admin message.
-
+        
         ON_CHANGE_STREAM_KEY is currently the only extended admin message.  This
         function copies the stream key to on_base_param.
-
+        
         \param[in] DATA The data that was received in the block fragment
         \param[in] BLOCK_TXN The block transaction for which the data was
           received.
@@ -3657,17 +3596,17 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
         {
             return ONS_BAD_PARAM;
         } // if the parameters are invalid //
-
+        
         if(BLOCK_TXN->txn.remaining != sizeof(on_base_param->stream_key))
         {
             return ONS_INVALID_DATA;
         } // if the data is invalid //
-
+        
         #ifdef _ONE_NET_EVAL
             oncli_print_admin_msg(ON_EXTENDED_ADMIN_MSG, ON_BLOCK,
               ON_CHANGE_STREAM_KEY, DATA, sizeof(on_base_param->stream_key));
         #endif // ifdef ONE_NET_EVAL //
-
+        
         one_net_memmove(on_base_param->stream_key, DATA,
           sizeof(on_base_param->stream_key));
 
@@ -3720,11 +3659,11 @@ void on_client_data_rate_hdlr(const UInt8 RATE,
  *
  *     For those cases where the security and other network configuration information will
  *     be provided to a client device by a means other than the normal invite/join
- *     process, this function may be used. The input argument is a pointer to a data
+ *     process, this function may be used. The input argument is a pointer to a data 
  *     structure that contains the information the client needs to operate in a
  *     ONE-NET network.
  *
- *     \param[in] DATA Pointer to network configuration information for this client.
+ *     \param[in] DATA Pointer to network configuration information for this client. 
  *     \return ONS_SUCCESS if the join worked, any other return code indicates that
  *     an error was encountered.
  */
@@ -3737,7 +3676,7 @@ one_net_status_t one_net_client_join_network(one_net_client_join_network_data_t 
     }
 
     on_base_param = (on_base_param_t *)nv_param;
-
+    
     // set the version number for the nv_param layout
     on_base_param->version = ON_PARAM_VERSION;
 
@@ -3775,10 +3714,10 @@ one_net_status_t one_net_client_join_network(one_net_client_join_network_data_t 
     master->settings.flags |= ON_JOINED;
     save_param();
     on_state = ON_LISTEN_FOR_DATA;
-
+ 
     return(ONS_SUCCESS);
 } //one_net_client_join_network //
-
+ 
 
 
 /*!
@@ -4079,7 +4018,6 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             {
                 save = TRUE;
             } // if successfully unassigned the peer //
-
             break;
         } // unassign peer case //
 
@@ -4311,7 +4249,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             } // else the resource is not available //
             break;
         } // init data rate case //
-
+        
         case ON_RM_DEV:
         {
             removed = TRUE;
@@ -4358,7 +4296,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
 
     /*!
         \brief Handles extended admin single data packets.
-
+        
         The current implementation only allows REVC_BLOCK_LOW requests to
         receive the stream key update.
 
@@ -4416,7 +4354,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
                 on_block_txn.txn.remaining
                   = one_net_byte_stream_to_int16(&(DATA[ON_BLOCK_LEN_IDX
                   + ON_ADMIN_DATA_IDX]));
-
+                
                 if(one_net_byte_stream_to_int16(
                   &(DATA[ON_BLOCK_STREAM_DATA_TYPE_IDX + ON_ADMIN_DATA_IDX]))
                   != ON_CHANGE_STREAM_KEY || on_block_txn.txn.remaining
@@ -4557,7 +4495,6 @@ static BOOL look_for_invite(void)
     if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
     {
         // need to try the next channel
-
         on_base_param->channel++;
         if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
         {
@@ -4573,9 +4510,9 @@ static BOOL look_for_invite(void)
 
 /*!
     \brief Saves the parameters that need it to non-volatile storage.
-
+    
     \param void
-
+    
     \return void
 */
 static void save_param(void)
@@ -4591,13 +4528,13 @@ static void save_param(void)
 #ifdef _ONE_NET_EVAL
     /*!
         \brief Forces the CLIENT to save it's parameters.
-
+        
         This is a "protected" function used only by the eval project to force
         the CLLIENT to save it's parameters.  It is not even declared in the
         ONE-NET files.
-
+        
         \param void
-
+        
         \return void
     */
     void on_client_force_save(void)

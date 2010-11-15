@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -100,15 +100,15 @@ one_net_status_t ona_send_percent_status(const UInt8 SRC_UNIT,
   const UInt8 DST_UNIT, const UInt8 PERCENT_STATUS,
   const one_net_raw_did_t * const RAW_DST);
 
-one_net_status_t ona_send_percent_command(const UInt8 SRC_UNIT,
-  const UInt8 DST_UNIT, const UInt8 PERCENT_STATUS,
+one_net_status_t ona_send_percent_command(const UInt8 SRC_UNIT, 
+  const UInt8 DST_UNIT, const UInt8 PERCENT_STATUS, 
   const one_net_raw_did_t * const RAW_DST);
 
 one_net_status_t ona_send_percent_query(const UInt8 SRC_UNIT,
   const UInt8 DST_UNIT, const one_net_raw_did_t * const RAW_DST);
 
-one_net_status_t ona_parse_percent(const UInt8 * const MSG_DATA,
-  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit,
+one_net_status_t ona_parse_percent(const UInt8 * const MSG_DATA, 
+  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit, 
   UInt8 * percent_status);
 
 //! @} ONE-NET_APP_percent_pub_func

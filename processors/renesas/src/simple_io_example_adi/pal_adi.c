@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -94,18 +94,18 @@
 
     For this board configuration, timer z is used as the transmit bit timer.
     INT1 is used as the receive bit interrupt.
-
+    
     \param void
-
+    
     \return void
 */
 void init_rf_interrupts(void)
 {
     tzmr = 0x00;                    // Timer Z : timer mode
-
-    /*
+    
+    /* 
          Prescaler and timer register initialization
-
+      
         11.0592MHz : 1/1 *   16 * 18 = 26 us for 38400 bits/sec
     */
     prez = 16 - 1;                  // Setting Prescaler for Timer Z register
@@ -145,7 +145,7 @@ void tx_bit_isr(void)
     if(map == 0)
     {
         // reset to first bit of next byte
-        map = 0x80;
+        map = 0x80;    
         tx_rf_idx++;
     } // if done with current byte //
     RF_TX_DATA = ((TX_RF_DATA[tx_rf_idx] & map) && 1);

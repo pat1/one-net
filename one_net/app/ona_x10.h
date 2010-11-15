@@ -6,7 +6,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -140,14 +140,14 @@ one_net_status_t ona_send_x10_extended(const UInt8 SRC_UNIT,
 
 
 // PARSE FUNCTIONS
-one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_x10_simple(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * house, UInt8 * unit, UInt8 * x10_cmd);
 
-one_net_status_t ona_parse_x10_stream(const UInt8 * const MSG_DATA,
-  const UInt8 LEN, UInt8 * house_1, UInt8 * unit_cmd_1,
+one_net_status_t ona_parse_x10_stream(const UInt8 * const MSG_DATA, 
+  const UInt8 LEN, UInt8 * house_1, UInt8 * unit_cmd_1, 
   UInt8 * house_2, UInt8 * unit_cmd_2);
 
-one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA,
+one_net_status_t ona_parse_x10_extended(const UInt8 * const MSG_DATA, 
   const UInt8 LEN, UInt8 * house, UInt8 * unit, UInt8 * data_byte,
   UInt8 * cmd_byte);
 

@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
     \brief Contains port specific declarations for functions associated with data flash interface
       routines.
 
-    A list of dfi segment types that are being used must be defined so that
+    A list of dfi segment types that are being used must be defined so that 
     the dfi functions know which segment types should be copied to the new
     data flash block when the current data flash block becomes full.
 */
@@ -48,7 +48,7 @@
 
 //==============================================================================
 //								CONSTANTS
-//! \defgroup dfi_const
+//! \defgroup dfi_const 
 //! \ingroup dfi_port_specific
 //! @{
 
@@ -58,7 +58,7 @@
 //==============================================================================
 
 //==============================================================================
-//								TYPEDEFS
+//								TYPEDEFS 
 //! \defgroup dfi_typedefs
 //! \ingroup dfi_port_specific
 //! @{
@@ -84,7 +84,7 @@ const UInt8 dfi_segment_types_used[] =
     DFI_ST_APP_DATA_1,
     DFI_ST_APP_DATA_2,
     DFI_ST_APP_DATA_3,
-    DFI_ST_APP_DATA_4
+    DFI_ST_APP_DATA_4 
 };
 
 //! the number of entries in dfi_segment_types_used

@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -108,12 +108,12 @@ one_net_status_t ona_send_seal_status(const UInt8 SRC_UNIT,
     UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0x00};
 
     const UInt16 CLASS_TYPE = ONA_STATUS | ONA_SEAL;
-
+    
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
     payload[ONA_SEAL_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_SEAL_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_SEAL_STATUS_IDX + ONA_MSG_DATA_IDX] = (UInt8)SEAL_STATUS;
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -141,7 +141,7 @@ one_net_status_t ona_send_seal_command(const UInt8 SRC_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_COMMAND | ONA_SEAL;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_SEAL_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_SEAL_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
     payload[ONA_SEAL_STATUS_IDX + ONA_MSG_DATA_IDX] = (UInt8)SEAL_STATUS;
@@ -171,13 +171,13 @@ one_net_status_t ona_send_seal_query(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
 
     const UInt16 CLASS_TYPE = ONA_QUERY | ONA_SEAL;
     one_net_int16_to_byte_stream(CLASS_TYPE, &payload[ONA_MSG_HDR_IDX]);
-
+    
     payload[ONA_SEAL_SRC_UNIT_IDX + ONA_MSG_DATA_IDX] = SRC_UNIT;
     payload[ONA_SEAL_DST_UNIT_IDX + ONA_MSG_DATA_IDX] = DST_UNIT;
 
     // TBD: make this random ?
     payload[ONA_SEAL_STATUS_IDX + ONA_MSG_DATA_IDX] = 0x00;
-
+    
     // send payload
     rv = (*one_net_send_single)(payload, sizeof(payload), ONE_NET_LOW_PRIORITY,
       RAW_DST, SRC_UNIT, DST_UNIT);
@@ -197,8 +197,8 @@ one_net_status_t ona_send_seal_query(const UInt8 SRC_UNIT, const UInt8 DST_UNIT,
 
     \return the status of the send action
 */
-one_net_status_t ona_parse_seal(const UInt8 * const MSG_DATA,
-  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit,
+one_net_status_t ona_parse_seal(const UInt8 * const MSG_DATA, 
+  const UInt8 LEN, UInt8 * src_unit, UInt8 * dst_unit, 
   ona_seal_status_t * seal_status)
 {
     BOOL proceed = TRUE;
@@ -219,9 +219,9 @@ one_net_status_t ona_parse_seal(const UInt8 * const MSG_DATA,
 
         // seal status
         *seal_status = (seal_status_t)MSG_DATA[ONA_SEAL_STATUS_IDX];
-
+    
     } // if proceed //
-
+    
     return rv;
 } // ona_parse_seal //
 

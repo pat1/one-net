@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2007, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -149,24 +149,24 @@ void tal_init_ports(void)
 void init_rf_interrupts(void)
 {
     // initialize Timer RZ to to timer mode for rf output
-    // Timer z count source = f1
+    // Timer z count source = f1 
     DISABLE_TX_BIT_INTERRUPTS();
 
     tzck0 = 0;
     tzck1 = 0;
-
-    /*
+    
+    /* 
          Prescaler and timer register initialization
-
+      
         11.0592MHz : 1/1 * 16 * 18 = 26 us for 38400 bits/sec
     */
-    prez = 16 - 1;                  // Setting Prescaler Z register
-    tzpr   = 18 - 1;                // Setting timer Z register
-
-    tzmr = 0x00;                    // Timer Z : timer mode
+    prez = 16 - 1;                  // Setting Prescaler Z register 
+    tzpr   = 18 - 1;                // Setting timer Z register 
+    
+    tzmr = 0x00;                    // Timer Z : timer mode 
     tzic = 5;                       // Interrupt priority level = 5
-
-    ir_tzic = 0;                    // Interrupt request flag clear
+    
+    ir_tzic = 0;                    // Interrupt request flag clear 
 
     // initialize the INT1 interrupt to handle DATACLK for receive mode
     // rising edge instead of falling edge
@@ -234,7 +234,7 @@ void tx_bit_isr(void)
     if(bit_mask == 0)
     {
         // reset to first bit of next byte
-        bit_mask = 0x80;
+        bit_mask = 0x80;    
         tx_rf_idx++;
     } // if done with current byte //
     RF_DATA = ((TX_RF_DATA[tx_rf_idx] & bit_mask) && 1);
