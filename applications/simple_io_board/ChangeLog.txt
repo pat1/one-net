@@ -1,0 +1,28 @@
+ONE-NET Quad Output Relay Board Change Log.
+
+Version 	Date            Description
+--------------------------------------------------------------------------------
+0.3         2008.01.02      Added functionality to erase the flash on start up
+                            if the flash check pins are tied together.
+
+                            Updated to use v0.10 of ONE-NET.
+                            
+0.2         2007.11.21      Moved some constants to the appropriate hardware
+                            file.  Initialized tick time constants with a
+                            MS_TO_TICK macro.
+
+            2007.11.19      Renamed quad_output.c to simple_output.c.
+                            Refactored to handle any number of outputs.
+
+                            Added _QUAD_OUTPUT and _DUAL_OUTPUT macros to areas
+                            in client_port_const.h, and pal.c so that the rest
+                            of the hardware specific files can be shared by the
+                            quad and dual output boards since from a software
+                            standpoint, they are almost the same.
+
+                            Added the simple_input project.
+
+                            Using v0.9 of ONE-NET.
+
+0.1         2007.11.16      Initial release using v0.8 of ONE-NET.
+
