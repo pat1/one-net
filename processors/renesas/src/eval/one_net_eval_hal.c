@@ -1,6 +1,37 @@
 //! \addtogroup ont_net_eval_hal ONE-NET Evaluation Hardware Abstraction Layer
 //! @{
 
+/*
+    Copyright (c) 2010, Threshold Corporation
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+        * Redistributions of source code must retain the above copyright notice,
+          this list of conditions, and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of Threshold Corporation (trustee of ONE-NET) nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+    CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+    BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+    OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+    BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHEWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+
 /*!
     \file one_net_eval_hal.c
     \brief The ONE-NET evaluation project hardware abstraction layer.
@@ -130,37 +161,48 @@ const UInt8 dfi_segment_types_used_count = sizeof(dfi_segment_types_used);
     
     \return void
 */
+//
+// dje: Eliminated superfluous nested loops.  It's valid to check
+// one time.
+//
 void flash_erase_check(void)
 {
-    tick_t timer;
-    UInt8 i, j;
+    UInt8 i;
     
     FLASH_CHECK_TX_PIN_DIR = OUTPUT;
     FLASH_CHECK_RX_PIN_DIR = INPUT;
 
-    for(i = 0; i < 100; i++)
-    {
-        FLASH_CHECK_TX_PIN = !FLASH_CHECK_TX_PIN;
-        RX_LED = FLASH_CHECK_TX_PIN;
-        for(j = 0; j < 100; j++)
-        {
-            if(FLASH_CHECK_RX_PIN != FLASH_CHECK_TX_PIN)
-            {
-                FLASH_CHECK_TX_PIN = 0;
-                return;
-            } // if the pins aren't connected //
-        } // loop to poll the rx pin and make sure it matches the tx pin //
-    } // outer loop to check if rx & tx
+    // Note that all pullups were enabled in init_ports(), so, in
+    // particular, the FLASH_CHECK_RX_PIN is pulled up.
     
     FLASH_CHECK_TX_PIN = 0;
-    RX_LED = 0;
+
+    //
+    // Loop to see if FLASH_CHECK_RX_PIN follows FLASH_CHECK_TX_pin
+    //
+    for (i = 0; i < 2; i++) {
+        FLASH_CHECK_TX_PIN = !FLASH_CHECK_TX_PIN;
+        if (FLASH_CHECK_RX_PIN != FLASH_CHECK_TX_PIN) {
+            //
+            // Pins not connected: Give a quick blink
+            // of the Rx LED (the green one) and return
+            //
+            RX_LED = 1;
+            FLASH_CHECK_TX_PIN = 0;
+            delay_ms(125);
+            RX_LED = 0;
+            return;
+        } // if the pins aren't connected //
+    }
+    //
+    // Pins are connected: Erase the flash and give something like a
+    // two second blink on the Tx LED (the red one).
+    //
     TX_LED = 1;
-    timer = one_net_tick() + (TICK_1S << 1);
-    // the flash should be erased
     eval_erase_data_flash();
-    
-    while(one_net_tick() < timer);
+    delay_ms(2000);
     TX_LED = 0;
+
 } // flash_erase_check //
 
 

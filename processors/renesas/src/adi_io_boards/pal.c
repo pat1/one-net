@@ -53,7 +53,7 @@
 //! \defgroup PAL_SW_EX_const
 //! \ingroup PAL_SW_EX
 //! @{
-
+    
 //! The rate the low speed oscillator runs at (in Hz)
 #define LOW_SPEED_OSCILLATOR 125000
 
@@ -102,13 +102,17 @@ extern void update_tick_count(const tick_t UPDATE);
 
 /*!
     \brief Initializes the ports that MUST be initialized before anything else.
-
+    
     \param void
-
+    
     \return void
 */
 void init_ports(void)
 {
+    // dje: Enable all pull-ups
+    pur0  = 0xcc;
+    pur1  = 0x02;
+
     INIT_PORTS_LEDS();
 
     #ifdef _QUAD_INPUT
@@ -182,7 +186,7 @@ void high_speed_mode(void)
     prc0 = 1;                       // protect off
     cm13 = 0;  //dje: Note that this must be zero to enable p4_7 as input
     cm05 = 0;                       // main clock oscillates
-
+    
     // delay 1 ms to make sure the oscillator settles.  Since we are not
     // running at the speed used to calculate the constants for the delay, this
     // will actually take longer than 1ms running on the low speed internal
@@ -193,7 +197,7 @@ void high_speed_mode(void)
     asm("nop");
     asm("nop");
     asm("nop");
-
+    
     cm06 = 0;                       // enable cm16 & cm17 divide bits
 
     // divide system clock by 1
