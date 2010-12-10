@@ -181,8 +181,8 @@
 enum {
     ONE_NET_VERSION_MAJOR =     1,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     6,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  1,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     24  //! ONE-NET build version number
+    ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     23  //! ONE-NET build version number
 };
 
 
