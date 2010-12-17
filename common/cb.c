@@ -38,6 +38,9 @@
     Contains the implementation of functions for accessing circular buffers.
 */
 
+#include "config_options.h"
+
+
 #ifdef _ONE_NET_EVAL
     #pragma section program program_high_rom
 #endif // ifdef _R8C_TINY //

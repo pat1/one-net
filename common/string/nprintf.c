@@ -40,6 +40,9 @@
       called from different threads at the same time.
 */
 
+#include "config_options.h"
+
+
 #ifdef _ONE_NET_EVAL
     #pragma section program program_high_rom
 #endif // ifdef _R8C_TINY //
