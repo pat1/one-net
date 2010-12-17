@@ -168,7 +168,9 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 // Mode command handlers
 static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-static oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#ifdef _SNIFFER_MODE
+	static oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
 static oncli_status_t mode_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 
@@ -596,6 +598,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the sid command was received //
+	
+#ifdef _SNIFFER_MODE
     else if(!strnicmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
     {
         oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SETNI_CMD_STR) + 1);
@@ -612,6 +616,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the sniff command was received //
+#endif
+
     else if(!strnicmp(ONCLI_MODE_CMD_STR, CMD, strlen(ONCLI_MODE_CMD_STR)))
     {
         *CMD_STR = ONCLI_MODE_CMD_STR;
@@ -2350,6 +2356,7 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
               properly.
             ONCLI_CMD_FAIL If the command failed.
 */
+#ifdef _SNIFFER_MODE
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     oncli_status_t status;
@@ -2363,7 +2370,7 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     return oncli_reset_sniff(channel);
 } // sniff_cmd_hdlr //
-
+#endif
 
 /*!
     \brief Handles receiving the mode command and all it's parameters

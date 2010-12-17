@@ -234,9 +234,10 @@ const char * const ONCLI_MASTER_STR = "MASTER";
 //! CLIENT string
 const char * const ONCLI_CLIENT_STR = "CLIENT";
 
-//! sniffer string
-const char * const ONCLI_SNIFFER_STR = "SNIFFER";
-
+#ifdef _SNIFFER_MODE
+	//! sniffer string
+	const char * const ONCLI_SNIFFER_STR = "SNIFFER";
+#endif
 
 // Command strings
 //! Single command string
@@ -341,8 +342,10 @@ const char * const ONCLI_CHANNEL_CMD_STR = "channel";
 //! SETNI command string
 const char * const ONCLI_SETNI_CMD_STR = "setni";
 
-//! sniff command string
-const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+#ifdef _SNIFFER_MODE
+	//! sniff command string
+	const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+#endif
 
 //! mode command string
 const char * const ONCLI_MODE_CMD_STR = "mode";

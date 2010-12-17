@@ -195,7 +195,10 @@ void init_serial_master(void);
 
 void master_eval(void);
 void client_eval(void);
-void sniff_eval(void);
+
+#ifdef _SNIFFER_MODE
+	void sniff_eval(void);
+#endif
 
 // "protected" functions
 oncli_status_t set_device_type(UInt8 device_type);
@@ -1135,12 +1138,14 @@ UInt8 *oncli_node_type_str()
             return ONCLI_MASTER_STR;
             break;
         } // MASTER case //
-        
+		
+#ifdef _SNIFFER_MODE
         case SNIFFER_NODE:
         {
             return ONCLI_SNIFFER_STR;
             break;
         } // sniffer case //
+#endif
         
         default:
         {
@@ -1204,11 +1209,13 @@ void oncli_print_prompt(void)
     // that this is the only placed they are used.
     switch(device_type())
     {
+#ifdef _SNIFFER_MODE
         case SNIFFER_NODE:
         {
             oncli_send_msg("ocm-s> ");
             break;
         } // sniffer case //
+#endif
         
         case MASTER_NODE:
         {
@@ -1369,12 +1376,13 @@ oncli_status_t set_device_type(UInt8 device_type)
     
     switch(node_type)
     {
+#ifdef _SNIFFER_MODE
         case SNIFFER_NODE:
         {
             node_loop_func = &sniff_eval;
             break;
         } // sniffer case //
-
+#endif
         case MASTER_NODE:
         {   
             node_loop_func = &master_eval;

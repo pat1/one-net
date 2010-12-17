@@ -7,6 +7,8 @@
     \brief The packet sniffer part of the ONE-NET evaluation project.
 */
 
+#ifdef _SNIFFER_MODE
+
 #include "oncli.h"
 #include "oncli_port.h"
 #include "one_net_eval.h"
@@ -107,7 +109,7 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 void sniff_eval(void)
 {
     UInt8 pkt[ONE_NET_MAX_ENCODED_PKT_LEN];
-    
+
     UInt16 i, bytes_read = sizeof(pkt);
 
     if(oncli_user_input())
@@ -138,14 +140,14 @@ void sniff_eval(void)
 
         return;
     } // if SOF was not received //
-    
+
     bytes_read = one_net_read(pkt, bytes_read);
-    
+
     oncli_send_msg("%lu received %u bytes:\r\n", one_net_tick(), bytes_read);
     for(i = 0; i < bytes_read; i++)
     {
         oncli_send_msg("%02X ", pkt[i]);
-        
+    
         if((i % 16) == 15)
         {
             oncli_send_msg("\r\n");
@@ -156,7 +158,7 @@ void sniff_eval(void)
     {
         oncli_send_msg("\r\n");
     } // if a new line needs to be output //
-    
+
     // update the time to display the prompt
     ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);
 } // sniff_eval //
@@ -164,5 +166,7 @@ void sniff_eval(void)
 //! @} ONE-NET_sniff_eval_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //=============================================================================
+
+#endif
 
 //! @} ONE_NET_sniff_eval

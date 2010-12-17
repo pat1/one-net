@@ -510,7 +510,9 @@ oncli_status_t oncli_reset_master_with_channel(
               the device is in.
             ONCLI_INTERNAL_ERR if something unexpected happened.
 */
-oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL);
+#ifdef _SNIFFER_MODE
+	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL);
+#endif
 
 
 /*!

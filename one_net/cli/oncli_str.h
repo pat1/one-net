@@ -170,7 +170,9 @@ extern const char * const ONCLI_SERIAL_MODE_STR;
 // Device strings
 extern const char * const ONCLI_MASTER_STR;
 extern const char * const ONCLI_CLIENT_STR;
-extern const char * const ONCLI_SNIFFER_STR;
+#ifdef _SNIFFER_MODE
+	extern const char * const ONCLI_SNIFFER_STR;
+#endif
 
 // MASTER only command strings
 extern const char * const ONCLI_INVITE_CMD_STR;
@@ -192,7 +194,9 @@ extern const char * const ONCLI_USER_PIN_CMD_STR;
 extern const char * const ONCLI_JOIN_CMD_STR;
 extern const char * const ONCLI_CHANNEL_CMD_STR;
 extern const char * const ONCLI_SETNI_CMD_STR;
-extern const char * const ONCLI_SNIFF_CMD_STR;
+#ifdef _SNIFF_MODE
+	extern const char * const ONCLI_SNIFF_CMD_STR;
+#endif
 extern const char * const ONCLI_MODE_CMD_STR;
 extern const char * const ONCLI_ECHO_CMD_STR;
 

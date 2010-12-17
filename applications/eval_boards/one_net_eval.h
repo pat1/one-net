@@ -103,7 +103,9 @@ enum
 //! Node Select switch values
 typedef enum
 {
+#ifdef _SNIFFER
     SNIFFER_NODE,                   //!< Device is a SNIFFER
+#endif
     MASTER_NODE,                    //!< Device is a MASTER
 #ifdef _AUTO_MODE
     CLIENT_NODE,                    //!< Device is a CLIENT device
