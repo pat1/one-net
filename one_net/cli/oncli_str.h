@@ -194,10 +194,12 @@ extern const char * const ONCLI_USER_PIN_CMD_STR;
 extern const char * const ONCLI_JOIN_CMD_STR;
 extern const char * const ONCLI_CHANNEL_CMD_STR;
 extern const char * const ONCLI_SETNI_CMD_STR;
-#ifdef _SNIFF_MODE
+#ifdef _SNIFFER_MODE
 	extern const char * const ONCLI_SNIFF_CMD_STR;
 #endif
-extern const char * const ONCLI_MODE_CMD_STR;
+#ifdef _AUTO_MODE
+	extern const char * const ONCLI_MODE_CMD_STR;
+#endif
 extern const char * const ONCLI_ECHO_CMD_STR;
 
 // Transaction strings

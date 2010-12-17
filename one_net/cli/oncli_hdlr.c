@@ -618,6 +618,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the sniff command was received //
 #endif
 
+#ifdef _AUTO_MODE
     else if(!strnicmp(ONCLI_MODE_CMD_STR, CMD, strlen(ONCLI_MODE_CMD_STR)))
     {
         *CMD_STR = ONCLI_MODE_CMD_STR;
@@ -632,6 +633,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the mode command was received //
+#endif
+
     else if(!strnicmp(ONCLI_ECHO_CMD_STR, CMD, strlen(ONCLI_ECHO_CMD_STR)))
     {
         *CMD_STR = ONCLI_ECHO_CMD_STR;
