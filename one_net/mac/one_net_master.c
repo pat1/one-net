@@ -52,10 +52,9 @@
 #include "one_net_timer.h"
 #include "one_net_prand.h"
 
-//Derek_S 11/4/2010
-#include "one_net_eval.h"
 
 #ifdef _ONE_NET_EVAL
+    #include "one_net_eval.h"
     #include "oncli.h"
 #endif // ifdef ONE_NET_EVAL
 
