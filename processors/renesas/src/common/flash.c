@@ -37,6 +37,9 @@
       R8C family of processors.
 */
 
+
+#include "config_options.h"
+
 #ifdef _ONE_NET_EVAL
     #pragma section program program_high_rom
 #endif // ifdef _R8C_TINY //

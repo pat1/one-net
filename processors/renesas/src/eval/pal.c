@@ -42,6 +42,10 @@
     others may use one of the internal oscillators (for the R8C series).
 */
 
+
+#include "config_options.h"
+
+
 #ifdef _ONE_NET_EVAL
     #pragma section program program_high_rom
 #endif 
