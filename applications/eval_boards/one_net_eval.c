@@ -8,6 +8,8 @@
     This is the application that runs on the ONE-NET evaluation boards.
 */
 
+#include "config_options.h"
+
 #include "one_net_eval.h"
 
 #include "oncli.h"

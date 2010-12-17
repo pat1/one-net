@@ -7,6 +7,8 @@
     \brief The packet sniffer part of the ONE-NET evaluation project.
 */
 
+#include "config_options.h"
+
 #ifdef _SNIFFER_MODE
 
 #include "oncli.h"
