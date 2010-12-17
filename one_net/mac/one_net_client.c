@@ -44,6 +44,8 @@
       updated.
 */
 
+#include "config_options.h"
+
 #include "one_net_client.h"
 
 #include "one_net_client_net.h"

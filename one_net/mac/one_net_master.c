@@ -43,6 +43,8 @@
       updated.
 */
 
+#include "config_options.h"
+
 #include "one_net_master.h"
 
 #include "one_net_crc.h"
