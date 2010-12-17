@@ -109,7 +109,9 @@ BOOL get_raw_master_did(one_net_raw_did_t *did);
 
 // These are not static since it will be called from eval, but we don't want it
 // called from anywhere else
-void init_auto_master(void);
+#ifdef _AUTO_MODE
+	void init_auto_master(void);
+#endif
 void init_serial_master(void);
 
 static void init_base_param(on_base_param_t *base_param);
@@ -117,7 +119,9 @@ static void init_master_user_pin(const UInt8 *user_pin_type,
                                        UInt8 user_pin_count);
 static void init_master_peer(void);
 static BOOL is_valid_eval_sid(const one_net_raw_sid_t *sid, UInt8 *i);
-static void send_auto_msg(void);
+#ifdef _AUTO_MODE
+	static void send_auto_msg(void);
+#endif
 static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
                                     UInt8 peer_unit, UInt8 src_unit);
 
@@ -596,12 +600,12 @@ oncli_status_t oncli_remove_device(const one_net_raw_did_t *DST)
     {
         return ONCLI_BAD_PARAM;
     } // if any of the parameters are invalid //
-    
+#ifdef _AUTO_MODE
     if(mode_type() == AUTO_MODE)
     {
         return ONCLI_INVALID_CMD_FOR_MODE;
     } // if auto mode //
-
+#endif
     if(!oncli_is_master())
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -1038,6 +1042,7 @@ oncli_status_t oncli_print_invite(BOOL prompt_flag)
 
     \return void
 */
+#ifdef _AUTO_MODE
 void init_auto_master(void)
 {
     on_base_param_t * base_param;
@@ -1120,7 +1125,7 @@ void init_auto_master(void)
     // initialize the ONE-NET MASTER
     one_net_master_init(param, sizeof(param));
 } // init_auto_master //
-
+#endif
 
 /*!
     \brief Initializes the device as a MASTER in serial mode
@@ -1263,6 +1268,7 @@ static void init_master_peer(void)
     
     \return void
 */
+#ifdef _AUTO_MODE
 static void send_auto_msg(void)
 {
     if(mode_type() == AUTO_MODE)
@@ -1296,7 +1302,7 @@ static void send_auto_msg(void)
         } // if the timer has expired //
     } // if auto mode //
 } // send_auto_msg //
-
+#endif
 
 /*!
     \brief Called when the MASTER is assigned a peer.
@@ -1579,7 +1585,9 @@ static void master_user_pin(void)
 */
 void master_eval(void)
 {
+#ifdef _AUTO_MODE
     send_auto_msg();
+#endif
     master_user_pin();
     one_net_master();
 } // master_eval //

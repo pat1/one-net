@@ -80,11 +80,13 @@ enum
 };
 
 
-//! The raw CLIENT DIDs for auto mode
-static const one_net_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
-{
-    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
-};
+#ifdef _AUTO_MODE
+	//! The raw CLIENT DIDs for auto mode
+	static const one_net_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
+	{
+	    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
+	};
+#endif
 
 //! The key used in the evaluation network ("protected")
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
@@ -130,8 +132,10 @@ user_pin_t user_pin[NUM_USER_PINS];
 //! The index of the sid to use in the evaluation network.
 static UInt8 eval_sid_idx = 0;
 
-//! The value the mode switch is set to
-static UInt8 mode_value;
+#ifdef _AUTO_MODE
+	//! The value the mode switch is set to
+	static UInt8 mode_value;
+#endif
 
 //! The node type the device is operating at
 static UInt8 node_type;
@@ -183,9 +187,11 @@ void init_tick_timer(void);
 void init_rf_interrupts(void);
 void tal_init_transceiver(void);
 
-void init_auto_master(void);
 void init_serial_master(void);
-void init_auto_client(node_select_t CLIENT);
+#ifdef _AUTO_MODE
+    void init_auto_master(void);
+	void init_auto_client(node_select_t CLIENT);
+#endif
 
 void master_eval(void);
 void client_eval(void);
@@ -233,11 +239,12 @@ UInt8 device_type(void)
     
     \return The mode the device is operating at (see mode_select_t)
 */
-UInt8 mode_type(void)
-{
-    return mode_value;
-} // mode_type //
-
+#ifdef _AUTO_MODE
+	UInt8 mode_type(void)
+	{
+	    return mode_value;
+	} // mode_type //
+#endif
 
 /*!
     \brief Turns on the transmit LED
@@ -315,6 +322,7 @@ BOOL get_eval_encoded_nid(on_encoded_nid_t *nid)
     } // if the parameter is invalid //
 
     // get the current raw sid
+#ifdef _AUTO_MODE
     if (mode_value == SERIAL_MODE)
     {
         //
@@ -322,6 +330,7 @@ BOOL get_eval_encoded_nid(on_encoded_nid_t *nid)
         //
         ptr_raw_sid = get_raw_sid();
     }
+
     else
     {
         //
@@ -329,6 +338,9 @@ BOOL get_eval_encoded_nid(on_encoded_nid_t *nid)
         //
         ptr_raw_sid = (one_net_raw_sid_t *) &DEFAULT_RAW_SID[0];
     }
+#else
+    ptr_raw_sid = get_raw_sid();
+#endif
 
     // encode the raw sid to obtain an encoded sid
     if (on_encode(&encoded_nid[0], (UInt8 *)ptr_raw_sid, sizeof(on_encoded_nid_t)) != ONS_SUCCESS)
@@ -360,14 +372,20 @@ BOOL get_eval_encoded_did(node_select_t node, on_encoded_did_t *did)
     one_net_raw_sid_t * ptr_raw_sid;
     on_encoded_sid_t encoded_sid;
 
+#ifdef _AUTO_MODE
     if((node != MASTER_NODE && node != AUTO_CLIENT1_NODE
       && node != AUTO_CLIENT2_NODE && node != AUTO_CLIENT3_NODE) || !did)
+#else
+    if(node != MASTER_NODE || !did)
+#endif
     {
         return FALSE;
     } // if any of the parameters are invalid //
-    
+
+#ifdef _AUTO_MODE 
     if(node == MASTER_NODE)
     {
+#endif
         // get the current raw sid
         ptr_raw_sid = get_raw_sid();
 
@@ -378,13 +396,15 @@ BOOL get_eval_encoded_did(node_select_t node, on_encoded_did_t *did)
         }
 
         one_net_memmove(*did, &encoded_sid[ON_ENCODED_NID_LEN], sizeof(on_encoded_did_t));
-
+		
+#ifdef _AUTO_MODE
     } // if the MASTER device //
     else
     {
         on_encode(*did, RAW_AUTO_CLIENT_DID[node - AUTO_CLIENT1_NODE],
           sizeof(on_encoded_did_t));
     } // else it's a CLIENT device //
+#endif
     
     return TRUE;
 } // get_eval_encoded_did //
@@ -607,11 +627,13 @@ UInt32 eval_fragment_delay(UInt8 PRIORITY)
 */
 UInt8 eval_client_features(node_select_t CLIENT)
 {
+#ifdef _AUTO_MODE
     if(CLIENT == AUTO_CLIENT1_NODE || CLIENT == AUTO_CLIENT2_NODE
       || CLIENT == AUTO_CLIENT3_NODE)
     {
         return ON_MH_CAPABLE | ON_MAC_FEATURES;
     } // if CLIENT 1, 2, or 3 //
+#endif
     
     return 0x00;
 } // eval_client_features //
@@ -630,6 +652,7 @@ UInt8 eval_client_features(node_select_t CLIENT)
 */
 UInt8 eval_client_flag(node_select_t CLIENT)
 {
+#ifdef _AUTO_MODE
     if(CLIENT == AUTO_CLIENT1_NODE)
     {
         return ON_JOINED | ON_SEND_TO_MASTER;
@@ -638,6 +661,7 @@ UInt8 eval_client_flag(node_select_t CLIENT)
     {
         return ON_JOINED;
     } // if CLIENT 2 or 3 //
+#endif
     
     return 0x00;
 } // eval_client_flag //
@@ -935,7 +959,11 @@ one_net_send_single_func_t oncli_get_send_single_txn_func(void)
     {
         return &one_net_master_send_single;
     } // if a master device //
+#ifdef _AUTO_MODE
     else if(node_type >= CLIENT_NODE && node_type <= AUTO_CLIENT3_NODE)
+#else
+    else if(node_type == CLIENT_NODE)
+#endif
     {
         return &one_net_client_send_single;
     } // else if a CLIENT device //
@@ -1125,6 +1153,7 @@ UInt8 *oncli_node_type_str()
 } // oncli_node_type_str //
 
 
+#ifdef _AUTO_MODE
 UInt8 * oncli_mode_type_str(void)
 {
     switch(mode_value)
@@ -1149,6 +1178,7 @@ UInt8 * oncli_mode_type_str(void)
     
     return 0;
 } // oncli_mode_type_str //
+#endif
 
 
 BOOL oncli_is_master(void)
@@ -1159,7 +1189,11 @@ BOOL oncli_is_master(void)
 
 BOOL oncli_is_client(void)
 {
+#ifdef _AUTO_MODE
     return (BOOL)(node_type >= CLIENT_NODE && node_type <= AUTO_CLIENT3_NODE);
+#else
+    return (BOOL)(node_type == CLIENT_NODE);
+#endif
 } // oncli_is_client //
 
 
@@ -1187,7 +1221,7 @@ void oncli_print_prompt(void)
             oncli_send_msg("ocm-c> ");
             break;
         } // client case //
-        
+#ifdef _AUTO_MODE        
         case AUTO_CLIENT1_NODE:
         {
             oncli_send_msg("ocm-c1> ");
@@ -1205,7 +1239,7 @@ void oncli_print_prompt(void)
             oncli_send_msg("ocm-c3> ");
             break;
         } // auto client3 case //
-
+#endif
         default:
         {
             oncli_send_msg("ocm> ");
@@ -1315,15 +1349,21 @@ one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT,
 */
 oncli_status_t set_device_type(UInt8 device_type)
 {
+#ifdef _AUTO_MODE
     if(device_type > AUTO_CLIENT3_NODE)
+#else
+    if(device_type > CLIENT_NODE)
+#endif
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
 
+#ifdef _AUTO_MODE
     if(mode_value == AUTO_MODE)
     {
         return ONCLI_INVALID_CMD_FOR_MODE;
     } // if not setting the node type to device_type //
+#endif
     
     node_type = device_type;
     
@@ -1596,7 +1636,9 @@ void main(void)
     ENABLE_GLOBAL_INTERRUPTS();
 
 #ifdef _SNIFFER_FRONT_END
+#ifdef _AUTO_MODE
     mode_value = SERIAL_MODE;
+#endif
     oncli_reset_master();
     oncli_reset_master_with_channel(oncli_get_sid(), 21);
     while (1)
@@ -1616,6 +1658,7 @@ void main(void)
     uart_write("\n", 1);
 #endif
 
+#ifdef _AUTO_MODE
 	// check mode switch (Auto/Serial)
 	if(SW_MODE_SELECT == 0)
 	{
@@ -1627,23 +1670,34 @@ void main(void)
 		mode_value = SERIAL_MODE;
 		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 	} // else serial //
+#else
+	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+#endif
 
     // Get the node type
     if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))
     {
         node_type = MASTER_NODE;
         node_loop_func = &master_eval;
-
+		
+#ifdef _AUTO_MODE
         if(mode_value == AUTO_MODE)
         {
             init_auto_master();
         } // if auto mode //
         else
         {
+#endif
             init_serial_master();
+#ifdef _AUTO_MODE
         } // else not auto mode //
+#endif
     } // if MASTER //
+#ifdef _AUTO_MODE
     else if(mode_value != AUTO_MODE)
+#else
+    else
+#endif
     {
         UInt8 *PARAM;
         UInt16 len;
@@ -1682,6 +1736,7 @@ void main(void)
             oncli_reset_client();
         } // else look to join a network //
     } // else if not auto mode //
+#ifdef _AUTO_MODE
     else if((SW_ADDR_SELECT1 == 1) && (SW_ADDR_SELECT2 == 0))
     {
         node_type = AUTO_CLIENT1_NODE;
@@ -1700,6 +1755,7 @@ void main(void)
         node_loop_func = &client_eval;
         init_auto_client(node_type);
     } // else CLIENT3 //
+#endif
 #endif
 
 

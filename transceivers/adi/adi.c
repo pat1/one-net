@@ -898,7 +898,9 @@ void look_for_all_packets(void)
     while (1)
     {
         UInt8 blks_to_rx = ONE_NET_MAX_ENCODED_PKT_LEN;
-        UInt8 sw_mode_select_state = SW_MODE_SELECT;
+		#ifdef _AUTO_MODE
+        	UInt8 sw_mode_select_state = SW_MODE_SELECT;
+		#endif
         UInt8 sw_addr_select1_state = SW_ADDR_SELECT1;
         UInt8 switch_channels = FALSE;
         UInt8 send_channel = FALSE;
@@ -921,11 +923,13 @@ void look_for_all_packets(void)
             //    break;
             //} // if done looking //
 
+#ifdef _AUTO_MODE
 	        if(SW_MODE_SELECT != sw_mode_select_state)
             {
                 switch_channels = TRUE;
                 break;
             }
+#endif
             if (SW_ADDR_SELECT1 != sw_addr_select1_state)
             {
                 send_channel = TRUE;
@@ -944,7 +948,11 @@ void look_for_all_packets(void)
                 current_channel = 0;
             }
             switch_channels = FALSE;
-            sw_mode_select_state = SW_MODE_SELECT;
+			
+			#ifdef _AUTO_MODE
+            	sw_mode_select_state = SW_MODE_SELECT;
+			#endif
+			
             u0tbl = SNIFFER_CHANNEL_BYTE;
             while(!(BOOL)ti_u0c1);
             u0tbl = current_channel;
@@ -956,7 +964,9 @@ void look_for_all_packets(void)
         if (send_channel == TRUE)
         {
             send_channel = FALSE;
-            sw_addr_select1_state = SW_MODE_SELECT;
+			#ifdef _AUTO_MODE
+            	sw_addr_select1_state = SW_MODE_SELECT;
+			#endif
             u0tbl = SNIFFER_CHANNEL_BYTE;
             while(!(BOOL)ti_u0c1);
             u0tbl = current_channel;

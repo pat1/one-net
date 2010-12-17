@@ -1065,11 +1065,12 @@ static oncli_status_t block_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 */
 static oncli_status_t erase_cmd_hdlr(void)
 {
+#ifdef _AUTO_MODE
     if(mode_type() == AUTO_MODE)
     {
         return ONCLI_INVALID_CMD_FOR_MODE;
     } // if auto mode //
-    
+#endif
     if(device_type() != MASTER_NODE && device_type() != CLIENT_NODE)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -1095,10 +1096,12 @@ static oncli_status_t erase_cmd_hdlr(void)
 */
 static oncli_status_t save_cmd_hdlr(void)
 {
+#ifdef _AUTO_MODE
     if(mode_type() == AUTO_MODE)
     {
         return ONCLI_INVALID_CMD_FOR_MODE;
     } // if auto mode //
+#endif
     
     if(device_type() != MASTER_NODE && device_type() != CLIENT_NODE)
     {

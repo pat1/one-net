@@ -23,8 +23,10 @@
 
 enum
 {
+#ifdef _AUTO_MODE
     //! The number of CLIENTS in auto mode
     NUM_AUTO_CLIENTS = 3,
+#endif
     
     //! Number of bits to shift a value to get the proper raw did
     RAW_DID_SHIFT = 4
@@ -88,12 +90,14 @@ enum
 };
 
 
-//! Mode Select switch values
-typedef enum
-{
-    AUTO_MODE,                      //!< Running auto mode evaluation
-    SERIAL_MODE                     //!< Running serial mode evaluation
-} mode_select_t;
+#ifdef _AUTO_MODE
+	//! Mode Select switch values
+	typedef enum
+	{
+	    AUTO_MODE,                      //!< Running auto mode evaluation
+	    SERIAL_MODE                     //!< Running serial mode evaluation
+	} mode_select_t;
+#endif
 
 
 //! Node Select switch values
@@ -101,10 +105,14 @@ typedef enum
 {
     SNIFFER_NODE,                   //!< Device is a SNIFFER
     MASTER_NODE,                    //!< Device is a MASTER
+#ifdef _AUTO_MODE
     CLIENT_NODE,                    //!< Device is a CLIENT device
     AUTO_CLIENT1_NODE,              //!< Uses first CLIENT addr in auto mode
     AUTO_CLIENT2_NODE,              //!< Uses second CLIENT addr in auto mode
     AUTO_CLIENT3_NODE               //!< Uses third CLIENT addr in auto mode
+#else
+    CLIENT_NODE                    //!< Device is a CLIENT device
+#endif
 } node_select_t;
 
 

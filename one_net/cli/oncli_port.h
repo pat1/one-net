@@ -96,7 +96,9 @@ typedef enum
     ONCLI_CMD_FAIL,                 //!< If the command was not successful
     ONCLI_INVALID_DST,              //!< The destination did.unit is invalid
     ONCLI_NOT_JOINED,               //!< The device needs to join a network.
-    ONCLI_INVALID_CMD_FOR_MODE,     //!< cmd is unavailable in the current mode
+	#ifdef _AUTO_MODE
+    	ONCLI_INVALID_CMD_FOR_MODE,     //!< cmd is unavailable in the current mode
+	#endif
     ONCLI_INVALID_CMD_FOR_NODE,     //!< cmd is unavailable for current node
     ONCLI_PARSE_ERR,                //!< The cli data is not formatted properly
     ONCLI_SNGH_INTERNAL_ERR,        //!< Encountered a "Should Not Get Here" error.
@@ -553,7 +555,9 @@ const char * oncli_node_type_str(void);
 
     \return The string representing the mode type.  0 if an error occured.
 */
-const char * oncli_mode_type_str(void);
+#ifdef _AUTO_MODE
+	const char * oncli_mode_type_str(void);
+#endif
 
 
 /*!

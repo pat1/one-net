@@ -109,7 +109,10 @@
 #define SW5_DIR         pd0_0
 #define SW6_DIR         pd0_1
 
-#define SW_MODE_SELECT  SW4
+#ifdef _AUTO_MODE
+	#define SW_MODE_SELECT  SW4
+#endif
+
 #define SW_ADDR_SELECT1 SW5
 #define SW_ADDR_SELECT2 SW6
 

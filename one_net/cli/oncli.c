@@ -684,6 +684,7 @@ static void print_cmd_result(const char * const CMD,
             break;
         } // device needs to join a network first //
 
+#ifdef _AUTO_MODE
         case ONCLI_INVALID_CMD_FOR_MODE:
         {
             const char * MODE_TYPE_STR;
@@ -698,7 +699,7 @@ static void print_cmd_result(const char * const CMD,
             } // else the mode type string was successfully retrieved //
             break;
         } // invalid command for mode case //
-
+#endif
         case ONCLI_INVALID_CMD_FOR_NODE:
 
         {

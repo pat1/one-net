@@ -218,8 +218,10 @@ const char * const ONCLI_DISPLAY_INVITE_STR
   = "Invite code: %.4s-%.4s\n";
 
 // Mode strings
-//! Auto mode string
-const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
+#ifdef _AUTO_MODE
+	//! Auto mode string
+	const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
+#endif
 
 //! Serial mode string
 const char * const ONCLI_SERIAL_MODE_STR = "SERIAL MODE";

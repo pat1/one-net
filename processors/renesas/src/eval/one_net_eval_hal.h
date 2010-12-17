@@ -19,15 +19,17 @@
 //! \ingroup one_net_eval_hal
 //! @{
 
-enum
-{
-    //! The interval in ticks to automatically send data when in auto mode. 1s
-    AUTO_INTERVAL = MS_TO_TICK(1000),
+#ifdef _AUTO_MODE
+	enum
+	{
+	    //! The interval in ticks to automatically send data when in auto mode. 1s
+	    AUTO_INTERVAL = MS_TO_TICK(1000),
 
-    //! The timeout after a user switches the mode switch before the device
-    //! goes back to automatically sending commands (AUTO_INTERVAL). 20s
-    AUTO_MANUAL_DELAY = MS_TO_TICK(20000),
-};
+	    //! The timeout after a user switches the mode switch before the device
+	    //! goes back to automatically sending commands (AUTO_INTERVAL). 20s
+	    AUTO_MANUAL_DELAY = MS_TO_TICK(20000),
+	};
+#endif
 
 // constants for the sniffer
 enum

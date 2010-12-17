@@ -162,7 +162,9 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
 
 // Mode strings
-extern const char * const ONCLI_AUTO_MODE_STR;
+#ifdef _AUTO_MODE
+	extern const char * const ONCLI_AUTO_MODE_STR;
+#endif
 extern const char * const ONCLI_SERIAL_MODE_STR;
 
 // Device strings

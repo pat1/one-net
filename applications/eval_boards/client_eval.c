@@ -84,7 +84,9 @@ BOOL client_joined_network = FALSE;
 one_net_raw_did_t client_did;
 
 // "protected" functions
-void init_auto_client(node_select_t CLIENT);
+#ifdef _AUTO_MODE
+	void init_auto_client(node_select_t CLIENT);
+#endif
 oncli_status_t set_device_type(UInt8 device_type);
 
 static void client_check_user_pins(void);
@@ -232,79 +234,80 @@ void one_net_client_client_remove_device(void)
 
     \return void
 */
-void init_auto_client(node_select_t CLIENT)
-{
-    on_base_param_t * base_param;
-    on_master_t * master;
-    on_peer_t * peer;
+#ifdef _AUTO_MODE
+	void init_auto_client(node_select_t CLIENT)
+	{
+	    on_base_param_t * base_param;
+	    on_master_t * master;
+	    on_peer_t * peer;
 
-    // The parameters used to initialize an existing network as if they were
-    // stored in a continguous block of memory
-    UInt8 param[sizeof(on_base_param_t) + sizeof(on_master_t)
-      + sizeof(on_peer_t)];
-    UInt8 i, j;
+	    // The parameters used to initialize an existing network as if they were
+	    // stored in a continguous block of memory
+	    UInt8 param[sizeof(on_base_param_t) + sizeof(on_master_t)
+	      + sizeof(on_peer_t)];
+	    UInt8 i, j;
 
-    // check the parameters
-    if(CLIENT < AUTO_CLIENT1_NODE || CLIENT > AUTO_CLIENT3_NODE)
-    {
-        EXIT();
-    } // if any of the parameters are invalid //
+	    // check the parameters
+	    if(CLIENT < AUTO_CLIENT1_NODE || CLIENT > AUTO_CLIENT3_NODE)
+	    {
+	        EXIT();
+	    } // if any of the parameters are invalid //
     
-    // set the pointers
-    base_param = (on_base_param_t *)param;
-    master = (on_master_t *)(((UInt8 *)base_param) + sizeof(on_base_param_t));
-    peer = (on_peer_t *)(((UInt8 *)master) + sizeof(on_master_t));
+	    // set the pointers
+	    base_param = (on_base_param_t *)param;
+	    master = (on_master_t *)(((UInt8 *)base_param) + sizeof(on_base_param_t));
+	    peer = (on_peer_t *)(((UInt8 *)master) + sizeof(on_master_t));
 
-    // set up the base parameters
-    base_param->version = EVAL_PARAM_VERSION;
-    get_eval_encoded_nid((on_encoded_nid_t *)&(base_param->sid));
-    get_eval_encoded_did(CLIENT,
-      (on_encoded_did_t *)&(base_param->sid[ON_ENCODED_NID_LEN]));
-    base_param->channel = eval_channel();
-    base_param->data_rate = eval_data_rate(CLIENT);
-    get_eval_key(&(base_param->current_key));
-    base_param->single_block_encrypt = eval_encryption(ON_SINGLE);
-    get_eval_stream_key(&(base_param->stream_key));
-    base_param->stream_encrypt = eval_encryption(ON_STREAM);
-    base_param->fragment_delay_low = eval_fragment_delay(ONE_NET_LOW_PRIORITY);
-    base_param->fragment_delay_high
-      = eval_fragment_delay(ONE_NET_HIGH_PRIORITY);
+	    // set up the base parameters
+	    base_param->version = EVAL_PARAM_VERSION;
+	    get_eval_encoded_nid((on_encoded_nid_t *)&(base_param->sid));
+	    get_eval_encoded_did(CLIENT,
+	      (on_encoded_did_t *)&(base_param->sid[ON_ENCODED_NID_LEN]));
+	    base_param->channel = eval_channel();
+	    base_param->data_rate = eval_data_rate(CLIENT);
+	    get_eval_key(&(base_param->current_key));
+	    base_param->single_block_encrypt = eval_encryption(ON_SINGLE);
+	    get_eval_stream_key(&(base_param->stream_key));
+	    base_param->stream_encrypt = eval_encryption(ON_STREAM);
+	    base_param->fragment_delay_low = eval_fragment_delay(ONE_NET_LOW_PRIORITY);
+	    base_param->fragment_delay_high
+	      = eval_fragment_delay(ONE_NET_HIGH_PRIORITY);
 
-    // set up the on_master_t parameters
-    get_eval_encoded_did(MASTER_NODE, &(master->device.did));
-    master->device.expected_nonce = 0;
-    master->device.last_nonce = 0;
-    master->device.send_nonce = 0;
-    #ifdef _ONE_NET_MULTI_HOP
-    master->device.max_hops = 0;
-    #endif
-    master->keep_alive_interval = eval_keep_alive();
-    master->settings.master_data_rate = ONE_NET_DATA_RATE_38_4;
-    master->settings.flags = eval_client_flag(CLIENT);
+	    // set up the on_master_t parameters
+	    get_eval_encoded_did(MASTER_NODE, &(master->device.did));
+	    master->device.expected_nonce = 0;
+	    master->device.last_nonce = 0;
+	    master->device.send_nonce = 0;
+	    #ifdef _ONE_NET_MULTI_HOP
+	    master->device.max_hops = 0;
+	    #endif
+	    master->keep_alive_interval = eval_keep_alive();
+	    master->settings.master_data_rate = ONE_NET_DATA_RATE_38_4;
+	    master->settings.flags = eval_client_flag(CLIENT);
     
-    // set up the peer parameters
-    for(i = 0; i < ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS; i++)
-    {
-        one_net_memmove(peer->dev[i].did, ON_ENCODED_BROADCAST_DID,
-          sizeof(peer->dev[i].did));
-    } // loop to initialize peer devices //
+	    // set up the peer parameters
+	    for(i = 0; i < ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS; i++)
+	    {
+	        one_net_memmove(peer->dev[i].did, ON_ENCODED_BROADCAST_DID,
+	          sizeof(peer->dev[i].did));
+	    } // loop to initialize peer devices //
 
-    for(i = 0; i < ONE_NET_NUM_UNITS; i++)
-    {
-        for(j = 0; j < ONE_NET_PEER_PER_UNIT; j++)
-        {
-            peer->unit[i][j].peer_dev_idx = 0xFFFF;
-            peer->unit[i][j].peer_unit = ONE_NET_DEV_UNIT;
-        } // inner loop to initialize peer units //
-    } // outer loop to initialize peer units //
+	    for(i = 0; i < ONE_NET_NUM_UNITS; i++)
+	    {
+	        for(j = 0; j < ONE_NET_PEER_PER_UNIT; j++)
+	        {
+	            peer->unit[i][j].peer_dev_idx = 0xFFFF;
+	            peer->unit[i][j].peer_unit = ONE_NET_DEV_UNIT;
+	        } // inner loop to initialize peer units //
+	    } // outer loop to initialize peer units //
     
-    base_param->crc = one_net_compute_crc((UInt8 *)base_param
-      + sizeof(base_param->crc), sizeof(param) - sizeof(base_param->crc),
-      ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-    // initialize the ONE-NET CLIENT
-    one_net_client_init(param, sizeof(param));
-} // init_auto_client //
-
+	    base_param->crc = one_net_compute_crc((UInt8 *)base_param
+	      + sizeof(base_param->crc), sizeof(param) - sizeof(base_param->crc),
+	      ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
+	    // initialize the ONE-NET CLIENT
+	    one_net_client_init(param, sizeof(param));
+	} // init_auto_client //
+#endif
 
 /*!
     \brief Checks if any of the user pins have been enabled as inputs and sends
