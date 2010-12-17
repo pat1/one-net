@@ -443,7 +443,7 @@
 [LANGUAGE]
 "English" 
 [CONFIG_INFO_VD1]
-1 
+0 
 [CONFIG_INFO_VD2]
 0 
 [CONFIG_INFO_VD3]
@@ -492,11 +492,6 @@
 [WINDOW_POSITION_STATE_DATA_VD3]
 [WINDOW_POSITION_STATE_DATA_VD4]
 [WINDOW_Z_ORDER]
-"{WK_00000001_WATCH}eval_adiSessionR8C_E8_SYSTEM WINDOW" 
-"{WK_00000001_MEMORY}eval_adiSessionR8C_E8_SYSTEM1 WINDOW" 
-"{WK_00000001_MEMORY}eval_adiSessionR8C_E8_SYSTEM0 WINDOW" 
-"{WK_00000001_MEMORY}eval_adiSessionR8C_E8_SYSTEM WINDOW" 
-"{WK_00000001_IO}sniffer_fe_adiSessionR8C_E8_SYSTEM WINDOW" 
 [STATUSBAR_STATEINFO_VD1]
 "MasterShowState" 1 
 "ApplicationShowState" 1 
@@ -541,10 +536,10 @@
 [FLASH_DETAILS]
 "" 0 0 "" 0 "" 0 0 "" 0 0 0 0 0 0 0 "" "" "" "" "" 
 [BREAKPOINTS]
-"h:\one_net_trunk\applications\eval_boards\master_eval.c" 208 33004636 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\applications\eval_boards\one_net_eval.c" 1490 0 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\one_net\cli\oncli_hdlr.c" 1126 0 1 "{00000000-0000-0000-C000-000000000046}" "" 
+"h:\one_net_trunk\applications\eval_boards\master_eval.c" 208 1936617315 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"h:\one_net_trunk\applications\eval_boards\one_net_eval.c" 1490 1663595116 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"h:\one_net_trunk\one_net\cli\oncli_hdlr.c" 1126 77183108 1 "{00000000-0000-0000-C000-000000000046}" "" 
 "h:\one_net_trunk\processors\renesas\src\common\uart.c" 366 0 1 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\transceivers\adi\adi.c" 980 0 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\transceivers\adi\adi.c" 984 0 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"h:\one_net_trunk\transceivers\adi\adi.c" 980 73565304 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"h:\one_net_trunk\transceivers\adi\adi.c" 984 73556888 0 "{00000000-0000-0000-C000-000000000046}" "" 
 [END]

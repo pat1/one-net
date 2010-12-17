@@ -443,7 +443,7 @@
 [LANGUAGE]
 "English" 
 [CONFIG_INFO_VD1]
-1 
+0 
 [CONFIG_INFO_VD2]
 0 
 [CONFIG_INFO_VD3]
@@ -490,10 +490,6 @@
 [WINDOW_POSITION_STATE_DATA_VD3]
 [WINDOW_POSITION_STATE_DATA_VD4]
 [WINDOW_Z_ORDER]
-"C:\Dec8_ON\one_net\cli\oncli_hdlr.c" 
-"C:\Dec8_ON\one_net\mac\one_net.h" 
-"C:\Dec8_ON\processors\renesas\src\common\one_net_port_specific.c" 
-"C:\Dec8_ON\one_net\cli\oncli_str.c" 
 [STATUSBAR_STATEINFO_VD1]
 "MasterShowState" 1 
 "ApplicationShowState" 1 
