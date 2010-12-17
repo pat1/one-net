@@ -37,6 +37,9 @@
       Interface commands.
 */
 
+#include "config_options.h"
+
+
 #ifdef _R8C_TINY
     #pragma section program program_high_rom
 #endif // ifdef _R8C_TINY //
