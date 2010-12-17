@@ -50,6 +50,90 @@
 //! \ingroup one_net_config_options
 //! @{
 
+
+// add any new configuration options you need.  Comment out any you do not need
+
+#ifndef _ONE_NET_MULTI_HOP
+	#define _ONE_NET_MULTI_HOP
+#endif
+
+#ifndef _ONE_NET_EVAL
+	#define _ONE_NET_EVAL
+#endif
+
+#ifndef _CHIP_ENABLE
+	#define _CHIP_ENABLE
+#endif
+
+#ifndef _R8C_TINY
+	#define _R8C_TINY
+#endif
+
+#ifndef _ENABLE_DUMP_COMMAND
+	#define _ENABLE_DUMP_COMMAND
+#endif
+
+#ifndef _SERIAL_ASSIGN_DEMO_PINS
+	#define _SERIAL_ASSIGN_DEMO_PINS
+#endif
+
+#ifndef _ENABLE_LIST_COMMAND
+	#define _ENABLE_LIST_COMMAND
+#endif
+
+#ifndef _ENABLE_CLIENT_PING_RESPONSE
+	#define _ENABLE_CLIENT_PING_RESPONSE
+#endif
+
+// _AUTO_MODE should be defined if you want the Auto Mode option available
+#ifndef _AUTO_MODE
+	#define _AUTO_MODE
+#endif
+
+// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+#ifndef _SNIFFER_MODE
+	#define _SNIFFER_MODE
+#endif
+
+
+
+// options not needed for Eval Board ADI project are below and are therefore commented out
+
+
+//#ifndef _ONE_NET_MH_CLIENT_REPEATER
+//	#define _ONE_NET_MH_CLIENT_REPEATER
+//#endif
+
+//#ifndef _NEED_XDUMP
+//	#define _NEED_XDUMP
+//#endif
+
+//#ifndef _ENABLE_RSINGLE_COMMAND
+//	#define _ENABLE_RSINGLE_COMMAND
+//#endif
+
+//#ifndef _EVAL_0005_NO_REVISION
+//	#define _EVAL_0005_NO_REVISION
+//#endif
+
+//#ifndef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+//	#define _ONE_NET_TEST_NACK_WITH_REASON_FIELD
+//#endif
+
+//#ifndef _ONE_NET_DEBUG
+//	#define _ONE_NET_DEBUG
+//#endif
+
+//#ifndef _ENABLE_RSSI_COMMAND
+//	#define _ENABLE_RSSI_COMMAND
+//#endif
+
+//#ifndef _ONE_NET_DEBUG_STACK
+//	#define _ONE_NET_DEBUG_STACK
+//#endif
+
+
+
 //! @} one_net_config_options_const
 //                                  CONSTANTS END
 //==============================================================================
