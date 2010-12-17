@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_TYPES_H
 #define _ONE_NET_TYPES_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_Types Type declarations for ONE-NET.
 //! \ingroup ONE-NET
 //! @{

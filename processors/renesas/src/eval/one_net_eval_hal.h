@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_EVAL_HAL_H
 #define _ONE_NET_EVAL_HAL_H
 
+#include "config_options.h"
+
+
 //! \defgroup ont_net_eval_hal ONE-NET Evaluation Hardware Abstraction Layer
 //! @{
 

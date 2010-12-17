@@ -1,6 +1,9 @@
 #ifndef _NPRINTF_H 
 #define _NPRINTF_H 
 
+#include "config_options.h"
+
+
 //! \defgroup nprintf
 //! @{
 

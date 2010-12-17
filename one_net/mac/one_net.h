@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_H
 #define _ONE_NET_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET ONE-NET
 //! @{
 

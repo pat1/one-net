@@ -1,6 +1,8 @@
 #ifndef _CB_H 
 #define _CB_H 
 
+#include "config_options.h"
+
 //! \defgroup cb Circular Buffer functionality.
 //! @{
 

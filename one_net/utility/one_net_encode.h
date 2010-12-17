@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_ENCODE_H
 #define _ONE_NET_ENCODE_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_encode ONE-NET Encoding and Decoding
 //! @{
 

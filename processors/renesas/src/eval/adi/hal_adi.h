@@ -40,6 +40,9 @@
     the ADI transceiver.
 */
 
+#include "config_options.h"
+
+
 #include "pal.h"
 
 //=============================================================================

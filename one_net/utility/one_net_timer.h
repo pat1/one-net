@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_TIMER_H
 #define _ONE_NET_TIMER_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_TIMER Timer functionality used by ONE-NET
 //! \ingroup ONE-NET_utility
 //! @{

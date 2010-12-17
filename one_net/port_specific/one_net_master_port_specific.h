@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_MASTER_PORT_SPECIFIC_H
 #define _ONE_NET_MASTER_PORT_SPECIFIC_H
 
+#include "config_options.h"
+
+
 //! \defgroup ON_MASTER_port_specific MASTER Specific ONE-NET functionality
 //! \ingroup ONE-NET_port_specific 
 //! @{

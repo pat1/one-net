@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_XTEA_H
 #define _ONE_NET_XTEA_H
 
+#include "config_options.h"
+
+
 //! \defgroup one_net_xtea XTEA functionality
 //! @{
 

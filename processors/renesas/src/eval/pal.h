@@ -1,6 +1,9 @@
 #ifndef _PAL_H
 #define _PAL_H
 
+#include "config_options.h"
+
+
 //! \defgroup PAL_EVAL Processor abstraction layer for r8c1 family of processors.
 //! \ingroup PAL
 //! @{

@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_TIMER_PORT_CONST_H
 #define _ONE_NET_TIMER_PORT_CONST_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_TIMER_PORT_CONST Timer constants defined by the
 //!   application.
 //! \ingroup ONE-NET_TIMER

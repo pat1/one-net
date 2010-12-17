@@ -1,6 +1,9 @@
 #ifndef _UART_HAL_H
 #define _UART_HAL_H
 
+#include "config_options.h"
+
+
 //! \defgroup uart_hal UART hardware dependent functionality
 //! @{
 

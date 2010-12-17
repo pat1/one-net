@@ -1,6 +1,9 @@
 #ifndef _ONCLI_HDLR_H 
 #define _ONCLI_HDLR_H 
 
+#include "config_options.h"
+
+
 //! \defgroup oncli_hdlr ONE-NET Command Line Interface Handlers
 //! @{
 

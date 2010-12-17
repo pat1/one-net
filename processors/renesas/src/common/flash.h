@@ -1,6 +1,9 @@
 #ifndef _FLASH_H
 #define _FLASH_H
 
+#include "config_options.h"
+
+
 //! \defgroup FLASH_R8C Data Flash Functionality for R8C
 //! @{
 

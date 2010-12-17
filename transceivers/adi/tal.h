@@ -1,6 +1,9 @@
 #ifndef _TAL_H
 #define _TAL_H
 
+#include "config_options.h"
+
+
 //! \defgroup TAL Transceiver Abstraction Layer
 //! @{
 

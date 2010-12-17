@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_MASTER_PORT_CONST_H
 #define _ONE_NET_MASTER_PORT_CONST_H
 
+#include "config_options.h"
+
+
 //! \defgroup on_master_port_const ONE-NET MASTER port specific constants
 //! \ingroup ONE-NET_port_specific
 //! @{

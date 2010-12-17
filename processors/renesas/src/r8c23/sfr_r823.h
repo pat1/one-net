@@ -1,6 +1,9 @@
 #ifndef _SRF_R823_H
 #define _SRF_R823_H
 
+#include "config_options.h"
+
+
 /************************************************************************************
 *																					*
 *   File Name   : SFR_R823.h														*

@@ -1,6 +1,9 @@
 #ifndef _ONCLI_STR_H 
 #define _ONCLI_STR_H 
 
+#include "config_options.h"
+
+
 //! \defgroup oncli_str ONE-NET Command Line Interface Strings
 //! \ingroup oncli
 //! @{

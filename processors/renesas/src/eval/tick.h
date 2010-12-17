@@ -1,6 +1,9 @@
 #ifndef _TICK_H
 #define _TICK_H
 
+#include "config_options.h"
+
+
 //! \defgroup TICK Time keeping functionality.
 //! \ingroup RENESAS_R8C
 //! @{

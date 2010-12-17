@@ -1,6 +1,9 @@
 #ifndef _ONCLI_PORT_CONST_H
 #define _ONCLI_PORT_CONST_H
 
+#include "config_options.h"
+
+
 //! \defgroup oncli_port_const ONE-NET Command Line Interface port specific
 //!   constants
 //! \ingroup oncli_port

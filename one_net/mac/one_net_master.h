@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_MASTER_H
 #define _ONE_NET_MASTER_H
 
+#include "config_options.h"
+
+
 
 //! \defgroup ONE-NET_MASTER ONE-NET MASTER device functionality
 //! \ingroup ONE-NET

@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_CLIENT_PORT_SPECIFIC_H
 #define _ONE_NET_CLIENT_PORT_SPECIFIC_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE_NET_CLIENT_port_specific CLIENT Specific ONE-NET functionality
 //! \ingroup ONE-NET_port_specific 
 //! @{

@@ -1,6 +1,9 @@
 #ifndef _DFI_H 
 #define _DFI_H 
 
+#include "config_options.h"
+
+
 //! \defgroup dfi Data Flash Interface
 //! @{
 

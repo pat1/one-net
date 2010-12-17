@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_CRC_H
 #define _ONE_NET_CRC_H
 
+#include "config_options.h"
+
+
 //! \defgroup one_net_crc Functionality for computing CRCs.
 //! @{
 

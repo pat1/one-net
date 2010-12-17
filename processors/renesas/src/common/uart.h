@@ -1,6 +1,9 @@
 #ifndef _UART_H
 #define _UART_H
 
+#include "config_options.h"
+
+
 //! \defgroup uart UART functionality
 //! @{
 

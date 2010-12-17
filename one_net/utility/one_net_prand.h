@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_PRAND_H
 #define _ONE_NET_PRAND_H
 
+#include "config_options.h"
+
+
 //! \defgroup prand Pseudo Random Number Generator
 //! @{
 

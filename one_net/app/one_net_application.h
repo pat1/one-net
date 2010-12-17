@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_APPLICATION_H
 #define _ONE_NET_APPLICATION_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_APP ONE-NET Application Layer
 //! \ingroup ONE-NET
 //! @{

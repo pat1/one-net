@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_STATUS_CODES_H
 #define _ONE_NET_STATUS_CODES_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_status_codes ONE-NET Status Codes
 //! \ingroup ONE-NET
 //! @{

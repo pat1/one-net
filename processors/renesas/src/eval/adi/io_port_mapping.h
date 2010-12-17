@@ -1,6 +1,9 @@
 #ifndef _IO_PORT_MAPPING_H
 #define _IO_PORT_MAPPING_H
 
+#include "config_options.h"
+
+
 //! \defgroup IO_PORT_MAPPING_ADI_EVAL I/O Port Mapping for the Evaluation
 //!   Project using an ADI ADF7025 transceiver.
 //! @{

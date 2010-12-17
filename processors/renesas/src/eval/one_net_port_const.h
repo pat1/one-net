@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_PORT_CONST_H
 #define _ONE_NET_PORT_CONST_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_port_const Application Specific ONE-NET constants.
 //! \ingroup ONE-NET
 //! @{

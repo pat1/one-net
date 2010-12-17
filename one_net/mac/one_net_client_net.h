@@ -1,6 +1,9 @@
 #ifndef _ONE_NET_CLIENT_NET_H
 #define _ONE_NET_CLIENT_NET_H
 
+#include "config_options.h"
+
+
 //! \defgroup ONE-NET_CLIENT_NET ONE-NET CLIENT network functionality.
 //! \ingroup ONE-NET_CLIENT
 //! @{
