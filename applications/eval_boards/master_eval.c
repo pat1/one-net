@@ -7,12 +7,17 @@
     \brief The MASTER part of the ONE-NET evaluation project.
 */
 
+#include "config_options.h"
+
 #include "one_net_crc.h"
 #include "io_port_mapping.h"
 #include "one_net_master_port_specific.h"
-#include "oncli.h"
-#include "oncli_port.h"
-#include "oncli_str.h"
+
+#ifdef _ENABLE_CLI
+	#include "oncli.h"
+	#include "oncli_port.h"
+	#include "oncli_str.h"
+#endif
 #include "one_net_encode.h"
 #include "one_net_eval.h"
 #include "one_net_eval_hal.h"
@@ -233,6 +238,7 @@ oncli_status_t oncli_reset_master_with_channel(
 } // oncli_reset_master_with_channel //
 
 
+#ifdef _ENABLE_INVITE_COMMAND
 oncli_status_t oncli_invite(const one_net_xtea_key_t *KEY)
 {
 #ifndef _SNIFFER_FRONT_END
@@ -295,8 +301,10 @@ oncli_status_t oncli_invite(const one_net_xtea_key_t *KEY)
     return ONCLI_INTERNAL_ERR;
 #endif
 } // oncli_invite //
+#endif
 
 
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
 oncli_status_t oncli_cancel_invite(void)
 {
     UInt8 i;
@@ -314,8 +322,10 @@ oncli_status_t oncli_cancel_invite(void)
     
     return ONCLI_SUCCESS;
 } // oncli_cancel_invite //
+#endif
 
 
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
 oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
   UInt8 peer_unit, const one_net_raw_did_t *DST_DID,
   UInt8 dst_unit)
@@ -367,8 +377,10 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
     
     return ONCLI_INTERNAL_ERR;
 } // oncli_assign_peer //
+#endif
 
 
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
 oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
   UInt8 peer_unit, const one_net_raw_did_t *DST_DID,
   UInt8 dst_unit)
@@ -420,8 +432,10 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
     
     return ONCLI_INTERNAL_ERR;
 } // oncli_unassign_peer //
+#endif
 
 
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
 oncli_status_t oncli_set_update_master_flag(BOOL SET,
   const one_net_raw_did_t *DST)
 {
@@ -463,8 +477,10 @@ oncli_status_t oncli_set_update_master_flag(BOOL SET,
 
     return ONCLI_INTERNAL_ERR;
 } // oncli_set_update_master_flag //
+#endif
 
 
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 oncli_status_t oncli_change_keep_alive(UInt32 KEEP_ALIVE,
   const one_net_raw_did_t *DST)
 {
@@ -506,8 +522,10 @@ oncli_status_t oncli_change_keep_alive(UInt32 KEEP_ALIVE,
 
     return ONCLI_INTERNAL_ERR;
 } // oncli_change_keep_alive //
+#endif
 
 
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 oncli_status_t oncli_change_frag_dly(const one_net_raw_did_t *DID,
   UInt8 PRIORITY, UInt32 DLY)
 {
@@ -555,8 +573,10 @@ oncli_status_t oncli_change_frag_dly(const one_net_raw_did_t *DID,
 
     return ONCLI_INTERNAL_ERR;
 } // oncli_change_frag_dly //
+#endif
 
 
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
 oncli_status_t oncli_change_key(
   const one_net_xtea_key_fragment_t *FRAGMENT)
 {
@@ -592,8 +612,10 @@ oncli_status_t oncli_change_key(
 
     return ONCLI_INTERNAL_ERR;
 } // oncli_change_key //
+#endif
 
 
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
 oncli_status_t oncli_remove_device(const one_net_raw_did_t *DST)
 {
     if(!DST)
@@ -639,6 +661,7 @@ oncli_status_t oncli_remove_device(const one_net_raw_did_t *DST)
 
     return ONCLI_INTERNAL_ERR;
 } // oncli_remove_device //
+#endif
 
 
 void one_net_master_device_is_awake(const one_net_raw_did_t *DID)
@@ -1273,11 +1296,13 @@ static void send_auto_msg(void)
 {
     if(mode_type() == AUTO_MODE)
     {
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
         if(oncli_user_input())
         {
             ont_set_timer(AUTO_MODE_TIMER, AUTO_MANUAL_DELAY);
             return;
         } // if there is user input //
+#endif
 
         if(ont_expired(AUTO_MODE_TIMER))
         {

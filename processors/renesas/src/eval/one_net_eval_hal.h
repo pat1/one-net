@@ -40,10 +40,12 @@
 	{
 	    //! Number of ticks of inactivity before the prompt is displayed. 5s
 	    PROMPT_PERIOD = MS_TO_TICK(5000),
-    
+		
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED    
 	    //! Number of ticks to wait after user input has been detected before
 	    //! sniffing the channel again.  5s
 	    USER_INPUT_PAUSE_TIME = MS_TO_TICK(5000)
+#endif
 	};
 #endif
 

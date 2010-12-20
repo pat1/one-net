@@ -1,8 +1,6 @@
 #ifndef _ONCLI_PORT_H 
 #define _ONCLI_PORT_H 
 
-#include "config_options.h"
-
 
 //! \defgroup oncli_port ONE-NET Command Line Interface Port specific
 //!   functionality
@@ -52,6 +50,10 @@
     ONE-NET evaluation boards so a user can easily test and evaluate the
     ONE-NET protocol (MAC layer).
 */
+
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
 
 #include "oncli_port_const.h"
 #include "one_net_application.h"
@@ -211,7 +213,9 @@ oncli_status_t oncli_invite(const one_net_xtea_key_t *KEY);
             ONCLI_INTERNAL_ERR If something unexpected occured
             ONCLI_INVALID_CMD_FOR_NODE if the command is not valid for the node type
 */
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
 oncli_status_t oncli_cancel_invite(void);
+#endif
 
 
 /*!
@@ -616,6 +620,8 @@ oncli_status_t oncli_print_master_peer(BOOL prompt_flag);
 //==============================================================================
 
 //! @} oncli_port
+
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_PORT_H //
 

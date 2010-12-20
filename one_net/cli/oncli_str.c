@@ -240,118 +240,166 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 #endif
 
 // Command strings
-//! Single command string
-const char * const ONCLI_SINGLE_CMD_STR = "single";
 
-//! Single text command string
-const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
+#ifdef _ENABLE_SINGLE_COMMAND
+	//! Single command string
+	const char * const ONCLI_SINGLE_CMD_STR = "single";
+#endif
 
-//! Block command string
-const char * const ONCLI_BLOCK_CMD_STR = "block";
+#ifdef _ENABLE_SINGLE_TEXT_COMMAND
+	//! Single text command string
+	const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
+#endif
 
-//! Block text command string
-const char * const ONCLI_BLOCK_TXT_CMD_STR = "block text";
+#ifdef _ENABLE_BLOCK_COMMAND
+	//! Block command string
+	const char * const ONCLI_BLOCK_CMD_STR = "block";
+#endif
 
-//! Erase data flash command string
-const char * const ONCLI_ERASE_CMD_STR = "erase";
+#ifdef _ENABLE_BLOCK_TEXT_COMMAND
+	//! Block text command string
+	const char * const ONCLI_BLOCK_TXT_CMD_STR = "block text";
+#endif
 
-//! Save data flash command string
-const char * const ONCLI_SAVE_CMD_STR = "save";
+#ifdef _ENABLE_ERASE_COMMAND
+	//! Erase data flash command string
+	const char * const ONCLI_ERASE_CMD_STR = "erase";
+#endif
+
+#ifdef _ENABLE_SAVE_COMMAND
+	//! Save data flash command string
+	const char * const ONCLI_SAVE_CMD_STR = "save";
+#endif
 
 #ifdef _ENABLE_DUMP_COMMAND
-//! Dump data flash command string
-const char * const ONCLI_DUMP_CMD_STR = "dump";
+	//! Dump data flash command string
+	const char * const ONCLI_DUMP_CMD_STR = "dump";
 #endif
 
 #ifdef _ENABLE_RSINGLE_COMMAND
-//! Repeat sending messages
-const char * const ONCLI_RSEND_CMD_STR = "rsingle";
+	//! Repeat sending messages
+	const char * const ONCLI_RSEND_CMD_STR = "rsingle";
 #endif
 
 #ifdef _ENABLE_RSSI_COMMAND
-//! Start monitoring RSSI
-const char * const ONCLI_RSSI_CMD_STR = "rssi";
+	//! Start monitoring RSSI
+	const char * const ONCLI_RSSI_CMD_STR = "rssi";
 #endif
 
 #ifdef _ENABLE_LIST_COMMAND
+	//! Info command string
+	const char * const ONCLI_LIST_CMD_STR = "list";
 
-//! Info command string
-const char * const ONCLI_LIST_CMD_STR = "list";
+	//! Format for printing peers in the CLI list command
+	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
 
-//! Format for printing peers in the CLI list command
-const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
+	//! Peer table heading string.
+	const char * const ONCLI_LIST_PEER_TABLE_HEADING = "Peer table:\n";
 
-//! Peer table heading string.
-const char * const ONCLI_LIST_PEER_TABLE_HEADING = "Peer table:\n";
-
-//! No peers in table string.
-const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
-
+	//! No peers in table string.
+	const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
 #endif
 
 
 // MASTER only command strings
-//! Command to invite a specific CLIENT to join the network.
-const char * const ONCLI_INVITE_CMD_STR = "invite";
 
-//! Cancel Invite command string
-const char * const ONCLI_CANCEL_INVITE_CMD_STR = "cancel invite";
-
-//! Assign peer command string
-const char * const ONCLI_ASSIGN_PEER_CMD_STR = "assign peer";
-
-//! Unassign peer command string
-const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
-
-//! Update MASTER command string
-const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
-
-//! Change keep alive command string
-const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
-
-//! Change fragment delay string
-const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
-  = "change fragment delay";
-
-//! Change key command string
-const char * const ONCLI_CHANGE_KEY_CMD_STR = "change key";
-
-//! Remove device command string
-const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
-
-//! Data Rate Test command string
-const char * const ONCLI_DATA_RATE_TEST_CMD_STR = "data rate test";
-
-//! Get Channel command string
-const char * const ONCLI_GET_CHANNEL_CMD_STR = "get channel";
-
-
-// CLIENT only command strings
-//! Command to enable or disable user pins
-const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
-
-
-// Mode strings strings
-//! Command to restart in CLIENT mode and look for an invite from a MASTER
-const char * const ONCLI_JOIN_CMD_STR = "join";
-
-//! Command to restart in MASTER mode on the given channel (with an empty
-//! netowrk)
-const char * const ONCLI_CHANNEL_CMD_STR = "channel";
-
-//! SETNI command string
-const char * const ONCLI_SETNI_CMD_STR = "setni";
-
-#ifdef _SNIFFER_MODE
-	//! sniff command string
-	const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+#ifdef _ENABLE_INVITE_COMMAND
+	//! Command to invite a specific CLIENT to join the network.
+	const char * const ONCLI_INVITE_CMD_STR = "invite";
 #endif
 
-//! mode command string
-const char * const ONCLI_MODE_CMD_STR = "mode";
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+	//! Cancel Invite command string
+	const char * const ONCLI_CANCEL_INVITE_CMD_STR = "cancel invite";
+#endif
 
-//! echo command string
-const char * const ONCLI_ECHO_CMD_STR = "echo";
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+	//! Assign peer command string
+	const char * const ONCLI_ASSIGN_PEER_CMD_STR = "assign peer";
+#endif
+
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+	//! Unassign peer command string
+	const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
+#endif
+
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+	//! Update MASTER command string
+	const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
+#endif
+
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	//! Change keep alive command string
+	const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
+#endif
+
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+	//! Change fragment delay string
+	const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
+	  = "change fragment delay";
+#endif
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+	//! Change key command string
+	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change key";
+#endif
+
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+	//! Remove device command string
+	const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
+#endif
+
+#ifdef _ENABLE_DATA_RATE_TEST_COMMAND
+	//! Data Rate Test command string
+	const char * const ONCLI_DATA_RATE_TEST_CMD_STR = "data rate test";
+#endif
+
+#ifdef _ENABLE_GET_CHANNEL_COMMAND
+	//! Get Channel command string
+	const char * const ONCLI_GET_CHANNEL_CMD_STR = "get channel";
+#endif
+
+// CLIENT only command strings
+
+#ifdef _ENABLE_USER_PIN_COMMAND
+	//! Command to enable or disable user pins
+	const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
+#endif
+
+// Mode strings strings
+
+#ifdef _ENABLE_JOIN_COMMAND
+	//! Command to restart in CLIENT mode and look for an invite from a MASTER
+	const char * const ONCLI_JOIN_CMD_STR = "join";
+#endif
+
+#ifdef _ENABLE_CHANNEL_COMMAND
+	//! Command to restart in MASTER mode on the given channel (with an empty
+	//! netowrk)
+	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
+#endif
+
+#ifdef _ENABLE_SETNI_COMMAND
+	//! SETNI command string
+	const char * const ONCLI_SETNI_CMD_STR = "setni";
+#endif
+
+#ifdef _SNIFFER_MODE
+	#ifdef _ENABLE_SNIFFER_COMMAND
+		//! sniff command string
+		const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+	#endif
+#endif
+
+#ifdef _ENABLE_MODE_COMMAND
+	//! mode command string
+	const char * const ONCLI_MODE_CMD_STR = "mode";
+#endif
+
+#ifdef _ENABLE_ECHO_COMMAND
+	//! echo command string
+	const char * const ONCLI_ECHO_CMD_STR = "echo";
+#endif
 
 
 // Transaction strings

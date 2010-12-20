@@ -1,8 +1,6 @@
 #ifndef _ONCLI_HDLR_H 
 #define _ONCLI_HDLR_H 
 
-#include "config_options.h"
-
 
 //! \defgroup oncli_hdlr ONE-NET Command Line Interface Handlers
 //! @{
@@ -47,6 +45,10 @@
     ONE-NET evaluation boards so a user can easily test and evaluate the
     ONE-NET protocol (MAC layer).
 */
+
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
 
 #include "one_net.h"
 
@@ -100,6 +102,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 //==============================================================================
 
 //! @} oncli_hdlr
+
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_HDLR_H //
 

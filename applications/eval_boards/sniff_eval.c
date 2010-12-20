@@ -114,6 +114,7 @@ void sniff_eval(void)
 
     UInt16 i, bytes_read = sizeof(pkt);
 
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
     if(oncli_user_input())
     {
         ont_set_timer(USER_INPUT_TIMER, USER_INPUT_PAUSE_TIME);
@@ -131,6 +132,7 @@ void sniff_eval(void)
             return;
         } // else the user input timer has not expired //
     } // if there had been user input //
+#endif
 
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {

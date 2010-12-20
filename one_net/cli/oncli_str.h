@@ -1,8 +1,6 @@
 #ifndef _ONCLI_STR_H 
 #define _ONCLI_STR_H 
 
-#include "config_options.h"
-
 
 //! \defgroup oncli_str ONE-NET Command Line Interface Strings
 //! \ingroup oncli
@@ -47,6 +45,11 @@
     These strings are to be used in a case insensitive manner.
 */
 
+
+
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
 
 //==============================================================================
 //								CONSTANTS
@@ -282,6 +285,8 @@ extern const char * const ONCLI_ONS_STR[];
 //==============================================================================
 
 //! @} oncli_str
+
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_STR_H //
 

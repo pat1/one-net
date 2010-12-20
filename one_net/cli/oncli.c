@@ -40,6 +40,10 @@
 //    #pragma section program program_high_rom
 //#endif // ifdef _R8C_TINY //
 
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
+
 
 #include "oncli.h"
 
@@ -79,18 +83,22 @@
 //! \ingroup oncli
 //! @{
 
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 //! The state the ONCLI is in
 static UInt8 state;
 
 //! flag to indicate if echoing or not
 static BOOL echo_on = TRUE;
+#endif
 
 //! The verbosity mode of the device
 static oncli_verbose_t verbosity = ONCLI_QUIET;
 
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 // The number of bytes in the command string so far.  This variable is so
 // the strlen doesn't have to be computed every time.
 static UInt16 input_len = 0;
+#endif
 
 //! The string being output
 static char output[ONCLI_MAX_OUTPUT_STR_LEN];
@@ -105,6 +113,7 @@ static char output[ONCLI_MAX_OUTPUT_STR_LEN];
 //! \ingroup oncli
 //! @{
 
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 static void read_onc(void);
 
 static void print_cmd_result(const char * const CMD,
@@ -114,6 +123,7 @@ static void send_invalid_cmd_for_dev_msg(const char * const CMD,
   const char * const DEVICE);
 
 static void echo(const char CH);
+#endif
 
 //! @} oncli_pri_func
 //						PRIVATE FUNCTION DECLARATIONS END
@@ -124,7 +134,7 @@ static void echo(const char CH);
 //! \defgroup oncli_pub_func
 //! \ingroup oncli
 //! @{
-
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 oncli_status_t oncli_set_verbosity(const UInt8 VERBOSITY)
 {
     if(VERBOSITY != ONCLI_QUIET && VERBOSITY != ONCLI_VERBOSE)
@@ -167,7 +177,7 @@ void oncli_set_echo(const BOOL ECHO)
 {
     echo_on = ECHO;
 } // oncli_set_echo //
-
+#endif
 
 /*!
     \brief Returns a pointer to the string representation of the one_net_status
@@ -414,7 +424,9 @@ void xdump(UInt8 *pt, UInt16 len)
 */
 void oncli()
 {
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
     read_onc();
+#endif
 } // oncli //
 
 //! @} oncli_pub_func
@@ -441,6 +453,7 @@ void oncli()
 
     \return void
 */
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 static void read_onc(void)
 {
     // Pointer to the function that handles the command whose parameters are
@@ -486,9 +499,14 @@ static void read_onc(void)
                         // make sure input is NULL terminated
                         input[input_len] = '\0';
 
+#ifdef _ENABLE_GET_CHANNEL_COMMAND
                         if((status = oncli_parse_cmd(input, &CMD_STR, &next_state,
                           &cmd_hdlr)) != ONCLI_SUCCESS || (!cmd_hdlr
                           && CMD_STR != ONCLI_GET_CHANNEL_CMD_STR))
+#else
+                        if((status = oncli_parse_cmd(input, &CMD_STR, &next_state,
+                          &cmd_hdlr)) != ONCLI_SUCCESS || (!cmd_hdlr))
+#endif
                         {
                             // remove the command terminator ('\n', or ':')
                             // since if the command was invalid, we don't want
@@ -610,6 +628,7 @@ static void read_onc(void)
         } // end of else for non-back-space chars
     } // loop to read command string bytes //
 } // read_onc //
+#endif
 
 
 /*!
@@ -620,6 +639,7 @@ static void read_onc(void)
     
     \return void
 */
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 static void print_cmd_result(const char * const CMD,
   const oncli_status_t CMD_RESULT)
 {
@@ -741,6 +761,7 @@ static void print_cmd_result(const char * const CMD,
         } // default case //
     } // switch(CMD_RESULT) //
 } // print_cmd_result //
+#endif
 
 
 /*!
@@ -751,6 +772,7 @@ static void print_cmd_result(const char * const CMD,
     
     \return void
 */
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 static void send_invalid_cmd_for_dev_msg(const char * const CMD,
   const char * const DEVICE)
 {
@@ -766,6 +788,7 @@ static void send_invalid_cmd_for_dev_msg(const char * const CMD,
     snprintf(msg, sizeof(msg), ONCLI_INVALID_CMD_FOR_DEVICE_FMT, DEVICE);
     oncli_send_msg(ONCLI_CMD_FAIL_FMT, CMD, msg);
 } // send_invalid_cmd_for_dev_msg //
+#endif
 
 
 /*!
@@ -775,6 +798,7 @@ static void send_invalid_cmd_for_dev_msg(const char * const CMD,
     
     \return void
 */
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 static void echo(const char CH)
 {
     if(!echo_on)
@@ -785,10 +809,13 @@ static void echo(const char CH)
     oncli_send_msg("%c", CH);
     
 } // echo //
+#endif
 
 //! @} oncli_pri_func
 //						PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
 
+
+#endif // #ifdef _ENABLE_CLI
 //! @} oncli
 

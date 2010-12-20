@@ -7,13 +7,19 @@
     \brief The CLIENT part of the ONE-NET evaluation project.
 */
 
+#include "config_options.h"
+
 #include "one_net_client_net.h"
 #include "one_net_client_port_specific.h"
 #include "one_net_crc.h"
 #include "io_port_mapping.h"
-#include "oncli.h"
-#include "oncli_port.h"
-#include "oncli_str.h"
+
+#ifdef _ENABLE_CLI
+	#include "oncli.h"
+	#include "oncli_port.h"
+	#include "oncli_str.h"
+#endif
+
 #include "one_net_eval.h"
 #include "one_net_eval_hal.h"
 #include "pal.h"

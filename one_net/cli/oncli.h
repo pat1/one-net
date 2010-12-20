@@ -1,8 +1,6 @@
 #ifndef _ONCLI_H 
 #define _ONCLI_H 
 
-#include "config_options.h"
-
 
 //! \defgroup oncli ONE-NET Command Line Interface
 //! @{
@@ -47,6 +45,12 @@
     ONE-NET evaluation boards so a user can easily test and evaluate the
     ONE-NET protocol (MAC layer).
 */
+
+
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
+
 
 #include "oncli_port.h"
 #include "one_net_types.h"
@@ -127,6 +131,8 @@ void oncli(void);
 //==============================================================================
 
 //! @} oncli
+
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_H //
 

@@ -1,8 +1,6 @@
 #ifndef _ONCLI_PORT_CONST_H
 #define _ONCLI_PORT_CONST_H
 
-#include "config_options.h"
-
 
 //! \defgroup oncli_port_const ONE-NET Command Line Interface port specific
 //!   constants
@@ -51,6 +49,11 @@
       any one file is modified, the version number in one_net.h will need to be
       updated.
 */
+
+
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
 
 #include "tick.h"
 
@@ -117,6 +120,8 @@ enum
 //==============================================================================
 
 //! @} oncli_port_const
+
+#endif // #ifdef _ENABLE_CLI
 
 #endif // _ONCLI_PORT_CONST_H //
 
