@@ -53,6 +53,45 @@
 
 // First undefine everything to be extra careful
 
+// Version Information
+
+#ifdef _ONE_NET_VERSION_1_X
+	#undef _ONE_NET_VERSION_1_X
+#endif
+
+#ifdef _ONE_NET_VERSION_2_X
+	#undef _ONE_NET_VERSION_2_X
+#endif
+
+
+// Encryption, Encoding, Random Padding of unused packet portions for
+// increased security, and CRCs
+
+#ifdef _ONE_NET_USE_ENCRYPTION
+	#undef _ONE_NET_USE_ENCRYPTION
+#endif
+
+#ifdef _ONE_NET_USE_ENCODING
+	#undef _ONE_NET_USE_ENCODING
+#endif
+
+#ifdef _ONE_NET_USE_RANDOM_PADDING
+	#undef _ONE_NET_USE_RANDOM_PADDING
+#endif
+
+#ifdef _ONE_NET_USE_CRC
+	#undef _ONE_NET_USE_CRC
+#endif
+
+
+
+
+
+
+
+
+// Other #define options
+
 #ifdef _ONE_NET_MULTI_HOP
 	#undef _ONE_NET_MULTI_HOP
 #endif
@@ -252,6 +291,66 @@
 // guards aren't needed since we undefined everything above, but can't hurt so we'll leave them
 // in.
 
+// Version Information
+
+// Either _ONE_NET_VERSION_1_X or _ONE_NET_VERSION_2_X should be defined, but not both.  If
+// you are using a version of ONE-NET lower than 2.0, _ONE_NET_VERSION_1_X should be defined
+// and _ONE_NET_VERSION_2_X should not be defined.  If you are using version 2.0 or higher,
+// _ONE_NET_VERSION_2_X should be defined and _ONE_NET_VERSION_1_X should not be defined.
+
+#ifndef _ONE_NET_VERSION_1_X
+	#define _ONE_NET_VERSION_1_X
+#endif
+
+/*#ifndef _ONE_NET_VERSION_2_X
+	#define _ONE_NET_VERSION_2_X
+#endif*/
+
+
+// Encryption, Encoding, and Random Padding of unused packet portions for
+// increased security
+
+// Encryption.  All implementations of ONE-NET must use encryption, but for debugging and
+// learning purposes, it may be useful to turn encryption on and off.  Comment the three
+// lines below out if not using encryption.
+#ifndef _ONE_NET_USE_ENCRYPTION
+	#define _ONE_NET_USE_ENCRYPTION
+#endif
+
+// Encoding.  All implementations of ONE-NET must use encoding, but for debugging and
+// learning purposes, it may be useful to turn encoding on and off.  Comment the three
+// lines below out if not using encoding.  Note : Not using encoding WILL NOT affect packet
+// sizes.  There will still be a 6 bit to 8 bit encoding transformation and an 8 bit to
+// 6 bit decoding transformation.  However, when not using encoding , 0 will map to 0,
+// 1 will map to 1, 2 will map to 2, etc.  If using encoding, 0 will map to 0xB4, 1 will
+// map to 0xBC, 2 will to 0xB3, etc.
+#ifndef _ONE_NET_USE_ENCODING
+	#define _ONE_NET_USE_ENCODING
+#endif
+
+// Random Padding.  If defined, unused portions of encrypted packets will be randomly
+// generated. If not turned on, unused portions of encrypted packets will be either 0
+// or "undefined" ("undefined" means that they may be zeroed out, they may be left as-is
+// i.e. whatever is in memory is what is used, or may be randomly generated.  The behavior
+// should not be assumed and is left to the developer).  Note that this option should have
+// no effect on the parsing of packets.  It only affects the creation of packets.
+/*#ifndef _ONE_NET_USE_RANDOM_PADDING
+	#defined _ONE_NET_USE_RANDOM_PADDING
+#endif*/
+
+// CRC.  All implementations of ONE-NET must use CRC's, but for debugging and
+// learning purposes, it may be useful to turn CRC's on and off.  Comment the three
+// lines below out if not using CRC's.  If CRC's are not defined, CRC's will be assigned
+// a value of 0.
+#ifndef _ONE_NET_USE_CRC
+	#define _ONE_NET_USE_CRC
+#endif
+
+
+
+
+// Other Options
+
 #ifndef _ONE_NET_MULTI_HOP
 	#define _ONE_NET_MULTI_HOP
 #endif
@@ -276,15 +375,16 @@
 	#define _ENABLE_CLIENT_PING_RESPONSE
 #endif
 
+/*
 // _AUTO_MODE should be defined if you want the Auto Mode option available
 #ifndef _AUTO_MODE
 	#define _AUTO_MODE
-#endif
+#endif*/
 
-// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+/*// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
 #ifndef _SNIFFER_MODE
 	#define _SNIFFER_MODE
-#endif
+#endif*/
 
 
 
@@ -316,7 +416,7 @@
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementeing the "single" command option
-	#ifndef _ENABLE_SINGLE_COMMAND
+/*	#ifndef _ENABLE_SINGLE_COMMAND
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
@@ -333,7 +433,7 @@
 	// _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementeing the "block text" command option
 	#ifndef _ENABLE_BLOCK_TEXT_COMMAND
 		#define _ENABLE_BLOCK_TEXT_COMMAND
-	#endif
+	#endif*/
 
 	// _ENABLE_ERASE_COMMAND should be defined if you are implementeing the "erase" command option
 	#ifndef _ENABLE_ERASE_COMMAND
@@ -344,11 +444,11 @@
 	#ifndef _ENABLE_SAVE_COMMAND
 		#define _ENABLE_SAVE_COMMAND
 	#endif
-
+/*
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementeing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
-	#endif
+	#endif*/
 
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementeing the "rsingle" command option
 	/*#ifdef _ENABLE_SINGLE_COMMAND
@@ -387,7 +487,7 @@
 		#define _ENABLE_UNASSIGN_PEER_COMMAND
 	#endif
 
-	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementeing the "set update master flag" command option
+/*	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementeing the "set update master flag" command option
 	#ifndef _ENABLE_UPDATE_MASTER_COMMAND
 		#define _ENABLE_UPDATE_MASTER_COMMAND
 	#endif
@@ -400,7 +500,7 @@
 	// _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementeing the "change fragment delay" command option
 	#ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 		#define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-	#endif
+	#endif*/
 
 	// _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementeing the "change key" command option
 	#ifndef _ENABLE_CHANGE_KEY_COMMAND
@@ -412,10 +512,10 @@
 		#define _ENABLE_REMOVE_DEVICE_COMMAND
 	#endif
 
-	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementeing the "data rate test" command option
+/*	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementeing the "data rate test" command option
 	#ifndef _ENABLE_DATA_RATE_TEST_COMMAND
 		#define _ENABLE_DATA_RATE_TEST_COMMAND
-	#endif
+	#endif*/
 
 	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementeing the "get channel" command option
 	#ifndef _ENABLE_GET_CHANNEL_COMMAND
@@ -442,7 +542,7 @@
 		#define _ENABLE_SETNI_COMMAND
 	#endif
 
-	// _ENABLE_SNIFF_COMMAND should be defined if you are implementeing the "sniff" command option
+/*	// _ENABLE_SNIFF_COMMAND should be defined if you are implementeing the "sniff" command option
 	#ifdef _ENABLE_SNIFFER_MODE
 		#ifndef _ENABLE_SNIFF_COMMAND
 			#define _ENABLE_SNIFF_COMMAND
@@ -457,7 +557,7 @@
 	// _ENABLE_ECHO_COMMAND should be defined if you are implementeing the "echo" command option
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
-	#endif
+	#endif*/
 
 #endif
 	
