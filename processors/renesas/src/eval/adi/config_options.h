@@ -84,7 +84,24 @@
 #endif
 
 
+// Peer assignments and polling
+#ifdef _PEER
+	#undef _PEER
+#endif
 
+#ifdef _POLL
+	#undef _POLL
+#endif
+
+
+// Locale for channels (Europe or U.S.A.)
+#ifdef _US_CHANNELS
+	#undef _US_CHANNELS
+#endif
+
+#ifdef _EUROPE_CHANNELS
+	#undef _EUROPE_CHANNELS
+#endif
 
 
 
@@ -347,6 +364,33 @@
 #endif
 
 
+// Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
+// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
+#ifndef _PEER
+	#define _PEER
+#endif
+
+
+// Polling - only available for version 2.0 and higher.  Define _POLL if you are using
+// polling.  Default for Version 2.0 is _POLL defined.
+#ifndef _ONE_NET_VERSION_2_X
+	#ifndef _POLL
+		#define _POLL
+	#endif
+#endif
+
+
+
+// Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
+// define more than one.
+#ifndef _US_CHANNELS
+	#define _US_CHANNELS
+#endif
+
+#ifndef _EUROPE_CHANNELS
+	#define _EUROPE_CHANNELS
+#endif
+
 
 
 // Other Options
@@ -477,14 +521,16 @@
 		#define _ENABLE_CANCEL_INVITE_COMMAND
 	#endif
 
-	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementeing the "assign peer" command option
-	#ifndef _ENABLE_ASSIGN_PEER_COMMAND
-		#define _ENABLE_ASSIGN_PEER_COMMAND
-	#endif
+	#ifdef _PEER
+		// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementeing the "assign peer" command option
+		#ifndef _ENABLE_ASSIGN_PEER_COMMAND
+			#define _ENABLE_ASSIGN_PEER_COMMAND
+		#endif
 
-	// _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementeing the "unassign peer" command option
-	#ifndef _ENABLE_UNASSIGN_PEER_COMMAND
-		#define _ENABLE_UNASSIGN_PEER_COMMAND
+		// _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementeing the "unassign peer" command option
+		#ifndef _ENABLE_UNASSIGN_PEER_COMMAND
+			#define _ENABLE_UNASSIGN_PEER_COMMAND
+		#endif
 	#endif
 
 /*	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementeing the "set update master flag" command option
