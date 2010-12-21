@@ -357,11 +357,11 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INCORRECT_ADDR:
         {
@@ -412,11 +412,11 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INCORRECT_ADDR:
         {
@@ -457,11 +457,11 @@ oncli_status_t oncli_set_update_master_flag(BOOL SET,
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INCORRECT_ADDR:
         {
@@ -502,11 +502,11 @@ oncli_status_t oncli_change_keep_alive(UInt32 KEEP_ALIVE,
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INCORRECT_ADDR:
         {
@@ -547,11 +547,11 @@ oncli_status_t oncli_change_frag_dly(const one_net_raw_did_t *DID,
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INVALID_DATA:
         {
@@ -641,11 +641,11 @@ oncli_status_t oncli_remove_device(const one_net_raw_did_t *DST)
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
 
         case ONS_INCORRECT_ADDR:
         {
@@ -880,11 +880,11 @@ oncli_status_t oncli_start_data_rate_test(
             break;
         } // success case //
         
-        case ONS_BAD_PARAM:
+        /*case ONS_BAD_PARAM:
         {
             return ONCLI_INTERNAL_ERR;
             break;
-        } // bad parameter case //
+        } // bad parameter case //*/
         
         case ONS_INVALID_DATA:
         {
