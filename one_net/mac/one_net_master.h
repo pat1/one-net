@@ -53,7 +53,7 @@
 
 #include "one_net.h"
 #include "one_net_port_const.h"
-//#include "one_net_master_port_const.h"
+#include "one_net_master_port_const.h"
 
 
 //==============================================================================
