@@ -1,8 +1,6 @@
 #ifndef _UART_H
 #define _UART_H
 
-#include "config_options.h"
-
 
 //! \defgroup uart UART functionality
 //! @{
@@ -43,6 +41,8 @@
     \brief Contains declarations for functions associated with asynchronous
       serial i/o.
 */
+
+#include "config_options.h"
 
 #include "uart_hal.h"
 

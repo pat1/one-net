@@ -43,6 +43,8 @@
       updated.
 */
 
+#include "config_options.h"
+
 #include "one_net.h"
 
 #include "one_net_crc.h"
@@ -51,6 +53,7 @@
 #include "one_net_timer.h"
 #include "one_net_prand.h"
 #include "one_net_xtea.h"
+
 
 #ifdef _ONE_NET_DEBUG
     #include "oncli.h"

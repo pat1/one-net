@@ -1,0 +1,5 @@
+README - December 20, 2010
+
+Quad Relay Output Project
+
+Place a config_options.h file in this directory if you have a config_options.h file for the Quad Relay Output project that overrides the config_options.h in the overall "App Board" project.  The include path for the project should include this directory BEFORE including the "App Board" directory.  If you want to use the config_options.h file in the overall "App Board" directory, make sure that you do not have a file called config_options.h in this file.
