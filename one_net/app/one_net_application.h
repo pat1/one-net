@@ -296,7 +296,7 @@ ONE_NET_INLINE void get_block_data_payload_hdr(UInt16 * msg_type, UInt16 * block
 //! \defgroup ONE-NET_APP_typedefs
 //! \ingroup ONE-NET_APP
 //! @{
-
+#ifndef _ONE_NET_VERSION_2_X
 typedef enum _ona_msg_class
 {
     ONA_STATUS   = 0x0000, //!< Status of a unit
@@ -306,8 +306,22 @@ typedef enum _ona_msg_class
 
     ONA_MSG_CLASS_MASK = 0xC000,    //!< Used to mask message class bits
 } ona_msg_class_t;
+#else
+typedef enum _ona_msg_class
+{
+    ONA_STATUS   = 0x0000, //!< Status of a unit
+    ONA_COMMAND  = 0x4000, //!< Command to change status of a unit
+    ONA_QUERY    = 0x8000, //!< Query status of a unit
+#ifdef _POLL
+    ONA_POLL     = 0xC000, //!< Poll status of a unit
+#endif
+
+    ONA_MSG_CLASS_MASK = 0x8000,    //!< Used to mask message class bits
+} ona_msg_class_t;
+#endif
 
 
+#ifndef _ONE_NET_VERSION_2_X
 typedef enum _ona_msg_type
 {
     //! Set/Query/Report Switch Status
@@ -502,6 +516,202 @@ typedef enum _ona_msg_type
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0x3FFF
 } ona_msg_type_t;
+#else
+typedef enum _ona_msg_type
+{
+    //! Set/Query/Report Switch Status
+    ONA_SWITCH = 0x000,
+
+    //! Set/Query/Report Percent Status
+    ONA_PERCENT = 0x001,
+
+    //! Set/Query/Report Temperature Status
+    ONA_TEMPERATURE = 0x002,
+
+    //! Set/Query/Report Humidity Status
+    ONA_HUMIDITY = 0x003,
+
+    //! Set/Query/Report Pressure Status
+    ONA_PRESSURE = 0x004,
+
+    //! Set/Query/Report Rainfall Status
+    ONA_RAINFALL = 0x005,
+
+    //! Set/Query/Report Speed Status
+    ONA_SPEED_M_S = 0x006,
+
+    //! Set/Query/Report Direction Status
+    ONA_DIRECTION = 0x007,
+
+    //! Query status interval
+    ONA_STATUS_INTERVAL = 0x008,
+
+    //! Set/Query/Report Opening Status (called Access in the specification)
+    ONA_OPENING = 0x009,
+
+    //! Set/Query/Report Seal Status
+    ONA_SEAL = 0x00A,
+
+    //! Unused message
+    ONA_UNUSED0 = 0x00B,
+
+    //! Set/Query/Report Unit Type Count 
+    ONA_UNIT_TYPE_COUNT = 0x00C,
+
+    //! Set/Query/Report Unit Type
+    ONA_UNIT_TYPE = 0x00D,
+
+    //! Set/Query/Report Color
+    ONA_COLOR = 0x00E,
+
+    //! Send Simple Text (3 ASCII chars)
+    ONA_SIMPLE_TEXT = 0x00F,
+
+    //! Query/Report Date
+    ONA_DATE = 0x010,
+
+    //! Query/Report Time
+    ONA_TIME = 0x011,
+
+    //! Query Voltage
+    ONA_VOLTAGE = 0x012,
+
+    //! Report Voltage (in volts)
+    ONA_VOLTAGE_VOLTS = 0x013,
+
+    //! Report Voltage (in 10ths of a volt) 
+    ONA_VOLTAGE_10THS_VOLTS = 0x014,
+
+    //! Report Voltage (in 100ths of a volt)
+    ONA_VOLTAGE_100THS_VOLTS = 0x015,
+
+    //! Report Voltage (in simple good/bad)
+    ONA_VOLTAGE_SIMPLE = 0x016,
+
+    //! Incremental Energy Query 
+    ONA_ENERGY = 0x017,
+
+    // Replacing old values with new ones
+    //! Report Energy (in watt minutes)
+    // ONA_ENERGY_WATT_MINUTES = 0x01B,
+    //! Report Energy (in kilowatt minutes)
+    // ONA_ENERGY_KILOWATT_MINUTES = 0x01C,
+
+    //! Report Incremental Energy (in 2 watt seconds units)
+    ONA_ENERGY_2_WATT_SECONDS = 0x018,
+
+    //! Report Incremental Energy (in 20 watt seconds units)
+    ONA_ENERGY_20_WATT_SECONDS = 0x019,
+
+    //! Report Incremental Energy (in 200 watt seconds units)
+    ONA_ENERGY_200_WATT_SECONDS = 0x01A,
+
+    //! Report Incremental Energy (in 2000 watt seconds units)
+    ONA_ENERGY_2000_WATT_SECONDS = 0x01B,
+
+    //! Report Incremental Energy (in 20000 watt seconds units)
+    ONA_ENERGY_20000_WATT_SECONDS = 0x01C,
+
+    //! Accumulated Energy Query 
+    ONA_ACCUM_ENERGY = 0x01D,
+
+    //! Report Accumulated Energy (in 2 watt seconds units)
+    ONA_ACCUM_ENERGY_2_WATT_SECONDS = 0x01E,
+
+    //! Report Accumulated Energy (in 20 watt seconds units)
+    ONA_ACCUM_ENERGY_20_WATT_SECONDS = 0x01F,
+
+    //! Report Accumulated Energy (in 200 watt seconds units)
+    ONA_ACCUM_ENERGY_200_WATT_SECONDS = 0x020,
+
+    //! Report Accumulated Energy (in 2000 watt seconds units)
+    ONA_ACCUM_ENERGY_2000_WATT_SECONDS = 0x021,
+
+    //! Report Accumulated Energy (in 20000 watt seconds units)
+    ONA_ACCUM_ENERGY_20000_WATT_SECONDS = 0x022,
+
+    //! Peak Energy Query 
+    ONA_PEAK_ENERGY = 0x023,
+
+    //! Report Peak Energy (in 2 watt seconds units)
+    ONA_PEAK_ENERGY_2_WATT_SECONDS = 0x024,
+
+    //! Report Peak Energy (in 20 watt seconds units)
+    ONA_PEAK_ENERGY_20_WATT_SECONDS = 0x025,
+
+    //! Report Peak Energy (in 200 watt seconds units)
+    ONA_PEAK_ENERGY_200_WATT_SECONDS = 0x026,
+
+    //! Report Peak Energy (in 2000 watt seconds units)
+    ONA_PEAK_ENERGY_2000_WATT_SECONDS = 0x027,
+
+    //! Report Peak Energy (in 20000 watt seconds units)
+    ONA_PEAK_ENERGY_20000_WATT_SECONDS = 0x028,
+
+    //! Instantaneous Gas Query 
+    ONA_GAS = 0x029,
+
+    //! Instantaneous Gas Therm-Seconds
+    ONA_GAS_THERM_SECS = 0x02A,
+
+    //! Instantaneous Gas Therm-Minutes
+    ONA_GAS_THERM_MINS = 0x02B,
+
+    //! Instantaneous Gas Therm-Hours
+    ONA_GAS_THERM_HRS = 0x02C,
+
+    //! Accumulated Gas Query 
+    ONA_ACCUM_GAS = 0x02D,
+
+    //! Accumulated Gas Therm-Seconds
+    ONA_ACCUM_GAS_THERM_SECS = 0x02E,
+
+    //! Accumulated Gas Therm-Minutes
+    ONA_ACCUM_GAS_THERM_MINS = 0x02F,
+
+    //! Accumulated Gas Therm-Hours
+    ONA_ACCUM_GAS_THERM_HRS = 0x030,
+
+    //! Average Gas Query 
+    ONA_AVER_GAS = 0x031,
+
+    //! Average Gas Therm-Seconds
+    ONA_AVER_GAS_THERM_SECS = 0x032,
+
+    //! Average Gas Therm-Minutes
+    ONA_AVER_GAS_THERM_MINS = 0x033,
+
+    //! Average Gas Therm-Hours
+    ONA_AVER_GAS_THERM_HRS = 0x034,
+
+    //! Peak Gas Query 
+    ONA_PEAK_GAS = 0x035,
+
+    //! Peak Gas Therm-Seconds
+    ONA_PEAK_GAS_THERM_SECS = 0x036,
+
+    //! Peak Gas Therm-Minutes
+    ONA_PEAK_GAS_THERM_MINS = 0x037,
+
+    //! Peak Gas Therm-Hours
+    ONA_PEAK_GAS_THERM_HRS = 0x038,
+
+    //! Send INSTEON to address
+    ONA_INSTEON_TO_ADDRESS = 0xFFB,
+
+    //! Send INSTEON standard command
+    ONA_INSTEON_COMMAND = 0xFFC,
+
+    //! Send X10 simple msg
+    ONA_X10_SIMPLE = 0xFFD,
+
+    //! Send an extended X10 msg
+    ONA_X10_EXTENDED = 0xFFE,
+
+    //! Mask the message type bits
+    ONA_MSG_TYPE_MASK = 0xFFF
+} ona_msg_type_t;
+#endif
 
 
 //! Block application message types
