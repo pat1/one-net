@@ -823,18 +823,18 @@ extern one_net_send_single_func_t one_net_send_single;
 one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
   ona_msg_class_t *msg_class, ona_msg_type_t *msg_type);
 
-#ifndef _MASTER
+#ifndef _ONE_NET_MASTER
     one_net_status_t ona_send_unit_type_count_status(
       const one_net_raw_did_t *RAW_DST);
-#endif // ifndef MASTER //
+#endif // ifndef _ONE_NET_MASTER //
 
 one_net_status_t ona_send_unit_type_count_query(
   const one_net_raw_did_t *RAW_DST);
 
-#ifndef _MASTER
+#ifndef _ONE_NET_MASTER
     one_net_status_t ona_send_unit_type_status(UInt8 UNIT_TYPE_IDX,
       const one_net_raw_did_t *RAW_DST);
-#endif // ifndef MASTER //
+#endif // ifndef _ONE_NET_MASTER //
 
 one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX, 
   const one_net_raw_did_t *RAW_DST);
@@ -845,10 +845,10 @@ one_net_status_t ona_parse_unit_type_count(const UInt8 *MSG_DATA,
 one_net_status_t ona_parse_unit_type_status(const UInt8 *MSG_DATA,
   ona_unit_type_t * unit_type, UInt8 * unit_count);
 
-#ifndef _MASTER
+#ifndef _ONE_NET_MASTER
     one_net_status_t ona_parse_unit_type_query(const UInt8 *MSG_DATA,
       UInt8 *unit_type_index);
-#endif // ifndef MASTER //
+#endif // ifndef _ONE_NET_MASTER //
 
 //! @} ONE-NET_APP_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
