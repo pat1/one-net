@@ -3,13 +3,13 @@
 [DATABASE_VERSION]
 "10.0" 
 [WORKSPACE_DETAILS]
-"simple_eval" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval\simple_eval.hws" "M16C" "Renesas M16C Standard" 
+"simple_eval" "C:\ONE_NET\processors\renesas\hew\simple_eval" "C:\ONE_NET\processors\renesas\hew\simple_eval\simple_eval.hws" "M16C" "Renesas M16C Standard" 
 [SHARED_WORKSPACE_CONTROL_STATUS]
 "" "" "" 
 "" "" "" 
 [PROJECTS]
-"simple_eval_ia" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval\simple_eval_ia" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval\simple_eval_ia\simple_eval_ia.hwp" 0 
-"simple_eval_ti" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval\simple_eval_ti" "H:\ONE_NET_trunk\processors\renesas\hew\simple_eval\simple_eval_ti\simple_eval_ti.hwp" 0 
+"simple_eval_ia" "C:\ONE_NET\processors\renesas\hew\simple_eval\simple_eval_ia" "C:\ONE_NET\processors\renesas\hew\simple_eval\simple_eval_ia\simple_eval_ia.hwp" 0 
+"simple_eval_ti" "C:\ONE_NET\processors\renesas\hew\simple_eval\simple_eval_ti" "C:\ONE_NET\processors\renesas\hew\simple_eval\simple_eval_ti\simple_eval_ti.hwp" 0 
 [INFORMATION]
 "No workspace information available" 
 [SCRAP]

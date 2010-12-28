@@ -536,10 +536,10 @@
 [FLASH_DETAILS]
 "" 0 0 "" 0 "" 0 0 "" 0 0 0 0 0 0 0 "" "" "" "" "" 
 [BREAKPOINTS]
-"h:\one_net_trunk\applications\eval_boards\master_eval.c" 208 1936617315 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\applications\eval_boards\one_net_eval.c" 1490 1663595116 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\one_net\cli\oncli_hdlr.c" 1126 77183108 1 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\processors\renesas\src\common\uart.c" 366 0 1 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\transceivers\adi\adi.c" 980 73565304 0 "{00000000-0000-0000-C000-000000000046}" "" 
-"h:\one_net_trunk\transceivers\adi\adi.c" 984 73556888 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\applications\eval_boards\master_eval.c" 208 1936617315 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\applications\eval_boards\one_net_eval.c" 1490 1663595116 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\one_net\cli\oncli_hdlr.c" 1126 77183108 1 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\processors\renesas\src\common\uart.c" 366 0 1 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\transceivers\adi\adi.c" 980 73565304 0 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\transceivers\adi\adi.c" 984 73556888 0 "{00000000-0000-0000-C000-000000000046}" "" 
 [END]

@@ -534,5 +534,5 @@
 [FLASH_DETAILS]
 "" 0 0 "" 0 "" 0 0 "" 0 0 0 0 0 0 0 "" "" "" "" "" 
 [BREAKPOINTS]
-"h:\one_net_trunk\one_net\cli\oncli_hdlr.c" 1126 1936617315 1 "{00000000-0000-0000-C000-000000000046}" "" 
+"C:\ONE_NET\one_net\cli\oncli_hdlr.c" 1126 1936617315 1 "{00000000-0000-0000-C000-000000000046}" "" 
 [END]

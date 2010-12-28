@@ -3,14 +3,14 @@
 [DATABASE_VERSION]
 "10.0" 
 [WORKSPACE_DETAILS]
-"one_net_eval" "C:\ON_Dec16\processors\renesas\hew\one_net_eval" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
+"one_net_eval" "C:\ONE_NET\processors\renesas\hew\one_net_eval" "C:\ONE_NET\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
 [SHARED_WORKSPACE_CONTROL_STATUS]
 "" "" "" 
 "" "" "" 
 [PROJECTS]
-"eval_adi" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\eval_adi" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
-"eval_semtech" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\eval_semtech" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\eval_semtech\eval_semtech.hwp" 0 
-"sniffer_fe_adi" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\sniffer_fe_adi" "C:\ON_Dec16\processors\renesas\hew\one_net_eval\sniffer_fe_adi\sniffer_fe_adi.hwp" 0 
+"eval_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
+"eval_semtech" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_semtech" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_semtech\eval_semtech.hwp" 0 
+"sniffer_fe_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\sniffer_fe_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\sniffer_fe_adi\sniffer_fe_adi.hwp" 0 
 [INFORMATION]
 "No workspace information available" 
 [SCRAP]
