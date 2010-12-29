@@ -51,6 +51,20 @@
 //! @{
 
 
+
+// If you do not want to use the config_options.h file to implment the #define
+// values (i.e. you are using an IDE and would rather define things there),
+// make sure you define a #define variable called _OVERRIDE_CONFIG_OPTIONS_FILE.
+
+
+
+#ifndef _OVERRIDE_CONFIG_OPTIONS_FILE
+
+
+// _OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
+
+
+
 // First undefine everything to be extra careful
 
 #include "undefine_all_defines.h"
@@ -527,5 +541,9 @@
 //==============================================================================
 
 //! @} one_net_config_options
+
+
+#endif
+
 
 #endif // _ONE_NET_CONFIG_OPTIONS_H //
