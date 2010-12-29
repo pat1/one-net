@@ -53,252 +53,7 @@
 
 // First undefine everything to be extra careful
 
-// Version Information
-
-#ifdef _ONE_NET_VERSION_1_X
-	#undef _ONE_NET_VERSION_1_X
-#endif
-
-#ifdef _ONE_NET_VERSION_2_X
-	#undef _ONE_NET_VERSION_2_X
-#endif
-
-
-// Encryption, Encoding, Random Padding of unused packet portions for
-// increased security, and CRCs
-
-#ifdef _ONE_NET_USE_ENCRYPTION
-	#undef _ONE_NET_USE_ENCRYPTION
-#endif
-
-#ifdef _ONE_NET_USE_ENCODING
-	#undef _ONE_NET_USE_ENCODING
-#endif
-
-#ifdef _ONE_NET_USE_RANDOM_PADDING
-	#undef _ONE_NET_USE_RANDOM_PADDING
-#endif
-
-#ifdef _ONE_NET_USE_CRC
-	#undef _ONE_NET_USE_CRC
-#endif
-
-
-// Peer assignments and polling
-#ifdef _PEER
-	#undef _PEER
-#endif
-
-#ifdef _POLL
-	#undef _POLL
-#endif
-
-
-// Locale for channels (Europe or U.S.A.)
-#ifdef _US_CHANNELS
-	#undef _US_CHANNELS
-#endif
-
-#ifdef _EUROPE_CHANNELS
-	#undef _EUROPE_CHANNELS
-#endif
-
-
-
-
-
-// Other #define options
-
-#ifdef _ONE_NET_MULTI_HOP
-	#undef _ONE_NET_MULTI_HOP
-#endif
-
-#ifdef _ONE_NET_EVAL
-	#undef _ONE_NET_EVAL
-#endif
-
-#ifdef _CHIP_ENABLE
-	#undef _CHIP_ENABLE
-#endif
-
-#ifdef _R8C_TINY
-	#undef _R8C_TINY
-#endif
-
-#ifdef _ENABLE_DUMP_COMMAND
-	#undef _ENABLE_DUMP_COMMAND
-#endif
-
-#ifdef _SERIAL_ASSIGN_DEMO_PINS
-	#undef _SERIAL_ASSIGN_DEMO_PINS
-#endif
-
-#ifdef _ENABLE_LIST_COMMAND
-	#undef _ENABLE_LIST_COMMAND
-#endif
-
-#ifdef _ENABLE_CLIENT_PING_RESPONSE
-	#undef _ENABLE_CLIENT_PING_RESPONSE
-#endif
-
-#ifdef _AUTO_MODE
-	#undef _AUTO_MODE
-#endif
-
-#ifdef _SNIFFER_MODE
-	#undef _SNIFFER_MODE
-#endif
-
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
-	#undef _ONE_NET_MH_CLIENT_REPEATER
-#endif
-
-#ifdef _NEED_XDUMP
-	#undef _NEED_XDUMP
-#endif
-
-#ifdef _ENABLE_RSINGLE_COMMAND
-	#undef _ENABLE_RSINGLE_COMMAND
-#endif
-
-#ifdef _EVAL_0005_NO_REVISION
-	#undef _EVAL_0005_NO_REVISION
-#endif
-
-#ifdef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
-	#undef _ONE_NET_TEST_NACK_WITH_REASON_FIELD
-#endif
-
-#ifdef _ONE_NET_DEBUG
-	#undef _ONE_NET_DEBUG
-#endif
-
-#ifdef _ENABLE_RSSI_COMMAND
-	#undef _ENABLE_RSSI_COMMAND
-#endif
-
-#ifdef _ONE_NET_DEBUG_STACK
-	#undef _ONE_NET_DEBUG_STACK
-#endif
-
-
-
-// command line interface defines
-#ifdef _ENABLE_CLI
-	#undef _ENABLE_CLI
-#endif
-
-#ifdef _ENABLE_SINGLE_COMMAND
-	#undef _ENABLE_SINGLE_COMMAND
-#endif
-
-#ifdef _ENABLE_SINGLE_TEXT_COMMAND
-	#undef _ENABLE_SINGLE_TEXT_COMMAND
-#endif
-
-#ifdef _ENABLE_BLOCK_COMMAND
-	#undef _ENABLE_BLOCK_COMMAND
-#endif
-
-#ifdef _ENABLE_BLOCK_TEXT_COMMAND
-	#undef _ENABLE_BLOCK_TEXT_COMMAND
-#endif
-
-#ifdef _ENABLE_ERASE_COMMAND
-	#undef _ENABLE_ERASE_COMMAND
-#endif
-
-#ifdef _ENABLE_SAVE_COMMAND
-	#undef _ENABLE_SAVE_COMMAND
-#endif
-
-#ifdef _ENABLE_DUMP_COMMAND
-	#undef _ENABLE_DUMP_COMMAND
-#endif
-
-#ifdef _ENABLE_RSINGLE_COMMAND
-	#undef _ENABLE_RSINGLE_COMMAND
-#endif
-
-#ifdef _ENABLE_RSSI_COMMAND
-	#undef _ENABLE_RSSI_COMMAND
-#endif
-
-#ifdef _ENABLE_LIST_COMMAND
-	#undef _ENABLE_LIST_COMMAND
-#endif
-
-#ifdef _ENABLE_INVITE_COMMAND
-	#undef _ENABLE_INVITE_COMMAND
-#endif
-
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
-	#undef _ENABLE_CANCEL_INVITE_COMMAND
-#endif
-
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
-	#undef _ENABLE_ASSIGN_PEER_COMMAND
-#endif
-
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
-	#undef _ENABLE_UNASSIGN_PEER_COMMAND
-#endif
-
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-	#undef _ENABLE_UPDATE_MASTER_COMMAND
-#endif
-
-#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-	#undef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-#endif
-
-#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-	#undef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-#endif
-
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
-	#undef _ENABLE_CHANGE_KEY_COMMAND
-#endif
-
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
-	#undef _ENABLE_REMOVE_DEVICE_COMMAND
-#endif
-
-#ifdef _ENABLE_DATA_RATE_TEST_COMMAND
-	#undef _ENABLE_DATA_RATE_TEST_COMMAND
-#endif
-
-#ifdef _ENABLE_GET_CHANNEL_COMMAND
-	#undef _ENABLE_GET_CHANNEL_COMMAND
-#endif
-
-#ifdef _ENABLE_USER_PIN_COMMAND
-	#undef _ENABLE_USER_PIN_COMMAND
-#endif
-
-#ifdef _ENABLE_JOIN_COMMAND
-	#undef _ENABLE_JOIN_COMMAND
-#endif
-
-#ifdef _ENABLE_CHANNEL_COMMAND
-	#undef _ENABLE_CHANNEL_COMMAND
-#endif
-
-#ifdef _ENABLE_SETNI_COMMAND
-	#undef _ENABLE_SETNI_COMMAND
-#endif
-
-#ifdef _ENABLE_SNIFF_COMMAND
-	#undef _ENABLE_SNIFF_COMMAND
-#endif
-
-#ifdef _ENABLE_MODE_COMMAND
-	#undef _ENABLE_SNIFF_COMMAND
-#endif
-
-#ifdef _ENABLE_ECHO_COMMAND
-	#undef _ENABLE_ECHO_COMMAND
-#endif
+#include "undefine_all_defines.h"
 
 
 
@@ -322,6 +77,57 @@
 /*#ifndef _ONE_NET_VERSION_2_X
 	#define _ONE_NET_VERSION_2_X
 #endif*/
+
+
+// Master/Client
+
+#ifndef _ONE_NET_MASTER
+	#define _ONE_NET_MASTER
+#endif
+
+#ifndef _ONE_NET_CLIENT
+	#define _ONE_NET_CLIENT
+#endif
+
+
+// Block Messages
+#ifdef _BLOCK_MESSAGES_ENABLED
+	#undef _BLOCK_MESSAGES_ENABLED
+#endif
+
+// Stream Messages
+#ifdef _STREAM_MESSAGES_ENABLED
+	#undef _STREAM_MESSAGES_ENABLED
+#endif
+
+
+
+// Multi-Hop
+#ifndef _ONE_NET_MULTI_HOP
+	#define _ONE_NET_MULTI_HOP
+#endif
+
+//#ifdef _ONE_NET_MULTI_HOP
+//	#ifndef _ONE_NET_MH_CLIENT_REPEATER
+//		#define _ONE_NET_MH_CLIENT_REPEATER
+//	#endif
+//#endif
+
+
+
+// ONE_NET_SIMPLE_CLIENT - a client is a simple client if it is a client and does not
+// implement any of the following: Multi-Hop, Stream, Block
+
+#if !defined(_ONE_NET_CLIENT) || defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
+	#ifdef _ONE_NET_SIMPLE_CLIENT
+		#undef _ONE_NET_SIMPLE_CLIENT
+	#endif
+#else
+	#ifndef _ONE_NET_SIMPLE_CLIENT
+		#define _ONE_NET_SIMPLE_CLIENT
+	#endif
+#endif
+
 
 
 // Encryption, Encoding, and Random Padding of unused packet portions for
@@ -373,7 +179,7 @@
 
 // Polling - only available for version 2.0 and higher.  Define _POLL if you are using
 // polling.  Default for Version 2.0 is _POLL defined.
-#ifndef _ONE_NET_VERSION_2_X
+#ifdef _ONE_NET_VERSION_2_X
 	#ifndef _POLL
 		#define _POLL
 	#endif
@@ -393,15 +199,52 @@
 
 
 
-// Other Options
-
-#ifndef _ONE_NET_MULTI_HOP
-	#define _ONE_NET_MULTI_HOP
-#endif
+// Evaluation Board Options
 
 #ifndef _ONE_NET_EVAL
 	#define _ONE_NET_EVAL
 #endif
+
+#ifdef _ONE_NET_EVAL
+	#ifndef _SERIAL_ASSIGN_DEMO_PINS
+		#define _SERIAL_ASSIGN_DEMO_PINS
+	#endif
+	
+	#ifndef _ENABLE_CLIENT_PING_RESPONSE
+		#define _ENABLE_CLIENT_PING_RESPONSE
+	#endif
+	
+	// _AUTO_MODE should be defined if you want the Auto Mode option available
+	#ifndef _AUTO_MODE
+		#define _AUTO_MODE
+	#endif
+
+	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+	#ifndef _SNIFFER_MODE
+		#define _SNIFFER_MODE
+	#endif
+#endif
+
+
+
+// I/O Board Options
+
+/*#ifndef _QUAD_OUTPUT
+	#define _QUAD_OUTPUT
+#endif
+
+#ifndef _DUAL_OUTPUT
+	#define _DUAL_OUTPUT
+#endif
+
+#ifndef _QUAD_INPUT
+	#define _QUAD_INPUT
+#endif*/
+
+
+
+
+// Other Options
 
 #ifndef _CHIP_ENABLE
 	#define _CHIP_ENABLE
@@ -411,25 +254,39 @@
 	#define _R8C_TINY
 #endif
 
-#ifndef _SERIAL_ASSIGN_DEMO_PINS
-	#define _SERIAL_ASSIGN_DEMO_PINS
-#endif
 
-#ifndef _ENABLE_CLIENT_PING_RESPONSE
-	#define _ENABLE_CLIENT_PING_RESPONSE
-#endif
 
-/*
+
+
+
 // _AUTO_MODE should be defined if you want the Auto Mode option available
 #ifndef _AUTO_MODE
 	#define _AUTO_MODE
-#endif*/
+#endif
 
-/*// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
 #ifndef _SNIFFER_MODE
 	#define _SNIFFER_MODE
-#endif*/
+#endif
 
+
+
+
+// DEBUG options
+//#ifdef _ONE_NET_DEBUG
+//	#undef _ONE_NET_DEBUG
+//#endif
+
+//#ifdef _ONE_NET_DEBUG_STACK
+//	#undef _ONE_NET_DEBUG_STACK
+//#endif
+
+
+
+// Sniffer Front End
+//#ifdef _SNIFFER_FRONT_END
+//	#undef _SNIFFER_FRONT_END
+//#endif
 
 
 
@@ -459,162 +316,158 @@
 
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
-	// _ENABLE_SINGLE_COMMAND should be defined if you are implementeing the "single" command option
-/*	#ifndef _ENABLE_SINGLE_COMMAND
+	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
+	#ifndef _ENABLE_SINGLE_COMMAND
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
-	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementeing the "single text" command option
+	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementing the "single text" command option
 	#ifndef _ENABLE_SINGLE_TEXT_COMMAND
 		#define _ENABLE_SINGLE_TEXT_COMMAND
 	#endif
 
-	// _ENABLE_BLOCK_COMMAND should be defined if you are implementeing the "block" command option
+	// _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
 	#ifndef _ENABLE_BLOCK_COMMAND
 		#define _ENABLE_BLOCK_COMMAND
 	#endif
 
-	// _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementeing the "block text" command option
+	// _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
 	#ifndef _ENABLE_BLOCK_TEXT_COMMAND
 		#define _ENABLE_BLOCK_TEXT_COMMAND
-	#endif*/
+	#endif
 
-	// _ENABLE_ERASE_COMMAND should be defined if you are implementeing the "erase" command option
+	// _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
 	#ifndef _ENABLE_ERASE_COMMAND
 		#define _ENABLE_ERASE_COMMAND
 	#endif
 
-	// _ENABLE_SAVE_COMMAND should be defined if you are implementeing the "save" command option
+	// _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
 	#ifndef _ENABLE_SAVE_COMMAND
 		#define _ENABLE_SAVE_COMMAND
 	#endif
 /*
-	// _ENABLE_DUMP_COMMAND should be defined if you are implementeing the "dump" command option
+	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
 	#endif*/
 
-	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementeing the "rsingle" command option
+	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	/*#ifdef _ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
 			#define _ENABLE_RSINGLE_COMMAND
 		#endif
 	#endif*/
 
-	// _ENABLE_RSSI_COMMAND should be defined if you are implementeing the "rssi" command option
+	// _ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
 	/*#ifndef _ENABLE_RSSI_COMMAND
 		#define _ENABLE_RSSSI_COMMAND
 	#endif*/
 
-	// _ENABLE_LIST_COMMAND should be defined if you are implementeing the "list" command option
+	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
 	#ifndef _ENABLE_LIST_COMMAND
 		#define _ENABLE_LIST_COMMAND
 	#endif
 
-	// _ENABLE_INVITE_COMMAND should be defined if you are implementeing the "invite" command option
+	// _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
 	#ifndef _ENABLE_INVITE_COMMAND
 		#define _ENABLE_INVITE_COMMAND
 	#endif
 
-	// _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementeing the "cancel invite" command option
+	// _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
 	#ifndef _ENABLE_CANCEL_INVITE_COMMAND
 		#define _ENABLE_CANCEL_INVITE_COMMAND
 	#endif
 
 	#ifdef _PEER
-		// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementeing the "assign peer" command option
+		// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
 		#ifndef _ENABLE_ASSIGN_PEER_COMMAND
 			#define _ENABLE_ASSIGN_PEER_COMMAND
 		#endif
 
-		// _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementeing the "unassign peer" command option
+		// _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
 		#ifndef _ENABLE_UNASSIGN_PEER_COMMAND
 			#define _ENABLE_UNASSIGN_PEER_COMMAND
 		#endif
 	#endif
 
-/*	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementeing the "set update master flag" command option
+	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementing the "set update master flag" command option
 	#ifndef _ENABLE_UPDATE_MASTER_COMMAND
 		#define _ENABLE_UPDATE_MASTER_COMMAND
 	#endif
 
-	// _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementeing the "change keep-alive" command option
+	// _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
 	#ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 		#define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	#endif
 
-	// _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementeing the "change fragment delay" command option
+	// _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
 	#ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 		#define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-	#endif*/
+	#endif
 
-	// _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementeing the "change key" command option
+	// _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
 	#ifndef _ENABLE_CHANGE_KEY_COMMAND
 		#define _ENABLE_CHANGE_KEY_COMMAND
 	#endif
 
-	// _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementeing the "remove device" command option
+	// _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
 	#ifndef _ENABLE_REMOVE_DEVICE_COMMAND
 		#define _ENABLE_REMOVE_DEVICE_COMMAND
 	#endif
 
-/*	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementeing the "data rate test" command option
+	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementing the "data rate test" command option
 	#ifndef _ENABLE_DATA_RATE_TEST_COMMAND
 		#define _ENABLE_DATA_RATE_TEST_COMMAND
-	#endif*/
+	#endif
 
-	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementeing the "get channel" command option
+	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
 	#ifndef _ENABLE_GET_CHANNEL_COMMAND
 		#define _ENABLE_GET_CHANNEL_COMMAND
 	#endif
 
-	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementeing the "user pin" command option
+	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
 	#ifndef _ENABLE_USER_PIN_COMMAND
 		#define _ENABLE_USER_PIN_COMMAND
 	#endif
 
-	// _ENABLE_JOIN_COMMAND should be defined if you are implementeing the "join" command option
+	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
 	#ifndef _ENABLE_JOIN_COMMAND
 		#define _ENABLE_JOIN_COMMAND
 	#endif
 
-	// _ENABLE_CHANNEL_COMMAND should be defined if you are implementeing the "channel" command option
+	// _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
 	#ifndef _ENABLE_CHANNEL_COMMAND
 		#define _ENABLE_CHANNEL_COMMAND
 	#endif
 
-	// _ENABLE_SETNI_COMMAND should be defined if you are implementeing the "setni" command option
+	// _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
 	#ifndef _ENABLE_SETNI_COMMAND
 		#define _ENABLE_SETNI_COMMAND
 	#endif
 
-/*	// _ENABLE_SNIFF_COMMAND should be defined if you are implementeing the "sniff" command option
-	#ifdef _ENABLE_SNIFFER_MODE
+	// _ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
+	#ifdef _SNIFFER_MODE
 		#ifndef _ENABLE_SNIFF_COMMAND
 			#define _ENABLE_SNIFF_COMMAND
 		#endif
 	#endif
 
-	// _ENABLE_MODE_COMMAND should be defined if you are implementeing the "mode" command option
+	// _ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
 	#ifndef _ENABLE_MODE_COMMAND
 		#define _ENABLE_MODE_COMMAND
 	#endif
 
-	// _ENABLE_ECHO_COMMAND should be defined if you are implementeing the "echo" command option
+	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
-	#endif*/
+	#endif
 
 #endif
 	
 
 
 
-// options not needed for Eval Board ADI project are below and are therefore commented out
-
-//#ifndef _ONE_NET_MH_CLIENT_REPEATER
-//	#define _ONE_NET_MH_CLIENT_REPEATER
-//#endif
+// Other Options
 
 //#ifndef _NEED_XDUMP
 //	#define _NEED_XDUMP
@@ -628,13 +481,13 @@
 //	#define _ONE_NET_TEST_NACK_WITH_REASON_FIELD
 //#endif
 
-//#ifndef _ONE_NET_DEBUG
-//	#define _ONE_NET_DEBUG
-//#endif
 
-//#ifndef _ONE_NET_DEBUG_STACK
-//	#define _ONE_NET_DEBUG_STACK
-//#endif
+
+
+
+// Now test #defines for compatibility
+
+#include "test_defines.h"
 
 
 
