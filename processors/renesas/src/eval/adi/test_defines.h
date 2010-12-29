@@ -71,6 +71,12 @@
 #endif
 
 
+// Test channels.  At least one locale must be defined.
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+	#error "ERROR : At least one locale must be defined.  Both _US_CHANNELS and _EUROPE_CHANNELS are currently undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
 // Now make sure that _ONE_NET_SIMPLE_CLIENT is properly defined
 #if defined(_ONE_NET_SIMPLE_CLIENT) && !defined(_ONE_NET_CLIENT)
 	#error "ERROR : _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
