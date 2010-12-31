@@ -181,22 +181,39 @@
 //! ONE_NET_VERSION_BUILD number. This number will be inremented when a new load is put
 //! on any piece of hardware. When a particular load has completed pre-release testing,
 //! the build number for the load that was tested becomes the build number for the release.
+
+
+#ifndef _ONE_NET_VERSION_2_X
 enum {
     ONE_NET_VERSION_MAJOR =     1,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     6,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  1,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     24  //! ONE-NET build version number
+    ONE_NET_VERSION_REVISION =  2,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
 };
+#else
+enum {
+    ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
+    ONE_NET_VERSION_MINOR =     0,  //! ONE-NET minor version number
+    ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
+};
+#endif
 
 
 enum
 {
+#ifndef _ONE_NET_VERSION_2_X
     //! The ONE-NET version
-    ON_VERSION = 0x04,
+    ON_VERSION = 0x05,
+#else
+    //! The ONE-NET version
+    ON_VERSION = 0x85,
+#endif
 
     //! The version of the on_base_param_t, on_master_param_t, client_t,
     //! on_master_t and on_peer_t structures
-    ON_PARAM_VERSION = 0x0001,
+    ON_PARAM_VERSION = 0x0002,
+
     
     //! The version of the MASTER Invite New CLIENT packet.
     ON_INVITE_PKT_VERSION = 0x00,
