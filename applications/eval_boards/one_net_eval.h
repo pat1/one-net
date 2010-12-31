@@ -44,7 +44,7 @@ enum
     //! ON_PARAM_VERSION since that version number is changed inside ONE-NET
     //! when the structures change, which doesn't mean the app has changed to
     //! handle the new structure version
-    EVAL_PARAM_VERSION = 0x0001
+    EVAL_PARAM_VERSION = 0x0002
 };
 
 enum
