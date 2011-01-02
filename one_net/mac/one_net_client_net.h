@@ -61,9 +61,13 @@
 
 enum
 {
+    // Derek_S :  no longer using a "per unit" approach.
+	// Changing below to reflect that
+	
     //! The number of peer devices in the peer device list
-    ON_NUM_PEER_DEV = ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS,
-    
+    /*ON_NUM_PEER_DEV = ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS,*/
+    ON_NUM_PEER_DEV = ONE_NET_MAX_PEER_DEV,
+ 
     //! Value that represents a message being sent directly to a device (not
     //! through the peer list).  This is also to be used if an error occurs and
     //! the transaction ID can't be returned from the client to the client net.
@@ -108,7 +112,10 @@ typedef struct
     //! Index into peer_dev for the device the peer resides on
     UInt16 peer_dev_idx;
 
-    //! The unit in the peer that this unit sends to.
+    //! The unit in this device that triggers a message to a peer.
+    UInt8 src_unit;
+	
+    //! The unit in the peer that src_unit sends to.
     UInt8 peer_unit;
 } on_peer_unit_t;
 
@@ -119,10 +126,10 @@ typedef struct
 typedef struct
 {
     //! List of all the possible different peer devices this device can send to
-    on_peer_dev_t dev[ON_NUM_PEER_DEV];
+    on_peer_dev_t dev[ONE_NET_MAX_PEER_DEV];
 
-    //! The peer information for each unit.
-    on_peer_unit_t unit[ONE_NET_NUM_UNITS][ONE_NET_PEER_PER_UNIT];
+    //! List of all peer units
+    on_peer_unit_t unit[ONE_NET_MAX_PEER_UNIT];
 } on_peer_t;
 
 //! @} ONE-NET_CLIENT_NET_typedefs

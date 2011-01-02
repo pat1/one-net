@@ -82,13 +82,12 @@ enum
 */
 typedef struct
 {
-    //! The source unit for the message.  A value of DEV_unit indicates that
+    //! The source unit for the message.  A value of ONE_NET_DEV_UNIT indicates that
     //! it is not in use.
     UInt8 src_unit;
     
-    //! Index into the peer list for the given source unit to determine the
-    //! destination peer that is to receive the message
-    UInt8 peer_idx;
+    //! Where we currently are when iterating through the peer unit list.
+    UInt8 current_idx;
     
     //! Index in the message that contains the destination did that needs to
     //! be changed when the message is sent to the next peer.  A value of
@@ -214,7 +213,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
         } // if the resource is not available //
 
         peer_msg_mgr.src_unit = SRC_UNIT;
-        peer_msg_mgr.peer_idx = 0;
+        peer_msg_mgr.current_idx = 0;
         peer_msg_mgr.msg_dst_unit_idx = DST_UNIT_IDX < DATA_LEN ? DST_UNIT_IDX
           : ON_MAX_RAW_PLD_LEN;
 
@@ -298,68 +297,114 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
       const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 {
-    UInt8 unit_idx;
+    UInt8 index, unit_list_index, dev_list_index;
 
     if(!PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
     
-    if(SRC_UNIT > ONE_NET_NUM_UNITS)
+    if(SRC_UNIT > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
     {
         return ONS_INVALID_DATA;
     } // if the data is invalid //
+	
+    // There are a few possibilities
+    // 1.  This peer assignment is already on the unit list.  If so, do nothing,
+	//     return ONS_SUCCESS
+    // 2.  This peer assignment is not on the unit list, but the unit list is
+	//     full.  If so, do nothing and return ONS_RSRC_FULL.
+    // 3.  This peer assignment is not on the unit list, and the unit list is
+	//     not full.  If so, find the index it should be inserted into and
+    //     proceed to step 4.
+    // 4.  Check the dev list and see if PEER_DID is already there.  If it is,
+    //     note the index and proceed to step 7.
+    // 5.  PEER_DID is not on the dev list yet.  Check if the dev list is full.
+    //     If it is, return ONS_RSRC full.
+    // 6.  Add PEER_DID to the end of the dev list.  Note the new index.
+    //     Proceed to step 7.
+    // 7.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
     
-    // find a spot to add the peer.  There are no holes in the list, so finding
-    // an empty slot indicates the peer is not yet in the list
-    for(unit_idx = 0; unit_idx < ONE_NET_PEER_PER_UNIT; unit_idx++)
+    // find a spot to add the peer.  List is ordered by source
+    // unit, then peer unit.  Emptt spots should all be at the end and are
+    // represented by ONE_NET_DEV_UNIT.
+    for(unit_list_index = 0; unit_list_index < ONE_NET_MAX_PEER_UNIT; unit_list_index++)
     {
-        // check if the slot is free
-        if(peer->unit[SRC_UNIT][unit_idx].peer_unit == ONE_NET_DEV_UNIT)
+        if(peer->unit[unit_list_index].src_unit > SRC_UNIT)
         {
-            UInt8 dev_idx;
-
-            peer->unit[SRC_UNIT][unit_idx].peer_unit = PEER_UNIT;
-            
-            // A slot for the peer unit has been found, and set, so now find a
-            // free slot for the peer device (which we are guaranteed since a
-            // free slot for the unit was found).
-            for(dev_idx = 0; dev_idx < ON_NUM_PEER_DEV; dev_idx++)
-            {
-                if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID,
-                  (const on_encoded_did_t * const)&(peer->dev[dev_idx].did)))
-                {
-                    one_net_memmove(peer->dev[dev_idx].did, *PEER_DID,
-                      sizeof(peer->dev[dev_idx].did));
-                      
-                    #ifdef _ONE_NET_MULTI_HOP
-                        peer->dev[dev_idx].max_hops = 0;
-                        peer->dev[dev_idx].mh_peer = MH;
-                    #endif // ifdef _ONE_NET_MULTI_HOP //
-                    peer->unit[SRC_UNIT][unit_idx].peer_dev_idx = dev_idx;
-                    return ONS_SUCCESS;
-                } // if a device slot is free //
-                else if(on_encoded_did_equal(PEER_DID,
-                  (const on_encoded_did_t * const)&(peer->dev[dev_idx].did)))
-                {
-                    peer->unit[SRC_UNIT][unit_idx].peer_dev_idx = dev_idx;
-                    return ONS_SUCCESS;
-                } // else if the device already exists //
-            } // loop through all peer devices //
-
-            peer->unit[SRC_UNIT][unit_idx].peer_unit = ONE_NET_DEV_UNIT;
-            return ONS_INTERNAL_ERR;
-        } // if a unit slot is free //
-        else if(peer->unit[SRC_UNIT][unit_idx].peer_unit == PEER_UNIT
-          && on_encoded_did_equal(PEER_DID,
-          (const on_encoded_did_t * const)
-          &(peer->dev[peer->unit[SRC_UNIT][unit_idx].peer_dev_idx].did)))
+            // found our insertion index.
+            break;
+        }
+		
+		if(peer->unit[unit_list_index].src_unit < SRC_UNIT ||
+            peer->unit[unit_list_index].peer_unit < PEER_UNIT)
+		{
+            // still searching
+            continue;
+		}
+		
+        // We know by now that the source units match and that we've either found
+        // a match or we've found the insertion index.
+		
+        if(peer->unit[unit_list_index].peer_unit == PEER_UNIT)
         {
+            // this peer is already on the list.  Nothing to do.  Return ONS_SUCCESS
             return ONS_SUCCESS;
-        } // else if the binding already exists //
-    } // loop to find a spot to add the peer unit //
+        }
+		
+        // we've found our insertion index, so break.
+        break;
+	}
+	 
+    // check to see if there's any room on the unit list.
+    if(unit_list_index == ONE_NET_MAX_PEER_UNIT)
+    {
+        return ONS_RSRC_FULL;
+    }
+	
+    // now let's look through the dev list and see if we need to insert anything.    
+        
+    for(dev_list_index = 0; dev_list_index < ONE_NET_MAX_PEER_DEV; dev_list_index++)
+    {
+        if(on_encoded_did_equal(PEER_DID,
+          (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+		{
+            // Found index.  Already on the list.  Nothing to add.
+            break;
+		}
+		
+        if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID,
+          (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+        {
+            // found an empty spot.  Need to insert.
+            one_net_memmove(peer->dev[dev_list_index].did, *PEER_DID,
+              sizeof(peer->dev[dev_list_index].did));
+                      
+              #ifdef _ONE_NET_MULTI_HOP
+                  peer->dev[dev_list_index].max_hops = 0;
+                  peer->dev[dev_list_index].mh_peer = MH;
+              #endif // ifdef _ONE_NET_MULTI_HOP //
+			  
+			  break;
+         } // if a device slot is free //        
+    }
 
-    return ONS_RSRC_FULL;
+    // Are we out of room on the dev list?
+    if(dev_list_index == ONE_NET_MAX_PEER_DEV)
+    {
+		return ONS_RSRC_FULL;
+    }
+
+    // We're about to insert.  Move any elements that may be in the way down one.
+    one_net_memmove(&peer->unit[unit_list_index + 1], &peer->unit[unit_list_index],
+      sizeof(peer->unit[unit_list_index]) * (ONE_NET_MAX_PEER_UNIT - unit_list_index - 1));
+
+    // now fill in the new information.
+    peer->unit[unit_list_index].src_unit = SRC_UNIT;
+    peer->unit[unit_list_index].peer_unit = PEER_UNIT;
+    peer->unit[unit_list_index].peer_dev_idx = dev_list_index;
+	
+	return ONS_SUCCESS;
 } // on_client_net_assign_peer //
 
 
@@ -380,7 +425,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
 	If the parameter passed to the function is a wildcard, the comparison is
 	considered true.
 	
-	If all three comparisons are true, theen the record/peer assignment is deleted.
+	If all three comparisons are true, then the record/peer assignment is deleted.
 
 
 
@@ -397,123 +442,65 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
-    UInt16 dev_idx;
-    UInt8 peer_unit_idx, src_unit;
-	BOOL src_unit_match, peer_unit_match, dev_idx_match, delete, rm_device;
+    UInt16 index;
+    UInt16 peer_dev_idx;
+	BOOL src_unit_match, peer_unit_match, did_match, delete, rm_device;
 	one_net_status_t status;
 
-    if((SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT >= ONE_NET_NUM_UNITS) ||
+    if((SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT >= ONE_NET_MAX_PEER_UNIT) ||
 	    PEER_UNIT > ONE_NET_DEV_UNIT)
     {
         return ONS_INVALID_DATA;
     } // if the received data is not valid //
 	
-	if(PEER_DID == NULL)
-	{
-		// Wildcard did.  Go through the entire list.
-		for(dev_idx = 0; dev_idx < ON_NUM_PEER_DEV; dev_idx++)
-		{
-			status = on_client_net_unassign_peer(SRC_UNIT, &(peer->dev[dev_idx].did),
-			    PEER_UNIT);
-				
-			if(status != ONS_SUCCESS)
-			{
-				return status; // some error somewhere
-			}
-		}
-		
-		return ONS_SUCCESS;
-	}
-
-    if((dev_idx = on_client_net_peer_dev_idx((const on_encoded_did_t * const)
-      PEER_DID)) == ON_INVALID_PEER)
+    if(PEER_DID && on_encoded_did_equal(PEER_DID, &ON_ENCODED_BROADCAST_DID))
     {
-        // there are no peer assignments with this did.  Nothing to delete
+        // nothing to do.  Return success
         return ONS_SUCCESS;
     }
 	
-	// The rm_device flag represents whether the peer->dev[] array needs to have
-	// an element deleted.  This flag should be set true if EVERY peer assignment
-	// with the did in question is being deleted in this function.  If so, there
-	// are no more peer assignments with that did as the target did.  If that's
-	// true, then an entry needs to be removed from the peer->dev[] array.
-	
-	// set rm_device to true.  If we find a peer assignemnt with that did that is
-	// NOT deleted, we'll change it to false.
-	
-	rm_device = TRUE;
-	
-	// due to the fact that src_unit is unsigned we check for overflow by
-	// making sure that it's less than ONE_NET_NUM_UNITS rather than checking
-	// that it is >= 0, which it always will be.
-	for(src_unit = ONE_NET_NUM_UNITS - 1; src_unit < ONE_NET_NUM_UNITS;
-	    src_unit--)
-	{
-		src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || src_unit == SRC_UNIT);
-		
-		// due to the fact that peer_unit_idx is unsigned we check for overflow by
-		// making sure that it's less than ONE_NET_PEER_PER_UNIT rather than checking
-		// that it is >= 0, which it always will be.
-        for(peer_unit_idx = ONE_NET_PEER_PER_UNIT - 1;
-		    peer_unit_idx < ONE_NET_PEER_PER_UNIT; peer_unit_idx--)
-		{
-			if(peer->unit[src_unit][peer_unit_idx].peer_unit == ONE_NET_DEV_UNIT)
-			{
-				continue;
-			}
-			
-			peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT ||
-			    PEER_UNIT == peer->unit[src_unit][peer_unit_idx].peer_unit);
-				
-			dev_idx_match = (dev_idx ==
-			    peer->unit[src_unit][peer_unit_idx].peer_dev_idx);
-				
-			delete = (src_unit_match && peer_unit_match && dev_idx_match);
-			
-			if(dev_idx_match && !delete)
-			{
-				rm_device = FALSE; // we'll end up with at least one peer assignment with
-				                   // this did still in the peer assignment array, so we
-								   // don't want to delete it from the array of dids that
-								   // are the target of at least one peer assignment.
-			}
-			
-			if(delete)
-			{
-				// there is one fewer peer assignment for this source.  We need to delete
-				// an element by flagging it as unused and then fill in any gaps.
-				
-				// For example if src is 1 and peer_unit_idx is 3 and the number of possible
-				// peers per unit is 8, we would want to make the following 4 moves to remove
-				// the gap at the second index 3 (note that 8 - 3 - 1 = 4):
-				
-				// peer->unit[1][4] --> peer->unit[1][3]
-				// peer->unit[1][5] --> peer->unit[1][4]
-				// peer->unit[1][6] --> peer->unit[1][5]
-				// peer->unit[1][7] --> peer->unit[1][6]
-				
-				// We accomplish this with a single one_net_mem_move call.
-				// Finally, after this mocve is complete, we mark peer->unit[1][7] as unused by
-				// giving it a peer unit value of ONE_NET_DEV_UNIT.
-
-								
-				if(peer_unit_idx < ONE_NET_PEER_PER_UNIT - 1)
-				{
-				    one_net_memmove(&peer->unit[src_unit][peer_unit_idx],
-				        &peer->unit[src_unit][peer_unit_idx + 1], 
-						(ONE_NET_PEER_PER_UNIT - peer_unit_idx- 1) * sizeof(on_peer_unit_t));					
-				}
-				
-				peer->unit[src_unit][ONE_NET_PEER_PER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
-			}
-		}
-	}
-
-    if(rm_device || !on_client_net_send_to_peer_dev(dev_idx))
+    // go through peer list a record at a time.
+    // Note : index < 0xFFFF will be false when 1 is subtracted from 0 with index-- command.
+    for(index = ONE_NET_MAX_PEER_UNIT - 1; index < 0xFFFF; index--)
     {
-        on_client_net_rm_dev(dev_idx);
-    } // no more peer assignemnts for this did
+		// check whether criteria for deleting this peer unit are fulfilled
+        if(peer->unit[index].src_unit == ONE_NET_DEV_UNIT)
+        {
+            // Blank spot.  Nothing to do.
+            continue;
+        }
 
+        peer_dev_idx = peer->unit[index].peer_dev_idx;
+		
+        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
+        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
+        did_match = (!PEER_DID || on_encoded_did_equal(PEER_DID, 
+          (const on_encoded_did_t * const) &peer->dev[peer_dev_idx].did));
+		  
+        if(!src_unit_match || !peer_unit_match || !did_match)
+        {
+            continue;
+        }
+				
+        // we want to delete.  Move everything farther down the list up one.
+        if(index < ONE_NET_MAX_PEER_UNIT - 1)
+        {
+            one_net_memmove(&peer->unit[index], &peer->unit[index + 1],
+                sizeof(on_peer_unit_t) * (ONE_NET_MAX_PEER_UNIT - index - 1));
+        }
+
+        // make the last spot blank		
+        peer->unit[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
+        peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
+		peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_dev_idx = ON_INVALID_PEER;
+		
+        // see if anything still sends to this did.  If not, delete it from the dev list
+        if(!on_client_net_send_to_peer_dev(peer_dev_idx))
+        {
+            on_client_net_rm_dev(peer_dev_idx);
+        } // no more peer assignemnts for this did
+    }
+	
     return ONS_SUCCESS;
 } // on_client_net_unassign_peer //
 
@@ -830,7 +817,7 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
 one_net_status_t on_client_net_init(void * const peer_location,
   const UInt16 LEN)
 {
-    UInt8 i, j;
+    UInt8 i;
     
     if(!peer_location)
     {
@@ -844,23 +831,21 @@ one_net_status_t on_client_net_init(void * const peer_location,
     
     peer = peer_location;
 
-    for(i = 0; i < ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS; i++)
+    for(i = 0; i < ONE_NET_MAX_PEER_DEV; i++)
     {
         one_net_memmove(peer->dev[i].did, ON_ENCODED_BROADCAST_DID,
           sizeof(peer->dev[i].did));
     } // 1 of 2 loops to initialize on_peer_t //
     
-    for(i = 0; i < ONE_NET_NUM_UNITS; i++)
+    for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
     {
-        for(j = 0; j < ONE_NET_PEER_PER_UNIT; j++)
-        {
-            peer->unit[i][j].peer_dev_idx = ON_INVALID_PEER;
-            peer->unit[i][j].peer_unit = ONE_NET_DEV_UNIT;
-        } // loop to initialize on_peer_unit_t in on_peer_t //
-    } // 2 of 2 loops to initialize peer_t //
+        peer->unit[i].peer_dev_idx = ON_INVALID_PEER;
+        peer->unit[i].src_unit = ONE_NET_DEV_UNIT;
+        peer->unit[i].peer_unit = ONE_NET_DEV_UNIT;
+    } // loop to initialize peer_t //
 
     peer_msg_mgr.src_unit = ONE_NET_DEV_UNIT;
-    peer_msg_mgr.peer_idx  = 0;
+    peer_msg_mgr.current_idx  = 0;
     
     return ONS_SUCCESS;
 } // on_client_net_init //
@@ -910,19 +895,29 @@ static one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
     return ONS_SUCCESS;
 } // on_client_net_setup_msg_for_peer //
 
+
 static UInt8 have_more_peers(peer_msg_mgr_t *mgr)
 {
-    UInt8 retval = 1;
+    UInt8 index;
+	
     if(!mgr)
     {
-        retval = 0;
+        return 0;
     } // if the parameter is invalid //
-    if ((mgr->peer_idx >= ONE_NET_PEER_PER_UNIT) ||
-        (peer->unit[mgr->src_unit][mgr->peer_idx].peer_unit == ONE_NET_DEV_UNIT))
+	
+    index = mgr->current_idx;
+	
+    while(index < ONE_NET_MAX_PEER_UNIT)
     {
-        retval = 0;
+		if(peer->unit[index].src_unit == mgr->src_unit)
+        {
+            return 1;
+        }
+		
+       index++;
     }
-    return retval;
+	
+    return 0;
 }
 
 
@@ -940,22 +935,24 @@ static UInt8 have_more_peers(peer_msg_mgr_t *mgr)
 
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
 {
+    UInt8 index;
     if(!mgr)
     {
         return 0;
     } // if the parameter is invalid //
+	
+	index = (mgr->current_idx)++;
 
     // check the peer count
-    if(mgr->peer_idx < ONE_NET_PEER_PER_UNIT)
+    while(mgr->current_idx < ONE_NET_MAX_PEER_UNIT)
     {
-        UInt8 peer_idx = mgr->peer_idx++;
-        // check the peer
-        if(peer->unit[mgr->src_unit][peer_idx].peer_unit != ONE_NET_DEV_UNIT)
+        if(peer->unit[index].src_unit == mgr->src_unit)
         {
-
-            return &(peer->unit[mgr->src_unit][peer_idx]);
+            return &(peer->unit[index]);
         } // if the peer exists
-    } // if the list has not been completed //
+		
+        index = (mgr->current_idx)++;
+    }
 
     return 0;
 } // on_client_net_next_peer //
@@ -976,7 +973,7 @@ static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
     } // if the parameter is invalid //
     
     mgr->src_unit = ONE_NET_DEV_UNIT;
-    mgr->peer_idx  = 0;
+    mgr->current_idx  = 0;
 } // on_client_net_clear_peer_msg_mgr //
 
 
@@ -1021,7 +1018,7 @@ static UInt16 on_client_net_peer_dev_idx(const on_encoded_did_t *DID)
 */
 static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
 {
-    UInt8 unit_idx, peer_idx;
+    UInt8 index;
 
     if(DEV_IDX >= ON_NUM_PEER_DEV)
     {
@@ -1030,15 +1027,12 @@ static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
         return TRUE;
     } // if the parameter is invalid //
 
-    for(unit_idx = 0; unit_idx < ONE_NET_NUM_UNITS; unit_idx++)
+    for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
     {
-        for(peer_idx = 0; peer_idx < ONE_NET_PEER_PER_UNIT; peer_idx++)
+        if(peer->unit[index].peer_dev_idx == DEV_IDX)
         {
-            if(peer->unit[unit_idx][peer_idx].peer_dev_idx == DEV_IDX)
-            {
                 return TRUE;
-            } // if a unit does send to the peer device //
-        } // loop through each peer for the unit //
+        } // if a unit does send to the peer device //
     } // loop through the units //
 
     return FALSE;
@@ -1051,6 +1045,10 @@ static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
 
     This also updates the peers to use the correct index since the device
     indexes change to ensure there are no holes in the device list.
+	
+    This DOES NOT check to make sure tht peer units that used to point to this
+    index have already been deleted.  This deletion must occur before this function is
+    called.
 
     \param[in] DEV_IDX The index into the peer->dev list of the device that is
       being removed.
@@ -1059,7 +1057,7 @@ static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
 */
 static void on_client_net_rm_dev(UInt16 DEV_IDX)
 {
-    UInt8 unit_idx, peer_idx;
+    UInt8 index;
 
     if(DEV_IDX >= ON_NUM_PEER_DEV)
     {
@@ -1080,17 +1078,12 @@ static void on_client_net_rm_dev(UInt16 DEV_IDX)
 
     // Since the dev indexes got shifted down, need to adjust the peer units
     // device index.
-    for(unit_idx = 0; unit_idx < ONE_NET_NUM_UNITS; unit_idx++)
+    for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
     {
-        for(peer_idx = 0; peer_idx < ONE_NET_PEER_PER_UNIT &&
-          peer->unit[unit_idx][peer_idx].peer_unit != ONE_NET_DEV_UNIT;
-          peer_idx++)
+        if(peer->unit[index].peer_dev_idx > DEV_IDX)
         {
-            if(peer->unit[unit_idx][peer_idx].peer_dev_idx > DEV_IDX)
-            {
-                peer->unit[unit_idx][peer_idx].peer_dev_idx--;
-            } // if a unit does send to the peer device //
-        } // loop through each peer for the unit //
+            peer->unit[index].peer_dev_idx--;
+        } // if a unit does send to the peer device //
     } // loop through the units //
 } // on_client_net_rm_dev //
 

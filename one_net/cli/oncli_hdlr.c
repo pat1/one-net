@@ -481,7 +481,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return cancel_invite_cmd_hdlr();
     } // else if the cancel invite command was received //
 	#endif
-	
+
 	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
     if(!strnicmp(ONCLI_ASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_ASSIGN_PEER_CMD_STR)))
@@ -499,8 +499,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the assign peer command was received //
 	#endif
-	
-	#ifdef _UNASSIGN_PEER_COMMAND
+		
+	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND	
     if(!strnicmp(ONCLI_UNASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_UNASSIGN_PEER_CMD_STR)))
     {
@@ -517,7 +517,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the unassign peer command was received //
 	#endif
-	
+			
 	#ifdef _ENABLE_UPDATE_MASTER_COMMAND
     if(!strnicmp(ONCLI_UPDATE_MASTER_CMD_STR, CMD,
       strlen(ONCLI_UPDATE_MASTER_CMD_STR)))
@@ -1521,30 +1521,28 @@ static oncli_status_t list_cmd_hdlr(void)
         if (nv_ptr != (UInt8 *) 0)
         {
             UInt16 dev_index;
-            UInt8 src_unit_index,j,count;
+            UInt8 index,j,count;
             on_peer_t * peer;
             one_net_raw_did_t raw_did;
 
             count = 0;
             peer = (on_peer_t *) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
             oncli_send_msg(ONCLI_LIST_PEER_TABLE_HEADING);
-            for (src_unit_index=0; src_unit_index<ONE_NET_NUM_UNITS; src_unit_index++)
+			
+            for (index=0; index < ONE_NET_MAX_PEER_UNIT; index++)
             {
-                for (j=0; j<ONE_NET_PEER_PER_UNIT; j++)
+                if (peer->unit[index].peer_unit != ONE_NET_DEV_UNIT)
                 {
-                    if (peer->unit[src_unit_index][j].peer_unit != ONE_NET_DEV_UNIT)
+                    dev_index = peer->unit[index].peer_dev_idx;
+                    if (on_decode(raw_did, peer->dev[dev_index].did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                     {
-                        dev_index = peer->unit[src_unit_index][j].peer_dev_idx;
-                        if (on_decode(raw_did, peer->dev[dev_index].did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
-                        {
-                            return ONCLI_INTERNAL_ERR;
-                        }
-                        oncli_send_msg(ONCLI_LIST_PEER_FMT, 
-                          did_to_u16(&client_did), src_unit_index, did_to_u16(&raw_did), 
-                          peer->unit[src_unit_index][j].peer_unit);
-                        delay_ms(100);
-                        count++;
+                        return ONCLI_INTERNAL_ERR;
                     }
+                    oncli_send_msg(ONCLI_LIST_PEER_FMT, 
+                      did_to_u16(&client_did), peer->unit[index].src_unit, did_to_u16(&raw_did), 
+                      peer->unit[index].peer_unit);
+                    delay_ms(100);
+                    count++;
                 }
             }
             if (count == 0)

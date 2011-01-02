@@ -69,30 +69,40 @@
 //! @{
 
 enum
-{
+{	
+	// Derek_S : "Feature" is now ONE_NET_MAX_PEER_UNIT, not ONE_NET_PEER_PER_UNIT.
+    // chaning everything to ONE_NET_MAX_PEER_UNIT
+	
+	// TO - DO : I'm a bit confused by the "|" operator below and why we're using it.
+    // Need to figure out exactly where and how ON_FEATURES is used and confirm this
+    // is correct.  The "|" operator seems incorrect to me, but I'm leaving it in for now.
+
     //! The features this client supports
     #ifdef _ONE_NET_SIMPLE_CLIENT
+		
+	// Derek_S - Simple clients cannot be multihop.  Commenting out below.  
+	/*
         #ifdef _ONE_NET_MULTI_HOP
             #ifdef _ONE_NET_MH_CLIENT_REPEATER
                 ON_FEATURES = ON_MH_CAPABLE | ON_MH_REPEATER
-                  | ONE_NET_PEER_PER_UNIT
+                  | ONE_NET_MAX_PEER_UNIT
             #else // ifdef _ONE_NET_MH_CLIENT_REPEATER //
-                ON_FEATURES = ON_MH_CAPABLE | ONE_NET_PEER_PER_UNIT
+                ON_FEATURES = ON_MH_CAPABLE | ONE_NET_MAX_PEER_UNIT
             #endif // else _ONE_NET_MH_CLIENT_REPEATER is not defined //
-        #else // ifdef _ONE_NET_MULTI_HOP //
-            ON_FEATURES = ONE_NET_PEER_PER_UNIT
-        #endif // else _ONE_NET_MULTI_HOP is not defined //
+        #else // ifdef _ONE_NET_MULTI_HOP //*/
+            ON_FEATURES = ONE_NET_MAX_PEER_UNIT
+        //#endif // else _ONE_NET_MULTI_HOP is not defined //
     #else // ifdef _ONE_NET_SIMPLE_CLIENT //
         #ifdef _ONE_NET_MULTI_HOP
             #ifdef _ONE_NET_MH_CLIENT_REPEATER
                 ON_FEATURES = ON_MAC_FEATURES | ON_MH_CAPABLE | ON_MH_REPEATER
-                  | ONE_NET_PEER_PER_UNIT
+                  | ONE_NET_MAX_PEER_UNIT
             #else // ifdef _ONE_NET_MH_CLIENT_REPEATER //
                 ON_FEATURES = ON_MAC_FEATURES | ON_MH_CAPABLE
-                  | ONE_NET_PEER_PER_UNIT
+                  | ONE_NET_MAX_PEER_UNIT
             #endif // else _ONE_NET_MH_CLIENT_REPEATER is not defined //
         #else // ifdef _ONE_NET_MULTI_HOP //
-            ON_FEATURES = ON_MAC_FEATURES | ONE_NET_PEER_PER_UNIT
+            ON_FEATURES = ON_MAC_FEATURES | ONE_NET_MAX_PEER_UNIT
         #endif // else _ONE_NET_MULTI_HOP is not defined //
     #endif // else for ifdef _ONE_NET_SIMPLE_CLIENT //
 };

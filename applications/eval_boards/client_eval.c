@@ -251,7 +251,7 @@ void one_net_client_client_remove_device(void)
 	    // stored in a continguous block of memory
 	    UInt8 param[sizeof(on_base_param_t) + sizeof(on_master_t)
 	      + sizeof(on_peer_t)];
-	    UInt8 i, j;
+	    UInt8 i;
 
 	    // check the parameters
 	    if(CLIENT < AUTO_CLIENT1_NODE || CLIENT > AUTO_CLIENT3_NODE)
@@ -292,20 +292,18 @@ void one_net_client_client_remove_device(void)
 	    master->settings.flags = eval_client_flag(CLIENT);
     
 	    // set up the peer parameters
-	    for(i = 0; i < ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS; i++)
+	    for(i = 0; i < ONE_NET_MAX_PEER_DEV; i++)
 	    {
 	        one_net_memmove(peer->dev[i].did, ON_ENCODED_BROADCAST_DID,
 	          sizeof(peer->dev[i].did));
 	    } // loop to initialize peer devices //
 
-	    for(i = 0; i < ONE_NET_NUM_UNITS; i++)
+	    for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
 	    {
-	        for(j = 0; j < ONE_NET_PEER_PER_UNIT; j++)
-	        {
-	            peer->unit[i][j].peer_dev_idx = 0xFFFF;
-	            peer->unit[i][j].peer_unit = ONE_NET_DEV_UNIT;
-	        } // inner loop to initialize peer units //
-	    } // outer loop to initialize peer units //
+            peer->unit[i].peer_dev_idx = /*ON_INVALID_PEER*/ 0xFFFF; // ON_INVALID_PEER not available to here
+	        peer->unit[i].src_unit = ONE_NET_DEV_UNIT;
+	        peer->unit[i].peer_unit = ONE_NET_DEV_UNIT;
+	    }
     
 	    base_param->crc = one_net_compute_crc((UInt8 *)base_param
 	      + sizeof(base_param->crc), sizeof(param) - sizeof(base_param->crc),
