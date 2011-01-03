@@ -461,6 +461,19 @@
 		#define _ENABLE_ECHO_COMMAND
 	#endif
 
+    #ifdef _ENABLE_SINGLE_COMMAND
+		// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
+		#ifndef _ENABLE_SET_VALUE_COMMAND
+			#define _ENABLE_SET_VALUE_COMMAND
+		#endif
+	#endif
+
+    #ifdef _ENABLE_SET_VALUE_COMMAND
+		// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
+		#ifndef _ENABLE_SET_PIN_COMMAND
+			#define _ENABLE_SET_PIN_COMMAND
+		#endif
+	#endif
 #endif
 	
 
