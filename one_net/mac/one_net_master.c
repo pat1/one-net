@@ -1353,6 +1353,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     UInt8 admin_type;
 
     BOOL master_is_peer = FALSE;
+	BOOL did_is_broadcast;
 
     if(!PEER_DID || !DST_DID)
     {
@@ -1371,12 +1372,18 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
       (const on_encoded_did_t * const)
       &(on_base_param->sid[ON_ENCODED_NID_LEN]));
 
+    // if we're unassigning and the encoded peer did is BROADCAST, flag it here.  We
+    // don't want a broadcast did rejected because it is now a legitimate message.  It
+    // will be checked below.
+    did_is_broadcast = (!ASSIGN) && on_encoded_did_equal(
+      (const on_encoded_did_t *const) (&(&pld[ON_PEER_DID_IDX])), &ON_ENCODED_BROADCAST_DID);
+
     // verify peer did
-    if((!master_is_peer && (peer_client
+    if((!master_is_peer && (!did_is_broadcast && (peer_client
       = client_info((const on_encoded_did_t * const)&(pld[ON_PEER_DID_IDX])))
-      == 0) || (dst_client
+        == 0)) || (dst_client
       = client_info((const on_encoded_did_t * const)&dst))
-      == 0)
+        == 0)
     {
         return ONS_INCORRECT_ADDR;
     } // if the peer or dst is not part of the network //

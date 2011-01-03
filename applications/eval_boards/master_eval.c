@@ -408,6 +408,7 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
     {
         case ONS_SUCCESS:
         {
+
             return ONCLI_SUCCESS;
             break;
         } // success case //

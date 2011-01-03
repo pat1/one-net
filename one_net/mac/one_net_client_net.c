@@ -413,7 +413,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
 
     SRC_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
     PEER_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
-    PEER_DID is a wildcard if it is NULL.
+    PEER_DID is a wildcard if it is NULL or equals ON_ENCODED_BROADCAST_DID.
 	
 	The peer table is traversed record by record and three comparisons are
 	made for each record/peer assignment in the table:
@@ -444,8 +444,9 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
 {
     UInt16 index;
     UInt16 peer_dev_idx;
-	BOOL src_unit_match, peer_unit_match, did_match, delete, rm_device;
+	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
 	one_net_status_t status;
+
 
     if((SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT >= ONE_NET_MAX_PEER_UNIT) ||
 	    PEER_UNIT > ONE_NET_DEV_UNIT)
@@ -453,10 +454,12 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
         return ONS_INVALID_DATA;
     } // if the received data is not valid //
 	
-    if(PEER_DID && on_encoded_did_equal(PEER_DID, &ON_ENCODED_BROADCAST_DID))
+    did_wildcard = FALSE;
+	
+    if(!PEER_DID || on_encoded_did_equal(PEER_DID, &ON_ENCODED_BROADCAST_DID))
     {
-        // nothing to do.  Return success
-        return ONS_SUCCESS;
+        // peer did is a wildcard
+        did_wildcard = TRUE;
     }
 	
     // go through peer list a record at a time.
@@ -474,7 +477,7 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
 		
         src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
         peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
-        did_match = (!PEER_DID || on_encoded_did_equal(PEER_DID, 
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, 
           (const on_encoded_did_t * const) &peer->dev[peer_dev_idx].did));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)

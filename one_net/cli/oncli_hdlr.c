@@ -374,7 +374,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         } // if the end the command is not valid //
 
         return erase_cmd_hdlr();
-    } // else if the cancel invite command was received //
+    } // else if the erase command was received //
 	#endif
 	
 	#ifdef _ENABLE_SAVE_COMMAND
@@ -467,7 +467,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the invite command was received //
 	#endif
 	
-	#ifdef _ENABLE_CANCEL_INVITE
+	#ifdef _ENABLE_CANCEL_INVITE_COMMAND
     if(!strnicmp(ONCLI_CANCEL_INVITE_CMD_STR, CMD,
       strlen(ONCLI_CANCEL_INVITE_CMD_STR)))
     {
