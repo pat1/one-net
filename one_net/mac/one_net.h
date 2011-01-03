@@ -1377,6 +1377,9 @@ typedef struct
 //! The encoded broadcast did.
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
 
+//! The raw broadcast did.
+extern const one_net_raw_did_t ON_RAW_BROADCAST_DID;
+
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================

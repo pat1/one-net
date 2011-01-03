@@ -55,7 +55,7 @@ enum
     NUM_USER_PINS = 4,
     
     //! Number of peers the MASTER keeps track of
-    NUM_MASTER_PEER = 4
+    NUM_MASTER_PEER = 8
 };
 
 //! @} one_net_eval_hal_const

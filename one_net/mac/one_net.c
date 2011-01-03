@@ -99,6 +99,9 @@ enum
 
 const on_encoded_did_t ON_ENCODED_BROADCAST_DID = {0xB4, 0xB4};
 
+// Derek_S - adding a raw broadcase did constant
+const one_net_raw_did_t ON_RAW_BROADCAST_DID = {0x00, 0x00};
+
 //! @} ONE-NET_const
 //                                  CONSTANTS END
 //==============================================================================

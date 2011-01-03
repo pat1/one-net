@@ -83,8 +83,9 @@ static one_net_xtea_key_t invite_key;
 static struct _master_peer_t
 {
     one_net_raw_did_t dst_did;
+    UInt8 src_unit;
     UInt8 dst_unit;
-} master_peer[NUM_USER_PINS][NUM_MASTER_PEER];
+} master_peer[NUM_MASTER_PEER];
 
 
 //! The state of handling the user pins the MASTER is in;
@@ -912,7 +913,7 @@ oncli_status_t oncli_start_data_rate_test(
 #ifdef _ENABLE_LIST_COMMAND
 oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
 {
-    UInt8 i,j,count;
+    UInt8 i, count;
     enum {MASTER_DID = 1};
 
     if(!oncli_is_master())
@@ -926,24 +927,18 @@ oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
     //
     // loop through each unit/user pin (i)
     //
-    for (i = 0; i < NUM_USER_PINS; i++)
+    for (i = 0; i < NUM_MASTER_PEER; i++)
     {
-        //
-        // loop through each possible peer for unit/user pin i
-        // 
-        for (j = 0; j < NUM_MASTER_PEER; j++)
+        if(master_peer[i].dst_unit != ONE_NET_DEV_UNIT)
         {
-            if(master_peer[i][j].dst_unit != ONE_NET_DEV_UNIT)
-            {
-                //
-                // found a peer for unit/user pin i, print it
-                //
-                oncli_send_msg(ONCLI_LIST_PEER_FMT, MASTER_DID, i,
-                  did_to_u16(&(master_peer[i][j].dst_did)), master_peer[i][j].dst_unit);
-                count++;
-            }
-        } // for each possible peer for unit i //
-    } // for each unit //
+            //
+            // found a peer, print it
+            //
+            oncli_send_msg(ONCLI_LIST_PEER_FMT, MASTER_DID, master_peer[i].src_unit,
+              did_to_u16(&(master_peer[i].dst_did)), master_peer[i].dst_unit);
+            count++;
+        }
+    }
     if (count == 0)
     {
         oncli_send_msg(ONCLI_LIST_NO_PEERS);
@@ -1271,15 +1266,13 @@ static void init_master_user_pin(const UInt8 *user_pin_type,
 */
 static void init_master_peer(void)
 {
-    UInt8 i,j;
+    UInt8 i;
     
-    for(i = 0; i < NUM_USER_PINS; i++)
+    for(i = 0; i < NUM_MASTER_PEER; i++)
     {
-        for(j = 0; j < NUM_MASTER_PEER; j++)
-        {
-            master_peer[i][j].dst_unit = ONE_NET_DEV_UNIT;
-        } // inner loop to initialize master peer settings //
-    } // outer loop to initialize master peer settings //
+        master_peer[i].src_unit = ONE_NET_DEV_UNIT;
+        master_peer[i].dst_unit = ONE_NET_DEV_UNIT;
+    }
 } // init_master_peer //
 
 
@@ -1333,9 +1326,9 @@ static void send_auto_msg(void)
 /*!
     \brief Called when the MASTER is assigned a peer.
     
-    \param[in] PEER_DID The did of the peer the MASTER is being assigned.
-    \param[in] PEER_UNIT The unit in the peer the MASTER is being assigned.
-    \param[in] SRC_UNIT The unit in the MASTER being assigned the peer.
+    \param[in] peer_did The did of the peer the MASTER is being assigned.
+    \param[in] peer_unit The unit in the peer the MASTER is being assigned.
+    \param[in] src_unit The unit in the MASTER being assigned the peer.
     
     \return ONCLI_SUCCESS If the assignent was successfully made
             ONCLI_BAD_PARAM If any of the parameters are invalid
@@ -1354,99 +1347,151 @@ static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
     
     for(i = 0; i < NUM_MASTER_PEER; i++)
     {
-        if(master_peer[src_unit][i].dst_unit == ONE_NET_DEV_UNIT)
+        if(master_peer[i].src_unit > src_unit)
         {
-            // add the device
-            master_peer[src_unit][i].dst_unit = peer_unit;
-            one_net_memmove(master_peer[src_unit][i].dst_did,
-              *peer_did, sizeof(one_net_raw_did_t));
-            return ONCLI_SUCCESS;
-        } // if a slot was found //
-        else if(master_peer[src_unit][i].dst_unit == peer_unit
-          && mem_equal(*peer_did, master_peer[src_unit][i].dst_did,
-          sizeof(one_net_raw_did_t)))
+            // found index to insert into
+            break;
+        }
+		
+        if(master_peer[i].src_unit < src_unit ||
+          master_peer[i].dst_unit < peer_unit)
         {
+            // still searching
+            continue;
+        }
+		       
+        // source units match
+        if(master_peer[i].dst_unit == peer_unit)
+        {
+            // unit is already on the peer list.  Nothing to do.
             return ONCLI_SUCCESS;
-        } // if the connection already exists //
-    } // loop to find an open slot //
+        }
+	}
+	 
+    if (i == NUM_MASTER_PEER)
+	{
+        // list is full
+        return ONCLI_RSRC_UNAVAILABLE;
+	}
+	
+    // move anything down that needs to go down.
+	if(i < NUM_MASTER_PEER - 1)
+	{
+        one_net_memmove(&master_peer[i+1], &master_peer[i],
+          sizeof(master_peer[i]) * (NUM_MASTER_PEER - i - 1));
+	}
+	
+    // add the device
+    master_peer[i].src_unit = src_unit;
+    master_peer[i].dst_unit = peer_unit;
+    one_net_memmove(master_peer[i].dst_did,
+      *peer_did, sizeof(one_net_raw_did_t));
 
-    return ONCLI_RSRC_UNAVAILABLE;
+    return ONCLI_SUCCESS;
 } // master_assigned_peer //
 
 
 /*!
-    \brief Called when the MASTER is unassigned a peer.
+    \brief Unassigns peer connection(s)
+
+    src_unit is a wildcard if it equals ONE_NET_DEV_UNIT.
+    peer_unit is a wildcard if it equals ONE_NET_DEV_UNIT.
+    peer_did is a wildcard if it is NULL or equals ON_ENCODED_BROADCAST_DID.
+	
+	The peer table is traversed record by record and three comparisons are
+	made for each record/peer assignment in the table:
+	
+	1. Does the source unit in the record match src_unit?
+	2. Does the peer unit in the record match peer_did?
+    3. Does the DID in the record match peer_did?
+	
+	If the parameter passed to the function is a wildcard, the comparison is
+	considered true.
+	
+	If all three comparisons are true, then the record/peer assignment is deleted.
+
+
+
+    \param[in] src_unit The source unit(s) of the peer connection to remove.
+    \param[in] peer_did The device ID(s) of the peer whose connection is being
+      removed.
+    \param[in] peer_unit The peer unit(s) of the connection being removed
     
-    \param[in] PEER_DID The did of the peer being unassigned.
-    \param[in] PEER_UNIT The unit in the peer being unassigned.
-    \param[in] SRC_UNIT The unit in the MASTER having the peer unassigned.
-    
-    \return ONCLI_SUCCESS If unassigning the peer was successful.
-            ONCLI_BAD_PARAM If any of the parameters are invalid
+    \return ONS_SUCCESS If the table was successfully adjusted (or the
+              no adjustment was needed).
+            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_INVALID_DATA If the peer source unit does not exist.
 */
 oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
   UInt8 peer_unit, UInt8 src_unit)
 {
-    UInt8 peer_idx;
-    
-    BOOL rm_dev = FALSE;
+    // note that this function uses the on_encoded_did_equal function even
+    // though we're dealing with raw dids, not encoded dids.
 
-    if(!peer_did)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if any of the parameters are invalid //
-    
-    if(src_unit == ONE_NET_DEV_UNIT && peer_unit == ONE_NET_DEV_UNIT)
-    {
-        src_unit = 0;
-        rm_dev = TRUE;
-    } // if all instances of a peer device should be removed //
-    else if((src_unit >= NUM_USER_PINS) ||
-            (peer_unit == ONE_NET_DEV_UNIT))
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameters are invalid //
+    UInt16 index;
+	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
+	one_net_status_t status;
 
-    do
+    if((src_unit != ONE_NET_DEV_UNIT && src_unit >= NUM_MASTER_PEER) ||
+	    peer_unit > ONE_NET_DEV_UNIT)
     {
-        peer_idx = 0;
-        while(peer_idx < NUM_MASTER_PEER)
+        return ONS_INVALID_DATA;
+    } // if the received data is not valid //
+	
+    did_wildcard = FALSE;
+	
+    if(!peer_did || on_encoded_did_equal((const on_encoded_did_t * const)peer_did,
+      (const on_encoded_did_t * const)&ON_RAW_BROADCAST_DID))
+    {
+        // peer did is a wildcard
+        did_wildcard = TRUE;
+    }
+	
+    // go through peer list a record at a time.
+    // Note : index < 0xFFFF will be false when 1 is subtracted from 0 with index-- command.
+    for(index = NUM_MASTER_PEER - 1; index < 0xFFFF; index--)
+    {
+		// check whether criteria for deleting this peer unit are fulfilled
+        if(master_peer[index].src_unit == ONE_NET_DEV_UNIT)
         {
-            if(mem_equal(*peer_did, master_peer[src_unit][peer_idx].dst_did,
-              sizeof(one_net_raw_did_t)) && (rm_dev
-              || master_peer[src_unit][peer_idx].dst_unit == peer_unit))
-            {
-                // Move the items down in the list so that there are no holes
-                if(peer_idx < NUM_MASTER_PEER - 1)
-                {
-                    one_net_memmove(&(master_peer[src_unit][peer_idx]),
-                      &(master_peer[src_unit][peer_idx + 1]),
-                      (NUM_MASTER_PEER - peer_idx - 1)
-                      * sizeof(struct _master_peer_t));
-                } // if not the last unit //
+            // Blank spot.  Nothing to do.
+            continue;
+        }
+		
+        src_unit_match = (src_unit == ONE_NET_DEV_UNIT || src_unit == master_peer[index].src_unit);
+        peer_unit_match = (peer_unit == ONE_NET_DEV_UNIT || peer_unit == master_peer[index].dst_unit);
+        did_match = (did_wildcard || on_encoded_did_equal(peer_did, 
+          (const on_encoded_did_t * const) &master_peer[index].dst_did));
+		  
+        if(!src_unit_match || !peer_unit_match || !did_match)
+        {
+            continue;
+        }
+				
+        // we want to delete.  Move everything farther down the list up one.
+        if(index < NUM_MASTER_PEER - 1)
+        {
+            one_net_memmove(&master_peer[index], &master_peer[index + 1],
+                sizeof(master_peer[index]) * (NUM_MASTER_PEER - index - 1));
+        }
 
-                master_peer[src_unit][NUM_MASTER_PEER - 1].dst_unit
-                  = ONE_NET_DEV_UNIT;
-
-                if(!rm_dev)
-                {
-                    // Not removing all the devices, so don't need
-                    // to search anymore peer assignments.
-                    break;
-                } // if not removing the entire device //
-                
-                // don't adjust the peer_unit_idx since we shifted everything
-                // down by 1 (so if we started in slot N, then N + 1 is now in
-                // N, so check slot N again since it's really a new record
-                continue;
-            } // if a match was found //
-            
-            peer_idx++;
-        } // loop through the units peers //
-    } while(rm_dev && ++src_unit < NUM_USER_PINS);
-
-    return ONCLI_SUCCESS;
+        // make the last spot blank		
+        master_peer[NUM_MASTER_PEER - 1].src_unit = ONE_NET_DEV_UNIT;
+        master_peer[NUM_MASTER_PEER - 1].dst_unit = ONE_NET_DEV_UNIT;
+    }
+	
+    return ONS_SUCCESS;
 } // master_unassigned_peer //
+
+
+
+
+
+
+
+
+
+
 
 
 /*!
@@ -1542,17 +1587,23 @@ static void master_send_user_pin_input(void)
 
     for(; user_pin_peer_idx < NUM_MASTER_PEER; user_pin_peer_idx++)
     {
-        if(master_peer[user_pin_src_unit][user_pin_peer_idx].dst_unit
+        if(master_peer[user_pin_peer_idx].src_unit
           == ONE_NET_DEV_UNIT)
         {
-            master_user_pin_state = M_CHECK_USER_PIN;
-            return;
+            break;
         } // if no more peers to send to //
+        else if(master_peer[user_pin_peer_idx].src_unit
+          != user_pin_src_unit)
+        {
+            continue;
+        } // peer does not apply here //
+
+        // this is a peer for the relevant source unit
         else if((status
           = send_switch_command(user_pin[user_pin_src_unit].old_state,
           user_pin_src_unit,
-          master_peer[user_pin_src_unit][user_pin_peer_idx].dst_unit,
-          &(master_peer[user_pin_src_unit][user_pin_peer_idx].dst_did)))
+          master_peer[user_pin_peer_idx].dst_unit,
+          &(master_peer[user_pin_peer_idx].dst_did)))
           != ONS_SUCCESS)
         {
             if(status == ONS_RSRC_FULL)
