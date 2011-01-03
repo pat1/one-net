@@ -4570,7 +4570,7 @@ static BOOL look_for_invite(void)
     {
         // need to try the next channel
 
-        /*on_base_param->channel++;*/on_base_param->channel = 4;
+        on_base_param->channel++;
         if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
         {
             on_base_param->channel = 0;
