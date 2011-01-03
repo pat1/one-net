@@ -792,7 +792,7 @@ void eval_block_txn_status(one_net_status_t STATUS,
 
     \return void
 */
-/* dje: Like original from jay: handles on or off; doesn't handle toggle. */
+/* Derek_S: Now handles toggle */
 void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
                         const one_net_raw_did_t *SRC_ADDR)
 {
@@ -819,19 +819,19 @@ void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
     {
         if ((user_pin[0].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 0))
         {
-            USER_PIN0 = (msg_data == ONA_ON) ? 1 : 0;
+            USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((msg_data == ONA_ON) ? 1 : 0);
         } // if pin1 is an output and the message is for unit 1 //
         else if ((user_pin[1].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 1))
         {
-            USER_PIN1 = (msg_data == ONA_ON) ? 1 : 0;
+            USER_PIN1 = (msg_data == ONA_TOGGLE) ? !USER_PIN1 : ((msg_data == ONA_ON) ? 1 : 0);
         } // if pin2 is an output and the message is for pin 1 //
         else if ((user_pin[2].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 2))
         {
-            USER_PIN2 = (msg_data == ONA_ON) ? 1 : 0;
+            USER_PIN2 = (msg_data == ONA_TOGGLE) ? !USER_PIN2 : ((msg_data == ONA_ON) ? 1 : 0);
         } // if pin3 is an output and the message is for pin 1 //
         else if ((user_pin[3].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 3))
         {
-            USER_PIN3 = (get_msg_data(RX_PLD) == ONA_ON) ? 1 : 0;
+            USER_PIN3 = (msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((msg_data == ONA_ON) ? 1 : 0);
         } // if pin4 is an output and the message is for pin 1 //
     } // if a switch command message //
 
