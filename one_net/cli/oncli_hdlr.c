@@ -87,7 +87,7 @@ extern one_net_raw_did_t client_did;
 enum
 {
     //! The number of ASCII hex characters per raw did
-    ONCLI_ASCII_RAW_DID_SIZE = 3
+    ONCLI_ASCII_RAW_DID_SIZE = 3,
 };
 
 //! Parameter delimiter
@@ -126,6 +126,16 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 // Transaction command handlers.
 #ifdef _ENABLE_SINGLE_COMMAND
 	static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+	static oncli_status_t oncli_send_single(const one_net_raw_did_t* const dst,
+        const UInt8* const payload, const on_priority_t priority);
+#endif
+#ifdef _ENABLE_SET_VALUE_COMMAND
+	static oncli_status_t set_value_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+    static oncli_status_t oncli_send_set_value(const one_net_raw_did_t* const dst_did,
+        const ona_msg_type_t msg_type, const UInt16 new_value, const UInt8 dst_unit);
+#endif
+#ifdef _ENABLE_SET_PIN_COMMAND
+	static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 #ifdef _ENABLE_SINGLE_TEXT_COMMAND
 	static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -311,6 +321,40 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // if the send single text command was received //
 	#endif
 	
+	#ifdef _ENABLE_SET_PIN_COMMAND
+    if(!strnicmp(ONCLI_SET_PIN_CMD_STR, CMD, strlen(ONCLI_SET_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SET_PIN_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SET_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &set_pin_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // if the set pin command was received //
+	#endif
+	
+	#ifdef _ENABLE_SET_VALUE_COMMAND
+    if(!strnicmp(ONCLI_SET_VALUE_CMD_STR, CMD, strlen(ONCLI_SET_VALUE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SET_VALUE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SET_VALUE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &set_value_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // if the set value command was received //
+	#endif
+			
 	#ifdef _ENABLE_SINGLE_COMMAND
     if(!strnicmp(ONCLI_SINGLE_CMD_STR, CMD, strlen(ONCLI_SINGLE_CMD_STR)))
     {
@@ -812,27 +856,18 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
-
-    one_net_send_single_func_t send_single_func;
-
     one_net_raw_did_t dst;
-
+	
+    BOOL send_to_peer; // we're not using this, but function wants it?
+    
+    UInt8 priority;
     UInt16 data_len;
-    
-    UInt8 src_unit, dst_unit, priority;
     UInt8 pld[ONE_NET_RAW_SINGLE_DATA_LEN];
-    
-    BOOL send_to_peer = FALSE;
 
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
-    
-    if(!(send_single_func = oncli_get_send_single_txn_func()))
-    {
-        return ONCLI_INVALID_CMD_FOR_NODE;
-    } // if the command is not valid for this device //
 
     // get the send parameters
     if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, NULL,
@@ -854,13 +889,29 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     } // if parsing the data portion failed //
+	
+    return oncli_send_single(&dst, pld, priority);
+} // single_cmd_hdlr //
 
+
+static oncli_status_t oncli_send_single(const one_net_raw_did_t* const dst,
+    const UInt8* const payload, const on_priority_t priority)
+{
+    UInt8 src_unit, dst_unit;
+    one_net_send_single_func_t send_single_func;
+    UInt8 data_len = ONE_NET_RAW_SINGLE_DATA_LEN;
+    
+    if(!(send_single_func = oncli_get_send_single_txn_func()))
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    } // if the command is not valid for this device //
+		
     // extract the src and dst units in case they are needed by the *send_single_func
-    src_unit = (pld[ONA_MSG_SRC_UNIT_IDX] >> ONA_MSG_SRC_UNIT_SHIFT) & ONA_MSG_DST_UNIT_MASK;
-    dst_unit = pld[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK;
+    src_unit = (payload[ONA_MSG_SRC_UNIT_IDX] >> ONA_MSG_SRC_UNIT_SHIFT) & ONA_MSG_DST_UNIT_MASK;
+    dst_unit = payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK;
 
-    switch(((*send_single_func)(pld, data_len, data_len, priority,
-      send_to_peer ? 0 : &dst, src_unit)))
+    switch(((*send_single_func)(payload, data_len, data_len, (UInt8) priority,
+      dst, src_unit)))
     {
         case ONS_SUCCESS:
         {
@@ -900,8 +951,232 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         } // default case //
     } // switch(send_single_func) //
     
-    return ONCLI_INTERNAL_ERR;
-} // single_cmd_hdlr //
+    return ONCLI_INTERNAL_ERR;	
+}
+#endif
+
+
+#ifdef _ENABLE_SET_VALUE_COMMAND
+/*!
+    \brief Handles receiving the set value command and all its parameters.
+    
+    The set value command has the form
+    
+    set pin:RAW DST DID:DST UNIT:MSG TYPE:NEW VALUE 
+    
+    where MSG TYPE is the type of the destination of the logical unit (i.e. ONA_SWITCH)
+    and NEW VALUE is the new value of the unit
+	
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
+      should be seperated by ':'.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
+              because the resource is full.
+            ONCLI_INVALID_DST If the destination is invalid
+            ONCLI_NOT_JOINED If the device needs to join a network before the
+              command can be carried out.
+            ONCLI_INTERNAL_ERR If something unexpected occured
+*/
+static oncli_status_t set_value_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr = 0;
+    
+    one_net_raw_did_t dst_did;
+    UInt8 dst_unit;
+    UInt16 new_value;
+    ona_msg_type_t dst_log_unit_type;
+	
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    // read in the raw destination did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, dst_did, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw destination did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // read in the destination unit
+    dst_unit = strtol(PARAM_PTR, &end_ptr, 16);
+    if(!end_ptr || end_ptr == PARAM_PTR)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    PARAM_PTR = end_ptr;
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // read in the logical type of the destination unit
+    dst_log_unit_type = strtol(PARAM_PTR, &end_ptr, 16);
+    if(!end_ptr || end_ptr == PARAM_PTR)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    PARAM_PTR = end_ptr;
+	
+    if(dst_log_unit_type >= ONA_MSG_TYPE_MASK)
+    {
+        // invalid type.
+		return ONCLI_PARSE_ERR;
+    }
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // read in the new value for the destination unit
+    new_value = strtol(PARAM_PTR, &end_ptr, 16);
+    if(!end_ptr || end_ptr == PARAM_PTR)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    PARAM_PTR = end_ptr;
+	   
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+    return oncli_send_set_value(&dst_did, dst_log_unit_type, new_value, dst_unit);
+}
+
+
+static oncli_status_t oncli_send_set_value(const one_net_raw_did_t* const dst_did,
+    const ona_msg_type_t msg_type, const UInt16 new_value, const UInt8 dst_unit)
+{
+    const ona_msg_class_t msg_class = ONA_COMMAND;
+	const UInt8 src_unit = 0; // just need something here.  Doesn't really matter what.
+
+    UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN];
+	
+    put_msg_hdr(msg_class | msg_type, payload);
+    put_src_unit(src_unit, payload);
+    put_dst_unit(dst_unit, payload);
+    put_msg_data(new_value, payload);
+
+    return oncli_send_single(dst_did, payload, ONE_NET_SEND_SINGLE_PRIORITY);
+}
+#endif
+
+
+#ifdef _ENABLE_SET_PIN_COMMAND
+/*!
+    \brief Handles receiving the set pin command and all its parameters.
+    
+    The set pin command has the form
+    
+    set pin:RAW DST DID:DST UNIT:NEW PIN VALUE
+    
+    where NEW PIN VALUE is low, high, or toggle
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
+      should be seperated by ':'.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
+              because the resource is full.
+            ONCLI_INVALID_DST If the destination is invalid
+            ONCLI_NOT_JOINED If the device needs to join a network before the
+              command can be carried out.
+            ONCLI_INTERNAL_ERR If something unexpected occured
+*/
+static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr = 0;
+    
+    one_net_raw_did_t dst_did;
+    UInt8 dst_unit, new_pin_value;
+	
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    // read in the raw destination did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, dst_did, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw destination did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // read in the destination unit
+    dst_unit = strtol(PARAM_PTR, &end_ptr, 16);
+    if(!end_ptr || end_ptr == PARAM_PTR)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    PARAM_PTR = end_ptr;
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // read in the value to set destination pin to (low, high, toggle)
+    if(!strnicmp(PARAM_PTR, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
+    {
+        new_pin_value = ONA_OFF;
+        PARAM_PTR += strlen(ONCLI_LOW_STR);
+    } // if it should be an input //
+    else if(!strnicmp(PARAM_PTR, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
+    {
+        new_pin_value = ONA_ON;
+        PARAM_PTR += strlen(ONCLI_HIGH_STR);
+    } // else if it should be an output //
+    else if(!strnicmp(PARAM_PTR, ONCLI_TOGGLE_STR, strlen(ONCLI_TOGGLE_STR)))
+    {
+        new_pin_value = ONA_TOGGLE;
+        PARAM_PTR += strlen(ONCLI_TOGGLE_STR);
+    } // else if it should be an output //
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else if the priority is invalid //
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+    return oncli_send_set_value(&dst_did, ONA_SWITCH, new_pin_value, dst_unit);
+} // set_pin_cmd_hdlr //
 #endif
 
 

@@ -141,6 +141,8 @@ enum {ONCLI_FATAL_ERR_1_LEN = 15};
 
 // Command Strings
 extern const char * const ONCLI_SINGLE_CMD_STR;
+extern const char * const ONCLI_SET_PIN_CMD_STR;
+extern const char * const ONCLI_SET_VALUE_CMD_STR;
 extern const char * const ONCLI_SINGLE_TXT_CMD_STR;
 extern const char * const ONCLI_BLOCK_CMD_STR;
 extern const char * const ONCLI_BLOCK_TXT_CMD_STR;
@@ -217,6 +219,7 @@ extern const char * const ONCLI_SET_STR;
 extern const char * const ONCLI_CLR_STR;
 extern const char * const ONCLI_LOW_STR;
 extern const char * const ONCLI_HIGH_STR;
+extern const char * const ONCLI_TOGGLE_STR;
 extern const char * const ONCLI_INPUT_STR;
 extern const char * const ONCLI_OUTPUT_STR;
 extern const char * const ONCLI_DISABLE_STR;

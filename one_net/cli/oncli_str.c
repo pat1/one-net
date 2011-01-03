@@ -246,6 +246,16 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 	const char * const ONCLI_SINGLE_CMD_STR = "single";
 #endif
 
+#ifdef _ENABLE_SET_VALUE_COMMAND
+	//! Single command string
+	const char * const ONCLI_SET_VALUE_CMD_STR = "set value";
+#endif
+
+#ifdef _ENABLE_SET_PIN_COMMAND
+	//! Single command string
+	const char * const ONCLI_SET_PIN_CMD_STR = "set pin";
+#endif
+
 #ifdef _ENABLE_SINGLE_TEXT_COMMAND
 	//! Single text command string
 	const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
@@ -422,6 +432,9 @@ const char * const ONCLI_LOW_STR = "low";
 
 //! high argument string
 const char * const ONCLI_HIGH_STR = "high";
+
+//! toggle argument string
+const char * const ONCLI_TOGGLE_STR = "toggle";
 
 //! input argument string
 const char * const ONCLI_INPUT_STR = "input";
