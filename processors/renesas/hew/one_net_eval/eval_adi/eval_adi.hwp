@@ -155,9 +155,12 @@
 "C:\ONE_NET\processors\renesas\src\common\print.c" "User" "C source file" 2 
 "C:\ONE_NET\processors\renesas\src\common\uart.c" "User" "C source file" 2 
 "C:\ONE_NET\processors\renesas\src\common\uart.h" "User" "C header file" 2 
+"C:\ONE_NET\processors\renesas\src\eval\adi\config_options.h" "User" "C header file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\adi\hal_adi.c" "User" "C source file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\adi\hal_adi.h" "User" "C header file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\adi\io_port_mapping.h" "User" "C header file" 2 
+"C:\ONE_NET\processors\renesas\src\eval\adi\test_defines.h" "User" "C header file" 2 
+"C:\ONE_NET\processors\renesas\src\eval\adi\undefine_all_defines.h" "User" "C header file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\nc_define.inc" "User" "Assembly include file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
 "C:\ONE_NET\processors\renesas\src\eval\oncli_port_const.h" "User" "C header file" 2 

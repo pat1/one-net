@@ -213,6 +213,178 @@
 
 
 
+
+// message type defines
+
+#ifndef _NEED_SWITCH_MESSAGE
+    #define _NEED_SWITCH_MESSAGE
+#endif
+/*
+#ifndef _NEED_PERCENT_MESSAGE
+    #define _NEED_PERCENT_MESSAGE
+#endif
+
+#ifndef _NEED_TEMPERATURE_MESSAGE
+    #define _NEED_TEMPERATURE_MESSAGE
+#endif
+
+#ifndef _NEED_HUMIDITY_MESSAGE
+    #define _NEED_HUMIDITY_MESSAGE
+#endif
+
+#ifndef _NEED_PRESSURE_MESSAGE
+    #define _NEED_PRESSURE_MESSAGE
+#endif
+
+#ifndef _NEED_RAINFALL_MESSAGE
+    #define _NEED_RAINFALL_MESSAGE
+#endif
+
+#ifndef _NEED_SPEED_MESSAGE
+    #define _NEED_SPEED_MESSAGE
+#endif
+
+#ifndef _NEED_DIRECTION_MESSAGE
+    #define _NEED_DIRECTION_MESSAGE
+#endif
+
+#ifndef _NEED_OPENING_MESSAGE
+    #define _NEED_OPENING_MESSAGE
+#endif
+
+#ifndef _NEED_SEAL_MESSAGE
+    #define _NEED_SEAL_MESSAGE
+#endif
+
+#ifndef _NEED_COLOR_MESSAGE
+    #define _NEED_COLOR_MESSAGE
+#endif
+*/
+#ifndef _NEED_SIMPLE_TEXT_MESSAGE
+    #define _NEED_SIMPLE_TEXT_MESSAGE
+#endif
+/*
+#ifndef _NEED_DATE_MESSAGE
+    #define _NEED_DATE_MESSAGE
+#endif
+
+#ifndef _NEED_TIME_MESSAGE
+    #define _NEED_TIME_MESSAGE
+#endif
+
+#ifndef _NEED_VOLTAGE_MESSAGE
+    #define _NEED_VOLTAGE_MESSAGE
+#endif
+
+#ifndef _NEED_VOLTAGE_SIMPLE_MESSAGE
+    #define _NEED_VOLTAGE_SIMPLE_MESSAGE
+#endif
+
+#ifndef _NEED_ENERGY_MESSAGE
+    #define _NEED_ENERGY_MESSAGE
+#endif
+
+#ifndef _NEED_ACCUM_ENERGY_MESSAGE
+    #define _NEED_ACCUM_ENERGY_MESSAGE
+#endif
+
+#ifndef _NEED_PEAK_ENERGY_MESSAGE
+    #define _NEED_PEAK_ENERGY_MESSAGE
+#endif
+
+#ifndef _NEED_GAS_MESSAGE
+    #define _NEED_GAS_MESSAGE
+#endif
+
+#ifndef _NEED_ACCUM_GAS_MESSAGE
+    #define _NEED_ACCUM_GAS_MESSAGE
+#endif
+
+#ifndef _NEED_AVERAGE_GAS_MESSAGE
+    #define _NEED_AVERAGE_GAS_MESSAGE
+#endif
+
+#ifndef _NEED_PEAK_GAS_MESSAGE
+    #define _NEED_PEAK_GAS_MESSAGE
+#endif
+
+#ifndef _NEED_INSTEON_MESSAGE
+    #define _NEED_INSTEON_MESSAGE
+#endif
+
+#ifndef _NEED_X10_MESSAGE
+    #define _NEED_X10_MESSAGE
+#endif
+*/
+#ifndef _NEED_BLOCK_TEXT_MESSAGE
+    #define _NEED_BLOCK_TEXT_MESSAGE
+#endif
+
+
+
+// unit type defines
+
+#ifndef _NEED_SIMPLE_SWITCH_TYPE
+    #define _NEED_SIMPLE_SWITCH_TYPE
+#endif
+/*
+#ifndef _NEED_DIMMER_SWITCH_TYPE
+    #define _NEED_DIMMER_SWITCH_TYPE
+#endif
+
+#ifndef _NEED_DISPLAY_SWITCH_TYPE
+    #define _NEED_DISPLAY_SWITCH_TYPE
+#endif
+
+#ifndef _NEED_DISPLAY_DIMMER_TYPE
+    #define _NEED_DISPLAY_DIMMER_TYPE
+#endif
+
+#ifndef _NEED_SIMPLE_LIGHT_TYPE
+    #define _NEED_SIMPLE_LIGHT_TYPE
+#endif
+
+#ifndef _NEED_DIMMING_LIGHT_TYPE
+    #define _NEED_DIMMING_LIGHT_TYPE
+#endif
+
+#ifndef _NEED_OUTLET_TYPE
+    #define _NEED_OUTLET_TYPE
+#endif
+
+#ifndef _NEED_SPEAKER_TYPE
+    #define _NEED_SPEAKER_TYPE
+#endif
+
+#ifndef _NEED_TEMPERATURE_SENSOR_TYPE
+    #define _NEED_TEMPERATURE_SENSOR_TYPE
+#endif
+
+#ifndef _NEED_HUMIDITY_SENSOR_TYPE
+    #define _NEED_HUMIDITY_SENSOR_TYPE
+#endif
+
+#ifndef _NEED_DOOR_WINDOW_SENSOR_TYPE
+    #define _NEED_DOOR_WINDOW_SENSOR_TYPE
+#endif
+
+#ifndef _NEED_MOTION_SENSOR_TYPE
+    #define _NEED_MOTION_SENSOR_TYPE
+#endif
+
+#ifndef _NEED_X10_BRIDGE_TYPE
+    #define _NEED_X10_BRIDGE_TYPE
+#endif
+
+#ifndef _NEED_INSTEON_BRIDGE_TYPE
+    #define _NEED_INSTEON_BRIDGE_SENSOR_TYPE
+#endif
+*/
+
+
+
+
+
 // Evaluation Board Options
 
 #ifndef _ONE_NET_EVAL
@@ -318,6 +490,20 @@
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
 	#ifndef _ENABLE_SINGLE_COMMAND
 		#define _ENABLE_SINGLE_COMMAND
+	#endif
+
+    #ifdef _ENABLE_SINGLE_COMMAND
+		// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
+		#ifndef _ENABLE_SET_VALUE_COMMAND
+			#define _ENABLE_SET_VALUE_COMMAND
+		#endif
+	#endif
+
+    #ifdef _ENABLE_SINGLE_COMMAND
+		// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
+		#ifndef _ENABLE_SET_PIN_COMMAND
+			#define _ENABLE_SET_PIN_COMMAND
+		#endif
 	#endif
 
 	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementing the "single text" command option
@@ -459,20 +645,6 @@
 	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
-	#endif
-
-    #ifdef _ENABLE_SINGLE_COMMAND
-		// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
-		#ifndef _ENABLE_SET_VALUE_COMMAND
-			#define _ENABLE_SET_VALUE_COMMAND
-		#endif
-	#endif
-
-    #ifdef _ENABLE_SET_VALUE_COMMAND
-		// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
-		#ifndef _ENABLE_SET_PIN_COMMAND
-			#define _ENABLE_SET_PIN_COMMAND
-		#endif
 	#endif
 #endif
 	

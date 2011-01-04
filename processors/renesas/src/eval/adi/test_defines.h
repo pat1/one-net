@@ -164,7 +164,28 @@
 	#ifndef _ONE_NET_SIMPLE_CLIENT
 		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _QUAD_INPUT is defined.  Please adjust the #define values in the config_options.h file."
 	#endif
-#endif	
+#endif
+
+
+// test command compatibility
+#ifdef _ENABLE_SET_VALUE_COMMAND
+	#ifndef _ENABLE_SINGLE_COMMAND
+		#error "ERROR : _ENABLE_SINGLE_COMMAND must be defined if _ENABLE_SET_VALUE_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+#ifdef _ENABLE_SET_PIN_COMMAND
+	#ifndef _ENABLE_SINGLE_COMMAND
+		#error "ERROR : _ENABLE_SINGLE_COMMAND must be defined if _ENABLE_SET_PIN_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifndef _NEED_SIMPLE_SWITCH_TYPE
+		#error "ERROR : _NEED_SIMPLE_SWITCH_TYPE must be defined if _ENABLE_SET_PIN_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifndef _NEED_SWITCH_MESSAGE
+		#error "ERROR : _NEED_SIMPLE_SWITCH_TYPE must be defined if _ENABLE_SET_PIN_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
 
 
 //! @} one_net_test_defines_const
