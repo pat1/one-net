@@ -324,38 +324,58 @@ typedef enum _ona_msg_class
 #ifndef _ONE_NET_VERSION_2_X
 typedef enum _ona_msg_type
 {
+#ifdef _NEED_SWITCH_MESSAGE
     //! Set/Query/Report Switch Status
     ONA_SWITCH = 0x0000,
+#endif
 
+#ifdef _NEED_PERCENT_MESSAGE
     //! Set/Query/Report Percent Status
     ONA_PERCENT = 0x0001,
+#endif
 
+#ifdef _NEED_TEMPERATURE_MESSAGE
     //! Set/Query/Report Temperature Status
     ONA_TEMPERATURE = 0x0002,
+#endif
 
+#ifdef _NEED_HUMIDITY_MESSAGE
     //! Set/Query/Report Humidity Status
     ONA_HUMIDITY = 0x0003,
+#endif
 
+#ifdef _NEED_PRESSURE_MESSAGE
     //! Set/Query/Report Pressure Status
     ONA_PRESSURE = 0x0004,
+#endif
 
+#ifdef _NEED_RAINFALL_MESSAGE
     //! Set/Query/Report Rainfall Status
     ONA_RAINFALL = 0x0005,
+#endif
 
+#ifdef _NEED_SPEED_MESSAGE
     //! Set/Query/Report Speed Status
     ONA_SPEED_M_S = 0x0006,
+#endif
 
+#ifdef _NEED_DIRECTION_MESSAGE
     //! Set/Query/Report Direction Status
     ONA_DIRECTION = 0x0007,
+#endif
 
     //! Query status interval
     ONA_STATUS_INTERVAL = 0x0008,
 
+#ifdef _NEED_OPENING_MESSAGE
     //! Set/Query/Report Opening Status (called Access in the specification)
     ONA_OPENING = 0x0009,
+#endif
 
+#ifdef _NEED_SEAL_MESSAGE
     //! Set/Query/Report Seal Status
     ONA_SEAL = 0x000A,
+#endif
 
     //! Unused message
     ONA_UNUSED0 = 0x000B,
@@ -366,18 +386,27 @@ typedef enum _ona_msg_type
     //! Set/Query/Report Unit Type
     ONA_UNIT_TYPE = 0x000D,
 
+#ifdef _NEED_COLOR_MESSAGE
     //! Set/Query/Report Color
     ONA_COLOR = 0x000E,
+#endif
 
+#ifdef _NEED_SIMPLE_TEXT_MESSAGE
     //! Send Simple Text (3 ASCII chars)
     ONA_SIMPLE_TEXT = 0x000F,
+#endif
 
+#ifdef _NEED_DATE_MESSAGE
     //! Query/Report Date
     ONA_DATE = 0x0010,
+#endif
 
+#ifdef _NEED_TIME_MESSAGE
     //! Query/Report Time
     ONA_TIME = 0x0011,
+#endif
 
+#ifdef _NEED_VOLTAGE_MESSAGE
     //! Query Voltage
     ONA_VOLTAGE = 0x0012,
 
@@ -392,7 +421,9 @@ typedef enum _ona_msg_type
 
     //! Report Voltage (in simple good/bad)
     ONA_VOLTAGE_SIMPLE = 0x0016,
+#endif
 
+#ifdef _NEED_ENERGY_MESSAGE
     //! Incremental Energy Query 
     ONA_ENERGY = 0x0017,
 
@@ -416,7 +447,9 @@ typedef enum _ona_msg_type
 
     //! Report Incremental Energy (in 20000 watt seconds units)
     ONA_ENERGY_20000_WATT_SECONDS = 0x001C,
+#endif
 
+#ifdef _NEED_ACCUM_ENERGY_MESSAGE
     //! Accumulated Energy Query 
     ONA_ACCUM_ENERGY = 0x001D,
 
@@ -434,7 +467,9 @@ typedef enum _ona_msg_type
 
     //! Report Accumulated Energy (in 20000 watt seconds units)
     ONA_ACCUM_ENERGY_20000_WATT_SECONDS = 0x0022,
+#endif
 
+#ifdef _NEED_PEAK_ENERGY_MESSAGE
     //! Peak Energy Query 
     ONA_PEAK_ENERGY = 0x0023,
 
@@ -452,7 +487,9 @@ typedef enum _ona_msg_type
 
     //! Report Peak Energy (in 20000 watt seconds units)
     ONA_PEAK_ENERGY_20000_WATT_SECONDS = 0x0028,
+#endif
 
+#ifdef _NEED_GAS_MESSAGE
     //! Instantaneous Gas Query 
     ONA_GAS = 0x0029,
 
@@ -464,7 +501,9 @@ typedef enum _ona_msg_type
 
     //! Instantaneous Gas Therm-Hours
     ONA_GAS_THERM_HRS = 0x002C,
+#endif
 
+#ifdef _NEED_ACCUM_GAS_MESSAGE
     //! Accumulated Gas Query 
     ONA_ACCUM_GAS = 0x002D,
 
@@ -476,7 +515,9 @@ typedef enum _ona_msg_type
 
     //! Accumulated Gas Therm-Hours
     ONA_ACCUM_GAS_THERM_HRS = 0x0030,
+#endif
 
+#ifdef _NEED_AVERAGE_GAS_MESSAGE
     //! Average Gas Query 
     ONA_AVER_GAS = 0x0031,
 
@@ -488,7 +529,9 @@ typedef enum _ona_msg_type
 
     //! Average Gas Therm-Hours
     ONA_AVER_GAS_THERM_HRS = 0x0034,
+#endif
 
+#ifdef _NEED_PEAK_GAS_MESSAGE
     //! Peak Gas Query 
     ONA_PEAK_GAS = 0x0035,
 
@@ -500,18 +543,23 @@ typedef enum _ona_msg_type
 
     //! Peak Gas Therm-Hours
     ONA_PEAK_GAS_THERM_HRS = 0x0038,
+#endif
 
+#ifdef _NEED_INSTEON_MESSAGE
     //! Send INSTEON to address
     ONA_INSTEON_TO_ADDRESS = 0x3FFB,
 
     //! Send INSTEON standard command
     ONA_INSTEON_COMMAND = 0x3FFC,
+#endif
 
+#ifdef _NEED_X10_MESSAGE
     //! Send X10 simple msg
     ONA_X10_SIMPLE = 0x3FFD,
 
     //! Send an extended X10 msg
     ONA_X10_EXTENDED = 0x3FFE,
+#endif
 
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0x3FFF
@@ -519,38 +567,58 @@ typedef enum _ona_msg_type
 #else
 typedef enum _ona_msg_type
 {
+#ifdef _NEED_SWITCH_MESSAGE
     //! Set/Query/Report Switch Status
     ONA_SWITCH = 0x000,
+#endif
 
+#ifdef _NEED_PERCENT_MESSAGE
     //! Set/Query/Report Percent Status
     ONA_PERCENT = 0x001,
+#endif
 
+#ifdef _NEED_TEMPERATURE_MESSAGE
     //! Set/Query/Report Temperature Status
     ONA_TEMPERATURE = 0x002,
+#endif
 
+#ifdef _NEED_HUMIDITY_MESSAGE
     //! Set/Query/Report Humidity Status
     ONA_HUMIDITY = 0x003,
+#endif
 
+#ifdef _NEED_PRESSURE_MESSAGE
     //! Set/Query/Report Pressure Status
     ONA_PRESSURE = 0x004,
+#endif
 
+#ifdef _NEED_RAINFALL_MESSAGE
     //! Set/Query/Report Rainfall Status
     ONA_RAINFALL = 0x005,
+#endif
 
+#ifdef _NEED_SPEED_MESSAGE
     //! Set/Query/Report Speed Status
     ONA_SPEED_M_S = 0x006,
+#endif
 
+#ifdef _NEED_DIRECTION_MESSAGE
     //! Set/Query/Report Direction Status
     ONA_DIRECTION = 0x007,
+#endif
 
     //! Query status interval
     ONA_STATUS_INTERVAL = 0x008,
 
+#ifdef _NEED_OPENING_MESSAGE
     //! Set/Query/Report Opening Status (called Access in the specification)
     ONA_OPENING = 0x009,
+#endif
 
+#ifdef _NEED_SEAL_MESSAGE
     //! Set/Query/Report Seal Status
     ONA_SEAL = 0x00A,
+#endif
 
     //! Unused message
     ONA_UNUSED0 = 0x00B,
@@ -561,18 +629,27 @@ typedef enum _ona_msg_type
     //! Set/Query/Report Unit Type
     ONA_UNIT_TYPE = 0x00D,
 
+#ifdef _NEED_COLOR_MESSAGE
     //! Set/Query/Report Color
     ONA_COLOR = 0x00E,
+#endif
 
+#ifdef _NEED_SIMPLE_TEXT_MESSAGE
     //! Send Simple Text (3 ASCII chars)
     ONA_SIMPLE_TEXT = 0x00F,
+#endif
 
+#ifdef _NEED_DATE_MESSAGE
     //! Query/Report Date
     ONA_DATE = 0x010,
+#endif
 
+#ifdef _NEED_TIME_MESSAGE
     //! Query/Report Time
     ONA_TIME = 0x011,
+#endif
 
+#ifdef _NEED_VOLTAGE_MESSAGE
     //! Query Voltage
     ONA_VOLTAGE = 0x012,
 
@@ -587,7 +664,9 @@ typedef enum _ona_msg_type
 
     //! Report Voltage (in simple good/bad)
     ONA_VOLTAGE_SIMPLE = 0x016,
+#endif
 
+#ifdef _NEED_ENERGY_MESSAGE
     //! Incremental Energy Query 
     ONA_ENERGY = 0x017,
 
@@ -611,7 +690,9 @@ typedef enum _ona_msg_type
 
     //! Report Incremental Energy (in 20000 watt seconds units)
     ONA_ENERGY_20000_WATT_SECONDS = 0x01C,
+#endif
 
+#ifdef _NEED_ACCUM_ENERGY_MESSAGE
     //! Accumulated Energy Query 
     ONA_ACCUM_ENERGY = 0x01D,
 
@@ -629,7 +710,9 @@ typedef enum _ona_msg_type
 
     //! Report Accumulated Energy (in 20000 watt seconds units)
     ONA_ACCUM_ENERGY_20000_WATT_SECONDS = 0x022,
+#endif
 
+#ifdef _NEED_PEAK_ENERGY_MESSAGE
     //! Peak Energy Query 
     ONA_PEAK_ENERGY = 0x023,
 
@@ -647,7 +730,9 @@ typedef enum _ona_msg_type
 
     //! Report Peak Energy (in 20000 watt seconds units)
     ONA_PEAK_ENERGY_20000_WATT_SECONDS = 0x028,
+#endif
 
+#ifdef _NEED_GAS_MESSAGE
     //! Instantaneous Gas Query 
     ONA_GAS = 0x029,
 
@@ -659,7 +744,9 @@ typedef enum _ona_msg_type
 
     //! Instantaneous Gas Therm-Hours
     ONA_GAS_THERM_HRS = 0x02C,
+#endif
 
+#ifdef _NEED_ACCUM_GAS_MESSAGE
     //! Accumulated Gas Query 
     ONA_ACCUM_GAS = 0x02D,
 
@@ -671,7 +758,9 @@ typedef enum _ona_msg_type
 
     //! Accumulated Gas Therm-Hours
     ONA_ACCUM_GAS_THERM_HRS = 0x030,
+#endif
 
+#ifdef _NEED_AVERAGE_GAS_MESSAGE
     //! Average Gas Query 
     ONA_AVER_GAS = 0x031,
 
@@ -683,7 +772,9 @@ typedef enum _ona_msg_type
 
     //! Average Gas Therm-Hours
     ONA_AVER_GAS_THERM_HRS = 0x034,
+#endif
 
+#ifdef _NEED_PEAK_GAS_MESSAGE
     //! Peak Gas Query 
     ONA_PEAK_GAS = 0x035,
 
@@ -695,18 +786,23 @@ typedef enum _ona_msg_type
 
     //! Peak Gas Therm-Hours
     ONA_PEAK_GAS_THERM_HRS = 0x038,
+#endif
 
+#ifdef _NEED_INSTEON_MESSAGE
     //! Send INSTEON to address
     ONA_INSTEON_TO_ADDRESS = 0xFFB,
 
     //! Send INSTEON standard command
     ONA_INSTEON_COMMAND = 0xFFC,
+#endif
 
+#ifdef _NEED_X10_MESSAGE
     //! Send X10 simple msg
     ONA_X10_SIMPLE = 0xFFD,
 
     //! Send an extended X10 msg
     ONA_X10_EXTENDED = 0xFFE,
+#endif
 
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0xFFF
@@ -727,47 +823,75 @@ typedef enum _ona_block_msg_type
 
 typedef enum _ona_unit_type
 {
+#ifdef _NEED_SIMPLE_SWITCH_TYPE
     //! Simple ON/OFF switch
     ONA_SIMPLE_SWITCH = 0x0000,
+#endif
 
+#ifdef _NEED_DIMMER_SWITCH_TYPE
     //! Switch w/ ON/OFF & dimmer
     ONA_DIMMER_SWITCH = 0x0001,
+#endif
 
+#ifdef _NEED_DISPLAY_SWITCH_TYPE
     //! Simple ON/OFF switch w/ display
     ONA_DISPLAY_SWITCH = 0x0002,
+#endif
 
+#ifdef _NEED_DISPLAY_DIMMER_TYPE
     //! Switch w/ ON/OFF, dimmer & display
     ONA_DISPLAY_DIMMER_SWITCH = 0x0003,
+#endif
 
+#ifdef _NEED_SIMPLE_LIGHT_TYPE
     //! Simple ON/OFF light
     ONA_SIMPLE_LIGHT = 0x0004,
+#endif
 
+#ifdef _NEED_DIMMING_LIGHT_TYPE
     //! Light w/ ON/OFF & dimmer
     ONA_DIMMING_LIGHT = 0x0005,
+#endif
 
+#ifdef _NEED_OUTLET_TYPE
     //! ON/OFF outlet
     ONA_OUTLET = 0x0006,
+#endif
 
+#ifdef _NEED_SPEAKER_TYPE
     //! Speaker module
     ONA_SPEAKER = 0x0007,
+#endif
 
+#ifdef _NEED_TEMPERATURE_SENSOR_TYPE
     //! Temperature sensor
     ONA_TEMPERATURE_SENSOR = 0x0008,
+#endif
 
+#ifdef _NEED_HUMIDITY_SENSOR_TYPE
     //! Humidity sensor
     ONA_HUMIDITY_SENSOR = 0x0009,
+#endif
 
+#ifdef _NEED_DOOR_WINDOW_SENSOR_TYPE
     //! Door/Window sensor
     ONA_DOOR_WINDOW_SENSOR = 0x000A,
+#endif
 
+#ifdef _NEED_MOTION_SENSOR_TYPE
     //! Motion sensor
     ONA_MOTION_SENSOR = 0x000B,
+#endif
 
+#ifdef _NEED_X10_BRIDGE_TYPE
     //! ONE-NET/X10 bridge
     ONA_ONE_NET_X10_BRIDGE = 0x000C,
+#endif
 
+#ifdef _NEED_INSTEON_BRIDGE_TYPE
     //! ONE-NET/INSTEON bridge
     ONA_ONE_NET_INSTEON_BRIDGE = 0x000D
+#endif
 } ona_unit_type_t;
 
 
