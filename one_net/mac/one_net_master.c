@@ -450,14 +450,10 @@ static BOOL b_s_in_progress(const UInt8 TYPE,
 
 static one_net_status_t build_txn_data_pkt(const UInt8 TXN);
 
-// Derek_S 11/1/2010 - some functions to help convert between types
-static UInt8 raw_did_to_did_used_index(const one_net_raw_did_t* const raw_client_did);
-static UInt8 raw_did_to_client_list_index(const one_net_raw_did_t* const raw_client_did);
-static UInt8 client_list_index_to_did_used_index(UInt8 client_list_index);
-
-static on_client_t * get_free_client_info(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
+static on_client_t* one_net_master_add_new_client_to_list();
+static int adjust_client_list();
 
 static UInt8 get_free_txn(const UInt8 TYPE, const BOOL SEND);
 
@@ -544,17 +540,8 @@ one_net_status_t one_net_master_create_network(
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
 
-
-    // Derek_S 11/1/2010
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		master_param->did_used[i] = FALSE;
-	}
-
-	// Derek_S 11/2/2010 - Let update_client_count function handle this.
-    update_client_count(master_param);
-    //master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-    //master_param->client_count = 0;
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    master_param->client_count = 0;
 
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
@@ -651,7 +638,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
     } // if the parameter version does not match or crc's don't match //
 
 	// Derek_S 11/2/2010 - The call below should be unnecessary, but can't hurt
-	update_client_count(master_param);
+	//update_client_count(master_param);
 
     for(i = 0; i < master_param->client_count; i++)
     {
@@ -692,148 +679,6 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
 
     return ONS_SUCCESS;
 } // one_net_master_init //
-
-
-// Derek_S 11/1/2010
-/*!
-    \brief Updates the master's parameters to reflect the dids used.
-
-    Updates the master's client count, adjusts the array of dids that
-	are already assigned, and c\figures out what the next did to be
-	assigned should be
-
-    \param[in] master_param Master settings of the network.
-*/
-void update_client_count(on_master_param_t* master_param)
-{
-	// TO DO : Possibly change this function to take no parameters, since
-	// master_param is global.
-    UInt8 i;
-	BOOL found_next_client_did;
-
-	found_next_client_did = FALSE;
-	master_param->client_count = 0;
-	master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		if(master_param->did_used[i])
-		{
-			(master_param->client_count)++;
-			if(!found_next_client_did)
-			{
-			    (master_param->next_client_did) += ON_CLIENT_DID_INCREMENT;
-			}
-		}
-		else
-		{
-			found_next_client_did = TRUE;
-		}
-	}
-}
-
-
-// Derek_S 11/1/2010
-/*!
-    \brief Helper function for some conversions.
-	
-    A quick conversion of raw_did to a usable array index.
-	0020 is the lowest possible client did, so it will map to 0.
-	0030 is the next lowest client did, so it will map to 1.
-	0040 is the next lowest client did, so it will map to 2.
-	0050 maps to 3, 0060 maps to 4, and do on
-
-    \param[in] raw_client_did Raw did of a client
-
-    \return The corresponding "index" for that possible client did
-*/
-static UInt8 raw_did_to_did_used_index(const one_net_raw_did_t* const raw_client_did)
-{
-	UInt16 uint16_cli_id; // quick conversion from array to UInt16 so we can do math
-	UInt8 index;
-
-	uint16_cli_id = (*raw_client_did)[0];
-	uint16_cli_id *= 256;  // MSB portion.   Meaningless since always 0.  Well maybe not always
-	uint16_cli_id += (*raw_client_did)[1];
-
-	index = (UInt8)((uint16_cli_id - ONE_NET_INITIAL_CLIENT_DID) / ON_CLIENT_DID_INCREMENT);
-    return index; // this should be a number from 0 to ONE_NET_MASTER_MAX_CLIENTS - 1,
-	              // inclusive.  Shoiuld there be a test for this?
-}
-
-
-/*!
-    \brief Helper function for some conversions between arrays.
-	
-	If the master has the following clients: 0030, 0040, 0060
-	and raw_client_did is 0030, this function would return 0.
-	If raw_client is 0040, this function would return 1.
-	If raw_client is 0060, this function would return 2.
-	
-	If there are no gaps in dids in the network, this function will return the
-	same value as a call to raw_did_to_did_used_index.  If there ARE gaps in the
-	dids for this network, the return value of this function will be less than a
-	call to raw_did_to_did_used_index.
-
-    \param[in] raw_client_did Raw did of a client
-
-    \return index of that client in the master's table.
-*/
-static UInt8 raw_did_to_client_list_index(const one_net_raw_did_t* const raw_client_did)
-{
-	UInt8 i;
-	UInt8 did_used_index;
-	UInt8 index;
-
-	// get the index for the master_param->did_used array
-	did_used_index = raw_did_to_did_used_index(raw_client_did);
-
-    index = 0;
-	for(i = 0; i < did_used_index; i++)
-	{
-		if(master_param->did_used[i])
-		{
-			index++;
-		}
-	}
-
-    return index; // this should be a number from 0 to ONE_NET_MASTER_MAX_CLIENTS - 1,
-	              // inclusive.  Shoiuld there be a test for this?
-}
-
-
-/*!
-    \brief Helper function for some conversions between arrays.
-
-    \param[in] client_list_index What needs to be looked up.
-
-    \return an index or 0xFF for error/not found
-*/
-// returns an index or 0xFF for error/not found
-static UInt8 client_list_index_to_did_used_index(UInt8 client_list_index)
-{
-	UInt8 i;
-	UInt8 num_clients_found = 0;
-
-    if(master_param->client_count <= client_list_index)
-	{
-	    return 0xFF;
-	}
-
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-	    if(master_param->did_used[i])
-		{
-			num_clients_found++;
-			if(num_clients_found > client_list_index)
-			{
-				return i;
-			}
-		}
-	}
-
-	return 0xFF; // error - not found
-}
 
 
 /*!
@@ -2320,21 +2165,16 @@ one_net_status_t one_net_master_add_client(
     // instead of separate arguments for values returned.
     one_net_status_t status;
 
-	UInt8 i;
-	UInt8 client_list_index;
     on_client_t * client;
-    UInt8 byte_stream_did[sizeof(UInt16)]; // Derek_S 11/2/2010 - perhaps make this sizeof(one_net_raw_did_t)?
     UInt16 new_client_did;
     UInt16 raw_master_did;
-    on_encoded_did_t encoded_client_did;
     UInt8 features = 0;
 
-    // the following code was copied from the handle_admin_pkt function
-    // and modified as needed
+    new_client_did = master_param->next_client_did;
 
     // a device is being added, find the next available client_t
     // structure
-    client = get_free_client_info();
+    client = one_net_master_add_new_client_to_list();
 
     if(!client)
     {
@@ -2343,34 +2183,9 @@ one_net_status_t one_net_master_add_client(
         return status;
     } // if the pointer is 0 //
 
-    // Derek_S 11/2/2010 - If it's in a gap, we want to shift downwards to make room.
-    new_client_did = master_param->next_client_did;
-	one_net_int16_to_byte_stream(new_client_did, byte_stream_did);
-	client_list_index = raw_did_to_client_list_index((one_net_raw_did_t*) byte_stream_did);
-
-	// if there's a gap, move things down to make room.
-	if(client_list_index < master_param->client_count)
-	{
-	    one_net_memmove(&(client_list[client_list_index + 1]),
-		    &(client_list[client_list_index]), (master_param->client_count -
-			client_list_index) * sizeof(on_client_t));
-	}
-
-    // create an encoded version of this new client's DID
-    on_encode(encoded_client_did, byte_stream_did, sizeof(on_encoded_did_t));
-
-    //
-    // adjust the client fields in master_param
-    //
-	// Derek_S 11/1/2010
-	master_param->did_used[(new_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	    ON_CLIENT_DID_INCREMENT] = TRUE;
-	update_client_count(master_param);
-
     //
     // initialize the fields in the client_t structure for this new client
     //
-    one_net_memmove(client->did, encoded_client_did, sizeof(on_encoded_did_t));
     client->expected_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
     client->last_nonce = ON_MAX_NONCE + 1;
     client->send_nonce = 0;
@@ -3886,17 +3701,6 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
     {
         case ON_STATUS_RESP:
         {
-			// Derek_S 11/2/2010
-			UInt8 i;
-			UInt8 client_list_index;
-		    //on_client_t * client;
-		    UInt8 byte_stream_did[sizeof(UInt16)]; // Derek_S 11/2/2010 - perhaps make this sizeof(one_net_raw_did_t)?
-		    UInt16 new_client_did;
-		    //UInt16 raw_master_did;
-		    //on_encoded_did_t encoded_client_did;
-		    //UInt8 features = 0;
-
-
             // Make sure the version is something the MASTER handles
             if(DATA[ON_STATUS_VER_IDX + ON_ADMIN_DATA_IDX] != ON_VERSION)
             {
@@ -3928,7 +3732,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
 
                 // the device was added
 
-                *client = get_free_client_info();
+                *client = one_net_master_add_new_client_to_list();
 
                 if(!(*client))
                 {
@@ -3936,33 +3740,16 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
                     break;
                 } // if the pointer is 0 //
 
-				// Derek_S 11/2/2010 - If it's in a gap, we want to shift downwards to make room.
-                new_client_did = master_param->next_client_did;
-	            one_net_int16_to_byte_stream(new_client_did, byte_stream_did);
-	            client_list_index = raw_did_to_client_list_index((one_net_raw_did_t*) byte_stream_did);
-
-                // To DO : Now that one_net_memmove has been fixed, get rid of the
-				// loop and make it be one single one_net_memmove statement.
-				// I had thought I had done that and checked it in, but apparently
-				// not.
-				for(i = master_param->client_count; i > client_list_index; i--)
-				{
-				    one_net_memmove(&(client_list[i]), &(client_list[i-1]),
-			            sizeof(on_client_t));
-				}
-
-            	// Derek_S 11/1/2010
-	            master_param->did_used[(master_param->next_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	                ON_CLIENT_DID_INCREMENT] = TRUE;
-	            update_client_count(master_param);
-
                 one_net_master_invite_result(ONS_SUCCESS, invite_key,
                   &raw_src_did);
                 one_net_master_cancel_invite(
                   (const one_net_xtea_key_t * const)&invite_key);
 
-                one_net_memmove((*client)->did, *SRC_DID,
-                  sizeof(on_encoded_did_t));
+                // the step below isn't necessary because it was already handled
+                // in one_net_master_add_new_client_to_list().  Commenting out.
+                /*one_net_memmove((*client)->did, *SRC_DID,
+                  sizeof(on_encoded_did_t));*/
+				  
                 (*client)->expected_nonce = one_net_prand(one_net_tick(),
                   ON_MAX_NONCE);
                 (*client)->last_nonce = ON_MAX_NONCE + 1;
@@ -5312,26 +5099,6 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
 
 
 /*!
-    \brief Returns an unused location to store CLIENT information.
-
-    \param void
-
-    \return A free unused location to store CLIENT information.
-            0 if no location exists.
-*/
-static on_client_t * get_free_client_info(void)
-{
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
-    {
-        return 0;
-    } // if the MASTER has reached it's device limit //
-
-    return &(client_list[(master_param->next_client_did - ONE_NET_INITIAL_CLIENT_DID) /
-	    ON_CLIENT_DID_INCREMENT]);
-} // get_free_client_info //
-
-
-/*!
     \brief Returns the CLIENT information for the given CLIENT.
 
     \param[in] CLIENT_DID The enocded device id of the CLIENT to retrieve the
@@ -5373,7 +5140,6 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 {
     UInt16 i;
-	UInt8 did_used_index;
 
     if(!DID)
     {
@@ -5385,34 +5151,104 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
         if(on_encoded_did_equal(DID,
           (const on_encoded_did_t * const)&client_list[i].did))
         {
-			// Derek_S 11/2/2010
-			// potentially there could be overflow if i > 255 since
-			// client_list_index_to_did_used returns a UInt8.
-			did_used_index = client_list_index_to_did_used_index(i);
+            one_net_memmove(client_list[i].did, ON_ENCODED_BROADCAST_DID,
+                ON_ENCODED_DID_LEN);
+			adjust_client_list();
 
-			// Derek_S 11/2/2010 - error condition - abort if below is true
-			if(did_used_index == 0xFF)
-			{
-				return ONS_INVALID_DATA;
-			}
-
-            if(i + 1 < master_param->client_count)
-            {
-				// we have a gap.  Shift the array to fill the gap.
-                one_net_memmove(&(client_list[i]), &(client_list[i + 1]),
-                  sizeof(on_client_t) * (master_param->client_count - i - 1));
-            }
-
-			master_param->did_used[did_used_index] = FALSE;
-			update_client_count(master_param);
-
-			save_param();
 			return ONS_SUCCESS;
         } // if the CLIENT was found //
     } // loop to find the CLIENT //
 	
 	return ONS_INVALID_DATA;
 } // rm_client //
+
+
+
+/*!
+    \brief Cleans up client list
+
+    \return the index in the client list where the new client's settings should
+    be stored.  -1 means no room left.
+*/
+static int adjust_client_list()
+{
+    on_encoded_did_t enc_did;
+    int i, index;
+    one_net_raw_did_t raw_next_did;
+    BOOL found_next_did = FALSE;
+
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    index = 0;
+	
+	// go through and look for the first hole(if any) in the list
+	for(i = 0; i < master_param->client_count; i++)
+    {
+        if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID, &client_list[i].did))
+        {
+            // found an empty spot
+            (master_param->client_count)--;
+            if(i < master_param->client_count)
+            {
+                one_net_memmove(&(client_list[i]), &(client_list[i + 1]),
+                  sizeof(on_client_t) * (master_param->client_count - i));
+            }
+			
+            return adjust_client_list();
+		}
+
+        one_net_int16_to_byte_stream(master_param->next_client_did, raw_next_did);
+        on_encode(enc_did, raw_next_did, ONE_NET_RAW_DID_LEN);
+		
+        if(!on_encoded_did_equal(&enc_did, &client_list[i].did))
+        {
+			found_next_did = TRUE;
+		}
+		
+		if(!found_next_did)
+        {
+			master_param->next_client_did += ON_CLIENT_DID_INCREMENT;
+            index++;
+		}
+    }
+	
+	if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    {
+		index = -1;
+    }
+	
+    return index;
+}
+
+
+/*!
+    \brief Returns an unused location to store CLIENT information.
+
+    \return an unused location to store CLIENT information if there is room
+            NULL if there is no room.
+*/
+static on_client_t* one_net_master_add_new_client_to_list()
+{
+    one_net_raw_did_t new_raw_did;
+	
+    int index = adjust_client_list();
+	
+    if(index == -1)
+    {
+        return 0;
+    }
+	
+    if(index < master_param->client_count)
+    {
+        one_net_memmove(&client_list[index+1], &client_list[index],
+            (master_param->client_count - index) * sizeof(on_client_t));
+    }
+
+    one_net_int16_to_byte_stream(master_param->next_client_did, new_raw_did);
+    on_encode(client_list[index].did, new_raw_did, ONE_NET_RAW_DID_LEN);
+    (master_param->client_count)++;
+    adjust_client_list();
+    return &client_list[index];
+}
 
 
 /*!
@@ -5815,7 +5651,7 @@ static void save_param(void)
 
 #ifdef _ONE_NET_EVAL
     /*!
-        \brief Forces the MASTER to save it's parameters.
+        \brief Forces the MASTER to save its parameters.
 
         This is a "protected" function used only by the eval project to force
         the MASTER to save it's parameters.  It is not even declared in the

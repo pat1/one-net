@@ -223,12 +223,6 @@ oncli_status_t oncli_reset_master_with_channel(
 
     master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
     master_param->client_count = 0;
-	
-	// Derek_S 11/1/2010 - no clients means no dids are used.
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		master_param->did_used[i] = FALSE;
-	}
 
     base_param->crc = one_net_compute_crc((UInt8 *)base_param
       + sizeof(base_param->crc), sizeof(param) - sizeof(base_param->crc),
@@ -1098,23 +1092,10 @@ void init_auto_master(void)
     
 	
 	// Derek_S 11/1/2010 - let update_client_count do below.
-    /*// fill in the master_param data
+    /*// fill in the master_param data*/
     master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID
       + (NUM_AUTO_CLIENTS << RAW_DID_SHIFT);
-    master_param->client_count = NUM_AUTO_CLIENTS;*/
-	
-	// Derek_S 11/1/2010 - fill in the "taken" dids
-	for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-	{
-		master_param->did_used[i] = FALSE;
-		if(i < NUM_AUTO_CLIENTS)
-		{
-		    master_param->did_used[i] = TRUE;
-		}
-	}
-	
-	// Derek_S 11/1/2010 - now fill in client count and next available did.
-	update_client_count(master_param);
+    master_param->client_count = NUM_AUTO_CLIENTS;
     
     // fill in the CLIENT table data
     for(client_count = 0; client_count < NUM_AUTO_CLIENTS; client_count++)

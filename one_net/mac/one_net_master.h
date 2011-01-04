@@ -176,7 +176,7 @@ typedef struct
 {
     //! The next available DID to be handed to a CLIENT that joins the network.
     UInt16 next_client_did;
-    
+	
     //! The last key used
     one_net_xtea_key_t old_key;
     
@@ -185,10 +185,6 @@ typedef struct
     
     //! The number of CLIENTs currently in the network
     UInt16 client_count;
-	
-	// Derek_S 11/1/2010
-    //! Array of booleans.  True if a client did slot is used, false otherwise
-    BOOL did_used[ONE_NET_MASTER_MAX_CLIENTS];
 } on_master_param_t;
 
 
@@ -315,7 +311,7 @@ one_net_status_t one_net_master_delete_last_client(one_net_raw_did_t * raw_clien
 // Derek_S 11/2/2010
 // TO-DO : We don't actually need to pass this the master_param parameter, do we?
 // But it doesn't really hurt anything.
-void update_client_count(on_master_param_t* master_param);
+//void update_client_count(on_master_param_t* master_param);
 
 
 //! @} ONE-NET_MASTER_pub_func
