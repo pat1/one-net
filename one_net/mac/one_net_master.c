@@ -457,7 +457,7 @@ static UInt8 client_list_index_to_did_used_index(UInt8 client_list_index);
 
 static on_client_t * get_free_client_info(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
-static void rm_client(const on_encoded_did_t * const CLIENT_DID);
+static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 
 static UInt8 get_free_txn(const UInt8 TYPE, const BOOL SEND);
 
@@ -2452,16 +2452,10 @@ one_net_status_t one_net_master_add_client(
 
 
 /*!
-    \brief Delete the last client added to the current network.
+    \brief Delete a client.
 
-    This function can be used when you need to delete the last client
-    that was added to the current network. This will be necessary if
-    you added a client using the one_net_master_add_client function
-    but were not able to give the new client the configuration information
-    obtained from the one_net_master_add_client call. The device ID (DID)
-    of the client to be deleted is supplied to make sure the correct
-    client is deleted. The DID provided must match the DID of the last
-    client add to the master's list of clients.
+    This function has been retained for historiacal purposes.  There is no attempt made
+    to ensure that the DID provided is the LAST client added.
 
     \param[in] raw_client_did Pointer to the raw DID of the client to be deleted.
 
@@ -2470,38 +2464,10 @@ one_net_status_t one_net_master_add_client(
 */
 one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_client_did)
 {
-    one_net_status_t status;
-    on_client_t * client;
     on_encoded_did_t encoded_client_did;
-	UInt8 index;
-
-    // make sure there is at least one client
-    if(master_param->client_count == 0)
-    {
-        return ONS_INVALID_DATA;
-    }
-
-	index = raw_did_to_client_list_index(raw_client_did);
-    client = &(client_list[index]);
-
-    // make sure the last client DID matches the DID provided
-    // encode the raw DID since the DID is stored in encoded form
-    // in the client_t record
+	
     on_encode(encoded_client_did, (UInt8 *)raw_client_did, sizeof(on_encoded_did_t));
-    if ((encoded_client_did[0] != client->did[0]) || (encoded_client_did[1] != client->did[1]))
-    {
-        return ONS_INVALID_DATA;
-    }
-
-    // delete this client by adjusting the did_used_array
-	index = raw_did_to_did_used_index(raw_client_did);
-	master_param->did_used[index] = FALSE;
-    update_client_count(master_param);
-
-    // save the new client list
-    save = TRUE;
-
-    return ONS_SUCCESS;
+    return rm_client(&encoded_client_did);
 } // one_net_master_delete_last_client //
 
 
@@ -5401,16 +5367,17 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 
     \param[in] DID The device ID of the CLIENT to remove
 
-    \return void
+    \return ONS_SUCCESS if the client was deleted.
+            ONS_INVALID_DATA if the client was not deleted.
 */
-static void rm_client(const on_encoded_did_t * const DID)
+static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 {
     UInt16 i;
 	UInt8 did_used_index;
 
     if(!DID)
     {
-        return;
+        return ONS_INVALID_DATA;
     } // if the parameter is invalid //
 
     for(i = 0; i < master_param->client_count; i++)
@@ -5426,7 +5393,7 @@ static void rm_client(const on_encoded_did_t * const DID)
 			// Derek_S 11/2/2010 - error condition - abort if below is true
 			if(did_used_index == 0xFF)
 			{
-				return;
+				return ONS_INVALID_DATA;
 			}
 
             if(i + 1 < master_param->client_count)
@@ -5439,11 +5406,12 @@ static void rm_client(const on_encoded_did_t * const DID)
 			master_param->did_used[did_used_index] = FALSE;
 			update_client_count(master_param);
 
-			// Derek_S 11/2/2010 - seems like we should have a break and a call to save_param() here.
 			save_param();
-			break;
+			return ONS_SUCCESS;
         } // if the CLIENT was found //
     } // loop to find the CLIENT //
+	
+	return ONS_INVALID_DATA;
 } // rm_client //
 
 
