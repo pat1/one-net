@@ -126,16 +126,20 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 // Transaction command handlers.
 #ifdef _ENABLE_SINGLE_COMMAND
 	static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-	static oncli_status_t oncli_send_single(const one_net_raw_did_t* const dst,
-        const UInt8* const payload, const on_priority_t priority);
 #endif
 #ifdef _ENABLE_SET_VALUE_COMMAND
 	static oncli_status_t set_value_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-    static oncli_status_t oncli_send_set_value(const one_net_raw_did_t* const dst_did,
-        const ona_msg_type_t msg_type, const UInt16 new_value, const UInt8 dst_unit);
 #endif
 #ifdef _ENABLE_SET_PIN_COMMAND
 	static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#if defined(_ENABLE_SET_VALUE_COMMAND) || defined(_ENABLE_SET_PIN_COMMAND) || defined(_ENABLE_SINGLE_COMMAND)
+	static oncli_status_t oncli_send_single(const one_net_raw_did_t* const dst,
+        const UInt8* const payload, const on_priority_t priority);
+#endif
+#if defined(_ENABLE_SET_VALUE_COMMAND) || defined(_ENABLE_SET_PIN_COMMAND)
+    static oncli_status_t oncli_send_set_value(const one_net_raw_did_t* const dst_did,
+        const ona_msg_type_t msg_type, const UInt16 new_value, const UInt8 dst_unit);
 #endif
 #ifdef _ENABLE_SINGLE_TEXT_COMMAND
 	static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -892,8 +896,10 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 	
     return oncli_send_single(&dst, pld, priority);
 } // single_cmd_hdlr //
+#endif
 
 
+#if defined(_ENABLE_SET_VALUE_COMMAND) || defined(_ENABLE_SET_PIN_COMMAND) || defined(_ENABLE_SINGLE_COMMAND)
 static oncli_status_t oncli_send_single(const one_net_raw_did_t* const dst,
     const UInt8* const payload, const on_priority_t priority)
 {
@@ -1062,8 +1068,10 @@ static oncli_status_t set_value_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     return oncli_send_set_value(&dst_did, dst_log_unit_type, new_value, dst_unit);
 }
+#endif
 
 
+#if defined(_ENABLE_SET_VALUE_COMMAND) || defined(_ENABLE_SET_PIN_COMMAND)
 static oncli_status_t oncli_send_set_value(const one_net_raw_did_t* const dst_did,
     const ona_msg_type_t msg_type, const UInt16 new_value, const UInt8 dst_unit)
 {
