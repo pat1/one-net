@@ -200,7 +200,12 @@ extern peer_msg_mgr_t peer_msg_mgr;/* Note: It's initialized to all zeros */
 //! \ingroup ONE-NET_PEER
 //! @{
 
-//int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
+UInt8 have_more_peers(peer_msg_mgr_t *mgr);
+void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
+int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
+one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
+  peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
+void on_client_net_rm_dev(const on_encoded_did_t* const did);
 
 
 //! @} ONE-NET_PEER_pub_func
