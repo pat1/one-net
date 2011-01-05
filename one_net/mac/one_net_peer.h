@@ -225,6 +225,9 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
 
+one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
+  UInt8 peer_unit, UInt8 src_unit, BOOL device_is_master);
+
 UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID);
 
 BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
