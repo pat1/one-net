@@ -82,7 +82,7 @@ static one_net_xtea_key_t invite_key;
 */
 static struct _master_peer_t
 {
-    one_net_raw_did_t dst_did;
+    on_encoded_did_t dst_did;
     UInt8 src_unit;
     UInt8 dst_unit;
 } master_peer[NUM_MASTER_PEER];
@@ -128,10 +128,10 @@ static BOOL is_valid_eval_sid(const one_net_raw_sid_t *sid, UInt8 *i);
 #ifdef _AUTO_MODE
 	static void send_auto_msg(void);
 #endif
-static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
+static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
                                     UInt8 peer_unit, UInt8 src_unit);
 
-oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
+oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
                                     UInt8 peer_unit, UInt8 src_unit);
 
 BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
@@ -326,6 +326,7 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
   UInt8 dst_unit)
 {
     one_net_raw_did_t master_raw_did;
+    on_encoded_did_t enc_did;
 
     if(!PEER_DID || !DST_DID)
     {
@@ -340,7 +341,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
     if(get_raw_master_did(&master_raw_did)
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
-        return master_assigned_peer(PEER_DID, peer_unit, dst_unit);
+        on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
+        return master_assigned_peer(&enc_did, peer_unit, dst_unit);
     } // if the destination is the MASTER //
     
     switch(one_net_master_peer_assignment(TRUE, PEER_DID, peer_unit, DST_DID,
@@ -381,6 +383,7 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
   UInt8 dst_unit)
 {
     one_net_raw_did_t master_raw_did;
+    on_encoded_did_t enc_did;
 
     if(!PEER_DID || !DST_DID)
     {
@@ -395,7 +398,8 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
     if(get_raw_master_did(&master_raw_did)
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
-        return master_unassigned_peer(PEER_DID, peer_unit, dst_unit);
+        on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
+        return master_unassigned_peer(&enc_did, peer_unit, dst_unit);
     } // if the destination is the MASTER //
 
     switch(one_net_master_peer_assignment(FALSE, PEER_DID, peer_unit, DST_DID,
@@ -403,7 +407,6 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
     {
         case ONS_SUCCESS:
         {
-
             return ONCLI_SUCCESS;
             break;
         } // success case //
@@ -907,6 +910,7 @@ oncli_status_t oncli_start_data_rate_test(
 #ifdef _ENABLE_LIST_COMMAND
 oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
 {
+    one_net_raw_did_t raw_did;
     UInt8 i, count;
     enum {MASTER_DID = 1};
 
@@ -928,8 +932,9 @@ oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
             //
             // found a peer, print it
             //
+            on_decode(raw_did, master_peer[i].dst_did, ONE_NET_RAW_DID_LEN);
             oncli_send_msg(ONCLI_LIST_PEER_FMT, MASTER_DID, master_peer[i].src_unit,
-              did_to_u16(&(master_peer[i].dst_did)), master_peer[i].dst_unit);
+              did_to_u16(&raw_did), master_peer[i].dst_unit);
             count++;
         }
     }
@@ -1304,6 +1309,7 @@ static void send_auto_msg(void)
 } // send_auto_msg //
 #endif
 
+
 /*!
     \brief Called when the MASTER is assigned a peer.
     
@@ -1315,7 +1321,7 @@ static void send_auto_msg(void)
             ONCLI_BAD_PARAM If any of the parameters are invalid
             ONCLI_RSRC_UNAVAILABLE If no more devices can be added.
 */
-static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
+static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
   UInt8 peer_unit, UInt8 src_unit)
 {
     UInt8 i;
@@ -1365,8 +1371,7 @@ static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
     // add the device
     master_peer[i].src_unit = src_unit;
     master_peer[i].dst_unit = peer_unit;
-    one_net_memmove(master_peer[i].dst_did,
-      *peer_did, sizeof(one_net_raw_did_t));
+    one_net_memmove(master_peer[i].dst_did, *peer_did, sizeof(on_encoded_did_t));
 
     return ONCLI_SUCCESS;
 } // master_assigned_peer //
@@ -1403,12 +1408,9 @@ static oncli_status_t master_assigned_peer(const one_net_raw_did_t *peer_did,
             ONS_BAD_PARAM If any of the parameters are invalid.
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
-oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
+oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
   UInt8 peer_unit, UInt8 src_unit)
 {
-    // note that this function uses the on_encoded_did_equal function even
-    // though we're dealing with raw dids, not encoded dids.
-
     UInt16 index;
 	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
 	one_net_status_t status;
@@ -1421,8 +1423,7 @@ oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
 	
     did_wildcard = FALSE;
 	
-    if(!peer_did || on_encoded_did_equal((const on_encoded_did_t * const)peer_did,
-      (const on_encoded_did_t * const)&ON_RAW_BROADCAST_DID))
+    if(!peer_did || on_encoded_did_equal(peer_did, &ON_ENCODED_BROADCAST_DID))
     {
         // peer did is a wildcard
         did_wildcard = TRUE;
@@ -1441,8 +1442,7 @@ oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
 		
         src_unit_match = (src_unit == ONE_NET_DEV_UNIT || src_unit == master_peer[index].src_unit);
         peer_unit_match = (peer_unit == ONE_NET_DEV_UNIT || peer_unit == master_peer[index].dst_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(peer_did, 
-          (const on_encoded_did_t * const) &master_peer[index].dst_did));
+        did_match = (did_wildcard || on_encoded_did_equal(peer_did, &master_peer[index].dst_did));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
         {
@@ -1463,16 +1463,6 @@ oncli_status_t master_unassigned_peer(const one_net_raw_did_t *peer_did,
 	
     return ONS_SUCCESS;
 } // master_unassigned_peer //
-
-
-
-
-
-
-
-
-
-
 
 
 /*!
@@ -1565,6 +1555,7 @@ That is: It src_unit 1 indexes into master_peer[0], etc.
 static void master_send_user_pin_input(void)
 {
     one_net_status_t status;
+    one_net_raw_did_t raw_did;
 
     for(; user_pin_peer_idx < NUM_MASTER_PEER; user_pin_peer_idx++)
     {
@@ -1580,24 +1571,27 @@ static void master_send_user_pin_input(void)
         } // peer does not apply here //
 
         // this is a peer for the relevant source unit
-        else if((status
-          = send_switch_command(user_pin[user_pin_src_unit].old_state,
-          user_pin_src_unit,
-          master_peer[user_pin_peer_idx].dst_unit,
-          &(master_peer[user_pin_peer_idx].dst_did)))
-          != ONS_SUCCESS)
-        {
-            if(status == ONS_RSRC_FULL)
+		else
+		{
+            on_decode(raw_did, master_peer[user_pin_peer_idx].dst_did, ONE_NET_RAW_DID_LEN);
+			
+            if((status
+                = send_switch_command(user_pin[user_pin_src_unit].old_state,
+                    user_pin_src_unit, master_peer[user_pin_peer_idx].dst_unit,
+                    &raw_did)) != ONS_SUCCESS)
             {
-                return;
-            } // if the resource is full //
+                if(status == ONS_RSRC_FULL)
+                {
+                    return;
+                } // if the resource is full //
             
-            // Don't try this peer again for any other return type since they
-            // didn't work the first time, they wouldn't work any other time
-            // for the same reason, so we would be stuck in an endless loop
-            // if we tried them again (endless loop in that we would never
-            // check the user pins again).
-        } // if queueing the transaction was not successful //
+                // Don't try this peer again for any other return type since they
+                // didn't work the first time, they wouldn't work any other time
+                // for the same reason, so we would be stuck in an endless loop
+                // if we tried them again (endless loop in that we would never
+                // check the user pins again).
+            } // if queueing the transaction was not successful //
+		}
     } // loop to try to queue the switch messages //
 
     master_user_pin_state = M_CHECK_USER_PIN;
