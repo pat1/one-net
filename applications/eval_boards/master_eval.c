@@ -388,13 +388,8 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
                 return ONCLI_SUCCESS;
                 break;
             } // success case //
-            case ONS_BAD_PARAM:
-            {
-                return ONCLI_BAD_PARAM;
-                break;
-            } // success case //
 			
-			return ONCLI_CMD_FAIL;
+			return ONCLI_INTERNAL_ERR;
 		}
     } // if the destination is the MASTER //
 
