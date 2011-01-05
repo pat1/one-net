@@ -51,6 +51,7 @@
 */
 
 #include "one_net_client_port_const.h"
+#include "one_net_peer.h"
 
 
 //==============================================================================
@@ -61,13 +62,6 @@
 
 enum
 {
-    // Derek_S :  no longer using a "per unit" approach.
-	// Changing below to reflect that
-	
-    //! The number of peer devices in the peer device list
-    /*ON_NUM_PEER_DEV = ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS,*/
-    ON_NUM_PEER_DEV = ONE_NET_MAX_PEER_DEV,
- 
     //! Value that represents a message being sent directly to a device (not
     //! through the peer list).  This is also to be used if an error occurs and
     //! the transaction ID can't be returned from the client to the client net.
@@ -83,56 +77,6 @@ enum
 //! \defgroup ONE-NET_CLIENT_NET_typedefs
 //! \ingroup ONE-NET_CLIENT_NET
 //! @{
-
-/*!
-    \brief Peer device.
-
-    This structure holds information about the peer device that this device
-    sends to.
-*/
-typedef struct
-{
-    on_encoded_did_t did;           //!< The device ID of the peer to send to.
-    UInt8 nonce;                    //!< Nonce to use when sending to the peer.
-    UInt8 data_rate;                //!< The data rate the peer listens at.
-
-    #ifdef _ONE_NET_MULTI_HOP
-        UInt8 max_hops;             //!< Max # hops when sending to this peer.
-
-        BOOL mh_peer;               //!< TRUE if the peer is Multi-Hop capable.
-    #endif // ifdef _ONE_NET_MULTI_HOP //
-} on_peer_dev_t;
-
-
-/*!
-    \brief Represents a peer for a unit
-*/
-typedef struct
-{
-    // We are now storing the encoded did of the peer, not an index.
-/*    //! Index into peer_dev for the device the peer resides on
-    UInt16 peer_dev_idx;*/
-    on_encoded_did_t peer_dev;
-
-    //! The unit in this device that triggers a message to a peer.
-    UInt8 src_unit;
-	
-    //! The unit in the peer that src_unit sends to.
-    UInt8 peer_unit;
-} on_peer_unit_t;
-
-
-/*!
-    \brief Keeps track of all the peers for every unit in this device
-*/
-typedef struct
-{
-    //! List of all the possible different peer devices this device can send to
-    on_peer_dev_t dev[ONE_NET_MAX_PEER_DEV];
-
-    //! List of all peer units
-    on_peer_unit_t unit[ONE_NET_MAX_PEER_UNIT];
-} on_peer_t;
 
 //! @} ONE-NET_CLIENT_NET_typedefs
 //                                  TYPEDEFS END
