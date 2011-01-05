@@ -86,6 +86,22 @@ on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 //==============================================================================
 
 //==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup ONE-NET_PEER_pub_var
+//! \ingroup ONE-NET_PEER
+//! @{
+
+// see one_net_peer.h for public variable documentation 
+on_peer_t* peer;
+peer_msg_mgr_t peer_msg_mgr;
+
+
+//! @} ONE-NET_PEER_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
+
+
+//==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_PEER_pri_func
 //! \ingroup ONE-NET_PEER

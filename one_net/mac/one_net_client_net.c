@@ -76,24 +76,6 @@ enum
 //! \ingroup ONE-NET_CLIENT_NET
 //! @{
 
-/*!
-    \brief Manages messages sent to the peers of a given source unit.
-*/
-typedef struct
-{
-    //! The source unit for the message.  A value of ONE_NET_DEV_UNIT indicates that
-    //! it is not in use.
-    UInt8 src_unit;
-    
-    //! Where we currently are when iterating through the peer unit list.
-    UInt8 current_idx;
-    
-    //! Index in the message that contains the destination did that needs to
-    //! be changed when the message is sent to the next peer.  A value of
-    //! ON_MAX_RAW_PLD_LEN indicates that the message is not to be changed.
-    UInt8 msg_dst_unit_idx;
-} peer_msg_mgr_t;
-
 //! @} ONE-NET_CLIENT_NET_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -103,13 +85,6 @@ typedef struct
 //! \defgroup ONE-NET_CLIENT_NET_pri_var
 //! \ingroup ONE-NET_CLIENT_NET
 //! @{
-
-//! The peer device to communicate with (if set up by the MASTER).  This needs
-//! to be assigned a location in the init function (from a parameter).
-static on_peer_t * peer;
-
-//! Manages messages sent to the peer connections that have been set up.
-static peer_msg_mgr_t peer_msg_mgr;/* Note: It's initialized to all zeros */
 
 #if 0
 void clear_global_peer_msg_mgr(on_txn_t **txn)
