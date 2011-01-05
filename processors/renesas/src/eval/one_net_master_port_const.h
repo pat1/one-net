@@ -82,14 +82,6 @@ enum
     ONE_NET_MASTER_CHANNEL_SCAN_TIME = MS_TO_TICK(10000)
 };
 
-
-enum
-{
-    //! The maximum number of peers the master keeps track of.
-    NUM_MASTER_PEER = 8
-};
-
-
 //! The default keep alive interval in ticks to assign to new clients.  This is
 //! not an enum since a 16-bit value may not be big enough.
 #define ONE_NET_MASTER_DEFAULT_KEEP_ALIVE MS_TO_TICK(1800000)

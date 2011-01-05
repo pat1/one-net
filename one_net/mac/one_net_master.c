@@ -53,7 +53,6 @@
 #include "one_net_master_port_specific.h"
 #include "one_net_timer.h"
 #include "one_net_prand.h"
-#include "one_net_peer.h"
 
 
 #ifdef _ONE_NET_EVAL
@@ -170,6 +169,11 @@ typedef struct
     UInt8 pkt_data[ONE_NET_MAX_ENCODED_PKT_LEN];
 } pkt_mgr_t;
 
+
+// Derek_S 11/4/2010 - from master_eval.c.  needed to remove peer assignments
+//                     when removing a device.
+oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
+  UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
 
 //! @} ONE-NET_MASTER_typedefs
 //                                  TYPEDEFS END

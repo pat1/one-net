@@ -48,16 +48,6 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
-#include "one_net.h"
-
-
-#ifdef _ONE_NET_MASTER
-	#include "one_net_master_port_const.h"
-#endif
-
-#ifdef _ONE_NET_CLIENT
-	#include "one_net_client_port_const.h"
-#endif
 
 
 //==============================================================================
@@ -71,11 +61,6 @@ enum
     //! The number of peer devices in the peer device list
     ON_NUM_PEER_DEV = ONE_NET_MAX_PEER_DEV
 };
-
-
-//! same as ON_ENCODED_BROADCAST_DID
-extern const on_encoded_did_t INVALID_PEER;
-
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END
@@ -152,26 +137,6 @@ static struct _master_peer_t
     UInt8 dst_unit;
 } master_peer[NUM_MASTER_PEER];
 
-
-/*!
-    \brief Manages messages sent to the peers of a given source unit.
-*/
-typedef struct
-{
-    //! The source unit for the message.  A value of ONE_NET_DEV_UNIT indicates that
-    //! it is not in use.
-    UInt8 src_unit;
-    
-    //! Where we currently are when iterating through the peer unit list.
-    UInt8 current_idx;
-    
-    //! Index in the message that contains the destination did that needs to
-    //! be changed when the message is sent to the next peer.  A value of
-    //! ON_MAX_RAW_PLD_LEN indicates that the message is not to be changed.
-    UInt8 msg_dst_unit_idx;
-} peer_msg_mgr_t;
-
-
 //! @} ONE-NET_PEER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -181,14 +146,6 @@ typedef struct
 //! \defgroup ONE-NET_PEER_pub_var
 //! \ingroup ONE-NET_PEER
 //! @{
-	
-//! The peer device to communicate with (if set up by the MASTER).  This needs
-//! to be assigned a location in the init function (from a parameter).	
-extern on_peer_t* peer;
-
-//! Manages messages sent to the peer connections that have been set up.
-extern peer_msg_mgr_t peer_msg_mgr;/* Note: It's initialized to all zeros */
-
 
 //! @} ONE-NET_PEER_pub_var
 //                              PUBLIC VARIABLES END
@@ -199,45 +156,6 @@ extern peer_msg_mgr_t peer_msg_mgr;/* Note: It's initialized to all zeros */
 //! \defgroup ONE-NET_PEER_pub_func
 //! \ingroup ONE-NET_PEER
 //! @{
-
-
-UInt8 have_more_peers(peer_msg_mgr_t *mgr);
-void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
-int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
-one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
-  peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
-
-#ifdef _ONE_NET_MULTI_HOP
-    UInt8 * on_client_net_peer_hops_field(const on_encoded_did_t * const DID);
-    UInt8 on_client_net_max_hops_for_peer(
-      const on_encoded_did_t * const PEER_DID);
-#endif // else _ONE_NET_MULTI_HOP is not defined //
-
-#ifdef _ONE_NET_MULTI_HOP
-    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
-      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-      const BOOL MH);
-#else // ifdef _ONE_NET_MULTI_HOP //
-    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
-      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT);
-#endif // else _ONE_NET_MULTI_HOP is not defined //
-
-one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
-  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
-
-one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit, BOOL device_is_master);
-
-UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID);
-
-BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
-  const UInt8 NEXT_NONCE);
-
-UInt8 on_client_net_data_rate_for_peer(const on_encoded_did_t * const PEER_DID);
-
-BOOL on_client_net_set_peer_data_rate(
-  const on_encoded_did_t * const PEER_DID, const UInt8 DATA_RATE);
-
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
