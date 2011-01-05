@@ -173,7 +173,7 @@ typedef struct
 // Derek_S 11/4/2010 - from master_eval.c.  needed to remove peer assignments
 //                     when removing a device.
 oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit);
+  UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
 
 //! @} ONE-NET_MASTER_typedefs
 //                                  TYPEDEFS END
@@ -1646,7 +1646,7 @@ one_net_status_t one_net_master_remove_device(
 	}
 
     // Now remove any master peer assignments to the device being deleted.
-    master_unassigned_peer(&dst, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT);
+    master_unassigned_peer(&dst, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT, TRUE);
 
     // all client peer assignments to this did are removed.  Now remove the device itself
     return send_admin_pkt(ON_RM_DEV, ON_ADMIN_MSG,

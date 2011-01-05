@@ -132,7 +132,7 @@ static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
                                     UInt8 peer_unit, UInt8 src_unit);
 
 oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-                                    UInt8 peer_unit, UInt8 src_unit);
+               UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
 
 BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
 
@@ -399,7 +399,7 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        return master_unassigned_peer(&enc_did, peer_unit, dst_unit);
+        return master_unassigned_peer(&enc_did, peer_unit, dst_unit, TRUE);
     } // if the destination is the MASTER //
 
     switch(one_net_master_peer_assignment(FALSE, PEER_DID, peer_unit, DST_DID,
@@ -1402,6 +1402,7 @@ static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
     \param[in] peer_did The device ID(s) of the peer whose connection is being
       removed.
     \param[in] peer_unit The peer unit(s) of the connection being removed
+    \param[in] deviceIsMaster True if this physical device is a master, false otherwise
     
     \return ONS_SUCCESS If the table was successfully adjusted (or the
               no adjustment was needed).
@@ -1409,7 +1410,7 @@ static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
 oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit)
+  UInt8 peer_unit, UInt8 src_unit, BOOL device_is_master)
 {
     UInt16 index;
 	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;

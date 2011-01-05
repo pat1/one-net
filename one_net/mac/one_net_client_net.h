@@ -109,8 +109,10 @@ typedef struct
 */
 typedef struct
 {
-    //! Index into peer_dev for the device the peer resides on
-    UInt16 peer_dev_idx;
+    // We are now storing the encoded did of the peer, not an index.
+/*    //! Index into peer_dev for the device the peer resides on
+    UInt16 peer_dev_idx;*/
+    on_encoded_did_t peer_dev;
 
     //! The unit in this device that triggers a message to a peer.
     UInt8 src_unit;
@@ -166,7 +168,9 @@ one_net_status_t on_client_net_init(void * const peer_location,
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
- const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT);
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
+
+
 
 UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID);
 BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,

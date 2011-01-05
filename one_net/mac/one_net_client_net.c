@@ -62,10 +62,11 @@ enum
 {
     //! Number of messages that can be sent simultanously
     MAX_SINGLE_TXN = 1,
-    
-    //! Invalid peer index
-    ON_INVALID_PEER = 0xFFFF
 };
+
+
+// same as ON_ENCODED_BROADCAST_DID
+const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 
 //! @} ONE-NET_CLIENT_NET_const
 //                                  CONSTANTS END
@@ -147,9 +148,9 @@ static one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
 static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
 
-static UInt16 on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
-static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX);
-static void on_client_net_rm_dev(UInt16 DEV_IDX);
+static int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
+static BOOL on_client_net_send_to_peer_dev(const on_encoded_did_t* const did);
+static void on_client_net_rm_dev(const on_encoded_did_t* const did);
 
 //! @} ONE-NET_CLIENT_NET_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -326,7 +327,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     // 7.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
     
     // find a spot to add the peer.  List is ordered by source
-    // unit, then peer unit.  Emptt spots should all be at the end and are
+    // unit, then peer unit.  Empty spots should all be at the end and are
     // represented by ONE_NET_DEV_UNIT.
     for(unit_list_index = 0; unit_list_index < ONE_NET_MAX_PEER_UNIT; unit_list_index++)
     {
@@ -363,7 +364,6 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     }
 	
     // now let's look through the dev list and see if we need to insert anything.    
-        
     for(dev_list_index = 0; dev_list_index < ONE_NET_MAX_PEER_DEV; dev_list_index++)
     {
         if(on_encoded_did_equal(PEER_DID,
@@ -402,7 +402,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     // now fill in the new information.
     peer->unit[unit_list_index].src_unit = SRC_UNIT;
     peer->unit[unit_list_index].peer_unit = PEER_UNIT;
-    peer->unit[unit_list_index].peer_dev_idx = dev_list_index;
+    one_net_memmove(peer->unit[unit_list_index].peer_dev, *PEER_DID, ON_ENCODED_DID_LEN);
 	
 	return ONS_SUCCESS;
 } // on_client_net_assign_peer //
@@ -433,6 +433,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     \param[in] PEER_DID The device ID(s) of the peer whose connection is being
       removed.
     \param[in] PEER_UNIT The peer unit(s) of the connection being removed
+    \param[in] deviceIsMaster True if this physical device is a master, false otherwise
     
     \return ONS_SUCCESS If the table was successfully adjusted (or the
               no adjustment was needed).
@@ -440,10 +441,9 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
-  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster)
 {
     UInt16 index;
-    UInt16 peer_dev_idx;
 	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
 	one_net_status_t status;
 
@@ -472,13 +472,10 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
             // Blank spot.  Nothing to do.
             continue;
         }
-
-        peer_dev_idx = peer->unit[index].peer_dev_idx;
 		
         src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
         peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, 
-          (const on_encoded_did_t * const) &peer->dev[peer_dev_idx].did));
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_dev)));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
         {
@@ -495,13 +492,25 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
         // make the last spot blank		
         peer->unit[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
         peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
-		peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_dev_idx = ON_INVALID_PEER;
-		
-        // see if anything still sends to this did.  If not, delete it from the dev list
-        if(!on_client_net_send_to_peer_dev(peer_dev_idx))
+		one_net_memmove(peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_dev,
+            ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+    }
+	
+	if(!deviceIsMaster)
+    {
+        // go through the list.  See if anything still sends to this did.  If not, delete it
+        // altogether
+        for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
         {
-            on_client_net_rm_dev(peer_dev_idx);
-        } // no more peer assignemnts for this did
+			if(on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_dev)))
+            {
+                 // at least one peer sends to this did.  Don't delete.
+				 return ONS_SUCCESS;
+            }
+        }
+		
+        // no devices send to it.  Delete it.
+		on_client_net_rm_dev(PEER_DID);
     }
 	
     return ONS_SUCCESS;
@@ -518,10 +527,10 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
 */
 UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID)
 {
-    UInt16 peer_dev_idx = ON_INVALID_PEER;
+    UInt16 peer_dev_idx = -1;
 
     if(PEER_DID && (peer_dev_idx = on_client_net_peer_dev_idx(PEER_DID))
-      != ON_INVALID_PEER)
+      != -1)
     {
         return peer->dev[peer_dev_idx].nonce;
     } // if peer_dev //
@@ -542,10 +551,10 @@ UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID)
 BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
   const UInt8 NEXT_NONCE)
 {
-    UInt16 dev_idx = ON_INVALID_PEER;
+    int dev_idx = -1;
 
     if(DID && NEXT_NONCE <= ON_MAX_NONCE
-      && (dev_idx = on_client_net_peer_dev_idx(DID)) != ON_INVALID_PEER)
+      && (dev_idx = on_client_net_peer_dev_idx(DID)) != -1)
     {
         peer->dev[dev_idx].nonce = NEXT_NONCE;
         return TRUE;
@@ -565,10 +574,10 @@ BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
 */
 UInt8 on_client_net_data_rate_for_peer(const on_encoded_did_t * const PEER_DID)
 {
-    UInt16 peer_dev_idx = ON_INVALID_PEER;
+    int peer_dev_idx = -1;
 
     if(PEER_DID && (peer_dev_idx = on_client_net_peer_dev_idx(PEER_DID))
-      != ON_INVALID_PEER)
+      != -1)
     {
         return peer->dev[peer_dev_idx].data_rate;
     } // if peer_dev //
@@ -589,10 +598,10 @@ UInt8 on_client_net_data_rate_for_peer(const on_encoded_did_t * const PEER_DID)
 BOOL on_client_net_set_peer_data_rate(
   const on_encoded_did_t * const PEER_DID, const UInt8 DATA_RATE)
 {
-    UInt16 peer_dev_idx = ON_INVALID_PEER;
+    int peer_dev_idx = -1;
     
     if(PEER_DID && (peer_dev_idx = on_client_net_peer_dev_idx(PEER_DID))
-      != ON_INVALID_PEER)
+      != -1)
     {
         peer->dev[peer_dev_idx].data_rate = DATA_RATE;
         return TRUE;
@@ -616,9 +625,9 @@ BOOL on_client_net_set_peer_data_rate(
     */
     UInt8 * on_client_net_peer_hops_field(const on_encoded_did_t * const DID)
     {
-        UInt16 dev_idx = ON_INVALID_PEER;
+        int dev_idx = -1;
 
-        if(DID && (dev_idx = on_client_net_peer_dev_idx(DID)) != ON_INVALID_PEER
+        if(DID && (dev_idx = on_client_net_peer_dev_idx(DID)) != -1
           && peer->dev[dev_idx].mh_peer)
         {
             return &(peer->dev[dev_idx].max_hops);
@@ -639,10 +648,10 @@ BOOL on_client_net_set_peer_data_rate(
     UInt8 on_client_net_max_hops_for_peer(
       const on_encoded_did_t * const PEER_DID)
     {
-        UInt16 peer_dev_idx = ON_INVALID_PEER;
+        int peer_dev_idx = -1;
 
         if(PEER_DID && (peer_dev_idx = on_client_net_peer_dev_idx(PEER_DID))
-          != ON_INVALID_PEER)
+          != -1)
         {
             return peer->dev[peer_dev_idx].max_hops;
         } // if peer_dev //
@@ -842,7 +851,7 @@ one_net_status_t on_client_net_init(void * const peer_location,
     
     for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
     {
-        peer->unit[i].peer_dev_idx = ON_INVALID_PEER;
+        one_net_memmove(peer->unit[i].peer_dev, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
         peer->unit[i].src_unit = ONE_NET_DEV_UNIT;
         peer->unit[i].peer_unit = ONE_NET_DEV_UNIT;
     } // loop to initialize peer_t //
@@ -886,7 +895,7 @@ static one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
     } // if there are no more peers to send to //
     
     // copy the destination did
-    one_net_memmove(*dst_did, peer->dev[peer_unit->peer_dev_idx].did,
+    one_net_memmove(*dst_did, peer_unit->peer_dev,
       sizeof(on_encoded_did_t));
     
     // adjust the message if need be
@@ -986,15 +995,15 @@ static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
     \param[in] DID The device id of the peer to look up.
 
     \return The index into the peer device list for DID if DID is in the list.
-            ON_INVALID_PEER if the DID is not in the list
+            -1 if the DID is not in the list
 */
-static UInt16 on_client_net_peer_dev_idx(const on_encoded_did_t *DID)
+static int on_client_net_peer_dev_idx(const on_encoded_did_t *DID)
 {
-    UInt16 i;
+    int i;
 
     if(!DID)
     {
-        return ON_INVALID_PEER;
+        return -1;
     } // if parameter is invalid //
 
     for(i = 0; i < ON_NUM_PEER_DEV; i++)
@@ -1006,35 +1015,38 @@ static UInt16 on_client_net_peer_dev_idx(const on_encoded_did_t *DID)
         } // if this device is responding to its peer //
     } // loop through all peer devices //
 
-    return ON_INVALID_PEER;
+    return -1;
 } // on_client_net_peer_dev_idx //
 
 
 /*!
     \brief Returns if any units send to a device.
 
-    \param[in] DEV_IDX Index into the device list of the device to see if any
+    \param[in] did encoded did of the device to see if any
       units send to that device.
 
     \return TRUE If at least one unit sends to the device indexed by DEV_IDX
             FALSE if no device sends to the device indexed by DEV_IDX
 */
-static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
+static BOOL on_client_net_send_to_peer_dev(const on_encoded_did_t* const did)
 {
     UInt8 index;
-
-    if(DEV_IDX >= ON_NUM_PEER_DEV)
+	
+    if(did == NULL)
     {
-        // make sure the caller doesn't remove the device that is indexed beyond
-        // the end of the list.
-        return TRUE;
-    } // if the parameter is invalid //
+        return FALSE;
+    }
+	
+    if(on_encoded_did_equal(did, &ON_ENCODED_BROADCAST_DID))
+    {
+        return FALSE;
+    }
 
     for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
     {
-        if(peer->unit[index].peer_dev_idx == DEV_IDX)
+        if(on_encoded_did_equal(did, &(peer->unit[index].peer_dev)))
         {
-                return TRUE;
+            return TRUE;
         } // if a unit does send to the peer device //
     } // loop through the units //
 
@@ -1053,41 +1065,28 @@ static BOOL on_client_net_send_to_peer_dev(UInt16 DEV_IDX)
     index have already been deleted.  This deletion must occur before this function is
     called.
 
-    \param[in] DEV_IDX The index into the peer->dev list of the device that is
+    \param[in] did The did to be removed
       being removed.
 
     \return void
 */
-static void on_client_net_rm_dev(UInt16 DEV_IDX)
+static void on_client_net_rm_dev(const on_encoded_did_t* const did)
 {
-    UInt8 index;
-
-    if(DEV_IDX >= ON_NUM_PEER_DEV)
+    int index = on_client_net_peer_dev_idx(did);
+	
+    if(index == -1)
     {
-        // make sure the caller doesn't remove the device that is indexed beyond
-        // the end of the list.
         return;
-    } // if the parameter is invalid //
-
-    // Move the items down in the list so that there are no holes
-    if(DEV_IDX < ON_NUM_PEER_DEV - 1)
+    }
+	
+    if(index < ONE_NET_MAX_PEER_DEV - 1)
     {
-        one_net_memmove(&(peer->dev[DEV_IDX]), &(peer->dev[DEV_IDX + 1]),
-          (ON_NUM_PEER_DEV - (DEV_IDX + 1)) * sizeof(on_peer_dev_t));
-    } // if the devices need to be shifted down //
+        one_net_memmove(&(peer->dev[index]), &(peer->dev[index+1]),
+            (ONE_NET_MAX_PEER_DEV - index - 1) * sizeof(on_peer_dev_t));
+	}
 
     one_net_memmove(peer->dev[ON_NUM_PEER_DEV - 1].did,
       ON_ENCODED_BROADCAST_DID, sizeof(on_encoded_did_t));
-
-    // Since the dev indexes got shifted down, need to adjust the peer units
-    // device index.
-    for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
-    {
-        if(peer->unit[index].peer_dev_idx > DEV_IDX)
-        {
-            peer->unit[index].peer_dev_idx--;
-        } // if a unit does send to the peer device //
-    } // loop through the units //
 } // on_client_net_rm_dev //
 
 //! @} ONE-NET_CLIENT_NET_pri_func

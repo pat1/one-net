@@ -1803,7 +1803,6 @@ static oncli_status_t list_cmd_hdlr(void)
         nv_ptr = oncli_get_param();
         if (nv_ptr != (UInt8 *) 0)
         {
-            UInt16 dev_index;
             UInt8 index,j,count;
             on_peer_t * peer;
             one_net_raw_did_t raw_did;
@@ -1816,8 +1815,7 @@ static oncli_status_t list_cmd_hdlr(void)
             {
                 if (peer->unit[index].peer_unit != ONE_NET_DEV_UNIT)
                 {
-                    dev_index = peer->unit[index].peer_dev_idx;
-                    if (on_decode(raw_did, peer->dev[dev_index].did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+                    if (on_decode(raw_did, peer->unit[index].peer_dev, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                     {
                         return ONCLI_INTERNAL_ERR;
                     }
