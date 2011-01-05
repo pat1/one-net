@@ -52,10 +52,7 @@
 enum
 {
     //! The maximum number of user pins
-    NUM_USER_PINS = 4,
-    
-    //! Number of peers the MASTER keeps track of
-    NUM_MASTER_PEER = 8
+    NUM_USER_PINS = 4
 };
 
 //! @} one_net_eval_hal_const

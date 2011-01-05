@@ -48,6 +48,16 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
+#include "one_net.h"
+
+
+#ifdef _ONE_NET_MASTER
+	#include "one_net_master_port_const.h"
+#endif
+
+#ifdef _ONE_NET_CLIENT
+	#include "one_net_client_port_const.h"
+#endif
 
 
 //==============================================================================
@@ -61,6 +71,11 @@ enum
     //! The number of peer devices in the peer device list
     ON_NUM_PEER_DEV = ONE_NET_MAX_PEER_DEV
 };
+
+
+//! same as ON_ENCODED_BROADCAST_DID
+extern const on_encoded_did_t INVALID_PEER;
+
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END

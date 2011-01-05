@@ -50,6 +50,7 @@
 #include "one_net_client_port_specific.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
+#include "one_net_peer.h"
 
 
 //==============================================================================
@@ -64,9 +65,6 @@ enum
     MAX_SINGLE_TXN = 1,
 };
 
-
-// same as ON_ENCODED_BROADCAST_DID
-const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 
 //! @} ONE-NET_CLIENT_NET_const
 //                                  CONSTANTS END

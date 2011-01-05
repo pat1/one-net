@@ -46,6 +46,7 @@
 #include "config_options.h"
 #include "one_net_types.h"
 #include "one_net_peer.h"
+#include "one_net.h"
 
 
 
@@ -54,6 +55,10 @@
 //! \defgroup ONE-NET_PEER_const
 //! \ingroup ONE-NET_PEER
 //! @{
+
+//! same as ON_ENCODED_BROADCAST_DID
+on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
+
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END

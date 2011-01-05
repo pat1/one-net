@@ -12,6 +12,7 @@
 #include "one_net_crc.h"
 #include "io_port_mapping.h"
 #include "one_net_master_port_specific.h"
+#include "one_net_peer.h"
 
 #ifdef _ENABLE_CLI
 	#include "oncli.h"
@@ -71,22 +72,6 @@ extern user_pin_t user_pin[NUM_USER_PINS];
 
 //! The unique key of the device currently going through the invite process
 static one_net_xtea_key_t invite_key;
-
-
-/*!
-    \brief Master peer assignments
-    
-    Keeps track of the peers that have been assigned to the MASTER user pin
-    units.  If a location is not used, ONE_NET_DEV_UNIT is stored in dst_unit.
-    This list should not contain any holes.
-*/
-static struct _master_peer_t
-{
-    on_encoded_did_t dst_did;
-    UInt8 src_unit;
-    UInt8 dst_unit;
-} master_peer[NUM_MASTER_PEER];
-
 
 //! The state of handling the user pins the MASTER is in;
 static UInt8 master_user_pin_state;
