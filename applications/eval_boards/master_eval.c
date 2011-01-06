@@ -324,8 +324,16 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
     if(get_raw_master_did(&master_raw_did)
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
+		one_net_status_t ret;
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        switch(dst_unit, master_assigned_peer(&enc_did, peer_unit))
+		
+#ifdef _ONE_NET_MULTI_HOP
+        // note : FALSE is a dummy parameter here.
+        ret = master_assigned_peer(dst_unit, &enc_did, peer_unit, FALSE);
+#else
+        ret = master_assigned_peer(dst_unit, &enc_did, peer_unit);
+#endif		
+        switch(ret)
 		{
             case ONS_SUCCESS:
 			{

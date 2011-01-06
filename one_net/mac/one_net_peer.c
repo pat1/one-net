@@ -285,7 +285,7 @@ BOOL on_client_net_set_peer_data_rate(
             ONS_INVALID_DATA If the data is incorrect (such as a source unit
               that is out of range).
             ONS_INTERNAL_ERR If something unexpected happened
-            ONS_RSRC_FULL If no more peers to the SRC_UNIT can be assigned
+            ONS_RSRC_FULL If no more peer assignments can be assigned
 */
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
@@ -619,15 +619,23 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
     
     \param[in] src_unit The unit in the MASTER being assigned the peer.
     \param[in] peer_did The did of the peer the MASTER is being assigned.
-    \param[in] peer_unit The unit in the peer the MASTER is being assigned.
+    \param[in] peer_unit The unit in the peer the MASTER is being assigned.   
+    \param[in] MH Multi-hop - irrelevant/unused for master, but a bogus parameter
+	           is passed anyway to make the function parameters the same as
+			   they are for clients.
     
     \return ONS_SUCCESS If the assignent was successfully made
             ONS_BAD_PARAM If any of the parameters are invalid
             ONS_RSRC_FULL If there is no more room on the peer table
 */
-one_net_status_t master_assigned_peer(const UInt8 src_unit,
-  const on_encoded_did_t* const peer_did,
-  const UInt8 peer_unit)
+#ifdef _ONE_NET_MULTI_HOP
+    one_net_status_t master_assigned_peer(const UInt8 src_unit,
+      const on_encoded_did_t * const peer_did, const UInt8 peer_unit,
+      const BOOL MH)
+#else // ifdef _ONE_NET_MULTI_HOP //
+    one_net_status_t master_assigned_peer(const UInt8 src_unit,
+      const on_encoded_did_t * const peer_did, const UInt8 peer_unit)
+#endif // else _ONE_NET_MULTI_HOP is not defined //
 {
     UInt8 i;
 
