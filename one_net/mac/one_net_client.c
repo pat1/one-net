@@ -89,7 +89,7 @@ enum
             #else // ifdef _ONE_NET_MH_CLIENT_REPEATER //
                 ON_FEATURES = ON_MH_CAPABLE | ONE_NET_MAX_PEER_UNIT
             #endif // else _ONE_NET_MH_CLIENT_REPEATER is not defined //
-        #else // ifdef _ONE_NET_MULTI_HOP //*/
+        #else // ifdef _ONE_NET_MULTI_HOP // */
             ON_FEATURES = ONE_NET_MAX_PEER_UNIT
         //#endif // else _ONE_NET_MULTI_HOP is not defined //
     #else // ifdef _ONE_NET_SIMPLE_CLIENT //
