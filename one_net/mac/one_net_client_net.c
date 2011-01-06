@@ -126,7 +126,6 @@ static one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
 static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
 
-static BOOL on_client_net_send_to_peer_dev(const on_encoded_did_t* const did);
 
 //! @} ONE-NET_CLIENT_NET_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -586,44 +585,6 @@ static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
     mgr->src_unit = ONE_NET_DEV_UNIT;
     mgr->current_idx  = 0;
 } // on_client_net_clear_peer_msg_mgr //
-
-
-
-
-
-/*!
-    \brief Returns if any units send to a device.
-
-    \param[in] did encoded did of the device to see if any
-      units send to that device.
-
-    \return TRUE If at least one unit sends to the device indexed by DEV_IDX
-            FALSE if no device sends to the device indexed by DEV_IDX
-*/
-static BOOL on_client_net_send_to_peer_dev(const on_encoded_did_t* const did)
-{
-    UInt8 index;
-	
-    if(did == NULL)
-    {
-        return FALSE;
-    }
-	
-    if(on_encoded_did_equal(did, &ON_ENCODED_BROADCAST_DID))
-    {
-        return FALSE;
-    }
-
-    for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
-    {
-        if(on_encoded_did_equal(did, &(peer->unit[index].peer_dev)))
-        {
-            return TRUE;
-        } // if a unit does send to the peer device //
-    } // loop through the units //
-
-    return FALSE;
-} // on_client_net_send_to_peer_dev //
 
 
 
