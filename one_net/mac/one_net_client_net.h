@@ -98,40 +98,14 @@ enum
 //! \ingroup ONE-NET_CLIENT_NET
 //! @{
 
+
 one_net_status_t on_client_net_init(void * const peer_location,
   const UInt16 LEN);
-
-// functions from one_net_client_net
-#ifdef _ONE_NET_MULTI_HOP
-    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
-      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-      const BOOL MH);
-#else // ifdef _ONE_NET_MULTI_HOP //
-    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
-      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT);
-#endif // else _ONE_NET_MULTI_HOP is not defined //
-
-one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
-  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
-
-
-
-UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID);
-BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
-  const UInt8 NEXT_NONCE);
-UInt8 on_client_net_data_rate_for_peer(const on_encoded_did_t * const PEER_DID);
-BOOL on_client_net_set_peer_data_rate(
-  const on_encoded_did_t * const PEER_DID, const UInt8 DATA_RATE);
-
-#ifdef _ONE_NET_MULTI_HOP
-    UInt8 * on_client_net_peer_hops_field(const on_encoded_did_t * const DID);
-    UInt8 on_client_net_max_hops_for_peer(
-      const on_encoded_did_t * const PEER_DID);
-#endif // else _ONE_NET_MULTI_HOP is not defined //
-
+  
 one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
   const on_encoded_did_t * const DST, UInt8 * data, const UInt8 TRIES,
   const UInt8 PRIORITY, const UInt8 TXN_ID);
+  
 
 //! @} ONE-NET_CLIENT_NET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

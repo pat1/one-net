@@ -141,6 +141,25 @@ typedef struct _master_peer_t
 } master_peer_t;
 
 
+/*!
+    \brief Manages messages sent to the peers of a given source unit.
+*/
+typedef struct
+{
+    //! The source unit for the message.  A value of ONE_NET_DEV_UNIT indicates that
+    //! it is not in use.
+    UInt8 src_unit;
+    
+    //! Where we currently are when iterating through the peer unit list.
+    UInt8 current_idx;
+    
+    //! Index in the message that contains the destination did that needs to
+    //! be changed when the message is sent to the next peer.  A value of
+    //! ON_MAX_RAW_PLD_LEN indicates that the message is not to be changed.
+    UInt8 msg_dst_unit_idx;
+} peer_msg_mgr_t;
+
+
 //! @} ONE-NET_PEER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -153,6 +172,15 @@ typedef struct _master_peer_t
 	
 extern master_peer_t master_peer[NUM_MASTER_PEER];
 
+
+//! The peer device to communicate with (if set up by the MASTER).  This needs
+//! to be assigned a location in the init function (from a parameter).
+extern on_peer_t * peer;
+
+//! Manages messages sent to the peer connections that have been set up.
+extern peer_msg_mgr_t peer_msg_mgr;/* Note: It's initialized to all zeros */
+
+
 //! @} ONE-NET_PEER_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
@@ -162,6 +190,33 @@ extern master_peer_t master_peer[NUM_MASTER_PEER];
 //! \defgroup ONE-NET_PEER_pub_func
 //! \ingroup ONE-NET_PEER
 //! @{
+
+UInt8 on_client_net_txn_nonce_for_peer(const on_encoded_did_t * const PEER_DID);
+BOOL on_client_net_set_peer_txn_nonce(const on_encoded_did_t * const DID,
+  const UInt8 NEXT_NONCE);
+UInt8 on_client_net_data_rate_for_peer(const on_encoded_did_t * const PEER_DID);
+BOOL on_client_net_set_peer_data_rate(
+  const on_encoded_did_t * const PEER_DID, const UInt8 DATA_RATE);
+
+#ifdef _ONE_NET_MULTI_HOP
+    UInt8 * on_client_net_peer_hops_field(const on_encoded_did_t * const DID);
+    UInt8 on_client_net_max_hops_for_peer(
+      const on_encoded_did_t * const PEER_DID);
+#endif // else _ONE_NET_MULTI_HOP is not defined //
+
+
+#ifdef _ONE_NET_MULTI_HOP
+    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
+      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+      const BOOL MH);
+#else // ifdef _ONE_NET_MULTI_HOP //
+    one_net_status_t on_client_net_assign_peer(const UInt8 SRC_UNIT,
+      const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT);
+#endif // else _ONE_NET_MULTI_HOP is not defined //
+
+one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
+
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
