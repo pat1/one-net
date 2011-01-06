@@ -113,8 +113,6 @@ static BOOL is_valid_eval_sid(const one_net_raw_sid_t *sid, UInt8 *i);
 #ifdef _AUTO_MODE
 	static void send_auto_msg(void);
 #endif
-static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
-                                    UInt8 peer_unit, UInt8 src_unit);
 
 oncli_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
                UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
@@ -327,7 +325,16 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        return master_assigned_peer(&enc_did, peer_unit, dst_unit);
+        switch(master_assigned_peer(&enc_did, peer_unit, dst_unit))
+		{
+            case ONS_SUCCESS:
+			{
+				return ONCLI_SUCCESS;
+			}
+				
+			// default case.
+			return ONCLI_INTERNAL_ERR;
+		}
     } // if the destination is the MASTER //
     
     switch(one_net_master_peer_assignment(TRUE, PEER_DID, peer_unit, DST_DID,
@@ -1293,73 +1300,6 @@ static void send_auto_msg(void)
     } // if auto mode //
 } // send_auto_msg //
 #endif
-
-
-/*!
-    \brief Called when the MASTER is assigned a peer.
-    
-    \param[in] peer_did The did of the peer the MASTER is being assigned.
-    \param[in] peer_unit The unit in the peer the MASTER is being assigned.
-    \param[in] src_unit The unit in the MASTER being assigned the peer.
-    
-    \return ONCLI_SUCCESS If the assignent was successfully made
-            ONCLI_BAD_PARAM If any of the parameters are invalid
-            ONCLI_RSRC_UNAVAILABLE If no more devices can be added.
-*/
-static oncli_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit)
-{
-    UInt8 i;
-
-
-    if(!peer_did || (src_unit >= NUM_USER_PINS))
-    {
-        return ONCLI_BAD_PARAM;
-    } // if any of the parameters are invalid
-    
-    for(i = 0; i < NUM_MASTER_PEER; i++)
-    {
-        if(master_peer[i].src_unit > src_unit)
-        {
-            // found index to insert into
-            break;
-        }
-		
-        if(master_peer[i].src_unit < src_unit ||
-          master_peer[i].dst_unit < peer_unit)
-        {
-            // still searching
-            continue;
-        }
-		       
-        // source units match
-        if(master_peer[i].dst_unit == peer_unit)
-        {
-            // unit is already on the peer list.  Nothing to do.
-            return ONCLI_SUCCESS;
-        }
-	}
-	 
-    if (i == NUM_MASTER_PEER)
-	{
-        // list is full
-        return ONCLI_RSRC_UNAVAILABLE;
-	}
-	
-    // move anything down that needs to go down.
-	if(i < NUM_MASTER_PEER - 1)
-	{
-        one_net_memmove(&master_peer[i+1], &master_peer[i],
-          sizeof(master_peer[i]) * (NUM_MASTER_PEER - i - 1));
-	}
-	
-    // add the device
-    master_peer[i].src_unit = src_unit;
-    master_peer[i].dst_unit = peer_unit;
-    one_net_memmove(master_peer[i].dst_did, *peer_did, sizeof(on_encoded_did_t));
-
-    return ONCLI_SUCCESS;
-} // master_assigned_peer //
 
 
 /*!

@@ -1310,7 +1310,6 @@ one_net_status_t send_switch_command(UInt8 SWITCH_STATUS, UInt8 SRC_UNIT,
             See one_net_client_send_single & one_net_master_send_single for
             more return values.
 */
-
 one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT, 
         UInt8 DST_UNIT, const one_net_raw_did_t *DST)
 {

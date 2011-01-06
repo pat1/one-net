@@ -229,7 +229,8 @@ UInt8 have_more_peers(peer_msg_mgr_t *mgr);
 one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
   peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
 
-
+one_net_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
+  UInt8 peer_unit, UInt8 src_unit);
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

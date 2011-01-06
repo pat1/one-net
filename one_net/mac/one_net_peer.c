@@ -615,38 +615,72 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 
 
 /*!
-    \brief Retrieves the next peer connection for the manager.
+    \brief Called when the MASTER is assigned a peer.
     
-    \param[in/out] mgr The manager to get the next peer for.  This will be
-      updated so that it is ready to be passed in the next time.  If there are
-      no more peers, mgr will NOT be updated.
-
-    \return The next peer to send to.  0 will be returned if there are no more
-      peers left, or the parameter is invalid.
+    \param[in] peer_did The did of the peer the MASTER is being assigned.
+    \param[in] peer_unit The unit in the peer the MASTER is being assigned.
+    \param[in] src_unit The unit in the MASTER being assigned the peer.
+    
+    \return ONS_SUCCESS If the assignent was successfully made
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_RSRC_FULL If there is no more room on the peer table
 */
-static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
+one_net_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
+  UInt8 peer_unit, UInt8 src_unit)
 {
-    UInt8 index;
-    if(!mgr)
-    {
-        return 0;
-    } // if the parameter is invalid //
-	
-	index = (mgr->current_idx)++;
+    UInt8 i;
 
-    // check the peer count
-    while(mgr->current_idx < ONE_NET_MAX_PEER_UNIT)
+
+    if(!peer_did || (src_unit >= NUM_USER_PINS))
     {
-        if(peer->unit[index].src_unit == mgr->src_unit)
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid
+    
+    for(i = 0; i < NUM_MASTER_PEER; i++)
+    {
+        if(master_peer[i].src_unit > src_unit)
         {
-            return &(peer->unit[index]);
-        } // if the peer exists
+            // found index to insert into
+            break;
+        }
 		
-        index = (mgr->current_idx)++;
-    }
+        if(master_peer[i].src_unit < src_unit ||
+          master_peer[i].dst_unit < peer_unit)
+        {
+            // still searching
+            continue;
+        }
+		       
+        // source units match
+        if(master_peer[i].dst_unit == peer_unit)
+        {
+            // unit is already on the peer list.  Nothing to do.
+            return ONS_SUCCESS;
+        }
+	}
+	 
+    if (i == NUM_MASTER_PEER)
+	{
+        // list is full
+        return ONS_RSRC_FULL;
+	}
+	
+    // move anything down that needs to go down.
+	if(i < NUM_MASTER_PEER - 1)
+	{
+        one_net_memmove(&master_peer[i+1], &master_peer[i],
+          sizeof(master_peer[i]) * (NUM_MASTER_PEER - i - 1));
+	}
+	
+    // add the device
+    master_peer[i].src_unit = src_unit;
+    master_peer[i].dst_unit = peer_unit;
+    one_net_memmove(master_peer[i].dst_did, *peer_did, sizeof(on_encoded_did_t));
 
-    return 0;
-} // on_client_net_next_peer //
+    return ONS_SUCCESS;
+} // master_assigned_peer //
+
+
 
 
 //! @} ONE-NET_PEER_pub_func
@@ -727,6 +761,40 @@ static void on_client_net_rm_dev(const on_encoded_did_t* const did)
       ON_ENCODED_BROADCAST_DID, sizeof(on_encoded_did_t));
 } // on_client_net_rm_dev //
 
+
+/*!
+    \brief Retrieves the next peer connection for the manager.
+    
+    \param[in/out] mgr The manager to get the next peer for.  This will be
+      updated so that it is ready to be passed in the next time.  If there are
+      no more peers, mgr will NOT be updated.
+
+    \return The next peer to send to.  0 will be returned if there are no more
+      peers left, or the parameter is invalid.
+*/
+static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
+{
+    UInt8 index;
+    if(!mgr)
+    {
+        return 0;
+    } // if the parameter is invalid //
+	
+	index = (mgr->current_idx)++;
+
+    // check the peer count
+    while(mgr->current_idx < ONE_NET_MAX_PEER_UNIT)
+    {
+        if(peer->unit[index].src_unit == mgr->src_unit)
+        {
+            return &(peer->unit[index]);
+        } // if the peer exists
+		
+        index = (mgr->current_idx)++;
+    }
+
+    return 0;
+} // on_client_net_next_peer //
 
 
 //! @} ONE-NET_PEER_pri_func
