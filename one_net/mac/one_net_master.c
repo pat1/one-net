@@ -452,8 +452,8 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN);
 
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
-static on_client_t* one_net_master_add_new_client_to_list();
-static int adjust_client_list();
+static on_client_t* one_net_master_add_new_client_to_list(void);
+static int adjust_client_list(void);
 
 static UInt8 get_free_txn(const UInt8 TYPE, const BOOL SEND);
 
