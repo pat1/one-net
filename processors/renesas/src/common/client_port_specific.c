@@ -199,6 +199,7 @@ void flash_erase_check(void)
     //
     for (i = 0; i < 2; i++) {
         FLASH_CHECK_TX_PIN = !FLASH_CHECK_TX_PIN;
+		delay_ms(2);//dje: give time to get through RS-232 shorting plug
         if (FLASH_CHECK_RX_PIN != FLASH_CHECK_TX_PIN) {
             //
             // Pins not connected: Give a quick blink
