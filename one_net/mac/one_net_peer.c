@@ -80,6 +80,18 @@
 //                              PRIVATE VARIABLES END
 //==============================================================================
 
+
+//==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup ONE-NET_PEER_pub_var
+//! \ingroup ONE-NET_PEER
+//! @{
+
+master_peer_t master_peer[NUM_MASTER_PEER];
+
+//! @} ONE-NET_PEER_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_PEER_pri_func

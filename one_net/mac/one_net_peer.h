@@ -49,7 +49,7 @@
 #include "config_options.h"
 #include "one_net_types.h"
 #include "one_net_client_port_const.h" // for ONE_NET_MAX_PEER_DEV
-
+#include "one_net_eval_hal.h" // for NUM_MASTER_PEER
 
 //==============================================================================
 //                                  CONSTANTS
@@ -124,6 +124,23 @@ typedef struct
 } on_peer_t;
 
 
+
+
+/*!
+    \brief Master peer assignments
+    
+    Keeps track of the peers that have been assigned to the MASTER user pin
+    units.  If a location is not used, ONE_NET_DEV_UNIT is stored in dst_unit.
+    This list should not contain any holes.
+*/
+typedef struct _master_peer_t
+{
+    on_encoded_did_t dst_did;
+    UInt8 src_unit;
+    UInt8 dst_unit;
+} master_peer_t;
+
+
 //! @} ONE-NET_PEER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -133,6 +150,8 @@ typedef struct
 //! \defgroup ONE-NET_PEER_pub_var
 //! \ingroup ONE-NET_PEER
 //! @{
+	
+extern master_peer_t master_peer[NUM_MASTER_PEER];
 
 //! @} ONE-NET_PEER_pub_var
 //                              PUBLIC VARIABLES END
