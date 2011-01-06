@@ -105,13 +105,13 @@
 
 
 // Block Messages
-#ifdef _BLOCK_MESSAGES_ENABLED
-	#undef _BLOCK_MESSAGES_ENABLED
+#ifndef _BLOCK_MESSAGES_ENABLED
+	#define _BLOCK_MESSAGES_ENABLED
 #endif
 
 // Stream Messages
 #ifdef _STREAM_MESSAGES_ENABLED
-	#undef _STREAM_MESSAGES_ENABLED
+	#define _STREAM_MESSAGES_ENABLED
 #endif
 
 
