@@ -325,7 +325,7 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
       && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
     {
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        switch(master_assigned_peer(&enc_did, peer_unit, dst_unit))
+        switch(dst_unit, master_assigned_peer(&enc_did, peer_unit))
 		{
             case ONS_SUCCESS:
 			{

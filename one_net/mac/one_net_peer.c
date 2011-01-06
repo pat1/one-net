@@ -617,16 +617,17 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 /*!
     \brief Called when the MASTER is assigned a peer.
     
+    \param[in] src_unit The unit in the MASTER being assigned the peer.
     \param[in] peer_did The did of the peer the MASTER is being assigned.
     \param[in] peer_unit The unit in the peer the MASTER is being assigned.
-    \param[in] src_unit The unit in the MASTER being assigned the peer.
     
     \return ONS_SUCCESS If the assignent was successfully made
             ONS_BAD_PARAM If any of the parameters are invalid
             ONS_RSRC_FULL If there is no more room on the peer table
 */
-one_net_status_t master_assigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit)
+one_net_status_t master_assigned_peer(const UInt8 src_unit,
+  const on_encoded_did_t* const peer_did,
+  const UInt8 peer_unit)
 {
     UInt8 i;
 
