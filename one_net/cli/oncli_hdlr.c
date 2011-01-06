@@ -1508,7 +1508,7 @@ static oncli_status_t erase_cmd_hdlr(void)
             ONCLI_CMD_FAIL if saving the current settings was not successful
             ONCLI_INVALID_CMD_FOR_MODE If the device is in auto mode
 */
-#ifdef _ENABLE_SAVE_COMMAND
+#if defined(_ONE_NET_EVAL) && defined(_ENABLE_SAVE_COMMAND)
 static oncli_status_t save_cmd_hdlr(void)
 {
 #ifdef _AUTO_MODE

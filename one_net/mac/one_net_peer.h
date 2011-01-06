@@ -243,6 +243,11 @@ void init_master_peer(void);
 one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
   UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
 
+#ifdef _ONE_NET_EVAL
+    BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
+#endif
+
+
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

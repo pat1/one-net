@@ -49,6 +49,8 @@
 #include "one_net_port_specific.h"
 #include "dfi.h"
 
+#include "one_net_peer.h"
+
 
 //=============================================================================
 //                                  CONSTANTS
@@ -108,8 +110,6 @@ static UInt8 one_net_param_type = DFI_ST_UNUSED_FLASH_DATA;
 
 // defined in one_net_master.c, for eval board only
 extern void on_master_force_save(void);
-extern BOOL master_get_peer_assignment_to_save(const UInt8 ** PTR,
-  UInt16 * const len);
 
 // defined in one_net_client.c, for eval board only
 extern void on_client_force_save(void);
@@ -328,6 +328,7 @@ BOOL eval_load(const UInt8 NV_DATA_TYPE, UInt16 * const len,
 } // eval_load //
 
 
+#ifdef _ONE_NET_EVAL
 /*!
     \brief Saves the data to non-volatile memory.
     
@@ -438,6 +439,9 @@ BOOL eval_save(void)
 	   
     return TRUE;
 } // eval_save //
+#endif
+
+
 
 //! @} ont_net_eval_hal_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

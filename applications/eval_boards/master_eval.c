@@ -113,8 +113,6 @@ static BOOL is_valid_eval_sid(const one_net_raw_sid_t *sid, UInt8 *i);
 	static void send_auto_msg(void);
 #endif
 
-BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
-
 void initialize_master_pins_for_demo(void);
 
 static void master_check_user_pins(void);
@@ -1301,30 +1299,6 @@ static void send_auto_msg(void)
     } // if auto mode //
 } // send_auto_msg //
 #endif
-
-
-/*!
-    \brief Returns the Master peer assignments that should be saved to
-      non-volatile storage.
-
-    \param[out] PTR Returns a pointer to the data to save.
-    \param[out] len Returns the number of bytes that needs to be saved.
-    
-    \return TRUE if the return values were correctly set.
-            FALSE if the parameters are invalid.
-*/
-BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len)
-{
-    if(!ptr || !len)
-    {
-        return FALSE;
-    } // if any of the parameters are invalid //
-    
-    *ptr = (UInt8 *)master_peer;
-    *len = sizeof(master_peer);
-    
-    return TRUE;
-} // master_get_peer_assignment_to_save //
 
 
 /*!

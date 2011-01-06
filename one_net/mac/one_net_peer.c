@@ -805,6 +805,31 @@ one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
 } // master_unassigned_peer //
 
 
+#ifdef _ONE_NET_EVAL
+/*!
+    \brief Returns the Master peer assignments that should be saved to
+      non-volatile storage.
+
+    \param[out] PTR Returns a pointer to the data to save.
+    \param[out] len Returns the number of bytes that needs to be saved.
+    
+    \return TRUE if the return values were correctly set.
+            FALSE if the parameters are invalid.
+*/
+BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len)
+{
+    if(!ptr || !len)
+    {
+        return FALSE;
+    } // if any of the parameters are invalid //
+    
+    *ptr = (UInt8 *)master_peer;
+    *len = sizeof(master_peer);
+    
+    return TRUE;
+} // master_get_peer_assignment_to_save //
+#endif
+
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
