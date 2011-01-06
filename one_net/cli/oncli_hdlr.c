@@ -1927,21 +1927,21 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     char * end_ptr = 0;
     
-    one_net_raw_did_t peer_did, dst_did;
+    one_net_raw_did_t peer_did, src_did;
     
-    UInt8 peer_unit, dst_unit;
+    UInt8 peer_unit, src_unit;
 
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    // read in the peer did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, dst_did, ONCLI_ASCII_RAW_DID_SIZE)
+    // read in the source did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, src_did, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
     {
         return ONCLI_PARSE_ERR;
-    } // if converting the raw peer did failed //
+    } // if converting the source peer did failed //
     PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
     
     if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
@@ -1949,8 +1949,8 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    // read in the destination unit
-    dst_unit = strtol(PARAM_PTR, &end_ptr, 16);
+    // read in the source unit
+    src_unit = strtol(PARAM_PTR, &end_ptr, 16);
     if(!end_ptr || end_ptr == PARAM_PTR)
     {
         return ONCLI_PARSE_ERR;
@@ -1963,12 +1963,12 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
     
-    // read in the destination did
+    // read in the peer did
     if(ascii_hex_to_byte_stream(PARAM_PTR, peer_did, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
     {
         return ONCLI_PARSE_ERR;
-    } // if converting the raw destination did failed //
+    } // if converting the peer destination did failed //
     PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
 
     if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
@@ -1983,7 +1983,7 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    return oncli_assign_peer(&peer_did, peer_unit, &dst_did, dst_unit);
+    return oncli_assign_peer(&peer_did, peer_unit, &src_did, src_unit);
 } // assign_peer_cmd_hdlr //
 #endif
 
@@ -2016,17 +2016,17 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 
     char * end_ptr = 0;
     
-    one_net_raw_did_t peer_did, dst_did;
+    one_net_raw_did_t peer_did, src_did;
     
-    UInt8 peer_unit, dst_unit;
+    UInt8 peer_unit, src_unit;
 
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    // read in the peer did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, dst_did, ONCLI_ASCII_RAW_DID_SIZE)
+    // read in the source did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, src_did, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
     {
         return ONCLI_PARSE_ERR;
@@ -2038,8 +2038,8 @@ static oncli_status_t unassign_peer_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    // read in the destination unit
-    dst_unit = strtol(PARAM_PTR, &end_ptr, 16);
+    // read in the source unit
+    src_unit = strtol(PARAM_PTR, &end_ptr, 16);
     if(!end_ptr || end_ptr == PARAM_PTR)
     {
         return ONCLI_PARSE_ERR;
@@ -2052,7 +2052,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
     
-    // read in the destination did
+    // read in the peer did
     if(ascii_hex_to_byte_stream(PARAM_PTR, peer_did, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
     {
@@ -2072,7 +2072,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    return oncli_unassign_peer(&peer_did, peer_unit, &dst_did, dst_unit);
+    return oncli_unassign_peer(&peer_did, peer_unit, &src_did, src_unit);
 } // unassign_peer_cmd_hdlr //
 #endif
 

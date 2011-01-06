@@ -225,8 +225,8 @@ oncli_status_t oncli_cancel_invite(void);
 
     \param[in] PEER_DID The peer device being assigned.
     \param[in] PEER_UNIT The unit on the peer device being assigned.
-    \param[in] DST_DID The device being assigned the peer.
-    \param[in] DST_UNIT The unit on the device being assigned the peer.
+    \param[in] SRC_DID The device being assigned the peer.
+    \param[in] SRC_UNIT The unit on the device being assigned the peer.
 
     \return ONCLI_SUCCESS if the command was succesful
             ONCLI_BAD_PARAM If any of the parameters passed into this function
@@ -240,9 +240,8 @@ oncli_status_t oncli_cancel_invite(void);
             ONCLI_CMD_FAILED If the command failed.
 */
 oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 PEER_UNIT, const one_net_raw_did_t *DST_DID,
-  UInt8 DST_UNIT);
-
+  UInt8 PEER_UNIT, const one_net_raw_did_t *SRC_DID,
+  UInt8 SRC_UNIT);
 
 /*!
     \brief Unassigns a peer device.
@@ -251,8 +250,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
 
     \param[in] PEER_DID The peer device being unassigned.
     \param[in] PEER_UNIT The unit on the peer device being unassigned.
-    \param[in] DST_DID The device being unassigned the peer.
-    \param[in] DST_UNIT The unit on the device being unassigned the peer.
+    \param[in] SRC_DID The device being unassigned the peer.
+    \param[in] SRC_UNIT The unit on the device being unassigned the peer.
 
     \return ONCLI_SUCCESS if the command was succesful
             ONCLI_BAD_PARAM If any of the parameters passed into this function
@@ -266,8 +265,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
             ONCLI_CMD_FAILED If the command failed.
 */
 oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 PEER_UNIT, const one_net_raw_did_t *DST_DID,
-  UInt8 DST_UNIT);
+  UInt8 PEER_UNIT, const one_net_raw_did_t *SRC_DID,
+  UInt8 SRC_UNIT);
 
 
 /*!

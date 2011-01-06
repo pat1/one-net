@@ -305,13 +305,13 @@ oncli_status_t oncli_cancel_invite(void)
 
 #ifdef _ENABLE_ASSIGN_PEER_COMMAND
 oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 peer_unit, const one_net_raw_did_t *DST_DID,
-  UInt8 dst_unit)
+  UInt8 peer_unit, const one_net_raw_did_t *SRC_DID,
+  UInt8 src_unit)
 {
     one_net_raw_did_t master_raw_did;
     on_encoded_did_t enc_did;
 
-    if(!PEER_DID || !DST_DID)
+    if(!PEER_DID || !SRC_DID)
     {
         return ONCLI_BAD_PARAM;
     } // if any of the parameters are invalid //
@@ -322,16 +322,16 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
     } // if not a MASTER device //
 
     if(get_raw_master_did(&master_raw_did)
-      && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
+      && mem_equal(master_raw_did, *SRC_DID, ONE_NET_RAW_DID_LEN))
     {
 		one_net_status_t ret;
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
 		
 #ifdef _ONE_NET_MULTI_HOP
         // note : FALSE is a dummy parameter here.
-        ret = master_assigned_peer(dst_unit, &enc_did, peer_unit, FALSE);
+        ret = master_assigned_peer(src_unit, &enc_did, peer_unit, FALSE);
 #else
-        ret = master_assigned_peer(dst_unit, &enc_did, peer_unit);
+        ret = master_assigned_peer(src_unit, &enc_did, peer_unit);
 #endif		
         switch(ret)
 		{
@@ -345,8 +345,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
 		}
     } // if the destination is the MASTER //
     
-    switch(one_net_master_peer_assignment(TRUE, PEER_DID, peer_unit, DST_DID,
-      dst_unit))
+    switch(one_net_master_peer_assignment(TRUE, PEER_DID, peer_unit, SRC_DID,
+      src_unit))
     {
         case ONS_SUCCESS:
         {
@@ -380,13 +380,13 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
 
 #ifdef _ENABLE_UNASSIGN_PEER_COMMAND
 oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 peer_unit, const one_net_raw_did_t *DST_DID,
-  UInt8 dst_unit)
+  UInt8 peer_unit, const one_net_raw_did_t *SRC_DID,
+  UInt8 src_unit)
 {
     one_net_raw_did_t master_raw_did;
     on_encoded_did_t enc_did;
 
-    if(!PEER_DID || !DST_DID)
+    if(!PEER_DID || !SRC_DID)
     {
         return ONCLI_BAD_PARAM;
     } // if any of the parameters are invalid //
@@ -397,14 +397,14 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
     } // if not a MASTER device //
     
     if(get_raw_master_did(&master_raw_did)
-      && mem_equal(master_raw_did, *DST_DID, ONE_NET_RAW_DID_LEN))
+      && mem_equal(master_raw_did, *SRC_DID, ONE_NET_RAW_DID_LEN))
     {
         on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        return master_unassigned_peer(&enc_did, peer_unit, dst_unit, TRUE);
+        return master_unassigned_peer(&enc_did, peer_unit, src_unit, TRUE);
     } // if the destination is the MASTER //
 
-    switch(one_net_master_peer_assignment(FALSE, PEER_DID, peer_unit, DST_DID,
-      dst_unit))
+    switch(one_net_master_peer_assignment(FALSE, PEER_DID, peer_unit, SRC_DID,
+      src_unit))
     {
         case ONS_SUCCESS:
         {
