@@ -690,6 +690,25 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 } // master_assigned_peer //
 
 
+/*!
+    \brief Initializes the Master's peer settings.
+    
+    \param void
+    
+    \return void
+*/
+void init_master_peer()
+{
+    UInt8 i;
+    
+    for(i = 0; i < NUM_MASTER_PEER; i++)
+    {
+        master_peer[i].src_unit = ONE_NET_DEV_UNIT;
+        master_peer[i].dst_unit = ONE_NET_DEV_UNIT;
+        one_net_memmove(master_peer[i].dst_did, ON_ENCODED_BROADCAST_DID,
+            ON_ENCODED_DID_LEN);
+    }
+} // init_master_peer //
 
 
 //! @} ONE-NET_PEER_pub_func

@@ -108,7 +108,6 @@ void init_serial_master(void);
 static void init_base_param(on_base_param_t *base_param);
 static void init_master_user_pin(const UInt8 *user_pin_type, 
                                        UInt8 user_pin_count);
-static void init_master_peer(void);
 static BOOL is_valid_eval_sid(const one_net_raw_sid_t *sid, UInt8 *i);
 #ifdef _AUTO_MODE
 	static void send_auto_msg(void);
@@ -1247,24 +1246,6 @@ static void init_master_user_pin(const UInt8 *user_pin_type,
         disable_user_pins();
     } // else use the default pin configuration //
 } // init_master_user_pin //
-
-/*!
-    \brief Initializes the Master's peer settings.
-    
-    \param void
-    
-    \return void
-*/
-static void init_master_peer(void)
-{
-    UInt8 i;
-    
-    for(i = 0; i < NUM_MASTER_PEER; i++)
-    {
-        master_peer[i].src_unit = ONE_NET_DEV_UNIT;
-        master_peer[i].dst_unit = ONE_NET_DEV_UNIT;
-    }
-} // init_master_peer //
 
 
 /*!

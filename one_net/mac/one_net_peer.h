@@ -238,6 +238,8 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
       const on_encoded_did_t * const peer_did, const UInt8 peer_unit);
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 
+void init_master_peer(void);
+
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
