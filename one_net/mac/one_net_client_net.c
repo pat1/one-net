@@ -124,7 +124,6 @@ static one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
   peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
 
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
-static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
 
 
 //! @} ONE-NET_CLIENT_NET_pri_func
@@ -568,23 +567,7 @@ static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
 } // on_client_net_next_peer //
 
 
-/*!
-    \brief Clears a peer message manager and makes it available
-    
-    \param[in/out] The peer message manager to clear.
-    
-    \return void
-*/
-static void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
-{
-    if(!mgr)
-    {
-        return;
-    } // if the parameter is invalid //
-    
-    mgr->src_unit = ONE_NET_DEV_UNIT;
-    mgr->current_idx  = 0;
-} // on_client_net_clear_peer_msg_mgr //
+
 
 
 

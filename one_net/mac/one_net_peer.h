@@ -217,6 +217,8 @@ BOOL on_client_net_set_peer_data_rate(
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
 
+void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
+
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

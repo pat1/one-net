@@ -512,6 +512,24 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
 } // on_client_net_unassign_peer //
 
 
+/*!
+    \brief Clears a peer message manager and makes it available
+    
+    \param[in/out] The peer message manager to clear.
+    
+    \return void
+*/
+void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
+{
+    if(!mgr)
+    {
+        return;
+    } // if the parameter is invalid //
+    
+    mgr->src_unit = ONE_NET_DEV_UNIT;
+    mgr->current_idx  = 0;
+} // on_client_net_clear_peer_msg_mgr //
+
 
 
 //! @} ONE-NET_PEER_pub_func
