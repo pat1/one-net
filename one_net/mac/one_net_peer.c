@@ -56,6 +56,9 @@
 //! \ingroup ONE-NET_PEER
 //! @{
 
+// same as ON_ENCODED_BROADCAST_DID
+const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
+
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END
 //==============================================================================
@@ -107,7 +110,7 @@ peer_msg_mgr_t peer_msg_mgr;
 
 static int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
 static void on_client_net_rm_dev(const on_encoded_did_t* const did);
-
+static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
 
 
 
@@ -531,10 +534,126 @@ void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr)
 } // on_client_net_clear_peer_msg_mgr //
 
 
+/*!
+    \brief Checks whether the iteration through the peer
+	list is complete(i.e. checks whether there are any
+	more peers for a particular source unit.
+    
+    \param[in/out] The peer message manager to check.
+    
+    \return 0/FALSE if there are no more peers in the list.
+	        1/TRUE if there is at least one more peer in the list.
+*/
+UInt8 have_more_peers(peer_msg_mgr_t *mgr)
+{
+    UInt8 index;
+	
+    if(!mgr)
+    {
+        return 0;
+    } // if the parameter is invalid //
+	
+    index = mgr->current_idx;
+	
+    while(index < ONE_NET_MAX_PEER_UNIT)
+    {
+		if(peer->unit[index].src_unit == mgr->src_unit)
+        {
+            return 1;
+        }
+		
+       index++;
+    }
+	
+    return 0;
+}
+
+
+/*!
+    \brief Sets up the message to be sent to the next peer.
+    
+    The next peer for the source unit will be abtained.  The message will be
+    updated with the destination unit of the peer (if needed), and the encoded
+    did of the peer will be returned.
+    
+    \param[in/out] The message being sent.
+    \param[in/out] The peer manager for the message
+    \param[out] dst_did The encoded destination did for the message.
+    
+    \return ONS_SUCCESS If the operation was successful
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_END If there were no more peers to send the message to
+*/
+one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
+  peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did)
+{
+    on_peer_unit_t * peer_unit;
+
+    if(!data || !mgr || !dst_did)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+    
+    // find the next peer
+    if(!(peer_unit = on_client_net_next_peer(mgr)))
+    {
+        return ONS_END;
+    } // if there are no more peers to send to //
+    
+    // copy the destination did
+    one_net_memmove(*dst_did, peer_unit->peer_dev,
+      sizeof(on_encoded_did_t));
+    
+    // adjust the message if need be
+    if(mgr->msg_dst_unit_idx != ON_MAX_RAW_PLD_LEN)
+    {
+        put_dst_unit(peer_unit->peer_unit, data);
+    } // if the message needs to be updated //
+    
+    return ONS_SUCCESS;
+} // on_client_net_setup_msg_for_peer //
+
+
+/*!
+    \brief Retrieves the next peer connection for the manager.
+    
+    \param[in/out] mgr The manager to get the next peer for.  This will be
+      updated so that it is ready to be passed in the next time.  If there are
+      no more peers, mgr will NOT be updated.
+
+    \return The next peer to send to.  0 will be returned if there are no more
+      peers left, or the parameter is invalid.
+*/
+static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
+{
+    UInt8 index;
+    if(!mgr)
+    {
+        return 0;
+    } // if the parameter is invalid //
+	
+	index = (mgr->current_idx)++;
+
+    // check the peer count
+    while(mgr->current_idx < ONE_NET_MAX_PEER_UNIT)
+    {
+        if(peer->unit[index].src_unit == mgr->src_unit)
+        {
+            return &(peer->unit[index]);
+        } // if the peer exists
+		
+        index = (mgr->current_idx)++;
+    }
+
+    return 0;
+} // on_client_net_next_peer //
+
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
+
+
 
 //==============================================================================
 //                      PRIVATE FUNCTION IMPLEMENTATION

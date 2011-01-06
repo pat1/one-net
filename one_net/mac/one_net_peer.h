@@ -57,11 +57,16 @@
 //! \ingroup ONE-NET_PEER
 //! @{
 
+
 enum
 {
     //! The number of peer devices in the peer device list
     ON_NUM_PEER_DEV = ONE_NET_MAX_PEER_DEV
 };
+
+
+extern const on_encoded_did_t INVALID_PEER;
+
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END
@@ -218,6 +223,12 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
 
 void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
+
+UInt8 have_more_peers(peer_msg_mgr_t *mgr);
+
+one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
+  peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
+
 
 
 //! @} ONE-NET_PEER_pub_func
