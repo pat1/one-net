@@ -303,10 +303,8 @@
 [WINDOW_POSITION_STATE_DATA_VD3]
 [WINDOW_POSITION_STATE_DATA_VD4]
 [WINDOW_Z_ORDER]
-"C:\ONE_NET\one_net\utility\one_net_timer.h" 
-"C:\ONE_NET\one_net\app\one_net_application.c" 
-"C:\ONE_NET\one_net\mac\one_net.c" 
-"C:\ONE_NET\one_net\mac\one_net_master.h" 
+"C:\ONE_NET\one_net\app\one_net_application.h" 
+"C:\ONE_NET\processors\renesas\src\common\client_port_specific.c" 
 [STATUSBAR_STATEINFO_VD1]
 "MasterShowState" 1 
 "ApplicationShowState" 1 
