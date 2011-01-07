@@ -103,9 +103,7 @@ typedef struct
 */
 typedef struct
 {
-    // We are now storing the encoded did of the peer, not an index.
-/*    //! Index into peer_dev for the device the peer resides on
-    UInt16 peer_dev_idx;*/
+    //! did of the of the peer
     on_encoded_did_t peer_did;
 
     //! The unit in this device that triggers a message to a peer.
@@ -135,14 +133,14 @@ typedef struct
     \brief Master peer assignments
     
     Keeps track of the peers that have been assigned to the MASTER user pin
-    units.  If a location is not used, ONE_NET_DEV_UNIT is stored in dst_unit.
+    units.  If a location is not used, ONE_NET_DEV_UNIT is stored in peer_unit.
     This list should not contain any holes.
 */
 typedef struct _master_peer_t
 {
     on_encoded_did_t peer_did;
     UInt8 src_unit;
-    UInt8 dst_unit;
+    UInt8 peer_unit;
 } master_peer_t;
 
 

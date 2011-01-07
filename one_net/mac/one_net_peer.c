@@ -654,14 +654,14 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
         }
 		
         if(master_peer[i].src_unit < src_unit ||
-          master_peer[i].dst_unit < peer_unit)
+          master_peer[i].peer_unit < peer_unit)
         {
             // still searching
             continue;
         }
 		       
         // source units match
-        if(master_peer[i].dst_unit == peer_unit)
+        if(master_peer[i].peer_unit == peer_unit)
         {
             // unit is already on the peer list.  Nothing to do.
             return ONS_SUCCESS;
@@ -683,7 +683,7 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 	
     // add the device
     master_peer[i].src_unit = src_unit;
-    master_peer[i].dst_unit = peer_unit;
+    master_peer[i].peer_unit = peer_unit;
     one_net_memmove(master_peer[i].peer_did, *peer_did, sizeof(on_encoded_did_t));
 
     return ONS_SUCCESS;
@@ -704,7 +704,7 @@ void init_master_peer()
     for(i = 0; i < NUM_MASTER_PEER; i++)
     {
         master_peer[i].src_unit = ONE_NET_DEV_UNIT;
-        master_peer[i].dst_unit = ONE_NET_DEV_UNIT;
+        master_peer[i].peer_unit = ONE_NET_DEV_UNIT;
         one_net_memmove(master_peer[i].peer_did, ON_ENCODED_BROADCAST_DID,
             ON_ENCODED_DID_LEN);
     }
@@ -777,7 +777,7 @@ one_net_status_t master_unassigned_peer(const UInt8 src_unit,
         }
 		
         src_unit_match = (src_unit == ONE_NET_DEV_UNIT || src_unit == master_peer[index].src_unit);
-        peer_unit_match = (peer_unit == ONE_NET_DEV_UNIT || peer_unit == master_peer[index].dst_unit);
+        peer_unit_match = (peer_unit == ONE_NET_DEV_UNIT || peer_unit == master_peer[index].peer_unit);
         did_match = (did_wildcard || on_encoded_did_equal(peer_did, &master_peer[index].peer_did));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
@@ -794,7 +794,7 @@ one_net_status_t master_unassigned_peer(const UInt8 src_unit,
 
         // make the last spot blank		
         master_peer[NUM_MASTER_PEER - 1].src_unit = ONE_NET_DEV_UNIT;
-        master_peer[NUM_MASTER_PEER - 1].dst_unit = ONE_NET_DEV_UNIT;
+        master_peer[NUM_MASTER_PEER - 1].peer_unit = ONE_NET_DEV_UNIT;
         one_net_memmove(&master_peer[NUM_MASTER_PEER - 1].peer_did,
             ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
     }

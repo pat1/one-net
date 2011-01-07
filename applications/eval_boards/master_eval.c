@@ -936,14 +936,14 @@ oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
     //
     for (i = 0; i < NUM_MASTER_PEER; i++)
     {
-        if(master_peer[i].dst_unit != ONE_NET_DEV_UNIT)
+        if(master_peer[i].peer_unit != ONE_NET_DEV_UNIT)
         {
             //
             // found a peer, print it
             //
             on_decode(raw_did, master_peer[i].peer_did, ONE_NET_RAW_DID_LEN);
             oncli_send_msg(ONCLI_LIST_PEER_FMT, MASTER_DID, master_peer[i].src_unit,
-              did_to_u16(&raw_did), master_peer[i].dst_unit);
+              did_to_u16(&raw_did), master_peer[i].peer_unit);
             count++;
         }
     }
@@ -1389,7 +1389,7 @@ static void master_send_user_pin_input(void)
 			
             if((status
                 = send_switch_command(user_pin[user_pin_src_unit].old_state,
-                    user_pin_src_unit, master_peer[user_pin_peer_idx].dst_unit,
+                    user_pin_src_unit, master_peer[user_pin_peer_idx].peer_unit,
                     &raw_did)) != ONS_SUCCESS)
             {
                 if(status == ONS_RSRC_FULL)
