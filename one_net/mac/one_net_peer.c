@@ -111,7 +111,10 @@ peer_msg_mgr_t peer_msg_mgr;
 static int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
 static void on_client_net_rm_dev(const on_encoded_did_t* const did);
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
-
+static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  const on_peer_unit_t* peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster);
 
 
 //! @} ONE-NET_PEER_pri_func
@@ -431,7 +434,6 @@ BOOL on_client_net_set_peer_data_rate(
     \param[in] PEER_DID The device ID(s) of the peer whose connection is being
       removed.
     \param[in] PEER_UNIT The peer unit(s) of the connection being removed
-    \param[in] deviceIsMaster True if this physical device is a master, false otherwise
     
     \return ONS_SUCCESS If the table was successfully adjusted (or the
               no adjustment was needed).
@@ -439,79 +441,10 @@ BOOL on_client_net_set_peer_data_rate(
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
-  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster)
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
-    UInt16 index;
-	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
-	one_net_status_t status;
-
-
-    if((SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT >= ONE_NET_MAX_PEER_UNIT) ||
-	    PEER_UNIT > ONE_NET_DEV_UNIT)
-    {
-        return ONS_INVALID_DATA;
-    } // if the received data is not valid //
-	
-    did_wildcard = FALSE;
-	
-    if(!PEER_DID || on_encoded_did_equal(PEER_DID, &ON_ENCODED_BROADCAST_DID))
-    {
-        // peer did is a wildcard
-        did_wildcard = TRUE;
-    }
-	
-    // go through peer list a record at a time.
-    // Note : index < 0xFFFF will be false when 1 is subtracted from 0 with index-- command.
-    for(index = ONE_NET_MAX_PEER_UNIT - 1; index < 0xFFFF; index--)
-    {
-		// check whether criteria for deleting this peer unit are fulfilled
-        if(peer->unit[index].src_unit == ONE_NET_DEV_UNIT)
-        {
-            // Blank spot.  Nothing to do.
-            continue;
-        }
-		
-        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
-        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)));
-		  
-        if(!src_unit_match || !peer_unit_match || !did_match)
-        {
-            continue;
-        }
-				
-        // we want to delete.  Move everything farther down the list up one.
-        if(index < ONE_NET_MAX_PEER_UNIT - 1)
-        {
-            one_net_memmove(&peer->unit[index], &peer->unit[index + 1],
-                sizeof(on_peer_unit_t) * (ONE_NET_MAX_PEER_UNIT - index - 1));
-        }
-
-        // make the last spot blank		
-        peer->unit[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
-        peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
-		one_net_memmove(peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
-            ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
-    }
-	
-	if(!deviceIsMaster)
-    {
-        // go through the list.  See if anything still sends to this did.  If not, delete it
-        // altogether
-        for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
-        {
-			if(on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)))
-            {
-                 // at least one peer sends to this did.  Don't delete.
-				 return ONS_SUCCESS;
-            }
-        }
-		
-        // no devices send to it.  Delete it.
-		on_client_net_rm_dev(PEER_DID);
-    }
-	
-    return ONS_SUCCESS;
+    return unassign_peer_adjust_peer_list(SRC_UNIT, PEER_DID, PEER_UNIT,
+        peer->unit, ONE_NET_MAX_PEER_UNIT, FALSE);
 } // on_client_net_unassign_peer //
 
 
@@ -747,59 +680,8 @@ one_net_status_t master_unassigned_peer(const UInt8 src_unit,
   const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
   const BOOL deviceIsMaster)
 {
-    UInt16 index;
-	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
-	one_net_status_t status;
-
-    if((src_unit != ONE_NET_DEV_UNIT && src_unit >= NUM_MASTER_PEER) ||
-	    peer_unit > ONE_NET_DEV_UNIT)
-    {
-        return ONS_INVALID_DATA;
-    } // if the received data is not valid //
-	
-    did_wildcard = FALSE;
-	
-    if(!peer_did || on_encoded_did_equal(peer_did, &ON_ENCODED_BROADCAST_DID))
-    {
-        // peer did is a wildcard
-        did_wildcard = TRUE;
-    }
-	
-    // go through peer list a record at a time.
-    // Note : index < 0xFFFF will be false when 1 is subtracted from 0 with index-- command.
-    for(index = NUM_MASTER_PEER - 1; index < 0xFFFF; index--)
-    {
-		// check whether criteria for deleting this peer unit are fulfilled
-        if(master_peer[index].src_unit == ONE_NET_DEV_UNIT)
-        {
-            // Blank spot.  Nothing to do.
-            continue;
-        }
-		
-        src_unit_match = (src_unit == ONE_NET_DEV_UNIT || src_unit == master_peer[index].src_unit);
-        peer_unit_match = (peer_unit == ONE_NET_DEV_UNIT || peer_unit == master_peer[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(peer_did, &master_peer[index].peer_did));
-		  
-        if(!src_unit_match || !peer_unit_match || !did_match)
-        {
-            continue;
-        }
-				
-        // we want to delete.  Move everything farther down the list up one.
-        if(index < NUM_MASTER_PEER - 1)
-        {
-            one_net_memmove(&master_peer[index], &master_peer[index + 1],
-                sizeof(master_peer[index]) * (NUM_MASTER_PEER - index - 1));
-        }
-
-        // make the last spot blank		
-        master_peer[NUM_MASTER_PEER - 1].src_unit = ONE_NET_DEV_UNIT;
-        master_peer[NUM_MASTER_PEER - 1].peer_unit = ONE_NET_DEV_UNIT;
-        one_net_memmove(&master_peer[NUM_MASTER_PEER - 1].peer_did,
-            ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
-    }
-	
-    return ONS_SUCCESS;
+    return unassign_peer_adjust_peer_list(src_unit, peer_did, peer_unit,
+	    master_peer, NUM_MASTER_PEER, TRUE);
 } // master_unassigned_peer //
 
 
@@ -941,6 +823,119 @@ static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
 
     return 0;
 } // on_client_net_next_peer //
+
+
+
+
+/*!
+    \brief Unassigns peer connection(s)
+
+    SRC_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
+    PEER_UNIT is a wildcard if it equals ONE_NET_DEV_UNIT.
+    PEER_DID is a wildcard if it is NULL or equals ON_ENCODED_BROADCAST_DID.
+	
+	The peer table is traversed record by record and three comparisons are
+	made for each record/peer assignment in the table:
+	
+	1. Does the source unit in the record match SRC_UNIT?
+	2. Does the peer unit in the record match PEER_UNIT?
+    3. Does the DID in the record match PEER_DID?
+	
+	If the parameter passed to the function is a wildcard, the comparison is
+	considered true.
+	
+	If all three comparisons are true, then the record/peer assignment is deleted.
+
+
+
+    \param[in] SRC_UNIT The source unit(s) of the peer connection to remove.
+    \param[in] PEER_DID The device ID(s) of the peer whose connection is being
+      removed.
+    \param[in] PEER_UNIT The peer unit(s) of the connection being removed
+    \param[in] peer_unit_list The list of peer units to adjust.
+    \param[in] MAX_PEER_UNITS The maximum number of peer units the device can handle.
+    \param[in] deviceIsMaster True if the device running this code is presently
+	           functioning as a master, false otherwise
+    
+    \return ONS_SUCCESS If the table was successfully adjusted (or the
+              no adjustment was needed).
+            ONS_BAD_PARAM If any of the parameters are invalid.
+*/
+static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  const on_peer_unit_t* peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster)
+{
+    UInt16 index;
+	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
+	one_net_status_t status;
+	
+    did_wildcard = FALSE;
+	
+    if(!PEER_DID || on_encoded_did_equal(PEER_DID, &ON_ENCODED_BROADCAST_DID))
+    {
+        // peer did is a wildcard
+        did_wildcard = TRUE;
+    }
+	
+    // go through peer list a record at a time.
+    // Note : index < 0xFFFF will be false when 1 is subtracted from 0 with index-- command.
+    for(index = MAX_PEER_UNITS - 1; index < 0xFFFF; index--)
+    {
+		// check whether criteria for deleting this peer unit are fulfilled
+        if(peer->unit[index].src_unit == ONE_NET_DEV_UNIT)
+        {
+            // Blank spot.  Nothing to do.
+            continue;
+        }
+		
+        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
+        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)));
+		  
+        if(!src_unit_match || !peer_unit_match || !did_match)
+        {
+            continue;
+        }
+				
+        // we want to delete.  Move everything farther down the list up one.
+        if(index < MAX_PEER_UNITS - 1)
+        {
+            one_net_memmove(&peer_unit_list[index], &peer_unit_list[index + 1],
+                sizeof(on_peer_unit_t) * (MAX_PEER_UNITS - index - 1));
+        }
+
+        // make the last spot blank		
+        peer->unit[MAX_PEER_UNITS - 1].src_unit = ONE_NET_DEV_UNIT;
+        peer->unit[MAX_PEER_UNITS - 1].peer_unit = ONE_NET_DEV_UNIT;
+		one_net_memmove(peer_unit_list[MAX_PEER_UNITS - 1].peer_did,
+            ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+    }
+	
+    // If the device is a master, all the did information is saved regardless of any peer
+    // assignments.  Clients, however, only keep track of other devices if they are peers,
+    // so we need to adjust that list.  deviceIsMaster should be TRUE if the device running
+	// this code is running as a Master.
+	if(!deviceIsMaster)
+    {
+        // The device must be a client.  Go through the peer device list.  See if anything
+		// still sends to the did passed to this function.  If not, delete it altogether since
+		// we no longer need to keep track of it.
+        for(index = 0; index < MAX_PEER_UNITS; index++)
+        {
+			if(on_encoded_did_equal(PEER_DID, &(peer_unit_list[index].peer_did)))
+            {
+                 // at least one peer sends to this did.  Don't delete.
+				 return ONS_SUCCESS;
+            }
+        }
+		
+        // no devices send to it.  Delete it.
+		on_client_net_rm_dev(PEER_DID);
+    }
+	
+    return ONS_SUCCESS;
+} // one_net_peer_adjust_peer_list //
 
 
 //! @} ONE-NET_PEER_pri_func

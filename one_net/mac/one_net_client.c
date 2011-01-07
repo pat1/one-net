@@ -4087,7 +4087,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             if((status = on_client_net_unassign_peer(DATA[ON_PEER_DST_UNIT_IDX
               + ON_ADMIN_DATA_IDX], (const on_encoded_did_t * const)
               &DATA[ON_PEER_DID_IDX + ON_ADMIN_DATA_IDX],
-              DATA[ON_PEER_PEER_UNIT_IDX + ON_ADMIN_DATA_IDX], FALSE)) == ONS_SUCCESS)
+              DATA[ON_PEER_PEER_UNIT_IDX + ON_ADMIN_DATA_IDX])) == ONS_SUCCESS)
             {
                 save = TRUE;
             } // if successfully unassigned the peer //

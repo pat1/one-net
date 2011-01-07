@@ -201,7 +201,7 @@ BOOL on_client_net_set_peer_data_rate(
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 
 one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
-  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT, BOOL deviceIsMaster);
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT);
 
 void on_client_net_clear_peer_msg_mgr(peer_msg_mgr_t *mgr);
 
