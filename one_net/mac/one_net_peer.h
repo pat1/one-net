@@ -140,7 +140,7 @@ typedef struct
 */
 typedef struct _master_peer_t
 {
-    on_encoded_did_t dst_did;
+    on_encoded_did_t peer_did;
     UInt8 src_unit;
     UInt8 dst_unit;
 } master_peer_t;

@@ -941,7 +941,7 @@ oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
             //
             // found a peer, print it
             //
-            on_decode(raw_did, master_peer[i].dst_did, ONE_NET_RAW_DID_LEN);
+            on_decode(raw_did, master_peer[i].peer_did, ONE_NET_RAW_DID_LEN);
             oncli_send_msg(ONCLI_LIST_PEER_FMT, MASTER_DID, master_peer[i].src_unit,
               did_to_u16(&raw_did), master_peer[i].dst_unit);
             count++;
@@ -1385,7 +1385,7 @@ static void master_send_user_pin_input(void)
         // this is a peer for the relevant source unit
 		else
 		{
-            on_decode(raw_did, master_peer[user_pin_peer_idx].dst_did, ONE_NET_RAW_DID_LEN);
+            on_decode(raw_did, master_peer[user_pin_peer_idx].peer_did, ONE_NET_RAW_DID_LEN);
 			
             if((status
                 = send_switch_command(user_pin[user_pin_src_unit].old_state,
