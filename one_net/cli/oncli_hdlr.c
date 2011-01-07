@@ -1815,7 +1815,7 @@ static oncli_status_t list_cmd_hdlr(void)
             {
                 if (peer->unit[index].peer_unit != ONE_NET_DEV_UNIT)
                 {
-                    if (on_decode(raw_did, peer->unit[index].peer_dev, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+                    if (on_decode(raw_did, peer->unit[index].peer_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                     {
                         return ONCLI_INTERNAL_ERR;
                     }

@@ -400,7 +400,7 @@ BOOL on_client_net_set_peer_data_rate(
     // now fill in the new information.
     peer->unit[unit_list_index].src_unit = SRC_UNIT;
     peer->unit[unit_list_index].peer_unit = PEER_UNIT;
-    one_net_memmove(peer->unit[unit_list_index].peer_dev, *PEER_DID, ON_ENCODED_DID_LEN);
+    one_net_memmove(peer->unit[unit_list_index].peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
 	
 	return ONS_SUCCESS;
 } // on_client_net_assign_peer //
@@ -473,7 +473,7 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
 		
         src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
         peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_dev)));
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
         {
@@ -490,7 +490,7 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
         // make the last spot blank		
         peer->unit[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
         peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
-		one_net_memmove(peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_dev,
+		one_net_memmove(peer->unit[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
             ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
     }
 	
@@ -500,7 +500,7 @@ one_net_status_t on_client_net_unassign_peer(const UInt8 SRC_UNIT,
         // altogether
         for(index = 0; index < ONE_NET_MAX_PEER_UNIT; index++)
         {
-			if(on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_dev)))
+			if(on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)))
             {
                  // at least one peer sends to this did.  Don't delete.
 				 return ONS_SUCCESS;
@@ -601,7 +601,7 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
     } // if there are no more peers to send to //
     
     // copy the destination did
-    one_net_memmove(*dst_did, peer_unit->peer_dev,
+    one_net_memmove(*dst_did, peer_unit->peer_did,
       sizeof(on_encoded_did_t));
     
     // adjust the message if need be

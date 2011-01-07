@@ -300,7 +300,7 @@ void one_net_client_client_remove_device(void)
 
 	    for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
 	    {
-            one_net_memmove(peer->unit[i].peer_dev, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+            one_net_memmove(peer->unit[i].peer_did, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
 	        peer->unit[i].src_unit = ONE_NET_DEV_UNIT;
 	        peer->unit[i].peer_unit = ONE_NET_DEV_UNIT;
 	    }

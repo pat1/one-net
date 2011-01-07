@@ -106,7 +106,7 @@ typedef struct
     // We are now storing the encoded did of the peer, not an index.
 /*    //! Index into peer_dev for the device the peer resides on
     UInt16 peer_dev_idx;*/
-    on_encoded_did_t peer_dev;
+    on_encoded_did_t peer_did;
 
     //! The unit in this device that triggers a message to a peer.
     UInt8 src_unit;
