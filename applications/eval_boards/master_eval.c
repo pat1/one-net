@@ -332,6 +332,14 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
 			{
 				return ONCLI_SUCCESS;
 			}
+			case ONS_INVALID_DATA:
+			{
+				return ONCLI_INVALID_DST;
+			}
+			case ONS_RSRC_FULL:
+			{
+				return ONCLI_RSRC_UNAVAILABLE;
+			}
 				
 			// default case.
 			return ONCLI_INTERNAL_ERR;
