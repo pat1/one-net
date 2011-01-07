@@ -378,7 +378,7 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
   UInt8 src_unit)
 {
     one_net_raw_did_t master_raw_did;
-    on_encoded_did_t enc_did;
+    on_encoded_did_t encoded_peer_did;
 
     if(!PEER_DID || !SRC_DID)
     {
@@ -394,8 +394,8 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
       && mem_equal(master_raw_did, *SRC_DID, ONE_NET_RAW_DID_LEN))
     {
         one_net_status_t ret;
-        on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
-        ret = master_unassigned_peer(&enc_did, peer_unit, src_unit, TRUE);
+        on_encode(encoded_peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
+        ret = master_unassigned_peer(src_unit, &encoded_peer_did, peer_unit, TRUE);
 		switch(ret)
 		{
 			case ONS_SUCCESS:

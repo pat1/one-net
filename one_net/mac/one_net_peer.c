@@ -743,17 +743,13 @@ void init_master_peer()
             ONS_BAD_PARAM If any of the parameters are invalid.
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
-one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit, BOOL device_is_master)
+one_net_status_t master_unassigned_peer(const UInt8 src_unit,
+  const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
+  const BOOL deviceIsMaster)
 {
     UInt16 index;
 	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
 	one_net_status_t status;
-	
-	if(!peer_did)
-	{
-		return ONS_BAD_PARAM;
-	}
 
     if((src_unit != ONE_NET_DEV_UNIT && src_unit >= NUM_MASTER_PEER) ||
 	    peer_unit > ONE_NET_DEV_UNIT)
@@ -799,6 +795,8 @@ one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
         // make the last spot blank		
         master_peer[NUM_MASTER_PEER - 1].src_unit = ONE_NET_DEV_UNIT;
         master_peer[NUM_MASTER_PEER - 1].dst_unit = ONE_NET_DEV_UNIT;
+        one_net_memmove(&master_peer[NUM_MASTER_PEER - 1].dst_did,
+            ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
     }
 	
     return ONS_SUCCESS;

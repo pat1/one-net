@@ -240,8 +240,9 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 
 void init_master_peer(void);
 
-one_net_status_t master_unassigned_peer(const on_encoded_did_t *peer_did,
-  UInt8 peer_unit, UInt8 src_unit, BOOL deviceIsMaster);
+one_net_status_t master_unassigned_peer(const UInt8 src_unit,
+  const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
+  const BOOL deviceIsMaster);
 
 #ifdef _ONE_NET_EVAL
     BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);

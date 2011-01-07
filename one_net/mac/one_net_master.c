@@ -1581,51 +1581,52 @@ one_net_status_t one_net_master_cancel_invite(
 /*!
     \brief Starts the process to remove a device from the network.
 
-    \param[in] RAW_DST The device to remove from the network
+    \param[in] RAW_PEER_DID The device to remove from the network
 
     \return ONS_SUCCESS If the process to remove the device was started
             ONS_BAD_PARAM If the parameter was invalid
 */
 one_net_status_t one_net_master_remove_device(
-  const one_net_raw_did_t * const RAW_DST)
+  const one_net_raw_did_t * const RAW_PEER_DID)
 {
     // Derek_s 11/4/2010
 	UInt8 i;
 	on_encoded_did_t*  client_enc_did;
 	one_net_raw_did_t client_raw_did;
-    on_encoded_did_t dst;
+    on_encoded_did_t encoded_peer_did;
     one_net_status_t status;
     UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
 
-    if(!RAW_DST)
+    if(!RAW_PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
 
-    if(!RAW_DST)
+    if(!RAW_PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
 
-    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
+    if((status = on_encode(encoded_peer_did, *RAW_PEER_DID,
+      sizeof(encoded_peer_did))) != ONS_SUCCESS)
     {
         return status;
     } // if encoding the dst did failed //
 
-    if(!client_info((const on_encoded_did_t * const)&dst))
+    if(!client_info((const on_encoded_did_t * const)&encoded_peer_did))
     {
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
 
 
 	oncli_send_msg("Deleting did %03x.  First removing all relevant peer assignments to did %03x.\n",
-	    did_to_u16(RAW_DST), did_to_u16(RAW_DST));
+	    did_to_u16(RAW_PEER_DID), did_to_u16(RAW_PEER_DID));
 
 	for(i = 0; i < master_param->client_count; i++)
 	{
 		client_enc_did = &(client_list[i].did);
 
-		if(on_encoded_did_equal(client_enc_did, &dst))
+		if(on_encoded_did_equal(client_enc_did, &encoded_peer_did))
 		{
 			// it's the device we're removing anyway, so don't bother with any peer un-assignments
 			continue;
@@ -1639,16 +1640,16 @@ one_net_status_t one_net_master_remove_device(
 
 		// send out an unassign peer message to the client.  For the unit numbers, use ONE_NET_DEV_UNIT,
 		// which will remove ALL peeer assignments where the did we are deleting is the target.
-		one_net_master_peer_assignment(FALSE, RAW_DST, ONE_NET_DEV_UNIT, &client_raw_did,
+		one_net_master_peer_assignment(FALSE, RAW_PEER_DID, ONE_NET_DEV_UNIT, &client_raw_did,
 		    ONE_NET_DEV_UNIT);
 	}
 
     // Now remove any master peer assignments to the device being deleted.
-    master_unassigned_peer(&dst, ONE_NET_DEV_UNIT, ONE_NET_DEV_UNIT, TRUE);
+    master_unassigned_peer(ONE_NET_DEV_UNIT, &encoded_peer_did, ONE_NET_DEV_UNIT, TRUE);
 
     // all client peer assignments to this did are removed.  Now remove the device itself
     return send_admin_pkt(ON_RM_DEV, ON_ADMIN_MSG,
-      (const on_encoded_did_t * const)&dst, ONE_NET_LOW_PRIORITY, pld,
+      (const on_encoded_did_t * const)&encoded_peer_did, ONE_NET_LOW_PRIORITY, pld,
       sizeof(pld));
 } // one_net_master_remove_device //
 
