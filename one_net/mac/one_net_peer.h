@@ -127,23 +127,6 @@ typedef struct
 } on_peer_t;
 
 
-
-
-/*!
-    \brief Master peer assignments
-    
-    Keeps track of the peers that have been assigned to the MASTER user pin
-    units.  If a location is not used, ONE_NET_DEV_UNIT is stored in peer_unit.
-    This list should not contain any holes.
-*/
-typedef struct _master_peer_t
-{
-    on_encoded_did_t peer_did;
-    UInt8 src_unit;
-    UInt8 peer_unit;
-} master_peer_t;
-
-
 /*!
     \brief Manages messages sent to the peers of a given source unit.
 */
@@ -173,7 +156,7 @@ typedef struct
 //! \ingroup ONE-NET_PEER
 //! @{
 	
-extern master_peer_t master_peer[NUM_MASTER_PEER];
+extern on_peer_unit_t master_peer[NUM_MASTER_PEER];
 
 
 //! The peer device to communicate with (if set up by the MASTER).  This needs

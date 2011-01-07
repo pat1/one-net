@@ -92,7 +92,7 @@ const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 //! @{
 
 
-master_peer_t master_peer[NUM_MASTER_PEER];
+on_peer_unit_t master_peer[NUM_MASTER_PEER];
 on_peer_t * peer;
 peer_msg_mgr_t peer_msg_mgr;
 
