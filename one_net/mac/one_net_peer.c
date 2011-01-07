@@ -111,10 +111,23 @@ peer_msg_mgr_t peer_msg_mgr;
 static int on_client_net_peer_dev_idx(const on_encoded_did_t *DID);
 static void on_client_net_rm_dev(const on_encoded_did_t* const did);
 static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr);
+
 static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-  const on_peer_unit_t* peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
   const BOOL deviceIsMaster);
+  
+#ifdef _ONE_NET_MULTI_HOP
+static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster, const BOOL MH);
+#else // ifdef _ONE_NET_MULTI_HOP //
+static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster);
+#endif // else _ONE_NET_MULTI_HOP is not defined //
 
 
 //! @} ONE-NET_PEER_pri_func
@@ -299,113 +312,13 @@ BOOL on_client_net_set_peer_data_rate(
       const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 {
-    UInt8 index, unit_list_index, dev_list_index;
-
-    if(!PEER_DID)
-    {
-        return ONS_BAD_PARAM;
-    } // if any of the parameters are invalid //
-    
-    if(SRC_UNIT > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
-    {
-        return ONS_INVALID_DATA;
-    } // if the data is invalid //
-	
-    // There are a few possibilities
-    // 1.  This peer assignment is already on the unit list.  If so, do nothing,
-	//     return ONS_SUCCESS
-    // 2.  This peer assignment is not on the unit list, but the unit list is
-	//     full.  If so, do nothing and return ONS_RSRC_FULL.
-    // 3.  This peer assignment is not on the unit list, and the unit list is
-	//     not full.  If so, find the index it should be inserted into and
-    //     proceed to step 4.
-    // 4.  Check the dev list and see if PEER_DID is already there.  If it is,
-    //     note the index and proceed to step 7.
-    // 5.  PEER_DID is not on the dev list yet.  Check if the dev list is full.
-    //     If it is, return ONS_RSRC full.
-    // 6.  Add PEER_DID to the end of the dev list.  Note the new index.
-    //     Proceed to step 7.
-    // 7.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
-    
-    // find a spot to add the peer.  List is ordered by source
-    // unit, then peer unit.  Empty spots should all be at the end and are
-    // represented by ONE_NET_DEV_UNIT.
-    for(unit_list_index = 0; unit_list_index < ONE_NET_MAX_PEER_UNIT; unit_list_index++)
-    {
-        if(peer->unit[unit_list_index].src_unit > SRC_UNIT)
-        {
-            // found our insertion index.
-            break;
-        }
-		
-		if(peer->unit[unit_list_index].src_unit < SRC_UNIT ||
-            peer->unit[unit_list_index].peer_unit < PEER_UNIT)
-		{
-            // still searching
-            continue;
-		}
-		
-        // We know by now that the source units match and that we've either found
-        // a match or we've found the insertion index.
-		
-        if(peer->unit[unit_list_index].peer_unit == PEER_UNIT)
-        {
-            // this peer is already on the list.  Nothing to do.  Return ONS_SUCCESS
-            return ONS_SUCCESS;
-        }
-		
-        // we've found our insertion index, so break.
-        break;
-	}
-	 
-    // check to see if there's any room on the unit list.
-    if(unit_list_index == ONE_NET_MAX_PEER_UNIT)
-    {
-        return ONS_RSRC_FULL;
-    }
-	
-    // now let's look through the dev list and see if we need to insert anything.    
-    for(dev_list_index = 0; dev_list_index < ONE_NET_MAX_PEER_DEV; dev_list_index++)
-    {
-        if(on_encoded_did_equal(PEER_DID,
-          (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
-		{
-            // Found index.  Already on the list.  Nothing to add.
-            break;
-		}
-		
-        if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID,
-          (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
-        {
-            // found an empty spot.  Need to insert.
-            one_net_memmove(peer->dev[dev_list_index].did, *PEER_DID,
-              sizeof(peer->dev[dev_list_index].did));
-                      
-              #ifdef _ONE_NET_MULTI_HOP
-                  peer->dev[dev_list_index].max_hops = 0;
-                  peer->dev[dev_list_index].mh_peer = MH;
-              #endif // ifdef _ONE_NET_MULTI_HOP //
-			  
-			  break;
-         } // if a device slot is free //        
-    }
-
-    // Are we out of room on the dev list?
-    if(dev_list_index == ONE_NET_MAX_PEER_DEV)
-    {
-		return ONS_RSRC_FULL;
-    }
-
-    // We're about to insert.  Move any elements that may be in the way down one.
-    one_net_memmove(&peer->unit[unit_list_index + 1], &peer->unit[unit_list_index],
-      sizeof(peer->unit[unit_list_index]) * (ONE_NET_MAX_PEER_UNIT - unit_list_index - 1));
-
-    // now fill in the new information.
-    peer->unit[unit_list_index].src_unit = SRC_UNIT;
-    peer->unit[unit_list_index].peer_unit = PEER_UNIT;
-    one_net_memmove(peer->unit[unit_list_index].peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
-	
-	return ONS_SUCCESS;
+    #ifdef _ONE_NET_MULTI_HOP
+        return assign_peer_adjust_peer_list(SRC_UNIT, PEER_DID, PEER_UNIT,
+		    peer->unit, ONE_NET_MAX_PEER_UNIT, FALSE, MH);
+    #else // ifdef _ONE_NET_MULTI_HOP //
+        return assign_peer_adjust_peer_list(SRC_UNIT, PEER_DID, PEER_UNIT,
+		    peer->unit, ONE_NET_MAX_PEER_UNIT, FALSE);
+    #endif // else _ONE_NET_MULTI_HOP is not defined //	
 } // on_client_net_assign_peer //
 
 
@@ -553,73 +466,23 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
     \param[in] src_unit The unit in the MASTER being assigned the peer.
     \param[in] peer_did The did of the peer the MASTER is being assigned.
     \param[in] peer_unit The unit in the peer the MASTER is being assigned.   
-    \param[in] MH Multi-hop - irrelevant/unused for master, but a bogus parameter
-	           is passed anyway to make the function parameters the same as
-			   they are for clients.
     
     \return ONS_SUCCESS If the assignent was successfully made
             ONS_BAD_PARAM If any of the parameters are invalid
             ONS_RSRC_FULL If there is no more room on the peer table
 */
-#ifdef _ONE_NET_MULTI_HOP
-    one_net_status_t master_assigned_peer(const UInt8 src_unit,
-      const on_encoded_did_t * const peer_did, const UInt8 peer_unit,
-      const BOOL MH)
-#else // ifdef _ONE_NET_MULTI_HOP //
-    one_net_status_t master_assigned_peer(const UInt8 src_unit,
+one_net_status_t master_assigned_peer(const UInt8 src_unit,
       const on_encoded_did_t * const peer_did, const UInt8 peer_unit)
-#endif // else _ONE_NET_MULTI_HOP is not defined //
 {
-    UInt8 i;
-
-
-    if(!peer_did || (src_unit >= NUM_USER_PINS))
-    {
-        return ONS_BAD_PARAM;
-    } // if any of the parameters are invalid
-    
-    for(i = 0; i < NUM_MASTER_PEER; i++)
-    {
-        if(master_peer[i].src_unit > src_unit)
-        {
-            // found index to insert into
-            break;
-        }
-		
-        if(master_peer[i].src_unit < src_unit ||
-          master_peer[i].peer_unit < peer_unit)
-        {
-            // still searching
-            continue;
-        }
-		       
-        // source units match
-        if(master_peer[i].peer_unit == peer_unit)
-        {
-            // unit is already on the peer list.  Nothing to do.
-            return ONS_SUCCESS;
-        }
-	}
-	 
-    if (i == NUM_MASTER_PEER)
-	{
-        // list is full
-        return ONS_RSRC_FULL;
-	}
-	
-    // move anything down that needs to go down.
-	if(i < NUM_MASTER_PEER - 1)
-	{
-        one_net_memmove(&master_peer[i+1], &master_peer[i],
-          sizeof(master_peer[i]) * (NUM_MASTER_PEER - i - 1));
-	}
-	
-    // add the device
-    master_peer[i].src_unit = src_unit;
-    master_peer[i].peer_unit = peer_unit;
-    one_net_memmove(master_peer[i].peer_did, *peer_did, sizeof(on_encoded_did_t));
-
-    return ONS_SUCCESS;
+    // note : Multi-Hop is irrelevant for master, but to make it compile, we'll add a
+    // dummy boolean variable FALSE because the function we are calling requires it.
+    #ifdef _ONE_NET_MULTI_HOP
+        return assign_peer_adjust_peer_list(src_unit, peer_did, peer_unit,
+          master_peer, NUM_MASTER_PEER, TRUE, FALSE);
+    #else // ifdef _ONE_NET_MULTI_HOP //
+        return assign_peer_adjust_peer_list(src_unit, peer_did, peer_unit,
+          master_peer, NUM_MASTER_PEER, TRUE);
+    #endif // else _ONE_NET_MULTI_HOP is not defined //
 } // master_assigned_peer //
 
 
@@ -825,6 +688,157 @@ static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
 } // on_client_net_next_peer //
 
 
+/*!
+    \brief Saves the peer assignment that is being made.
+    
+    \param[in] SRC_UNIT The unit on this device being assigned the peer.
+    \param[in] PEER_DID The peer device being assigned to this device.
+    \param[in] PEER_UNIT The unit in the peer device being assigned to this
+      device.
+    \param[in] MH Only present if _ONE_NET_MULTI_HOP has been defined.  TRUE
+      is the peer device is capable of handling multi-hop transactions.
+      
+    \return ONS_SUCCESS If the peer was successfully assigned
+            ONS_BAD_PARAM If the parameters are invalid
+            ONS_INVALID_DATA If the data is incorrect (such as a source unit
+              that is out of range).
+            ONS_INTERNAL_ERR If something unexpected happened
+            ONS_RSRC_FULL If no more peer assignments can be assigned
+*/
+#ifdef _ONE_NET_MULTI_HOP
+static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster, const BOOL MH)
+#else // ifdef _ONE_NET_MULTI_HOP //
+static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
+  const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  const BOOL deviceIsMaster)
+#endif // else _ONE_NET_MULTI_HOP is not defined //
+{
+    UInt8 index, unit_list_index, dev_list_index;
+
+    if(!PEER_DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+    
+    if(SRC_UNIT > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
+    {
+        return ONS_INVALID_DATA;
+    } // if the data is invalid //
+	
+    // There are a few possibilities
+    // 1.  This peer assignment is already on the unit list.  If so, do nothing,
+	//     return ONS_SUCCESS
+    // 2.  This peer assignment is not on the unit list, but the unit list is
+	//     full.  If so, do nothing and return ONS_RSRC_FULL.
+    // 3.  This peer assignment is not on the unit list, and the unit list is
+	//     not full.  If so, find the index it should be inserted into and
+    //     proceed to step 4.
+	
+	// Note : Steps 4 through 6 only apply if deviceIsMaster is false.  If
+	// deviceIsMaster is true, skip to step 7.
+	
+    // 4.  Check the dev list and see if PEER_DID is already there.  If it is,
+    //     note the index and proceed to step 7.
+    // 5.  PEER_DID is not on the dev list yet.  Check if the dev list is full.
+    //     If it is, return ONS_RSRC full.
+    // 6.  Add PEER_DID to the end of the dev list.  Note the new index.
+    //     Proceed to step 7.
+	
+	
+    // 7.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
+    
+    // find a spot to add the peer.  List is ordered by source
+    // unit, then peer unit.  Empty spots should all be at the end and are
+    // represented by ONE_NET_DEV_UNIT.
+    for(unit_list_index = 0; unit_list_index < MAX_PEER_UNITS; unit_list_index++)
+    {
+        if(peer_unit_list[unit_list_index].src_unit > SRC_UNIT)
+        {
+            // found our insertion index.
+            break;
+        }
+		
+		if(peer_unit_list[unit_list_index].src_unit < SRC_UNIT ||
+            peer_unit_list[unit_list_index].peer_unit < PEER_UNIT)
+		{
+            // still searching
+            continue;
+		}
+		
+        // We know by now that the source units match and that we've either found
+        // a match or we've found the insertion index.
+		
+        if(peer_unit_list[unit_list_index].peer_unit == PEER_UNIT)
+        {
+            // this peer is already on the list.  Nothing to do.  Return ONS_SUCCESS
+            return ONS_SUCCESS;
+        }
+		
+        // we've found our insertion index, so break.
+        break;
+	}
+	 
+    // check to see if there's any room on the unit list.
+    if(unit_list_index >= MAX_PEER_UNITS)
+    {
+        return ONS_RSRC_FULL;
+    }
+	
+	if(!deviceIsMaster)
+    {
+        // we are a client, so we may need to adjust the peer->dev array.
+		
+        // now let's look through the dev list and see if we need to insert anything.    
+        for(dev_list_index = 0; dev_list_index < ONE_NET_MAX_PEER_DEV; dev_list_index++)
+        {
+            if(on_encoded_did_equal(PEER_DID,
+              (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+		    {
+                // Found index.  Already on the list.  Nothing to add.
+                break;
+		    }
+		
+            if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID,
+              (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+            {
+                // found an empty spot.  Need to insert.
+                one_net_memmove(peer->dev[dev_list_index].did, *PEER_DID,
+                  sizeof(peer->dev[dev_list_index].did));
+                      
+                  #ifdef _ONE_NET_MULTI_HOP
+                      peer->dev[dev_list_index].max_hops = 0;
+                      peer->dev[dev_list_index].mh_peer = MH;
+                  #endif // ifdef _ONE_NET_MULTI_HOP //
+			  
+			      break;
+             } // if a device slot is free //        
+        }
+
+        // Are we out of room on the dev list?
+        if(dev_list_index == ONE_NET_MAX_PEER_DEV)
+        {
+		    return ONS_RSRC_FULL;
+        }
+    }
+
+    if(unit_list_index < MAX_PEER_UNITS - 1)
+	{
+        // We're about to insert.  Move any elements that may be in the way down one.
+        one_net_memmove(&peer->unit[unit_list_index + 1], &peer->unit[unit_list_index],
+          sizeof(peer->unit[unit_list_index]) * (MAX_PEER_UNITS - unit_list_index - 1));
+	}
+
+    // now fill in the new information.
+    peer_unit_list[unit_list_index].src_unit = SRC_UNIT;
+    peer_unit_list[unit_list_index].peer_unit = PEER_UNIT;
+    one_net_memmove(peer_unit_list[unit_list_index].peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
+	
+	return ONS_SUCCESS;
+} // assign_peer_adjust_peer_list //
 
 
 /*!
@@ -859,16 +873,23 @@ static on_peer_unit_t * on_client_net_next_peer(peer_msg_mgr_t *mgr)
     
     \return ONS_SUCCESS If the table was successfully adjusted (or the
               no adjustment was needed).
-            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_INVALID_DATA If the data is incorrect (such as a source unit
+              that is out of range)
+	        ONS_BAD_PARAM If any of the parameters are invalid.
 */
 static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
   const on_encoded_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-  const on_peer_unit_t* peer_unit_list, const UInt8 MAX_PEER_UNITS,
+  on_peer_unit_t* const peer_unit_list, const UInt8 MAX_PEER_UNITS,
   const BOOL deviceIsMaster)
 {
     UInt16 index;
 	BOOL src_unit_match, peer_unit_match, did_match, did_wildcard;
 	one_net_status_t status;
+
+    if(SRC_UNIT >= ONE_NET_NUM_UNITS)
+    {
+        return ONS_INVALID_DATA;
+    } // if the data is invalid //
 	
     did_wildcard = FALSE;
 	
@@ -935,7 +956,7 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     }
 	
     return ONS_SUCCESS;
-} // one_net_peer_adjust_peer_list //
+} // unassign_peer_adjust_peer_list //
 
 
 //! @} ONE-NET_PEER_pri_func

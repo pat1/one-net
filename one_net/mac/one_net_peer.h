@@ -210,14 +210,8 @@ UInt8 have_more_peers(peer_msg_mgr_t *mgr);
 one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
   peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
 
-#ifdef _ONE_NET_MULTI_HOP
-    one_net_status_t master_assigned_peer(const UInt8 src_unit,
-      const on_encoded_did_t * const peer_did, const UInt8 peer_unit,
-      const BOOL MH);
-#else // ifdef _ONE_NET_MULTI_HOP //
-    one_net_status_t master_assigned_peer(const UInt8 src_unit,
+one_net_status_t master_assigned_peer(const UInt8 src_unit,
       const on_encoded_did_t * const peer_did, const UInt8 peer_unit);
-#endif // else _ONE_NET_MULTI_HOP is not defined //
 
 void init_master_peer(void);
 
