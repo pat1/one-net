@@ -298,12 +298,12 @@ oncli_status_t oncli_cancel_invite(void)
 
 
 #ifdef _ENABLE_ASSIGN_PEER_COMMAND
-oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 peer_unit, const one_net_raw_did_t *SRC_DID,
-  UInt8 src_unit)
+oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
+  UInt8 SRC_UNIT, const one_net_raw_did_t* const PEER_DID,
+  UInt8 PEER_UNIT)
 {
     one_net_raw_did_t master_raw_did;
-    on_encoded_did_t enc_did;
+    on_encoded_did_t enc_peer_did;
 
     if(!PEER_DID || !SRC_DID)
     {
@@ -319,12 +319,12 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
       && mem_equal(master_raw_did, *SRC_DID, ONE_NET_RAW_DID_LEN))
     {
 		one_net_status_t ret;
-        on_encode(enc_did, *PEER_DID, ON_ENCODED_DID_LEN);
+        on_encode(enc_peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
 		
 #ifdef _ONE_NET_MULTI_HOP
-        ret = master_assigned_peer(src_unit, &enc_did, peer_unit);
+        ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
 #else
-        ret = master_assigned_peer(src_unit, &enc_did, peer_unit);
+        ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
 #endif		
         switch(ret)
 		{
@@ -346,8 +346,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
 		}
     } // if the destination is the MASTER //
     
-    switch(one_net_master_peer_assignment(TRUE, PEER_DID, peer_unit, SRC_DID,
-      src_unit))
+    switch(one_net_master_peer_assignment(TRUE, PEER_DID, PEER_UNIT, SRC_DID,
+      SRC_UNIT))
     {
         case ONS_SUCCESS:
         {

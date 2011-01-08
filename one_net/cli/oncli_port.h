@@ -223,10 +223,10 @@ oncli_status_t oncli_cancel_invite(void);
     
     This command is only valid if the device is in MASTER mode.
 
-    \param[in] PEER_DID The peer device being assigned.
-    \param[in] PEER_UNIT The unit on the peer device being assigned.
     \param[in] SRC_DID The device being assigned the peer.
     \param[in] SRC_UNIT The unit on the device being assigned the peer.
+    \param[in] PEER_DID The peer device being assigned.
+    \param[in] PEER_UNIT The unit on the peer device being assigned.
 
     \return ONCLI_SUCCESS if the command was succesful
             ONCLI_BAD_PARAM If any of the parameters passed into this function
@@ -239,9 +239,9 @@ oncli_status_t oncli_cancel_invite(void);
               the resource is full.
             ONCLI_CMD_FAILED If the command failed.
 */
-oncli_status_t oncli_assign_peer(const one_net_raw_did_t *PEER_DID,
-  UInt8 PEER_UNIT, const one_net_raw_did_t *SRC_DID,
-  UInt8 SRC_UNIT);
+oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
+  UInt8 SRC_UNIT, const one_net_raw_did_t* const PEER_DID,
+  UInt8 PEER_UNIT);
 
 /*!
     \brief Unassigns a peer device.

@@ -1983,7 +1983,7 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    return oncli_assign_peer(&peer_did, peer_unit, &src_did, src_unit);
+    return oncli_assign_peer(&src_did, src_unit, &peer_did, peer_unit);
 } // assign_peer_cmd_hdlr //
 #endif
 
