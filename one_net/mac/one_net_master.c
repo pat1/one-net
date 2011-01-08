@@ -1172,12 +1172,12 @@ one_net_status_t one_net_master_change_stream_key(
 
     \param[in] ASSIGN TRUE if the peer is being assigned
                       FALSE if the peer is being unassigned
+    \param[in] SRC_DID The raw did of the device being (un)assigned the peer.
+    \param[in] SRC_UNIT The unit on the device that is having the peer
     \param[in] PEER_DID The raw did of the peer being (un)assigned to the
       client.
     \param[in] PEER_UNIT The unit on the peer device being (un)assigned to the
       client.
-    \param[in] DST_DID The raw did of the device being (un)assigned the peer.
-    \param[in] DST_UNIT The unit on the receiving device that is having the peer
       (un)assigned.
 
     \return ONS_SUCCESS if the operation was successful
@@ -1187,23 +1187,23 @@ one_net_status_t one_net_master_change_stream_key(
             See send_admin_pkt for more return values.
 */
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
-  const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-  const one_net_raw_did_t * const DST_DID, const UInt8 DST_UNIT)
+  const one_net_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
+  const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
-    on_client_t * peer_client = 0, * dst_client = 0;
-    on_encoded_did_t dst;
+    on_client_t * src_client = 0, * peer_client = 0;
+    on_encoded_did_t enc_src_did;
     UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
     UInt8 admin_type;
 
     BOOL master_is_peer = FALSE;
 	BOOL did_is_broadcast;
 
-    if(!PEER_DID || !DST_DID)
+    if(!SRC_DID || !PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
 
-    if(on_encode(dst, *DST_DID, sizeof(dst)) != ONS_SUCCESS
+    if(on_encode(enc_src_did, *SRC_DID, sizeof(enc_src_did)) != ONS_SUCCESS
       || on_encode(&(pld[ON_PEER_DID_IDX]), *PEER_DID, ON_ENCODED_DID_LEN)
       != ONS_SUCCESS)
     {
@@ -1224,8 +1224,8 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     // verify peer did
     if((!master_is_peer && (!did_is_broadcast && (peer_client
       = client_info((const on_encoded_did_t * const)&(pld[ON_PEER_DID_IDX])))
-        == 0)) || (dst_client
-      = client_info((const on_encoded_did_t * const)&dst))
+        == 0)) || (src_client
+      = client_info((const on_encoded_did_t * const)&enc_src_did))
         == 0)
     {
         return ONS_INCORRECT_ADDR;
@@ -1234,7 +1234,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     if(ASSIGN)
     {
         if((master_is_peer || (peer_client->features & ON_MH_CAPABLE))
-          && (dst_client->features & ON_MH_CAPABLE))
+          && (src_client->features & ON_MH_CAPABLE))
         {
             admin_type = ON_ASSIGN_MH_PEER;
         } // if both devices are Multi-Hop capable //
@@ -1248,11 +1248,11 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         admin_type = ON_UNASSIGN_PEER;
     } // else unassigning the peer //
 
+    pld[ON_PEER_DST_UNIT_IDX] = SRC_UNIT;
     pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
-    pld[ON_PEER_DST_UNIT_IDX] = DST_UNIT;
 
     return send_admin_pkt(admin_type, ON_ADMIN_MSG,
-      (const on_encoded_did_t * const)&dst, ONE_NET_LOW_PRIORITY, pld,
+      (const on_encoded_did_t * const)&enc_src_did, ONE_NET_LOW_PRIORITY, pld,
       sizeof(pld));
 } // one_net_master_peer_assignment //
 
@@ -1640,7 +1640,7 @@ one_net_status_t one_net_master_remove_device(
 
 		// send out an unassign peer message to the client.  For the unit numbers, use ONE_NET_DEV_UNIT,
 		// which will remove ALL peeer assignments where the did we are deleting is the target.
-		one_net_master_peer_assignment(FALSE, RAW_PEER_DID, ONE_NET_DEV_UNIT, &client_raw_did,
+		one_net_master_peer_assignment(FALSE, &client_raw_did, ONE_NET_DEV_UNIT, RAW_PEER_DID,
 		    ONE_NET_DEV_UNIT);
 	}
 

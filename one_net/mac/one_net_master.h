@@ -280,8 +280,8 @@ one_net_status_t one_net_master_change_key(
 one_net_status_t one_net_master_change_stream_key(
   const one_net_xtea_key_t * const NEW_STREAM_KEY);
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
-  const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT,
-  const one_net_raw_did_t * const DST_DID, const UInt8 DST_UNIT);
+  const one_net_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
+  const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT);
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
   const one_net_raw_did_t * const DST_DID);
 one_net_status_t one_net_master_change_peer_data_rate(

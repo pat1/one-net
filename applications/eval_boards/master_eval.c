@@ -346,8 +346,8 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
 		}
     } // if the destination is the MASTER //
     
-    switch(one_net_master_peer_assignment(TRUE, PEER_DID, PEER_UNIT, SRC_DID,
-      SRC_UNIT))
+    switch(one_net_master_peer_assignment(TRUE, SRC_DID, SRC_UNIT, PEER_DID,
+      PEER_UNIT))
     {
         case ONS_SUCCESS:
         {
@@ -414,8 +414,8 @@ oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
 		return ONCLI_INTERNAL_ERR;
     } // if the destination is the MASTER //
 
-    switch(one_net_master_peer_assignment(FALSE, PEER_DID, peer_unit, SRC_DID,
-      src_unit))
+    switch(one_net_master_peer_assignment(FALSE, SRC_DID, src_unit, PEER_DID,
+      peer_unit))
     {
         case ONS_SUCCESS:
         {
