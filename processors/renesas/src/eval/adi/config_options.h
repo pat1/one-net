@@ -492,7 +492,7 @@
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
-/*	// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
+	// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
 	#ifndef _ENABLE_SET_VALUE_COMMAND
 		#define _ENABLE_SET_VALUE_COMMAND
 	#endif
@@ -500,21 +500,23 @@
 	// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
 	#ifndef _ENABLE_SET_PIN_COMMAND
 		#define _ENABLE_SET_PIN_COMMAND
-	#endif*/
+	#endif
 
 	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementing the "single text" command option
 	#ifndef _ENABLE_SINGLE_TEXT_COMMAND
 		#define _ENABLE_SINGLE_TEXT_COMMAND
 	#endif
 
-	// _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
-	#ifndef _ENABLE_BLOCK_COMMAND
-		#define _ENABLE_BLOCK_COMMAND
-	#endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
+	    #ifndef _ENABLE_BLOCK_COMMAND
+		    #define _ENABLE_BLOCK_COMMAND
+	    #endif
 
-	// _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
-	#ifndef _ENABLE_BLOCK_TEXT_COMMAND
-		#define _ENABLE_BLOCK_TEXT_COMMAND
+	    // _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
+	    #ifndef _ENABLE_BLOCK_TEXT_COMMAND
+		    #define _ENABLE_BLOCK_TEXT_COMMAND
+	    #endif
 	#endif
 
 	// _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
@@ -549,56 +551,59 @@
 		#define _ENABLE_LIST_COMMAND
 	#endif
 
-	// _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
-	#ifndef _ENABLE_INVITE_COMMAND
-		#define _ENABLE_INVITE_COMMAND
-	#endif
+    // Master Only Commands
+    #ifdef _ONE_NET_MASTER
+	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
+	    #ifndef _ENABLE_INVITE_COMMAND
+		    #define _ENABLE_INVITE_COMMAND
+	    #endif
 
-	// _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
-	#ifndef _ENABLE_CANCEL_INVITE_COMMAND
-		#define _ENABLE_CANCEL_INVITE_COMMAND
-	#endif
+	    // _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
+	    #ifndef _ENABLE_CANCEL_INVITE_COMMAND
+		    #define _ENABLE_CANCEL_INVITE_COMMAND
+	    #endif
 
-	#ifdef _PEER
-		// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
-		#ifndef _ENABLE_ASSIGN_PEER_COMMAND
-			#define _ENABLE_ASSIGN_PEER_COMMAND
-		#endif
+    	#ifdef _PEER
+	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
+		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
+			    #define _ENABLE_ASSIGN_PEER_COMMAND
+		    #endif
 
-		// _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
-		#ifndef _ENABLE_UNASSIGN_PEER_COMMAND
-			#define _ENABLE_UNASSIGN_PEER_COMMAND
-		#endif
-	#endif
+		    // _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
+		    #ifndef _ENABLE_UNASSIGN_PEER_COMMAND
+			    #define _ENABLE_UNASSIGN_PEER_COMMAND
+		    #endif
+	    #endif
+		
+	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
+	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
+		    #define _ENABLE_CHANGE_KEY_COMMAND
+	    #endif
 
-	// _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementing the "set update master flag" command option
-	#ifndef _ENABLE_UPDATE_MASTER_COMMAND
-		#define _ENABLE_UPDATE_MASTER_COMMAND
-	#endif
+	    // _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
+	    #ifndef _ENABLE_REMOVE_DEVICE_COMMAND
+		    #define _ENABLE_REMOVE_DEVICE_COMMAND
+	    #endif
 
-	// _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
-	#ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-		#define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-	#endif
+	    // _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementing the "set update master flag" command option
+	    #ifndef _ENABLE_UPDATE_MASTER_COMMAND
+		    #define _ENABLE_UPDATE_MASTER_COMMAND
+	    #endif
 
-	// _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
-	#ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-		#define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-	#endif
+	    // _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
+	    #ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+		    #define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	    #endif
 
-	// _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
-	#ifndef _ENABLE_CHANGE_KEY_COMMAND
-		#define _ENABLE_CHANGE_KEY_COMMAND
-	#endif
+	    // _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
+	    #ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+		    #define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+	    #endif
 
-	// _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
-	#ifndef _ENABLE_REMOVE_DEVICE_COMMAND
-		#define _ENABLE_REMOVE_DEVICE_COMMAND
-	#endif
-
-	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementing the "data rate test" command option
-	#ifndef _ENABLE_DATA_RATE_TEST_COMMAND
-		#define _ENABLE_DATA_RATE_TEST_COMMAND
+    	// _ENABLE_DATA_RATE_TEST_COMMAND should be defined if you are implementing the "data rate test" command option
+	    #ifndef _ENABLE_DATA_RATE_TEST_COMMAND
+		    #define _ENABLE_DATA_RATE_TEST_COMMAND
+	    #endif
 	#endif
 
 	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
