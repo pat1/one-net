@@ -4062,14 +4062,14 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
         case ON_ASSIGN_MH_PEER:
         {
             #ifdef _ONE_NET_MULTI_HOP
-                if((status = on_client_net_assign_peer(DATA[ON_PEER_DST_UNIT_IDX
+                if((status = on_client_net_assign_peer(DATA[ON_PEER_SRC_UNIT_IDX
                   + ON_ADMIN_DATA_IDX], (const on_encoded_did_t * const)
                   &(DATA[ON_PEER_DID_IDX + ON_ADMIN_DATA_IDX]),
                   DATA[ON_PEER_PEER_UNIT_IDX + ON_ADMIN_DATA_IDX],
                   DATA[ON_ADMIN_MSG_ID_IDX] == ON_ASSIGN_MH_PEER))
                   == ONS_SUCCESS)
             #else // ifdef _ONE_NET_MULTI_HOP //
-                if((status = on_client_net_assign_peer(DATA[ON_PEER_DST_UNIT_IDX
+                if((status = on_client_net_assign_peer(DATA[ON_PEER_SRC_UNIT_IDX
                   + ON_ADMIN_DATA_IDX], (const on_encoded_did_t * const)
                   &(DATA[ON_PEER_DID_IDX + ON_ADMIN_DATA_IDX]),
                   DATA[ON_PEER_PEER_UNIT_IDX + ON_ADMIN_DATA_IDX]))
@@ -4084,7 +4084,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
 
         case ON_UNASSIGN_PEER:
         {
-            if((status = on_client_net_unassign_peer(DATA[ON_PEER_DST_UNIT_IDX
+            if((status = on_client_net_unassign_peer(DATA[ON_PEER_SRC_UNIT_IDX
               + ON_ADMIN_DATA_IDX], (const on_encoded_did_t * const)
               &DATA[ON_PEER_DID_IDX + ON_ADMIN_DATA_IDX],
               DATA[ON_PEER_PEER_UNIT_IDX + ON_ADMIN_DATA_IDX])) == ONS_SUCCESS)

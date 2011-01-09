@@ -1248,7 +1248,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         admin_type = ON_UNASSIGN_PEER;
     } // else unassigning the peer //
 
-    pld[ON_PEER_DST_UNIT_IDX] = SRC_UNIT;
+    pld[ON_PEER_SRC_UNIT_IDX] = SRC_UNIT;
     pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
 
     return send_admin_pkt(admin_type, ON_ADMIN_MSG,

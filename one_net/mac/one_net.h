@@ -555,7 +555,7 @@ enum
 
     //! Index for destination unit for (un)assignment of peers.  This is the
     //! unit in the device that is being assigned a peer
-    ON_PEER_DST_UNIT_IDX = 3,
+    ON_PEER_SRC_UNIT_IDX = 3,
 
     //! Index for the peer data rate field in a peer setting packet
     ON_PEER_SETTING_DATA_RATE_IDX = 2,
