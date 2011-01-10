@@ -59,7 +59,7 @@ enum
     NUM_MASTER_PEER = 8
 #else
     //! Number of peers the MASTER keeps track of
-    NUM_MASTER_PEER = 0
+    NUM_MASTER_PEER = /*0*/1 /* make it 1 for now so things compile.  Can't have a zero size array */
 #endif
 };
 
