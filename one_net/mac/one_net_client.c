@@ -4057,8 +4057,9 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             status = ONS_SUCCESS;
             break;
         } // new key fragment case //
-
+#ifdef _PEER
         case ON_ASSIGN_PEER:                            // fall through
+#ifdef _ONE_NET_MULTI_HOP
         case ON_ASSIGN_MH_PEER:
         {
             #ifdef _ONE_NET_MULTI_HOP
@@ -4081,6 +4082,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             } // if the peer was successfully assigned //
             break;
         } // assign peer case //
+#endif
 
         case ON_UNASSIGN_PEER:
         {
@@ -4095,6 +4097,8 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             break;
         } // unassign peer case //
 
+        // 12/10/2010 - If the master is running the Eval Board code, the client will
+		// never receive this message.  I'm leaving it in anyway for now though.
         case ON_CHANGE_PEER_DATA_RATE:
         {
             UInt8 data_rate = DATA[ON_PEER_SETTING_DATA_RATE_IDX
@@ -4118,6 +4122,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
             } // else the peer is valid //
             break;
         } // ON_CHANGE_PEER_DATA_RATE case //
+#endif
 
         #ifndef _ONE_NET_SIMPLE_CLIENT
             case ON_SEND_BLOCK_LOW:                     // fall through
