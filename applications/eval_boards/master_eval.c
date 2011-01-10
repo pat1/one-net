@@ -79,8 +79,10 @@ static UInt8 master_user_pin_state;
 //! The source unit of the user pin that has changed
 static UInt8 user_pin_src_unit;
 
+#ifdef _PEER
 //! The index into the peer list for the given user pin
 static UInt8 user_pin_peer_idx;
+#endif
 
 //! @} ONE-NET_master_eval_pri_var
 //                              PRIVATE VARIABLES END
@@ -1331,7 +1333,9 @@ static void master_check_user_pins(void)
     {
         master_user_pin_state = M_SEND_USER_PIN_INPUT;
         user_pin_src_unit = 0;
+#ifdef _PEER
         user_pin_peer_idx = 0;
+#endif
         user_pin[0].old_state = USER_PIN0;
     } // if the user0 pin has been toggled //
     else if(user_pin[1].pin_type == ONCLI_INPUT_PIN
@@ -1339,7 +1343,9 @@ static void master_check_user_pins(void)
     {
         master_user_pin_state = M_SEND_USER_PIN_INPUT;
         user_pin_src_unit = 1;
+#ifdef _PEER
         user_pin_peer_idx = 0;
+#endif
         user_pin[1].old_state = USER_PIN1;
     } // if the user1 pin has been toggled //
     else if(user_pin[2].pin_type == ONCLI_INPUT_PIN
@@ -1347,7 +1353,9 @@ static void master_check_user_pins(void)
     {
         master_user_pin_state = M_SEND_USER_PIN_INPUT;
         user_pin_src_unit = 2;
+#ifdef _PEER
         user_pin_peer_idx = 0;
+#endif
         user_pin[2].old_state = USER_PIN2;
     } // if the user2 pin has been toggled //
     else if(user_pin[3].pin_type == ONCLI_INPUT_PIN
@@ -1355,7 +1363,9 @@ static void master_check_user_pins(void)
     {
         master_user_pin_state = M_SEND_USER_PIN_INPUT;
         user_pin_src_unit = 3;
+#ifdef _PEER
         user_pin_peer_idx = 0;
+#endif
         user_pin[3].old_state = USER_PIN3;
     } // if the user3 pin has been toggled //
 } // master_check_user_pins //
@@ -1376,6 +1386,7 @@ static void master_send_user_pin_input(void)
     one_net_status_t status;
     one_net_raw_did_t raw_did;
 
+#ifdef _PEER
     for(; user_pin_peer_idx < NUM_MASTER_PEER; user_pin_peer_idx++)
     {
         if(master_peer[user_pin_peer_idx].src_unit
@@ -1412,6 +1423,7 @@ static void master_send_user_pin_input(void)
             } // if queueing the transaction was not successful //
 		}
     } // loop to try to queue the switch messages //
+#endif
 
     master_user_pin_state = M_CHECK_USER_PIN;
 } // master_send_user_pin_input //
