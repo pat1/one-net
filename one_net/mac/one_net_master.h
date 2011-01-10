@@ -284,9 +284,12 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT);
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
   const one_net_raw_did_t * const DST_DID);
+
+#ifndef _ONE_NET_EVAL
 one_net_status_t one_net_master_change_peer_data_rate(
   const one_net_raw_did_t * const RAW_DST,
   const one_net_raw_did_t * const RAW_PEER, const UInt8 DATA_RATE);
+#endif
 
 one_net_status_t one_net_master_start_data_rate_test(
   const one_net_raw_did_t * const SENDER,

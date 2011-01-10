@@ -1309,6 +1309,8 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
 } // one_net_master_set_update_master_flag //
 
 
+#ifndef _ONE_NET_EVAL
+#ifdef _PEER
 /*!
     \brief Updates a CLIENT that the data rate for one of it's peer devices
       has changed.
@@ -1365,6 +1367,8 @@ one_net_status_t one_net_master_change_peer_data_rate(
       (const on_encoded_did_t * const)dst, ONE_NET_HIGH_PRIORITY, pld,
       sizeof(pld));
 } // one_net_master_change_peer_data_rate //
+#endif
+#endif
 
 
 /*!
