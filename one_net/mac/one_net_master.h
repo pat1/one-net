@@ -143,8 +143,8 @@ typedef struct
     BOOL multi_hop_repeater;                //!< TRUE if the client operates as a repeater
     BOOL multi_hop_capable;                 //!< TRUE if the client will generate or receive mulit-hop msgs
     BOOL full_featured;                     //!< TRUE if the client is full featured (block and stream)
-    UInt8 max_peers_per_unit;               //!< the maximum number of peers each unit can support
-    on_data_rate_t max_data_rate;      //!< the maximum data rate this client supports
+    UInt8 max_peers;                        //!< the maximum number of peers this device can support
+    on_data_rate_t max_data_rate;           //!< the maximum data rate this client supports
 } one_net_master_add_client_in_t;
 
 
