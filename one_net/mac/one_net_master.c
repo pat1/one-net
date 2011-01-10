@@ -2216,7 +2216,7 @@ one_net_status_t one_net_master_add_client(
     {
         features |= ON_MAC_FEATURES;
     }
-    features |= (CAPABILITIES->max_peers & ON_NET_DEV_UNIT);
+    features |= (CAPABILITIES->max_peers & ONE_NET_DEV_UNIT);
 
     //
     // fill in the network configuration values this new client
