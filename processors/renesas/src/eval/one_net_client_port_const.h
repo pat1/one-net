@@ -65,17 +65,22 @@ enum
 
     // Derek_S - No longer using a "by unit" approach.  You can now have all
 	// commenting out below
-	
-/*    //! The number of peers per unit the CLIENT supports.  This value must be
-    //! between 4 & 15 inclusive
-    ONE_NET_PEER_PER_UNIT = 4,*/
-	
+
+#ifdef _PEER	
     //! The maximum number of separate physical devices the CLIENT can
     //! keep track of
     ONE_NET_MAX_PEER_DEV = 8,
 	
     //! The maximum number of unit peers the CLIENT can keep track of
     ONE_NET_MAX_PEER_UNIT = 16,
+#else
+    //! The maximum number of separate physical devices the CLIENT can
+    //! keep track of
+    ONE_NET_MAX_PEER_DEV = 0,
+	
+    //! The maximum number of unit peers the CLIENT can keep track of
+    ONE_NET_MAX_PEER_UNIT = 0,
+#endif	
 
     //! The number of different unit types this device supports.  If this value
     //! changes, UNIT_TYPES will also need to be changed.
