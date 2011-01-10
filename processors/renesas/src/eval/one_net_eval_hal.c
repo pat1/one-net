@@ -381,12 +381,13 @@ BOOL eval_save(void)
     //
     if(device_type() == MASTER_NODE)
     {
+#ifdef _PEER
         if(!master_get_peer_assignment_to_save(&extra_device_data,
           &extra_device_data_len))
         {
             return FALSE;
         } // if getting the master peer assignments failed //
-
+#endif
         on_master_force_save();
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     } // if a MASTER //
