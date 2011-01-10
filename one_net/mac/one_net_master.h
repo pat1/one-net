@@ -95,37 +95,37 @@ enum
 typedef enum
 {
     //! Update a device's data rate
-    ONE_NET_UPDATE_DATA_RATE,
+    ONE_NET_UPDATE_DATA_RATE = 0x00,
 
     //! Updating a device's setting for the data rate of a peer device.
-    ONE_NET_UPDATE_PEER_DATA_RATE,
+    ONE_NET_UPDATE_PEER_DATA_RATE = 0x01,
     
     //! Updating the network key is complete
-    ONE_NET_UPDATE_NETWORK_KEY,
+    ONE_NET_UPDATE_NETWORK_KEY = 0x02,
 
     //! Assigning a peer
-    ONE_NET_UPDATE_ASSIGN_PEER,
+    ONE_NET_UPDATE_ASSIGN_PEER = 0x03,
 
     //! Unassigning a peer
-    ONE_NET_UPDATE_UNASSIGN_PEER,
+    ONE_NET_UPDATE_UNASSIGN_PEER = 0x04,
 
     //! Updating reporting status changes to the MASTER
-    ONE_NET_UPDATE_REPORT_TO_MASTER,
+    ONE_NET_UPDATE_REPORT_TO_MASTER = 0x05,
 
     //! Low Priority Fragment delay update
-    ONE_NET_UPDATE_LOW_FRAGMENT_DELAY,
+    ONE_NET_UPDATE_LOW_FRAGMENT_DELAY = 0x06,
 
     //! High Priority Fragment delay update
-    ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY,
+    ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY = 0x07,
 
     //! Updates the keep alive interval for a device
-    ONE_NET_UPDATE_KEEP_ALIVE,
+    ONE_NET_UPDATE_KEEP_ALIVE = 0x08,
 
     //! Indicates an attempt to remove a device from the network
-    ONE_NET_UPDATE_REMOVE_DEVICE,
+    ONE_NET_UPDATE_REMOVE_DEVICE = 0x09,
     
     //! Updating the stream key is complete
-    ONE_NET_UPDATE_STREAM_KEY,
+    ONE_NET_UPDATE_STREAM_KEY = 0x0A,
 
     //! This is to mark nothing was updated.  This item should ALWAYS be
     //! LAST IN THE LIST
