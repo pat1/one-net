@@ -837,78 +837,78 @@ typedef enum
     //! Response to a Status Query.  This is also the message sent when a device
     //! hears a MASTER Invite New CLIENT when it is joining the network to let
     //! the MASTER know it has joined the network, and it's capabilities.
-    ON_STATUS_RESP,
+    ON_STATUS_RESP = 0x01,
 
     //! Queries a device for it's communication settings.
-    ON_SETTINGS_QUERY,
+    ON_SETTINGS_QUERY = 0x02,
 
     //! Response to a Settings Query.  This is also the response to a Change
     //! Settings so the MASTER knows that the changes it proposed took affect.
-    ON_SETTINGS_RESP,
+    ON_SETTINGS_RESP = 0x03,
 
     //! Sent to change a device's settings.  The devices settings should not
     //! be considered changed until a SETTINGS_RESP is received.
-    ON_CHANGE_SETTINGS,
+    ON_CHANGE_SETTINGS = 0x04,
 
     //! Query for the devices fragment delay.
-    ON_FRAGMENT_DELAY_QUERY,
+    ON_FRAGMENT_DELAY_QUERY = 0x05,
 
     //! Response to a fragment delay query or change fragment delay
-    ON_FRAGMENT_DELAY_RESP,
+    ON_FRAGMENT_DELAY_RESP = 0x06,
 
     //! Sent to change a devices low priority fragment delay
-    ON_CHANGE_LOW_FRAGMENT_DELAY,
+    ON_CHANGE_LOW_FRAGMENT_DELAY = 0x07,
 
     //! Query for the Keep Alive Timeout.  This is the interval at which a
     //! CLIENT must attempt to check in with the MASTER.  Any communication
     //! with the MASTER resets this timer.
-    ON_KEEP_ALIVE_QUERY,
+    ON_KEEP_ALIVE_QUERY = 0x08,
 
     //! Response to the Keep Alive Query.  This is how often a client attempts
     //! to check in with the MASTER.  Any communication with the MASTER resets
     //! this timer.
-    ON_KEEP_ALIVE_RESP,
+    ON_KEEP_ALIVE_RESP = 0x09,
 
     //! Sent to change the keep alive interval
-    ON_CHANGE_KEEP_ALIVE,
+    ON_CHANGE_KEEP_ALIVE = 0x0A,
 
     //! Sent by the MASTER to update a CLIENT's key.  The key is updated by
     //! removing the upper 32 bits, and appending the 32 bits in this message
     //! to the remaining 96 bits of the key.
-    ON_NEW_KEY_FRAGMENT,
+    ON_NEW_KEY_FRAGMENT = 0x0B,
 
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
-    ON_ASSIGN_PEER,
+    ON_ASSIGN_PEER = 0x0C,
 
     //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
     //! CLIENT must not send directly to that peer anymore.
-    ON_UNASSIGN_PEER,
+    ON_UNASSIGN_PEER = 0x0D,
 
     //! Sent by a device that wishes to receive a low priority block transaction
     //! from the device that receives this message.
-    ON_SEND_BLOCK_LOW,
+    ON_SEND_BLOCK_LOW = 0x0E,
 
     //! Sent by a device that wishes to send a low priority block transaction to
     //! the device that receives this message.
-    ON_RECV_BLOCK_LOW,
+    ON_RECV_BLOCK_LOW = 0x0F,
 
     //! Sent by a device that wishes to receive a low priority stream
     //! transaction from the device that receives this message
-    ON_SEND_STREAM_LOW,
+    ON_SEND_STREAM_LOW = 0x10,
 
     //! Sent by a device that wishes to send a low priority stream transaction
     //! to the device that receives this message.
-    ON_RECV_STREAM_LOW,
+    ON_RECV_STREAM_LOW = 0x11,
 
     //! Sent by a device to end a stream transaction
-    ON_END_STREAM,
+    ON_END_STREAM = 0x12,
 
     //! The MASTER is initiating a data rate test with a CLIENT.
-    ON_INIT_DATA_RATE_TEST,
+    ON_INIT_DATA_RATE_TEST = 0x13,
 
     //! The test result of a data rate test.
-    ON_DATA_RATE_RESULT,
+    ON_DATA_RATE_RESULT = 0x14,
 
     //! Not used
     ON_ADMIN_UNUSED0,
@@ -926,36 +926,36 @@ typedef enum
     ON_ADMIN_UNUSED4,
 
     //! Sent to update the data rate to use when sending to a specific peer.
-    ON_CHANGE_PEER_DATA_RATE,
+    ON_CHANGE_PEER_DATA_RATE = 0x1A,
 
     //! Sent to change a devices high priority fragment delay
-    ON_CHANGE_HIGH_FRAGMENT_DELAY,
+    ON_CHANGE_HIGH_FRAGMENT_DELAY = 0x1B,
 
     //! Sent by a device that wishes to receive a high priority block
     //! transaction from the device that receives this message.
-    ON_SEND_BLOCK_HIGH,
+    ON_SEND_BLOCK_HIGH = 0x1C,
 
     //! Sent by a device that wishes to send a high priority block
     //! transaction to the device that receives this message.
-    ON_RECV_BLOCK_HIGH,
+    ON_RECV_BLOCK_HIGH = 0x1D,
 
     //! Sent by a device that wishes to receive a high priority stream
     //! transaction from the device that receives this message
-    ON_SEND_STREAM_HIGH,
+    ON_SEND_STREAM_HIGH = 0x1E,
 
     //! Sent by a device that wishes to send a high priority stream
     //! transaction to the device that receives this message.
-    ON_RECV_STREAM_HIGH,
+    ON_RECV_STREAM_HIGH = 0x1F,
 
     //! Same as the ASSIGN_PEER message with the addition that it is alerting
     //! the receiver that the assigned peer has Multi-Hop capability.
-    ON_ASSIGN_MH_PEER,
+    ON_ASSIGN_MH_PEER =0x20,
     
     //! Queries the MASTER for the stream key
-    ON_STREAM_KEY_QUERY,
+    ON_STREAM_KEY_QUERY = 0x21,
 
     //! Sent by the MASTER when it is removing the receiver from the network
-    ON_RM_DEV
+    ON_RM_DEV = 0x22
 } on_admin_msg_t;
 
 
