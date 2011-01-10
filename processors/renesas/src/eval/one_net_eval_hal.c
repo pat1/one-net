@@ -387,6 +387,8 @@ BOOL eval_save(void)
         {
             return FALSE;
         } // if getting the master peer assignments failed //
+#else
+        extra_device_data_len = 0; // TO_DO : Is this needed?
 #endif
         on_master_force_save();
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
@@ -428,6 +430,7 @@ BOOL eval_save(void)
     //
     // write extra device data using DFI_ST_APP_DATA_2 segment type
     //
+	// TO_DO : Is this needed if _PEER is not defined?  If not, this could have a #define guard.
     if(extra_device_data)
     {
         result = dfi_write_segment_of_type(DFI_ST_APP_DATA_2, extra_device_data,
