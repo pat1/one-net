@@ -174,7 +174,14 @@
     #endif
 #endif
 
-
+#ifndef _PEER
+	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+		#error "ERROR : _PEER must be defined if _ENABLE_ASSIGN_PEER_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+		#error "ERROR : _PEER must be defined if _ENABLE_UNASSIGN_PEER_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
 
 //! @} one_net_test_defines_const
 //                                  CONSTANTS END
