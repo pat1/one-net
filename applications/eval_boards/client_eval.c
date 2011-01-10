@@ -245,12 +245,20 @@ void one_net_client_client_remove_device(void)
 	{
 	    on_base_param_t * base_param;
 	    on_master_t * master;
+		
+#ifdef _PEER
 	    on_peer_t * peer;
+#endif
 
 	    // The parameters used to initialize an existing network as if they were
 	    // stored in a continguous block of memory
+		
+#ifdef _PEER
 	    UInt8 param[sizeof(on_base_param_t) + sizeof(on_master_t)
 	      + sizeof(on_peer_t)];
+#else
+	    UInt8 param[sizeof(on_base_param_t) + sizeof(on_master_t)];
+#endif
 	    UInt8 i;
 
 	    // check the parameters
@@ -262,7 +270,10 @@ void one_net_client_client_remove_device(void)
 	    // set the pointers
 	    base_param = (on_base_param_t *)param;
 	    master = (on_master_t *)(((UInt8 *)base_param) + sizeof(on_base_param_t));
+		
+#ifdef _PEER
 	    peer = (on_peer_t *)(((UInt8 *)master) + sizeof(on_master_t));
+#endif
 
 	    // set up the base parameters
 	    base_param->version = EVAL_PARAM_VERSION;
@@ -290,7 +301,8 @@ void one_net_client_client_remove_device(void)
 	    master->keep_alive_interval = eval_keep_alive();
 	    master->settings.master_data_rate = ONE_NET_DATA_RATE_38_4;
 	    master->settings.flags = eval_client_flag(CLIENT);
-    
+
+#ifdef _PEER    
 	    // set up the peer parameters
 	    for(i = 0; i < ONE_NET_MAX_PEER_DEV; i++)
 	    {
@@ -304,6 +316,7 @@ void one_net_client_client_remove_device(void)
 	        peer->unit[i].src_unit = ONE_NET_DEV_UNIT;
 	        peer->unit[i].peer_unit = ONE_NET_DEV_UNIT;
 	    }
+#endif
     
 	    base_param->crc = one_net_compute_crc((UInt8 *)base_param
 	      + sizeof(base_param->crc), sizeof(param) - sizeof(base_param->crc),
