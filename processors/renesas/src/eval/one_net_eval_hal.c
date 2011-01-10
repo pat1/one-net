@@ -388,6 +388,7 @@ BOOL eval_save(void)
             return FALSE;
         } // if getting the master peer assignments failed //
 #else
+        extra_device_data = 0; // TO_DO : Is this needed?
         extra_device_data_len = 0; // TO_DO : Is this needed?
 #endif
         on_master_force_save();
