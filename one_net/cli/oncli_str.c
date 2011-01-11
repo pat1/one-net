@@ -299,7 +299,7 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 #ifdef _ENABLE_LIST_COMMAND
 	//! Info command string
 	const char * const ONCLI_LIST_CMD_STR = "list";
-
+#ifdef _PEER
 	//! Format for printing peers in the CLI list command
 	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
 
@@ -308,6 +308,7 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 
 	//! No peers in table string.
 	const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
+#endif
 #endif
 
 

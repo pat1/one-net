@@ -1765,7 +1765,7 @@ static oncli_status_t list_cmd_hdlr(void)
             delay_ms(100);
         }
 
-#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
+#ifdef _PEER
         //
         // print master peer table
         //
@@ -1798,7 +1798,8 @@ static oncli_status_t list_cmd_hdlr(void)
             //
             oncli_send_msg("DID: 0x%03x\n", did_to_u16(&client_did));
         }
-    
+
+#ifdef _PEER    
         //
         // print this client's peer list
         //
@@ -1834,6 +1835,7 @@ static oncli_status_t list_cmd_hdlr(void)
             }
             delay_ms(100);
         }
+#endif
     } // list client specific data //
     oncli_print_user_pin_cfg();
     delay_ms(100);

@@ -164,9 +164,11 @@ extern const char * const ONCLI_RSSI_CMD_STR;
 
 #ifdef _ENABLE_LIST_COMMAND
 extern const char * const ONCLI_LIST_CMD_STR;
+#ifdef _PEER
 extern const char * const ONCLI_LIST_PEER_TABLE_HEADING;
 extern const char * const ONCLI_LIST_PEER_FMT;
 extern const char * const ONCLI_LIST_NO_PEERS;
+#endif
 #endif
 
 // Mode strings
@@ -185,8 +187,12 @@ extern const char * const ONCLI_CLIENT_STR;
 // MASTER only command strings
 extern const char * const ONCLI_INVITE_CMD_STR;
 extern const char * const ONCLI_CANCEL_INVITE_CMD_STR;
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
 extern const char * const ONCLI_ASSIGN_PEER_CMD_STR;
+#endif
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
 extern const char * const ONCLI_UNASSIGN_PEER_CMD_STR;
+#endif
 extern const char * const ONCLI_UPDATE_MASTER_CMD_STR;
 extern const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
 extern const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
