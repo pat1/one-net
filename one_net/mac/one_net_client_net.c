@@ -159,7 +159,8 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
-    
+ 
+#ifdef _PEER    
     // check to see if sending to the peer list
     if(!RAW_DST)
     {
@@ -206,6 +207,14 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
             } // default case //
         } // switch(on_client_net_setup_msg_for_peer) //
     } // if sending to the peer list //
+#else
+    if(!RAW_DST) /* if not implementing peer functionality and raw destination is NULL,
+	                then send it to the master and ONE_NET_DEV_UNIT */
+	{
+        on_client_encoded_master_did(&encoded_dst_did);	
+		put_dst_unit(ONE_NET_DEV_UNIT, data);
+	}
+#endif
     else if((status = on_encode(encoded_dst_did, *RAW_DST,
       sizeof(encoded_dst_did))) != ONS_SUCCESS)
     {
@@ -215,6 +224,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
     // try sending
     status = on_client_send_single(data, DATA_LEN, PRIORITY,
                       &encoded_dst_did, txn_id);
+#ifdef _PEER
     if((status != ONS_SUCCESS) && !RAW_DST)
     {
         // sending to peer list failed, so free list if there are no more
@@ -223,6 +233,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
             on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
         }
     } // if queueing the transaction failed //
+#endif
     
     return status;
 } // one_net_client_send_single //
