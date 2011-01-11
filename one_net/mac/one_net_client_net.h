@@ -99,8 +99,10 @@ enum
 //! @{
 
 
+#ifdef _PEER
 one_net_status_t on_client_net_init(void * const peer_location,
   const UInt16 LEN);
+#endif
   
 one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
   const on_encoded_did_t * const DST, UInt8 * data, const UInt8 TRIES,

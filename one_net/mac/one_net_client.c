@@ -1566,6 +1566,7 @@ static one_net_status_t init_internal(void)
 
     UInt8 i;
 
+#ifdef _PEER
     // initialize the network layer
     if((status = on_client_net_init(nv_param + sizeof(on_base_param_t)
       + sizeof(on_master_t), sizeof(nv_param) - sizeof(on_base_param_t)
@@ -1573,6 +1574,7 @@ static one_net_status_t init_internal(void)
     {
         return ONS_INTERNAL_ERR;
     } // if initializing the net layer was not successful //
+#endif
 
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {

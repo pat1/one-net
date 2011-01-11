@@ -380,6 +380,8 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
     return ONS_SUCCESS;
 } // on_client_net_single_txn_hdlr //
 
+
+#ifdef _PEER
 //! @} ONE-NET_CLIENT_NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
@@ -439,7 +441,7 @@ one_net_status_t on_client_net_init(void * const peer_location,
     
     return ONS_SUCCESS;
 } // on_client_net_init //
-
+#endif
 
 
 //! @} ONE-NET_CLIENT_NET_pri_func
