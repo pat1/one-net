@@ -877,6 +877,7 @@ typedef enum
     //! to the remaining 96 bits of the key.
     ON_NEW_KEY_FRAGMENT = 0x0B,
 
+#ifdef _PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
     ON_ASSIGN_PEER = 0x0C,
@@ -884,6 +885,7 @@ typedef enum
     //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
     //! CLIENT must not send directly to that peer anymore.
     ON_UNASSIGN_PEER = 0x0D,
+#endif
 
     //! Sent by a device that wishes to receive a low priority block transaction
     //! from the device that receives this message.
@@ -947,9 +949,11 @@ typedef enum
     //! transaction to the device that receives this message.
     ON_RECV_STREAM_HIGH = 0x1F,
 
+#if defined(_PEER) && defined(_ONE_NET_MULTI_HOP) 
     //! Same as the ASSIGN_PEER message with the addition that it is alerting
     //! the receiver that the assigned peer has Multi-Hop capability.
     ON_ASSIGN_MH_PEER =0x20,
+#endif
     
     //! Queries the MASTER for the stream key
     ON_STREAM_KEY_QUERY = 0x21,

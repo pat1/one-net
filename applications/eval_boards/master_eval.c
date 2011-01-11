@@ -148,8 +148,9 @@ oncli_status_t oncli_reset_master(void)
 #else
     init_master_user_pin(0, 0);
 #endif
-
+#ifdef _PEER
     init_master_peer();
+#endif
     
     get_eval_key(&key);
     get_eval_stream_key(&stream_key);
@@ -190,7 +191,9 @@ oncli_status_t oncli_reset_master_with_channel(
 #else
     init_master_user_pin(0, 0);
 #endif
+#ifdef _PEER
     init_master_peer();
+#endif
 
     base_param = (on_base_param_t *)param;
     master_param = (on_master_param_t *)(param + sizeof(on_base_param_t));
@@ -1096,7 +1099,9 @@ void init_auto_master(void)
 	UInt8 i;
 
     init_master_user_pin(0, 0);
+#ifdef _PEER
     init_master_peer();
+#endif
     
     // initialize timer for auto mode to send right away
     ont_set_timer(AUTO_MODE_TIMER, 0);
@@ -1192,7 +1197,9 @@ void init_serial_master(void)
         {
             oncli_send_msg(ONCLI_LOAD_FAIL_STR);
             oncli_reset_master();
+#ifdef _PEER
             init_master_peer();
+#endif
         } // else loading all the parameters failed //
     } // if prervious settings were stored //
     else

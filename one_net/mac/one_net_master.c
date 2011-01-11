@@ -1186,6 +1186,7 @@ one_net_status_t one_net_master_change_stream_key(
               part of the network.
             See send_admin_pkt for more return values.
 */
+#ifdef _PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const one_net_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
   const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
@@ -1255,6 +1256,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
       (const on_encoded_did_t * const)&enc_src_did, ONE_NET_LOW_PRIORITY, pld,
       sizeof(pld));
 } // one_net_master_peer_assignment //
+#endif
 
 
 /*!
@@ -1309,8 +1311,7 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
 } // one_net_master_set_update_master_flag //
 
 
-#ifndef _ONE_NET_EVAL
-#ifdef _PEER
+#if !defined(_ONE_NET_EVAL) && defined(_PEER)
 /*!
     \brief Updates a CLIENT that the data rate for one of it's peer devices
       has changed.
@@ -1367,7 +1368,6 @@ one_net_status_t one_net_master_change_peer_data_rate(
       (const on_encoded_did_t * const)dst, ONE_NET_HIGH_PRIORITY, pld,
       sizeof(pld));
 } // one_net_master_change_peer_data_rate //
-#endif
 #endif
 
 
@@ -1622,10 +1622,14 @@ one_net_status_t one_net_master_remove_device(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
 
-
+#ifdef _PEER
 	oncli_send_msg("Deleting did %03x.  First removing all relevant peer assignments to did %03x.\n",
 	    did_to_u16(RAW_PEER_DID), did_to_u16(RAW_PEER_DID));
+#else
+	oncli_send_msg("Deleting did %03x.\n", did_to_u16(RAW_PEER_DID));
+#endif
 
+#ifdef _PEER
 	for(i = 0; i < master_param->client_count; i++)
 	{
 		client_enc_did = &(client_list[i].did);
@@ -1650,6 +1654,7 @@ one_net_status_t one_net_master_remove_device(
 
     // Now remove any master peer assignments to the device being deleted.
     master_unassigned_peer(ONE_NET_DEV_UNIT, &encoded_peer_did, ONE_NET_DEV_UNIT, TRUE);
+#endif
 
     // all client peer assignments to this did are removed.  Now remove the device itself
     return send_admin_pkt(ON_RM_DEV, ON_ADMIN_MSG,
@@ -4032,10 +4037,14 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
         case ON_KEEP_ALIVE_QUERY:                       // fall through
         case ON_CHANGE_KEEP_ALIVE:                      // fall through
         case ON_NEW_KEY_FRAGMENT:                       // fall through
+#ifdef _PEER
         case ON_ASSIGN_PEER:                            // fall through
         case ON_UNASSIGN_PEER:                          // fall through
-        case ON_INIT_DATA_RATE_TEST:                    // fall through
+#ifdef _ONE_NET_MULTI_HOP
         case ON_ASSIGN_MH_PEER:                         // fall through
+#endif
+#endif
+        case ON_INIT_DATA_RATE_TEST:                    // fall through
         case ON_RM_DEV:
         {
             status = ONS_UNHANDLED_PKT;
@@ -4138,8 +4147,11 @@ static one_net_status_t admin_txn_hdlr(const UInt8 ADMIN_ID,
             break;
         } // new key fragment case //
 
+#ifdef _PEER
         case ON_ASSIGN_PEER:        // fall through
+#ifdef _ONE_NET_MULTI_HOP
         case ON_ASSIGN_MH_PEER:
+#endif
         {
             update = ONE_NET_UPDATE_ASSIGN_PEER;
             rv = ONS_SUCCESS;
@@ -4152,6 +4164,7 @@ static one_net_status_t admin_txn_hdlr(const UInt8 ADMIN_ID,
             rv = ONS_SUCCESS;
             break;
         } // unassign peer case //
+#endif
 
         case ON_SEND_BLOCK_LOW:     // fall through
         case ON_RECV_BLOCK_LOW:     // fall through
