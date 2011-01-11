@@ -269,7 +269,6 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
     
     UInt8 forward_txn_id = SINGLE_DST_TXN_ID;
 
-
     if(!DST || !data || (TXN_ID >= MAX_SINGLE_TXN
       && TXN_ID != SINGLE_DST_TXN_ID))
     {
@@ -291,6 +290,7 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
     one_net_client_single_txn_status(STATUS, TRIES,
       data, &raw_did);
 
+#ifdef _PEER
     if(TXN_ID < MAX_SINGLE_TXN)
     {
         BOOL forward = FALSE;
@@ -373,10 +373,10 @@ one_net_status_t on_client_net_single_txn_hdlr(const one_net_status_t STATUS,
             return status;
         } // if the message should be sent to another device //
     } // if sending to the peer list //
+#endif
     
     // Not sending the message on, so send a single complete status to the app
     one_net_client_single_txn_status(ONS_SINGLE_END, 0, data, &raw_did);
-
     return ONS_SUCCESS;
 } // on_client_net_single_txn_hdlr //
 
