@@ -1181,16 +1181,27 @@ void init_serial_master(void)
 
     if(eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &master_len, &MASTER_PARAM))
     {
-        const UInt8 * MASTER_PEERS, * USER_PIN_TYPE;
-        UInt16 master_peer_len, user_pin_type_len;
+#ifdef _PEER
+        const UInt8 * MASTER_PEERS;
+		UInt16 master_peer_len;
+#endif
+		const UInt8 * USER_PIN_TYPE;
+        UInt16 user_pin_type_len;
 
+#ifdef _PEER
         if(eval_load(DFI_ST_APP_DATA_2, &master_peer_len, &MASTER_PEERS)
           && master_peer_len == sizeof(master_peer)
           && eval_load(DFI_ST_APP_DATA_1, &user_pin_type_len,
           &USER_PIN_TYPE) && user_pin_type_len == NUM_USER_PINS)
+#else
+        if(eval_load(DFI_ST_APP_DATA_1, &user_pin_type_len,
+          &USER_PIN_TYPE) && user_pin_type_len == NUM_USER_PINS)
+#endif
         {
             one_net_master_init(MASTER_PARAM, master_len);
+#ifdef _PEER
             one_net_memmove(master_peer, MASTER_PEERS, sizeof(master_peer));
+#endif
             init_master_user_pin(USER_PIN_TYPE, user_pin_type_len);
         } // if loading the rest of the parameters successful //
         else
