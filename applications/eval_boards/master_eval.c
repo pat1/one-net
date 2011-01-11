@@ -928,7 +928,7 @@ oncli_status_t oncli_start_data_rate_test(
 } // oncli_start_data_rate_test //
 
 
-#ifdef _ENABLE_LIST_COMMAND
+#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
 oncli_status_t oncli_print_master_peer(BOOL prompt_flag)
 {
     one_net_raw_did_t raw_did;

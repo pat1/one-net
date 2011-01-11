@@ -1765,10 +1765,12 @@ static oncli_status_t list_cmd_hdlr(void)
             delay_ms(100);
         }
 
+#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
         //
         // print master peer table
         //
         oncli_print_master_peer(FALSE);
+#endif
     } // list master specific data //
     else
     {

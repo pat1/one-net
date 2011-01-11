@@ -611,7 +611,9 @@ void oncli_print_prompt(void);
 oncli_print_user_pin_cfg(void);
 
 // TODO: RWM: add function comment
+#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
 oncli_status_t oncli_print_master_peer(BOOL prompt_flag);
+#endif
 
 
 //! @} oncli_port_pub_func
