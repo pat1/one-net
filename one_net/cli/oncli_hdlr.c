@@ -62,6 +62,10 @@
 #include "one_net_client_net.h"
 #include "one_net_port_specific.h"
 #include "one_net_encode.h"
+#ifdef _ENHANCED_INVITE
+    #include "one_net_eval.h"
+    #include "one_net_xtea.h"
+#endif
 
 #ifdef  _ENABLE_DUMP_COMMAND
 #include "flash.h"
@@ -209,6 +213,11 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 // CLIENT only command handlers
 #ifdef _ENABLE_USER_PIN_COMMAND
 	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+// Join command - if specifying a channel and a timeout
+#if defined(_ENABLE_JOIN_COMMAND) && defined(_ENHANCED_INVITE)
+    static oncli_status_t join_cmd_hdlr(const char* const ASCII_PARAM_LIST);
 #endif
 
 // Mode command handlers
@@ -709,6 +718,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 	
 	#ifdef _ENABLE_JOIN_COMMAND
+	#ifndef _ENHANCED_INVITE
+	
     if(!strnicmp(ONCLI_JOIN_CMD_STR, CMD, strlen(ONCLI_JOIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_JOIN_CMD_STR;
@@ -720,6 +731,17 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         
         return oncli_reset_client();
     } // else if the join command was received //
+	#else
+    if(!strnicmp(ONCLI_JOIN_CMD_STR, CMD, strlen(ONCLI_JOIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_JOIN_CMD_STR;
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &join_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+	}
+	#endif
 	#endif
 	
 	#ifdef _ENABLE_CHANNEL_COMMAND
@@ -2610,6 +2632,98 @@ oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     return oncli_reset_master_with_channel(oncli_get_sid(), channel);
 } // channel_cmd_hdlr //
 #endif
+
+
+/*!
+    \brief Handles receiving the join command and all its parameters
+    
+    The join command has the form
+    
+    join:TTT:LL:NN
+	
+	TTT = timeout (in milliseconds)
+	LL  = Locale (US or Europe)
+	NN  = Channel number
+    
+    If no parameters, all channels on all locales are scanned, no timeout.
+	If no timeout is specified, there is no timeout.
+	If a locale is specified, but not channel number, all channels for that
+	locale are searched.
+	If a locale and a channel are specified, only that channel is listened to.
+	
+	Example: join:30:US:5
+	will look for an invite on US Channel 5 for 30 seconds
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+#if defined(_ENABLE_JOIN_COMMAND) && defined(_ENHANCED_INVITE)
+oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    // TO DO : right now, doesn't handle locales without channel
+	// and doesn't handle it when the locale is not specified
+	oncli_status_t status;
+	one_net_xtea_key_t* invite_key;
+	UInt16 timeout = 0;
+    UInt8 low_channel = 0;
+	UInt8 high_channel = ONE_NET_MAX_CHANNEL;
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+	const char* END_PTR = 0;
+	
+    // get the unique invite code for this device
+    invite_key = (one_net_xtea_key_t *) get_invite_key();
+
+	
+	if(*PARAM_PTR == '\n')
+    {
+		return oncli_reset_client();
+	}
+	 
+    // Get the timeout if it's there
+    if(isdigit(*PARAM_PTR))
+    {
+        timeout = strtol(PARAM_PTR, &END_PTR, 0);
+	    PARAM_PTR = END_PTR;
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the command isn't formatted properly //
+        PARAM_PTR++;
+    } // get the timeout time
+	
+	if(*PARAM_PTR != '\n')
+    {
+		if((status = parse_channel(PARAM_PTR, &low_channel)) != ONCLI_SUCCESS)
+        {
+            return status;
+        } // if parsing the channel was not successful //
+		
+		high_channel = low_channel;
+	}
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
+    if(one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
+      eval_encryption(ON_STREAM), low_channel, high_channel, timeout) !=
+	    ONS_SUCCESS)
+#else
+    if(one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
+      low_channel, high_channel, timeout) != ONS_SUCCESS)
+#endif
+	{
+		return ONCLI_INTERNAL_ERR;
+	}
+	
+	return ONCLI_SUCCESS;
+} // join_cmd_hdlr //
+#endif
+
+
 
 
 /*!
