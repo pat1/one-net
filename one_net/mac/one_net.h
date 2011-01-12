@@ -658,6 +658,7 @@ enum
     //! Unit number that refers to device as a whole
     ONE_NET_DEV_UNIT = 0x0F
 };
+
     
 //! @} ONE-NET_const
 //                                  CONSTANTS END
@@ -1123,6 +1124,10 @@ typedef enum
     //! Waits for the write to end
     ON_SEND_DATA_RATE_RESP_WRITE_WAIT,
 
+#ifdef _IDLE	
+	//! do nothing
+	ON_IDLE,
+#endif
 
     //! State when the device has not yet joined the netwrok.  If the device is
     //! a client, it looks for the invite from the MASTER.  If the device is a
@@ -1367,6 +1372,21 @@ typedef struct
     //! Data Rate Test results handler
     on_data_rate_result_hdlr_t data_rate_hdlr;
 } on_pkt_hdlr_set_t;
+
+#ifdef _ENHANCED_INVITE
+//! Reason why an invitation has been cancelled.
+//! TO DO : We may want to make this part of the application code since
+//! different applications may have specific codes that shouldn't be part
+//! be part of the official ONE-NET package.
+typedef enum
+{
+    CANCEL_INVITE_TIMEOUT, /* look for invitation time has expired */
+    CANCEL_INVITE_CANCELLED_BY_USER, /* look for invitation time has expired */
+    CANCEL_INVITE_CANCELLED_INTERNAL_ERROR, /* Some error occurred somewhere */
+    CANCEL_INVITE_OTHER_REASON /* If none of the reasons above fit. */	
+} cancel_invite_reason_t;
+#endif
+
 
 //! @} ONE-NET_typedefs
 //                                  TYPEDEFS END
