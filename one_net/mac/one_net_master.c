@@ -1699,6 +1699,13 @@ void one_net_master(void)
     // Do the appropriate action for the state the device is in.
     switch(on_state)
     {
+#ifdef _IDLE
+		case ON_IDLE:
+		{
+			break;
+		}
+#endif
+		
         case ON_LISTEN_FOR_DATA:
         {
             if(invite_idx < ONE_NET_MASTER_MAX_TXN
