@@ -86,7 +86,7 @@ void disable_user_pins(void);
 
 static void initialize_client_pins_for_demo(void);
 
-BOOL client_joined_network = FALSE;
+extern BOOL client_joined_network;
 one_net_raw_did_t client_did;
 
 // "protected" functions
@@ -134,8 +134,22 @@ oncli_status_t oncli_reset_client(void)
     // get the unique invite code for this device
     invite_key = (one_net_xtea_key_t *) get_invite_key();
 
-    one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
-      eval_encryption(ON_STREAM));
+#ifndef _ONE_NET_SIMPLE_CLIENT
+  #ifdef _ENHANCED_INVITE
+      one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
+        eval_encryption(ON_STREAM), 0, ONE_NET_MAX_CHANNEL, 0);
+  #else
+      one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
+        eval_encryption(ON_STREAM));
+  #endif
+#else
+  #ifdef _ENHANCED_INVITE
+      one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
+        0, ONE_NET_MAX_CHANNEL, 0);
+  #else
+      one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE));
+  #endif
+#endif
 
     return ONCLI_SUCCESS;
 } // oncli_reset_client //
@@ -146,7 +160,6 @@ void one_net_client_joined_network(const one_net_raw_did_t * const RAW_DID,
     //
     // save data for use by the CLI
     //
-    client_joined_network = TRUE;
     one_net_memmove(&client_did[0], RAW_DID, sizeof(one_net_raw_did_t));
 
     //
@@ -156,6 +169,12 @@ void one_net_client_joined_network(const one_net_raw_did_t * const RAW_DID,
     oncli_print_prompt();
 } // one_net_client_joined_network //
 
+#ifdef _ENHANCED_INVITE
+void one_net_client_invite_cancelled(cancel_invite_reason_t reason)
+{
+    oncli_send_msg("Join command timed out.  Device not added.\n");
+} // one_net_client_invite_cancelled //
+#endif
 
 BOOL one_net_client_handle_single_pkt(const UInt8 * RX_PLD,
   const UInt16 RX_PLD_LEN, const one_net_raw_did_t * const SRC_ADDR)

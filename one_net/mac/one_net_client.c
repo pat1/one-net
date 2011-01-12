@@ -57,7 +57,6 @@
 
 #ifdef _ONE_NET_EVAL
     #include "oncli.h"
-    extern BOOL client_joined_network; // Derek_S 10/25/2010 for CLI "list" command
     extern one_net_raw_did_t client_did; // Derek_S 11/4/2010 for CLI "list" command
 #endif // ifdef ONE_NET_EVAL //
 
@@ -171,6 +170,41 @@ typedef struct
 //! @} ONE-NET_CLIENT_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
+
+
+
+//==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup ONE-NET_CLIENT_pub_var
+//! \ingroup ONE-NET_CLIENT
+//! @{
+
+//! Flag to signify that this client is part of a network.
+BOOL client_joined_network = FALSE;
+
+//! Flag to signify that the client is not part of a network and is looking for
+//! an invitation.
+BOOL client_looking_for_invite = FALSE;
+
+#ifdef _ENHANCED_INVITE
+    //! Flag to signify that an invitation attempt has expired without successfully
+    //! joining a network.
+    BOOL client_invite_timed_out = FALSE;
+	
+    //! Lowest channel to consider when looking for an invite
+	one_net_channel_t low_invite_channel;
+	
+	one_net_channel_t high_invite_channel;	
+#endif
+
+
+
+//! @} ONE-NET_CLIENT_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
+
+
+
 
 //==============================================================================
 //                              PRIVATE VARIABLES
@@ -300,9 +334,20 @@ static BOOL report_data_rate_results = FALSE;
 //! Flag to indicate that the device has been removed from the network.
 static BOOL removed = FALSE;
 
+//! Minimum channel to look for an invite
+static one_net_channel_t minimum_invite_channel;
+
+//! Maximum channel to look for an invite
+static one_net_channel_t maximum_invite_channel;
+
+
+
 //! @} ONE-NET_CLIENT_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
+
+
+
 
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
@@ -395,7 +440,7 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
 #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
 
 static BOOL look_for_invite(void);
-
+  
 static void save_param(void);
 
 //! @} ONE-NET_CLIENT_pri_func
@@ -422,10 +467,15 @@ static void save_param(void);
       and block packets when they are sent.
     \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
       when they are sent.
+    \param[in] min_channel lowest channel to scan on.
+    \param[in] max_channel highest channel to scan on.
+    \param[in] timeout_time Length of time in milliseconds to listen for the invite.
+	  0 means indefinite.
 
     \return ONS_SUCCESS Successfully initialized the CLIENT.
             ONS_BAD_PARAM if the parameter is invalid.
 */
+#if !defined(_ENHANCED_INVITE)
 #ifndef _ONE_NET_SIMPLE_CLIENT
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
@@ -436,13 +486,37 @@ static void save_param(void);
       const one_net_xtea_key_t * const INVITE_KEY,
       const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
 #endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#else
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+      const UInt8 STREAM_ENCRYPT_METHOD,
+	  const one_net_channel_t min_channel,
+	  const one_net_channel_t max_channel,
+	  const tick_t timeout_time)
+#else // ifndef _ONE_NET_SIMPLE_CLIENT //
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+	  const one_net_channel_t min_channel,
+	  const one_net_channel_t max_channel,
+	  const tick_t timeout_time)	  
+#endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#endif
 {
     one_net_status_t status;
-
-#ifdef _ONE_NET_EVAL
-    // Derek_S 11/3/2010
-    client_joined_network = FALSE;
+	
+#ifdef _ENHANCED_INVITE
+    if(min_channel > max_channel ||
+	   max_channel > ONE_NET_MAX_CHANNEL)
+	{
+		return ONS_BAD_PARAM;
+	}
 #endif
+
+    client_joined_network = FALSE;
 
     #ifndef _ONE_NET_SIMPLE_CLIENT
         if(!INVITE_KEY
@@ -487,6 +561,23 @@ static void save_param(void);
         return status;
     } // if initializing the internals failed //
 
+
+    client_joined_network = FALSE;
+    client_looking_for_invite = TRUE;
+
+#ifdef _ENHANCED_INVITE
+    client_invite_timed_out = FALSE;
+
+	low_invite_channel = min_channel;
+	high_invite_channel = max_channel;
+    on_base_param->channel = low_invite_channel;
+	
+	if(timeout_time > 0)
+	{
+		ont_set_timer(ONT_INVITE_TIMER, timeout_time * 1000);
+	}	
+#endif
+	
     ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
     on_state = ON_JOIN_NETWORK;
 
@@ -544,7 +635,9 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
     } // if initializing the internals failed //
 
     on_state = ON_LISTEN_FOR_DATA;
-
+    client_joined_network = TRUE;
+	client_looking_for_invite = FALSE;
+	
     //dje: wired around these for boards that do not have CLI
     // November 10, 2010
     #ifdef _ONE_NET_EVAL
@@ -552,7 +645,6 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
         //
         // save data for use by the CLI
         //
-        client_joined_network = TRUE;
         save_param(); // Derek_S 11/4/2010 - needed for CLI
         return on_decode(&client_did[0], &(on_base_param->sid[ON_ENCODED_NID_LEN]), sizeof(one_net_raw_did_t));
 
@@ -823,6 +915,13 @@ tick_t one_net_client(void)
     // Do the appropriate action for the state the device is in.
     switch(on_state)
     {
+#ifdef _IDLE
+		case ON_IDLE:
+		{
+			break;
+		}
+#endif
+		
         case ON_LISTEN_FOR_DATA:
         {
             //
@@ -1390,6 +1489,13 @@ tick_t one_net_client(void)
 
     switch(on_state)
     {
+#ifdef _IDLE
+		case ON_IDLE:
+		{
+			break;
+		}
+#endif
+		
         case ON_LISTEN_FOR_DATA:
         {
             // since we are not busy, see what we can do
@@ -1406,14 +1512,28 @@ tick_t one_net_client(void)
                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                   0x00};
 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
-                    one_net_client_look_for_invite(&empty_key,
-                      ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
-                      ONE_NET_STREAM_ENCRYPT_XTEA8);
-                #else // ifndef _ONE_NET_SIMPLE_CLIENT //
-                    one_net_client_look_for_invite(&empty_key,
-                      ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32);
-                #endif // else S_IMPLE_CLIENT is defined //
+                #ifndef _ONE_NET_SIMPLE_CLIENT // Not a Simple Client //
+				    #ifdef _ENHANCED_INVITE
+                        one_net_client_look_for_invite(&empty_key,
+                          ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
+                          ONE_NET_STREAM_ENCRYPT_XTEA8, 0,
+					      ONE_NET_MAX_CHANNEL, 0);
+				    #else
+                        one_net_client_look_for_invite(&empty_key,
+                          ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
+                          ONE_NET_STREAM_ENCRYPT_XTEA8);				
+				    #endif
+                #else // Simple Client //
+				    #ifdef _ENHANCED_INVITE
+                        one_net_client_look_for_invite(&empty_key,
+                          ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32, 0,
+					      ONE_NET_MAX_CHANNEL, 0);
+				    #else
+                        one_net_client_look_for_invite(&empty_key,
+                         ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32);				
+				    #endif
+                #endif
+				
                 save_param();
                 removed = FALSE;
                 on_state = ON_INIT_STATE;
@@ -2690,6 +2810,9 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
             one_net_client_joined_network(
               (const one_net_raw_did_t * const)&local_did,
               (const one_net_raw_did_t * const)&master_did);
+			  
+			client_joined_network = TRUE;
+			client_looking_for_invite = FALSE;
 
             if(STATUS == ONS_RX_STAY_AWAKE)
             {
@@ -4486,12 +4609,23 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC,
     \return TRUE If the invite was found
             FALSE If the invite was not found
 */
-static BOOL look_for_invite(void)
+static BOOL look_for_invite()
 {
     on_encoded_did_t rx_dst, rx_src;
     on_encoded_nid_t nid;
 
     UInt8 pid;
+	
+#ifdef _ENHANCED_INVITE
+    if(ont_expired(ONT_INVITE_TIMER))
+	{
+        client_invite_timed_out = TRUE;
+	    client_looking_for_invite = FALSE;
+		on_state = ON_IDLE;
+        one_net_client_invite_cancelled(CANCEL_INVITE_TIMEOUT);
+	    return FALSE;
+	}
+#endif
 
     // get the start of frame and read in the destination DID, the NID, source
     // DID, and the PID, the rx_dst is the broadcast address, and the pid
@@ -4573,15 +4707,27 @@ static BOOL look_for_invite(void)
         } // if reading and decryption the invite field is successful //
     } // if SOF was received //
 
+#ifndef _ENHANCED_INVITE
     if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
+#else
+    if(low_invite_channel != high_invite_channel &&
+	  ont_inactive_or_expired(ONT_GENERAL_TIMER))
+#endif
     {
         // need to try the next channel
-
         on_base_param->channel++;
+#ifndef _ENHANCED_INVITE
         if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
         {
             on_base_param->channel = 0;
         } // if the channel has overflowed //
+#else
+        if(on_base_param->channel > high_invite_channel)
+        {
+            on_base_param->channel = low_invite_channel;
+        } // if the channel has overflowed //
+#endif
+		
         one_net_set_channel(on_base_param->channel);
         ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
     } // if the timer expired //

@@ -141,6 +141,7 @@ typedef struct
 
 } one_net_client_join_network_data_t;
 
+
 //! @} ONE-NET_CLIENT_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -150,6 +151,22 @@ typedef struct
 //! \defgroup ONE-NET_CLIENT_pub_var
 //! \ingroup ONE-NET_CLIENT
 //! @{
+
+// see one_net_client.h for declarations and descriptions of the variables below.
+
+#if defined(_ENHANCED_INVITE) && !defined(_IDLE)
+    #error "ERROR : _IDLE must be defined if _ENHANCED_INVITE is defined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+extern BOOL client_joined_network;
+extern BOOL client_looking_for_invite;
+
+#ifdef _ENHANCED_INVITE
+    extern BOOL client_invite_timed_out;
+	extern one_net_channel_t low_invite_channel;
+	extern one_net_channel_t high_invite_channel;	
+#endif
+
 
 //! @} ONE-NET_CLIENT_pub_var
 //                              PUBLIC VARIABLES END
@@ -161,15 +178,35 @@ typedef struct
 //! \ingroup ONE-NET_CLIENT
 //! @{
 
+#if !defined(_ENHANCED_INVITE)
 #ifndef _ONE_NET_SIMPLE_CLIENT
-one_net_status_t one_net_client_look_for_invite(
-  const one_net_xtea_key_t * const INVITE_KEY,
-  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD, const UInt8 STREAM_ENCRYPT_METHOD);
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+      const UInt8 STREAM_ENCRYPT_METHOD);
 #else // ifndef _ONE_NET_SIMPLE_CLIENT //
-one_net_status_t one_net_client_look_for_invite(
-  const one_net_xtea_key_t * const INVITE_KEY,
-  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD);
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD);
 #endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#else
+#ifndef _ONE_NET_SIMPLE_CLIENT
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+      const UInt8 STREAM_ENCRYPT_METHOD,
+	  const one_net_channel_t min_channel,
+	  const one_net_channel_t max_channel,
+	  const tick_t timeout_time);
+#else // ifndef _ONE_NET_SIMPLE_CLIENT //
+    one_net_status_t one_net_client_look_for_invite(
+      const one_net_xtea_key_t * const INVITE_KEY,
+      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+	  const one_net_channel_t min_channel,
+	  const one_net_channel_t max_channel,
+	  const tick_t timeout_time);
+#endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#endif
 
 one_net_status_t one_net_client_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN);
@@ -193,6 +230,7 @@ one_net_status_t one_net_client_send_single(UInt8 *data,
 one_net_status_t one_net_client_join_network(one_net_client_join_network_data_t *DATA);
 
 tick_t one_net_client(void);
+
 
 //! @} ONE-NET_CLIENT_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
