@@ -221,7 +221,11 @@ one_net_status_t on_encode(UInt8 * encoded, const UInt8 * RAW,
             } // default //
         } // switch (step)
 
+#ifdef _ONE_NET_USE_ENCODING
         encoded[encoded_idx] = RAW_TO_ENCODED[val];
+#else
+        encoded[encoded_idx] = val;
+#endif
     } // loop to encoded raw data //
 
     return ONS_SUCCESS;
@@ -259,8 +263,12 @@ one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED,
     // steps necessary to convert all the data
     for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
     {
+#ifdef _ONE_NET_USE_ENCODING
         val = ENCODED_TO_RAW_H_NIB[(ENCODED[encoded_idx] >> 4) & 0x0F]
          + ENCODED_TO_RAW_L_NIB[ENCODED[encoded_idx] & 0x0F];
+#else
+        val = ENCODED[encoded_idx];
+#endif
 
         // value >= 0x40 means the it was not a valid encoded value
         if(val >= 0x40)
