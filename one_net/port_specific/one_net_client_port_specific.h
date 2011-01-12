@@ -107,6 +107,25 @@ void one_net_client_joined_network(const one_net_raw_did_t * const RAW_DID,
   const one_net_raw_did_t * const MASTER_DID);
 
 
+#ifdef _ENHANCED_INVITE
+/*!
+    \brief Callback when a client that has been looking for an invitation has
+	timed out.
+    
+    This function is called by ONE-NET after a CLIENT has was looking for an
+	invitation and is no longer looking.  Most common reason would be a timeout,
+	but there could be other reasons.  If the application code needs this scenario
+	handled, it should use this function.
+
+    \param[in] RAW_DID The did assigned to the CLIENT.
+    \param[in] MASTER_DID The did of the MASTER
+
+    \return void
+*/
+void one_net_client_invite_cancelled(cancel_invite_reason_t reason);
+#endif
+
+
 /*!
     \brief Callback for the application to handle the received packet.
 
