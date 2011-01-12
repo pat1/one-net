@@ -143,6 +143,21 @@
 #endif
 
 
+// Idle Option - Should be defined if the device can ever be idle
+#ifndef _IDLE
+//    #define _IDLE
+#endif
+
+
+// Enhanced Invite Option - Should be defined if you need the option of specifying a
+// timeout time or specifying a specific channel range for invitations.  Only valid
+// if _IDLE is defined.
+#ifdef _IDLE
+    #ifndef _ENHANCED_INVITE
+//	    #define _ENHANCED_INVITE
+	#endif
+#endif
+
 
 // Encryption, Encoding, and Random Padding of unused packet portions for
 // increased security

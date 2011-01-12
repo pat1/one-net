@@ -101,6 +101,12 @@
 #endif
 
 
+// Check Enhanced Invite Option
+#if defined(_ENHANCED_INVITE) && !defined(_IDLE)
+	#error "ERROR : _IDLE must be defined if _ENHANCED_INVITE is defined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
 // Check polling option
 #if defined(_POLL) && !defined(_ONE_NET_VERSION_2_X)
 	#error "ERROR : _ONE_NET_VERSION_2_X is not defined and _POLL is defined.  Polling is only available in ONE-NET Version 2.0 and higher.  Please adjust the #define values in the config_options.h file."

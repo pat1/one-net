@@ -94,6 +94,17 @@
 #endif
 
 
+// Idle option
+#ifdef _IDLE
+	#undef _IDLE
+#endif
+
+// Enhanced Invite
+#ifdef _ENHANCED_INVITE
+	#undef _ENHANCED_INVITE
+#endif
+
+
 // Encryption, Encoding, Random Padding of unused packet portions for
 // increased security, and CRCs
 
