@@ -114,17 +114,19 @@ enum
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
         ONT_MH_TIMER,
     #endif // ifdef _ONE_NET_MH_CLIENT_REPEATER //
-
-    #if defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL)
+	
+    #if defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL) || defined(_ENHANCED_INVITE)
         //! Timer to know when to abort the invite process.  This is also used
         //! when the MASTER creates a network.
         ONT_INVITE_TIMER,
+	#endif
 
+    #if defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL)
         //! Timer used to attempt to send a key change message to a different
         //! device.  To save space, this is also reused when the MASTER is
         //! creating the network since the two operations are mutually exclusive
         ONT_CHANGE_KEY_TIMER,
-        
+		
         //! Timer used to attempt to send a change stream key message to a
         //! different device.
         ONT_CHANGE_STREAM_KEY_TIMER,
