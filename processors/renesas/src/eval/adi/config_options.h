@@ -149,10 +149,15 @@
 
 // Encryption.  All implementations of ONE-NET must use encryption, but for debugging and
 // learning purposes, it may be useful to turn encryption on and off.  Comment the three
-// lines below out if not using encryption.
+// lines below out if not using encryption.  we already have a variable called
+// ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE, which makes it so encryption is not used, but
+// that may be checked somewhere and cause an error, so I've created a new variable
+// below.  Again, encryption and encoding should only be turned off for debugging/development
+// purposes.  Actual products implementing ONE-NET must be encoded and encrypted.
 #ifndef _ONE_NET_USE_ENCRYPTION
 	#define _ONE_NET_USE_ENCRYPTION
 #endif
+
 
 // Encoding.  All implementations of ONE-NET must use encoding, but for debugging and
 // learning purposes, it may be useful to turn encoding on and off.  Comment the three
