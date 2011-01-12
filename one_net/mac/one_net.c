@@ -432,6 +432,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
         } // else stream //
     #endif // if _ONE_NET_SIMPLE_CLIENT is not defined //
 
+#ifdef _ONE_NET_USE_ENCRYPTION
     if(rounds)
     {
         UInt8 i;
@@ -443,6 +444,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
             one_net_xtea_encipher(rounds, &(data[i]), KEY);
         } // process 8 bytes at a time //
     } // if  rounds //
+#endif
 
     return ONS_SUCCESS;
 } // on_encrypt //
@@ -546,7 +548,8 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
             } // switch on encryption type //
         } // else single/block //
     #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
-    
+
+#ifdef _ONE_NET_USE_ENCRYPTION    
     if(rounds)
     {
         UInt8 i;
@@ -558,6 +561,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
             one_net_xtea_decipher(rounds, &(data[i]), KEY);
         } // process 8 bytes at a time //
     } // if  rounds //
+#endif
 
     return ONS_SUCCESS;
 } // on_decrypt //
