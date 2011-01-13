@@ -396,7 +396,7 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 #endif
 
 #ifdef _SNIFFER_MODE
-	#ifdef _ENABLE_SNIFFER_COMMAND
+	#ifdef _ENABLE_SNIFF_COMMAND
 		//! sniff command string
 		const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 	#endif

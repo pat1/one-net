@@ -779,7 +779,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the sid command was received //
 	#endif
 	
-	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFFER_COMMAND)
+	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
     if(!strnicmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
     {
         oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SETNI_CMD_STR) + 1);
