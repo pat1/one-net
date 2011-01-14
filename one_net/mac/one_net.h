@@ -1087,7 +1087,7 @@ typedef enum
     //! transaction to the device that receives this message.
     ON_RECV_STREAM_HIGH = 0x1F,
 
-#if defined(_PEER) && defined(_ONE_NET_MULTI_HOP) 
+#ifdef _ONE_NET_MULTI_HOP
     //! Same as the ASSIGN_PEER message with the addition that it is alerting
     //! the receiver that the assigned peer has Multi-Hop capability.
     ON_ASSIGN_MH_PEER =0x20,
