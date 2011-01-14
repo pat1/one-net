@@ -47,6 +47,9 @@
 */
 
 #include "config_options.h"
+
+#ifdef _PEER
+
 #include "one_net_types.h"
 #include "one_net_client_port_const.h" // for ONE_NET_MAX_PEER_DEV
 #include "one_net_eval_hal.h" // for NUM_MASTER_PEER
@@ -214,24 +217,18 @@ one_net_status_t master_assigned_peer(const UInt8 src_unit,
       const on_encoded_did_t * const peer_did, const UInt8 peer_unit);
 
 void init_master_peer(void);
-
-#ifdef _PEER
 one_net_status_t master_unassigned_peer(const UInt8 src_unit,
   const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
   const BOOL deviceIsMaster);
-#endif
 
-#ifdef _PEER
 #ifdef _ONE_NET_EVAL
     BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
 #endif
-#endif
-
 
 //! @} ONE-NET_PEER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
 //! @} ONE-NET_PEER
-
+#endif // _ONE_NET_PEER defined //
 #endif // _ONE_NET_PEER_H //

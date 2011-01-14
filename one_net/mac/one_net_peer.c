@@ -44,6 +44,10 @@
 */
 
 #include "config_options.h"
+
+#ifdef _PEER
+
+
 #include "one_net_types.h"
 #include "one_net_peer.h"
 #include "one_net_port_specific.h"
@@ -545,7 +549,6 @@ void init_master_peer()
             ONS_BAD_PARAM If any of the parameters are invalid.
             ONS_INVALID_DATA If the peer source unit does not exist.
 */
-#ifdef _PEER
 one_net_status_t master_unassigned_peer(const UInt8 src_unit,
   const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
   const BOOL deviceIsMaster)
@@ -553,10 +556,8 @@ one_net_status_t master_unassigned_peer(const UInt8 src_unit,
     return unassign_peer_adjust_peer_list(src_unit, peer_did, peer_unit,
 	    master_peer, NUM_MASTER_PEER, TRUE);
 } // master_unassigned_peer //
-#endif
 
 
-#ifdef _PEER
 #ifdef _ONE_NET_EVAL
 /*!
     \brief Returns the Master peer assignments that should be saved to
@@ -580,7 +581,6 @@ BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len)
     
     return TRUE;
 } // master_get_peer_assignment_to_save //
-#endif
 #endif
 
 
@@ -968,6 +968,8 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     return ONS_SUCCESS;
 } // unassign_peer_adjust_peer_list //
 
+
+#endif // if _PEER is defined //
 
 //! @} ONE-NET_PEER_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
