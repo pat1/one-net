@@ -73,13 +73,6 @@ enum
 	
     //! The maximum number of unit peers the CLIENT can keep track of
     ONE_NET_MAX_PEER_UNIT = 16,
-#else
-    //! The maximum number of separate physical devices the CLIENT can
-    //! keep track of
-    ONE_NET_MAX_PEER_DEV = /*0*/1, /* make it 1 for now so things compile.  Can't have a zero size array */
-	
-    //! The maximum number of unit peers the CLIENT can keep track of
-    ONE_NET_MAX_PEER_UNIT = /*0*/1, /* make it 1 for now so things compile.  Can't have a zero size array */
 #endif	
 
     //! The number of different unit types this device supports.  If this value
