@@ -94,7 +94,7 @@
 	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _ONE_NET_MULTI_HOP cannot both be defined.  Please adjust the #define values in the config_options.h file."
 #endif
 
-#if !defined(_ONE_NET_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
+#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_STREAM_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
 	#if defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_SIMPLE_CLIENT)
 		#error "ERROR : This device is a client device that does not implement block messages, stream messages, or multi-hop.  Therefore _ONE_NET_SIMPLE_CLIENT must be defined.   Please adjust the #define values in the config_options.h file."
 	#endif

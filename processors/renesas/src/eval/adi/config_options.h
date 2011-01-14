@@ -88,9 +88,9 @@
 	#define _ONE_NET_VERSION_1_X
 #endif
 
-/*#ifndef _ONE_NET_VERSION_2_X
-	#define _ONE_NET_VERSION_2_X
-#endif*/
+#ifndef _ONE_NET_VERSION_2_X
+//	#define _ONE_NET_VERSION_2_X
+#endif
 
 
 // Master/Client
@@ -104,6 +104,13 @@
 #endif
 
 
+
+// Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
+// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
+#ifndef _PEER
+	#define _PEER
+#endif
+
 // Block Messages
 #ifndef _BLOCK_MESSAGES_ENABLED
 	#define _BLOCK_MESSAGES_ENABLED
@@ -115,23 +122,23 @@
 #endif
 
 
-
-// Multi-Hop
-#ifndef _ONE_NET_MULTI_HOP
-	#define _ONE_NET_MULTI_HOP
+// Multi-Hop - only available if _PEER defined
+#ifdef _PEER
+    #ifndef _ONE_NET_MULTI_HOP
+	    #define _ONE_NET_MULTI_HOP
+    #endif
 #endif
 
-//#ifdef _ONE_NET_MULTI_HOP
-//	#ifndef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef _ONE_NET_MULTI_HOP
+	#ifndef _ONE_NET_MH_CLIENT_REPEATER
 //		#define _ONE_NET_MH_CLIENT_REPEATER
-//	#endif
-//#endif
+	#endif
+#endif
 
 
 
 // ONE_NET_SIMPLE_CLIENT - a client is a simple client if it is a client and does not
 // implement any of the following: Multi-Hop, Stream, Block
-
 #if !defined(_ONE_NET_CLIENT) || defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
 	#ifdef _ONE_NET_SIMPLE_CLIENT
 		#undef _ONE_NET_SIMPLE_CLIENT
@@ -145,7 +152,7 @@
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
-//    #define _IDLE
+    #define _IDLE
 #endif
 
 
@@ -154,7 +161,7 @@
 // if _IDLE is defined.
 #ifdef _IDLE
     #ifndef _ENHANCED_INVITE
-//	    #define _ENHANCED_INVITE
+	    #define _ENHANCED_INVITE
 	#endif
 #endif
 
@@ -201,13 +208,6 @@
 // a value of 0.
 #ifndef _ONE_NET_USE_CRC
 	#define _ONE_NET_USE_CRC
-#endif
-
-
-// Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
-#ifndef _PEER
-	#define _PEER
 #endif
 
 
@@ -734,7 +734,5 @@
 //! @} one_net_config_options
 
 
-#endif
-
-
+#endif // _OVERRIDE_CONFIG_OPTIONS_FILE //
 #endif // _ONE_NET_CONFIG_OPTIONS_H //
