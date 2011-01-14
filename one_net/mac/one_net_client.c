@@ -4615,6 +4615,7 @@ static BOOL look_for_invite()
     on_encoded_nid_t nid;
 
     UInt8 pid;
+
 	
 #ifdef _ENHANCED_INVITE
     if(ont_expired(ONT_INVITE_TIMER))
@@ -4707,12 +4708,7 @@ static BOOL look_for_invite()
         } // if reading and decryption the invite field is successful //
     } // if SOF was received //
 
-#ifndef _ENHANCED_INVITE
     if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
-#else
-    if(low_invite_channel != high_invite_channel &&
-	  ont_inactive_or_expired(ONT_GENERAL_TIMER))
-#endif
     {
         // need to try the next channel
         on_base_param->channel++;
