@@ -445,22 +445,37 @@ static BOOL save = FALSE;
 
 static void init_internal(void);
 
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
   const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn,
   const UInt8 HOPS_TAKEN);
+#else
+one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn);
+#endif
 
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   const UInt8 NEXT_NONCE, const one_net_status_t STATUS,
   const UInt8 HOPS_TAKEN);
+#else
+one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  const UInt8 NEXT_NONCE, const one_net_status_t STATUS);
+#endif
 
 static one_net_status_t b_s_request(const UInt8 TXN_TYPE, const UInt8 MSG_TYPE,
   const BOOL SEND, const UInt16 DATA_TYPE, const UInt16 LEN,
   const UInt8 PRIORITY, const on_encoded_did_t * const DID,
   const UInt8 SRC_UNIT);
-
+  
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
   const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn,
   const UInt8 HOPS_TAKEN);
+#else
+one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn);
+#endif
 
 one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
   const one_net_status_t STATUS, const UInt8 HOPS_TAKEN);
@@ -1792,6 +1807,8 @@ void one_net_master(void)
 
                 txn = &(txn_list[invite_idx].txn);
                 txn->retry++;
+				
+#ifdef _ONE_NET_MULTI_HOP
                 if(txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
                 {
                     txn->retry = 0;
@@ -1806,6 +1823,7 @@ void one_net_master(void)
                     txn->pkt[ONE_NET_ENCODED_PID_IDX]
                       = ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT;
                 } // else if the multi-hop has been sent //
+#endif
 
                 ont_set_timer(txn_list[invite_idx].txn.next_txn_timer,
                   ONE_NET_MASTER_INVITE_SEND_TIME);
@@ -2449,9 +2467,14 @@ static void init_internal(void)
             ONS_BAD_PKT If data in the packet is invalid.
             See on_parse_pld for more possible return values.
 */
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
   const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn,
   const UInt8 HOPS_TAKEN)
+#else
+one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn)
+#endif
 {
     one_net_status_t status = ONS_INTERNAL_ERR;
     on_client_t * client;
@@ -2461,6 +2484,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
     UInt8 txn_nonce, resp_nonce, msg_type;
     BOOL tried_new_key = FALSE;
 
+#ifdef _ONE_NET_MULTIHOP
     if((PID != ONE_NET_ENCODED_SINGLE_DATA
       && PID != ONE_NET_ENCODED_REPEAT_SINGLE_DATA
       && PID != ONE_NET_ENCODED_MH_SINGLE_DATA
@@ -2468,6 +2492,11 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
       || ((PID == ONE_NET_ENCODED_SINGLE_DATA
       || PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA) && HOPS_TAKEN) || !SRC_DID
       || !pld || !txn || HOPS_TAKEN > ON_MAX_HOPS_LIMIT)
+#else
+    if((PID != ONE_NET_ENCODED_SINGLE_DATA
+      && PID != ONE_NET_ENCODED_REPEAT_SINGLE_DATA)
+      || !SRC_DID || !pld || !txn)
+#endif
     {
         if(txn)
         {
@@ -2586,14 +2615,22 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 
             if(status == ONS_TXN_QUEUED)
             {
+#ifdef _ONE_NET_MULTI_HOP
                 resp_pid = HOPS_TAKEN
                   ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE
                   : ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE;
+#else
+                resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE;
+#endif
             } // if a transaction is queued //
             else
             {
+#ifdef _ONE_NET_MULTI_HOP
                 resp_pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
                   : ONE_NET_ENCODED_SINGLE_DATA_ACK;
+#else
+                resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;
+#endif
             } // else a transaction is not queued //
 
             client->last_nonce = client->expected_nonce;
@@ -2650,10 +2687,8 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                   : HOPS_TAKEN);
             #else
                 status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), HOPS_TAKEN
-                  ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
-                  : ONE_NET_ENCODED_SINGLE_DATA_ACK, SRC_DID, resp_nonce,
-                  client->expected_nonce);
+                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
+				  SRC_DID, resp_nonce, client->expected_nonce);
             #endif
         } // if it is a repeat packet //
 #ifdef _ONE_NET_MULTI_HOP
@@ -2714,8 +2749,16 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
               client.
             ONS_INTERNAL_ERR If the transaction was not handled.
 */
+
+
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
-  const UInt8 NEXT_NONCE, const one_net_status_t STATUS, const UInt8 HOPS_TAKEN)
+  const UInt8 NEXT_NONCE, const one_net_status_t STATUS,
+  const UInt8 HOPS_TAKEN);
+#else
+one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  const UInt8 NEXT_NONCE, const one_net_status_t STATUS)
+#endif
 {
     on_client_t * client;
     one_net_raw_did_t raw_did;
@@ -2770,6 +2813,7 @@ one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         case ONS_RX_STAY_AWAKE:
         case ONS_SINGLE_FAIL:
         {
+#ifdef _ONE_NET_MULTI_HOP
             if((STATUS == ONS_SUCCESS || STATUS == ONS_RX_STAY_AWAKE)
               && HOPS_TAKEN < client->max_hops)
             {
@@ -2827,6 +2871,7 @@ one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
                     break;
                 } // if the txn should be tried with more hops //
             } // if more hops should be tried //
+#endif
 
             if(msg_type == ON_APP_MSG)
             {
@@ -2861,11 +2906,17 @@ one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
             // admin_txn_hdlr function if the MASTER is supposed to send a data
             // rate test, in which case, don't send any queued packets since the
             // CLIENT is listening for the data rate test.
+#ifdef _ONE_NET_MULTI_HOP
             if(rv == ONS_SUCCESS && STATUS == ONS_SUCCESS
               && (*txn)->pkt[ONE_NET_ENCODED_PID_IDX]
               != ONE_NET_ENCODED_DATA_RATE_TEST
               && (*txn)->pkt[ONE_NET_ENCODED_PID_IDX]
               != ONE_NET_ENCODED_MH_DATA_RATE_TEST)
+#else
+            if(rv == ONS_SUCCESS && STATUS == ONS_SUCCESS
+              && (*txn)->pkt[ONE_NET_ENCODED_PID_IDX]
+              != ONE_NET_ENCODED_DATA_RATE_TEST)
+#endif
             {
                 // check to see if there is another packet queued for this
                 // device (with priority == to the highest queued priority)
@@ -3033,9 +3084,14 @@ static one_net_status_t b_s_request(const UInt8 TXN_TYPE, const UInt8 MSG_TYPE,
             ONS_TXN_DOES_NOT_EXIST a transaction with the sending device does
               not exist.
 */
+#ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
   const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn,
   const UInt8 HOPS_TAKEN)
+#else
+one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn)
+#endif
 {
     const one_net_xtea_key_t * KEY = 0;
 
@@ -3053,17 +3109,27 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
 
     *txn = 0;
 
+#ifdef _ONE_NET_MULTI_HOP
     // If the packet is not a Multi-Hop packet, then HOPS_TAKEN must == 0
     if(((PID == ONE_NET_ENCODED_BLOCK_DATA
       || PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA) && !HOPS_TAKEN)
       || PID == ONE_NET_ENCODED_MH_BLOCK_DATA
       || PID == ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA)
+#else
+    // If the packet is not a Multi-Hop packet, then HOPS_TAKEN must == 0
+    if(PID == ONE_NET_ENCODED_BLOCK_DATA
+      || PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA)
+#endif
     {
         type = ON_BLOCK;
         KEY = &(on_base_param->current_key);
     } // if a block transaction //
+#ifdef _ONE_NET_MULTI_HOP
     else if((PID == ONE_NET_ENCODED_STREAM_DATA && !HOPS_TAKEN)
       || PID == ONE_NET_ENCODED_MH_STREAM_DATA)
+#else
+    else if(PID == ONE_NET_ENCODED_STREAM_DATA)
+#endif
     {
         type = ON_STREAM;
         KEY = &(on_base_param->stream_key);
@@ -3128,8 +3194,7 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
 #else
             if((status = on_build_data_pkt(response_txn.pkt,
               &(response_txn.data_len), ON_ADMIN_MSG,
-              HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA
-              : ONE_NET_ENCODED_SINGLE_DATA,
+              ONE_NET_ENCODED_SINGLE_DATA,
               (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did),
               txn_nonce, response_txn.expected_nonce, data, sizeof(data),
               client->use_current_key
@@ -3171,24 +3236,38 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
         } // if a stream packet and it is not being handled //
         else
         {
+#ifdef _ONE_NET_MULTI_HOP
             UInt8 pid, hops;
+#else
+            UInt8 pid;
+#endif
 
             if(type == ON_BLOCK)
             {
+#ifdef _ONE_NET_MULTI_HOP
                 pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_BLOCK_DATA_ACK
                   : ONE_NET_ENCODED_BLOCK_DATA_ACK;
+#else
+                pid = ONE_NET_ENCODED_BLOCK_DATA_ACK;
+#endif
 
+#ifdef _ONE_NET_MULTI_HOP
                 // if it's a repeat multi-hop packet, allow MAX_HOPS since it
                 // may take more hops to get back than it took for the packet
                 // to arrive.
                 hops = (PID == ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA
                   ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
+#endif
             } // if it's a block transaction //
             else
             {
+#ifdef _ONE_NET_MULTI_HOP
                 pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE
                   : ONE_NET_ENCODED_STREAM_KEEP_ALIVE;
                 hops = HOPS_TAKEN;
+#else
+                pid = ONE_NET_ENCODED_STREAM_KEEP_ALIVE;
+#endif
             } // else it's a stream transaction;
 
             client->last_nonce = client->expected_nonce;
@@ -3227,9 +3306,15 @@ one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
         } // if the transaction failed //
 
         response_txn.data_len = response_txn.pkt_size;
+		
+#ifdef _ONE_NET_MULTI_HOP
         if((PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA
           || PID == ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA)
           && txn_nonce == client->last_nonce)
+#else
+        if(PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA
+          && txn_nonce == client->last_nonce)
+#endif
         {
             // if it's a repeat multi-hop packet, allow MAX_HOPS since it may
             // take more hops to get back than it took for the packet to arrive.
