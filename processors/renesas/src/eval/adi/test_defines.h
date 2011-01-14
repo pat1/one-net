@@ -114,9 +114,14 @@
 
 
 // More multi-hop testing
+#ifdef _ONE_NET_MULTI_HOP
+	#ifndef _PEER
+        #error "ERROR : _PEER must be defined if _ONE_NET_MULTI_HOP is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
 
 #if defined(_ONE_NET_MH_CLIENT_REPEATER) && !defined(_ONE_NET_MULTI_HOP)
-    #error "Need to define _ONE_NET_MULTI_HOP if _ONE_NET_MH_CLIENT_REPEATER is defined!"
+    #error "Need to define _ONE_NET_MULTI_HOP if _ONE_NET_MH_CLIENT_REPEATER is defined!  Please adjust the #define values in the config_options.h file."
 #endif
 
 
