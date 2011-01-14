@@ -78,19 +78,11 @@ enum
 
     //! The features this client supports
     #ifdef _ONE_NET_SIMPLE_CLIENT
-		
-	// Derek_S - Simple clients cannot be multihop.  Commenting out below.  
-	/*
-        #ifdef _ONE_NET_MULTI_HOP
-            #ifdef _ONE_NET_MH_CLIENT_REPEATER
-                ON_FEATURES = ON_MH_CAPABLE | ON_MH_REPEATER
-                  | ONE_NET_MAX_PEER_UNIT
-            #else // ifdef _ONE_NET_MH_CLIENT_REPEATER //
-                ON_FEATURES = ON_MH_CAPABLE | ONE_NET_MAX_PEER_UNIT
-            #endif // else _ONE_NET_MH_CLIENT_REPEATER is not defined //
-        #else // ifdef _ONE_NET_MULTI_HOP // */
+        #ifdef _PEER
             ON_FEATURES = ONE_NET_MAX_PEER_UNIT
-        //#endif // else _ONE_NET_MULTI_HOP is not defined //
+		#else
+			ON_FEATURES = 0
+        #endif
     #else // ifdef _ONE_NET_SIMPLE_CLIENT //
         #ifdef _ONE_NET_MULTI_HOP
             #ifdef _ONE_NET_MH_CLIENT_REPEATER
@@ -101,7 +93,11 @@ enum
                   | ONE_NET_MAX_PEER_UNIT
             #endif // else _ONE_NET_MH_CLIENT_REPEATER is not defined //
         #else // ifdef _ONE_NET_MULTI_HOP //
-            ON_FEATURES = ON_MAC_FEATURES | ONE_NET_MAX_PEER_UNIT
+		    #ifdef _PEER
+                ON_FEATURES = ON_MAC_FEATURES | ONE_NET_MAX_PEER_UNIT
+			#else
+			    ON_FEATURES = ON_MAC_FEATURES
+			#endif
         #endif // else _ONE_NET_MULTI_HOP is not defined //
     #endif // else for ifdef _ONE_NET_SIMPLE_CLIENT //
 };
