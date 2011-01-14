@@ -951,10 +951,15 @@ tick_t one_net_client(void)
                     //
                     txn = &(on_single_txn.txn);
 
+#ifdef _ONE_NET_MULTI_HOP
                     if(txn->pkt[ONE_NET_ENCODED_PID_IDX]
                       == ONE_NET_ENCODED_DATA_RATE_TEST
                       || txn->pkt[ONE_NET_ENCODED_PID_IDX]
                       == ONE_NET_ENCODED_MH_DATA_RATE_TEST)
+#else
+                    if(txn->pkt[ONE_NET_ENCODED_PID_IDX]
+                      == ONE_NET_ENCODED_DATA_RATE_TEST)
+#endif
                     {
                         if(on_encoded_did_equal(
                           (const on_encoded_did_t * const)
