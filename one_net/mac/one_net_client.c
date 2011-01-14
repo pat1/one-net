@@ -2124,11 +2124,13 @@ static UInt8 data_rate_for_dst(const on_encoded_did_t * const DID)
             return master->settings.master_data_rate;
         } // if it is responding to the MASTER //
 
+#ifdef _PEER
         if((data_rate = on_client_net_data_rate_for_peer(DID))
           < ONE_NET_DATA_RATE_LIMIT)
         {
             return data_rate;
         } // if the data rate is valid //
+#endif
     } // if the parameter is valid //
 
     // A device that this device does not send to could have sent something to
