@@ -135,7 +135,9 @@ enum
 {
     //! Size of the parameters that need to be saved to non-volatile memory
     ON_NV_PARAM_SIZE = sizeof(on_base_param_t) + sizeof(on_master_t)
+#ifdef _PEER
       + sizeof(on_peer_t)
+#endif
 };
 
 
@@ -1973,10 +1975,12 @@ static UInt8 device_txn_nonce(const on_encoded_did_t * const DID)
         return master->device.send_nonce;
     } // if it is responding to the MASTER //
 
+#ifdef _PEER
     if((nonce = on_client_net_txn_nonce_for_peer(DID)) <= ON_MAX_NONCE)
     {
         return nonce;
     } // if peer_dev //
+#endif
 
     if((sender = sender_info(DID)) != NULL)
     {
@@ -2009,7 +2013,11 @@ static void set_device_txn_nonce(const on_encoded_did_t * const DID,
     {
         master->device.send_nonce = NEXT_NONCE;
     } // if it is responding to the MASTER //
+#ifdef _PEER
     else if(!on_client_net_set_peer_txn_nonce(DID, NEXT_NONCE))
+#else
+    else
+#endif
     {
         on_sending_device_t * sender;
 
