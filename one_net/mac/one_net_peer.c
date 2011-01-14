@@ -56,8 +56,14 @@
 //! \ingroup ONE-NET_PEER
 //! @{
 
+#ifdef _ONE_NET_USE_ENCODING
 // same as ON_ENCODED_BROADCAST_DID
 const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
+#else
+// same as ON_ENCODED_BROADCAST_DID
+const on_encoded_did_t INVALID_PEER = {0x00, 0x00};
+#endif
+
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END

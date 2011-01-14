@@ -97,7 +97,13 @@ enum
     ON_XTEA_32_ROUNDS = 32          //!< 32 rounds of XTEA
 };
 
+#ifdef _ONE_NET_USE_ENCODING
 const on_encoded_did_t ON_ENCODED_BROADCAST_DID = {0xB4, 0xB4};
+#else
+const on_encoded_did_t ON_ENCODED_BROADCAST_DID = {0x00, 0x00};
+#endif
+
+
 
 // Derek_S - adding a raw broadcase did constant
 const one_net_raw_did_t ON_RAW_BROADCAST_DID = {0x00, 0x00};
