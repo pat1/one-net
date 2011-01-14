@@ -731,7 +731,7 @@ typedef enum
     //! Sent during a data rate test.
     ONE_NET_ENCODED_DATA_RATE_TEST = 0xC6,
 
-
+#ifdef _ONE_NET_MULTI_HOP
     // Multi-hop packets
     //! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
     //! network.
@@ -791,6 +791,7 @@ typedef enum
 
     //! Multo hop version of data rate test.
     ONE_NET_ENCODED_MH_DATA_RATE_TEST = 0x96,
+#endif
 
     //! Acknowledges that a single data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
@@ -802,6 +803,7 @@ typedef enum
     //! the error condition that resulted in the NACK.
     ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN = 0x6C,
 
+#ifdef _ONE_NET_MULTI_HOP
     //! Acknowledges that a single data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
@@ -811,6 +813,7 @@ typedef enum
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
     ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN = 0x6A
+#endif
 #else
     //! MASTER broadcast inviting a new CLIENT to join the network.
     ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT = 0x00,
@@ -867,7 +870,7 @@ typedef enum
     //! Sent during a data rate test.
     ONE_NET_ENCODED_DATA_RATE_TEST = 0x0E,
 
-
+#ifdef _ONE_NET_MULTI_HOP
     // Multi-hop packets
     //! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
     //! network.
@@ -927,6 +930,7 @@ typedef enum
 
     //! Multo hop version of data rate test.
     ONE_NET_ENCODED_MH_DATA_RATE_TEST = 0x2E,
+#endif
 
     //! Acknowledges that a single data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
@@ -938,6 +942,7 @@ typedef enum
     //! the error condition that resulted in the NACK.
     ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN = 0x31,
 
+#ifdef _ONE_NET_MULTI_HOP
     //! Acknowledges that a single data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
@@ -947,6 +952,7 @@ typedef enum
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
     ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN = 0x33
+#endif
 #endif
 } on_pid_t;
 
