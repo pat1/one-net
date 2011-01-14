@@ -631,6 +631,7 @@ enum
     ON_TEST_PATTERN = 0xE1
 };
 
+#ifdef _ONE_NET_MULTI_HOP
 //! Hops field related constants
 enum
 {
@@ -652,6 +653,7 @@ enum
     //! Mask to use on the hops remaining field when parsing the packet
     ON_HOPS_LEFT_PARSE_MASK = 0x07
 };
+#endif
 
 enum
 {
