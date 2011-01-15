@@ -458,11 +458,15 @@ const char * const ONCLI_ON_STR = "on";
 //! off argument string
 const char * const ONCLI_OFF_STR = "off";
 
+#ifdef _US_CHANNELS
 //! US argument string
 const char * const ONCLI_US_STR = "US";
+#endif
 
+#ifdef _EUROPE_CHANNELS
 //! European argument string
 const char * const ONCLI_EUR_STR = "EUR";
+#endif
 
 
 // Transaction type strings

@@ -600,15 +600,15 @@ one_net_status_t one_net_master_create_network(
     on_base_param = (on_base_param_t *)nv_param;
     on_base_param->version = ON_PARAM_VERSION;
     on_encode(on_base_param->sid, *SID, sizeof(on_base_param->sid));
-    #ifndef _ONE_NET_EVAL
-        on_base_param->channel = one_net_prand(one_net_tick(),
-          ONE_NET_MAX_CHANNEL);
-    #else // ifndef _ONE_NET_EVAL //
+    #if defined(_ONE_NET_EVAL) && defined(_US_CHANNELS)
         // the eval board contains both US and European channels, but the MASTER
         // defaults to creating the network on the US channel.
         on_base_param->channel = one_net_prand(one_net_tick(),
           ONE_NET_MAX_US_CHANNEL);
-    #endif // else _ONE_NET_EVAL is defined //
+    #else // pick any U.S. Channel //
+        on_base_param->channel = one_net_prand(one_net_tick(),
+          ONE_NET_MAX_CHANNEL);
+    #endif // else pick any channel //
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(on_base_param->current_key, *KEY,
       sizeof(on_base_param->current_key));
@@ -2148,14 +2148,14 @@ void one_net_master(void)
             else
             {
                 on_base_param->channel++;
-                #ifndef _ONE_NET_EVAL
-                    on_base_param->channel %= ONE_NET_NUM_CHANNELS;
-                #else // ifndef _ONE_NET_EVAL //
+                #if defined(_ONE_NET_EVAL) && defined(_US_CHANNELS)
                     // the eval board contains both US and European channels,
                     // but the MASTER defaults to creating the network on the
                     // US channel.
-                    on_base_param->channel %= (ONE_NET_MAX_US_CHANNEL + 1);
-                #endif // else _ONE_NET_EVAL is defined //
+                    on_base_param->channel %= (ONE_NET_MAX_US_CHANNEL + 1);								
+                #else // if picking only a U.S. Channel //
+                    on_base_param->channel %= ONE_NET_NUM_CHANNELS;
+                #endif // else picking any channel //
                 ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
 
                 // check if it's been long enough where the device thinks that

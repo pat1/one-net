@@ -3354,16 +3354,24 @@ static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel)
     } // if the parameter is invalid //
 
     // get the region
+#ifdef _US_CHANNELS
     if(!strnicmp(ASCII, ONCLI_US_STR, strlen(ONCLI_US_STR)))
     {
         region = ONCLI_US;
         ASCII += strlen(ONCLI_US_STR);
     } // if it's a US frequency //
+#endif
+#ifdef _EUROPE_CHANNELS
+#ifdef _US_CHANNELS
     else if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+#else
+    if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+#endif
     {
         region = ONCLI_EUR;
         ASCII += strlen(ONCLI_EUR_STR);
     } // else if it's a European frequency //
+#endif
     else
     {
         return ONCLI_PARSE_ERR;
@@ -3389,6 +3397,7 @@ static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel)
     
     switch(region)
     {
+#ifdef _US_CHANNELS
         case ONCLI_US:
         {
             // dje: Cast to eliminate compiler warning for UInt8 < 0
@@ -3399,18 +3408,20 @@ static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel)
             } // if the parameter is invalid //
             break;
         } // US case //
-        
+#endif
+#ifdef _EUROPE_CHANNELS
         case ONCLI_EUR:
         {
             *channel += ONE_NET_EUR_CHANNEL_1;
-            if(*channel < ONE_NET_MIN_EUR_CHANNEL
+			// typecast to override "comparison is always false" warning
+            if((SInt8) *channel < ONE_NET_MIN_EUR_CHANNEL
               || *channel > ONE_NET_MAX_EUR_CHANNEL)
             {
                 return ONCLI_PARSE_ERR;
             } // if the parameter is invalid //
             break;
         } // European case //
-        
+#endif       
         default:
         {
             return ONCLI_INTERNAL_ERR;

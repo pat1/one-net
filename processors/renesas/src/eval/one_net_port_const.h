@@ -3,6 +3,11 @@
 
 #include "config_options.h"
 
+// Test channels.  At least one locale must be defined.
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+	#error "ERROR : At least one locale must be defined.  Both _US_CHANNELS and _EUROPE_CHANNELS are currently undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
 
 //! \defgroup ONE-NET_port_const Application Specific ONE-NET constants.
 //! \ingroup ONE-NET
@@ -107,6 +112,7 @@ enum
 //! based without any gaps.  Whole groups (US & European) need to be included.
 typedef enum
 {
+#ifdef _US_CHANNELS
     // US frequencies
     ONE_NET_MIN_US_CHANNEL,                             //!< Min US frequency
     ONE_NET_US_CHANNEL_1 = ONE_NET_MIN_US_CHANNEL,      //!< 903.0Mhz
@@ -135,14 +141,15 @@ typedef enum
     ONE_NET_US_CHANNEL_24,                              //!< 926.0Mhz
     ONE_NET_US_CHANNEL_25,                              //!< 927.0Mhz
     ONE_NET_MAX_US_CHANNEL = ONE_NET_US_CHANNEL_25,     //!< Max US frequency
-    
+#endif
+#ifdef _EUROPE_CHANNELS    
     // European frequencies
     ONE_NET_MIN_EUR_CHANNEL,                            //!< Min European freq.
     ONE_NET_EUR_CHANNEL_1 = ONE_NET_MIN_EUR_CHANNEL,    //!< 865.8Mhz
     ONE_NET_EUR_CHANNEL_2,                              //!< 866.5Mhz
     ONE_NET_EUR_CHANNEL_3,                              //!< 867.2Mhz
     ONE_NET_MAX_EUR_CHANNEL = ONE_NET_EUR_CHANNEL_3,    //!< Max European freq.
-
+#endif
     ONE_NET_NUM_CHANNELS,                               //!< Number of channels
     ONE_NET_MAX_CHANNEL = ONE_NET_NUM_CHANNELS - 1      //!< Max ONE-NET channel
 } one_net_channel_t;

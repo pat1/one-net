@@ -979,6 +979,7 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag)
     
     channel = one_net_master_get_channel();
 
+#ifdef _US_CHANNELS
     // dje: Cast to eliminate compiler warning UInt8 >= 0
     if((SInt8)channel >= ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
     {
@@ -986,8 +987,17 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag)
         oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR, channel
           - ONE_NET_MIN_US_CHANNEL + 1);
     } // if a US channel //
+#endif
+#ifdef _EUROPE_CHANNELS
+#ifdef _US_CHANNELS
     else if(channel >= ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#else
+    // Derek_S: Cast to eliminate compiler warning UInt8 >= 0
+    if((SInt8) channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#endif
+#endif
     {
         // +1 since channels are stored 0 based, but output 1 based
         oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR, channel

@@ -233,8 +233,12 @@ extern const char * const ONCLI_QUIET_STR;
 extern const char * const ONCLI_VERBOSE_STR;
 extern const char * const ONCLI_ON_STR;
 extern const char * const ONCLI_OFF_STR;
+#ifdef _US_CHANNELS
 extern const char * const ONCLI_US_STR;
+#endif
+#ifdef _EUROPE_CHANNELS
 extern const char * const ONCLI_EUR_STR;
+#endif
 
 // Transaction type strings
 extern const char * const ONCLI_SINGLE_STR;

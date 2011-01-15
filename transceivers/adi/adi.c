@@ -130,6 +130,7 @@ ROM UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 //! The register settings for setting the desired base frequency.
 ROM UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
 {
+#ifdef _US_CHANNELS
     {0x79, 0x46, 0x9B, 0x20},       // channel=  US1, frequency= 903.0 MHz
     {0x79, 0x46, 0xF7, 0xB0},       // channel=  US2, frequency= 904.0 MHz
     {0x79, 0x47, 0x54, 0x50},       // channel=  US3, frequency= 905.0 MHz
@@ -155,9 +156,12 @@ ROM UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
     {0x79, 0x4E, 0x90, 0x20},       // channel= US23, frequency= 925.0 MHz
     {0x79, 0x4E, 0xEC, 0xC0},       // channel= US24, frequency= 926.0 MHz
     {0x79, 0x4F, 0x49, 0x50},       // channel= US25, frequency= 927.0 MHz
+#endif
+#ifdef _EUROPE_CHANNELS
     {0x79, 0x39, 0x26, 0xB0},       // channel= EUR1, frequency= 865.8 MHz
     {0x79, 0x39, 0x67, 0x80},       // channel= EUR2, frequency= 866.5 MHz
     {0x79, 0x39, 0xA8, 0x50}        // channel= EUR3, frequency= 867.2 MHz
+#endif
 };
 
 /*!
