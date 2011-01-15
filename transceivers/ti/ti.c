@@ -49,6 +49,8 @@
     flushed to ensure a clean read is done.
 */
 
+#include "config_options.h"
+
 #include "hal_ti.h"
 #include "io_port_mapping.h"
 #include "one_net.h"
@@ -1195,8 +1197,11 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS] =
 
 //! The register settings for setting the desired base frequency.  These are
 //! meant to be loaded consecutavily starting with FREQ2 (0x0D).
+// 1/15/2011 - Adding #define guards - Note.  Has this code been touched in a while?
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
 static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][NUM_CHANNEL_REG] =
 {
+#ifdef _US_CHANNELS
     {0x22, 0xBB, 0x14},             //! channel =   US1, frequency = 903.0 Mhz
     {0x22, 0xC4, 0xEC},             //! channel =   US2, frequency = 904.0 Mhz
     {0x22, 0xCE, 0xC5},             //! channel =   US3, frequency = 905.0 Mhz
@@ -1221,7 +1226,14 @@ static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][NUM_CHANNEL_REG] =
     {0x23, 0x89, 0xD9},             //! channel =  US22, frequency = 924.0 Mhz
     {0x23, 0x93, 0xB1},             //! channel =  US23, frequency = 925.0 Mhz
     {0x23, 0x9D, 0x8A},             //! channel =  US24, frequency = 926.0 Mhz
-    {0x23, 0xA7, 0x62}              //! channel =  US25, frequency = 927.0 Mhz
+    {0x23, 0xA7, 0x62},             //! channel =  US25, frequency = 927.0 Mhz
+#endif
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
+#ifdef _EUROPE_CHANNELS
+    {0x00, 0x00, 0x00},             //! channel= EUR1, frequency= 865.8 MHz
+    {0x00, 0x00, 0x00},             //!	channel= EUR2, frequency= 866.5 MHz
+    {0x00, 0x00, 0x00},             //! channel= EUR3, frequency= 867.2 MHz
+#endif
 };
 
 /*!
