@@ -382,7 +382,7 @@ static const UInt16 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS] =
     0xAC80,                         // channel = 22, frequency = 924.0 Mhz
     0xAD05,                         // channel = 23, frequency = 925.0 Mhz
     0xAD8B,                         // channel = 24, frequency = 926.0 Mhz
-    0xAE10                          // channel = 25, frequency = 927.0 Mhz
+    0xAE10,                         // channel = 25, frequency = 927.0 Mhz
 #endif
 // TO-DO : Add the REAL values for the European settings.  The ones below are fake.
 #ifdef _EUROPE_CHANNELS
