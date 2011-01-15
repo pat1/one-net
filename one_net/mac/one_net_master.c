@@ -2754,7 +2754,7 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 #ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   const UInt8 NEXT_NONCE, const one_net_status_t STATUS,
-  const UInt8 HOPS_TAKEN);
+  const UInt8 HOPS_TAKEN)
 #else
 one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   const UInt8 NEXT_NONCE, const one_net_status_t STATUS)
