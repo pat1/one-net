@@ -44,6 +44,8 @@
     one_net_port_specific.h.
 */
 
+#include "config_options.h"
+
 #include "hal_adi.h"
 #include "io_port_mapping.h"
 #include "one_net_port_specific.h"
