@@ -53,6 +53,11 @@
     around 20MHz.
 */
 
+#include "config_options.h"
+
+// 12/15/2010 - TO-DO - Add #define guards based on config_options.h
+
+
 #include "hal_ia.h"
 #include "io_port_mapping.h"
 #include "one_net_port_specific.h"
@@ -347,8 +352,12 @@ enum
 
 //! The values that need to be set into FREQ2, FREQ1, FREQ0 to get the desired
 //! ONE-NET channel setting
+
+// 1/15/2010 - Adding #define guards - Note.  Has this code been touched in a while?
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
 static const UInt16 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS] =
 {
+#ifdef _US_CHANNELS
     0xA190,                         // channel = 1, frequency = 903.0 Mhz
     0xA215,                         // channel = 2, frequency = 904.0 Mhz
     0xA29B,                         // channel = 3, frequency = 905.0 Mhz
@@ -374,6 +383,13 @@ static const UInt16 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS] =
     0xAD05,                         // channel = 23, frequency = 925.0 Mhz
     0xAD8B,                         // channel = 24, frequency = 926.0 Mhz
     0xAE10                          // channel = 25, frequency = 927.0 Mhz
+#endif
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
+#ifdef _EUROPE_CHANNELS
+    0x0000,                         // channel= EUR1, frequency= 865.8 MHz
+    0x0000,                         // channel= EUR2, frequency= 866.5 MHz
+    0x0000                          // channel= EUR3, frequency= 867.2 MHz
+#endif
 };
 
 /*!
