@@ -7,6 +7,8 @@
 #include <sfr_r81B.h>
 #include <demo.h>
 
+#include "config_options.h"
+
 /*
     Note from RFM on SPI speed : 
     When reading the RX FIFO, the internal access time is limited to Fxtal/4, or 2.5MHz, so you can only run the
@@ -33,12 +35,20 @@
 //=============================================================================
 //                              CONSTANTS
 
+/* Derek_S 1/15/2011 - I count 27 channels here.  ONE-NET has 28 channels (25
+   U.S. channels and 3 European channels.  This array seems one channel off.
+   There are no comments to say which values go with which channels. */
+/* TO-DO : Add comments that match each value to a ONE-NET channel/frequency */
+/* TO-DO : Add _US_CHANNELS and _EUROPE_CHANNELS #define guards.  See config_options.h
+   file. */
 //! The values that need to be set into FREQ2, FREQ1, FREQ0 to get the desired
 //! ONE-NET channel setting
 static const UInt16 channel_setting[ONE_NET_NUM_CHANNELS] =
-  {0xA14D, 0xA1D3, 0xA258, 0xA2DD, 0xA363, 0xA3E8, 0xA46D, 0xA4F3, 0xA578,
-   0xA5FD, 0xA683, 0xA708, 0xA78D, 0xA813, 0xA898, 0xA91D, 0xA9A3, 0xAA28,
-   0xAAAD, 0xAB33, 0xABB8, 0xAC3D, 0xACC3, 0xAD48, 0xADCD, 0xAE53};
+{
+    0xA14D, 0xA1D3, 0xA258, 0xA2DD, 0xA363, 0xA3E8, 0xA46D, 0xA4F3, 0xA578,
+    0xA5FD, 0xA683, 0xA708, 0xA78D, 0xA813, 0xA898, 0xA91D, 0xA9A3, 0xAA28,
+    0xAAAD, 0xAB33, 0xABB8, 0xAC3D, 0xACC3, 0xAD48, 0xADCD, 0xAE53
+};
    
 //                              CONSTANTS END
 //=============================================================================
@@ -162,6 +172,9 @@ void one_net_set_channel(const UInt8 CHANNEL_NUMBER)
     write_reg(channel_setting[channel]);
 } /* one_net_set_channel */
 
+// Derek_S 1/15/2011 - Why do we have a one_net_mem_move function that simply calls
+// one_net_memmove?  Why not just have the calling function call one_net_memmove
+// instead and delete this function?  Leaving it as is for now.
 void * one_net_memmove(void * dst, const void * SRC, const size_t LEN)
 {
     one_net_memmove(dst, SRC, LEN);
