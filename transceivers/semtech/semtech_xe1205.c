@@ -44,6 +44,8 @@
     one_net_port_specific.h
 */
 
+#include "config_options.h"
+
 #include "hal_semtech.h"
 #include "io_port_mapping.h"
 #include "one_net_port_specific.h"
@@ -108,10 +110,13 @@ enum
     FREQ_BAND_915 = 0x06            //! 915 Mhz frequency band
 };
 
+// 1/15/2011 - Adding #define guards - Note.  Has this code been touched in a while?
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
 //! The MCPARAM4 & MCPARAM5 (thus 2 *) register settings for a given base
 //! frequency.
 static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE << 1] =
 {
+#ifdef _US_CHANNELS
     {0x07, 0xA2, 0x09, 0x40},       // channel = 1, frequency = 903.0 Mhz
     {0x07, 0xAA, 0x09, 0x10},       // channel = 2, frequency = 904.0 Mhz
     {0x07, 0xB1, 0x09, 0xE0},       // channel = 3, frequency = 905.0 Mhz
@@ -136,7 +141,14 @@ static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE << 1] =
     {0x07, 0x46, 0x09, 0x50},       // channel = 22, frequency = 924.0 Mhz
     {0x07, 0x4E, 0x09, 0x20},       // channel = 23, frequency = 925.0 Mhz
     {0x07, 0x55, 0x09, 0xF0},       // channel = 24, frequency = 926.0 Mhz
-    {0x07, 0x5D, 0x09, 0xC0}        // channel = 25, frequency = 927.0 Mhz
+    {0x07, 0x5D, 0x09, 0xC0},       // channel = 25, frequency = 927.0 Mhz
+#endif
+// TO-DO : Add the REAL values for the European settings.  The ones below are fake.
+#ifdef _EUROPE_CHANNELS
+    {0x00, 0x00, 0x00, 0x00},       // channel= EUR1, frequency= 865.8 MHz
+    {0x00, 0x00, 0x00, 0x00},       // channel= EUR2, frequency= 866.5 MHz
+    {0x00, 0x00, 0x00, 0x00}        // channel= EUR3, frequency= 867.2 MHz
+#endif
 };
 
 /*!
