@@ -1202,26 +1202,26 @@ static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][NUM_CHANNEL_REG] =
     {0x22, 0xCE, 0xC5},             //! channel =   US3, frequency = 905.0 Mhz
     {0x22, 0xD8, 0x9E},             //! channel =   US4, frequency = 906.0 Mhz
     {0x22, 0xE2, 0x76},             //! channel =   US5, frequency = 907.0 Mhz
-    {0x22, 0xEC, 0x4F},             //! channel =   US7, frequency = 908.0 Mhz
-    {0x22, 0xF6, 0x27},             //! channel =   US8, frequency = 909.0 Mhz
-    {0x23, 0x00, 0x00},             //! channel =   US9, frequency = 910.0 Mhz
-    {0x23, 0x09, 0xD9},             //! channel =  US10, frequency = 911.0 Mhz
-    {0x23, 0x13, 0xB1},             //! channel =  US11, frequency = 912.0 Mhz
-    {0x23, 0x1D, 0x8A},             //! channel =  US12, frequency = 913.0 Mhz
-    {0x23, 0x27, 0x62},             //! channel =  US13, frequency = 914.0 Mhz
-    {0x23, 0x31, 0x3B},             //! channel =  US14, frequency = 915.0 Mhz
-    {0x23, 0x3B, 0x14},             //! channel =  US15, frequency = 916.0 Mhz
-    {0x23, 0x44, 0xEC},             //! channel =  US16, frequency = 917.0 Mhz
-    {0x23, 0x4E, 0xC5},             //! channel =  US17, frequency = 918.0 Mhz
-    {0x23, 0x58, 0x9E},             //! channel =  US18, frequency = 919.0 Mhz
-    {0x23, 0x62, 0x76},             //! channel =  US19, frequency = 920.0 Mhz
-    {0x23, 0x6C, 0x4F},             //! channel =  US20, frequency = 921.0 Mhz
-    {0x23, 0x76, 0x27},             //! channel =  US21, frequency = 922.0 Mhz
-    {0x23, 0x80, 0x00},             //! channel =  US22, frequency = 923.0 Mhz
-    {0x23, 0x89, 0xD9},             //! channel =  US23, frequency = 924.0 Mhz
-    {0x23, 0x93, 0xB1},             //! channel =  US24, frequency = 925.0 Mhz
-    {0x23, 0x9D, 0x8A},             //! channel =  US25, frequency = 926.0 Mhz
-    {0x23, 0xA7, 0x62}              //! channel =  US26, frequency = 927.0 Mhz
+    {0x22, 0xEC, 0x4F},             //! channel =   US6, frequency = 908.0 Mhz
+    {0x22, 0xF6, 0x27},             //! channel =   US7, frequency = 909.0 Mhz
+    {0x23, 0x00, 0x00},             //! channel =   US8, frequency = 910.0 Mhz
+    {0x23, 0x09, 0xD9},             //! channel =   US9, frequency = 911.0 Mhz
+    {0x23, 0x13, 0xB1},             //! channel =  US10, frequency = 912.0 Mhz
+    {0x23, 0x1D, 0x8A},             //! channel =  US11, frequency = 913.0 Mhz
+    {0x23, 0x27, 0x62},             //! channel =  US12, frequency = 914.0 Mhz
+    {0x23, 0x31, 0x3B},             //! channel =  US13, frequency = 915.0 Mhz
+    {0x23, 0x3B, 0x14},             //! channel =  US14, frequency = 916.0 Mhz
+    {0x23, 0x44, 0xEC},             //! channel =  US15, frequency = 917.0 Mhz
+    {0x23, 0x4E, 0xC5},             //! channel =  US16, frequency = 918.0 Mhz
+    {0x23, 0x58, 0x9E},             //! channel =  US17, frequency = 919.0 Mhz
+    {0x23, 0x62, 0x76},             //! channel =  US18, frequency = 920.0 Mhz
+    {0x23, 0x6C, 0x4F},             //! channel =  US19, frequency = 921.0 Mhz
+    {0x23, 0x76, 0x27},             //! channel =  US20, frequency = 922.0 Mhz
+    {0x23, 0x80, 0x00},             //! channel =  US21, frequency = 923.0 Mhz
+    {0x23, 0x89, 0xD9},             //! channel =  US22, frequency = 924.0 Mhz
+    {0x23, 0x93, 0xB1},             //! channel =  US23, frequency = 925.0 Mhz
+    {0x23, 0x9D, 0x8A},             //! channel =  US24, frequency = 926.0 Mhz
+    {0x23, 0xA7, 0x62}              //! channel =  US25, frequency = 927.0 Mhz
 };
 
 /*!
