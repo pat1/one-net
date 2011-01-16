@@ -164,8 +164,10 @@ typedef struct
 //! \defgroup ONE-NET_PEER_pub_var
 //! \ingroup ONE-NET_PEER
 //! @{
-	
-extern on_peer_unit_t master_peer[NUM_MASTER_PEER];
+
+#ifdef _ONE_NET_MASTER
+    extern on_peer_unit_t master_peer[NUM_MASTER_PEER];
+#endif
 
 
 //! The peer device to communicate with (if set up by the MASTER).  This needs
