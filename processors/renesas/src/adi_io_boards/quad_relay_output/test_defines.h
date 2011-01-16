@@ -154,6 +154,9 @@
 	#ifndef _ONE_NET_SIMPLE_CLIENT
 		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _QUAD_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
 	#endif
+	#ifdef _PEER
+		#error "ERROR : _PEER cannot be defined if _QUAD_OUTPUT is defined because peer assignments require input units and quad output boards do not have input units.  Please adjust the #define values in the config_options.h file."
+	#endif
 #endif
 
 #ifdef _DUAL_OUTPUT
@@ -165,6 +168,9 @@
 	#endif
 	#ifndef _ONE_NET_SIMPLE_CLIENT
 		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _DUAL_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifdef _PEER
+		#error "ERROR : _PEER cannot be defined if _DUAL_OUTPUT is defined because peer assignments require input units and dual output boards do not have input units.  Please adjust the #define values in the config_options.h file."
 	#endif
 #endif	
 
