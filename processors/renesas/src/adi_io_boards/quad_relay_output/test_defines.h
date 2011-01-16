@@ -200,6 +200,11 @@
     #endif
 #endif
 
+
+// To Do : Test unit types and message types to make sure at least one is defined.
+// Otherwise we'll have empty array declaration errors.
+
+
 //! @} one_net_test_defines_const
 //                                  CONSTANTS END
 //==============================================================================

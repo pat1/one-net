@@ -106,7 +106,8 @@
 
 
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
+// Define _PEER if your application implements peer assignments.  Default is _PEER assigned.
+// Devices with no inputs (i.e. I/O devices with only relays) cannot have peer assignments.
 #ifndef _PEER
 //	#define _PEER
 #endif
@@ -119,6 +120,10 @@
 
 
 // Main #define options for I/O boards
+
+// A device is a "simple client" if and only if it is never used as a master, it cannot
+// implement multi-hop, it cannot implement block messages, and it cannot implement
+// stream messages.
 #ifndef _ONE_NET_SIMPLE_CLIENT
 	#define _ONE_NET_SIMPLE_CLIENT
 #endif
@@ -134,6 +139,7 @@
 #ifndef _QUAD_INPUT
 //	#define _QUAD_INPUT
 #endif
+
 
 // Encryption, Encoding, and Random Padding of unused packet portions for
 // increased security
@@ -161,15 +167,6 @@
 	#define _ONE_NET_USE_ENCODING
 #endif
 
-// Random Padding.  If defined, unused portions of encrypted packets will be randomly
-// generated. If not turned on, unused portions of encrypted packets will be either 0
-// or "undefined" ("undefined" means that they may be zeroed out, they may be left as-is
-// i.e. whatever is in memory is what is used, or may be randomly generated.  The behavior
-// should not be assumed and is left to the developer).  Note that this option should have
-// no effect on the parsing of packets.  It only affects the creation of packets.
-/*#ifndef _ONE_NET_USE_RANDOM_PADDING
-	#defined _ONE_NET_USE_RANDOM_PADDING
-#endif*/
 
 // CRC.  All implementations of ONE-NET must use CRC's, but for debugging and
 // learning purposes, it may be useful to turn CRC's on and off.  Comment the three
@@ -177,6 +174,19 @@
 // a value of 0.
 #ifndef _ONE_NET_USE_CRC
 	#define _ONE_NET_USE_CRC
+#endif
+
+
+// Random Padding.  If defined, unused portions of encrypted packets will be randomly
+// generated. If not turned on, unused portions of encrypted packets will be either 0
+// or "undefined" ("undefined" means that they may be zeroed out, they may be left as-is
+// i.e. whatever is in memory is what is used, or may be randomly generated.  The behavior
+// should not be assumed and is left to the developer).  Note that this option should have
+// no effect on the parsing of packets.  It only affects the creation of packets.
+#ifdef _ONE_NET_VERSION_2_X
+    #ifndef _ONE_NET_USE_RANDOM_PADDING
+	    #define _ONE_NET_USE_RANDOM_PADDING
+    #endif
 #endif
 
 
@@ -187,82 +197,6 @@
 		#define _POLL
 	#endif
 #endif
-
-
-
-// Main #define options for I/O boards
-#ifndef _ONE_NET_SIMPLE_CLIENT
-	#define _ONE_NET_SIMPLE_CLIENT
-#endif
-
-#ifndef _QUAD_OUTPUT
-	#define _QUAD_OUTPUT
-#endif
-
-/*#ifndef _DUAL_OUTPUT
-	#define _DUAL_OUTPUT
-#endif
-
-#ifndef _QUAD_INPUT
-	#define _QUAD_INPUT
-#endif*/
-
-
-// Encryption, Encoding, and Random Padding of unused packet portions for
-// increased security
-
-// Encryption.  All implementations of ONE-NET must use encryption, but for debugging and
-// learning purposes, it may be useful to turn encryption on and off.  Comment the three
-// lines below out if not using encryption.
-#ifndef _ONE_NET_USE_ENCRYPTION
-	#define _ONE_NET_USE_ENCRYPTION
-#endif
-
-// Encoding.  All implementations of ONE-NET must use encoding, but for debugging and
-// learning purposes, it may be useful to turn encoding on and off.  Comment the three
-// lines below out if not using encoding.  Note : Not using encoding WILL NOT affect packet
-// sizes.  There will still be a 6 bit to 8 bit encoding transformation and an 8 bit to
-// 6 bit decoding transformation.  However, when not using encoding , 0 will map to 0,
-// 1 will map to 1, 2 will map to 2, etc.  If using encoding, 0 will map to 0xB4, 1 will
-// map to 0xBC, 2 will to 0xB3, etc.
-#ifndef _ONE_NET_USE_ENCODING
-	#define _ONE_NET_USE_ENCODING
-#endif
-
-// Random Padding.  If defined, unused portions of encrypted packets will be randomly
-// generated. If not turned on, unused portions of encrypted packets will be either 0
-// or "undefined" ("undefined" means that they may be zeroed out, they may be left as-is
-// i.e. whatever is in memory is what is used, or may be randomly generated.  The behavior
-// should not be assumed and is left to the developer).  Note that this option should have
-// no effect on the parsing of packets.  It only affects the creation of packets.
-/*#ifndef _ONE_NET_USE_RANDOM_PADDING
-	#defined _ONE_NET_USE_RANDOM_PADDING
-#endif*/
-
-// CRC.  All implementations of ONE-NET must use CRC's, but for debugging and
-// learning purposes, it may be useful to turn CRC's on and off.  Comment the three
-// lines below out if not using CRC's.  If CRC's are not defined, CRC's will be assigned
-// a value of 0.
-#ifndef _ONE_NET_USE_CRC
-	#define _ONE_NET_USE_CRC
-#endif
-
-
-// Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
-#ifndef _PEER
-	#define _PEER
-#endif
-
-
-// Polling - only available for version 2.0 and higher.  Define _POLL if you are using
-// polling.  Default for Version 2.0 is _POLL defined.
-#ifndef _ONE_NET_VERSION_2_X
-	#ifndef _POLL
-		#define _POLL
-	#endif
-#endif
-
 
 
 // Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
@@ -446,6 +380,9 @@
 
 
 
+// Now test #defines for compatibility
+
+#include "test_defines.h"
 
 
 
