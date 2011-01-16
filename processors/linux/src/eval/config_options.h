@@ -449,9 +449,13 @@
 
 
 
-
 // Other Options
 
+// TO-DO : This is the "linux" branch.  I'm not sure what the "linux" branch does(i.e. is it simply
+//         a simulator with no actual transceiver attached anywhere?  At any rate, I don't know whether
+//         these are Renesas-Eval Board constants only (R8C suyre sounds like it would only apply to Renesas?)
+//         or not. I'm going to leave them as they are for now, but they may need to be changed, and that goes
+//         for this whole configuration file.
 #ifndef _CHIP_ENABLE
 	#define _CHIP_ENABLE
 #endif
