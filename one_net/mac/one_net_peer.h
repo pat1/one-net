@@ -51,8 +51,14 @@
 #ifdef _PEER
 
 #include "one_net_types.h"
+
+// 1-15-2010 - TO-DO - Add a #define guard for _ONE_NET_CLIENT here?
 #include "one_net_client_port_const.h" // for ONE_NET_MAX_PEER_DEV
-#include "one_net_eval_hal.h" // for NUM_MASTER_PEER
+
+// 1-15-2010 - TO-DO - What about masters with peer assignments which aren't eval boards?
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
+    #include "one_net_eval_hal.h" // for NUM_MASTER_PEER
+#endif
 
 //==============================================================================
 //                                  CONSTANTS
