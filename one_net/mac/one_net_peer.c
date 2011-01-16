@@ -102,7 +102,9 @@ const on_encoded_did_t INVALID_PEER = {0x00, 0x00};
 //! @{
 
 
-on_peer_unit_t master_peer[NUM_MASTER_PEER];
+#ifdef _ONE_NET_MASTER
+    on_peer_unit_t master_peer[NUM_MASTER_PEER];
+#endif
 on_peer_t * peer;
 peer_msg_mgr_t peer_msg_mgr;
 
@@ -470,6 +472,7 @@ one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
 } // on_client_net_setup_msg_for_peer //
 
 
+#ifdef _ONE_NET_MASTER
 /*!
     \brief Called when the MASTER is assigned a peer.
     
@@ -494,6 +497,7 @@ one_net_status_t master_assigned_peer(const UInt8 src_unit,
           master_peer, NUM_MASTER_PEER, TRUE);
     #endif // else _ONE_NET_MULTI_HOP is not defined //
 } // master_assigned_peer //
+
 
 
 /*!
@@ -556,9 +560,10 @@ one_net_status_t master_unassigned_peer(const UInt8 src_unit,
     return unassign_peer_adjust_peer_list(src_unit, peer_did, peer_unit,
 	    master_peer, NUM_MASTER_PEER, TRUE);
 } // master_unassigned_peer //
+#endif
 
 
-#ifdef _ONE_NET_EVAL
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
 /*!
     \brief Returns the Master peer assignments that should be saved to
       non-volatile storage.

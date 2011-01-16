@@ -221,6 +221,7 @@ UInt8 have_more_peers(peer_msg_mgr_t *mgr);
 one_net_status_t on_client_net_setup_msg_for_peer(UInt8 * data,
   peer_msg_mgr_t *mgr, on_encoded_did_t *dst_did);
 
+#if defined(_ONE_NET_MASTER)
 one_net_status_t master_assigned_peer(const UInt8 src_unit,
       const on_encoded_did_t * const peer_did, const UInt8 peer_unit);
 
@@ -228,8 +229,9 @@ void init_master_peer(void);
 one_net_status_t master_unassigned_peer(const UInt8 src_unit,
   const on_encoded_did_t* const peer_did, const UInt8 peer_unit,
   const BOOL deviceIsMaster);
+#endif
 
-#ifdef _ONE_NET_EVAL
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
     BOOL master_get_peer_assignment_to_save(UInt8 **ptr, UInt16 *len);
 #endif
 
