@@ -816,8 +816,11 @@ typedef enum _ona_block_msg_type
     //! Insteon Extended block message type
     ONA_BLOCK_INSTEON_EXTENDED = 0x0000,
 
-    //! Block text message type
-    ONA_BLOCK_TEXT = 0x0001
+    //! Block text message type (used for block messages where the bytes represent ASCII characters
+    ONA_BLOCK_TEXT = 0x0001,
+	
+	//! Block binary message type (used for block messages where the bytes can represent anything)
+    ONA_BLOCK_BINARY = 0x0002
 } ona_block_msg_type_t;
 
 
