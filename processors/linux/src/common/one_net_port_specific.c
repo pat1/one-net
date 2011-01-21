@@ -302,7 +302,9 @@ int lock_count = 0;
     listen = one_net_tick();
     end = listen + DURATION;
 
+#ifdef _ONE_NET_DEBUG
     print_debug("%s\n", LISTENING);
+#endif
     while(!got_pattern && (now = one_net_tick()) < end)
     {
         acquire_lock(RFC_SEM);
@@ -339,10 +341,11 @@ lock_count++;
               rf_channel_ptr[3] == 0x33)))
         #endif // else HEAR_C1_ONLY and CAN_NOT_HEAR_C2 are not defined //
         {
+#ifdef _ONE_NET_DEBUG
             char debug_buffer[DEBUG_BUFFER_LEN+1] = {'\0'};
             size_t len = 0, size = DEBUG_BUFFER_LEN; 
-            char * dbg_buf = debug_buffer;
-
+   	    char * dbg_buf = debug_buffer;
+#endif
             //figure out how much to read
             pid = rf_channel_ptr[ONE_NET_ENCODED_PID_IDX];
             switch(pid)
@@ -445,6 +448,7 @@ lock_count++;
                 } // default ERROR
             } // end switch on pid
 
+#ifdef _ONE_NET_DEBUG
             if(debug_level() >= 1)
             {
                 //Add reading to debug buffer
@@ -466,13 +470,14 @@ lock_count++;
                 size -= len;
             
             } //if debug
-            
+#endif            
         
             //if we get here, then read everything else into buffer
             for(i = 0; i < rx_size; i++)
             {
                 pkt_buffer[i] = rf_channel_ptr[i+4];
 
+#ifdef _ONE_NET_DEBUG
                 if(debug_level() >= 1)
                 {
                     //add this byte to buffer
@@ -480,6 +485,7 @@ lock_count++;
                     dbg_buf += len;
                     size -= len;
                 } //if debug
+#endif
             }//for all data
         
             release_lock(RFC_SEM);
@@ -488,8 +494,9 @@ lock_count++;
             pkt_buffer_i = 0;
            
             //print buffer
+#ifdef _ONE_NET_DEBUG
             print_debug("%s lock_count = [%d]\n", debug_buffer, lock_count);
-           
+#endif           
             rv = ONS_SUCCESS; 
 
             //wait for rx time
@@ -508,16 +515,22 @@ lock_count++;
         if( sleep_ticks > 0 )
         {
             //"sleep" for time it took to read in data
+#ifdef _ONE_NET_DEBUG
             print_debug("Sleeping for %u ticks\n", sleep_ticks);
+#endif
             one_net_sleep(sleep_ticks);
+#ifdef _ONE_NET_DEBUG
             print_debug("Woke up\n");
+#endif
         } //sleep if read 
 
     } //while no pattern
     
     if( rv == ONS_TIME_OUT )
     {
+#ifdef _ONE_NET_DEBUG
         print_debug("Nothing to hear\n");
+#endif
     }
     return rv;
 } //one_net_look_for_pkt
@@ -536,11 +549,11 @@ lock_count++;
 UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
 {
     UInt16 i;
+#ifdef _ONE_NET_DEBUG
     char debug_buffer[DEBUG_BUFFER_LEN+1] = {'\0'};
     size_t len = 0, size = DEBUG_BUFFER_LEN; 
     char * dbg_buf = debug_buffer;
-  
-#ifdef _ONE_NET_DEBUG
+
     if(debug_level() >= 1)
     {
         //Add reading to debug buffer
@@ -599,9 +612,11 @@ UInt16 one_net_write(const UInt8 * DATA, const UInt16 LEN)
     UInt16 i;
     UInt32 sleep_usecs = 0;
 
+#ifdef _ONE_NET_DEBUG
     char debug_buffer[DEBUG_BUFFER_LEN+1] = {'\0'};
     size_t len = 0, size = DEBUG_BUFFER_LEN; 
     char * dbg_buf = debug_buffer;
+#endif  
 
     //update timestamp
     *timestamp_ptr = one_net_tick();

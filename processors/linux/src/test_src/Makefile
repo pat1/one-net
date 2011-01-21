@@ -8,7 +8,7 @@
 
 EXEC = ona_voltage_test one_net_application_test gen_data_flash_test
 
-CFLAGS=-I../../../../one_net/mac/ -I../../../../one_net/app/ -I../common/ \
+CFLAGS=-I./ -I../../../../one_net/mac/ -I../../../../one_net/app/ -I../common/ \
 -I../../../../one_net/utility/ -I../../../../one_net/port_specific/ \
 -I../../../../processors/linux/src/eval/ -I../../../../processors/renesas/src/common/ \
 -I../../../../common/ -DCUNIT_TESTING -D_ONE_NET_DEBUG -Wall -Werror -g
@@ -27,10 +27,10 @@ GEN_DATA_FLASH_TEST_OBJS = gen_data_flash_test.o flash_sim.o dfi.o dfi_port_spec
 
 ona_voltage.o:
 	gcc -c $(CFLAGS) ../../../../one_net/app/ona_voltage.c -o $@
-    
+
 one_net_port_specific.o:
 	gcc -c $(CFLAGS) ../../../../processors/linux/src/common/one_net_port_specific.c -o $@
-	
+
 rf_shm.o:
 	gcc -c $(CFLAGS) ../../../../processors/linux/src/common/rf_shm.c -o $@ 
 debug.o:
@@ -76,7 +76,7 @@ test_gen_data_flash: gen_data_flash_test
 
 
 test: clean $(TEST_TARGETS)
-   
+
 
 clean:
 	rm -f *.o $(EXEC)
