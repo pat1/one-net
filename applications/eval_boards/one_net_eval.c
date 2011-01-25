@@ -124,11 +124,31 @@ const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
 //                                  TYPEDEFS END
 //=============================================================================
 
+//==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup ONE-NET_eval_pub_var
+//! \ingroup ONE-NET_eval
+//! @{
+
+//! The base parameters for the device.  From one_net.c
+extern on_base_param_t * on_base_param;
+	
+//! @} ONE-NET_eval_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
+
+
 //=============================================================================
 //                              PRIVATE VARIABLES
 //! \defgroup ONE-NET_eval_pri_var
 //! \ingroup ONE-NET_eval
 //! @{
+
+// this doesn't seem to be stored anywhere and we need a variable that stores
+// the raw sid for us (we need it for the get_sid() function)
+// TO-DO : This is a kludge, so redesign it to make more sense and does not waste space.
+static eval_sid_t sid_info;
+
 
 //! The status of the user pins.  These are considered "protected" and are
 //! shared with master_eval & client_eval.
@@ -481,6 +501,20 @@ UInt8 * get_invite_key(void)
 one_net_raw_sid_t * get_raw_sid(void)
 {
     UInt8 * ptr_raw_sid;
+	
+#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_EVAL)
+    // if this is a client and it's part of a network, we want to use the network SID
+	// instead of checking the non-volatile memory
+    if(!oncli_is_master() && client_joined_network && on_base_param != 0)
+	{
+		// if "sid_info" hasn't been initialized, do it now.
+		// TO-DO.  This should be filled in when the client joins, or earlier.
+		one_net_memmove(sid_info.encoded, on_base_param->sid, ON_ENCODED_SID_LEN);
+		on_decode(sid_info.raw, sid_info.encoded, ON_ENCODED_SID_LEN);
+		return &sid_info.raw;
+	}
+#endif
+	
     ptr_raw_sid = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
     if (ptr_raw_sid == (UInt8 *) 0)
     {
