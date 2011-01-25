@@ -41,10 +41,11 @@ enum
 };
 
 
-extern const eval_sid_t EVAL_SID[];
+// Derek_S 1/25/2010 - don't see EVAL_SID[] used anywhere.  Commenting out.
+// TO-DO : Decide if EVAL_SID[] should be used.  If not, delete.
+//extern const eval_sid_t EVAL_SID[];
 
-// used by oncli_print_nid, defined in uart.c
-extern const char HEX_DIGIT[];
+
 
 //! @} ONE-NET_master_eval_const
 //                                  CONSTANTS END
@@ -1015,38 +1016,6 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag)
     return ONCLI_SUCCESS;
 } // oncli_print_channel //
 
-oncli_status_t oncli_print_nid(BOOL prompt_flag)
-{
-    UInt8 * ptr_nid;
-    UInt8 i, nibble;
-
-    ptr_nid = (UInt8 *) get_raw_sid();
-
-    oncli_send_msg("NID: 0x");
-    for (i=0; i<ONE_NET_RAW_NID_LEN; i++)
-    {
-        // 
-        // print the high order nibble
-        //
-        nibble = (ptr_nid[i] >> 4) & 0x0f;
-        oncli_send_msg("%c", HEX_DIGIT[nibble]);
-
-        //
-        // if this is the not the last byte, print the low order nibble also
-        //
-        if (i < ONE_NET_RAW_NID_LEN-1)
-        {
-            nibble = ptr_nid[i] & 0x0f;
-            oncli_send_msg("%c", HEX_DIGIT[nibble]);
-        }
-    }
-    oncli_send_msg("\n");
-    if (prompt_flag == TRUE)
-    {
-        oncli_print_prompt();
-    }
-    return ONCLI_SUCCESS;
-} // oncli_print_nid //
 
 
 oncli_status_t oncli_print_invite(BOOL prompt_flag)

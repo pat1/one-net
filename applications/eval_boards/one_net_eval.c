@@ -43,6 +43,9 @@
     void look_for_all_packets(void);
 #endif
 
+// used by oncli_print_nid, defined in uart.c
+extern const char HEX_DIGIT[];
+
 enum
 {
     //! The maximum size of a block transaction (in bytes) for the eval.
@@ -1332,6 +1335,43 @@ one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT,
                             3, ONE_NET_SEND_SINGLE_PRIORITY, DST, SRC_UNIT);
 } // send_switch_command //
 #endif
+
+
+
+oncli_status_t oncli_print_nid(BOOL prompt_flag)
+{
+    UInt8 * ptr_nid;
+    UInt8 i, nibble;
+
+    ptr_nid = (UInt8 *) get_raw_sid();
+
+    oncli_send_msg("NID: 0x");
+    for (i=0; i<ONE_NET_RAW_NID_LEN; i++)
+    {
+        // 
+        // print the high order nibble
+        //
+        nibble = (ptr_nid[i] >> 4) & 0x0f;
+        oncli_send_msg("%c", HEX_DIGIT[nibble]);
+
+        //
+        // if this is the not the last byte, print the low order nibble also
+        //
+        if (i < ONE_NET_RAW_NID_LEN-1)
+        {
+            nibble = ptr_nid[i] & 0x0f;
+            oncli_send_msg("%c", HEX_DIGIT[nibble]);
+        }
+    }
+    oncli_send_msg("\n");
+    if (prompt_flag == TRUE)
+    {
+        oncli_print_prompt();
+    }
+    return ONCLI_SUCCESS;
+} // oncli_print_nid //
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
