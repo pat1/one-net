@@ -653,6 +653,30 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
 } // one_net_client_init //
 
 
+
+#ifdef _ONE_NET_EVAL
+/*!
+    \brief Returns the channel the CLIENT is on.  Only needed for printouts?
+
+    If the CLIENT has not yet picked a channel, ONE_NET_NUM_CHANNELS is
+    returned.
+
+    \param void
+
+    \return The channel the CLIENT is on or ONE_NET_NUM_CHANNELS
+*/
+UInt8 one_net_client_get_channel(void)
+{
+    if(!client_joined_network)
+    {
+        return ONE_NET_NUM_CHANNELS;
+    } // if the channel has not yet been picked //
+
+    return on_base_param->channel;
+} // one_net_client_get_channel //
+#endif
+
+
 /*!
     \brief Returns the raw MASTER DID.
 

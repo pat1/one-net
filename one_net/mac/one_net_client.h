@@ -231,6 +231,10 @@ one_net_status_t one_net_client_join_network(one_net_client_join_network_data_t 
 
 tick_t one_net_client(void);
 
+#ifdef _ONE_NET_EVAL
+    UInt8 one_net_client_get_channel(void);
+#endif
+
 
 //! @} ONE-NET_CLIENT_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
