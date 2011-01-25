@@ -1089,7 +1089,8 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS] =
 
     // Reg 0x0C, FSCTRL0, from SmartRF Studio
     0x00,
-
+#ifdef _US_CHANNELS
+//TO-DO: set to default US frequency
     // Reg 0x0D Freq2
     0x22,
 
@@ -1098,6 +1099,20 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS] =
 
     // Reg 0x0F Freq0
     0x27,
+#endif //_US_CHANNELS
+#ifdef _EUROPE_CHANNELS
+    #ifndef _US_CHANNELS
+//TO-DO: set to default European frequency only if US channels not included
+    // Reg 0x0D Freq2
+    0x22,
+
+    // Reg 0x0E Freq1
+    0xB6,
+
+    // Reg 0x0F Freq0
+    0x27,
+	#endif //_US_CHANNELS
+#endif
 
     // Reg 0x10, MDMCFG4, from SmartRF Studio 541.667kHz
     0x2A,
