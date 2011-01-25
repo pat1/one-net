@@ -538,12 +538,20 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag)
 {
     UInt8 channel;
 
-    if(!oncli_is_master())
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
+    if(oncli_is_master())
     {
-        return ONCLI_INVALID_CMD_FOR_NODE;
+        channel = one_net_master_get_channel();
     } // if not a MASTER device //
-    
+	else
+	{     
+        channel = one_net_client_get_channel();
+	}
+#elif defined(_ONE_NET_MASTER)
     channel = one_net_master_get_channel();
+#else
+    channel = one_net_client_get_channel();
+#endif
 
 #ifdef _US_CHANNELS
     // dje: Cast to eliminate compiler warning UInt8 >= 0
