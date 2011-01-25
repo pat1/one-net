@@ -1746,13 +1746,16 @@ static oncli_status_t list_cmd_hdlr(void)
 
     oncli_print_invite(FALSE);
     oncli_print_nid(FALSE);
+	
+	// 1/25/2010 - now displaying channel for both master and client
+    oncli_send_msg("Channel: ");
+    oncli_print_channel(FALSE);
+		
     if (oncli_is_master() == TRUE)
     {
         //
         // handle master specific output
         //
-        oncli_send_msg("Channel: ");
-        oncli_print_channel(FALSE);
 
         //
         // get the device id for a master
