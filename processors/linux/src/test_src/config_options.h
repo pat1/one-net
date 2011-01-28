@@ -388,7 +388,7 @@
 // Evaluation Board Options
 
 #ifndef _ONE_NET_EVAL
-	#define _ONE_NET_EVAL
+//	#define _ONE_NET_EVAL
 #endif
 
 #ifdef _ONE_NET_EVAL
