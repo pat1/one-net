@@ -117,7 +117,7 @@ ROM UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 #ifdef _US_CHANNELS
     {0x79, 0x4C, 0x36, 0x40},
 #endif //_US_CHANNELS
-#ifdef //_EUROPE_CHANNELS
+#ifdef _EUROPE_CHANNELS
    #ifndef _US_CHANNELS
     {0x79, 0x39, 0x26, 0xB0},       // european channel 0 only if US channels not included
    #endif //_US_CHANNELS
