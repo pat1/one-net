@@ -77,26 +77,46 @@
 #endif
 
 
-// Now make sure that _ONE_NET_SIMPLE_CLIENT is properly defined
-#if defined(_ONE_NET_SIMPLE_CLIENT) && !defined(_ONE_NET_CLIENT)
-	#error "ERROR : _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+// Now make sure that _ONE_NET_SIMPLE_DEVICE and related defines are properly defined
+#if defined(_ONE_NET_MULTI_HOP) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_STREAM_MESSAGES_ENABLED)
+    #ifdef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : Either _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, or _STREAM_MESSAGES_ENABLED is defined.  Therefore _ONE_NET_SIMPLE_DEVICE should not be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#else
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, and _STREAM_MESSAGES_ENABLED are all undefined.  Therefore _ONE_NET_SIMPLE_DEVICE should be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
 #endif
 
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _BLOCK_MESSAGES_ENABLED cannot both be defined.  Please adjust the #define values in the config_options.h file."
-#endif	
-
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_STREAM_MESSAGES_ENABLED)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _STREAM_MESSAGES_ENABLED cannot both be defined.  Please adjust the #define values in the config_options.h file."
-#endif	
-
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_ONE_NET_MULTI_HOP)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _ONE_NET_MULTI_HOP cannot both be defined.  Please adjust the #define values in the config_options.h file."
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#ifdef _ONE_NET_CLIENT
+		#ifndef _ONE_NET_SIMPLE_CLIENT
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_CLIENT are both defined.  Therefore _ONE_NET_SIMPLE_CLIENT should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+	#ifdef _ONE_NET_MASTER
+		#ifndef _ONE_NET_SIMPLE_MASTER
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_MASTER are both defined.  Therefore _ONE_NET_SIMPLE_MASTER should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+#else
+    #ifdef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+    #ifdef _ONE_NET_SIMPLE_MASTER
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
 #endif
 
-#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_STREAM_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
-	#if defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_SIMPLE_CLIENT)
-		#error "ERROR : This device is a client device that does not implement block messages, stream messages, or multi-hop.  Therefore _ONE_NET_SIMPLE_CLIENT must be defined.   Please adjust the #define values in the config_options.h file."
+#ifdef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_CLIENT
+		#error "ERROR: _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_MASTER
+    #ifndef _ONE_NET_MASTER
+		#error "ERROR: _ONE_NET_MASTER must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
 	#endif
 #endif
 

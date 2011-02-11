@@ -137,18 +137,30 @@
 
 
 
-// ONE_NET_SIMPLE_CLIENT - a client is a simple client if it is a client and does not
+// ONE_NET_SIMPLE_DEVICE - a device is a simple device if it is does not
 // implement any of the following: Multi-Hop, Stream, Block
-#if !defined(_ONE_NET_CLIENT) || defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
-	#ifdef _ONE_NET_SIMPLE_CLIENT
-		#undef _ONE_NET_SIMPLE_CLIENT
+#if defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
+    #ifdef _ONE_NET_SIMPLE_DEVICE
+        #undef _ONE_NET_SIMPLE_DEVICE
 	#endif
 #else
-	#ifndef _ONE_NET_SIMPLE_CLIENT
-		#define _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        #define _ONE_NET_SIMPLE_DEVICE
 	#endif
 #endif
 
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#ifdef _ONE_NET_CLIENT
+		#ifndef _ONE_NET_SIMPLE_CLIENT
+			#define _ONE_NET_SIMPLE_CLIENT
+		#endif	
+	#endif
+	#ifdef _ONE_NET_MASTER
+		#ifndef _ONE_NET_SIMPLE_MASTER
+			#define _ONE_NET_SIMPLE_MASTER
+		#endif	
+	#endif
+#endif
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
@@ -691,7 +703,6 @@
 
 
 // Now test #defines for compatibility
-
 #include "test_defines.h"
 
 
