@@ -2710,7 +2710,7 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 		high_channel = low_channel;
 	}
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifdef _STREAM_MESSAGES_ENABLED
     if(one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
       eval_encryption(ON_STREAM), low_channel, high_channel, timeout) !=
 	    ONS_SUCCESS)

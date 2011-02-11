@@ -474,19 +474,19 @@ static void save_param(void);
             ONS_BAD_PARAM if the parameter is invalid.
 */
 #if !defined(_ENHANCED_INVITE)
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
       const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
       const UInt8 STREAM_ENCRYPT_METHOD)
-#else // ifndef _ONE_NET_SIMPLE_CLIENT //
+#else // ifdef _STREAM_MESSAGES_ENABLED //
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
       const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
-#endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #else
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
       const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
@@ -494,14 +494,14 @@ static void save_param(void);
 	  const one_net_channel_t min_channel,
 	  const one_net_channel_t max_channel,
 	  const tick_t timeout_time)
-#else // ifndef _ONE_NET_SIMPLE_CLIENT //
+#else // ifdef _STREAM_MESSAGES_ENABLED //
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
       const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
 	  const one_net_channel_t min_channel,
 	  const one_net_channel_t max_channel,
 	  const tick_t timeout_time)	  
-#endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+#endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 {
     one_net_status_t status;
@@ -516,14 +516,14 @@ static void save_param(void);
 
     client_joined_network = FALSE;
 
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifdef _STREAM_MESSAGES_ENABLED
         if(!INVITE_KEY
           || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
           || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
-    #else // ifndef _ONE_NET_SIMPLE_CLIENT
+    #else // ifdef _STREAM_MESSAGES_ENABLED
         if(!INVITE_KEY
           || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32)
-    #endif // else _ONE_NET_SIMPLE_CLIENT is defined //
+    #endif // else _STREAM_MESSAGES_ENABLED is not defined //
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
@@ -536,8 +536,12 @@ static void save_param(void);
       sizeof(on_base_param->current_key));
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+	
+	// TODO - 2/10/2011 - Find out who where fragment delays are used.  Only for streams?
+	#ifdef _STREAM_MESSAGES_ENABLED
         on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;
+	#endif
+    #ifndef _ONE_NET_SIMPLE_CLIENT
         on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
         on_base_param->fragment_delay_high
           = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
@@ -1539,7 +1543,7 @@ tick_t one_net_client(void)
                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                   0x00};
 
-                #ifndef _ONE_NET_SIMPLE_CLIENT // Not a Simple Client //
+                #ifdef _STREAM_MESSAGES_ENABLED // Stream Messages Enabled //
 				    #ifdef _ENHANCED_INVITE
                         one_net_client_look_for_invite(&empty_key,
                           ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
@@ -1550,7 +1554,7 @@ tick_t one_net_client(void)
                           ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
                           ONE_NET_STREAM_ENCRYPT_XTEA8);				
 				    #endif
-                #else // Simple Client //
+                #else // Stream Messages Not Enabled //
 				    #ifdef _ENHANCED_INVITE
                         one_net_client_look_for_invite(&empty_key,
                           ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32, 0,

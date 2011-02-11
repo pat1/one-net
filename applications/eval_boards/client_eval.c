@@ -134,7 +134,7 @@ oncli_status_t oncli_reset_client(void)
     // get the unique invite code for this device
     invite_key = (one_net_xtea_key_t *) get_invite_key();
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifdef _STREAM_MESSAGES_ENABLED
   #ifdef _ENHANCED_INVITE
       one_net_client_look_for_invite(invite_key, eval_encryption(ON_SINGLE),
         eval_encryption(ON_STREAM), 0, ONE_NET_MAX_CHANNEL, 0);
