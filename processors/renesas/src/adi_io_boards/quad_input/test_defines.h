@@ -77,26 +77,46 @@
 #endif
 
 
-// Now make sure that _ONE_NET_SIMPLE_CLIENT is properly defined
-#if defined(_ONE_NET_SIMPLE_CLIENT) && !defined(_ONE_NET_CLIENT)
-	#error "ERROR : _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+// Now make sure that _ONE_NET_SIMPLE_DEVICE and related defines are properly defined
+#if defined(_ONE_NET_MULTI_HOP) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_STREAM_MESSAGES_ENABLED)
+    #ifdef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : Either _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, or _STREAM_MESSAGES_ENABLED is defined.  Therefore _ONE_NET_SIMPLE_DEVICE should not be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#else
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, and _STREAM_MESSAGES_ENABLED are all undefined.  Therefore _ONE_NET_SIMPLE_DEVICE should be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
 #endif
 
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _BLOCK_MESSAGES_ENABLED cannot both be defined.  Please adjust the #define values in the config_options.h file."
-#endif	
-
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_STREAM_MESSAGES_ENABLED)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _STREAM_MESSAGES_ENABLED cannot both be defined.  Please adjust the #define values in the config_options.h file."
-#endif	
-
-#if defined(_ONE_NET_SIMPLE_CLIENT) && defined(_ONE_NET_MULTI_HOP)
-	#error "ERROR : _ONE_NET_SIMPLE_CLIENT and _ONE_NET_MULTI_HOP cannot both be defined.  Please adjust the #define values in the config_options.h file."
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#ifdef _ONE_NET_CLIENT
+		#ifndef _ONE_NET_SIMPLE_CLIENT
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_CLIENT are both defined.  Therefore _ONE_NET_SIMPLE_CLIENT should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+	#ifdef _ONE_NET_MASTER
+		#ifndef _ONE_NET_SIMPLE_MASTER
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_MASTER are both defined.  Therefore _ONE_NET_SIMPLE_MASTER should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+#else
+    #ifdef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+    #ifdef _ONE_NET_SIMPLE_MASTER
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
 #endif
 
-#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_STREAM_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
-	#if defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_SIMPLE_CLIENT)
-		#error "ERROR : This device is a client device that does not implement block messages, stream messages, or multi-hop.  Therefore _ONE_NET_SIMPLE_CLIENT must be defined.   Please adjust the #define values in the config_options.h file."
+#ifdef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_CLIENT
+		#error "ERROR: _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_MASTER
+    #ifndef _ONE_NET_MASTER
+		#error "ERROR: _ONE_NET_MASTER must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
 	#endif
 #endif
 
@@ -122,6 +142,33 @@
 
 #if defined(_ONE_NET_MH_CLIENT_REPEATER) && !defined(_ONE_NET_MULTI_HOP)
     #error "Need to define _ONE_NET_MULTI_HOP if _ONE_NET_MH_CLIENT_REPEATER is defined!  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// 2/10/2010 - At the moment, masters without stream and block enabled should be considered unstable, so
+//             I am forcing them both to both be defined for all masters.  This is temporary.
+#ifdef _ONE_NET_MASTER
+    #if !defined(_STREAM_MESSAGES_ENABLED) || !defined(_BLOCK_MESSAGES_ENABLED)
+    	#error "Feb. 10, 2011 - Masters without stream and block are currently unstable.  This is a temporary restriction.  Please make sure that both _STREAM_MESSAGES_ENABLED and _BLOCK_MESSAGES_ENABLED are defined in the config_options.h file."
+	#endif
+#endif
+
+
+// 2/10/2010 - At the moment, devices with multi-hop, but not stream and block are considered unstable.
+//             I am therefore disallowing this combination for now.  This is temporary.
+#ifdef _ONE_NET_MULTI_HOP
+    #if !defined(_STREAM_MESSAGES_ENABLED) || !defined(_BLOCK_MESSAGES_ENABLED)
+    	#error "Feb. 10, 2011 - Multi-Hop without stream and block are currently unstable.  This is a temporary restriction.  Please make sure that both _STREAM_MESSAGES_ENABLED and _BLOCK_MESSAGES_ENABLED are defined or undefine _ONE_NET_MULTI_HOP in the config_options.h file."
+	#endif
+#endif
+
+
+// 2/10/2010 - At the moment, Eval Boards without both master and client enabled should be considered unstable
+//             I am therefore disallowing this combination for now.  This is temporary.
+#ifdef _ONE_NET_EVAL
+    #if !defined(_ONE_NET_MASTER) || !defined(_ONE_NET_CLIENT)
+    	#error "Feb. 10, 2011 - Eval Boards without both the master and client enabled are currently unstable.  This is a temporary restriction.  Please make sure that both _ONE_NET_MASTER and _ONE_NET_CLIENT are defined in the config_options.h file."
+	#endif
 #endif
 
 
@@ -154,9 +201,6 @@
 	#ifndef _ONE_NET_SIMPLE_CLIENT
 		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _QUAD_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
 	#endif
-	#ifdef _PEER
-		#error "ERROR : _PEER cannot be defined if _QUAD_OUTPUT is defined because peer assignments require input units and quad output boards do not have input units.  Please adjust the #define values in the config_options.h file."
-	#endif
 #endif
 
 #ifdef _DUAL_OUTPUT
@@ -168,9 +212,6 @@
 	#endif
 	#ifndef _ONE_NET_SIMPLE_CLIENT
 		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _DUAL_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
-	#endif
-	#ifdef _PEER
-		#error "ERROR : _PEER cannot be defined if _DUAL_OUTPUT is defined because peer assignments require input units and dual output boards do not have input units.  Please adjust the #define values in the config_options.h file."
 	#endif
 #endif	
 
@@ -199,11 +240,6 @@
 		#error "ERROR : _PEER must be defined if _ENABLE_UNASSIGN_PEER_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
     #endif
 #endif
-
-
-// To Do : Test unit types and message types to make sure at least one is defined.
-// Otherwise we'll have empty array declaration errors.
-
 
 //! @} one_net_test_defines_const
 //                                  CONSTANTS END
