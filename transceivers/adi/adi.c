@@ -709,19 +709,23 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                 rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
                   = ONE_NET_ENCODED_SINGLE_DATA_NACK;
             }
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _BLOCK_MESSAGES_ENABLED
             else if (rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
               == ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN)
             {
                 rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
                   = ONE_NET_ENCODED_BLOCK_DATA_NACK;
             }
+#endif
+#ifdef _ONE_NET_MULTI_HOP
             else if (rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
               == ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN)
             {
                 rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
                   = ONE_NET_ENCODED_MH_SINGLE_DATA_NACK;
             }
+#endif
+#if defined(_ONE_NET_MULTI_HOP) && defined(_BLOCK_MESSAGES_ENABLED)
             else if (rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
               == ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN)
             {
