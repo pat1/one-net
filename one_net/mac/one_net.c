@@ -129,11 +129,11 @@ const one_net_raw_did_t ON_RAW_BROADCAST_DID = {0x00, 0x00};
 //! @{
 
 //! Packet Handlers
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     static on_pkt_hdlr_set_t pkt_hdlr = {0, 0, 0, 0, 0, 0, 0};
 #else
     static on_pkt_hdlr_set_t pkt_hdlr = {0, 0, 0};
-#endif // #ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // #ifndef _ONE_NET_SIMPLE_DEVICE //
 
 //! The current state.  This is a "protected" variable.
 on_state_t on_state = ON_INIT_STATE;
@@ -144,7 +144,7 @@ on_base_param_t * on_base_param = 0;
 //! Keep track of the number of successful data rate test packets
 static UInt8 data_rate_result;
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     //! Indicates when a block transaction has been completed
     static BOOL block_complete = FALSE;
 
@@ -153,7 +153,7 @@ static UInt8 data_rate_result;
     //! nack, in which case we want it to go back to waiting for the stream
     //! response.
     static on_txn_t * cur_stream = 0;
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
     // fill in the preamble in the Multi-Hop packet to be sent.  The rest will
@@ -193,11 +193,11 @@ static BOOL check_for_clr_channel(void);
 #endif // else _ONE_NET_MH_CLIENT_REPEATER not defined //
 static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn);
 static one_net_status_t rx_single_txn_ack(on_txn_t ** txn);
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     static one_net_status_t rx_block_resp_pkt(on_txn_t ** txn);
     static one_net_status_t rx_block_txn_ack(on_txn_t ** txn);
     static one_net_status_t rx_stream_resp_pkt(on_txn_t ** txn);
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 #ifdef _ONE_NET_MULTI_HOP
     static one_net_status_t rx_data_rate(on_txn_t * const txn,
       const BOOL RECEIVER, UInt8 * const hops);
@@ -207,12 +207,12 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn);
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 static one_net_status_t rx_single_data(const UInt8 PID,
   const on_encoded_did_t * const SRC_DID, on_txn_t ** txn);
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     static one_net_status_t rx_block_data(const UInt8 PID,
       const on_encoded_did_t * const SRC_DID, on_txn_t ** txn);
     static one_net_status_t rx_stream_data(const UInt8 PID,
       const on_encoded_did_t * const SRC_DID, on_txn_t ** txn);
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 static one_net_status_t rx_payload(UInt8 * const raw_pld,
   const UInt8 ENCODED_LEN);
 static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
@@ -372,7 +372,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
     {
         payload_len = ON_RAW_INVITE_SIZE;
     } // if client invite //
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
         else
         {
             payload_len = ON_RAW_BLOCK_STREAM_PLD_SIZE;
@@ -382,7 +382,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
         {
             return ONS_BAD_PARAM;
         } // else invalid parameter //
-    #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
+    #endif // ifdef _ONE_NET_SIMPLE_DEVICE //
 
     // get the number of XTEA rounds
     if(DATA_TYPE != ON_STREAM)
@@ -410,7 +410,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
         data[payload_len - 1] = on_base_param->single_block_encrypt;
     } // if not stream //
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
         else
         {
             switch(on_base_param->stream_encrypt)
@@ -436,7 +436,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
             data[payload_len - 1] = on_base_param->stream_encrypt;
         } // else stream //
-    #endif // if _ONE_NET_SIMPLE_CLIENT is not defined //
+    #endif // if _ONE_NET_SIMPLE_DEVICE is not defined //
 
 #ifdef _ONE_NET_USE_ENCRYPTION
     if(rounds)
@@ -493,7 +493,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
     {
         payload_len = ON_RAW_INVITE_SIZE;
     } // if client invite //
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
         else
         {
             payload_len = ON_RAW_BLOCK_STREAM_PLD_SIZE;
@@ -503,7 +503,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
         {
             return ONS_BAD_PARAM;
         } // else the parameter is invalid
-    #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
+    #endif // ifdef _ONE_NET_SIMPLE_DEVICE //
 
     // get the number of XTEA rounds
     if(DATA_TYPE != ON_STREAM)
@@ -529,7 +529,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
             } // default //
         } // switch on encryption type //
     } // if stream //
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
         else
         {
             switch(data[payload_len - 1])
@@ -553,7 +553,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
                 } // default //
             } // switch on encryption type //
         } // else single/block //
-    #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
+    #endif // ifdef _ONE_NET_SIMPLE_DEVICE //
 
 #ifdef _ONE_NET_USE_ENCRYPTION    
     if(rounds)
@@ -649,7 +649,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             break;
         } // single data case //
 
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             #ifdef _ONE_NET_MULTI_HOP
                 case ONE_NET_ENCODED_MH_BLOCK_DATA:     // fall through
                 case ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA:
@@ -671,7 +671,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
                   (const on_encoded_did_t * const)&src_did, txn);
                 break;
             } // stream data case //
-        #endif // if _ONE_NET_SIMPLE_CLIENT is not defined //
+        #endif // if _ONE_NET_SIMPLE_DEVICE is not defined //
 
         default:
         {
@@ -839,7 +839,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             break;
         } // single data case //
 
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             #ifdef _ONE_NET_MULTI_HOP
                 case ONE_NET_ENCODED_MH_BLOCK_DATA:     // fall through
                 case ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA:
@@ -872,7 +872,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
                 pld_word_size = ON_ENCODED_BLOCK_STREAM_PLD_SIZE;
                 break;
             } // single data case //
-        #endif // _ONE_NET_SIMPLE_CLIENT //
+        #endif // _ONE_NET_SIMPLE_DEVICE //
 
         default:
         {
@@ -1243,7 +1243,7 @@ one_net_status_t on_parse_pld(UInt8 * const txn_nonce, UInt8 * const resp_nonce,
             break;
         } // single case //
 
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             case ON_BLOCK:          // fall through
             case ON_STREAM:
             {
@@ -1366,7 +1366,7 @@ one_net_status_t on_parse_pld(UInt8 * const txn_nonce, UInt8 * const resp_nonce,
 #endif // ifdef _ONE_NET_MULTI_HOP //
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     /*!
         \brief Updates the time the transaction is supposed to occur at.
 
@@ -1392,7 +1392,7 @@ one_net_status_t on_parse_pld(UInt8 * const txn_nonce, UInt8 * const resp_nonce,
               on_base_param->fragment_delay_low);
         } // else a low priority transaction //
     } // on_update_next_txn_time //
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 
 
 /*!
@@ -1455,10 +1455,10 @@ BOOL one_net(on_txn_t ** txn)
         } // send packet write wait on_state //
 
         case ON_SEND_SINGLE_DATA_PKT:                   // fall through
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             case ON_SEND_BLOCK_DATA_PKT:                // fall through
             case ON_SEND_STREAM_DATA_PKT:
-        #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+        #endif // ifndef _ONE_NET_SIMPLE_DEVICE //
         {
             if(ont_inactive_or_expired(ONT_GENERAL_TIMER)
               && check_for_clr_channel())
@@ -1478,15 +1478,15 @@ BOOL one_net(on_txn_t ** txn)
 
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:            // fall through
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:       // fall through
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             case ON_SEND_BLOCK_DATA_WRITE_WAIT:         // fall through
             case ON_SEND_STREAM_DATA_WRITE_WAIT:        // fall through
-        #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+        #endif // ifndef _ONE_NET_SIMPLE_DEVICE //
         case ON_SEND_DATA_RATE_WRITE_WAIT:
         {
             if(one_net_write_done())
             {
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef _ONE_NET_SIMPLE_DEVICE
                     if(cur_stream)
                     {
                         *txn = cur_stream;
@@ -1494,7 +1494,7 @@ BOOL one_net(on_txn_t ** txn)
                         on_state = ON_WAIT_FOR_STREAM_DATA_RESP;
                     } // if cur_stream //
                     else
-                #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+                #endif // ifndef _ONE_NET_SIMPLE_DEVICE //
                 {
                     on_state++;
                 } // else not waiting for a stream response //
@@ -1577,19 +1577,19 @@ BOOL one_net(on_txn_t ** txn)
         } // wait for single data response case //
 
         case ON_SEND_SINGLE_DATA_RESP:                  // fall through
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             case ON_SEND_BLOCK_DATA_RESP:               // fall through
             case ON_SEND_STREAM_DATA_RESP:
-        #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+        #endif // ifndef _ONE_NET_SIMPLE_DEVICE //
         {
             if(check_for_clr_channel())
             {
                 one_net_write((*txn)->pkt, (*txn)->data_len);
 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef _ONE_NET_SIMPLE_DEVICE
                     // don't update the timer if waiting for a stream data resp
                     if(!cur_stream)
-                #endif // ifdef _ONE_NET_SIMPLE_CLIENT //
+                #endif // ifdef _ONE_NET_SIMPLE_DEVICE //
                 {
                     // general timer is now the response timer
 
@@ -1627,7 +1627,7 @@ BOOL one_net(on_txn_t ** txn)
             break;
         } // wait for the end of the single data transaction case //
 
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifndef _ONE_NET_SIMPLE_DEVICE
             case ON_WAIT_FOR_BLOCK_DATA_RESP:
             {
                 if(rx_block_resp_pkt(txn) == ONS_BLOCK_FAIL)
@@ -1771,7 +1771,7 @@ BOOL one_net(on_txn_t ** txn)
                 } // if write is complete //
                 break;
             } // SEND_STREAM_DATA_RESP_WRITE_WAIT case //
-        #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+        #endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 
         case ON_INIT_SEND_DATA_RATE:
         {
@@ -2444,7 +2444,7 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
 } // rx_single_txn_ack //
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     /*!
         \brief Receive the possible responses to a block data packet.
 
@@ -2886,7 +2886,7 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
 
         return status;
     } // rx_stream_resp_pkt //
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 
 
 /*!
@@ -3074,7 +3074,7 @@ static one_net_status_t rx_single_data(const UInt8 PID,
 } // rx_single_data //
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef _ONE_NET_SIMPLE_DEVICE
     /*!
         \brief Finishes reception of a block data pkt
 
@@ -3184,7 +3184,7 @@ static one_net_status_t rx_single_data(const UInt8 PID,
  
         return status;
     } // rx_stream_data //
-#endif // ifndef _ONE_NET_SIMPLE_CLIENT //
+#endif // ifndef _ONE_NET_SIMPLE_DEVICE //
 
 
 /*!
