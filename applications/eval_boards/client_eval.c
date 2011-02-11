@@ -303,8 +303,10 @@ void one_net_client_client_remove_device(void)
 	    base_param->data_rate = eval_data_rate(CLIENT);
 	    get_eval_key(&(base_param->current_key));
 	    base_param->single_block_encrypt = eval_encryption(ON_SINGLE);
+#ifdef _STREAM_MESSAGES_ENABLED
 	    get_eval_stream_key(&(base_param->stream_key));
 	    base_param->stream_encrypt = eval_encryption(ON_STREAM);
+#endif
 	    base_param->fragment_delay_low = eval_fragment_delay(ONE_NET_LOW_PRIORITY);
 	    base_param->fragment_delay_high
 	      = eval_fragment_delay(ONE_NET_HIGH_PRIORITY);

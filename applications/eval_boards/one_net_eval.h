@@ -180,7 +180,10 @@ BOOL get_raw_master_did(one_net_raw_did_t *did);
 BOOL get_eval_key(one_net_xtea_key_t *key);
 UInt8 * get_invite_key(void);
 one_net_raw_sid_t * get_raw_sid(void);
-BOOL get_eval_stream_key(one_net_xtea_key_t *stream_key);
+
+#ifdef _STREAM_MESSAGES_ENABLED
+    BOOL get_eval_stream_key(one_net_xtea_key_t *stream_key);
+#endif
 UInt8 eval_encryption(on_data_t ENCRYPT_TYPE);
 UInt8 eval_channel(void);
 UInt8 eval_data_rate(node_select_t NODE);

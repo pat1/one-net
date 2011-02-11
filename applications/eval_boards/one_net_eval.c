@@ -590,6 +590,7 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag)
 } // oncli_print_channel //
 
 
+#ifdef _STREAM_MESSAGES_ENABLED
 /*!
     \brief Returns the key to use for stream transactions.
     
@@ -612,6 +613,7 @@ BOOL get_eval_stream_key(one_net_xtea_key_t *stream_key)
     
     return TRUE;
 } // get_eval_stream_key //
+#endif
 
 
 /*!

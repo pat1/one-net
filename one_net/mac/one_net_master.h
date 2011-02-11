@@ -248,11 +248,18 @@ typedef struct
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+#ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_master_create_network(
   const one_net_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
   const one_net_xtea_key_t * const STREAM_KEY,
   const UInt8 STREAM_ENCRYPT_METHOD);
+#else
+one_net_status_t one_net_master_create_network(
+  const one_net_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
+  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD);
+#endif
+
 one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN);
 

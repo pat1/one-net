@@ -154,10 +154,18 @@ oncli_status_t oncli_reset_master(void)
 #endif
     
     get_eval_key(&key);
+
+#ifdef _STREAM_MESSAGES_ENABLED	
     get_eval_stream_key(&stream_key);
+	
     if(one_net_master_create_network(get_raw_sid(), &key,
       eval_encryption(ON_SINGLE), &stream_key, eval_encryption(ON_STREAM))
       == ONS_SUCCESS)
+#else
+    if(one_net_master_create_network(get_raw_sid(), &key,
+      eval_encryption(ON_SINGLE))
+      == ONS_SUCCESS)
+#endif
     {    
         return ONCLI_SUCCESS;
     } // if creating the network was successful //
@@ -1170,8 +1178,12 @@ static void init_base_param(on_base_param_t *base_param)
     base_param->data_rate = eval_data_rate(MASTER_NODE);
     get_eval_key(&(base_param->current_key));
     base_param->single_block_encrypt = eval_encryption(ON_SINGLE);
+	
+#ifdef _STREAM_MESSAGES_ENABLED
     get_eval_stream_key(&(base_param->stream_key));
     base_param->stream_encrypt = eval_encryption(ON_STREAM);
+#endif
+
     base_param->fragment_delay_low = eval_fragment_delay(ONE_NET_LOW_PRIORITY);
     base_param->fragment_delay_high
       = eval_fragment_delay(ONE_NET_HIGH_PRIORITY);
