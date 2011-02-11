@@ -145,6 +145,33 @@
 #endif
 
 
+// 2/10/2010 - At the moment, masters without stream and block enabled should be considered unstable, so
+//             I am forcing them both to both be defined for all masters.  This is temporary.
+#ifdef _ONE_NET_MASTER
+    #if !defined(_STREAM_MESSAGES_ENABLED) || !defined(_BLOCK_MESSAGES_ENABLED)
+    	#error "Feb. 10, 2011 - Masters without stream and block are currently unstable.  This is a temporary restriction.  Please make sure that both _STREAM_MESSAGES_ENABLED and _BLOCK_MESSAGES_ENABLED are defined in the config_options.h file."
+	#endif
+#endif
+
+
+// 2/10/2010 - At the moment, devices with multi-hop, but not stream and block are considered unstable.
+//             I am therefore disallowing this combination for now.  This is temporary.
+#ifdef _ONE_NET_MULTI_HOP
+    #if !defined(_STREAM_MESSAGES_ENABLED) || !defined(_BLOCK_MESSAGES_ENABLED)
+    	#error "Feb. 10, 2011 - Multi-Hop without stream and block are currently unstable.  This is a temporary restriction.  Please make sure that both _STREAM_MESSAGES_ENABLED and _BLOCK_MESSAGES_ENABLED are defined or undefine _ONE_NET_MULTI_HOP in the config_options.h file."
+	#endif
+#endif
+
+
+// 2/10/2010 - At the moment, Eval Boards without both master and client enabled should be considered unstable
+//             I am therefore disallowing this combination for now.  This is temporary.
+#ifdef _ONE_NET_EVAL
+    #if !defined(_ONE_NET_MASTER) || !defined(_ONE_NET_CLIENT)
+    	#error "Feb. 10, 2011 - Eval Boards without both the master and client enabled are currently unstable.  This is a temporary restriction.  Please make sure that both _ONE_NET_MASTER and _ONE_NET_CLIENT are defined in the config_options.h file."
+	#endif
+#endif
+
+
 // Block/Stream Tests
 
 // Right now it appears that either both Stream and Block should be enabled or neither should be enabled

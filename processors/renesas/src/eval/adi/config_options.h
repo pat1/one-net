@@ -117,7 +117,7 @@
 #endif
 
 // Stream Messages
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifndef _STREAM_MESSAGES_ENABLED
 	#define _STREAM_MESSAGES_ENABLED
 #endif
 
