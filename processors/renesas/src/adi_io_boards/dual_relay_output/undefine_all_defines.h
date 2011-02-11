@@ -69,7 +69,15 @@
 	#undef _ONE_NET_CLIENT
 #endif
 
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#undef _ONE_NET_SIMPLE_DEVICE
+#endif
+
 #ifdef _ONE_NET_SIMPLE_CLIENT
+	#undef _ONE_NET_SIMPLE_CLIENT
+#endif
+
+#ifdef _ONE_NET_SIMPLE_MASTER
 	#undef _ONE_NET_SIMPLE_CLIENT
 #endif
 
