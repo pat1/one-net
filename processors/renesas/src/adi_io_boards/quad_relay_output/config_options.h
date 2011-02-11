@@ -108,7 +108,7 @@
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
 // Define _PEER if your application implements peer assignments.  Default is _PEER assigned
 #ifndef _PEER
-	#define _PEER
+//	#define _PEER
 #endif
 
 // Block Messages
