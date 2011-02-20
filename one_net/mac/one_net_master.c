@@ -1706,11 +1706,6 @@ one_net_status_t one_net_master_remove_device(
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
 
-    if(!RAW_PEER_DID)
-    {
-        return ONS_BAD_PARAM;
-    } // if the parameter is invalid //
-
     if((status = on_encode(encoded_peer_did, *RAW_PEER_DID,
       sizeof(encoded_peer_did))) != ONS_SUCCESS)
     {
