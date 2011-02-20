@@ -335,11 +335,7 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
 		one_net_status_t ret;
         on_encode(enc_peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
 		
-#ifdef _ONE_NET_MULTI_HOP
         ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
-#else
-        ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
-#endif		
         switch(ret)
 		{
             case ONS_SUCCESS:
