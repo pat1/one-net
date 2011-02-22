@@ -1382,7 +1382,7 @@ typedef struct
     //! Method to encrypt single or block data
     UInt8 single_block_encrypt;
 
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifdef _STREAM_MESSAGES_ENABLED
         //! Key to use for stream data transfers
         one_net_xtea_key_t stream_key;
 
