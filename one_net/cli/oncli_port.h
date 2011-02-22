@@ -424,6 +424,7 @@ oncli_status_t oncli_print_channel(BOOL prompt_flag);
 */
 oncli_status_t oncli_print_invite(BOOL prompt_flag);
 
+
 /*!
     \brief Prints the NID.
     

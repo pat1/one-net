@@ -171,6 +171,7 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #endif
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
+    static oncli_status_t oncli_print_xtea_key(one_net_xtea_key_t* KEY, BOOL prompt_flag);
 #endif
 
 // MASTER only command handlers
@@ -1741,10 +1742,31 @@ static oncli_status_t list_cmd_hdlr(void)
     on_client_t * client_list;
     one_net_raw_did_t tmp_client_did;
 
+    nv_ptr = oncli_get_param();
+	if (nv_ptr != (UInt8 *) 0)
+	{
+	    on_base_param = (on_base_param_t *) nv_ptr;
+	}
+
     oncli_send_msg(ONCLI_STARTUP_FMT, MAJOR_VER, MINOR_VER, 0);
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, REVISION_NUM, BUILD_NUM);
-
     oncli_print_invite(FALSE);
+	delay_ms(50);
+
+    // I don't THINK on_base_param would ever be NULL, but testing here anyway.  Getting a warning still.
+	if(on_base_param != 0 && (oncli_is_master() == TRUE || client_joined_network))
+	{
+        // print encryption keys
+		oncli_send_msg    ("Non-stream message key : ");
+	    oncli_print_xtea_key(&(on_base_param->current_key), FALSE);
+		delay_ms(50);
+    	#ifdef _STREAM_MESSAGES_ENABLED
+		    oncli_send_msg("Stream message key     : ");
+	        oncli_print_xtea_key(&(on_base_param->stream_key), FALSE);
+			delay_ms(50);
+		#endif
+	}
+
     oncli_print_nid(FALSE);
 	
 	// 1/25/2010 - now displaying channel for both master and client
@@ -1770,12 +1792,10 @@ static oncli_status_t list_cmd_hdlr(void)
         //
         // print the client list
         //
-        nv_ptr = oncli_get_param();
         if (nv_ptr != (UInt8 *) 0)
         {
             UInt8 i;
-
-            on_base_param = (on_base_param_t *) nv_ptr;
+    
             master_param = (on_master_param_t *)(nv_ptr + sizeof(on_base_param_t));
             client_list = (on_client_t *)
               (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_param_t));
@@ -1828,7 +1848,6 @@ static oncli_status_t list_cmd_hdlr(void)
         //
         // print this client's peer list
         //
-        nv_ptr = oncli_get_param();
         if (nv_ptr != (UInt8 *) 0)
         {
             UInt8 index,j,count;
@@ -1868,6 +1887,40 @@ static oncli_status_t list_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
+
+
+/*!
+    \brief Prints an xtea key.
+    
+    
+    \param[in] KEY Pointer to xtea key to print
+    \param[in] prompt_flag If TRUE print a prompt, otherwise don't.
+    
+    \return ONCLI_SUCCESS If the message was successfully output.
+            ONCLI_INVALID_CMD_FOR_DEVICE if the command is not valid for the
+              current mode of the device.
+*/
+static oncli_status_t oncli_print_xtea_key(one_net_xtea_key_t* KEY, BOOL prompt_flag)
+{
+    UInt8 i;
+
+    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
+    {
+		if(i != 0)
+		{
+			oncli_send_msg(" - ");
+		}
+		oncli_send_msg("(%02x-%02x-%02x-%02x)", 
+		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
+    }
+
+    oncli_send_msg("\n");
+    if (prompt_flag == TRUE)
+    {
+        oncli_print_prompt();
+    }
+    return ONCLI_SUCCESS;
+} // oncli_print_xtea_key //
 #endif
 
 
@@ -3492,6 +3545,8 @@ BOOL oncli_is_valid_unique_key_ch(const char CH)
     return (BOOL)(isalnum(CH) && CH >= '2'
       && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
 } // oncli_is_valid_unique_key_ch //
+
+
 
 //! @} oncli_hdlr_pri_func
 //						PRIVATE FUNCTION IMPLEMENTATION END
