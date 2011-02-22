@@ -280,21 +280,11 @@ void oncli_print_admin_msg(const UInt8 MSG_TYPE, const UInt8 TXN_TYPE,
     {
         UInt8 i;
 
-        oncli_send_msg("\t");        
-        for(i = 0; i < LEN; i++)
-        {
-            oncli_send_msg("%02X ", ADMIN_MSG_DATA[i]);
-
-            if((i % 16) == 15)
-            {
-                oncli_send_msg("\n\t");
-            } // if a new line //
-        } // loop to print the data //
-        
-        if(i % 16)
-        {
-            oncli_send_msg("n");
-        } // if the line should be ended //
+        oncli_send_msg("\t");   		
+		// not sure what exactly this is printing, but since we now have a print function
+		// for xtea keys, use it.
+		oncli_print_xtea_key(&((one_net_xtea_key_t) ADMIN_MSG_DATA));
+		oncli_send_msg("\n");
     } // if not one of the change key messages //
     
     oncli_print_prompt();
@@ -394,6 +384,31 @@ void oncli_send_msg(const char * const FMT, ...)
         uart_write(output, output_len);
     #endif
 } // oncli_send_msg //
+
+
+/*!
+    \brief Prints an xtea key.
+    
+    
+    \param[in] KEY Pointer to xtea key to print
+    
+    \return void
+*/
+void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
+{
+    UInt8 i;
+
+    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
+    {
+		if(i != 0)
+		{
+			oncli_send_msg(" - ");
+		}
+		oncli_send_msg("(%02x-%02x-%02x-%02x)", 
+		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
+    }
+} // oncli_print_xtea_key //
+
 
 #if defined(_NEED_XDUMP) || defined(_ENABLE_DUMP_COMMAND)
 void xdump(UInt8 *pt, UInt16 len)

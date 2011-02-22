@@ -171,7 +171,6 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #endif
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
-    static oncli_status_t oncli_print_xtea_key(one_net_xtea_key_t* KEY, BOOL prompt_flag);
 #endif
 
 // MASTER only command handlers
@@ -1758,11 +1757,13 @@ static oncli_status_t list_cmd_hdlr(void)
 	{
         // print encryption keys
 		oncli_send_msg    ("Non-stream message key : ");
-	    oncli_print_xtea_key(&(on_base_param->current_key), FALSE);
+	    oncli_print_xtea_key(&(on_base_param->current_key));
+        oncli_send_msg("\n");
 		delay_ms(50);
     	#ifdef _STREAM_MESSAGES_ENABLED
 		    oncli_send_msg("Stream message key     : ");
-	        oncli_print_xtea_key(&(on_base_param->stream_key), FALSE);
+	        oncli_print_xtea_key(&(on_base_param->stream_key));			
+            oncli_send_msg("\n");
 			delay_ms(50);
 		#endif
 	}
@@ -1887,40 +1888,6 @@ static oncli_status_t list_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
-
-
-/*!
-    \brief Prints an xtea key.
-    
-    
-    \param[in] KEY Pointer to xtea key to print
-    \param[in] prompt_flag If TRUE print a prompt, otherwise don't.
-    
-    \return ONCLI_SUCCESS If the message was successfully output.
-            ONCLI_INVALID_CMD_FOR_DEVICE if the command is not valid for the
-              current mode of the device.
-*/
-static oncli_status_t oncli_print_xtea_key(one_net_xtea_key_t* KEY, BOOL prompt_flag)
-{
-    UInt8 i;
-
-    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
-    {
-		if(i != 0)
-		{
-			oncli_send_msg(" - ");
-		}
-		oncli_send_msg("(%02x-%02x-%02x-%02x)", 
-		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
-    }
-
-    oncli_send_msg("\n");
-    if (prompt_flag == TRUE)
-    {
-        oncli_print_prompt();
-    }
-    return ONCLI_SUCCESS;
-} // oncli_print_xtea_key //
 #endif
 
 

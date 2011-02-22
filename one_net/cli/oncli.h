@@ -119,10 +119,11 @@ void oncli_print_admin_msg(const UInt8 MSG_TYPE, const UInt8 TXN_TYPE,
 
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
 void oncli_send_msg(const char * const FMT, ...);
+void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
+
 #if defined(_NEED_XDUMP) || defined(_ENABLE_DUMP_COMMAND)
 void xdump(UInt8 *pt, UInt16 len);
 #endif
-
 
 void oncli(void);
 
