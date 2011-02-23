@@ -415,6 +415,10 @@
 	#undef _ENABLE_CLI
 #endif
 
+#ifdef _ENABLE_IDLE_COMMAND
+    #undef _ENABLE_IDLE_COMMAND
+#endif
+
 #ifdef _ENABLE_SINGLE_COMMAND
 	#undef _ENABLE_SINGLE_COMMAND
 #endif

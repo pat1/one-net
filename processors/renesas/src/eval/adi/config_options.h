@@ -519,6 +519,14 @@
 
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
+
+	// _ENABLE_IDLE_COMMAND should be defined if you need to be able to switch the device in and out of "idle" mode
+    #ifdef _IDLE
+        #ifndef _ENABLE_IDLE_COMMAND
+            #define _ENABLE_IDLE_COMMAND
+		#endif
+	#endif
+
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
 	#ifndef _ENABLE_SINGLE_COMMAND
 		#define _ENABLE_SINGLE_COMMAND
@@ -560,11 +568,11 @@
 	#ifndef _ENABLE_SAVE_COMMAND
 		#define _ENABLE_SAVE_COMMAND
 	#endif
-/*
+
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
-	#endif*/
+	#endif
 
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	/*#ifdef _ENABLE_SINGLE_COMMAND
