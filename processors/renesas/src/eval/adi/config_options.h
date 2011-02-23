@@ -177,6 +177,17 @@
 	#endif
 #endif
 
+// load/dump options - commented out for now
+#ifdef _IDLE
+/*    #ifndef _ONE_NET_LOAD
+        #define _ONE_NET_LOAD
+	#endif
+	
+    #ifndef _ONE_NET_DUMP
+        #define _ONE_NET_DUMP
+	#endif*/
+#endif
+
 
 // Encryption, Encoding, and Random Padding of unused packet portions for
 // increased security

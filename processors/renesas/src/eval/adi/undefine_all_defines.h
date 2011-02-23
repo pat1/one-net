@@ -540,6 +540,16 @@
 #endif
 
 
+// Load/Dump
+#ifdef _ONE_NET_LOAD
+	#undef _ONE_NET_LOAD
+#endif
+
+#ifdef _ONE_NET_DUMP
+	#undef _ONE_NET_DUMP
+#endif
+
+
 
 
 //! @} one_net_undefine_all_defines_const
