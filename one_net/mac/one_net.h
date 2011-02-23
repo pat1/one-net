@@ -1561,6 +1561,11 @@ extern const one_net_raw_did_t ON_RAW_BROADCAST_DID;
 
 void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR);
 
+#ifdef _IDLE
+    void set_on_state(UInt8 new_on_state);
+#endif
+
+
 // address functions
 BOOL on_is_my_NID(const on_encoded_nid_t * const NID);
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,

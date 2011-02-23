@@ -248,6 +248,14 @@ void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR)
 } // one_net_init //
 
 
+#ifdef _IDLE
+void set_on_state(UInt8 new_on_state)
+{
+	on_state = new_on_state;
+}
+#endif
+
+
 /*!
     \brief Compares the NID passed in to the devices own NID
 
