@@ -1562,7 +1562,8 @@ extern const one_net_raw_did_t ON_RAW_BROADCAST_DID;
 void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR);
 
 #ifdef _IDLE
-    void set_on_state(UInt8 new_on_state);
+    BOOL set_on_state(UInt8 new_on_state);
+	void set_allow_set_state(BOOL allow);
 #endif
 
 

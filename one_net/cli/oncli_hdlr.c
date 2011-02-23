@@ -1960,8 +1960,13 @@ static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if the data is not formatted correctly //
 
-    set_on_state(newState);
-    return ONCLI_SUCCESS;
+    if(set_on_state(newState))
+	{
+        return ONCLI_SUCCESS;
+	}
+	
+	// if we're "busy" and cannot change state
+	return ONCLI_RSRC_UNAVAILABLE_STR;
 }
 #endif
 

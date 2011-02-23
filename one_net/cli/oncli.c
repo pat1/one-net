@@ -351,7 +351,7 @@ void oncli_send_msg(const char * const FMT, ...)
     #if 0   // for debugging the garbled output on receiving a message bug TODO: RWM: remove after debugging
         if ((FMT == ONCLI_RX_DATA_FMT) || (FMT == ONCLI_RX_TXT_FMT))
         {
-            UInt8 i;
+            UInt8 i, high_nibble, low_nibble;
 #ifdef _ONE_NET_DEBUG_STACK 
             uart_write("\nIn oncli_send, stack is ", 25);
             uart_write_int8_hex( (((UInt16)(&tmp))>>8) & 0xff );
@@ -425,6 +425,145 @@ void xdump(UInt8 *pt, UInt16 len)
     oncli_send_msg("\n");
     delay_ms(100);
 }
+#endif
+
+
+/*!
+    \brief Function to dump volatile memory to UART
+        
+    \param ptr pointer to start of memory to be dumped
+	\param length number of bytes to dump
+    
+    \return true if successful, false otherwise
+*/
+#ifdef _ONE_NET_DUMP
+    BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length)
+	{
+		// note : newline signifies a break/"your turn to send"
+		int i, j;
+		UInt8* temp_ptr;
+		UInt8 response;
+		UInt16 numChunks;
+		UInt8 chunkSize;
+		BOOL success, abort;
+		const UInt8 ACK = '0';  // All is OK
+		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
+		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
+		const UInt8 MAX_CHUNK_SIZE = 20;
+		UInt8 buffer[MAX_CHUNK_SIZE];
+		UInt8 resp_buffer[2]
+		UInt8 crc;
+		
+		// we want un-interrupted communication, so set idle and prevent anyone
+		// from changing that.
+        if(!set_on_state(ON_IDLE))
+		{
+			return FALSE;
+		}
+		
+		set_allow_set_state(FALSE);
+		
+
+		numChunks = length / MAX_CHUNK_SIZE;
+		if(length % MAX_CHUNK_SIZE != 0)
+		{
+			numChunks++;
+		}
+		
+		// first send the start of transmission/number of bytes/number of chunks
+		success = FALSE;
+		abort = FALSE;
+		while(!success && !abort)
+		{
+			delay_ms(50);
+		    oncli_send_msg("TRANS_START:%d:%d\n", length, numChunks);
+			oncli_read(resp_buffer, 2);
+			if(buffer[1] == '\n')
+			{
+				// we got the break.
+				if(buffer[0] == ACK)
+				{
+					success = TRUE;
+				}
+				else if(buffer[0] == NACK_ABORT)
+				{
+					// other end has given up.
+					abort = TRUE;
+				}
+			}
+		}
+		
+		for(i = 0; !abort && i < numChunks; i++)
+		{
+			delay_ms(50);
+			temp_ptr = ptr + (i * MAX_CHUNK_SIZE);
+			
+			chunkSize = MAX_CHUNK_SIZE;
+			if(i == numChunks - 1)
+			{
+				chunkSize = length - (i * MAX_CHUNK_SIZE);
+			}
+			
+			// load the buffer with the relevant memory
+			one_net_memmove(buffer, temp_ptr, chunkSize);
+            crc != one_net_compute_crc(ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
+				
+			oncli_send_msg("CHUNK_START:%d:%d", i, chunkSize);
+			for(j = 0; j < chunkSize; j++)
+			{
+				high_nibble = (*(ptr + j)) >> 4;
+				low_nibble  = (*(ptr + j)) & 0x0F
+				if(j == 0)
+				{
+					oncli_send_msg(":");
+				}
+				oncli_send_msg("%c%c", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);				
+			}
+			
+			// send the crc and the break
+			oncli_send_msg(":%d\n", crc);
+			
+			// now listen for the ACK or NACK
+			oncli_read(resp_buffer, 2);
+			if(resp_buffer[1] == '\n')
+			{
+				// we got the break.
+				if(resp_buffer[0] == ACK)
+				{
+					success = TRUE;
+				}
+				else if(resp_buffer[0] == NACK_ABORT)
+				{
+					// other end has given up.
+					abort = TRUE;
+				}
+				else
+				{
+					// NACK - try again
+					i--;
+				}
+			}
+			else
+			{
+				// no newline break.  Try again.
+				i--;
+			}			
+		}
+		
+		// we're done.  Get out of idle mode and reset the flag
+		set_allow_set_state(TRUE);
+		set_on_state(ON_LISTEN_FOR_DATA);
+		
+        return !abort;
+	}
+#endif
+
+#ifdef _ONE_NET_LOAD
+    BOOL load_volatile_memory(UInt8* ptr, const UInt16 length)
+	{
+		// TODO - write this
+        return TRUE;
+	}
 #endif
 
 

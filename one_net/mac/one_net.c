@@ -135,8 +135,17 @@ const one_net_raw_did_t ON_RAW_BROADCAST_DID = {0x00, 0x00};
     static on_pkt_hdlr_set_t pkt_hdlr = {0, 0, 0};
 #endif // #ifndef _ONE_NET_SIMPLE_DEVICE //
 
+#ifdef _IDLE
+    //! Whether the current state is allowed to be changed
+    static BOOL allow_set_state = TRUE;
+#endif
+
 //! The current state.  This is a "protected" variable.
 on_state_t on_state = ON_INIT_STATE;
+
+
+
+
 
 //! The base parameters for the device
 on_base_param_t * on_base_param = 0;
@@ -249,9 +258,20 @@ void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR)
 
 
 #ifdef _IDLE
-void set_on_state(UInt8 new_on_state)
+BOOL set_on_state(UInt8 new_on_state)
 {
+	if(!allow_set_state)
+	{
+		return FALSE;
+	}
 	on_state = new_on_state;
+	return TRUE;
+}
+
+
+void set_allow_set_state(BOOL allow)
+{
+	allow_set_state = allow;
 }
 #endif
 
