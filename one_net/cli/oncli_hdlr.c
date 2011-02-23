@@ -172,6 +172,9 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
+#ifdef _ENABLE_IDLE_COMMAND
+    static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST);
+#endif
 
 // MASTER only command handlers
 #ifdef _ENABLE_INVITE_COMMAND
@@ -351,6 +354,23 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // if the set pin command was received //
 	#endif
 	
+	#ifdef _ENABLE_IDLE_COMMAND
+    if(!strnicmp(ONCLI_IDLE_CMD_STR, CMD, strlen(ONCLI_IDLE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_IDLE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_IDLE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &idle_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // if the set pin command was received //
+	#endif
+		
 	#ifdef _ENABLE_SET_VALUE_COMMAND
     if(!strnicmp(ONCLI_SET_VALUE_CMD_STR, CMD, strlen(ONCLI_SET_VALUE_CMD_STR)))
     {
@@ -1888,6 +1908,61 @@ static oncli_status_t list_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_IDLE_COMMAND
+/*!
+    \brief Sets the microcontroller into or idle mode or removes it from idle mode.
+    
+    The idle command has the form
+    
+    idle:on or idle:off
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            See oncli_invite for more possible return values.
+*/
+static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr = 0;
+    on_state_t newState;
+	
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+	
+    // read in the value to set idle to (on, off)
+    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
+    {
+        newState = ON_IDLE;
+        PARAM_PTR += strlen(ONCLI_ON_STR);
+    } // if it should be an input //
+    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
+    {
+        newState = ON_LISTEN_FOR_DATA;
+        PARAM_PTR += strlen(ONCLI_OFF_STR);
+    } // else if it should be an output //
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else if the priority is invalid //
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+    set_on_state(newState);
+    return ONCLI_SUCCESS;
+}
 #endif
 
 

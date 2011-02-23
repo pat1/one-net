@@ -140,6 +140,9 @@ enum {ONCLI_FATAL_ERR_1_LEN = 15};
 
 
 // Command Strings
+#ifdef _ENABLE_IDLE_COMMAND
+extern const char * const ONCLI_IDLE_CMD_STR;
+#endif
 extern const char * const ONCLI_SINGLE_CMD_STR;
 extern const char * const ONCLI_SET_PIN_CMD_STR;
 extern const char * const ONCLI_SET_VALUE_CMD_STR;

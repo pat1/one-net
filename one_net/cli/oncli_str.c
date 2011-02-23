@@ -256,6 +256,11 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 	const char * const ONCLI_SET_PIN_CMD_STR = "set pin";
 #endif
 
+#ifdef _ENABLE_IDLE_COMMAND
+    //! Idle command string
+	const char * const ONCLI_IDLE_CMD_STR = "idle";
+#endif
+
 #ifdef _ENABLE_SINGLE_TEXT_COMMAND
 	//! Single text command string
 	const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
