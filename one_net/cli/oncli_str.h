@@ -157,6 +157,14 @@ extern const char * const ONCLI_SAVE_CMD_STR;
 extern const char * const ONCLI_DUMP_CMD_STR;
 #endif
 
+#ifdef _ENABLE_MEMDUMP_COMMAND
+extern const char* const ONCLI_MEMDUMP_CMD_STR;
+#endif
+
+#ifdef _ENABLE_MEMLOAD_COMMAND
+extern const char* const ONCLI_MEMLOAD_CMD_STR;
+#endif
+
 #ifdef _ENABLE_RSINGLE_COMMAND
 extern const char * const ONCLI_RSEND_CMD_STR;
 #endif

@@ -163,6 +163,12 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_DUMP_COMMAND 
 	static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
+#ifdef _ENABLE_MEMDUMP_COMMAND 
+	static oncli_status_t memdump_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#ifdef _ENABLE_MEMLOAD_COMMAND 
+	static oncli_status_t memload_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
 #ifdef _ENABLE_RSINGLE_COMMAND 
 	static oncli_status_t rsend_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -480,6 +486,42 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the dump command was received //
 	#endif
+	
+	#ifdef _ENABLE_MEMDUMP_COMMAND 
+    if(!strnicmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMDUMP_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMDUMP_CMD_STR)]
+          != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &memdump_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the memdump command was received //
+	#endif
+	
+	#ifdef _ENABLE_MEMLOAD_COMMAND 
+    if(!strnicmp(ONCLI_MEMLOAD_CMD_STR, CMD, strlen(ONCLI_MEMLOAD_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMLOAD_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMLOAD_CMD_STR)]
+          != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &memload_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the memload command was received //
+	#endif	
 
 	#ifdef _ENABLE_RSINGLE_COMMAND 
     if(!strnicmp(ONCLI_RSEND_CMD_STR, CMD, strlen(ONCLI_RSEND_CMD_STR)))
@@ -1646,6 +1688,128 @@ static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     return ONCLI_SUCCESS;
 } // dump_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_MEMDUMP_COMMAND
+/*!
+    \brief Dumps volatile memory to UART
+    
+    The memdump command has the form
+    
+    memdump:master_param or memdump:base_param or memdump:peer
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+*/
+static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr = 0;
+    UInt8* startAddress = 0;
+	UInt16 length = 0;
+	UInt8 * nv_ptr;
+	
+
+	const char* const BASE_PARAM_STR = "base_param";
+	const char* const PEER_STR = "peer";
+    #ifdef _ONE_NET_MASTER
+	    BOOL isMaster;
+	    const char* const MASTER_PARAM_STR = "master_param";
+	    const char* const CLIENT_LIST_STR = "client_list";
+		isMaster = oncli_is_master();
+	#endif
+
+	
+    nv_ptr = oncli_get_param();
+	if (nv_ptr == 0)
+	{
+        return ONCLI_RSRC_UNAVAILABLE_STR;
+	}
+	
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+	
+    // read in the value to set idle to (on, off)
+    if(strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
+    {
+        startAddress = (UInt8*) nv_ptr;
+        PARAM_PTR += strlen(BASE_PARAM_STR);
+    } // dump base_param memory //
+    else if(strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
+    {
+	#ifdef _ONE_NET_MASTER
+	    if(isMaster)
+		{
+			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
+			length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);    
+			if(!master_get_peer_assignment_to_save(&startAddress, &length))
+			{
+				return ONCLI_RSRC_UNAVAILABLE_STR;
+			}      
+		}
+		else
+		{
+			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
+			length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);
+		}
+	#else
+	    startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
+        length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);	
+	#endif
+        PARAM_PTR += strlen(PEER_STR);
+    } // dump peer memory //
+#ifdef _ONE_NET_MASTER
+    else if(isMaster)
+	{
+        if(strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
+		{
+			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
+			length = sizeof(on_master_param_t);
+			PARAM_PTR += strlen(MASTER_PARAM_STR);
+		}
+        else if(strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
+		{
+			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
+			length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
+			PARAM_PTR += strlen(MASTER_PARAM_STR);
+		}
+		else
+		{
+			return ONCLI_PARSE_ERR;
+		}
+	}
+#endif
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else if the priority is invalid //
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+
+    // right now don't do anything.  Just check the paramters to make sure they work
+    oncli_send_msg("Testing for bugs! :  %p %p %d\n", nv_ptr, startAddress, length);
+    return ONCLI_SUCCESS;
+
+    // replace the above with the below as soon as the above is verified to work.
+    /*if(load_volatile_memory(startAddress, length))
+	{
+		return ONCLI_SUCCESS;
+	}
+
+    return ONCLI_RSRC_UNAVAILABLE_STR;*/
+}
 #endif
 
 

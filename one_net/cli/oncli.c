@@ -55,6 +55,10 @@
 #include "one_net_port_specific.h"
 #include "pal.h"
 #include "uart.h"
+#if defined(_ONE_NET_LOAD) || defined(_ONE_NET_DUMP)
+    #include "one_net_crc.h"
+	extern const char HEX_DIGIT[];
+#endif
 
 
 //==============================================================================
@@ -441,18 +445,16 @@ void xdump(UInt8 *pt, UInt16 len)
 	{
 		// note : newline signifies a break/"your turn to send"
 		int i, j;
+		UInt8 response, crc, chunkSize, high_nibble, low_nibble;
 		UInt8* temp_ptr;
-		UInt8 response;
 		UInt16 numChunks;
-		UInt8 chunkSize;
 		BOOL success, abort;
 		const UInt8 ACK = '0';  // All is OK
 		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
 		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
 		const UInt8 MAX_CHUNK_SIZE = 20;
 		UInt8 buffer[MAX_CHUNK_SIZE];
-		UInt8 resp_buffer[2]
-		UInt8 crc;
+		UInt8 resp_buffer[2];
 		
 		// we want un-interrupted communication, so set idle and prevent anyone
 		// from changing that.
@@ -512,7 +514,7 @@ void xdump(UInt8 *pt, UInt16 len)
 			for(j = 0; j < chunkSize; j++)
 			{
 				high_nibble = (*(ptr + j)) >> 4;
-				low_nibble  = (*(ptr + j)) & 0x0F
+				low_nibble  = (*(ptr + j)) & 0x0F;
 				if(j == 0)
 				{
 					oncli_send_msg(":");

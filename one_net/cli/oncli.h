@@ -125,6 +125,14 @@ void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
 void xdump(UInt8 *pt, UInt16 len);
 #endif
 
+#ifdef _ONE_NET_DUMP
+    BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length);
+#endif
+
+#ifdef _ONE_NET_LOAD
+    BOOL load_volatile_memory(UInt8* ptr, const UInt16 length);
+#endif
+
 void oncli(void);
 
 //! @} oncli_pub_func

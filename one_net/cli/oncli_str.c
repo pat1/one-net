@@ -291,6 +291,14 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 	const char * const ONCLI_DUMP_CMD_STR = "dump";
 #endif
 
+#ifdef _ENABLE_MEMDUMP_COMMAND
+    const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
+#endif
+
+#ifdef _ENABLE_MEMLOAD_COMMAND
+    const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
+#endif
+
 #ifdef _ENABLE_RSINGLE_COMMAND
 	//! Repeat sending messages
 	const char * const ONCLI_RSEND_CMD_STR = "rsingle";
