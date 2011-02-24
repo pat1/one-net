@@ -540,6 +540,8 @@
 #endif
 
 
+
+
 // Load/Dump
 #ifdef _ONE_NET_LOAD
 	#undef _ONE_NET_LOAD
@@ -549,6 +551,13 @@
 	#undef _ONE_NET_DUMP
 #endif
 
+#ifdef _ENABLE_MEMLOAD_COMMAND
+	#undef _ENABLE_MEMLOAD_COMMAND
+#endif
+
+#ifdef _ENABLE_MEMDUMP_COMMAND
+	#undef _ENABLE_MEMDUMP_COMMAND
+#endif
 
 
 

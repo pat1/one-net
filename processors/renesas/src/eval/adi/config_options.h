@@ -181,11 +181,11 @@
 #ifdef _IDLE
 /*    #ifndef _ONE_NET_LOAD
         #define _ONE_NET_LOAD
-	#endif
+	#endif*/
 	
     #ifndef _ONE_NET_DUMP
         #define _ONE_NET_DUMP
-	#endif*/
+	#endif
 #endif
 
 
@@ -584,7 +584,21 @@
 	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
 	#endif
-
+	
+	// _ENABLE_MEMDUMP_COMMAND should be defined if you are implementing the "memdump" command option
+	#ifdef _ONE_NET_DUMP
+	    #ifndef _ENABLE_MEMDUMP_COMMAND
+		    #define _ENABLE_MEMDUMP_COMMAND
+	    #endif
+	#endif
+	
+	// _ENABLE_MEMLOAD_COMMAND should be defined if you are implementing the "memload" command option
+	#ifdef _ONE_NET_LOAD
+	    #ifndef _ENABLE_MEMLOAD_COMMAND
+		    #define _ENABLE_MEMLOAD_COMMAND
+	    #endif
+	#endif
+	
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	/*#ifdef _ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
