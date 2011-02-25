@@ -508,7 +508,7 @@ void xdump(UInt8 *pt, UInt16 len)
 			
 			// load the buffer with the relevant memory
 			one_net_memmove(buffer, temp_ptr, chunkSize);
-            crc != one_net_compute_crc(ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
+            crc = one_net_compute_crc(ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
 				
 			oncli_send_msg("CHUNK_START:%d:%d", i, chunkSize);
 			for(j = 0; j < chunkSize; j++)
