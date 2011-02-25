@@ -444,10 +444,14 @@ void xdump(UInt8 *pt, UInt16 len)
     BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length)
 	{
 		// note : newline signifies a break/"your turn to send"
+		// note : Reading from uart seems to change '\n' to '\r' and/or
+		// vice-versa.  I think a newline is considered 1 character, not 2,
+		// even with Windows.  But we'll call either '\r' or '\n' a newline
 		int i, j;
 		UInt8 response, crc, chunkSize, high_nibble, low_nibble;
 		UInt8* temp_ptr;
 		UInt16 numChunks;
+		UInt8 bytesRead;
 		BOOL success, abort;
 		const UInt8 ACK = '0';  // All is OK
 		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
@@ -464,7 +468,6 @@ void xdump(UInt8 *pt, UInt16 len)
 		}
 		
 		set_allow_set_state(FALSE);
-		
 
 		numChunks = length / MAX_CHUNK_SIZE;
 		if(length % MAX_CHUNK_SIZE != 0)
@@ -479,8 +482,14 @@ void xdump(UInt8 *pt, UInt16 len)
 		{
 			delay_ms(50);
 		    oncli_send_msg("TRANS_START:%d:%d\n", length, numChunks);
-			oncli_read(resp_buffer, 2);
-			if(buffer[1] == '\n')
+			bytesRead = 0;
+			do
+			{
+			    bytesRead += oncli_read(&resp_buffer[bytesRead], 1);
+			}
+			while(bytesRead < 2);
+			
+			if(buffer[1] == '\r' || buffer[1] == '\n')
 			{
 				// we got the break.
 				if(buffer[0] == ACK)
@@ -526,8 +535,14 @@ void xdump(UInt8 *pt, UInt16 len)
 			oncli_send_msg(":%d\n", crc);
 			
 			// now listen for the ACK or NACK
-			oncli_read(resp_buffer, 2);
-			if(resp_buffer[1] == '\n')
+			bytesRead = 0;
+			do
+			{
+			    bytesRead += oncli_read(&resp_buffer[bytesRead], 1);
+			}
+			while(bytesRead < 2);
+
+		    if(resp_buffer[1] == '\r' || resp_buffer[1] == '\n')
 			{
 				// we got the break.
 				if(resp_buffer[0] == ACK)
