@@ -1724,26 +1724,25 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 	    const char* const CLIENT_LIST_STR = "client_list";
 		isMaster = oncli_is_master();
 	#endif
-
 	
     nv_ptr = oncli_get_param();
 	if (nv_ptr == 0)
 	{
         return ONCLI_RSRC_UNAVAILABLE_STR;
 	}
-	
+
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
-	
-    // read in the value to set idle to (on, off)
-    if(strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
+
+    if(!strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
     {
         startAddress = (UInt8*) nv_ptr;
         PARAM_PTR += strlen(BASE_PARAM_STR);
     } // dump base_param memory //
-    else if(strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
+#ifdef _PEER
+    else if(!strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
     {
 	#ifdef _ONE_NET_MASTER
 	    if(isMaster)
@@ -1766,16 +1765,17 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 	#endif
         PARAM_PTR += strlen(PEER_STR);
     } // dump peer memory //
+#endif
 #ifdef _ONE_NET_MASTER
     else if(isMaster)
 	{
-        if(strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
+        if(!strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
 		{
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
 			length = sizeof(on_master_param_t);
 			PARAM_PTR += strlen(MASTER_PARAM_STR);
 		}
-        else if(strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
+        else if(!strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
 		{
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
 			length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
