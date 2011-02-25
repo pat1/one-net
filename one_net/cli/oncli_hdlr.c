@@ -1739,6 +1739,7 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
     if(!strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
     {
         startAddress = (UInt8*) nv_ptr;
+		length = sizeof(on_base_param_t);
         PARAM_PTR += strlen(BASE_PARAM_STR);
     } // dump base_param memory //
 #ifdef _PEER
@@ -1799,16 +1800,16 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 
 
     // right now don't do anything.  Just check the paramters to make sure they work
-    oncli_send_msg("Testing for bugs! :  %p %p %d\n", nv_ptr, startAddress, length);
-    return ONCLI_SUCCESS;
+    //oncli_send_msg("Testing for bugs! :  %p %p %d\n", nv_ptr, startAddress, length);
+    //return ONCLI_SUCCESS;
 
     // replace the above with the below as soon as the above is verified to work.
-    /*if(load_volatile_memory(startAddress, length))
+    if(dump_volatile_memory(startAddress, length))
 	{
 		return ONCLI_SUCCESS;
 	}
 
-    return ONCLI_RSRC_UNAVAILABLE_STR;*/
+    return ONCLI_RSRC_UNAVAILABLE_STR;
 }
 #endif
 
