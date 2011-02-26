@@ -179,9 +179,9 @@
 
 // load/dump options - commented out for now
 #ifdef _IDLE
-/*    #ifndef _ONE_NET_LOAD
+    #ifndef _ONE_NET_LOAD
         #define _ONE_NET_LOAD
-	#endif*/
+	#endif
 	
     #ifndef _ONE_NET_DUMP
         #define _ONE_NET_DUMP
