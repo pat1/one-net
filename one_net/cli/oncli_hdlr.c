@@ -81,6 +81,15 @@ extern BOOL client_joined_network;
 extern one_net_raw_did_t client_did;
 
 
+#ifdef _ONE_NET_EVAL
+// defined in one_net_master.c, for eval board only
+extern void on_master_force_save(void);
+
+// defined in one_net_client.c, for eval board only
+extern void on_client_force_save(void);
+#endif
+
+
 //==============================================================================
 //								CONSTANTS
 //! \defgroup oncli_hdlr_const
@@ -1964,6 +1973,27 @@ static oncli_status_t list_cmd_hdlr(void)
     on_client_t * client_list;
     one_net_raw_did_t tmp_client_did;
 
+#ifdef _ONE_NET_EVAL
+    // update parameters by "saving" them.  Hopefully doesn't actually save them?
+#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MASTER)
+    BOOL isMaster = oncli_is_master();
+    if(isMaster)
+	{
+		on_master_force_save();
+	}
+	else
+	{
+        on_client_force_save();
+	}
+#elif defined(_ONE_NET_MASTER)
+    BOOL isMaster = TRUE;
+	on_master_force_save();
+#else
+    BOOL isMaster = FALSE;
+	on_client_force_save();
+#endif
+#endif
+
     nv_ptr = oncli_get_param();
 	if (nv_ptr != (UInt8 *) 0)
 	{
@@ -1997,7 +2027,7 @@ static oncli_status_t list_cmd_hdlr(void)
     oncli_send_msg("Channel: ");
     oncli_print_channel(FALSE);
 		
-    if (oncli_is_master() == TRUE)
+    if (isMaster)
     {
         //
         // handle master specific output
