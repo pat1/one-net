@@ -656,20 +656,22 @@ void xdump(UInt8 *pt, UInt16 len)
 		
 		while(!success && !abort)
 		{
+			delay_ms(40);
 		    bytesRead = 0;
 		    ascii_buffer[bytesRead] = 0;
 		    abort = FALSE;
 		    success = FALSE;
 		    error = FALSE;
 
-	    	while(ascii_buffer[bytesRead] != '\r' && ascii_buffer[bytesRead] != '\n')
+	    	while(bytesRead == 0 || (ascii_buffer[bytesRead-1] != '\r' && ascii_buffer[bytesRead-1] != '\n'))
 		    {
 			    bytesRead += oncli_read(&ascii_buffer[bytesRead], 1);
+				
 		    	if(bytesRead > 24)
 		    	{
 			    	// too long
 					error = TRUE;
-					bytesRead = 0; // read things in and throw them away.  We're in error condition.
+					bytesRead = 1; // read things in and throw them away.  We're in error condition.
 			    }
 		    }
 			
@@ -699,7 +701,7 @@ void xdump(UInt8 *pt, UInt16 len)
 			
 			if(error)
 			{
-				oncli_send_msg("%d\n", NACK_RESEND);
+				oncli_send_msg("%c\n", NACK_RESEND);
 			}
 			else
 			{
@@ -708,18 +710,18 @@ void xdump(UInt8 *pt, UInt16 len)
 				if(numChunks <= 0)
 				{
 					abort = TRUE;
-					oncli_send_msg("%d\n", NACK_ABORT);
+					oncli_send_msg("%c\n", NACK_ABORT);
 				}
 				else
 				{
 					success = TRUE;
-					oncli_send_msg("%d\n", ACK);
+					oncli_send_msg("%c\n", ACK);
 				}
 			}
 		}
 
 
-        // we want to readin a chunk at a time, test it, and send the ACK, NACK, or ABORT.
+        // we want to read in a chunk at a time, test it, and send the ACK, NACK, or ABORT.
 		// A "chunk" representing 15 bytes would look like this:
 		// CHUNK_START:0002000F:0A0B0C0D0E0F407D00000019000000:B0
 		// It starts with "CHUNK_START:", then 8 hex digits.  The first 4 represent the chunk
@@ -741,14 +743,14 @@ void xdump(UInt8 *pt, UInt16 len)
 		    ascii_buffer[bytesRead] = 0;
 		    error = FALSE;
 
-	    	while(ascii_buffer[bytesRead] != '\r' && ascii_buffer[bytesRead] != '\n')
+	    	while(bytesRead == 0 || (ascii_buffer[bytesRead-1] != '\r' && ascii_buffer[bytesRead-1] != '\n'))
 		    {
-			    bytesRead += oncli_read(&ascii_buffer[bytesRead], 1);
+			    bytesRead += oncli_read(&ascii_buffer[bytesRead], 1);			
 		    	if(bytesRead > (25 + MAX_CHUNK_SIZE * 2))
 		    	{
 			    	// too long
 					error = TRUE;
-					bytesRead = 0; // read things in and throw them away.  We're in error condition.
+					bytesRead = 1; // read things in and throw them away.  We're in error condition.
 			    }
 		    }
 			
@@ -842,11 +844,11 @@ memload_send_chunk_reply:
 			delay_ms(50);
 			if(abort)
 			{
-				oncli_send_msg("%d\n", NACK_ABORT);
+				oncli_send_msg("%c\n", NACK_ABORT);
 			}
 			else if(error)
 			{
-				oncli_send_msg("%d\n", NACK_RESEND);
+				oncli_send_msg("%c\n", NACK_RESEND);
 			}
 			else
 			{
@@ -858,7 +860,7 @@ memload_send_chunk_reply:
 				{
 					success = TRUE;
 				}
-				oncli_send_msg("%d\n", ACK);
+				oncli_send_msg("%c\n", ACK);
 			}
 		}
 		
