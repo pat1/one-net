@@ -457,9 +457,8 @@ void xdump(UInt8 *pt, UInt16 len)
 		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
 		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
 		const UInt8 MAX_CHUNK_SIZE = 20;
-		UInt8 buffer[MAX_CHUNK_SIZE];
-		UInt8 resp_buffer[2];
-		
+		UInt8 buffer[5];
+
 		// we want un-interrupted communication, so set idle and prevent anyone
 		// from changing that.
         if(!set_on_state(ON_IDLE))
@@ -481,11 +480,28 @@ void xdump(UInt8 *pt, UInt16 len)
 		while(!success && !abort)
 		{
 			delay_ms(50);
-		    oncli_send_msg("TRANS_START:%d:%d\n", length, numChunks);
+			buffer[0] = (UInt8)(length >> 8);
+			buffer[1] = (UInt8)(length & 0x00FF);
+			buffer[2] = (UInt8)(numChunks >> 8);
+			buffer[3] = (UInt8)(numChunks & 0x00FF);
+			buffer[4] = one_net_compute_crc(buffer, 4, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
+			oncli_send_msg("TRANS_START:");
+			for(i = 0; i < 5; i++)
+			{
+				if(i == 4)
+				{
+					oncli_send_msg(":");
+				}
+                high_nibble = buffer[i] >> 4;
+                low_nibble  = buffer[i] & 0x0F;
+				oncli_send_msg("%c%c", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);
+			}
+			oncli_send_msg("\n");
+
 			bytesRead = 0;
 			do
 			{
-			    bytesRead += oncli_read(&resp_buffer[bytesRead], 1);
+			    bytesRead += oncli_read(&buffer[bytesRead], 1);
 			}
 			while(bytesRead < 2);
 			
@@ -515,15 +531,13 @@ void xdump(UInt8 *pt, UInt16 len)
 				chunkSize = length - (i * MAX_CHUNK_SIZE);
 			}
 			
-			// load the buffer with the relevant memory
-			one_net_memmove(buffer, temp_ptr, chunkSize);
-            crc = one_net_compute_crc(ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
+            crc = one_net_compute_crc(temp_ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
 				
 			oncli_send_msg("CHUNK_START:%d:%d", i, chunkSize);
 			for(j = 0; j < chunkSize; j++)
 			{
-				high_nibble = (*(ptr + j)) >> 4;
-				low_nibble  = (*(ptr + j)) & 0x0F;
+				high_nibble = (*(temp_ptr + j)) >> 4;
+				low_nibble  = (*(temp_ptr + j)) & 0x0F;
 				if(j == 0)
 				{
 					oncli_send_msg(":");
@@ -532,24 +546,26 @@ void xdump(UInt8 *pt, UInt16 len)
 			}
 			
 			// send the crc and the break
-			oncli_send_msg(":%d\n", crc);
+			high_nibble = crc >> 4;
+			low_nibble  = crc & 0x0F;
+			oncli_send_msg(":%c%c\n", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);
 			
 			// now listen for the ACK or NACK
 			bytesRead = 0;
 			do
 			{
-			    bytesRead += oncli_read(&resp_buffer[bytesRead], 1);
+			    bytesRead += oncli_read(&buffer[bytesRead], 1);
 			}
 			while(bytesRead < 2);
 
-		    if(resp_buffer[1] == '\r' || resp_buffer[1] == '\n')
+		    if(buffer[1] == '\r' || buffer[1] == '\n')
 			{
 				// we got the break.
-				if(resp_buffer[0] == ACK)
+				if(buffer[0] == ACK)
 				{
-					success = TRUE;
+					success = TRUE; 
 				}
-				else if(resp_buffer[0] == NACK_ABORT)
+				else if(buffer[0] == NACK_ABORT)
 				{
 					// other end has given up.
 					abort = TRUE;
