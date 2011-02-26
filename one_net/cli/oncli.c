@@ -736,6 +736,7 @@ void xdump(UInt8 *pt, UInt16 len)
 		// the chunk size times 2, so for a chunk size of 15, that would be (25 + (15 * 2)) or 55.
 		chunkNumber = 0;
 		chunkSize = 0;
+		thisChunkSize = 0;
 		success = FALSE;
 		while(!success && !abort)
 		{
