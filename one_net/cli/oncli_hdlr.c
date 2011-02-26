@@ -1968,7 +1968,7 @@ static oncli_status_t list_cmd_hdlr(void)
 {
     one_net_raw_did_t raw_did;
     UInt8 * nv_ptr;
-    on_base_param_t * on_base_param;
+    on_base_param_t * on_base_param = 0;
     on_master_param_t * master_param;
     on_client_t * client_list;
     one_net_raw_did_t tmp_client_did;
@@ -2006,7 +2006,7 @@ static oncli_status_t list_cmd_hdlr(void)
 	delay_ms(50);
 
     // I don't THINK on_base_param would ever be NULL, but testing here anyway.  Getting a warning still.
-	if(on_base_param != 0 && (oncli_is_master() == TRUE || client_joined_network))
+	if(on_base_param != 0 && (isMaster || client_joined_network))
 	{
         // print encryption keys
 		oncli_send_msg    ("Non-stream message key : ");
