@@ -449,8 +449,8 @@ void xdump(UInt8 *pt, UInt16 len)
 		// note : Reading from uart seems to change '\n' to '\r' and/or
 		// vice-versa.  I think a newline is considered 1 character, not 2,
 		// even with Windows.  But we'll call either '\r' or '\n' a newline
-		int i, j;
-		UInt8 response, crc, chunkSize, high_nibble, low_nibble;
+		UInt16 i, j, chunkSize;
+		UInt8 response, crc, high_nibble, low_nibble;
 		UInt8* temp_ptr;
 		UInt16 numChunks;
 		UInt8 bytesRead;
@@ -459,7 +459,7 @@ void xdump(UInt8 *pt, UInt16 len)
 		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
 		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
 		const UInt8 MAX_CHUNK_SIZE = 20;
-		UInt8 buffer[5];
+		UInt8 buffer[8];
 
 		// we want un-interrupted communication, so set idle and prevent anyone
 		// from changing that.
@@ -534,16 +534,25 @@ void xdump(UInt8 *pt, UInt16 len)
 			}
 			
             crc = one_net_compute_crc(temp_ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-				
-			oncli_send_msg("CHUNK_START:%d:%d", i, chunkSize);
+			
+			buffer[0] = HEX_DIGIT[(i & 0xF000) >> 12];
+			buffer[1] = HEX_DIGIT[(i & 0x0F00) >> 8];
+			buffer[2] = HEX_DIGIT[(i & 0x00F0) >> 4];
+			buffer[3] = HEX_DIGIT[(i & 0x000F)];
+			buffer[4] = HEX_DIGIT[(chunkSize & 0xF000) >> 12];
+			buffer[5] = HEX_DIGIT[(chunkSize & 0x0F00) >> 8];
+			buffer[6] = HEX_DIGIT[(chunkSize & 0x00F0) >> 4];
+			buffer[7] = HEX_DIGIT[(chunkSize & 0x000F)];
+			oncli_send_msg("CHUNK_START:");
+			for(j = 0; j < 8; j++)
+			{
+			    oncli_send_msg("%c", buffer[j]);
+			}
+			oncli_send_msg(":");
 			for(j = 0; j < chunkSize; j++)
 			{
 				high_nibble = (*(temp_ptr + j)) >> 4;
 				low_nibble  = (*(temp_ptr + j)) & 0x0F;
-				if(j == 0)
-				{
-					oncli_send_msg(":");
-				}
 				oncli_send_msg("%c%c", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);				
 			}
 			
