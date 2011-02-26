@@ -1694,15 +1694,15 @@ static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     The memdump command has the form
     
-    memdump:master_param or memdump:base_param or memdump:peer
+    memdump:master_param or memdump:base_param or memdump:peer or memdump:client_list
     
     \param ASCII_PARAM_LIST ASCII parameter list.
     
     \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
+              properly or a parameter is invalid.
+            ONCLI_CMD_FAIL If the parameters are valid, but the system cannot successfully
+			  complete the transaction for whatever reason.
 */
 static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
@@ -1719,26 +1719,26 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 		return ONCLI_SUCCESS;
 	}
 
-    return ONCLI_RSRC_UNAVAILABLE_STR;
+    return ONCLI_CMD_FAIL;
 }
 #endif
 
 
-#ifdef _ENABLE_MEMDUMP_COMMAND
+#ifdef _ENABLE_MEMLOAD_COMMAND
 /*!
-    \brief Dumps volatile memory to UART
+    \brief Loads data from UART into volatile memory
     
-    The memdump command has the form
+    The memload command has the form
     
-    memdump:master_param or memdump:base_param or memdump:peer
+    memload:master_param or memload:base_param or memload:peer or memload:client_list
     
     \param ASCII_PARAM_LIST ASCII parameter list.
     
     \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
+              properly or a parameter is invalid.
+            ONCLI_CMD_FAIL If the parameters are valid, but the system cannot successfully
+			  complete the transaction for whatever reason.
 */
 static oncli_status_t memload_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
@@ -1790,7 +1790,7 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
         startAddress = (UInt8*) nv_ptr;
 		*length = sizeof(on_base_param_t);
         PARAM_PTR += strlen(BASE_PARAM_STR);
-    } // dump base_param memory //
+    } // base_param memory location //
 #ifdef _PEER
     else if(!strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
     {
@@ -1814,7 +1814,7 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
         *length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);	
 	#endif
         PARAM_PTR += strlen(PEER_STR);
-    } // dump peer memory //
+    } // base_param memory location //
 #endif
 #ifdef _ONE_NET_MASTER
     else if(isMaster)
@@ -1824,23 +1824,23 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
 			*length = sizeof(on_master_param_t);
 			PARAM_PTR += strlen(MASTER_PARAM_STR);
-		}
+		}// master_param memory location //
         else if(!strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
 		{
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
 			*length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
-			PARAM_PTR += strlen(MASTER_PARAM_STR);
-		}
+			PARAM_PTR += strlen(CLIENT_LIST_STR);
+		}// client_list memory location //
 		else
 		{
 			return 0;
-		}
+		} // else we can't figure out what memory the parameters are referring to //
 	}
 #endif
     else
     {
         return 0;
-    } // else if the priority is invalid //
+    } // else we can't figure out what memory the parameters are referring to //
     
     if(*PARAM_PTR != '\n')
     {
