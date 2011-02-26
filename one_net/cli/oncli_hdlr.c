@@ -75,7 +75,6 @@
 #include "uart.h"
 #endif
 
-#include "str.h"
 #include "dfi.h"
 
 extern BOOL client_joined_network;
@@ -167,7 +166,10 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 	static oncli_status_t memdump_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 #ifdef _ENABLE_MEMLOAD_COMMAND 
-	static oncli_status_t memload_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+    static oncli_status_t memload_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#if defined(_ENABLE_MEMDUMP_COMMAND) || defined(_ENABLE_MEMLOAD_COMMAND)
+    static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16* length);
 #endif
 #ifdef _ENABLE_RSINGLE_COMMAND 
 	static oncli_status_t rsend_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -265,11 +267,6 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 //  defined(_ENABLE_INVITE_COMMAND)
 static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel);
 //#endif
-
-static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
-  const unsigned int NUM_ASCII_CHAR);
-
-BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 //! @} oncli_hdlr_pri_func
 //						PRIVATE FUNCTION DECLARATIONS END
@@ -1709,15 +1706,72 @@ static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 */
 static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
+	UInt16 length = 0;
+    UInt8* startAddress = get_load_dump_address(ASCII_PARAM_LIST, &length);
+	
+	if(startAddress == 0 || length == 0)
+	{
+		return ONCLI_PARSE_ERR;
+	}
+
+    if(dump_volatile_memory(startAddress, length))
+	{
+		return ONCLI_SUCCESS;
+	}
+
+    return ONCLI_RSRC_UNAVAILABLE_STR;
+}
+#endif
+
+
+#ifdef _ENABLE_MEMDUMP_COMMAND
+/*!
+    \brief Dumps volatile memory to UART
+    
+    The memdump command has the form
+    
+    memdump:master_param or memdump:base_param or memdump:peer
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+*/
+static oncli_status_t memload_cmd_hdlr(const char* const ASCII_PARAM_LIST)
+{
+	UInt16 length = 0;
+    UInt8* startAddress = get_load_dump_address(ASCII_PARAM_LIST, &length);
+	
+	if(startAddress == 0 || length == 0)
+	{
+		return ONCLI_PARSE_ERR;
+	}
+
+    if(load_volatile_memory(startAddress))
+	{
+		return ONCLI_SUCCESS;
+	}
+
+    return ONCLI_RSRC_UNAVAILABLE_STR;
+}
+#endif
+
+
+#if defined(_ENABLE_MEMDUMP_COMMAND) || defined(_ENABLE_MEMLOAD_COMMAND)
+static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16* length)
+{
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     char * end_ptr = 0;
     UInt8* startAddress = 0;
-	UInt16 length = 0;
 	UInt8 * nv_ptr;
 	
-
 	const char* const BASE_PARAM_STR = "base_param";
-	const char* const PEER_STR = "peer";
+    #ifdef _PEER
+	    const char* const PEER_STR = "peer";
+	#endif
     #ifdef _ONE_NET_MASTER
 	    BOOL isMaster;
 	    const char* const MASTER_PARAM_STR = "master_param";
@@ -1726,20 +1780,15 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 	#endif
 	
     nv_ptr = oncli_get_param();
-	if (nv_ptr == 0)
+	if (nv_ptr == 0 || !ASCII_PARAM_LIST || !length)
 	{
-        return ONCLI_RSRC_UNAVAILABLE_STR;
+        return 0;
 	}
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
 
     if(!strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
     {
         startAddress = (UInt8*) nv_ptr;
-		length = sizeof(on_base_param_t);
+		*length = sizeof(on_base_param_t);
         PARAM_PTR += strlen(BASE_PARAM_STR);
     } // dump base_param memory //
 #ifdef _PEER
@@ -1749,8 +1798,8 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 	    if(isMaster)
 		{
 			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-			length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);    
-			if(!master_get_peer_assignment_to_save(&startAddress, &length))
+			*length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);    
+			if(!master_get_peer_assignment_to_save(&startAddress, length))
 			{
 				return ONCLI_RSRC_UNAVAILABLE_STR;
 			}      
@@ -1758,11 +1807,11 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 		else
 		{
 			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-			length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);
+			*length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);
 		}
 	#else
 	    startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-        length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);	
+        *length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);	
 	#endif
         PARAM_PTR += strlen(PEER_STR);
     } // dump peer memory //
@@ -1773,43 +1822,32 @@ static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
         if(!strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
 		{
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
-			length = sizeof(on_master_param_t);
+			*length = sizeof(on_master_param_t);
 			PARAM_PTR += strlen(MASTER_PARAM_STR);
 		}
         else if(!strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
 		{
 			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
-			length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
+			*length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
 			PARAM_PTR += strlen(MASTER_PARAM_STR);
 		}
 		else
 		{
-			return ONCLI_PARSE_ERR;
+			return 0;
 		}
 	}
 #endif
     else
     {
-        return ONCLI_PARSE_ERR;
+        return 0;
     } // else if the priority is invalid //
     
     if(*PARAM_PTR != '\n')
     {
-        return ONCLI_PARSE_ERR;
+        return 0;
     } // if the data is not formatted correctly //
-
-
-    // right now don't do anything.  Just check the paramters to make sure they work
-    //oncli_send_msg("Testing for bugs! :  %p %p %d\n", nv_ptr, startAddress, length);
-    //return ONCLI_SUCCESS;
-
-    // replace the above with the below as soon as the above is verified to work.
-    if(dump_volatile_memory(startAddress, length))
-	{
-		return ONCLI_SUCCESS;
-	}
-
-    return ONCLI_RSRC_UNAVAILABLE_STR;
+	
+	return startAddress;
 }
 #endif
 
@@ -3700,63 +3738,6 @@ static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel)
     return ONCLI_SUCCESS;
 } // parse_channel //
 //#endif
-
-
-/*!
-    \brief Converts a string of ASCCI hex digits to a byte stream.
-    
-    \param[in] STR The ASCII string of hex digits.
-    \param[out] byte_stream The byte stream that results from STR
-    \param[in] NUM_ASCII_CHAR The number of ascii characters to convert.  This
-      is really twice the number of bytes that were converted.
-    
-    \return The number of ASCII characters that were converted.
-*/
-static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
-  const UInt16 NUM_ASCII_CHAR)
-{
-    UInt16 num_converted;
-    
-    UInt8 hex;
-
-    if(!STR || !byte_stream || !NUM_ASCII_CHAR)
-    {
-        return 0;
-    } // if any of the parameters are invalid //
-
-    for(num_converted = 0; num_converted < NUM_ASCII_CHAR; num_converted++)
-    {
-        hex = ascii_hex_to_nibble(STR[num_converted]);
-        if(hex > 0x0F)
-        {
-            break;
-        } // if the conversion failed //
-
-        if(num_converted & 0x01)
-        {
-            byte_stream[num_converted >> 1] |= hex;
-        } // if the second nibble in the byte //
-        else
-        {
-            byte_stream[num_converted >> 1] = hex << 4;
-        } // else the first nibble in the byte //
-    } // loop to convert payload from ascii //
-    
-    return num_converted;
-} // ascii_hex_to_byte_stream //
-
-
-/*!
-    \brief Checks if a given character is a valid ONE-NET unique key character.
-    
-    Valid unique key for adding devices characters are '2' - '9', and 'A' - 'Z'
-    except for 'O' & 'L'.  The key is case sensitive.
-*/
-BOOL oncli_is_valid_unique_key_ch(const char CH)
-{
-    return (BOOL)(isalnum(CH) && CH >= '2'
-      && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
-} // oncli_is_valid_unique_key_ch //
 
 
 

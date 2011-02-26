@@ -130,10 +130,15 @@ void xdump(UInt8 *pt, UInt16 len);
 #endif
 
 #ifdef _ONE_NET_LOAD
-    BOOL load_volatile_memory(UInt8* ptr, const UInt16 length);
+    BOOL load_volatile_memory(UInt8* ptr);
 #endif
 
 void oncli(void);
+
+UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
+  const UInt16 NUM_ASCII_CHAR);
+  
+BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
