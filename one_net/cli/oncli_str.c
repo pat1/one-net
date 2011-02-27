@@ -299,6 +299,10 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
     const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
 #endif
 
+#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+    const char* const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR = "display_chip_constants";
+#endif
+
 #ifdef _ENABLE_RSINGLE_COMMAND
 	//! Repeat sending messages
 	const char * const ONCLI_RSEND_CMD_STR = "rsingle";

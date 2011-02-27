@@ -140,6 +140,8 @@ UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   
 BOOL oncli_is_valid_unique_key_ch(const char CH);
 
+void oncli_display_chip_constants(void);
+
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

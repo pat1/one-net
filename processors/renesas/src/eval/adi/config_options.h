@@ -712,8 +712,13 @@
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
 	#endif
+
+	// _ENABLE_DISPLAY_CONSTANTS_COMMAND should be defined if you are implementing the "display_chip_constants" command option
+	#ifndef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+		#define _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+	#endif
 #endif
-	
+
 
 
 

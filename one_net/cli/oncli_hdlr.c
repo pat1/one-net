@@ -259,6 +259,10 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+	static oncli_status_t display_chip_constants_cmd_hdlr(void);
+#endif
+
 // parsing functions
 static const char * parse_ascii_tx_param(const char * PARAM_PTR,
   UInt8 * const src_unit, UInt8 * const dst_unit, one_net_raw_did_t * const dst,
@@ -573,6 +577,20 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return list_cmd_hdlr();
     } // else if the list command was received //
+	#endif
+
+	#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+    if(!strnicmp(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR, CMD, strlen(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_LIST_CMD_STR;
+
+        if(CMD[strlen(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return display_chip_constants_cmd_hdlr();
+    } // else if the display_chip_constants command was received //
 	#endif
 
 	#ifdef _ENABLE_INVITE_COMMAND
@@ -2141,6 +2159,22 @@ static oncli_status_t list_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+/*!
+    \brief Displaya some #define and constant values 
+    
+    \param void
+    
+    \return ONCLI_SUCCESS if the command was succesful
+*/
+static oncli_status_t display_chip_constants_cmd_hdlr(void)
+{
+	oncli_display_chip_constants();
+    return ONCLI_SUCCESS;
+}
 #endif
 
 

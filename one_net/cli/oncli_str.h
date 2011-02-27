@@ -182,6 +182,10 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
 #endif
 
+#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+extern const char * const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR;
+#endif
+
 // Mode strings
 #ifdef _AUTO_MODE
 	extern const char * const ONCLI_AUTO_MODE_STR;

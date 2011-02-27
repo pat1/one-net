@@ -62,6 +62,16 @@
 	extern const char HEX_DIGIT[];
 #endif
 
+#if defined(_ONE_NET_CLIENT)
+    #include "one_net_client_port_const.h" // for ONE_NET_MAX_PEER_DEV
+#endif
+
+// 1-15-2010 - TO-DO - What about masters with peer assignments which aren't eval boards?
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
+    #include "one_net_eval_hal.h" // for NUM_MASTER_PEER
+#endif
+
+
 
 //==============================================================================
 //								CONSTANTS
@@ -947,6 +957,61 @@ BOOL oncli_is_valid_unique_key_ch(const char CH)
       && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
 } // oncli_is_valid_unique_key_ch //
 
+
+/*!
+    \brief Sends some #define values and constants down the UART
+	
+	\param none
+    
+    This may be needed for a variety of purposes, but mostly for determining the
+	size of memory blocks for memory transfers.
+*/
+void oncli_display_chip_constants(void)
+{
+	BOOL isMaster = oncli_is_master();
+	if(isMaster)
+	{
+		oncli_send_msg("Device Type:Master\n");
+	}
+	else
+	{
+		oncli_send_msg("Device Type:Client\n");
+	}
+	
+    #ifdef _PEER
+        oncli_send_msg("_PEER:defined\n");
+    #else
+        oncli_send_msg("_PEER:undefined\n");
+    #endif
+
+    #ifdef _ONE_NET_MULTI_HOP
+        oncli_send_msg("_ONE_NET_MULTI_HOP:defined\n");
+    #else
+        oncli_send_msg("_ONE_NET_MULTI_HOP:undefined\n");
+    #endif
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+        oncli_send_msg("_STREAM_MESSAGES_ENABLED:defined\n");
+    #else
+        oncli_send_msg("_STREAM_MESSAGES_ENABLED:undefined\n");
+    #endif
+	
+    #ifdef _PEER
+        if(isMaster)
+		{
+            oncli_send_msg("NUM_MASTER_PEER:%d\n", NUM_MASTER_PEER);
+        }
+        else
+        {
+            oncli_send_msg("ONE_NET_MAX_PEER_DEV:%d\n", ONE_NET_MAX_PEER_DEV);
+            oncli_send_msg("ONE_NET_MAX_PEER_UNIT:%d\n", ONE_NET_MAX_PEER_UNIT);
+        }
+    #endif
+	
+	/* Add any other things you want to display here */
+	
+	oncli_send_msg("DONE\n");
+}
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
