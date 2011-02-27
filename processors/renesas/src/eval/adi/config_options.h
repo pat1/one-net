@@ -173,7 +173,7 @@
 // if _IDLE is defined.
 #ifdef _IDLE
     #ifndef _ENHANCED_INVITE
-	    #define _ENHANCED_INVITE
+//	    #define _ENHANCED_INVITE
 	#endif
 #endif
 
@@ -581,9 +581,9 @@
 	#endif
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
-	#ifndef _ENABLE_DUMP_COMMAND
+/*	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
-	#endif
+	#endif*/
 	
 	// _ENABLE_MEMDUMP_COMMAND should be defined if you are implementing the "memdump" command option
 	#ifdef _ONE_NET_DUMP
