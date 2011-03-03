@@ -5,7 +5,7 @@
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2011, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -35,15 +35,14 @@
 */
 
 /*!
-    \file tal.h (for ADI)
+    \file tal.h (for TI)
     \brief Defines the transceiver specific layer for ONE-NET code.
 
     You must create a transceiver specific version of this file for each
     transceiver.  The tal.h file in each transceiver directory defines the
     interface that should be used to access all transceiver specific
-    functionality.
+    functionality. 
 */
-
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup TAL_const
@@ -82,6 +81,7 @@
 
 void tal_init_ports(void);
 
+void tal_init_transceiver(void);
 
 /*!
     \brief Initialize (bit by bit) the i/o ports between the processor and the
@@ -95,7 +95,7 @@ void tal_init_ports(void);
 
 
 /*!
-    \brief Initialize the transceiver.
+    \brief Initialize the transceiver. 
 
     This function should perform any one of a kind transceiver initialization.
     There are other functions for turning on the transmitter and receiver.
@@ -119,7 +119,7 @@ void tal_init_ports(void);
         \return void
     */
     #define ENABLE_TRANSCEIVER() CHIP_ENABLE = 1
-
+    
     /*!
         \brief Disables the transceiver
 
@@ -137,7 +137,7 @@ void tal_init_ports(void);
         \return void
     */
     #define ENABLE_TRANSCEIVER()
-
+    
     /*!
         \brief Disables the transceiver
 
@@ -173,18 +173,30 @@ void tal_init_ports(void);
 #define TAL_TURN_ON_RECEIVER() tal_turn_on_receiver()
 
 
-/*!
-    \brief Turn on the transceiver's transmitter.
-
-    This function tells the transceiver to turn on its transmitter. If the
-    transmitter needs some time to come up to full operation, this function
-    should wait that amount of time so that upon exit the transmitter is ready.
-
-    \param void
-
-    \return void
-*/
-#define TAL_TURN_ON_TRANSMITTER() tal_turn_on_transmitter()
+/*
+ *  This macro is for use by other macros to form a fully valid C statement.
+ *  Without this, the if/else conditionals could show unexpected behavior.
+ *
+ *  For example, use...
+ *    #define SET_REGS()  st( ioreg1 = 0; ioreg2 = 0; )
+ *  instead of ...
+ *    #define SET_REGS()  { ioreg1 = 0; ioreg2 = 0; }
+ *  or
+ *    #define  SET_REGS()    ioreg1 = 0; ioreg2 = 0;
+ *  The last macro would not behave as expected in the if/else construct.
+ *  The second to last macro will cause a compiler error in certain uses
+ *  of if/else construct
+ *
+ *  It is not necessary, or recommended, to use this macro where there is
+ *  already a valid C statement.  For example, the following is redundant...
+ *    #define CALL_FUNC()   st(  func();  )
+ *  This should simply be...
+ *    #define CALL_FUNC()   func()
+ *
+ * (The while condition below evaluates false without generating a
+ *  constant-controlling-loop type of warning on most compilers.)
+ */
+#define st(x)      do { x } while (__LINE__ == -1)
 
 //! @} TAL_pub_func
 //!                         PUBLIC FUNCTION DECLARATIONS END
