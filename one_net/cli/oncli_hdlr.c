@@ -1822,11 +1822,9 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
 #ifdef _PEER
     else if(!strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
     {
-	#ifdef _ONE_NET_MASTER
+	#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
 	    if(isMaster)
 		{
-			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-			*length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);    
 			if(!master_get_peer_assignment_to_save(&startAddress, length))
 			{
 				return ONCLI_RSRC_UNAVAILABLE_STR;
@@ -1835,11 +1833,16 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
 		else
 		{
 			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-			*length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);
+			*length = sizeof(on_peer_t);
 		}
+	#elif defined(_ONE_NET_MASTER)
+		if(!master_get_peer_assignment_to_save(&startAddress, length))
+		{
+			return ONCLI_RSRC_UNAVAILABLE_STR;
+		}   	
 	#else
 	    startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-        *length = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_t);	
+        *length = sizeof(on_peer_t);
 	#endif
         PARAM_PTR += strlen(PEER_STR);
     } // base_param memory location //
