@@ -218,13 +218,17 @@ typedef struct
 
     //! Indicates if using the current key or the old key.
     BOOL use_current_key;
-    
+
+#ifdef _STREAM_MESSAGES_ENABLED    
     //! Indicates if using the current stream key, or the old stream key
     BOOL use_current_stream_key;
+#endif
 
+#ifdef _ONE_NET_MULTI_HOP
     //! The maximum number of hops the MASTER allows when sending to the CLIENT.
     //! If this field is 0, then a regular (non-Multi-Hop) packet is sent.
     UInt8 max_hops;
+#endif
 } on_client_t;
 
 
