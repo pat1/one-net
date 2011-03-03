@@ -1802,6 +1802,7 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
 	#endif
     #ifdef _ONE_NET_MASTER
 	    BOOL isMaster;
+
 	    const char* const MASTER_PARAM_STR = "master_param";
 	    const char* const CLIENT_LIST_STR = "client_list";
 		isMaster = oncli_is_master();
@@ -1849,16 +1850,16 @@ static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16*
 #endif
 #ifdef _ONE_NET_MASTER
     else if(isMaster)
-	{
+	{		
         if(!strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
 		{
-			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
+			startAddress = (UInt8*) nv_ptr + sizeof(on_base_param_t);
 			*length = sizeof(on_master_param_t);
 			PARAM_PTR += strlen(MASTER_PARAM_STR);
 		}// master_param memory location //
         else if(!strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
 		{
-			startAddress = (UInt8*)(nv_ptr + sizeof(on_base_param_t));
+			startAddress = (UInt8*) nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_param_t);
 			*length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
 			PARAM_PTR += strlen(CLIENT_LIST_STR);
 		}// client_list memory location //
