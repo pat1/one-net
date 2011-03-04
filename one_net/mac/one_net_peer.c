@@ -919,15 +919,15 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     for(index = MAX_PEER_UNITS - 1; index < 0xFFFF; index--)
     {
 		// check whether criteria for deleting this peer unit are fulfilled
-        if(peer->unit[index].src_unit == ONE_NET_DEV_UNIT)
+        if(peer_unit_list[index].src_unit == ONE_NET_DEV_UNIT)
         {
             // Blank spot.  Nothing to do.
             continue;
         }
 		
-        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
-        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)));
+        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer_unit_list[index].src_unit);
+        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer_unit_list[index].peer_unit);
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer_unit_list[index].peer_did)));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
         {
@@ -942,8 +942,8 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
         }
 
         // make the last spot blank		
-        peer->unit[MAX_PEER_UNITS - 1].src_unit = ONE_NET_DEV_UNIT;
-        peer->unit[MAX_PEER_UNITS - 1].peer_unit = ONE_NET_DEV_UNIT;
+        peer_unit_list[MAX_PEER_UNITS - 1].src_unit = ONE_NET_DEV_UNIT;
+        peer_unit_list[MAX_PEER_UNITS - 1].peer_unit = ONE_NET_DEV_UNIT;
 		one_net_memmove(peer_unit_list[MAX_PEER_UNITS - 1].peer_did,
             ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
     }
