@@ -843,8 +843,8 @@ static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     if(unit_list_index < MAX_PEER_UNITS - 1)
 	{
         // We're about to insert.  Move any elements that may be in the way down one.
-        one_net_memmove(&peer->unit[unit_list_index + 1], &peer->unit[unit_list_index],
-          sizeof(peer->unit[unit_list_index]) * (MAX_PEER_UNITS - unit_list_index - 1));
+        one_net_memmove(&peer_unit_list[unit_list_index + 1], &peer_unit_list[unit_list_index],
+          sizeof(on_peer_unit_t) * (MAX_PEER_UNITS - unit_list_index - 1));
 	}
 
     // now fill in the new information.
