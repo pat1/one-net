@@ -1103,7 +1103,16 @@ const UInt8 PaTable[] = {0xC0};
     (ie. location 0 is register 0, location 1 is register 1...).
 */
 const UInt8 INIT_REG_VAL[] = { 0x06, 0x2e, 0x09, 0x47, 0x55, 0x33, 0x3B, 0x00, 0x02,
-                               0x00, 0x00, 0x06, 0x00, 0x22, 0xB6, 0x27, 0x2A, 0x83,
+                               0x00, 0x00, 0x06, 0x00,
+#ifdef _US_CHANNELS							   
+													   0x22, 0xB6, 0x27,
+#endif //_US_CHANNELS
+#ifdef _EUROPE_CHANNELS
+	#ifndef _US_CHANNELS
+													   0x21, 0x4C, 0xCC,
+	#endif //_US_CHANNELS
+#endif //_EUROPE_CHANNELS
+																		 0x2A, 0x83,
                                0x00, 0x00, 0xFF, 0x72, 0x07, 0x1E, 0x18, 0x16, 0x6C,
                                0x43, 0x40, 0x91, 0x87, 0x6B, 0xF8, 0x56, 0x10, 0xE9,
                                0x2A, 0x00, 0x1F, 0x41, 0x00, 0x59, 0x7F, 0x3F, 0x81,
@@ -1174,13 +1183,13 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS] =
     #ifndef _US_CHANNELS
 //TO-DO: set to default European frequency only if US channels not included
     // Reg 0x0D Freq2
-    0x22,
+    0x21,
 
     // Reg 0x0E Freq1
-    0xB6,
+    0x4C,
 
     // Reg 0x0F Freq0
-    0x27,
+    0xCC,
 	#endif //_US_CHANNELS
 #endif
 
@@ -1313,9 +1322,9 @@ static const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][NUM_CHANNEL_REG] =
 #endif
 // TO-DO : Add the REAL values for the European settings.  The ones below are fake.
 #ifdef _EUROPE_CHANNELS
-    {0x00, 0x00, 0x00},             //! channel= EUR1, frequency= 865.8 MHz
-    {0x00, 0x00, 0x00},             //!	channel= EUR2, frequency= 866.5 MHz
-    {0x00, 0x00, 0x00},             //! channel= EUR3, frequency= 867.2 MHz
+    {0x21, 0x4C, 0xCC},             //! channel= EUR1, frequency= 865.8 MHz
+    {0x21, 0x53, 0xB1},             //!	channel= EUR2, frequency= 866.5 MHz
+    {0x21, 0x5A, 0x95},             //! channel= EUR3, frequency= 867.2 MHz
 #endif
 
 };
