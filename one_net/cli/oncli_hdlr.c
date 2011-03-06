@@ -1780,6 +1780,14 @@ static oncli_status_t memload_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 
     if(load_volatile_memory(startAddress))
 	{
+        if(oncli_is_master())
+	    {
+		    on_master_force_save();
+	    }
+	    else
+	    {
+            on_client_force_save();
+	    }
 		return ONCLI_SUCCESS;
 	}
 
