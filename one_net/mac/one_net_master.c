@@ -1547,10 +1547,14 @@ one_net_status_t one_net_master_start_data_rate_test(
         return ONS_INVALID_DATA;
     } // if one of the devices can't support the data rate //
 
+#ifdef _ONE_NET_MULTI_HOP
     // mh only if both devices can support it (If SENDING_DEVICE is NULL,
     // the MASTER is the sender and does support multi-hop).
     mh = (BOOL)RECEIVING_DEVICE->max_hops
       && (BOOL)(!SENDING_DEVICE || SENDING_DEVICE->max_hops);
+#else
+    mh = FALSE;
+#endif
 
     return setup_data_rate_test((const on_encoded_did_t * const)&sender,
       (const on_encoded_did_t * const)&receiver, DATA_RATE, mh);
@@ -2305,6 +2309,8 @@ one_net_status_t one_net_master_add_client(
     client->data_rate = on_base_param->data_rate;
     client->max_data_rate = CAPABILITIES->max_data_rate;
     client->use_current_key = TRUE;
+	
+#ifdef _ONE_NET_MULTI_HOP
     if (CAPABILITIES->multi_hop_capable == TRUE)
     {
         client->max_hops = ON_MAX_HOPS_LIMIT;    // if multi-hop capable, use max value allowed
@@ -2313,6 +2319,7 @@ one_net_status_t one_net_master_add_client(
     {
         client->max_hops = 0;                    // if not multi-hop capable, set to 0
     }
+	
     // set the features bits based on the CAPABILITIES of the client
     if (CAPABILITIES->multi_hop_repeater == TRUE)
     {
@@ -2331,6 +2338,7 @@ one_net_status_t one_net_master_add_client(
         features |= ON_MAC_FEATURES;
     }
     features |= (CAPABILITIES->max_peers & ONE_NET_DEV_UNIT);
+#endif
 
     //
     // fill in the network configuration values this new client
@@ -3540,10 +3548,12 @@ one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
         client->send_nonce = NEXT_NONCE;
     } // if the next nonce is not valid //
 
+#ifdef _ONE_NET_MULTI_HOP
     if(HOPS_TAKEN < client->max_hops)
     {
         client->max_hops = HOPS_TAKEN;
     } // if less hops were taken to this CLIENT than previously thought //
+#endif
 
     switch(STATUS)
     {
@@ -3996,7 +4006,10 @@ static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
                 (*client)->send_nonce = 0;
                 (*client)->data_rate = on_base_param->data_rate;
                 (*client)->use_current_key = TRUE;
-                (*client)->max_hops = 0;
+				
+                #ifdef _ONE_NET_MULTI_HOP
+                    (*client)->max_hops = 0;
+				#endif
 
                 // save the new client
                 save = TRUE;

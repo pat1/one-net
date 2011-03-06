@@ -1078,7 +1078,9 @@ void init_auto_master(void)
           + client_count);
         client[client_count].use_current_key = TRUE;
         client[client_count].use_current_stream_key = TRUE;
-        client[client_count].max_hops = 0;
+		#ifdef _ONE_NET_MULTI_HOP
+            client[client_count].max_hops = 0;
+		#endif
     } // loop to fill in the CLIENT list //
 
     base_param->crc = one_net_compute_crc((UInt8 *)base_param
