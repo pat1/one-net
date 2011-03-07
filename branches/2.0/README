@@ -1,0 +1,3 @@
+ONE-NET 2.0 - README - November 16, 2010
+
+ONE-NET 2.0 development is in progress.  Version 2.0 has not been released and is therefore not stable.  The latest stable version of ONE-NET is version 1.6.  Therefore, only developers should use the 2.0 branch.  Documentation from version 1.6 has been copied to version 2.0.  This documentation will be changed considerably.  Version 2.0 will not be backwards compatible to version 1.6.

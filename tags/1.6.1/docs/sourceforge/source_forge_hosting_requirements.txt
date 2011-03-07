@@ -1,0 +1,30 @@
+Contact Information
+
+A copy of the details you submit in this project registration will be provided via email. If we need to contact you in the future regarding this project, we would do so via the email address shown here; failure to provide a valid email address may result in removal of your project in the future. Please verify that the following email address is still the correct way for us to contact you. If you need to update this address, you may do so via the Account Maintenance page.
+
+Email address on-file for your account: rogerwmeadows@yahoo.com
+
+
+Use of Project Account
+
+The space given to you on this server is given for the expressed purpose of Open Source software development or, in the case of web sites, the advancement of Open Source software. For more information, please read the SourceForge.net Terms and Conditions of Use ("Terms and Conditions of Use").
+
+Creative Freedom
+
+It is our intent to allow you creative freedom on your project. This is not a totally free license, though. For our legal protection and yours, there are limits. Please know, however, that we too are Open Source developers that value our freedom. Details about these restrictions are described in the SourceForge.net Terms and Conditions of Use.
+
+Advertisements
+
+You may not place any revenue-generating advertisements on a site hosted at SourceForge.net.
+
+SourceForge.net Link
+
+If you host a web site at SourceForge.net, you must place one of our approved graphic images on your site with a link back to SourceForge.net. The graphic must link to the main SourceForge.net site. We will leave placement up to you. For information about how to insert a SourceForge.net logo which will track your page views, please refer to the provided instructions.
+
+Open Source/Rights to Code
+
+During this registration process, you will be presented with a choice of OSI-approved Open Source licenses for your project. Though you have elected to host your project on SourceForge.net, you will still own the code, but all of these licenses also allow us to make your code available to the general public. Although you may choose to stop hosting your project with us, the nature of these licenses will allow us to continue to make your code available. Details about content ownership are described in the SourceForge.net Terms and Conditions of Use.
+
+If you wish to use another license that is not currently approved by the Open Source Initiative, let us know and we will review these requests on a case-by-case basis.
+
+It is our intent to provide a permanent home for all versions of your code. We do reserve the right, however, to terminate your project if there is due cause, in accordance with the Terms and Conditions of Use. 
