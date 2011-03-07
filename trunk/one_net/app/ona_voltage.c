@@ -43,10 +43,9 @@
     and ONA_VOLTAGE_100THS_VOLTS message types.
 */
 
-#include "ona_voltage.h"
+#include <one_net/app/ona_voltage.h>
 
-#include "ona_voltage_simple.h"
-#include "one_net_port_specific.h"
+#include <one_net/app/ona_voltage_simple.h>
 
 
 //==============================================================================

@@ -38,7 +38,7 @@
     This is the implementation of functions to send an parse direction msgs.
 */
 
-#include "ona_direction.h"
+#include <one_net/app/ona_direction.h>
 
 
 //==============================================================================

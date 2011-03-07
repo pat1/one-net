@@ -38,9 +38,7 @@
     This is the implementation of functions to send an parse switch msgs.
 */
 
-#include "ona_switch.h"
-
-#include "one_net_port_specific.h"
+#include <one_net/app/ona_switch.h>
 
 
 //==============================================================================

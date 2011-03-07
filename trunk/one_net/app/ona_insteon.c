@@ -39,11 +39,7 @@
     insteon msgs.
 */
 
-#include "ona_insteon.h"
-
-#include "one_net_application.h"
-#include "one_net.h"
-
+#include <one_net/app/ona_insteon.h>
 
 //==============================================================================
 //                                  CONSTANTS

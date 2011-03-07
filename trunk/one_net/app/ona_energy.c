@@ -38,14 +38,7 @@
     This is the implementation of functions to send energy messages.
 */
 
-#include "one_net_application.h"
-#include "ona_energy.h"
-
-#include "one_net_port_specific.h"
-#include "em.h"
-#if !defined(_R8C_TINY)
-#include "tlog.h"
-#endif
+#include <one_net/app/ona_energy.h>
 
 
 //==============================================================================

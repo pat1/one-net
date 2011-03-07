@@ -38,7 +38,7 @@
     This is the implementation of functions to send an parse color msgs.
 */
 
-#include "ona_color.h"
+#include <one_net/app/ona_color.h>
 
 
 //==============================================================================

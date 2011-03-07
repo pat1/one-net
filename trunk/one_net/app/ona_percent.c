@@ -38,10 +38,7 @@
     This is the implementation of functions to send an parse percent msgs.
 */
 
-#include "ona_percent.h"
-
-#include "one_net_application.h"
-#include "one_net.h"
+#include <one_net/app/ona_percent.h>
 
 
 //==============================================================================

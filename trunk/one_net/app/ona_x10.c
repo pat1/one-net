@@ -38,7 +38,7 @@
     This is the implementation of functions to send an parse x10 msgs.
 */
 
-#include "ona_x10.h"
+#include <one_net/app/ona_x10.h>
 
 
 //==============================================================================

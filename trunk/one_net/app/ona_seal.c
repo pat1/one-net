@@ -38,9 +38,7 @@
     This is the implementation of functions to send an parse seal msgs.
 */
 
-#include "one_net_application.h"
-#include "one_net.h"
-#include "seal.h"
+#include <one_net/app/ona_seal.h>
 
 
 //==============================================================================

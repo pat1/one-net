@@ -39,10 +39,7 @@
     opening msgs.
 */
 
-#include "ona_opening.h"
-
-#include "one_net_application.h"
-#include "one_net.h"
+#include <one_net/app/ona_opening.h>
 
 
 //==============================================================================

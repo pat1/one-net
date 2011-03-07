@@ -44,19 +44,19 @@
       updated.
 */
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
-#include "one_net_client.h"
+#include <one_net/one_net_client.h>
 
-#include "one_net_client_net.h"
-#include "one_net_client_port_specific.h"
-#include "one_net_crc.h"
-#include "one_net_encode.h"
-#include "one_net_timer.h"
-#include "one_net_prand.h"
+#include <one_net/one_net_client_net.h>
+#include <one_net/port_specific/one_net_client_port_specific.h>
+#include <one_net/one_net_crc.h>
+#include <one_net/one_net_encode.h>
+#include <one_net/one_net_timer.h>
+#include <one_net/one_net_prand.h>
 
 #ifdef _ONE_NET_EVAL
-    #include "oncli.h"
+    #include <one_net/cli/oncli.h>
     extern one_net_raw_did_t client_did; // Derek_S 11/4/2010 for CLI "list" command
 #endif // ifdef ONE_NET_EVAL //
 
@@ -1564,10 +1564,6 @@ tick_t one_net_client(void)
                          ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32);				
 				    #endif
                 #endif
-				
-				// reset the did to broadcast/unjoined
-				one_net_memmove(&(on_base_param->sid[ON_ENCODED_NID_LEN]),
-				    ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
 				
                 save_param();
                 removed = FALSE;
@@ -4784,27 +4780,6 @@ static BOOL look_for_invite()
 */
 static void save_param(void)
 {
-    const int DID_OFFSET = ON_ENCODED_NID_LEN;
-	on_encoded_did_t* cli_did_ptr;
-	
-	cli_did_ptr = (on_encoded_did_t*) (&(on_base_param->sid[DID_OFFSET]));
-
-	client_joined_network = FALSE;
-	if(ONS_SUCCESS == on_decode(client_did, *cli_did_ptr, ON_ENCODED_DID_LEN))
-	{
-        if(!on_encoded_did_equal(cli_did_ptr, &ON_ENCODED_BROADCAST_DID))
-		{
-		    client_joined_network = TRUE;
-		}
-	}
-	
-	if(!client_joined_network)
-	{
-        one_net_memmove(*cli_did_ptr, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
-		client_did[0] = 0;
-		client_did[1] = 0;
-	}		
-		
     on_base_param->crc = one_net_compute_crc((UInt8 *)on_base_param
       + sizeof(on_base_param->crc), sizeof(nv_param)
       - sizeof(on_base_param->crc),

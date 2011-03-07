@@ -40,11 +40,7 @@
     a humidity sensor will want to include and use this code.
 */
 
-#include "ona_humidity.h"
-
-#include "one_net_application.h"
-#include "one_net.h"
-#include "one_net_port_specific.h"
+#include <one_net/app/ona_humidity.h>
 
 
 //==============================================================================

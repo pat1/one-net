@@ -40,9 +40,9 @@
       updated.
 */
 
-#include "one_net_xtea.h"
+#include <one_net/one_net_xtea.h>
 
-#include "one_net_port_specific.h"
+#include <one_net/port_specific/one_net_port_specific.h>
 
 
 //==============================================================================

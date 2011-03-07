@@ -40,7 +40,7 @@
     include and use this code.
 */
 
-#include "ona_status_interval.h"
+#include <one_net/app/ona_status_interval.h>
 
 
 //==============================================================================

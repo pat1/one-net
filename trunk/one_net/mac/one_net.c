@@ -43,26 +43,26 @@
       updated.
 */
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
-#include "one_net.h"
+#include <one_net/one_net.h>
 
-#include "one_net_crc.h"
-#include "one_net_encode.h"
-#include "one_net_port_specific.h"
-#include "one_net_timer.h"
-#include "one_net_prand.h"
-#include "one_net_xtea.h"
+#include <one_net/one_net_crc.h>
+#include <one_net/one_net_encode.h>
+#include <one_net/port_specific/one_net_port_specific.h>
+#include <one_net/one_net_timer.h>
+#include <one_net/one_net_prand.h>
+#include <one_net/one_net_xtea.h>
 
 
 #ifdef _ONE_NET_DEBUG
-    #include "oncli.h"
-    #include "oncli_str.h"
-    #include "uart.h"
+    #include <one_net/cli/oncli.h>
+    #include <one_net/cli/oncli_str.h>
+    #include <one_net/port_specific/uart.h>
 #endif
 
 #ifdef _ONE_NET_DEBUG_STACK
-    #include "uart.h"
+    #include <one_net/port_specific/uart.h>
 #endif
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER

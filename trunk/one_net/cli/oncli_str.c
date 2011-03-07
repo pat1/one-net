@@ -40,7 +40,7 @@
     These strings are to be used in a case insensitive manner.
 */
 
-#include "oncli_str.h"
+#include <one_net/cli/oncli_str.h>
 
 
 //==============================================================================
@@ -297,10 +297,6 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 
 #ifdef _ENABLE_MEMLOAD_COMMAND
     const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
-#endif
-
-#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-    const char* const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR = "display_chip_constants";
 #endif
 
 #ifdef _ENABLE_RSINGLE_COMMAND

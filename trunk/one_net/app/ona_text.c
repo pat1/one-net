@@ -38,9 +38,7 @@
     This is the implementation of functions to send an parse text msgs.
 */
 
-#include "ona_text.h"
-
-#include "one_net_port_specific.h"
+#include <one_net/app/ona_text.h>
 
 
 //==============================================================================

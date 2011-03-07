@@ -38,9 +38,8 @@
     This is the implementation of functions to send voltage simple msgs.
 */
 
-#include "ona_voltage_simple.h"
+#include <one_net/app/ona_voltage_simple.h>
 
-#include "one_net_port_specific.h"
 
 
 //==============================================================================

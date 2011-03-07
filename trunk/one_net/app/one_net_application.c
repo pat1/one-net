@@ -40,15 +40,17 @@
     this code for their application.
 */
 
-#include "one_net.h"
-#include "one_net_application.h"
-#include "one_net_port_specific.h"
+#include <one_net/port_specific/config_options.h>
+
+#include <one_net/one_net.h>
+#include <one_net/one_net_application.h>
+#include <one_net/port_specific/one_net_port_specific.h>
 
 // include proper heading, depending on Master/Client
 #ifdef _ONE_NET_MASTER
-    #include "one_net_master.h"
+    #include <one_net/one_net_master.h>
 #else
-    #include "one_net_client.h"
+    #include <one_net/one_net_client.h>
 #endif
 
 //==============================================================================
