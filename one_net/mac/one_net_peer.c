@@ -141,6 +141,8 @@ static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
   const BOOL deviceIsMaster);
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 
+static int peer_unit_cmp(const on_peer_unit_t* const unit1, const on_peer_unit_t* const unit2);
+
 
 //! @} ONE-NET_PEER_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -973,6 +975,36 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     return ONS_SUCCESS;
 } // unassign_peer_adjust_peer_list //
 
+
+/*!
+    \brief Compares two peer units and sees which is "smaller"
+
+    Peer units are ordered by this criteria
+	1) Encoded Peer DID
+	2) Source Unit
+	3) Peer Unit
+	
+    \param[in] unit1 First peer unit to compare
+    \param[in] unit2 Second peer unit to compare
+    
+    \return negative number if unit1 is "smaller" than did2
+            postive number if unit1 is "larger" than did2
+            0 if unit1 and unit2 have the same values
+*/
+static int peer_unit_cmp(const on_peer_unit_t* const unit1, const on_peer_unit_t* const unit2)
+{
+    int val1, val2;
+    int didCmp = enc_did_cmp(&(unit1->peer_did), &(unit2->peer_did));
+	if(didCmp == 0)
+	{
+        // dids are equal
+        val1 = (256 * unit1->src_unit) + unit1->peer_unit;
+        val2 = (256 * unit2->src_unit) + unit2->peer_unit;
+		return val1 - val2;
+	}
+	
+	return didCmp;
+}
 
 #endif // if _PEER is defined //
 
