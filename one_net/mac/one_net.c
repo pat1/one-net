@@ -306,6 +306,91 @@ BOOL on_is_my_NID(const on_encoded_nid_t * const NID)
 
 
 /*!
+    \brief Checks whether a did is a broadcast did / uninitialized
+	
+	Note that the DID may either be raw or encoded, hence the parameter is UInt8*
+	rather than on_encoded_did_t* or one_net_raw_did_t*
+
+    \param[in] did The did to check
+
+    \return TRUE if did is a broadcast did
+            FALSE if did is not a broadcast did
+*/
+BOOL did_is_broadcast(const UInt8* const did)
+{
+    // sometimes "encoded" dids are stored as uninitialized ({0, 0}).  We want to
+	// make sure that these are interpreted as "not taken"/ unitialized / broadcast
+	if(!did)
+	{
+        return FALSE;
+	}
+	if(did[0] == ON_ENCODED_BROADCAST_DID[0] && did[1] == ON_ENCODED_BROADCAST_DID[1])
+	{
+        return TRUE;
+	}
+	if(did[0] == ON_RAW_BROADCAST_DID[0] && did[1] == ON_RAW_BROADCAST_DID[1])
+	{
+        return TRUE;
+	}
+	
+	return FALSE;
+}
+
+
+/*!
+    \brief Compares two encoded dids and sees which is "smaller"
+
+    A broadcast did is considered a "large" id.
+	One DID is smaller than the other if the raw did is smaller.
+	
+    \param[in] enc_did1 First encoded did to compare
+    \param[in] enc_did2 Second encoded did to compare
+    
+    \return negative number if did1 is "smaller" than did2
+            postive number if did1 is "larger" than did2
+            0 if did1 and did2 have the same values
+*/
+int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* const enc_did2)
+{
+	// TODO - check for valid parameters, check for return values
+    one_net_raw_did_t raw_did1, raw_did2;
+	BOOL did1IsBroadcast, did2IsBroadcast;
+	
+	if(!enc_did1 || !enc_did2)
+	{
+        // TODO - Return value of this should be what?  Just return 0 for now
+		return 0;
+	}
+	
+	did1IsBroadcast = did_is_broadcast(*enc_did1);
+	did2IsBroadcast = did_is_broadcast(*enc_did2);
+
+    if(did1IsBroadcast && did2IsBroadcast)
+	{
+	    return 0;
+	}
+	else if(did1IsBroadcast)
+	{
+		return 1;
+	}
+	else if(did2IsBroadcast)
+	{
+		return -1;
+	}
+	
+	// TODO - what if these don't decode?
+    on_decode(raw_did1, *enc_did1, ON_ENCODED_DID_LEN);
+    on_decode(raw_did2, *enc_did2, ON_ENCODED_DID_LEN);
+	
+	if(raw_did1[0] == raw_did2[0])
+	{
+		return raw_did1[1] - raw_did2[1];
+	}
+
+    return raw_did1[0] - raw_did2[0];
+}
+
+/*!
     \brief Compares two encoded Device IDs.
 
     \param[in] LHS The left hand side of the compare equation.
@@ -317,23 +402,13 @@ BOOL on_is_my_NID(const on_encoded_nid_t * const NID)
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS)
 {
-    UInt8 i;
-
-    if(!LHS || !RHS)
-    {
+	if(!LHS || !RHS)
+	{
         return FALSE;
-    } // if parameters are invalid //
-
-    for(i = 0; i < ON_ENCODED_DID_LEN; i++)
-    {
-        if((*LHS)[i] != (*RHS)[i])
-        {
-            return FALSE;
-        } // if the addresses don't match //
-    } // loop through the address bytes //
-
-    return TRUE;
+	}
+    return (enc_did_cmp(LHS, RHS) == 0);
 } // on_encoded_did_equal //
+
 
 
 /*!

@@ -1569,6 +1569,8 @@ void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR);
 
 // address functions
 BOOL on_is_my_NID(const on_encoded_nid_t * const NID);
+BOOL did_is_broadcast(const UInt8* const did);
+int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* const enc_did2);
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
 one_net_status_t on_validate_dst_DID(const on_encoded_did_t * const DID);
