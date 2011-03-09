@@ -377,17 +377,17 @@ int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* 
 	{
 		return -1;
 	}
-	
+		
 	// TODO - what if these don't decode?
     on_decode(raw_did1, *enc_did1, ON_ENCODED_DID_LEN);
     on_decode(raw_did2, *enc_did2, ON_ENCODED_DID_LEN);
-	
+
 	if(raw_did1[0] == raw_did2[0])
 	{
-		return raw_did1[1] - raw_did2[1];
+		return (int) raw_did1[1] - (int) raw_did2[1];
 	}
 
-    return raw_did1[0] - raw_did2[0];
+    return (int) raw_did1[0] -  (int) raw_did2[0];
 }
 
 /*!
