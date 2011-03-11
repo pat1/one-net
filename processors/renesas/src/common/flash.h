@@ -108,8 +108,8 @@ enum
 //! \ingroup FLASH
 //! @{
 
-UInt16 read_data_flash(const UInt16 ADDR, UInt8 * data, const UInt8 LEN);
-UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * data, const UInt8 LEN);
+UInt16 read_data_flash(const UInt16 ADDR, UInt8 * data, const UInt16 LEN);
+UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * data, const UInt16 LEN);
 BOOL erase_data_flash(const UInt16 ADDR);
 
 //! @} FLASH_pub_func
