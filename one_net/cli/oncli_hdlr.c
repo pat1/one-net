@@ -1791,7 +1791,7 @@ static oncli_status_t memload_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 		return ONCLI_SUCCESS;
 	}
 
-    return ONCLI_RSRC_UNAVAILABLE_STR;
+    return ONCLI_RSRC_UNAVAILABLE;
 }
 #endif
 
@@ -2246,7 +2246,7 @@ static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 	}
 	
 	// if we're "busy" and cannot change state
-	return ONCLI_RSRC_UNAVAILABLE_STR;
+	return ONCLI_RSRC_UNAVAILABLE;
 }
 #endif
 
