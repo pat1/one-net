@@ -8,24 +8,24 @@
     This is the application that runs on the ONE-NET evaluation boards.
 */
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
 #include "one_net_eval.h"
 
-#include "oncli.h"
-#include "oncli_port.h"
-#include "oncli_str.h"
-#include "one_net_application.h"
-#include "one_net_client.h"
-#include "one_net_encode.h"
+#include <one_net/cli/oncli.h>
+#include <one_net/cli/oncli_port.h>
+#include <one_net/cli/oncli_str.h>
+#include <one_net/one_net_application.h>
+#include <one_net/one_net_client.h>
+#include <one_net/one_net_encode.h>
 #include "one_net_eval_hal.h"
-#include "one_net_master.h"
-#include "one_net_port_specific.h"
-#include "one_net_timer.h"
-#include "pal.h"
-#include "tal.h"
-#include "uart.h"
-#include "dfi.h"
+#include <one_net/one_net_master.h>
+#include <one_net/port_specific/one_net_port_specific.h>
+#include <one_net/one_net_timer.h>
+#include <one_net/port_specific/pal.h>
+#include <one_net/port_specific/tal.h>
+#include <one_net/port_specific/uart.h>
+#include <one_net/common/dfi.h>
 
 #pragma section program program_high_rom
 

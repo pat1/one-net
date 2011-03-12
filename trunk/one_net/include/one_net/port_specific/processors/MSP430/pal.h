@@ -48,7 +48,7 @@
 
 #include <msp430.h>
 
-#include <one_net/port_specific/processors/MSP430/io_port_mapping.h"
+#include <one_net/port_specific/processors/MSP430/io_port_mapping.h>
 #include <one_net/one_net_types.h>
 #include <one_net/port_specific/tick.h>
 

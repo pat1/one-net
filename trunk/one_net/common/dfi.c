@@ -47,7 +47,7 @@
 #endif // ifdef _R8C_TINY //
 
 #include <one_net/common/dfi.h>
-//#include "flash.h"
+#include <one_net/port_specific/flash.h>
 
 #include <one_net/port_specific/one_net_port_specific.h>
 

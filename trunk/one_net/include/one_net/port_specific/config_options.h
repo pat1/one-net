@@ -67,30 +67,23 @@
 
 // First undefine everything to be extra careful
 
-#include <one_net/port_specific/undefine_all_defines.h>
+#include <one_net/undefine_all_defines.h>
+
+
+
 
 
 // Now add any new configuration options you need.  Comment out any you do not need.  #ifdef
 // guards aren't needed since we undefined everything above, but can't hurt so we'll leave them
 // in.
 
-// Select the processor that the application is using
-#ifndef _PROCESSOR_RENESAS_R8C
-	#define _PROCESSOR_RENESAS_R8C
-#endif
+// Processor selection
+#define _PROCESSOR_RENESAS_R8C
+//#define _PROCESSOR_TI_MSP430
 
-#ifndef _PROCESSOR_TI_MSP430
-	//#define _PROCESSOR_TI_MSP_430
-#endif
-
-// Select the transceiver that the application is using
-#ifndef _TRANSCEIVER_ADI_ADF7025
-	#define _TRANSCEIVER_ADI_ADF7025
-#endif
-
-#ifndef _TRANSCEIVER_TI_CC1101
-	//#define _TRANSCEIVER_TI_CC1101
-#endif
+// Transceiver selection
+#define _TRANSCEIVER_ADI_ADF7025
+//#define _TRANSCEIVER_TI_CC1101
 
 // Version Information
 
@@ -111,7 +104,7 @@
 // Master/Client
 
 #ifndef _ONE_NET_MASTER
-//	#define _ONE_NET_MASTER
+	#define _ONE_NET_MASTER
 #endif
 
 #ifndef _ONE_NET_CLIENT
@@ -133,7 +126,7 @@
 
 // Stream Messages
 #ifndef _STREAM_MESSAGES_ENABLED
-//	#define _STREAM_MESSAGES_ENABLED
+	#define _STREAM_MESSAGES_ENABLED
 #endif
 
 
@@ -146,7 +139,7 @@
 
 #ifdef _ONE_NET_MULTI_HOP
 	#ifndef _ONE_NET_MH_CLIENT_REPEATER
-		#define _ONE_NET_MH_CLIENT_REPEATER
+//		#define _ONE_NET_MH_CLIENT_REPEATER
 	#endif
 #endif
 
@@ -188,18 +181,18 @@
 // if _IDLE is defined.
 #ifdef _IDLE
     #ifndef _ENHANCED_INVITE
-	    #define _ENHANCED_INVITE
+//	    #define _ENHANCED_INVITE
 	#endif
 #endif
 
 // load/dump options - commented out for now
 #ifdef _IDLE
-/*    #ifndef _ONE_NET_LOAD
+    #ifndef _ONE_NET_LOAD
         #define _ONE_NET_LOAD
-	#endif*/
+	#endif
 	
     #ifndef _ONE_NET_DUMP
-    //    #define _ONE_NET_DUMP
+        #define _ONE_NET_DUMP
 	#endif
 #endif
 
@@ -275,7 +268,7 @@
 // message type defines
 
 #ifndef _NEED_SWITCH_MESSAGE
-//    #define _NEED_SWITCH_MESSAGE
+    #define _NEED_SWITCH_MESSAGE
 #endif
 
 #ifndef _NEED_PERCENT_MESSAGE
@@ -283,7 +276,7 @@
 #endif
 
 #ifndef _NEED_TEMPERATURE_MESSAGE
-    #define _NEED_TEMPERATURE_MESSAGE
+//    #define _NEED_TEMPERATURE_MESSAGE
 #endif
 
 #ifndef _NEED_HUMIDITY_MESSAGE
@@ -303,7 +296,7 @@
 #endif
 
 #ifndef _NEED_DIRECTION_MESSAGE
-    #define _NEED_DIRECTION_MESSAGE
+//    #define _NEED_DIRECTION_MESSAGE
 #endif
 
 #ifndef _NEED_OPENING_MESSAGE
@@ -323,11 +316,11 @@
 #endif
 
 #ifndef _NEED_DATE_MESSAGE
-    #define _NEED_DATE_MESSAGE
+//    #define _NEED_DATE_MESSAGE
 #endif
 
 #ifndef _NEED_TIME_MESSAGE
-    #define _NEED_TIME_MESSAGE
+//    #define _NEED_TIME_MESSAGE
 #endif
 
 #ifndef _NEED_VOLTAGE_MESSAGE
@@ -339,7 +332,7 @@
 #endif
 
 #ifndef _NEED_ENERGY_MESSAGE
-//    #define _NEED_ENERGY_MESSAGE
+ //   #define _NEED_ENERGY_MESSAGE
 #endif
 
 #ifndef _NEED_ACCUM_ENERGY_MESSAGE
@@ -375,7 +368,7 @@
 #endif
 
 #ifndef _NEED_BLOCK_TEXT_MESSAGE
-//    #define _NEED_BLOCK_TEXT_MESSAGE
+    #define _NEED_BLOCK_TEXT_MESSAGE
 #endif
 
 
@@ -383,7 +376,7 @@
 // unit type defines
 
 #ifndef _NEED_SIMPLE_SWITCH_TYPE
-//    #define _NEED_SIMPLE_SWITCH_TYPE
+    #define _NEED_SIMPLE_SWITCH_TYPE
 #endif
 
 #ifndef _NEED_DIMMER_SWITCH_TYPE
@@ -415,7 +408,7 @@
 #endif
 
 #ifndef _NEED_TEMPERATURE_SENSOR_TYPE
-    #define _NEED_TEMPERATURE_SENSOR_TYPE
+//    #define _NEED_TEMPERATURE_SENSOR_TYPE
 #endif
 
 #ifndef _NEED_HUMIDITY_SENSOR_TYPE
@@ -446,7 +439,7 @@
 // Evaluation Board Options
 
 #ifndef _ONE_NET_EVAL
-//	#define _ONE_NET_EVAL
+	#define _ONE_NET_EVAL
 #endif
 
 #ifdef _ONE_NET_EVAL
@@ -495,7 +488,7 @@
 #endif
 
 #ifndef _R8C_TINY
-//	#define _R8C_TINY
+	#define _R8C_TINY
 #endif
 
 
@@ -539,7 +532,7 @@
 // _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
 #ifdef _ENABLE_CLI
 	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
-//		#define _AT_LEAST_ONE_COMMAND_ENABLED
+		#define _AT_LEAST_ONE_COMMAND_ENABLED
 	#endif
 #endif
 
@@ -597,34 +590,34 @@
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
-		#define _ENABLE_DUMP_COMMAND
+	//	#define _ENABLE_DUMP_COMMAND
 	#endif
 	
 	// _ENABLE_MEMDUMP_COMMAND should be defined if you are implementing the "memdump" command option
 	#ifdef _ONE_NET_DUMP
 	    #ifndef _ENABLE_MEMDUMP_COMMAND
-		    #define _ENABLE_MEMDUMP_COMMAND
+		//    #define _ENABLE_MEMDUMP_COMMAND
 	    #endif
 	#endif
 	
 	// _ENABLE_MEMLOAD_COMMAND should be defined if you are implementing the "memload" command option
 	#ifdef _ONE_NET_LOAD
 	    #ifndef _ENABLE_MEMLOAD_COMMAND
-		    #define _ENABLE_MEMLOAD_COMMAND
+		//    #define _ENABLE_MEMLOAD_COMMAND
 	    #endif
 	#endif
 	
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
-	/*#ifdef _ENABLE_SINGLE_COMMAND
+	#ifdef _ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
-			#define _ENABLE_RSINGLE_COMMAND
+		//	#define _ENABLE_RSINGLE_COMMAND
 		#endif
-	#endif*/
+	#endif
 
 	// _ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
-	/*#ifndef _ENABLE_RSSI_COMMAND
-		#define _ENABLE_RSSSI_COMMAND
-	#endif*/
+	#ifndef _ENABLE_RSSI_COMMAND
+	//	#define _ENABLE_RSSSI_COMMAND
+	#endif
 
 	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
 	#ifndef _ENABLE_LIST_COMMAND
@@ -727,8 +720,13 @@
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
 	#endif
+
+	// _ENABLE_DISPLAY_CONSTANTS_COMMAND should be defined if you are implementing the "display_chip_constants" command option
+	#ifndef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+		#define _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+	#endif
 #endif
-	
+
 
 
 
@@ -751,7 +749,7 @@
 
 
 // Now test #defines for compatibility
-#include <one_net/port_specific/test_defines.h>
+#include <one_net/test_defines.h>
 
 
 

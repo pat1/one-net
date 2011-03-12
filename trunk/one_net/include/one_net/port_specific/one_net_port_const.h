@@ -1,12 +1,21 @@
 #ifndef _ONE_NET_PORT_CONST_H
 #define _ONE_NET_PORT_CONST_H
 
+#include <one_net/one_net.h>
+#include <one_net/port_specific/tick.h>
+
+// Test channels.  At least one locale must be defined.
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+	#error "ERROR : At least one locale must be defined.  Both _US_CHANNELS and _EUROPE_CHANNELS are currently undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
 //! \defgroup ONE-NET_port_const Application Specific ONE-NET constants.
 //! \ingroup ONE-NET
 //! @{
 
 /*
-    Copyright (c) 2007, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -60,13 +69,10 @@
 
 enum
 {
-//    //! Time in ticks to spend polling for reception of a packet (the PREAMBLE
-//    //! & SOF). 10ms
-//    ONE_NET_WAIT_FOR_SOF_TIME = MS_TO_TICK(10),
+    //! Time in ticks to spend polling for reception of a packet (the PREAMBLE
+    //! & SOF). 10ms
+    ONE_NET_WAIT_FOR_SOF_TIME = MS_TO_TICK(10),
 
-    //! The base data rate (see one_net_data_rate_t in one_net.h)
-    BASE_DATA_RATE = ONE_NET_DATA_RATE_38_4,
-        
     //! The maximum data rate this device can operate at.
     ONE_NET_MAX_DATA_RATE = ONE_NET_DATA_RATE_38_4
 };
@@ -74,16 +80,15 @@ enum
 //! Timer related constants
 enum
 {
-    //! Time in ticks to spend polling for reception of a packet (the PREAMBLE
-    //! & SOF). 10ms
-    ONE_NET_WAIT_FOR_SOF_TIME = MS_TO_TICK(10),
-
     //! Time in ticks a device must wait in between checking if a channel is
     //! clear (5ms)
     ONE_NET_CLR_CHANNEL_TIME = MS_TO_TICK(5),
 
     //! Time in ticks a device waits for a response (50ms)
     ONE_NET_RESPONSE_TIME_OUT = MS_TO_TICK(50),
+
+    //! Time in ticks a device waits for a transaction to end (ACK or new transaction) (100ms)
+    ONE_NET_TRN_END_TIME_OUT = MS_TO_TICK(100),
 
     //! The base time in ticks for the retransmit delay for low priority
     //! transactions (10ms)
@@ -108,6 +113,7 @@ enum
 //! based without any gaps.  Whole groups (US & European) need to be included.
 typedef enum
 {
+#ifdef _US_CHANNELS
     // US frequencies
     ONE_NET_MIN_US_CHANNEL,                             //!< Min US frequency
     ONE_NET_US_CHANNEL_1 = ONE_NET_MIN_US_CHANNEL,      //!< 903.0Mhz
@@ -136,14 +142,15 @@ typedef enum
     ONE_NET_US_CHANNEL_24,                              //!< 926.0Mhz
     ONE_NET_US_CHANNEL_25,                              //!< 927.0Mhz
     ONE_NET_MAX_US_CHANNEL = ONE_NET_US_CHANNEL_25,     //!< Max US frequency
-    
+#endif
+#ifdef _EUROPE_CHANNELS    
     // European frequencies
     ONE_NET_MIN_EUR_CHANNEL,                            //!< Min European freq.
     ONE_NET_EUR_CHANNEL_1 = ONE_NET_MIN_EUR_CHANNEL,    //!< 865.8Mhz
     ONE_NET_EUR_CHANNEL_2,                              //!< 866.5Mhz
     ONE_NET_EUR_CHANNEL_3,                              //!< 867.2Mhz
     ONE_NET_MAX_EUR_CHANNEL = ONE_NET_EUR_CHANNEL_3,    //!< Max European freq.
-
+#endif
     ONE_NET_NUM_CHANNELS,                               //!< Number of channels
     ONE_NET_MAX_CHANNEL = ONE_NET_NUM_CHANNELS - 1      //!< Max ONE-NET channel
 } one_net_channel_t;

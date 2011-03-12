@@ -58,6 +58,8 @@
 
 
 #ifdef _ONE_NET_EVAL
+
+// TO-DO: JMR remove dependency of code on application code
     #include "one_net_eval.h"
     #include <one_net/cli/oncli.h>
 #endif // ifdef ONE_NET_EVAL

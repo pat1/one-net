@@ -43,7 +43,7 @@
 */
 
 #include <one_net/one_net.h>
-#include <one_net/port_specific/one_net_types.h>
+#include <one_net/one_net_types.h>
 #include <one_net/one_net_status_codes.h>
 #include <one_net/one_net_application.h>
 

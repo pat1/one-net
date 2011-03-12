@@ -1,12 +1,15 @@
 #ifndef _ONE_NET_CLIENT_PORT_CONST_H
 #define _ONE_NET_CLIENT_PORT_CONST_H
 
-//! \defgroup ONE_NET_CLIENT_port_const ONE-NET CLIENT Specific constants
+
+#include <one_net/port_specific/config_options.h>
+
+//! \defgroup CLIENT_port_const ONE-NET CLIENT Specific constants
 //! \ingroup ONE-NET_port_specific
 //! @{
 
 /*
-    Copyright (c) 2007, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -36,13 +39,13 @@
 */
 
 /*!
-    \file one_net_client_port_const.h
+    \file client_port_const.h
     \brief ONE-NET CLIENT specific constants.
 
     These are constants that are specific to each ONE-NET CLIENT device.  This
     file should be copied to a project specific location and renamed to
     client_port_const.h.
-    
+
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -60,9 +63,17 @@ enum
     //! The number of remembered devices that have sent to this device.
     ONE_NET_RX_FROM_DEVICE_COUNT = 3,
 
-    //! The number of peers per unit the CLIENT supports.  This value must be
-    //! between 4 & 15 inclusive
-    ONE_NET_PEER_PER_UNIT = 4,
+    // Derek_S - No longer using a "by unit" approach.  You can now have all
+	// commenting out below
+
+#ifdef _PEER	
+    //! The maximum number of separate physical devices the CLIENT can
+    //! keep track of
+    ONE_NET_MAX_PEER_DEV = 8,
+	
+    //! The maximum number of unit peers the CLIENT can keep track of
+    ONE_NET_MAX_PEER_UNIT = 16,
+#endif	
 
     //! The number of different unit types this device supports.  If this value
     //! changes, UNIT_TYPES will also need to be changed.

@@ -32,11 +32,11 @@
 #include <one_net/port_specific/config_options.h>
 
 #ifdef _PROCESSOR_RENESAS_R8C
-#include <one_net/port_specific/processor/R8C/uart_hal.h>
+#include <one_net/port_specific/processors/R8C/uart_hal.h>
 #endif
 
 #ifdef _PROCESSOR_TI_MSP430
-#include  <one_net/port_specific/processor/MSP430/uart_hal.h>
+#include  <one_net/port_specific/processors/MSP430/uart_hal.h>
 #endif
 
 #endif // #ifdef __UART_HAL_H //

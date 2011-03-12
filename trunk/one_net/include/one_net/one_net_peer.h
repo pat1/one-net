@@ -57,7 +57,7 @@
 
 // 1-15-2010 - TO-DO - What about masters with peer assignments which aren't eval boards?
 #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
-    #include "one_net_eval_hal.h" // for NUM_MASTER_PEER
+    #include <one_net/port_specific/processors/R8C/one_net_eval_hal.h> // for NUM_MASTER_PEER
 #endif
 
 //==============================================================================

@@ -41,7 +41,8 @@
       serial i/o.
 */
 
-#include <one_net/port_specific/uart_hal.h"
+#include <one_net/port_specific/config_options.h>
+#include <one_net/port_specific/uart_hal.h>
 
 #include <one_net/one_net_types.h>
 #include <one_net/port_specific/pal.h>

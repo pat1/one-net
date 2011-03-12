@@ -39,6 +39,8 @@
 
 #include <one_net/port_specific/config_options.h>
 
+#include <one_net_eval.h>
+
 
 #ifdef _R8C_TINY
     #pragma section program program_high_rom
@@ -59,13 +61,14 @@
 #include <one_net/one_net_client.h>
 #include <one_net/one_net_client_net.h>
 #include <one_net/port_specific/one_net_port_specific.h>
+#include <one_net/port_specific/one_net_client_port_const.h>
 #include <one_net/one_net_encode.h>
 #ifdef _ENHANCED_INVITE
     #include <one_net/one_net_xtea.h>
 #endif
 
 #ifdef  _ENABLE_DUMP_COMMAND
-#include "flash.h"
+#include <one_net/port_specific/flash.h>
 #endif
 
 #ifdef _ENABLE_RSSI_COMMAND 

@@ -33,11 +33,11 @@
 #include <one_net/port_specific/config_options.h>
 
 #ifdef _PROCESSOR_RENESAS_R8C
-#include <one_net/port_specific/processor/R8C/pal.h>
+#include <one_net/port_specific/processors/R8C/pal.h>
 #endif
 
 #ifdef _PROCESSOR_TI_MSP430
-#include <one_net/port_specific/processor/MSP430/pal.h>
+#include <one_net/port_specific/processors/MSP430/pal.h>
 #endif
 
 #endif // __PAL_H //

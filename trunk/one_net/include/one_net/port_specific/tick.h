@@ -1,5 +1,5 @@
-#ifndef _TICK_H
-#define _TICK_H
+#ifndef __TICK_H
+#define __TICK_H
 
 /*
     Copyright (c) 2011, Threshold Corporation
@@ -34,11 +34,11 @@
 #include <one_net/port_specific/config_options.h>
 
 #ifdef _PROCESSOR_RENESAS_R8C
-#include <one_net/port_specific/processor/R8C/tick.h>
+#include <one_net/port_specific/processors/R8C/tick.h>
 #endif
 
 #ifdef _PROCESSOR_TI_MSP430
-#include <one_net/port_specific/processor/MSP430/tick.h>
+#include <one_net/port_specific/processors/MSP430/tick.h>
 #endif
 
-#endif // _TICK_H //
+#endif // __TICK_H //

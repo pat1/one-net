@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_TYPES_H
-#define _ONE_NET_TYPES_H
+#ifndef __ONE_NET_TYPES_H
+#define __ONE_NET_TYPES_H
 
 //! \defgroup ONE-NET_Types Type declarations for ONE-NET.
 //! \ingroup ONE-NET
@@ -44,11 +44,11 @@
 #include <one_net/port_specific/config_options.h>
 
 #ifdef _PROCESSOR_RENESAS_R8C
-#include <one_net/processors/r8c/one_net_types.h>
+#include <one_net/port_specific/processors/r8c/one_net_types.h>
 #endif //_PROCESSOR_RENESAS_R8C
 
 #ifdef _PROCESSOR_TI_MSP430
-#include <one_net/processors/MSP430/one_net_types.h>
+#include <one_net/port_specific/processors/MSP430/one_net_types.h>
 #endif //_PROCESSOR_TI_MSP430
 
-#endif // _ONE_NET_TYPES_H //
+#endif // __ONE_NET_TYPES_H //

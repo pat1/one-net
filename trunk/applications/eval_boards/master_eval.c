@@ -7,24 +7,24 @@
     \brief The MASTER part of the ONE-NET evaluation project.
 */
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
-#include "one_net_crc.h"
-#include "io_port_mapping.h"
-#include "one_net_master_port_specific.h"
+#include <one_net/one_net_crc.h>
+#include <one_net/port_specific/io_port_mapping.h>
+#include <one_net/port_specific/one_net_master_port_specific.h>
 
 #ifdef _ENABLE_CLI
-	#include "oncli.h"
-	#include "oncli_port.h"
-	#include "oncli_str.h"
+	#include <one_net/cli/oncli.h>
+	#include <one_net/cli/oncli_port.h>
+	#include <one_net/cli/oncli_str.h>
 #endif
-#include "one_net_encode.h"
+#include <one_net/one_net_encode.h>
 #include "one_net_eval.h"
 #include "one_net_eval_hal.h"
-#include "one_net_timer.h"
-#include "pal.h"
-#include "dfi.h"
-#include "one_net_peer.h"
+#include <one_net/one_net_timer.h>
+#include <one_net/port_specific/pal.h>
+#include <one_net/common/dfi.h>
+#include <one_net/one_net_peer.h>
 
 
 //=============================================================================

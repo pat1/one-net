@@ -33,11 +33,11 @@
 #include <one_net/port_specific/config_options.h>
 
 #ifdef _TRANSCEIVER_ADI_ADF7025
-#include <one_net/transceivers/adi/tal.h>
+#include <one_net/port_specific/transceivers/adi/tal.h>
 #endif
 
 #ifdef _TRANSCEIVER_TI_CC1101
-#include <one_net/transceivers/ti/cc1101/tal.h>
+#include <one_net/port_specific/transceivers/ti/cc1101/tal.h>
 #endif
 
 

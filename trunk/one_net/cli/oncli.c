@@ -49,9 +49,9 @@
 
 #include <ctype.h>
 
-#include <one_net/common/printf.h>
+#include <one_net/common/nprintf.h>
 #include <one_net/cli/oncli_hdlr.h>
-#include <one_net/oncli_str.h>
+#include <one_net/cli/oncli_str.h>
 #include <one_net/port_specific/one_net_port_specific.h>
 #include <one_net/port_specific/pal.h>
 #include <one_net/port_specific/uart.h>

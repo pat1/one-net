@@ -51,6 +51,7 @@
 //! \ingroup uart_hal
 //! @{
 
+#include <one_net/port_specific/config_options.h>
 #include <msp430.h>
 
 enum

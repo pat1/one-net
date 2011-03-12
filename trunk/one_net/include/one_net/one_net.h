@@ -144,7 +144,7 @@
     payload of "ng" to the master.
 
 */
-
+#include <one_net/port_specific/config_options.h>
 #include <one_net/one_net_status_codes.h>
 #include <one_net/one_net_types.h>
 #include <one_net/one_net_xtea.h>

@@ -54,7 +54,13 @@
 // test_defines.h earlier in the include path, which has the effect of over-riding
 // these tests.
 
-
+#ifdef _PROCESSOR_RENESAS_R8C
+    #ifdef _PROCESSOR_TI_MSP430
+		#error "ERROR: only one _PROCESSOR_manufacturer_model can be defined at a time. Please adjust the #define values in the config_options.h file."
+	#endif
+#elif !(defined(_PROCESSOR_TI_MSP430))
+	#error "ERROR: at least one _PROCESSOR_manufacturer_model should be defined. Please adjust the #define values in the config_options.h file."
+#endif
 // First test the version.
 #ifdef _ONE_NET_VERSION_1_X
 	#ifdef _ONE_NET_VERSION_2_X

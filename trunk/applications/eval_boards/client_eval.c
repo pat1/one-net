@@ -7,25 +7,25 @@
     \brief The CLIENT part of the ONE-NET evaluation project.
 */
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
-#include "one_net_client_net.h"
-#include "one_net_client_port_specific.h"
-#include "one_net_crc.h"
-#include "io_port_mapping.h"
+#include <one_net/one_net_client_net.h>
+#include <one_net/port_specific/one_net_client_port_specific.h>
+#include <one_net/one_net_crc.h>
+#include <one_net/port_specific/io_port_mapping.h>
 
 #ifdef _ENABLE_CLI
-	#include "oncli.h"
-	#include "oncli_port.h"
-	#include "oncli_str.h"
+	#include <one_net/cli/oncli.h>
+	#include <one_net/cli/oncli_port.h>
+	#include <one_net/cli/oncli_str.h>
 #endif
 
 #include "one_net_eval.h"
 #include "one_net_eval_hal.h"
-#include "pal.h"
+#include <one_net/port_specific/pal.h>
 
 #ifdef _ENABLE_CLIENT_PING_RESPONSE
-    #include "uart.h"
+    #include <one_net/port_specific/uart.h>
 #endif
 
 //=============================================================================

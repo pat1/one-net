@@ -1,7 +1,7 @@
 #ifndef _ONE_NET_EVAL_H
 #define _ONE_NET_EVAL_H
 
-#include "config_options.h"
+#include <one_net/port_specific/config_options.h>
 
 
 //! \defgroup ONE-NET_eval ONE_NET Evaluation
@@ -14,8 +14,8 @@
     Declarations for the ONE-NET evaluation project.
 */
 
-#include "one_net.h"
-#include "one_net_types.h"
+#include <one_net/one_net.h>
+#include <one_net/one_net_types.h>
 
 
 //=============================================================================

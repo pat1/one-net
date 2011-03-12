@@ -43,7 +43,7 @@
     to the i/o ports on the ONE-NET Example Boards using an ADI tranceiver and
     Renesas R8C1B processor.
 */
-
+#include <one_net/port_specific/config_options.h>
 
 #include <msp430.h>
 
