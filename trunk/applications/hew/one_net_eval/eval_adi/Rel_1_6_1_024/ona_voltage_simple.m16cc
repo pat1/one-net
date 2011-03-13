@@ -1,0 +1,35 @@
+-I"D:\One-Net\Source\trunk\one_net\include"
+-I"D:\One-Net\Source\trunk\applications\eval_boards"
+-D_ONE_NET_MULTI_HOP
+-D_ONE_NET_EVAL
+-D_CHIP_ENABLE
+-D_R8C_TINY
+-DDONT_ONE_NET_MH_CLIENT_REPEATER
+-DDONT_NEED_XDUMP
+-D_ENABLE_DUMP_COMMAND
+-DDONT_ENABLE_RSINGLE_COMMAND
+-D_SERIAL_ASSIGN_DEMO_PINS
+-DDONT_EVAL_0005_NO_REVISION
+-DDONT_ONE_NET_TEST_NACK_WITH_REASON_FIELD
+-DDONT_ONE_NET_DEBUG
+-DDONT_ENABLE_RSSI_COMMAND
+-D_ENABLE_LIST_COMMAND
+-DDONT_ONE_NET_DEBUG_STACK
+-D_ENABLE_CLIENT_PING_RESPONSE
+-D_AUTO_MODE
+-c
+-finfo
+-dir "D:\One-Net\Source\trunk\applications\hew\one_net_eval\eval_adi\Rel_1_6_1_024"
+-O5
+-OR -O5OA
+-OSA
+-fD32
+-fNA
+-fNC
+-fNROM
+-fS16 -fP16
+-fSA
+-fUD
+-Wall
+-R8CE
+"D:\One-Net\Source\trunk\one_net\app\ona_voltage_simple.c"

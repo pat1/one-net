@@ -1,0 +1,23 @@
+[HIMDBVersion]
+2.0
+[DATABASE_VERSION]
+"1.2" 
+[CURRENT_PROJECT]
+"eval_adi" 
+[GENERAL_DATA]
+[BREAKPOINTS]
+[OPEN_WORKSPACE_FILES]
+"D:\One-Net\Source\trunk\applications\eval_boards\one_net_eval.c" 
+"D:\One-Net\Source\trunk\one_net\cli\oncli.c" 
+"D:\One-Net\Source\trunk\one_net\cli\oncli_hdlr.c" 
+"D:\One-Net\Source\trunk\one_net\include\one_net\port_specific\config_options.h" 
+"D:\One-Net\Source\trunk\one_net\mac\one_net_client.c" 
+[WORKSPACE_FILE_STATES]
+"D:\One-Net\Source\trunk\applications\eval_boards\one_net_eval.c" 115 115 852 320 0 2 
+"D:\One-Net\Source\trunk\one_net\cli\oncli.c" -8 -28 1006 494 1 3 
+"D:\One-Net\Source\trunk\one_net\cli\oncli_hdlr.c" 0 0 852 320 0 4 
+"D:\One-Net\Source\trunk\one_net\include\one_net\port_specific\config_options.h" 23 23 900 271 0 0 
+"D:\One-Net\Source\trunk\one_net\mac\one_net_client.c" 92 92 852 320 0 1 
+[LOADED_PROJECTS]
+"eval_adi" 
+[END]

@@ -1,0 +1,19 @@
+#ASFILE
+"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval_hal.a30"
+#ASOPT
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\eval" -D__HEAP__=1 -D__STANDARD_IO__=1 -finfo -O"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" -LM +jopt2 -R8CE  
+#BRANCHINFO
+W,753,1,23,JSR,$delay_ms
+W,775,1,47,JSR,$delay_ms
+W,799,1,62,JSR,$delay_ms
+W,992,1,96,JSR,$dfi_delete_segments_except_for
+W,1080,1,c0,JSR,$dfi_find_last_segment_of_type
+W,1180,1,e3,JSR,_device_type
+W,1190,1,f0,JSR,$master_get_peer_assignment_to_save
+W,1204,1,f9,JSR,_on_master_force_save
+W,1219,1,102,JSR,_device_type
+W,1227,1,109,JSR,_on_client_force_save
+W,1271,1,126,JSR,$dfi_write_segment_of_type
+W,1297,1,138,JSR,$get_user_pin_type
+W,1307,1,148,JSR,$dfi_write_segment_of_type
+W,1339,1,163,JSR,$dfi_write_segment_of_type

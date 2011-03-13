@@ -1,0 +1,20 @@
+#ASFILE
+"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_peer.a30"
+#ASOPT
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\eval" -D__HEAP__=1 -D__STANDARD_IO__=1 -finfo -O"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" -LM +jopt2 -R8CE  
+#BRANCHINFO
+W,1041,1,167,JSR,$one_net_memmove
+W,1190,1,1c9,JSR,$one_net_memmove
+A,1395,1,224,JSR,$on_encoded_did_equal
+W,1493,1,26c,JSR,$one_net_memmove
+W,1506,1,281,JSR,$one_net_memmove
+A,1797,1,32b,JSR,$on_encoded_did_equal
+A,1809,1,343,JSR,$on_encoded_did_equal
+W,1824,1,35e,JSR,$one_net_memmove
+W,1892,1,3c1,JSR,$one_net_memmove
+W,1914,1,3e1,JSR,$one_net_memmove
+A,2011,1,40a,JSR,$on_encoded_did_equal
+A,2079,1,475,JSR,$on_encoded_did_equal
+W,2123,1,4b2,JSR,$one_net_memmove
+W,2148,1,4db,JSR,$one_net_memmove
+A,2181,1,500,JSR,$on_encoded_did_equal

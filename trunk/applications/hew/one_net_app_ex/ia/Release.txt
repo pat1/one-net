@@ -1,0 +1,18 @@
+Release Notes for ONE-NET Simple Device Application Example.
+
+Version     Date                Description
+--------------------------------------------------------------------------------
+0.6         31 July 2007        Updated to use ONE-NET preliminary release 0.7.
+
+0.5         7 July 2007         Initial release consisting of a simple switch
+                                and a simple output device (light/outlet)
+                                example.  Project workspace contains a project
+                                for each example that runs on an R8C/1B with
+                                16K ROM & 1K RAM.  These examples include the
+                                ONE-NET prelimary release v0.6
+
+                                The simple switch example does sleep when it
+                                can.  The output example is a device that needs
+                                to be line powered as it has to continually stay
+                                awake and listen for a message.
+

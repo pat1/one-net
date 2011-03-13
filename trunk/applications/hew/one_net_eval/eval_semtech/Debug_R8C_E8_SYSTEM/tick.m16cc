@@ -1,0 +1,35 @@
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\mac"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\utility"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\port_specific"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\app"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\eval"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\common"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\cli"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\eval\semtech"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers\semtech"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\common"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\common\string"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\..\..\applications\eval_boards"
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\r8c23"
+-D_ONE_NET_EVAL
+-D_ONE_NET_MULTI_HOP
+-D_ONE_NET_MH_CLIENT_REPEATER
+-D_R8C_TINY
+-D_BIT_BANG
+-c
+-finfo
+-dir "D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_semtech\Debug_R8C_E8_SYSTEM"
+-O5
+-O5OA
+-OSA
+-fD32
+-fJSRW
+-fNA
+-fNC
+-fNROM
+-fS16 -fP16
+-fSA
+-fUD
+-Wall
+-R8CE
+"D:\One-Net\Source\trunk\processors\renesas\src\eval\tick.c"

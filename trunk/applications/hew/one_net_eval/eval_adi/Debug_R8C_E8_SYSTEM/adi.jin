@@ -1,0 +1,16 @@
+#ASFILE
+"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\adi.a30"
+#ASOPT
+-I"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\..\..\src\eval" -D__HEAP__=1 -D__STANDARD_IO__=1 -finfo -O"D:\One-Net\Source\trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" -LM +jopt2 -R8CE  
+#BRANCHINFO
+A,593,1,5,JSR,_tal_init_ports
+W,632,1,38,JSR,$delay_100s_us
+A,645,1,45,JSR,_init_rf_interrupts
+W,696,1,63,JSR,$one_net_memmove
+W,764,1,97,JSR,$one_net_memmove
+W,786,1,b0,JSR,$delay_100s_us
+W,1189,1,14d,JSR,_one_net_tick
+W,1214,1,16d,JSR,_one_net_tick
+W,1237,1,18a,JSR,_turn_on_rx_led
+W,1671,1,2d1,JSR,$one_net_memmove
+W,1745,1,2fe,JSR,_turn_on_tx_led
