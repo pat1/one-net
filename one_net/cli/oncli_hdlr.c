@@ -3348,7 +3348,11 @@ static void oncli_display_chip_constants()
         {
             raw_did[0] = 0x00;
             raw_did[1] = 0x00;
-        }		
+        }
+		
+        #ifdef _ONE_NET_MASTER
+		    oncli_send_msg("ONE_NET_MASTER_MAX_CLIENTS:%d\n", ONE_NET_MASTER_MAX_CLIENTS);
+		#endif
 	}
 	else
 	{
@@ -3378,6 +3382,8 @@ static void oncli_display_chip_constants()
     #else
         oncli_send_msg("_PEER:undefined\n");
     #endif
+	
+	delay_ms(40);
 
     #ifdef _ONE_NET_MULTI_HOP
         oncli_send_msg("_ONE_NET_MULTI_HOP:defined\n");
@@ -3390,6 +3396,20 @@ static void oncli_display_chip_constants()
     #else
         oncli_send_msg("_STREAM_MESSAGES_ENABLED:undefined\n");
     #endif
+
+    #ifdef _US_CHANNELS
+        oncli_send_msg("_US_CHANNELS:defined\n");
+    #else
+        oncli_send_msg("_US_CHANNELS:undefined\n");
+    #endif
+
+    #ifdef _EUROPE_CHANNELS
+        oncli_send_msg("_EUROPE_CHANNELS:defined\n");
+    #else
+        oncli_send_msg("_EUROPE_CHANNELS:undefined\n");
+    #endif
+	
+	delay_ms(40);
 	
     #ifdef _PEER
         if(isMaster)
