@@ -42,7 +42,7 @@
     \file one_net_application.h
     \brief Declarations for ONE-NET application layer
 
-    This is global ONE-NET application layer information.  
+    This is global ONE-NET application layer information.
 */
 
 #include "one_net.h"
@@ -153,7 +153,7 @@ ONE_NET_INLINE void put_first_two_msg_bytes(UInt16 data, UInt8 *payload)
 /* get the 16-bit message header (message class, message type) */
 ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8 *payload)
 {
-    return ((UInt16)payload[ONA_MSG_HDR_IDX]<< 8) | 
+    return ((UInt16)payload[ONA_MSG_HDR_IDX]<< 8) |
             (UInt16)payload[ONA_MSG_HDR_IDX+1];
 }
 
@@ -183,14 +183,14 @@ ONE_NET_INLINE void put_msg_data(UInt16 data, UInt8 *payload)
 /* get the 8-bit source unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)
 {
-    return (payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_SRC_UNIT_MASK) >> 
+    return (payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_SRC_UNIT_MASK) >>
             ONA_MSG_SRC_UNIT_SHIFT;
 }
 
 /* store the 8-bit source unit data value in the payload buffer */
 ONE_NET_INLINE void put_src_unit(UInt8 data , UInt8 *payload)
 {
-    payload[ONA_MSG_SRC_UNIT_IDX] = 
+    payload[ONA_MSG_SRC_UNIT_IDX] =
         (payload[ONA_MSG_SRC_UNIT_IDX]    & ~ONA_MSG_SRC_UNIT_MASK) |
         ((data << ONA_MSG_SRC_UNIT_SHIFT) &  ONA_MSG_SRC_UNIT_MASK);
 }
@@ -198,14 +198,14 @@ ONE_NET_INLINE void put_src_unit(UInt8 data , UInt8 *payload)
 /* get the 8-bit destination unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_dst_unit(const UInt8 *payload)
 {
-    return (payload[ONA_MSG_DST_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK) >> 
+    return (payload[ONA_MSG_DST_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK) >>
             ONA_MSG_DST_UNIT_SHIFT;
 }
 
 /* store the 8-bit destination unit data value in the payload buffer */
 ONE_NET_INLINE void put_dst_unit(UInt8 data, UInt8 *payload)
 {
-    payload[ONA_MSG_DST_UNIT_IDX] = 
+    payload[ONA_MSG_DST_UNIT_IDX] =
         (payload[ONA_MSG_DST_UNIT_IDX]    & ~ONA_MSG_DST_UNIT_MASK) |
         ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
 }
@@ -216,13 +216,13 @@ ONE_NET_INLINE void put_dst_unit(UInt8 data, UInt8 *payload)
 
 enum
 {
-    //! Index of the message type field within a Block Data payload header 
+    //! Index of the message type field within a Block Data payload header
     ONA_BLK_DATA_HDR_MSG_TYPE_IDX = 0,
 
-    //! Index of the block length field within a Block Data payload header 
+    //! Index of the block length field within a Block Data payload header
     ONA_BLK_DATA_HDR_BLK_LEN_IDX = 2,
 
-    //! Index of the source and destination unit fields within a Block Data payload header 
+    //! Index of the source and destination unit fields within a Block Data payload header
     ONA_BLK_DATA_HDR_SRC_DST_IDX = 4,
 
     //! Index of the data portion of the payload in the first block data message
@@ -251,7 +251,7 @@ ONE_NET_INLINE void put_block_data_payload_hdr(UInt16 msg_type, UInt16 block_len
     payload[ONA_BLK_DATA_HDR_BLK_LEN_IDX] = block_len >> 8;
     payload[ONA_BLK_DATA_HDR_BLK_LEN_IDX+1] = block_len;
 
-    payload[ONA_BLK_DATA_HDR_SRC_DST_IDX] = (src_unit << ONA_BLK_DATA_HDR_SRC_UNIT_SHIFT) & 
+    payload[ONA_BLK_DATA_HDR_SRC_DST_IDX] = (src_unit << ONA_BLK_DATA_HDR_SRC_UNIT_SHIFT) &
       ONA_BLK_DATA_HDR_SRC_UNIT_MASK;
 
     payload[ONA_BLK_DATA_HDR_SRC_DST_IDX] |= dst_unit & ONA_BLK_DATA_HDR_DST_UNIT_MASK;
@@ -262,19 +262,19 @@ ONE_NET_INLINE void get_block_data_payload_hdr(UInt16 * msg_type, UInt16 * block
 {
     if (msg_type)
     {
-        *msg_type = ((UInt16)payload[ONA_BLK_DATA_HDR_MSG_TYPE_IDX] << 8) | 
+        *msg_type = ((UInt16)payload[ONA_BLK_DATA_HDR_MSG_TYPE_IDX] << 8) |
                 (UInt16)payload[ONA_BLK_DATA_HDR_MSG_TYPE_IDX+1];
     }
 
     if (block_len)
     {
-        *block_len = ((UInt16)payload[ONA_BLK_DATA_HDR_BLK_LEN_IDX] << 8) | 
+        *block_len = ((UInt16)payload[ONA_BLK_DATA_HDR_BLK_LEN_IDX] << 8) |
                 (UInt16)payload[ONA_BLK_DATA_HDR_BLK_LEN_IDX+1];
     }
 
     if (src_unit)
     {
-        *src_unit = (payload[ONA_BLK_DATA_HDR_SRC_DST_IDX] & ONA_BLK_DATA_HDR_SRC_UNIT_MASK) >> 
+        *src_unit = (payload[ONA_BLK_DATA_HDR_SRC_DST_IDX] & ONA_BLK_DATA_HDR_SRC_UNIT_MASK) >>
                 ONA_BLK_DATA_HDR_SRC_UNIT_SHIFT;
     }
 
@@ -316,7 +316,7 @@ typedef enum _ona_msg_class
     ONA_POLL     = 0xC000, //!< Poll status of a unit
 #endif
 
-    ONA_MSG_CLASS_MASK = 0x8000,    //!< Used to mask message class bits
+    ONA_MSG_CLASS_MASK = 0xF000,    //!< Used to mask message class bits
 } ona_msg_class_t;
 #endif
 
@@ -380,7 +380,7 @@ typedef enum _ona_msg_type
     //! Unused message
     ONA_UNUSED0 = 0x000B,
 
-    //! Set/Query/Report Unit Type Count 
+    //! Set/Query/Report Unit Type Count
     ONA_UNIT_TYPE_COUNT = 0x000C,
 
     //! Set/Query/Report Unit Type
@@ -413,7 +413,7 @@ typedef enum _ona_msg_type
     //! Report Voltage (in volts)
     ONA_VOLTAGE_VOLTS = 0x0013,
 
-    //! Report Voltage (in 10ths of a volt) 
+    //! Report Voltage (in 10ths of a volt)
     ONA_VOLTAGE_10THS_VOLTS = 0x0014,
 
     //! Report Voltage (in 100ths of a volt)
@@ -424,7 +424,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ENERGY_MESSAGE
-    //! Incremental Energy Query 
+    //! Incremental Energy Query
     ONA_ENERGY = 0x0017,
 
     // Replacing old values with new ones
@@ -450,7 +450,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ACCUM_ENERGY_MESSAGE
-    //! Accumulated Energy Query 
+    //! Accumulated Energy Query
     ONA_ACCUM_ENERGY = 0x001D,
 
     //! Report Accumulated Energy (in 2 watt seconds units)
@@ -470,7 +470,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_PEAK_ENERGY_MESSAGE
-    //! Peak Energy Query 
+    //! Peak Energy Query
     ONA_PEAK_ENERGY = 0x0023,
 
     //! Report Peak Energy (in 2 watt seconds units)
@@ -490,7 +490,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_GAS_MESSAGE
-    //! Instantaneous Gas Query 
+    //! Instantaneous Gas Query
     ONA_GAS = 0x0029,
 
     //! Instantaneous Gas Therm-Seconds
@@ -504,7 +504,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ACCUM_GAS_MESSAGE
-    //! Accumulated Gas Query 
+    //! Accumulated Gas Query
     ONA_ACCUM_GAS = 0x002D,
 
     //! Accumulated Gas Therm-Seconds
@@ -518,7 +518,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_AVERAGE_GAS_MESSAGE
-    //! Average Gas Query 
+    //! Average Gas Query
     ONA_AVER_GAS = 0x0031,
 
     //! Average Gas Therm-Seconds
@@ -532,7 +532,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_PEAK_GAS_MESSAGE
-    //! Peak Gas Query 
+    //! Peak Gas Query
     ONA_PEAK_GAS = 0x0035,
 
     //! Peak Gas Therm-Seconds
@@ -623,7 +623,7 @@ typedef enum _ona_msg_type
     //! Unused message
     ONA_UNUSED0 = 0x00B,
 
-    //! Set/Query/Report Unit Type Count 
+    //! Set/Query/Report Unit Type Count
     ONA_UNIT_TYPE_COUNT = 0x00C,
 
     //! Set/Query/Report Unit Type
@@ -656,7 +656,7 @@ typedef enum _ona_msg_type
     //! Report Voltage (in volts)
     ONA_VOLTAGE_VOLTS = 0x013,
 
-    //! Report Voltage (in 10ths of a volt) 
+    //! Report Voltage (in 10ths of a volt)
     ONA_VOLTAGE_10THS_VOLTS = 0x014,
 
     //! Report Voltage (in 100ths of a volt)
@@ -667,7 +667,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ENERGY_MESSAGE
-    //! Incremental Energy Query 
+    //! Incremental Energy Query
     ONA_ENERGY = 0x017,
 
     // Replacing old values with new ones
@@ -693,7 +693,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ACCUM_ENERGY_MESSAGE
-    //! Accumulated Energy Query 
+    //! Accumulated Energy Query
     ONA_ACCUM_ENERGY = 0x01D,
 
     //! Report Accumulated Energy (in 2 watt seconds units)
@@ -713,7 +713,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_PEAK_ENERGY_MESSAGE
-    //! Peak Energy Query 
+    //! Peak Energy Query
     ONA_PEAK_ENERGY = 0x023,
 
     //! Report Peak Energy (in 2 watt seconds units)
@@ -733,7 +733,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_GAS_MESSAGE
-    //! Instantaneous Gas Query 
+    //! Instantaneous Gas Query
     ONA_GAS = 0x029,
 
     //! Instantaneous Gas Therm-Seconds
@@ -747,7 +747,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_ACCUM_GAS_MESSAGE
-    //! Accumulated Gas Query 
+    //! Accumulated Gas Query
     ONA_ACCUM_GAS = 0x02D,
 
     //! Accumulated Gas Therm-Seconds
@@ -761,7 +761,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_AVERAGE_GAS_MESSAGE
-    //! Average Gas Query 
+    //! Average Gas Query
     ONA_AVER_GAS = 0x031,
 
     //! Average Gas Therm-Seconds
@@ -775,7 +775,7 @@ typedef enum _ona_msg_type
 #endif
 
 #ifdef _NEED_PEAK_GAS_MESSAGE
-    //! Peak Gas Query 
+    //! Peak Gas Query
     ONA_PEAK_GAS = 0x035,
 
     //! Peak Gas Therm-Seconds
@@ -818,7 +818,7 @@ typedef enum _ona_block_msg_type
 
     //! Block text message type (used for block messages where the bytes represent ASCII characters
     ONA_BLOCK_TEXT = 0x0001,
-	
+
 	//! Block binary message type (used for block messages where the bytes can represent anything)
     ONA_BLOCK_BINARY = 0x0002
 } ona_block_msg_type_t;
@@ -963,7 +963,7 @@ one_net_status_t ona_send_unit_type_count_query(
       const one_net_raw_did_t *RAW_DST);
 #endif // ifndef _ONE_NET_MASTER //
 
-one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX, 
+one_net_status_t ona_send_unit_type_query(UInt8 UNIT_TYPE_INDEX,
   const one_net_raw_did_t *RAW_DST);
 
 one_net_status_t ona_parse_unit_type_count(const UInt8 *MSG_DATA,
