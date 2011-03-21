@@ -110,6 +110,38 @@ UInt32 one_net_prand(const UInt32 MODIFIER, const UInt32 MAX_RAND)
     return (pseudo_rand + MODIFIER) % (MAX_RAND + 1);
 } // one_net_prand //
 
+
+#ifdef _ONE_NET_USE_RANDOM_PADDING
+/*
+    \brief fills array with random bits.
+
+    Fills a packet with random bits from startBit to endBit
+	
+	Example --> len = 5, startBit = 12, endBit = 37
+	            X's represent unchanged data, 0's and 1's represent random bits.
+				
+    Bit number
+    0         1         2         3         4
+    01234567890123456789012345678901234567890
+	XXXXXXXXXXXX11001110001010100110011011XX
+
+    \param[out] buffer buffer containing random bits from startBit to endBit.
+	            All Other bits are unchanged.
+    \param[in] len number of bytes in buffer
+	\param[in] startBit first bit to fill randomly
+	\param[in] endBut last bit to fill randomly
+   
+    \return void
+*/
+void RandomPad(UInt8* buffer, int len, int startBit, int endBit)
+{
+    // TODO write this function
+}
+#endif
+
+
+
+
 //! @} one_net_prand_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

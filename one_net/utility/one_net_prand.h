@@ -88,6 +88,9 @@
 //! @{
 
 UInt32 one_net_prand(const UInt32 MODIFIER, const UInt32 MAX_RAND);
+#ifdef _ONE_NET_USE_RANDOM_PADDING
+    void RandomPad(UInt8* buffer, int len, int startBit, int endBit);
+#endif
 
 //! @} one_net_prand_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
