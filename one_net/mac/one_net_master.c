@@ -2512,6 +2512,10 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 		UInt8 dst_unit;
 		UInt16 msg_data;
         on_nack_rsn_t nack_reason;
+		
+		// temporary till we get linking right.  See below.
+		// TODO - delete variable below when linking issue is resolved
+		UInt16 hdr;
 	#endif	
 
 #ifdef _ONE_NET_MULTIHOP
@@ -2610,8 +2614,19 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                     status = ONS_UNHANDLED_PKT;
                 } // if master is not handling the packet //
 #else
-                nack_reason = on_parse_single_app_pld(pld, &src_unit,
-                   &dst_unit, &msg_class, &type, &msg_data);
+                // one_net_appication.c is not currently linking correctly,
+				// so temporarily replacing it with the code below
+				src_unit = get_src_unit(pld);
+                dst_unit = get_dst_unit(pld);
+                msg_data = get_msg_data(pld);	
+				hdr = get_msg_hdr(pld);
+                msg_class =  hdr & ONA_MSG_CLASS_MASK;
+                type  = hdr & (~ONA_MSG_CLASS_MASK);
+			    nack_reason = ON_NACK_RSN_NO_ERROR;	
+							
+				// TODO - get one_net_application.c to link correctly				
+                /*nack_reason = on_parse_single_app_pld(pld, &src_unit,
+                   &dst_unit, &msg_class, &type, &msg_data);*/
 
                 if(nack_reason != ON_NACK_RSN_NO_ERROR ||
 				   !one_net_master_handle_single_pkt(msg_class, type, 
