@@ -947,8 +947,16 @@ extern one_net_send_single_func_t one_net_send_single;
 //! \ingroup ONE-NET_APP
 //! @{
 
+// TODO - Do we want this function?  It doesn't appear to exist.  Should we write it?
 one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
   ona_msg_class_t *msg_class, ona_msg_type_t *msg_type);
+
+// TODO - does this need to be only available to 2.0?
+#ifdef _ONE_NET_VERSION_2_X
+on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class,
+  ona_msg_type_t* const msg_type, const UInt16* msg_data);
+#endif
 
 #ifndef _ONE_NET_MASTER
     one_net_status_t ona_send_unit_type_count_status(

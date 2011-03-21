@@ -139,6 +139,48 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 } // parse_msg_class_and_type //
 
 
+// TODO any reason why this needs to only be in 2.0?
+#ifdef _ONE_NET_VERSION_2_X
+/*!
+    \brief Parses the 5 byte payload of a single application packet
+
+    \param[in] pld The 5 bytes containg unit numbers, message class, type, and data
+    \param[out] src_unit The source unit in this payload
+    \param[out] dst_unit The source unit in this payload
+    \param[out] msg_class The message class in this payload
+    \param[out] msg_type The message type in this payload
+    \param[out] msg_data The data in this payload
+
+    \return ON_NACK_RSN_NO_ERROR if parsing was successful			
+            See on_nack_rsn_t for more possible return values.
+*/
+on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
+  UInt8* const dst_unt, ona_msg_class_t* const msg_class,
+  ona_msg_type_t* const msg_type, const UInt16* msg_data)
+{
+	UInt16 hdr;
+	
+	if(!pld || !src_unit || !dst_unit || !msg_class || !msg_type || !msg_data)
+	{
+		return ON_NACK_RSN_INTERNAL_ERR;
+	}
+	
+    *src_unit = get_src_unit(pld);
+    *dst_unit = get_dst_unit(pld);
+    *msg_data = get_msg_data(pld);
+	
+	// TODO perhaps call the parse_msg_class_and_type function
+    hdr  =  get_msg_hdr(pld);
+    *msg_class =  hdr & ONA_MSG_CLASS_MASK;
+    *msg_type  = hdr & (~ONA_MSG_CLASS_MASK);
+	
+	// TODO : Put checking here for validity
+	
+	return ON_NACK_RSN_NO_ERROR;
+}
+//#endif
+
+
 #ifndef _ONE_NET_MASTER
     /*!
         \brief Sends a ONA_UNIT_TYPE_COUNT msg
