@@ -955,7 +955,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 #ifdef _ONE_NET_VERSION_2_X
 on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class,
-  ona_msg_type_t* const msg_type, const UInt16* msg_data);
+  ona_msg_type_t* const msg_type, UInt16* const msg_data);
 #endif
 
 #ifndef _ONE_NET_MASTER
