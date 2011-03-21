@@ -1130,7 +1130,8 @@ typedef enum
 */
 typedef enum
 {
-    ON_NACK_RSN_NONCE_ERR = 0x01,    //! received nonce does not match expected one
+    ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
+    ON_NACK_RSN_NONCE_ERR,           //! received nonce does not match expected one
 	ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
 	ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
 	ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
@@ -1675,6 +1676,7 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
 one_net_status_t on_parse_pld(UInt8 * const txn_nonce, UInt8 * const resp_nonce,
   UInt8 * const msg_type, UInt8 * const pld, const UInt8 DATA_TYPE,
   const one_net_xtea_key_t * const KEY);
+
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_read_and_parse_hops(UInt8 * const max_hops,
       UInt8 * const hops_left);
