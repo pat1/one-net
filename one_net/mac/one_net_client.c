@@ -2630,6 +2630,9 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
                     status = ONS_UNHANDLED_PKT;
                 } // if client is not handling the packet //
 #else
+                nack_reason = on_parse_single_app_pld(pld, &src_unit,
+                   &dst_unit, &msg_class, &type, &msg_data);
+				   
                 if(nack_reason != ON_NACK_RSN_NO_ERROR ||
 				   !one_net_client_handle_single_pkt(msg_class, type, 
                     src_unit, dst_unit, &msg_data,
