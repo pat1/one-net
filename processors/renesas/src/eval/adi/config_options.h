@@ -164,7 +164,7 @@
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
-    #define _IDLE
+//    #define _IDLE
 #endif
 
 
@@ -173,7 +173,7 @@
 // if _IDLE is defined.
 #ifdef _IDLE
     #ifndef _ENHANCED_INVITE
-//	    #define _ENHANCED_INVITE
+	    #define _ENHANCED_INVITE
 	#endif
 #endif
 
