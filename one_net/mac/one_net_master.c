@@ -56,6 +56,10 @@
 
 #include "one_net_peer.h"
 
+#ifdef _ONE_NET_VERSION_2_X
+    #include "one_net_application.h"
+#endif
+
 
 #ifdef _ONE_NET_EVAL
     #include "one_net_eval.h"
@@ -2496,11 +2500,19 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 {
     one_net_status_t status = ONS_INTERNAL_ERR;
     on_client_t * client;
-
     one_net_raw_did_t raw_src_did;
-
-    UInt8 txn_nonce, resp_nonce, msg_type;
+    UInt8 txn_nonce, resp_nonce, msg_type;	
     BOOL tried_new_key = FALSE;
+	
+    #ifdef _ONE_NET_VERSION_2_X
+        ona_msg_class_t msg_class;
+		ona_msg_type_t type;
+		BOOL useDefaultHandling = TRUE;
+		UInt8 src_unit;
+		UInt8 dst_unit;
+		UInt16 msg_data;
+        on_nack_rsn_t nack_reason;
+	#endif	
 
 #ifdef _ONE_NET_MULTIHOP
     if((PID != ONE_NET_ENCODED_SINGLE_DATA
@@ -2589,12 +2601,29 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                     return ONS_BAD_PKT_TYPE;
                 } // if waiting for the stream data response //
 
+
+#ifndef _ONE_NET_VERSION_2_X
                 if(!one_net_master_handle_single_pkt(&(pld[ON_PLD_DATA_IDX]),
                   ONE_NET_RAW_SINGLE_DATA_LEN,
                   (const one_net_raw_did_t * const)&raw_src_did))
                 {
                     status = ONS_UNHANDLED_PKT;
                 } // if master is not handling the packet //
+#else
+                nack_reason = on_parse_single_app_pld(pld, &src_unit,
+                   &dst_unit, &msg_class, &type, &msg_data);
+
+                if(nack_reason != ON_NACK_RSN_NO_ERROR ||
+				   !one_net_master_handle_single_pkt(msg_class, type, 
+                    src_unit, dst_unit, &msg_data,
+                   (const one_net_raw_did_t * const)&raw_src_did,
+				   &useDefaultHandling, &nack_reason))
+                {
+					// invalid packet.  We'll want to send out a NACK with
+					// nack_reason as the reason
+                    status = ONS_UNHANDLED_PKT;
+                } // if master is not handling the packet //
+#endif
                 break;
             } // application message case //
 

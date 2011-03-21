@@ -2544,7 +2544,16 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
     on_sending_device_t * sender = 0;
 
     UInt8 txn_nonce, resp_nonce, msg_type;
-
+    #ifdef _ONE_NET_VERSION_2_X
+        ona_msg_class_t msg_class;
+		ona_msg_type_t type;
+		BOOL useDefaultHandling = TRUE;
+		UInt8 src_unit;
+		UInt8 dst_unit;
+		UInt16 msg_data;
+        on_nack_rsn_t nack_reason;
+	#endif	
+	
     #ifdef _ONE_NET_MULTI_HOP
         if((PID != ONE_NET_ENCODED_SINGLE_DATA
           && PID != ONE_NET_ENCODED_REPEAT_SINGLE_DATA
@@ -2613,12 +2622,26 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
                     } // if waiting for a stream data response //
                 #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
 
+#ifndef _ONE_NET_VERSION_2_X
                 if(!one_net_client_handle_single_pkt(&(pld[ON_PLD_DATA_IDX]),
                   ONE_NET_RAW_SINGLE_DATA_LEN,
                   (const one_net_raw_did_t * const)&raw_src_did))
                 {
                     status = ONS_UNHANDLED_PKT;
                 } // if client is not handling the packet //
+#else
+                if(nack_reason != ON_NACK_RSN_NO_ERROR ||
+				   !one_net_client_handle_single_pkt(msg_class, type, 
+                    src_unit, dst_unit, &msg_data,
+                   (const one_net_raw_did_t * const)&raw_src_did,
+				   &useDefaultHandling, &nack_reason))
+                {
+					// invalid packet.  We'll want to send out a NACK with
+					// nack_reason as the reason
+                    status = ONS_UNHANDLED_PKT;
+                } // if master is not handling the packet //
+#endif				   
+
                 break;
             } // application message case //
 
