@@ -1124,6 +1124,27 @@ typedef enum
 } on_admin_msg_t;
 
 
+#ifdef _ONE_NET_VERSION_2_X
+/*!
+    Nack Reasons
+*/
+typedef enum
+{
+    ON_NACK_RSN_NONCE_ERR = 0x01,    //! received nonce does not match expected one
+	ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
+	ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
+	ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
+	ON_NACK_RSN_MISMATCH_UNIT_ERR,   //! Unit pair specified in Block Data Segment does not match that in Request to Receive Block
+	ON_NACK_RSN_RSRC_UNAVAIL_ERR,    //! resource(s) necessary to complete the transaction not currently available
+	ON_NACK_RSN_INVALID_LENGTH_ERR,  //! specified Device/Unit cannot handle a transaction with the specified length
+	ON_NACK_RSN_BAD_DATA_ERR,        //! improperly formatted data
+	ON_NACK_RSN_TRANSACTION_ERR,     //! invalid transaction specified (such as a Block Data packet in the absence of a previous Block Request)
+	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
+    ON_NACK_RSN_GENERAL_ERR = 0x3F   //! If no specific reason is known
+} on_nack_rsn_t;
+#endif
+
+
 /*!
     Extended admin types
 */
