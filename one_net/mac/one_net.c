@@ -1022,10 +1022,14 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
                               points to.
                             Output: The length (in bytes) of the packet.
     \param[in] PID The encoded packet id.
+    \param[in] nack_reason The reson for the NACK.  Only applies to NACKs and
+      only present if the _ONE_NET_VERSION_2_X preprocessor definition has been defined.
     \param[in] ENCODED_DST The encoded destination for this packet.
     \param[in] TXN_NONCE The transaction nonce associated with this packet.
     \param[in] EXPECTED_NONCE The nonce the receiver should use the next time it
       sends to this device.
+    \param[in] KEY The key used to encrypt the data.  This field is only present
+	if the _ONE_NET_VERSION_2_X preprocessor definition has been defined.
     \param[in] MAX_HOPS This field is only present if the _ONE_NET_MULTI_HOP
       preprocessor definition has been defined.  This is the maximum number of
       hops a multi-hop packet can take.
@@ -1033,6 +1037,8 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     \return ONS_BAD_PARAM if any of the parameters are invalid.
             See on_build_pkt for more return types.
 */
+#ifndef _ONE_NET_VERSION_2_X
+
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
@@ -1056,6 +1062,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
+	
 
     // build the data portion
     data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
@@ -1077,6 +1084,72 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 } // on_build_response_pkt //
 
+#else
+
+#ifdef _ONE_NET_MULTI_HOP
+one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+   const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
+   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
+   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)
+#else
+one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+   const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
+   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
+   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)
+#endif
+{
+    one_net_status_t status;
+    UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // + 1 to include byte needed for 2 bits for encryption method.
+	
+    #ifdef _ONE_NET_USE_RANDOM_PADDING
+        UInt8 randomPadStartBitIndex = 8 + (2 * 6); // 8 bits for CRC, 6 bits each for two nonces
+        UInt8 randomPadStopBitIndex = ON_RAW_ACK_NACK_PLD_LEN * 8 - 1;
+    #endif
+
+    // build the packet
+    raw_pld[ON_PLD_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
+      & ON_TXN_NONCE_BUILD_MASK;
+    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (RESP_NONCE
+      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (RESP_NONCE << ON_RESP_NONCE_LOW_SHIFT)
+      & ON_RESP_NONCE_BUILD_LOW_MASK;
+	
+	if(nack_reason)
+	{
+        raw_pld[ON_PLD_NACK_LOW_IDX] |= ((*nack_reason)
+          >> ON_NACK_HIGH_SHIFT) & ON_NACK_BUILD_HIGH_MASK;
+        raw_pld[ON_PLD_NACK_HIGH_IDX] = ((*nack_reason) << ON_NACK_LOW_SHIFT)
+          & ON_NACK_BUILD_LOW_MASK;
+		  
+        #ifdef _ONE_NET_USE_RANDOM_PADDING
+            randomPadStartBitIndex += 6; // add 6 more bits for the NACK reason
+            RandomPad(raw_pld, ON_RAW_ACK_NACK_PLD_LEN, randomPadStartBitIndex,
+              randomPadStopBitIndex);
+        #endif
+	}	  
+
+    // compute the crc
+    raw_pld[0] = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
+      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
+      ON_PLD_CRC_ORDER);
+
+    // TODO - ON_SINGLE possibly should not be hard-coded.  Perhaps this needs to
+    // be passed to the function or determined from the PID
+    if((status = on_encrypt(ON_SINGLE, raw_pld, KEY)) == ONS_SUCCESS)
+    {
+        #ifdef _ONE_NET_MULTI_HOP
+            status = on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
+              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
+        #else // ifdef _ONE_NET_MULTI_HOP //
+            status = on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
+              ON_RESP_NONCE_WORD_SIZE);
+        #endif // else _ONE_NET_MULTI_HOP is not defined //
+    } // if encrypting was not successful //
+
+    return status;
+}
+
+#endif
 
 /*!
     \brief Builds a data rate packet.
