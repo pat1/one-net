@@ -1109,10 +1109,10 @@ one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
     // build the packet
     raw_pld[ON_PLD_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
       & ON_TXN_NONCE_BUILD_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (RESP_NONCE
+    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (EXPECTED_NONCE
       >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (RESP_NONCE << ON_RESP_NONCE_LOW_SHIFT)
-      & ON_RESP_NONCE_BUILD_LOW_MASK;
+    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (EXPECTED_NONCE << 
+      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
 	
 	if(nack_reason)
 	{
