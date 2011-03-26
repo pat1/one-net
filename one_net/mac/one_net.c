@@ -226,6 +226,14 @@ static one_net_status_t rx_payload(UInt8 * const raw_pld,
   const UInt8 ENCODED_LEN);
 static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
   UInt8 * const next_nonce);
+  
+#ifdef _ONE_NET_VERSION_2_X
+// temporary function while porting to 2.0
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+  UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
+  const one_net_xtea_key_t * const key, const on_data_t type);
+#endif
+  
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
     static one_net_status_t repeat_mh_pkt(on_txn_t ** txn);
@@ -3543,6 +3551,59 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
 
     return ONS_SUCCESS;
 } // rx_nonces //
+
+
+#ifdef _ONE_NET_VERSION_2_X
+// temporary function while porting to 2.0.  Right now it's the same as the
+// 1.6 version.
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+  UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
+  const one_net_xtea_key_t * const key, const on_data_t type)
+{
+    one_net_status_t status;
+    UInt8 encoded_nonce;
+
+    if(!txn_nonce || !next_nonce)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    // txn nonce
+    if(one_net_read(&encoded_nonce, sizeof(encoded_nonce))
+      != sizeof(encoded_nonce))
+    {
+        return ONS_READ_ERR;
+    } // if reading the transaction nonce failed //
+
+    if((status = on_decode(txn_nonce, &encoded_nonce, sizeof(encoded_nonce)))
+      != ONS_SUCCESS)
+    {
+        return status;
+    } // if decoding the transaction nonce failed //
+
+    // next nonce
+    if(one_net_read(&encoded_nonce, sizeof(encoded_nonce))
+      != sizeof(encoded_nonce))
+    {
+        return ONS_READ_ERR;
+    } // if reading the transaction nonce failed //
+
+    if((status = on_decode(next_nonce, &encoded_nonce, sizeof(encoded_nonce)))
+      != ONS_SUCCESS)
+    {
+        return status;
+    } // if decoding the transaction nonce failed //
+
+    *txn_nonce >>= ON_TXN_NONCE_SHIFT;
+    *txn_nonce &= ON_TXN_NONCE_PARSE_MASK;
+
+    *next_nonce >>= ON_TXN_NONCE_SHIFT;
+    *next_nonce &= ON_TXN_NONCE_PARSE_MASK;
+
+    return ONS_SUCCESS;
+} // rx_nonces_2_X
+#endif
+
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
     /*!
