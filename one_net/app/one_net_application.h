@@ -296,7 +296,7 @@ ONE_NET_INLINE void get_block_data_payload_hdr(UInt16 * msg_type, UInt16 * block
 //! \defgroup ONE-NET_APP_typedefs
 //! \ingroup ONE-NET_APP
 //! @{
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
 typedef enum _ona_msg_class
 {
     ONA_STATUS   = 0x0000, //!< Status of a unit
@@ -306,7 +306,7 @@ typedef enum _ona_msg_class
 
     ONA_MSG_CLASS_MASK = 0xC000,    //!< Used to mask message class bits
 } ona_msg_class_t;
-/*#else
+#else // If ONE-NET Version 1.x
 typedef enum _ona_msg_class
 {
     ONA_STATUS   = 0x0000, //!< Status of a unit
@@ -318,10 +318,10 @@ typedef enum _ona_msg_class
 
     ONA_MSG_CLASS_MASK = 0xF000,    //!< Used to mask message class bits
 } ona_msg_class_t;
-#endif*/
+#endif // If ONE-NET Version 2.x
 
 
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
 typedef enum _ona_msg_type
 {
 #ifdef _NEED_SWITCH_MESSAGE
@@ -563,8 +563,8 @@ typedef enum _ona_msg_type
 
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0x3FFF
-} ona_msg_type_t;
-/*#else
+} ona_msg_type_t;  // If ONE-NET Version 1.x
+#else
 typedef enum _ona_msg_type
 {
 #ifdef _NEED_SWITCH_MESSAGE
@@ -807,8 +807,13 @@ typedef enum _ona_msg_type
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0xFFF
 } ona_msg_type_t;
-#endif*/
+#endif // If ONE-NET Version 2.x
 
+
+
+// TODO - ona_block_msg_type_t and ona_unit_type_t should probably be different for
+// vesions 1.x and 2.x(12 bits vs. 14 bits?).  Holding off for now since everything
+// is less thatn 0xFFF, so 12-bit and 14-bit masks will be the same.
 
 //! Block application message types
 typedef enum _ona_block_msg_type
