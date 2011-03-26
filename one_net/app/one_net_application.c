@@ -140,7 +140,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 
 
 // TODO any reason why this needs to only be in 2.0?
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X*/
 /*!
     \brief Parses the 5 byte payload of a single application packet
 
@@ -154,7 +154,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
     \return ON_NACK_RSN_NO_ERROR if parsing was successful			
             See on_nack_rsn_t for more possible return values.
 */
-on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
+/*on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class,
   ona_msg_type_t* const msg_type, UInt16* const msg_data)
 {
@@ -178,7 +178,7 @@ on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_
 	
 	return ON_NACK_RSN_NO_ERROR;
 }
-#endif
+#endif*/
 
 
 #ifndef _ONE_NET_MASTER

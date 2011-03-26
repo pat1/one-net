@@ -16,9 +16,9 @@
 
 #include "one_net.h"
 #include "one_net_types.h"
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X
     #include "one_net_application.h" // for ona_msg_class_t
-#endif
+#endif*/
 
 //=============================================================================
 //                                  CONSTANTS
@@ -205,15 +205,15 @@ UInt8 *eval_next_payload(UInt8 TYPE, UInt16 * len,
 void eval_block_txn_status(one_net_status_t STATUS,
                            const one_net_raw_did_t *DID);
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
                         const one_net_raw_did_t *SRC_ADDR);
-#else
+/*#else
 BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
          UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
          const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
 		 on_nack_rsn_t* nack_reason);
-#endif
+#endif*/
 
 
 void print_packet(const UInt8 *TXN_STR, const UInt8 *RX_PLD, UInt16 LEN, 

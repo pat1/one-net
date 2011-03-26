@@ -176,14 +176,14 @@ void one_net_client_invite_cancelled(cancel_invite_reason_t reason)
 } // one_net_client_invite_cancelled //
 #endif
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 BOOL one_net_client_handle_single_pkt(const UInt8 * RX_PLD,
   const UInt16 RX_PLD_LEN, const one_net_raw_did_t * const SRC_ADDR)
 {
     eval_handle_single(RX_PLD, RX_PLD_LEN, SRC_ADDR);
     return TRUE;
 } // client handle_single_pkt //
-#else
+/*#else
 BOOL one_net_client_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
          UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
          const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
@@ -192,7 +192,7 @@ BOOL one_net_client_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t 
 	return eval_handle_single(msg_class, msg_type, src_unit, dst_unit, msg_data,
          SRC_ADDR, useDefaultHandling, nack_reason);
 } // client handle_single_pkt //
-#endif
+#endif*/
 
 
 

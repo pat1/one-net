@@ -55,9 +55,9 @@
 
 #include "one_net_master.h"
 
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X
     #include "one_net_application.h" // for ona_msg_class_t
-#endif
+#endif*/
 
 
 //==============================================================================
@@ -111,7 +111,7 @@
 void one_net_master_device_is_awake(const one_net_raw_did_t *DID);
 
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 /*!
     \brief Callback for the application to handle the received packet.
 
@@ -129,7 +129,7 @@ void one_net_master_device_is_awake(const one_net_raw_did_t *DID);
 */
 BOOL one_net_master_handle_single_pkt(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN, 
                                       const one_net_raw_did_t *SRC_ADDR);
-#else
+/*#else*/
 /*!
     \brief Callback for the application to handle the received packet.
 
@@ -155,11 +155,11 @@ BOOL one_net_master_handle_single_pkt(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
     \return TRUE If it was a valid packet (and it will be handled)
             FALSE If iw was an invalid packet and a NACK should be sent
 */
-BOOL one_net_master_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
+/*BOOL one_net_master_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
          UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
          const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
 		 on_nack_rsn_t* nack_reason);
-#endif									  
+#endif*/									  
 									  
 									  
 

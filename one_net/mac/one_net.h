@@ -183,32 +183,32 @@
 //! the build number for the load that was tested becomes the build number for the release.
 
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 enum {
     ONE_NET_VERSION_MAJOR =     1,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     6,  //! ONE-NET minor version number
     ONE_NET_VERSION_REVISION =  2,  //! ONE-NET revision version number
     ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
 };
-#else
+/*#else
 enum {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     0,  //! ONE-NET minor version number
     ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
     ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
 };
-#endif
+#endif*/
 
 
 enum
 {
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
     //! The ONE-NET version
     ON_VERSION = 0x05,
-#else
+/*#else
     //! The ONE-NET version
     ON_VERSION = 0x85,
-#endif
+#endif*/
 
     //! The version of the on_base_param_t, on_master_param_t, client_t,
     //! on_master_t and on_peer_t structures
@@ -304,12 +304,12 @@ enum
     #endif // else _ONE_NET_MULTI_HOP is not defined //
 
     //! The length of an ack/nack packet (in bytes)
-	#ifdef _ONE_NET_VERSION_2_X
+/*	#ifdef _ONE_NET_VERSION_2_X
          ON_ACK_NACK_LEN = 26,
-         ON_RAW_ACK_NACK_PLD_LEN = 8, /* does not include the bytes needed for the encryption method */
-	#else
+         ON_RAW_ACK_NACK_PLD_LEN = 8,*/ /* does not include the bytes needed for the encryption method */
+	/*#else*/
          ON_ACK_NACK_LEN = 17,
-	#endif
+	/*#endif*/
 
     //! The length of a transaction ack packet (in bytes)
     ON_TXN_ACK_LEN = 15,
@@ -414,7 +414,7 @@ enum
     //! The maximum admin payload size (in bytes)
     ON_MAX_ADMIN_PLD_LEN = 4,
 
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X
     //! The length (in bytes) of the raw data (nonces) in a response packet that
     //! includes the nonces.  Note : In ONE-NET 2.0, this is an encrypted packet.
 	//! Most of this space is random padding.
@@ -423,7 +423,7 @@ enum
     //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
     //! packet that includes the nonces
     ON_RESP_NONCE_WORD_SIZE = 11
-#else
+#else*/
     //! The length (in bytes) of the raw data (nonces) in a response packet that
     //! includes the nonces
     ON_RESP_NONCE_LEN = 2,
@@ -431,7 +431,7 @@ enum
     //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
     //! packet that includes the nonces
     ON_RESP_NONCE_WORD_SIZE = 2
-#endif
+/*#endif*/
 };
 
 //! Payload CRC releated constants
@@ -483,14 +483,14 @@ enum
     //! Index for the message type
     ON_PLD_MSG_TYPE_IDX = 2,
 	
-    #ifdef _ONE_NET_VERSION_2_X
+/*    #ifdef _ONE_NET_VERSION_2_X
         ON_PLD_NACK_LOW_IDX = 2,
         ON_PLD_NACK_HIGH_IDX = 3,
         ON_NACK_HIGH_SHIFT = 2,
         ON_NACK_LOW_SHIFT = 6,
         ON_NACK_BUILD_HIGH_MASK = 0x0F,
         ON_NACK_BUILD_LOW_MASK = 0xC0,
-    #endif
+    #endif*/
 
 
 
@@ -1137,11 +1137,11 @@ typedef enum
 } on_admin_msg_t;
 
 
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X*/
 /*!
     Nack Reasons
 */
-typedef enum
+/*typedef enum
 {
     ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
     ON_NACK_RSN_NONCE_ERR,           //! received nonce does not match expected one
@@ -1156,7 +1156,7 @@ typedef enum
 	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
     ON_NACK_RSN_GENERAL_ERR = 0x3F   //! If no specific reason is known
 } on_nack_rsn_t;
-#endif
+#endif*/
 
 
 /*!
@@ -1654,16 +1654,16 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY,
       const UInt8 MAX_HOPS);
 	  
-    #ifndef _ONE_NET_VERSION_2_X
+/*    #ifndef _ONE_NET_VERSION_2_X*/
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
-    #else
+/*    #else
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
 		const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS);	
-    #endif
+    #endif*/
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate,
@@ -1687,16 +1687,16 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 RESP_NONCE, const UInt8 * const RAW_DATA,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY);
 	  
-    #ifndef _ONE_NET_VERSION_2_X
+/*    #ifndef _ONE_NET_VERSION_2_X*/
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
-    #else
+/*    #else
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
 		const one_net_xtea_key_t * const KEY);	
-    #endif
+    #endif*/
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate);

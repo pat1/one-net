@@ -296,7 +296,7 @@ ONE_NET_INLINE void get_block_data_payload_hdr(UInt16 * msg_type, UInt16 * block
 //! \defgroup ONE-NET_APP_typedefs
 //! \ingroup ONE-NET_APP
 //! @{
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 typedef enum _ona_msg_class
 {
     ONA_STATUS   = 0x0000, //!< Status of a unit
@@ -306,7 +306,7 @@ typedef enum _ona_msg_class
 
     ONA_MSG_CLASS_MASK = 0xC000,    //!< Used to mask message class bits
 } ona_msg_class_t;
-#else
+/*#else
 typedef enum _ona_msg_class
 {
     ONA_STATUS   = 0x0000, //!< Status of a unit
@@ -318,10 +318,10 @@ typedef enum _ona_msg_class
 
     ONA_MSG_CLASS_MASK = 0xF000,    //!< Used to mask message class bits
 } ona_msg_class_t;
-#endif
+#endif*/
 
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 typedef enum _ona_msg_type
 {
 #ifdef _NEED_SWITCH_MESSAGE
@@ -564,7 +564,7 @@ typedef enum _ona_msg_type
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0x3FFF
 } ona_msg_type_t;
-#else
+/*#else
 typedef enum _ona_msg_type
 {
 #ifdef _NEED_SWITCH_MESSAGE
@@ -807,7 +807,7 @@ typedef enum _ona_msg_type
     //! Mask the message type bits
     ONA_MSG_TYPE_MASK = 0xFFF
 } ona_msg_type_t;
-#endif
+#endif*/
 
 
 //! Block application message types
@@ -952,11 +952,11 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
   ona_msg_class_t *msg_class, ona_msg_type_t *msg_type);
 
 // TODO - does this need to be only available to 2.0?
-#ifdef _ONE_NET_VERSION_2_X
+/*#ifdef _ONE_NET_VERSION_2_X
 on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class,
   ona_msg_type_t* const msg_type, UInt16* const msg_data);
-#endif
+#endif*/
 
 #ifndef _ONE_NET_MASTER
     one_net_status_t ona_send_unit_type_count_status(

@@ -1037,7 +1037,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     \return ONS_BAD_PARAM if any of the parameters are invalid.
             See on_build_pkt for more return types.
 */
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
@@ -1083,7 +1083,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 } // on_build_response_pkt //
-
+/*
 #else
 
 #ifdef _ONE_NET_MULTI_HOP
@@ -1149,7 +1149,7 @@ one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
     return status;
 }
 
-#endif
+#endif*/
 
 /*!
     \brief Builds a data rate packet.

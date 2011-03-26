@@ -878,7 +878,7 @@ void eval_block_txn_status(one_net_status_t STATUS,
 } // eval_block_txn_status //
 
 
-#ifndef _ONE_NET_VERSION_2_X
+/*#ifndef _ONE_NET_VERSION_2_X*/
 /*!
     \brief Handles the received single transaction.
     
@@ -933,7 +933,7 @@ void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
 
     print_packet(ONCLI_SINGLE_TXN_STR, RX_PLD, RX_PLD_LEN, SRC_ADDR);
 } // eval_handle_single //
-#else
+/*#else*/
 /*!
     \brief Handles the received single transaction.
 	
@@ -951,7 +951,7 @@ void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
     \return TRUE If it was a valid packet (and it will be handled)
             FALSE If it was an invalid packet and a NACK should be sent
 */
-BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
+/*BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
          UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
          const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
 		 on_nack_rsn_t* nack_reason)
@@ -987,7 +987,7 @@ BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type,
         else if ((user_pin[3].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 3))
         {
             USER_PIN3 = (*msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((*msg_data == ONA_ON) ? 1 : 0);
-        } // if pin4 is an output and the message is for pin 4 //*/
+        } // if pin4 is an output and the message is for pin 4 //
     } // if a switch command message //
 	else
 	{
@@ -997,7 +997,7 @@ BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type,
 
 	return TRUE;
 } // eval_handle_single
-#endif
+#endif*/
 
 
 
