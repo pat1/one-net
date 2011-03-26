@@ -2544,15 +2544,15 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
     on_sending_device_t * sender = 0;
 
     UInt8 txn_nonce, resp_nonce, msg_type;
-/*    #ifdef _ONE_NET_VERSION_2_X
-        ona_msg_class_t msg_class;
+    #ifdef _ONE_NET_VERSION_2_X
+/*        ona_msg_class_t msg_class;
 		ona_msg_type_t type;
 		BOOL useDefaultHandling = TRUE;
 		UInt8 src_unit;
 		UInt8 dst_unit;
-		UInt16 msg_data;
+		UInt16 msg_data;*/
         on_nack_rsn_t nack_reason;
-	#endif	*/
+	#endif
 	
     #ifdef _ONE_NET_MULTI_HOP
         if((PID != ONE_NET_ENCODED_SINGLE_DATA
@@ -2696,6 +2696,8 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
               ON_MAX_NONCE);
             response_txn.data_len = response_txn.pkt_size;
 
+
+
             #ifdef _ONE_NET_MULTI_HOP
                 // if it's a repeat multi-hop packet, allow MAX_HOPS since it
                 // may take more hops to get back than it took for the packet
@@ -2733,51 +2735,103 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
         // this is not a new packet
         //
         response_txn.data_len = response_txn.pkt_size;
-        #ifdef _ONE_NET_MULTI_HOP
-            if((PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
-              || PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA)
-              && txn_nonce == sender->last_nonce)
-            {
-                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
-                // may take more hops to get back than it took for the packet
-                // to arrive.
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len),
-                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
-                  ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
-                  : ONE_NET_ENCODED_SINGLE_DATA_ACK, SRC_DID, resp_nonce,
-                  sender->expected_nonce,
-                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
-                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
-            } // if it is a repeat packet //
-            else
-            {
-                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
-                // may take more hops to get back than it took for the packet
-                // to arrive.
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len),
-                  HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_NACK
-                  : ONE_NET_ENCODED_SINGLE_DATA_NACK, SRC_DID, resp_nonce,
-                  sender->expected_nonce,
-                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
-                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
-            } // else the nonce is wrong //
-        #else // ifdef _ONE_NET_MULTI_HOP //
-            if(PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
-              && txn_nonce == sender->last_nonce)
-            {
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
-                  SRC_DID, resp_nonce, sender->expected_nonce);
-            } // if it is a repeat packet //
-            else
-            {
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_NACK,
-                  SRC_DID, resp_nonce, sender->expected_nonce);
-            } // else the nonce is wrong //
-        #endif // else _ONE_NET_MULTI_HOP is not defined //
+		
+		
+		#ifndef _ONE_NET_VERSION_2_X
+        	#ifdef _ONE_NET_MULTI_HOP
+	            if((PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
+	              || PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA)
+	              && txn_nonce == sender->last_nonce)
+	            {
+	                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
+	                // may take more hops to get back than it took for the packet
+	                // to arrive.
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len),
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
+	                  : ONE_NET_ENCODED_SINGLE_DATA_ACK, SRC_DID, resp_nonce,
+	                  sender->expected_nonce,
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
+	            } // if it is a repeat packet //
+	            else
+	            {
+	                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
+	                // may take more hops to get back than it took for the packet
+	                // to arrive.
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len),
+	                  HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_NACK
+	                  : ONE_NET_ENCODED_SINGLE_DATA_NACK, SRC_DID, resp_nonce,
+	                  sender->expected_nonce,
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
+	            } // else the nonce is wrong //
+	        #else // ifdef _ONE_NET_MULTI_HOP //
+	            if(PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
+	              && txn_nonce == sender->last_nonce)
+	            {
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
+	                  SRC_DID, resp_nonce, sender->expected_nonce);
+	            } // if it is a repeat packet //
+	            else
+	            {
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_NACK,
+	                  SRC_DID, resp_nonce, sender->expected_nonce);
+	            } // else the nonce is wrong //
+	        #endif // else _ONE_NET_MULTI_HOP is not defined //
+		#else // If ONE-NET Version 1.x		
+        	#ifdef _ONE_NET_MULTI_HOP
+	            if((PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
+	              || PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA)
+	              && txn_nonce == sender->last_nonce)
+	            {
+	                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
+	                // may take more hops to get back than it took for the packet
+	                // to arrive.
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len),
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
+	                  : ONE_NET_ENCODED_SINGLE_DATA_ACK, SRC_DID, resp_nonce,
+	                  sender->expected_nonce,
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
+	            } // if it is a repeat packet //
+	            else
+	            {
+	                // if it's a repeat multi-hop packet, allow MAX_HOPS since it
+	                // may take more hops to get back than it took for the packet
+	                // to arrive.
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len),
+	                  HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_NACK
+	                  : ONE_NET_ENCODED_SINGLE_DATA_NACK, SRC_DID, resp_nonce,
+	                  sender->expected_nonce,
+	                  PID == ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA
+	                  ? ON_MAX_HOPS_LIMIT : HOPS_TAKEN);
+	            } // else the nonce is wrong //
+	        #else // ifdef _ONE_NET_MULTI_HOP //
+	            if(PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA
+	              && txn_nonce == sender->last_nonce)
+	            {
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
+	                  SRC_DID, resp_nonce, sender->expected_nonce);
+	            } // if it is a repeat packet //
+	            else
+	            {
+	                status = on_build_response_pkt(response_txn.pkt,
+	                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_NACK,
+	                  SRC_DID, resp_nonce, sender->expected_nonce);
+	            } // else the nonce is wrong //
+	        #endif // else _ONE_NET_MULTI_HOP is not defined //		
+		#endif // If ONE-NET Version 2.x
+			
+		
             #ifdef _ONE_NET_DEBUG
             #if 0
                 one_net_debug(ONE_NET_DEBUG_BUILD_RESP_PKT, (UInt8 *) &status, 2);

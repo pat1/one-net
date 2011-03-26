@@ -1199,7 +1199,42 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
     } // if encrypting was not successful //
 
     return status;*/
-    return ONS_SUCCESS; // empty function for now.
+
+
+
+    UInt8 data[ON_RESP_NONCE_LEN];
+
+    #ifdef _ONE_NET_MULTI_HOP
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
+              + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
+              || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
+    #else // ifdef _ONE_NET_MULTI_HOP //
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
+              || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
+    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
+    {
+        return ONS_BAD_PARAM;
+    } // if parameters are invalid //
+	
+
+    // build the data portion
+    data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
+      & ON_TXN_NONCE_BUILD_MASK;
+    data[ON_RESP_RESP_NONCE_HIGH_IDX] |=
+      (EXPECTED_NONCE >> ON_RESP_NONCE_HIGH_SHIFT)
+      & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    data[ON_RESP_RESP_NONCE_LOW_IDX] =
+      (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
+      & ON_RESP_NONCE_BUILD_LOW_MASK;
+
+
+    #ifdef _ONE_NET_MULTI_HOP
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
+              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
+    #else // ifdef _ONE_NET_MULTI_HOP //
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
+            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
+    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 }
 
 #endif // If ONE-NET Version 2.x
