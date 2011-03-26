@@ -321,8 +321,25 @@ one_net_status_t one_net_master_add_client(
   const one_net_master_add_client_in_t * CAPABILITIES,
   one_net_master_add_client_out_t * config);
   
+on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
+
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key, const BOOL stream_key);
+#else
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key);
+#endif
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client, const BOOL stream_key);
+#else
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client);
+#endif
+
+
 // Derek_S 11/2/2010 - I don't see anywhere where this function is ever called.
-one_net_status_t one_net_master_delete_last_client(one_net_raw_did_t * raw_client_did);
+one_net_status_t one_net_master_delete_last_client(one_net_raw_did_t* raw_client_did);
+
+
+
 
 // Derek_S 11/2/2010
 // TO-DO : We don't actually need to pass this the master_param parameter, do we?

@@ -533,7 +533,6 @@ static BOOL b_s_in_progress(const UInt8 TYPE,
 
 static one_net_status_t build_txn_data_pkt(const UInt8 TXN);
 
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 static on_client_t* one_net_master_add_new_client_to_list(void);
 static int adjust_client_list(void);
@@ -2410,6 +2409,107 @@ one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_clie
     return rm_client(&encoded_client_did);
 } // one_net_master_delete_last_client //
 
+
+/*!
+    \brief Returns the CLIENT information for the given CLIENT.
+
+    \param[in] CLIENT_DID The enocded device id of the CLIENT to retrieve the
+      information for.
+
+    \return The CLIENT information if the information was found
+            0 If an error occured.
+*/
+on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
+{
+    UInt16 i;
+
+    if(!CLIENT_DID)
+    {
+        return 0;
+    } // if the parameter is invalid //
+
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(on_encoded_did_equal(CLIENT_DID,
+          (const on_encoded_did_t * const)&client_list[i].did))
+        {
+            return &(client_list[i]);
+        } // if the CLIENT was found //
+    } // loop to find the CLIENT //
+
+    return 0;
+} // client_info //
+
+
+/*!
+    \brief Returns the CLIENT information for the given CLIENT.
+
+    \param[in] current_key TRUE if the function should return the current key,
+	                   FALSE if the function should return the old key
+    \param[in] stream_key TRUE if the function should return the stream key,
+	                   FALSE if the function should return the single/block key
+
+    \return The encryption key that matches the parameters
+*/
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key, const BOOL stream_key)
+#else
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key)
+#endif
+{
+    const one_net_xtea_key_t* new_key = &(on_base_param->current_key);
+    const one_net_xtea_key_t* old_key = &(master_param->old_key);
+	
+    #ifdef _STREAM_MESSAGES_ENABLED
+	    if(stream_key)
+		{
+            new_key = &(on_base_param->stream_key);
+            old_key = &(master_param->old_stream_key);
+		}
+	#endif
+	
+	if(current_key)
+	{
+		return new_key;
+	}
+	
+	return old_key;
+}
+
+
+/*!
+    \brief Returns the CLIENT information for the given CLIENT.
+
+    \param[in] client pointer to a client's settings in the network
+    \param[in] stream_key TRUE if the function should return the stream key,
+	                   FALSE if the function should return the single/block key
+
+    \return The encryption key that this client uses
+*/
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client, const BOOL stream_key)
+#else
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client)
+#endif
+{
+    BOOL current_key;
+	
+    if(client == NULL)
+	{
+		return NULL;
+	}
+	
+	current_key = client->use_current_key;
+    #ifdef _STREAM_MESSAGES_ENABLED
+        if(stream_key)
+		{
+			current_key = client->use_current_stream_key;
+		}
+		return get_encryption_key(current_key, stream_key);
+    #else
+	    return get_encryption_key(current_key);
+    #endif
+}
 
 
 //! @} ONE-NET_MASTER_pub_func
@@ -5445,37 +5545,6 @@ static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
 
     return status;
 } // build_txn_data_pkt //
-
-
-/*!
-    \brief Returns the CLIENT information for the given CLIENT.
-
-    \param[in] CLIENT_DID The enocded device id of the CLIENT to retrieve the
-      information for.
-
-    \return The CLIENT information if the information was found
-            0 If an error occured.
-*/
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
-{
-    UInt16 i;
-
-    if(!CLIENT_DID)
-    {
-        return 0;
-    } // if the parameter is invalid //
-
-    for(i = 0; i < master_param->client_count; i++)
-    {
-        if(on_encoded_did_equal(CLIENT_DID,
-          (const on_encoded_did_t * const)&client_list[i].did))
-        {
-            return &(client_list[i]);
-        } // if the CLIENT was found //
-    } // loop to find the CLIENT //
-
-    return 0;
-} // client_info //
 
 
 /*!
