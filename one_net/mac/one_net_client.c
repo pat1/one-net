@@ -2702,9 +2702,10 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
               ON_MAX_NONCE);
             response_txn.data_len = response_txn.pkt_size;
 
-            response_pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK :
-              ONE_NET_ENCODED_SINGLE_DATA_ACK;
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef _ONE_NET_MULTI_HOP			
+                response_pid = HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK :
+                  ONE_NET_ENCODED_SINGLE_DATA_ACK;
+				  
                 // if it's a repeat multi-hop packet, allow MAX_HOPS since it
                 // may take more hops to get back than it took for the packet
                 // to arrive.
