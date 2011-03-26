@@ -1037,7 +1037,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     \return ONS_BAD_PARAM if any of the parameters are invalid.
             See on_build_pkt for more return types.
 */
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
 
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
@@ -1083,22 +1083,74 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 } // on_build_response_pkt //
-/*
-#else
+
+#else // If ONE-NET Version 1.x
+
+
+
+// temporarily using this 1.x function for 2.0
 
 #ifdef _ONE_NET_MULTI_HOP
-one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS)
+#else // ifdef _ONE_NET_MULTI_HOP //
+    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE)
+#endif // else _ONE_NET_MULTI_HOP has not been defined // 
+{
+    UInt8 data[ON_RESP_NONCE_LEN];
+
+    #ifdef _ONE_NET_MULTI_HOP
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
+              + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
+              || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
+    #else // ifdef _ONE_NET_MULTI_HOP //
+            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
+              || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
+    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
+    {
+        return ONS_BAD_PARAM;
+    } // if parameters are invalid //
+	
+
+    // build the data portion
+    data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
+      & ON_TXN_NONCE_BUILD_MASK;
+    data[ON_RESP_RESP_NONCE_HIGH_IDX] |=
+      (EXPECTED_NONCE >> ON_RESP_NONCE_HIGH_SHIFT)
+      & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    data[ON_RESP_RESP_NONCE_LOW_IDX] =
+      (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
+      & ON_RESP_NONCE_BUILD_LOW_MASK;
+
+
+    #ifdef _ONE_NET_MULTI_HOP
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
+              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
+    #else // ifdef _ONE_NET_MULTI_HOP //
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
+            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
+    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
+} // on_build_response_pkt //
+
+
+
+// temporary 2.x function (not used yet)
+#ifdef _ONE_NET_MULTI_HOP
+one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
    const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
    const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
    const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)
 #else
-one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
    const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
    const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)
+   const one_net_xtea_key_t * const KEY)
 #endif
 {
-    one_net_status_t status;
+/*    one_net_status_t status;
     UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // + 1 to include byte needed for 2 bits for encryption method.
 	
     #ifdef _ONE_NET_USE_RANDOM_PADDING
@@ -1146,10 +1198,12 @@ one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         #endif // else _ONE_NET_MULTI_HOP is not defined //
     } // if encrypting was not successful //
 
-    return status;
+    return status;*/
+    return ONS_SUCCESS; // empty function for now.
 }
 
-#endif*/
+#endif // If ONE-NET Version 2.x
+
 
 /*!
     \brief Builds a data rate packet.

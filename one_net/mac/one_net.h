@@ -1137,11 +1137,11 @@ typedef enum
 } on_admin_msg_t;
 
 
-/*#ifdef _ONE_NET_VERSION_2_X*/
+#ifdef _ONE_NET_VERSION_2_X
 /*!
     Nack Reasons
 */
-/*typedef enum
+typedef enum
 {
     ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
     ON_NACK_RSN_NONCE_ERR,           //! received nonce does not match expected one
@@ -1156,7 +1156,7 @@ typedef enum
 	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
     ON_NACK_RSN_GENERAL_ERR = 0x3F   //! If no specific reason is known
 } on_nack_rsn_t;
-#endif*/
+#endif
 
 
 /*!
@@ -1654,16 +1654,19 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY,
       const UInt8 MAX_HOPS);
 	  
-/*    #ifndef _ONE_NET_VERSION_2_X*/
+    #ifndef _ONE_NET_VERSION_2_X
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
-/*    #else
+    #else
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
+      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
 		const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS);	
-    #endif*/
+    #endif
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate,
@@ -1687,16 +1690,19 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 RESP_NONCE, const UInt8 * const RAW_DATA,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY);
 	  
-/*    #ifndef _ONE_NET_VERSION_2_X*/
+    #ifndef _ONE_NET_VERSION_2_X
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
-/*    #else
+    #else
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
+      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
 		const one_net_xtea_key_t * const KEY);	
-    #endif*/
+    #endif
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate);
