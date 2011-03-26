@@ -3536,6 +3536,7 @@ one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
     on_client_t * client;
     one_net_raw_did_t raw_did;
     one_net_status_t rv = ONS_INTERNAL_ERR;
+    const one_net_xtea_key_t* KEY = 0;
 
     if(SEND_TXN && (!txn || !*txn || !(*txn)->pkt))
     {
@@ -3620,13 +3621,13 @@ one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
 
                 on_decode(pld, &((*txn)->pkt[ON_PLD_IDX]),
                   ON_ENCODED_BLOCK_STREAM_PLD_SIZE);
+				  
+                KEY = (client->use_current_key ?
+				  (const one_net_xtea_key_t * const) &(on_base_param->current_key)
+                  : (const one_net_xtea_key_t * const)&(master_param->old_key));
+				  
                 if((rv = on_parse_pld(&txn_nonce, &((*txn)->expected_nonce),
-                  &msg_type, pld, ON_BLOCK,
-                  client->use_current_key
-                  ? (const one_net_xtea_key_t * const)
-                  &(on_base_param->current_key)
-                  : (const one_net_xtea_key_t * const)&(master_param->old_key)))
-                  != ONS_SUCCESS)
+                  &msg_type, pld, ON_BLOCK, KEY)) != ONS_SUCCESS)
                 {
                     return rv;
                 } // if parsing the payload is not successful //
