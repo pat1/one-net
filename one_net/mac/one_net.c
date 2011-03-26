@@ -2433,6 +2433,11 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     UInt8 pid;
     UInt8 txn_nonce, next_nonce;
 
+	#ifdef _ONE_NET_VERSION_2_X
+		on_nack_rsn_t nack_reason;
+        const one_net_xtea_key_t* key = 0;
+	#endif
+	
     #ifdef _ONE_NET_MULTI_HOP
         UInt8 hops = 0;
         BOOL mh = FALSE;
@@ -2492,7 +2497,15 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     } // if the packet is not what the device is expecting //
 
     // read the nonces
-    if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+	#ifndef _ONE_NET_VERSION_2_X	
+        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+	#else
+        // TODO - what if this is the master and the client is using the
+        // old key?  We need to be able to try that if this doesn't work.
+        key = &(on_base_param->current_key);
+        if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
+           &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+	#endif
     {
         return status;
     } // if reading the nonces failed //
@@ -2746,6 +2759,11 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
             UInt8 hops = 0;
             BOOL mh = FALSE;
         #endif // ifdef _ONE_NET_MULTI_HOP //
+		
+	    #ifdef _ONE_NET_VERSION_2_X
+		    on_nack_rsn_t nack_reason;
+            const one_net_xtea_key_t* key = 0;
+	    #endif
 
         // only need to check 1 handler since it is all or nothing
         if(!pkt_hdlr.block_txn_hdlr)
@@ -2796,7 +2814,15 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         } // if the packet is not what the device is expecting //
 
         // read the nonces
-        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+        #ifndef _ONE_NET_VERSION_2_X	
+            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+	    #else
+            // TODO - what if this is the master and the client is using the
+            // old key?  We need to be able to try that if this doesn't work.
+            key = &(on_base_param->current_key);
+            if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
+                &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+	    #endif
         {
             return status;
         } // if reading the nonces failed //
@@ -3034,6 +3060,11 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
             UInt8 hops = 0;
         #endif // ifdef _ONE_NET_MULTI_HOP //
 
+	    #ifdef _ONE_NET_VERSION_2_X
+		    on_nack_rsn_t nack_reason;
+            const one_net_xtea_key_t* key = 0;
+	    #endif
+
         // only need to check 1 handler since it is all or nothing
         if(!pkt_hdlr.stream_txn_hdlr)
         {
@@ -3117,10 +3148,15 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         } // switch(pid) //
 
         // read the nonces
-        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-        {
-            return status;
-        } // if reading the nonces failed //
+        #ifndef _ONE_NET_VERSION_2_X	
+            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+	    #else
+            // TODO - what if this is the master and the client is using the
+            // old key?  We need to be able to try that if this doesn't work.
+            key = &(on_base_param->current_key);
+            if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
+                &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+	    #endif
 
         if(txn_nonce != (*txn)->expected_nonce)
         {
