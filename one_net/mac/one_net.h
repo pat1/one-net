@@ -304,12 +304,12 @@ enum
     #endif // else _ONE_NET_MULTI_HOP is not defined //
 
     //! The length of an ack/nack packet (in bytes)
-/*	#ifdef _ONE_NET_VERSION_2_X
+	#ifdef _ONE_NET_VERSION_2_X
          ON_ACK_NACK_LEN = 26,
-         ON_RAW_ACK_NACK_PLD_LEN = 8,*/ /* does not include the bytes needed for the encryption method */
-	/*#else*/
+         ON_RAW_ACK_NACK_PLD_LEN = 8, /* does not include the bytes needed for the encryption method */
+	#else
          ON_ACK_NACK_LEN = 17,
-	/*#endif*/
+	#endif
 
     //! The length of a transaction ack packet (in bytes)
     ON_TXN_ACK_LEN = 15,
@@ -414,7 +414,7 @@ enum
     //! The maximum admin payload size (in bytes)
     ON_MAX_ADMIN_PLD_LEN = 4,
 
-/*#ifdef _ONE_NET_VERSION_2_X
+#ifdef _ONE_NET_VERSION_2_X
     //! The length (in bytes) of the raw data (nonces) in a response packet that
     //! includes the nonces.  Note : In ONE-NET 2.0, this is an encrypted packet.
 	//! Most of this space is random padding.
@@ -423,7 +423,7 @@ enum
     //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
     //! packet that includes the nonces
     ON_RESP_NONCE_WORD_SIZE = 11
-#else*/
+#else
     //! The length (in bytes) of the raw data (nonces) in a response packet that
     //! includes the nonces
     ON_RESP_NONCE_LEN = 2,
@@ -431,7 +431,7 @@ enum
     //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
     //! packet that includes the nonces
     ON_RESP_NONCE_WORD_SIZE = 2
-/*#endif*/
+#endif
 };
 
 //! Payload CRC releated constants

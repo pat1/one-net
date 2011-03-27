@@ -571,10 +571,10 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
             {
                 case MASTER_INVITE_NEW_CLIENT:
                 {
-                    blks_to_rx = 48;
+                    blks_to_rx = 48; // TODO - isn't this missing a break?
                 } // MASTER invite new CLIENT case //
 
-                case ONE_NET_ENCODED_SINGLE_DATA_ACK:   // fall through
+                case ONE_NET_ENCODED_SINGLE_DATA_ACK:
                 case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
                 case ONE_NET_ENCODED_SINGLE_DATA_NACK:  // fall through
                 case ONE_NET_ENCODED_BLOCK_DATA_ACK:    // fall through
@@ -585,11 +585,11 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                 case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:   // fall through	
 			#endif	*/		
                 {
-					/*#ifdef _ONE_NET_VERSION_2_X*/
-                        /*blks_to_rx = 26;*/ /* As of 2.0, this is an encrypted packet */
-					/*#else*/
+					#ifdef _ONE_NET_VERSION_2_X
+                        blks_to_rx = 26; /* As of 2.0, this is an encrypted packet */
+					#else
 					    blks_to_rx = 17;
-					/*#endif*/
+					#endif
                     break;
                 } // acks/nacks/keep alive case for data packets //
 
@@ -651,11 +651,11 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
 
         // Number of bytes - Preamble & SOF to receive for single, block, and
         // stream data acks, nacks, and keep alives
-/*		#ifdef _ONE_NET_VERSION_2_X
+		#ifdef _ONE_NET_VERSION_2_X
             RX_DATA_ACK_LEN = 26 - ONE_NET_ENCODED_DST_DID_IDX,
-		#else*/
+		#else
             RX_DATA_ACK_LEN = 17 - ONE_NET_ENCODED_DST_DID_IDX,
-		/*#endif*/
+		#endif
 
         // Number of bytes - Preamble & SOF to receive for single, block, and
         // stream transaction acks.
@@ -895,29 +895,29 @@ void look_for_all_packets(void)
 
         // Number of bytes - Preamble & SOF to receive for single, block, and
         // stream data acks, nacks, and keep alives
-/*		#ifdef _ONE_NET_VERSION_2_X
+		#ifdef _ONE_NET_VERSION_2_X
             RX_DATA_ACK_LEN = 26 - ONE_NET_ENCODED_DST_DID_IDX,
-		#else*/
+		#else
             RX_DATA_ACK_LEN = 17 - ONE_NET_ENCODED_DST_DID_IDX,
-	/*	#endif*/
+		#endif
 
         // Number of bytes - Preamble & SOF to receive for single, block, and
         // stream transaction acks.
         RX_TXN_ACK_LEN = 15 - ONE_NET_ENCODED_DST_DID_IDX,
 
         // NACK with reason field length       
-/*		#ifdef _ONE_NET_VERSION_2_X
+		#ifdef _ONE_NET_VERSION_2_X
             RX_NACK_RSN_LEN = 26 - ONE_NET_ENCODED_DST_DID_IDX,
-		#else*/
+		#else
             RX_NACK_RSN_LEN = 18 - ONE_NET_ENCODED_DST_DID_IDX,
-		/*#endif*/
+		#endif
         
         // Multi hop NACK with reason field length     
-		/*#ifdef _ONE_NET_VERSION_2_X
+		#ifdef _ONE_NET_VERSION_2_X
             RX_NACK_MH_RSN_LEN = 27 - ONE_NET_ENCODED_DST_DID_IDX,
-		#else*/
+		#else
             RX_NACK_MH_RSN_LEN = 19 - ONE_NET_ENCODED_DST_DID_IDX,
-		/*#endif*/
+		#endif
         
         // Number of bytes - Preamble & SOF to receive for single data packets
         RX_SINGLE_DATA_LEN = 26 - ONE_NET_ENCODED_DST_DID_IDX,

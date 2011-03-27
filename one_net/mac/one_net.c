@@ -1218,8 +1218,6 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
 
     return status;*/
 
-
-
     UInt8 data[ON_RESP_NONCE_LEN];
 
     #ifdef _ONE_NET_MULTI_HOP
@@ -1244,6 +1242,7 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
     data[ON_RESP_RESP_NONCE_LOW_IDX] =
       (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
       & ON_RESP_NONCE_BUILD_LOW_MASK;
+
 
 
     #ifdef _ONE_NET_MULTI_HOP
@@ -3609,6 +3608,8 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
 {
     one_net_status_t status;
     UInt8 encoded_nonce;
+	UInt16 tmp;
+	UInt8 throw_away[9]; // temporary
 
     if(!txn_nonce || !next_nonce)
     {
@@ -3646,7 +3647,15 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
 
     *next_nonce >>= ON_TXN_NONCE_SHIFT;
     *next_nonce &= ON_TXN_NONCE_PARSE_MASK;
-
+	
+	// just read it in and throw it away for now
+	if((tmp = one_net_read(throw_away, 9)) != 9)
+	{
+		#ifdef _CLI
+    	    oncli_send_msg("Error : rx_nonces_2_X : one_net_read returned %d\n",
+			    tmp);
+		#endif
+	}
     return ONS_SUCCESS;
 } // rx_nonces_2_X
 #endif
