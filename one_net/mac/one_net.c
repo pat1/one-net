@@ -2500,11 +2500,7 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 	#ifndef _ONE_NET_VERSION_2_X	
         if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	#else
-        // TODO - what if this is the master and the client is using the
-        // old key?  We need to be able to try that if this doesn't work.
-        key = &(on_base_param->current_key);
-        if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
-           &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	#endif
     {
         return status;
@@ -2817,11 +2813,7 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         #ifndef _ONE_NET_VERSION_2_X	
             if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	    #else
-            // TODO - what if this is the master and the client is using the
-            // old key?  We need to be able to try that if this doesn't work.
-            key = &(on_base_param->current_key);
-            if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
-                &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	    #endif
         {
             return status;
@@ -3151,11 +3143,7 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         #ifndef _ONE_NET_VERSION_2_X	
             if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	    #else
-            // TODO - what if this is the master and the client is using the
-            // old key?  We need to be able to try that if this doesn't work.
-            key = &(on_base_param->current_key);
-            if((status = rx_nonces_2_X(&txn_nonce, &next_nonce, &nack_reason,
-                &(on_base_param->current_key), ON_SINGLE)) != ONS_SUCCESS)
+            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	    #endif
 
         if(txn_nonce != (*txn)->expected_nonce)
