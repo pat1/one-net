@@ -229,9 +229,11 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
   
 #ifdef _ONE_NET_VERSION_2_X
 // temporary function while porting to 2.0
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
   UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type);
+  const one_net_xtea_key_t * const key, const on_data_t type);*/
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
+  UInt8 * const next_nonce);
 #endif
   
 
@@ -2500,7 +2502,17 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 	#ifndef _ONE_NET_VERSION_2_X	
         if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	#else
-        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK call
+		// function rx_nonces_2_X for nonces
+        if(pid == ONE_NET_ENCODED_SINGLE_DATA_ACK)
+        {
+			status = rx_nonces_2_X(&txn_nonce, &next_nonce);
+		}
+		else
+		{
+			status = rx_nonces(&txn_nonce, &next_nonce);
+		}
+        if(status != ONS_SUCCESS)
 	#endif
     {
         return status;
@@ -3580,9 +3592,11 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
 #ifdef _ONE_NET_VERSION_2_X
 // temporary function while porting to 2.0.  Right now it's the same as the
 // 1.6 version.
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
   UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type)
+  const one_net_xtea_key_t * const key, const on_data_t type)*/
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
+  UInt8 * const next_nonce)
 {
     one_net_status_t status;
     UInt8 encoded_nonce;
