@@ -1662,10 +1662,13 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
-      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+/*      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-		const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS);	
+		const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS);*/
+      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);	
     #endif
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
@@ -1698,10 +1701,14 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
-      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+     /* one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
         const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
         const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-		const one_net_xtea_key_t * const KEY);	
+		const one_net_xtea_key_t * const KEY);	*/
+		
+      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);	
     #endif
 	
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,

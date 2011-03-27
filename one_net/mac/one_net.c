@@ -1149,15 +1149,23 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
 
 // temporary 2.x function (not used yet)
 #ifdef _ONE_NET_MULTI_HOP
-one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+/*one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
    const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
    const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)
+   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)*/
+   
+one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+   const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS)   
 #else
-one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+/*one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
    const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
    const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-   const one_net_xtea_key_t * const KEY)
+   const one_net_xtea_key_t * const KEY)*/
+   
+ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
+   const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE)   
 #endif
 {
 /*    one_net_status_t status;
@@ -2502,9 +2510,10 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 	#ifndef _ONE_NET_VERSION_2_X	
         if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
 	#else
-	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK call
+	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK calls
 		// function rx_nonces_2_X for nonces
-        if(pid == ONE_NET_ENCODED_SINGLE_DATA_ACK)
+        if(pid == ONE_NET_ENCODED_SINGLE_DATA_ACK ||
+		   pid == ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE)
         {
 			status = rx_nonces_2_X(&txn_nonce, &next_nonce);
 		}

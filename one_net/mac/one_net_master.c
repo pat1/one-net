@@ -2802,14 +2802,26 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
 
             response_txn.data_len = response_txn.pkt_size;
 
-            #ifdef _ONE_NET_MULTI_HOP			  
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), resp_pid, SRC_DID,
-                  resp_nonce, client->expected_nonce, response_hops);
+            #ifdef _ONE_NET_MULTI_HOP
+			    #ifndef _ONE_NET_VERSION_2_X		  
+                    status = on_build_response_pkt(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID,
+                      resp_nonce, client->expected_nonce, response_hops);
+				#else
+                    status = on_build_response_pkt_2_X(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID,
+                      resp_nonce, client->expected_nonce, response_hops);				
+				#endif
             #else
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), resp_pid, SRC_DID,
-                  resp_nonce, client->expected_nonce);
+			    #ifndef _ONE_NET_VERSION_2_X
+                    status = on_build_response_pkt(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID,
+                      resp_nonce, client->expected_nonce);
+				#else
+                    status = on_build_response_pkt_2_X(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID,
+                      resp_nonce, client->expected_nonce);				
+				#endif
             #endif
 
             if(saved_status == ONS_STREAM_END && status == ONS_SUCCESS)
@@ -2832,14 +2844,26 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
             #ifdef _ONE_NET_MULTI_HOP
                 resp_pid = (HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
                   : ONE_NET_ENCODED_SINGLE_DATA_ACK);
-				  
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), resp_pid, SRC_DID, resp_nonce,
-                  client->expected_nonce, response_hops);
+
+                #ifndef _ONE_NET_VERSION_2_X				  
+                    status = on_build_response_pkt(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID, resp_nonce,
+                      client->expected_nonce, response_hops);
+				#else
+                    status = on_build_response_pkt_2_X(response_txn.pkt,
+                      &(response_txn.data_len), resp_pid, SRC_DID, resp_nonce,
+                      client->expected_nonce, response_hops);				
+				#endif
             #else
-                status = on_build_response_pkt(response_txn.pkt,
-                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
-				  SRC_DID, resp_nonce, client->expected_nonce);
+			    #ifndef _ONE_NET_VERSION_2_X
+                    status = on_build_response_pkt(response_txn.pkt,
+                      &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
+				      SRC_DID, resp_nonce, client->expected_nonce);
+				#else
+                    status = on_build_response_pkt_2_X(response_txn.pkt,
+                      &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_ACK,
+				      SRC_DID, resp_nonce, client->expected_nonce);				
+				#endif
             #endif
         } // if it is a repeat packet //
         #ifdef _ONE_NET_MULTI_HOP
