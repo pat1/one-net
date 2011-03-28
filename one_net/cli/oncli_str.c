@@ -107,6 +107,12 @@ const char * const ONCLI_DATA_RATE_TEST_RESULT_FMT
 //! Format output to report the channel the device is on
 const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
 
+
+#ifdef _DEBUG_DELAY
+    const char* const ONCLI_PRINT_DEBUG_DELAY_CMD_STR = "print_debug_delay";
+    const char* const ONCLI_CLEAR_DEBUG_DELAY_CMD_STR = "clear_debug_delay";
+#endif
+
 #ifdef _ONE_NET_DEBUG
     //! debug format strings
     const char * const ONCLI_DEBUG_PREFIX_STR = "d[%04x:%02x:";

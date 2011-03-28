@@ -140,6 +140,12 @@ UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   
 BOOL oncli_is_valid_unique_key_ch(const char CH);
 
+#ifdef _DEBUG_DELAY
+    void debug_delay(const char * const FMT, ...);
+	void print_debug_delay(void);
+	void clear_debug_delay(void);
+#endif
+
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END

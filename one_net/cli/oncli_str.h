@@ -96,6 +96,12 @@ extern const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
 extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
 extern const char * const ONCLI_DATA_RATE_TEST_RESULT_FMT;
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
+
+#ifdef _DEBUG_DELAY
+    extern const char* const ONCLI_PRINT_DEBUG_DELAY_CMD_STR;
+    extern const char* const ONCLI_CLEAR_DEBUG_DELAY_CMD_STR;
+#endif
+
 #ifdef _ONE_NET_DEBUG
     //! debug format strings
     extern const char * const ONCLI_DEBUG_PREFIX_STR;

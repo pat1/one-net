@@ -61,6 +61,10 @@
     #include "uart.h"
 #endif
 
+#ifdef _DEBUG_DELAY
+    #include "oncli.h"
+#endif
+
 #ifdef _ONE_NET_DEBUG_STACK
     #include "uart.h"
 #endif
@@ -1242,8 +1246,6 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
     data[ON_RESP_RESP_NONCE_LOW_IDX] =
       (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
       & ON_RESP_NONCE_BUILD_LOW_MASK;
-
-
 
     #ifdef _ONE_NET_MULTI_HOP
             return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,

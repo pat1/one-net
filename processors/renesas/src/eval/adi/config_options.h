@@ -85,11 +85,11 @@
 // _ONE_NET_VERSION_2_X should be defined and _ONE_NET_VERSION_1_X should not be defined.
 
 #ifndef _ONE_NET_VERSION_1_X
-	#define _ONE_NET_VERSION_1_X
+//	#define _ONE_NET_VERSION_1_X
 #endif
 
 #ifndef _ONE_NET_VERSION_2_X
-//	#define _ONE_NET_VERSION_2_X
+	#define _ONE_NET_VERSION_2_X
 #endif
 
 
@@ -484,35 +484,66 @@
 #endif
 
 
-
-
-// DEBUG options
-//#ifdef _ONE_NET_DEBUG
-//	#undef _ONE_NET_DEBUG
-//#endif
-
-//#ifdef _ONE_NET_DEBUG_STACK
-//	#undef _ONE_NET_DEBUG_STACK
-//#endif
-
-
-
-// Sniffer Front End
-//#ifdef _SNIFFER_FRONT_END
-//	#undef _SNIFFER_FRONT_END
-//#endif
-
-
-
-// Command line interface
+// Command line interface (this should also be defined if you only OUTPUT to the
+// serial port - i.e. no actual user commands).
+// TODO : Think of a better name and possibly change things around for apps that
+// only need output or only need input.  Right now it's both or neither.
 #ifndef _ENABLE_CLI
 	#define _ENABLE_CLI
 #endif
 
-// #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
-// own #define for maximum ease of enabling and disabling features.  CLI options that don't make
-// sense without other CLI options should be nested.
 
+// DEBUG options - only available if _ENABLE_CLI is defined
+#ifdef _ENABLE_CLI
+    #ifdef _ONE_NET_DEBUG
+        // #undef _ONE_NET_DEBUG
+    #endif
+
+    #ifdef _ONE_NET_DEBUG_STACK
+        // #undef _ONE_NET_DEBUG_STACK
+    #endif
+
+    /* Used for debugging purposes.  If too much is sent out the UART at once,
+    things get garbled.  _DEBUG_DELAY buffers debugging output and is meant for
+    developers.  From the command line, the print_debug_delay command displays the
+    buffer and the clear_debug_delay command clears the buffer.
+    _DEBUG_DELAY_BUFFER_SIZE is the buffer size.  Note if it is too big, there will
+    be a buffer overflow and the chip will not work, at least on the Renesas.
+    Changing other RAM values like the number of peer units allowed appears to
+    make a difference in how big the buffer can be.  See oncli.c for
+    where _DEBUG_DELAY_BUFFER_SIZE is used.  The size you can make this
+    variable will alse depend on how much RAM you have on the chip, what is
+    defined and undefined, etc. */
+    #ifndef _DEBUG_DELAY
+        // #define _DEBUG_DELAY
+        // place the buffer size below.   TODO - possibly put this in some port specific file?
+        #define _DEBUG_DELAY_BUFFER_SIZE = 256
+	#endif
+
+	
+    // Sniffer Front End
+    #ifdef _SNIFFER_FRONT_END
+        //#undef _SNIFFER_FRONT_END
+    #endif
+
+
+    // Command Line Interface.  Make sure _AT_LEAST_ONE_COMMAND_ENABLED is defined if you
+	// are accepting commands from a command line interface.
+	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
+		#define _AT_LEAST_ONE_COMMAND_ENABLED
+	#endif
+#endif // if _ENABLE_CLI is defined
+
+
+// TODO - does it ever make sense to have _DEBUG_DELAY defined if _AT_LEAST_ONE_COMMAND_ENABLED
+// is not?  For right now, I am not requiring it.
+
+
+
+// Command Line Interface options - see above.  Make sure _AT_LEAST_ONE_COMMAND_ENABLED is defined.
+// _ENABLE_CLI must also be defined.  See below for note and specific command options.  Each CLI
+// option should have its own #define for maximum ease of enabling and disabling features.  CLI
+// options that don't make sense without other CLI options should be nested.
 
 
 // Note : Dec. 19, 2010 - Right now it appears to be unfeasible to not have a CLI at all as far as adapting code.
@@ -522,12 +553,6 @@
 // but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
 // define the _ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
 // _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
-#ifdef _ENABLE_CLI
-	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
-		#define _AT_LEAST_ONE_COMMAND_ENABLED
-	#endif
-#endif
-
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
 

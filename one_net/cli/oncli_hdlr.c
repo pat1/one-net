@@ -197,6 +197,12 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_INVITE_COMMAND
 	static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
+
+#ifdef _DEBUG_DELAY
+    static oncli_status_t print_debug_delay_cmd_hdlr(void);
+    static oncli_status_t clear_debug_delay_cmd_hdlr(void);
+#endif
+
 #ifdef _ENABLE_CANCEL_INVITE_COMMAND
 	static oncli_status_t cancel_invite_cmd_hdlr(void);
 #endif
@@ -579,6 +585,32 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return list_cmd_hdlr();
     } // else if the list command was received //
 	#endif
+	
+    #ifdef _DEBUG_DELAY
+    if(!strnicmp(ONCLI_PRINT_DEBUG_DELAY_CMD_STR, CMD, strlen(ONCLI_PRINT_DEBUG_DELAY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_PRINT_DEBUG_DELAY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_PRINT_DEBUG_DELAY_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return print_debug_delay_cmd_hdlr();
+    } // else if the print_debug_delay command was received //
+	
+    if(!strnicmp(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR, CMD, strlen(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CLEAR_DEBUG_DELAY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return clear_debug_delay_cmd_hdlr();
+    } // else if the clear_debug_delay command was received //	
+    #endif
 
 	#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
     if(!strnicmp(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR, CMD, strlen(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR)))
@@ -1983,6 +2015,22 @@ static oncli_status_t rssi_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // rsend_cmd_hdlr //
+#endif
+
+
+#ifdef _DEBUG_DELAY
+    static oncli_status_t print_debug_delay_cmd_hdlr(void)
+	{
+		print_debug_delay();
+		return ONCLI_SUCCESS;
+	}
+	
+	
+    static oncli_status_t clear_debug_delay_cmd_hdlr(void)
+	{
+		clear_debug_delay();
+		return ONCLI_SUCCESS;
+	}
 #endif
 
 

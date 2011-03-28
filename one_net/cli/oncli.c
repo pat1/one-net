@@ -119,6 +119,12 @@ static UInt16 input_len = 0;
 //! The string being output
 static char output[ONCLI_MAX_OUTPUT_STR_LEN];
 
+#ifdef _DEBUG_DELAY
+    static int debug_delay_index = 0;
+    static const int DEBUG_DELAY_BUFFER_SIZE = _DEBUG_DELAY_BUFFER_SIZE;
+    static char debug_delay_buffer[DEBUG_DELAY_BUFFER_SIZE];
+#endif
+
 //! @} oncli_pri_var
 //							PRIVATE VARIABLES END
 //==============================================================================
@@ -400,6 +406,59 @@ void oncli_send_msg(const char * const FMT, ...)
         uart_write(output, output_len);
     #endif
 } // oncli_send_msg //
+
+
+#ifdef _DEBUG_DELAY
+void debug_delay(const char * const FMT, ...)
+{
+    va_list ap;
+    int debug_output_len;
+	int buffer_len_remaining = DEBUG_DELAY_BUFFER_SIZE - debug_delay_index;
+
+    if(!FMT)
+    {
+        return;
+    } // if the parameter is invalid //
+	
+	if(debug_delay_index < 0 || debug_delay_index >= DEBUG_DELAY_BUFFER_SIZE)
+	{
+        oncli_send_msg("Error: debug_delay_index had invalid value: %d\n",
+		    debug_delay_index);
+		clear_debug_delay();
+		return;
+	}
+
+    va_start(ap, FMT);    
+	
+    if((debug_output_len = vsnprintf(&(debug_delay_buffer[debug_delay_index]),
+	    buffer_len_remaining, FMT, ap)) > buffer_len_remaining)
+    {
+        oncli_send_msg("Error: debug_delay_buffer overflow!  Resetting!\n");
+		clear_debug_delay();
+		return;
+    } // if the output string is too short //
+
+    va_end(ap);
+    debug_delay_index += debug_output_len;
+} // debug_delay //
+
+
+void print_debug_delay(void)
+{
+	int i;
+	for(i = 0; i < debug_delay_index; i++)
+	{
+		uart_write(&(debug_delay_buffer[i]), 1);
+		delay_ms(25);
+	}
+}
+
+
+void clear_debug_delay(void)
+{
+    debug_delay_index = 0;
+}
+#endif
 
 
 /*!
