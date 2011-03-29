@@ -2558,15 +2558,7 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 	#else
 	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK calls
 		// function rx_nonces_2_X for nonces
-        if(pid == ONE_NET_ENCODED_SINGLE_DATA_ACK ||
-		   pid == ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE)
-        {
-			status = rx_nonces_2_X(&txn_nonce, &next_nonce);
-		}
-		else
-		{
-			status = rx_nonces(&txn_nonce, &next_nonce);
-		}
+		status = rx_nonces_2_X(&txn_nonce, &next_nonce);
         if(status != ONS_SUCCESS)
 	#endif
     {
