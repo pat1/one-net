@@ -1227,11 +1227,25 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
 
     return status;*/
 
-    UInt8 data[ON_RESP_NONCE_LEN];
+    UInt8 data[ON_RAW_ACK_NACK_PLD_LEN + 1];
+	int i;
+	UInt8 temp_enc[8];
 	
-	#ifdef _CLI
-	    oncli_send_msg("Top of on_build_response_pkt_2_X\n");
-	#endif
+	// temporarily, to check, have it send 949c939a95999692 in encoded bytes 3 to 10
+	// If we sniff that, we know it worked.
+	
+	// copied from one_net_encode.  Temporary
+    const UInt8 RAW_TO_ENCODED[] =
+    {
+	    0xB4, 0xBC, 0xB3, 0xBA, 0xB5, 0xB9, 0xB6, 0xB2,
+	    0xC4, 0xCC, 0xC3, 0xCA, 0xC5, 0xC9, 0xC6, 0xC2,
+	    0x34, 0x3C, 0x33, 0x3A, 0x35, 0x39, 0x36, 0x32,
+	    0xA4, 0xAC, 0xA3, 0xAA, 0xA5, 0xA9, 0xA6, 0xA2,
+	    0x54, 0x5C, 0x53, 0x5A, 0x55, 0x59, 0x56, 0x52,
+	    0x94, 0x9C, 0x93, 0x9A, 0x95, 0x99, 0x96, 0x92,
+	    0x64, 0x6C, 0x63, 0x6A, 0x65, 0x69, 0x66, 0x62,
+	    0xD4, 0xDC, 0xD3, 0xDA, 0xD5, 0xD9, 0xD6, 0xD2
+    };
 
     #ifdef _ONE_NET_MULTI_HOP
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
@@ -1255,6 +1269,28 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
     data[ON_RESP_RESP_NONCE_LOW_IDX] =
       (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
       & ON_RESP_NONCE_BUILD_LOW_MASK;
+
+    for(i = 3; i < ON_RAW_ACK_NACK_PLD_LEN + 1; i++)
+	{
+		data[i] = 0;
+	}
+    for(i = 0; i < 8; i++)
+	{
+		temp_enc[i] = RAW_TO_ENCODED[i + 0x28]; // 949c939a95999692
+	}	
+	on_decode(&(data[3]), temp_enc, 8); // decode it, stick it in raw packet.
+	                                    // on_build_pkt function will encode it.
+										// This is just a test to see if we can
+										// sniff it.
+	
+	#ifdef _DEBUG_DELAY
+        debug_delay("Sending Response : PID=%d: TXN=%d RESP=%d : raw=0x", PID, TXN_NONCE, EXPECTED_NONCE);
+		for(i = 0; i < 9; i++)
+		{
+			debug_delay("%02x", data[i]);
+		}		
+		debug_delay("\n");
+	#endif
 
     #ifdef _ONE_NET_MULTI_HOP
             return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
@@ -3624,11 +3660,8 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
     one_net_status_t status;
     UInt8 encoded_nonce;
 	UInt16 tmp;
-	UInt8 throw_away[9]; // temporary
-
-	#ifdef _ENABLE_CLI
-	    oncli_send_msg("Top of one_net_status_t rx_nonces_2_X\n");
-	#endif
+	int i;
+	UInt8 throw_away[9]; // temporarily throw the excess away for now
 
     if(!txn_nonce || !next_nonce)
     {
@@ -3667,14 +3700,25 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
     *next_nonce >>= ON_TXN_NONCE_SHIFT;
     *next_nonce &= ON_TXN_NONCE_PARSE_MASK;
 	
-	// just read it in and throw it away for now
+	// just read the excess in, display it to debug, and throw it away for now
 	if((tmp = one_net_read(throw_away, 9)) != 9)
 	{
-		#ifdef _CLI
-    	    oncli_send_msg("Error : rx_nonces_2_X : one_net_read returned %d\n",
+		#ifdef _DEBUG_DELAY
+    	    debug_delay("Error : rx_nonces_2_X : one_net_read returned %d\n",
 			    tmp);
 		#endif
+		return ONS_READ_ERR;
 	}
+
+    #ifdef _DEBUG_DELAY
+	    debug_delay("rx_nonces_2_X : %d %d : 0x", *txn_nonce, *next_nonce);
+	    for(i = 0; i < 9; i++)
+	    {
+		    debug_delay("%02x", throw_away[i]);
+	    }
+		debug_delay("\n");
+	#endif
+		
     return ONS_SUCCESS;
 } // rx_nonces_2_X
 #endif
