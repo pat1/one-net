@@ -255,6 +255,52 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
 //! \ingroup ONE-NET
 //! @{
 
+
+/*!
+    \brief Returns whether the device is a client or a master and whether it
+	       is part of a network.
+
+    \param[out] member_of_network TRUE if device is already in a network
+	            FALSE otherwise
+
+    \return TRUE if device is master, false if client or not part of a network
+*/
+BOOL device_is_master(BOOL* member_of_network)
+{
+    // could not find this function, so I am writing it.  May be re-inventing
+	// the wheel.  Might be able to cut down on the code a few bytes too.
+	// Maybe use a few #define variables too?  Might also make oncli_is_master()
+	// irrelevant.  Seems like we have some redundant functions, but again, I did
+	// not see this function anywhere, so might as well write it.
+    on_encoded_did_t* enc_did;
+	on_encoded_did_t ENC_MASTER_DID = {0xB4, 0xBC}; // this must be somewhere else?
+	
+	// first deal with bad/uninitialized.  Just call it client and not a part of network
+    if(!member_of_network)
+	{
+		return FALSE;
+	}
+
+	if(!on_base_param)
+	{
+		*member_of_network = FALSE;
+		return FALSE;
+	}
+	
+	enc_did = (on_encoded_did_t*) (&(on_base_param->sid[ON_ENCODED_NID_LEN]));
+	*member_of_network = TRUE;
+	
+	if(did_is_broadcast(*enc_did))
+	{
+		*member_of_network = FALSE;
+		return FALSE;
+	}
+	
+	return on_encoded_did_equal(&ENC_MASTER_DID, enc_did);  
+}
+
+
+
 /*!
     \brief Initializes ONE-NET.
 

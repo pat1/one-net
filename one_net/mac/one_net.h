@@ -1618,6 +1618,7 @@ void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR);
 	void set_allow_set_state(BOOL allow);
 #endif
 
+BOOL device_is_master(BOOL* member_of_network);
 
 // address functions
 BOOL on_is_my_NID(const on_encoded_nid_t * const NID);
