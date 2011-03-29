@@ -483,14 +483,16 @@ enum
     //! Index for the message type
     ON_PLD_MSG_TYPE_IDX = 2,
 	
-/*    #ifdef _ONE_NET_VERSION_2_X
-        ON_PLD_NACK_LOW_IDX = 2,
-        ON_PLD_NACK_HIGH_IDX = 3,
+    #ifdef _ONE_NET_VERSION_2_X
+        ON_PLD_NACK_HIGH_IDX = 2,
+        ON_PLD_NACK_LOW_IDX = 3,
         ON_NACK_HIGH_SHIFT = 2,
         ON_NACK_LOW_SHIFT = 6,
         ON_NACK_BUILD_HIGH_MASK = 0x0F,
         ON_NACK_BUILD_LOW_MASK = 0xC0,
-    #endif*/
+        ON_NACK_PARSE_HIGH_MASK = 0x3C,
+        ON_NACK_PARSE_LOW_MASK = 0x03,
+    #endif
 
 
 
