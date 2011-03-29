@@ -233,11 +233,11 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
   
 #ifdef _ONE_NET_VERSION_2_X
 // temporary function while porting to 2.0
-/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
   UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type);*/
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
-  UInt8 * const next_nonce);
+  const one_net_xtea_key_t * const key, const on_data_t type);
+/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
+  UInt8 * const next_nonce);*/
 #endif
   
 
@@ -2525,10 +2525,17 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     on_encoded_did_t src_did;
     UInt8 pid;
     UInt8 txn_nonce, next_nonce;
+	BOOL valid_pkt_pid = TRUE;
 
 	#ifdef _ONE_NET_VERSION_2_X
-		on_nack_rsn_t nack_reason;
+		on_nack_rsn_t nack_reason = ON_NACK_RSN_NO_ERROR; // TODO - should this be a function parameter?
         const one_net_xtea_key_t* key = 0;
+		BOOL member_of_network, device_is_the_master;
+		BOOL needNackReason = TRUE;
+		#ifdef _ONE_NET_MASTER
+		    on_client_t* cli; // we'll need this to get the key(old or new)
+			                  // if we are the master.  If we're not, irrelevant
+		#endif
 	#endif
 	
     #ifdef _ONE_NET_MULTI_HOP
@@ -2563,6 +2570,24 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     {
         return status;
     } // if the packet is not for this device //
+	
+	#ifdef _ONE_NET_VERSION_2_X
+	    key = &(on_base_param->current_key);
+	    #ifdef _ONE_NET_MASTER
+		    device_is_the_master = device_is_master(&member_of_network);
+			if(device_is_the_master)
+			{
+				cli = client_info(&src_did);
+				if(!cli)
+				{
+					// should never get here
+					return ONS_INVALID_DATA; //
+				}
+				
+				key = get_client_encryption_key(cli, FALSE);
+			}
+		#endif
+	#endif
 
     // read the pid
     if(one_net_read(&pid, sizeof(pid)) != sizeof(pid))
@@ -2570,18 +2595,28 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
         return ONS_READ_ERR;
     } // if reading the pid failed //
 
-    #ifdef _ONE_NET_MULTI_HOP
-        if(pid != ONE_NET_ENCODED_SINGLE_DATA_ACK
-          && pid != ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE
-          && pid != ONE_NET_ENCODED_SINGLE_DATA_NACK
-          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
-          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE
-          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_NACK)
-    #else // ifdef _ONE_NET_MULTI_HOP //
-        if(pid != ONE_NET_ENCODED_SINGLE_DATA_ACK
-          && pid != ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE
-          && pid != ONE_NET_ENCODED_SINGLE_DATA_NACK)
-    #endif // else _ONE_NET_MULTI_HOP is not defined //
+    switch(pid)
+	{
+		case ONE_NET_ENCODED_SINGLE_DATA_ACK:
+		case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+		#ifdef _ONE_NET_MULTI_HOP
+		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
+		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_WAKE:
+		#endif
+		    #ifdef _ONE_NET_VERSION_2_X
+			    needNackReason = FALSE;
+			#endif
+			break;
+		case ONE_NET_ENCODED_SINGLE_DATA_NACK:
+		#ifdef _ONE_NET_MULTI_HOP
+		case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK:
+		#endif
+		    break;
+		default:
+		    valid_pkt_pid = FALSE;
+	}
+		
+    if(!valid_pkt_pid)
     {
     #ifdef _ONE_NET_DEBUG
         one_net_debug(ONE_NET_DEBUG_ONS_BAD_PKT_TYPE, &pid, 1);
@@ -2595,7 +2630,8 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 	#else
 	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK calls
 		// function rx_nonces_2_X for nonces
-		status = rx_nonces_2_X(&txn_nonce, &next_nonce);
+		status = rx_nonces_2_X(&txn_nonce, &next_nonce, needNackReason ?
+		    &nack_reason : NULL, key, ON_SINGLE);
         if(status != ONS_SUCCESS)
 	#endif
     {
@@ -3680,19 +3716,14 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
 #ifdef _ONE_NET_VERSION_2_X
 // temporary function while porting to 2.0.  Right now it's the same as the
 // 1.6 version.
-/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
+static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
   UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type)*/
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
-  UInt8 * const next_nonce)
+  const one_net_xtea_key_t * const key, const on_data_t type)
+/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
+  UInt8 * const next_nonce)*/
 {
     one_net_status_t status;
-	UInt8 calc_crc, payload_crc;
-	
-	// TODO - replace with a parameter passed to the function
-	on_nack_rsn_t nack;
-	on_nack_rsn_t* nack_reason = &nack;
-	
+	UInt8 calc_crc, payload_crc;	
     UInt8 encoded_pld[ON_RESP_NONCE_LEN];
 	UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // add 1 for encryption technique
 
