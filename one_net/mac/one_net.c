@@ -3685,7 +3685,7 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
 		// for now, log it to debug.
 		#ifdef _DEBUG_DELAY
 		    debug_delay("Error : rx_nonces_2_X : calc_crc=%d, payload_crc=%d\n",
-			    calc_crc, palyload_crc);
+			    calc_crc, payload_crc);
 		#endif
 		
 		return ONS_CRC_FAIL;		
