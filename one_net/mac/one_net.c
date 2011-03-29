@@ -276,7 +276,7 @@ BOOL device_is_master(BOOL* member_of_network)
 	
 	#ifdef _ONE_NET_USE_ENCODING
     	on_encoded_did_t ENC_MASTER_DID = {0xB4, 0xBC}; // this must be somewhere else?
-	#else _ONE_NET_USE_ENCODING
+	#else
     	on_encoded_did_t ENC_MASTER_DID = {0x00, 0x01};
 	#endif
 	
