@@ -273,7 +273,12 @@ BOOL device_is_master(BOOL* member_of_network)
 	// irrelevant.  Seems like we have some redundant functions, but again, I did
 	// not see this function anywhere, so might as well write it.
     on_encoded_did_t* enc_did;
-	on_encoded_did_t ENC_MASTER_DID = {0xB4, 0xBC}; // this must be somewhere else?
+	
+	#ifdef _ONE_NET_USE_ENCODING
+    	on_encoded_did_t ENC_MASTER_DID = {0xB4, 0xBC}; // this must be somewhere else?
+	#else _ONE_NET_USE_ENCODING
+    	on_encoded_did_t ENC_MASTER_DID = {0x00, 0x01};
+	#endif
 	
 	// first deal with bad/uninitialized.  Just call it client and not a part of network
     if(!member_of_network)
