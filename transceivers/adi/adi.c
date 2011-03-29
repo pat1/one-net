@@ -580,10 +580,10 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                 case ONE_NET_ENCODED_BLOCK_DATA_ACK:    // fall through
                 case ONE_NET_ENCODED_BLOCK_DATA_NACK:   // fall through
                 case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
-/*			#ifdef _ONE_NET_VERSION_2_X
+			#ifdef _ONE_NET_VERSION_2_X
 			    case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:  // fall through	
                 case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:   // fall through	
-			#endif	*/		
+			#endif		
                 {
 					#ifdef _ONE_NET_VERSION_2_X
                         blks_to_rx = 26; /* As of 2.0, this is an encrypted packet */
@@ -719,7 +719,7 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
 			//
 			// TODO - decide when exactly we should do this conversion (i.e. what versions)
 			//
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
             if (rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX] 
               == ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN)
             {
@@ -750,7 +750,7 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                   = ONE_NET_ENCODED_MH_BLOCK_DATA_NACK;
             }
 #endif
-/*#endif*/
+#endif
 
             // All packet size constants below are including the PREAMBLE &
             // SOF.  Since these cause the sync detect, these won't be read
@@ -771,10 +771,10 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                 case ONE_NET_ENCODED_BLOCK_DATA_ACK:             // fall through
                 case ONE_NET_ENCODED_BLOCK_DATA_NACK:            // fall through
                 case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:          // fall through
-			/*#ifdef _ONE_NET_VERSION_2_X
+			#ifdef _ONE_NET_VERSION_2_X
 			    case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:       // fall through
 			    case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
-			#endif*/					
+			#endif					
                 {
                     blks_to_rx = RX_DATA_ACK_LEN;
                     break;
@@ -822,10 +822,10 @@ one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
                     case ONE_NET_ENCODED_MH_BLOCK_DATA_ACK:     // fall through
                     case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK:    // fall through
                     case ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE:  // fall through
-				/*#ifdef _ONE_NET_VERSION_2_X
+				#ifdef _ONE_NET_VERSION_2_X
 				    case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:   // fall through
 				    case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
-				#endif*/	
+				#endif	
                     {
                         // need to add 1 for multi-hop byte
                         blks_to_rx = RX_DATA_ACK_LEN + 1;

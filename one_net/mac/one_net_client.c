@@ -2809,7 +2809,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 					response_pid = (HOPS_TAKEN ? ONE_NET_ENCODED_MH_SINGLE_DATA_NACK
 	                  : ONE_NET_ENCODED_SINGLE_DATA_NACK);
 					
-	                status = on_build_response_pkt(response_txn.pkt,
+	                status = on_build_response_pkt_2_X(response_txn.pkt,
 	                  &(response_txn.data_len), response_pid, SRC_DID, resp_nonce,
 	                  sender->expected_nonce, response_max_hops);
 	            } // else the nonce is wrong //
@@ -2823,7 +2823,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 	            } // if it is a repeat packet //
 	            else
 	            {
-	                status = on_build_response_pkt(response_txn.pkt,
+	                status = on_build_response_pkt_2_X(response_txn.pkt,
 	                  &(response_txn.data_len), ONE_NET_ENCODED_SINGLE_DATA_NACK,
 	                  SRC_DID, resp_nonce, sender->expected_nonce);
 	            } // else the nonce is wrong //
@@ -3530,18 +3530,34 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
                   ON_MAX_NONCE);
                 response_txn.data_len = response_txn.pkt_size;
 
-                #ifdef _ONE_NET_MULTI_HOP
-                    status = on_build_response_pkt(response_txn.pkt,
-                      &(response_txn.data_len), pid, SRC_DID, resp_nonce,
-                      sender->expected_nonce, hops);
-                #else // ifdef _ONE_NET_MULTI_HOP //
-                    pid = (type == ON_BLOCK ? ONE_NET_ENCODED_BLOCK_DATA_ACK
-                      : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
+                #ifndef _ONE_NET_VERSION_2_X
+                    #ifdef _ONE_NET_MULTI_HOP
+                        status = on_build_response_pkt(response_txn.pkt,
+                          &(response_txn.data_len), pid, SRC_DID, resp_nonce,
+                          sender->expected_nonce, hops);
+                    #else // ifdef _ONE_NET_MULTI_HOP //
+                        pid = (type == ON_BLOCK ? ONE_NET_ENCODED_BLOCK_DATA_ACK
+                          : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
 					  
-                    status = on_build_response_pkt(response_txn.pkt,
-                      &(response_txn.data_len), pid, SRC_DID,
-					  resp_nonce, sender->expected_nonce);
-                #endif // else _ONE_NET_MULTI_HOP is not defined //
+                        status = on_build_response_pkt(response_txn.pkt,
+                          &(response_txn.data_len), pid, SRC_DID,
+					      resp_nonce, sender->expected_nonce);
+                    #endif // else _ONE_NET_MULTI_HOP is not defined //
+				#else
+                    #ifdef _ONE_NET_MULTI_HOP
+                        status = on_build_response_pkt_2_X(response_txn.pkt,
+                          &(response_txn.data_len), pid, SRC_DID, resp_nonce,
+                          sender->expected_nonce, hops);
+                    #else // ifdef _ONE_NET_MULTI_HOP //
+                        pid = (type == ON_BLOCK ? ONE_NET_ENCODED_BLOCK_DATA_ACK
+                          : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
+					  
+                        status = on_build_response_pkt_2_X(response_txn.pkt,
+                          &(response_txn.data_len), pid, SRC_DID,
+					      resp_nonce, sender->expected_nonce);
+                    #endif // else _ONE_NET_MULTI_HOP is not defined //
+				#endif
+				
             } // if successful so far //
         } // if it's a new packet //
         else if(status == ONS_SUCCESS)
@@ -3636,19 +3652,36 @@ static one_net_status_t single_fail_hdlr(on_txn_t ** txn,
                 } // if stream is done //
                 else
                 {
-                    #ifdef _ONE_NET_MULTI_HOP
-					    pid = (HOPS_TAKEN ? ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE
-                          : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
+	                #ifndef _ONE_NET_VERSION_2_X
+	                    #ifdef _ONE_NET_MULTI_HOP
+						    pid = (HOPS_TAKEN ? ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE
+	                          : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
 					
-                        status = on_build_response_pkt(response_txn.pkt,
-                          &(response_txn.data_len), pid, SRC_DID,
-                          resp_nonce, sender->expected_nonce, HOPS_TAKEN);
-                    #else // ifdef _ONE_NET_MULTI_HOP //
-                        status = on_build_response_pkt(response_txn.pkt,
-                          &(response_txn.data_len),
-                          ONE_NET_ENCODED_STREAM_KEEP_ALIVE, SRC_DID,
-                          resp_nonce, sender->expected_nonce);
-                    #endif // else _ONE_NET_MULTI_HOP is not defined //
+	                        status = on_build_response_pkt(response_txn.pkt,
+	                          &(response_txn.data_len), pid, SRC_DID,
+	                          resp_nonce, sender->expected_nonce, HOPS_TAKEN);
+	                    #else // ifdef _ONE_NET_MULTI_HOP //
+	                        status = on_build_response_pkt(response_txn.pkt,
+	                          &(response_txn.data_len),
+	                          ONE_NET_ENCODED_STREAM_KEEP_ALIVE, SRC_DID,
+	                          resp_nonce, sender->expected_nonce);
+	                    #endif // else _ONE_NET_MULTI_HOP is not defined //
+	                #else
+	                    #ifdef _ONE_NET_MULTI_HOP
+						    pid = (HOPS_TAKEN ? ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE
+	                          : ONE_NET_ENCODED_STREAM_KEEP_ALIVE);
+					
+	                        status = on_build_response_pkt_2_X(response_txn.pkt,
+	                          &(response_txn.data_len), pid, SRC_DID,
+	                          resp_nonce, sender->expected_nonce, HOPS_TAKEN);
+	                    #else // ifdef _ONE_NET_MULTI_HOP //
+	                        status = on_build_response_pkt_2_X(response_txn.pkt,
+	                          &(response_txn.data_len),
+	                          ONE_NET_ENCODED_STREAM_KEEP_ALIVE, SRC_DID,
+	                          resp_nonce, sender->expected_nonce);
+	                    #endif // else _ONE_NET_MULTI_HOP is not defined //
+					#endif
+
                 } // else handle the stream normally //
             } // if it's a stream packet //
             #ifdef _ONE_NET_MULTI_HOP

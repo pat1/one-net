@@ -1116,6 +1116,11 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
 {
     UInt8 data[ON_RESP_NONCE_LEN];
 
+    #ifdef _ENABLE_CLI
+	    oncli_send_msg("Top of on_build_response_pkt\n");
+	#endif
+
+
     #ifdef _ONE_NET_MULTI_HOP
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
               + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
@@ -1223,6 +1228,10 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
     return status;*/
 
     UInt8 data[ON_RESP_NONCE_LEN];
+	
+	#ifdef _CLI
+	    oncli_send_msg("Top of on_build_response_pkt_2_X\n");
+	#endif
 
     #ifdef _ONE_NET_MULTI_HOP
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
@@ -3558,6 +3567,10 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
     one_net_status_t status;
     UInt8 encoded_nonce;
 
+	#ifdef _CLI
+	    oncli_send_msg("Top of one_net_status_t rx_nonces\n");
+	#endif
+
     if(!txn_nonce || !next_nonce)
     {
         return ONS_BAD_PARAM;
@@ -3612,6 +3625,10 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
     UInt8 encoded_nonce;
 	UInt16 tmp;
 	UInt8 throw_away[9]; // temporary
+
+	#ifdef _ENABLE_CLI
+	    oncli_send_msg("Top of one_net_status_t rx_nonces_2_X\n");
+	#endif
 
     if(!txn_nonce || !next_nonce)
     {
