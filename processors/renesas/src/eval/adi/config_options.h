@@ -517,7 +517,7 @@
     #ifndef _DEBUG_DELAY
         // #define _DEBUG_DELAY
         // place the buffer size below.   TODO - possibly put this in some port specific file?
-        #define _DEBUG_DELAY_BUFFER_SIZE = 256
+        #define _DEBUG_DELAY_BUFFER_SIZE 256
 	#endif
 
 	
