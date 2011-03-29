@@ -1227,25 +1227,12 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
 
     return status;*/
 
-    UInt8 data[ON_RAW_ACK_NACK_PLD_LEN + 1];
-	int i;
-	UInt8 temp_enc[8];
+    UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1];
+    on_nack_rsn_t nack;
+	on_nack_rsn_t* nack_reason = &nack;
 	
-	// temporarily, to check, have it send 949c939a95999692 in encoded bytes 3 to 10
-	// If we sniff that, we know it worked.
-	
-	// copied from one_net_encode.  Temporary
-    const UInt8 RAW_TO_ENCODED[] =
-    {
-	    0xB4, 0xBC, 0xB3, 0xBA, 0xB5, 0xB9, 0xB6, 0xB2,
-	    0xC4, 0xCC, 0xC3, 0xCA, 0xC5, 0xC9, 0xC6, 0xC2,
-	    0x34, 0x3C, 0x33, 0x3A, 0x35, 0x39, 0x36, 0x32,
-	    0xA4, 0xAC, 0xA3, 0xAA, 0xA5, 0xA9, 0xA6, 0xA2,
-	    0x54, 0x5C, 0x53, 0x5A, 0x55, 0x59, 0x56, 0x52,
-	    0x94, 0x9C, 0x93, 0x9A, 0x95, 0x99, 0x96, 0x92,
-	    0x64, 0x6C, 0x63, 0x6A, 0x65, 0x69, 0x66, 0x62,
-	    0xD4, 0xDC, 0xD3, 0xDA, 0xD5, 0xD9, 0xD6, 0xD2
-    };
+	// make a phony nack for now.  It will be ignored.  Send it even if it's an ACK.
+	nack = ON_NACK_RSN_INVALID_UNIT_ERR;
 
     #ifdef _ONE_NET_MULTI_HOP
             if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
@@ -1259,45 +1246,44 @@ one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
 	
-
-    // build the data portion
-    data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
+	// add the nonces and, if present, the nack reason
+    raw_pld[ON_PLD_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
       & ON_TXN_NONCE_BUILD_MASK;
-    data[ON_RESP_RESP_NONCE_HIGH_IDX] |=
-      (EXPECTED_NONCE >> ON_RESP_NONCE_HIGH_SHIFT)
-      & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    data[ON_RESP_RESP_NONCE_LOW_IDX] =
-      (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
-      & ON_RESP_NONCE_BUILD_LOW_MASK;
-
-    for(i = 3; i < ON_RAW_ACK_NACK_PLD_LEN + 1; i++)
+    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (EXPECTED_NONCE
+      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (EXPECTED_NONCE << 
+      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
+	
+	if(nack_reason)
 	{
-		data[i] = 0;
+        raw_pld[ON_PLD_NACK_HIGH_IDX] |= ((*nack_reason)
+          >> ON_NACK_HIGH_SHIFT) & ON_NACK_BUILD_HIGH_MASK;
+        raw_pld[ON_PLD_NACK_LOW_IDX] = ((*nack_reason) << ON_NACK_LOW_SHIFT)
+          & ON_NACK_BUILD_LOW_MASK;
 	}
-    for(i = 0; i < 8; i++)
-	{
-		temp_enc[i] = RAW_TO_ENCODED[i + 0x28]; // 949c939a95999692
-	}	
-	on_decode(&(data[3]), temp_enc, 8); // decode it, stick it in raw packet.
-	                                    // on_build_pkt function will encode it.
-										// This is just a test to see if we can
-										// sniff it.
+	
+	// TODO - add random padding here.
+
+    // compute the crc from the last 7 of the 8 bytes that are to be encrypted
+    raw_pld[ON_PLD_CRC_IDX] = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
+      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
+      ON_PLD_CRC_ORDER);
+	  
+	// TODO - encrypt the first 8 bits of raw_pld here
+	// TODO - add the unencrypted left-justified encryption technique to raw_pld here.
 	
 	#ifdef _DEBUG_DELAY
-        debug_delay("Sending Response : PID=%d: TXN=%d RESP=%d : raw=0x", PID, TXN_NONCE, EXPECTED_NONCE);
-		for(i = 0; i < 9; i++)
-		{
-			debug_delay("%02x", data[i]);
-		}		
+        debug_delay("Sending Response : PID=%02x: TXN=%d RESP=%d CRC=%02x\n",
+		  PID, TXN_NONCE, EXPECTED_NONCE, raw_pld[0]);
 		debug_delay("\n");
 	#endif
 
     #ifdef _ONE_NET_MULTI_HOP
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
               ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
     #else // ifdef _ONE_NET_MULTI_HOP //
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
-            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
+            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
+            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an extra byte 
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 }
 
@@ -3650,66 +3636,80 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
   UInt8 * const next_nonce)
 {
     one_net_status_t status;
-    UInt8 encoded_nonce;
-	UInt16 tmp;
-	int i;
-	UInt8 throw_away[9]; // temporarily throw the excess away for now
+	UInt8 calc_crc, payload_crc;
+	
+	// TODO - replace with a parameter passed to the function
+	on_nack_rsn_t nack;
+	on_nack_rsn_t* nack_reason = &nack;
+	
+    UInt8 encoded_pld[ON_RESP_NONCE_LEN];
+	UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // add 1 for encryption technique
 
     if(!txn_nonce || !next_nonce)
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
 
-    // txn nonce
-    if(one_net_read(&encoded_nonce, sizeof(encoded_nonce))
-      != sizeof(encoded_nonce))
+
+
+    // read in all the encoded bytes
+    if(one_net_read(encoded_pld, ON_RESP_NONCE_LEN)
+      != ON_RESP_NONCE_LEN)
     {
         return ONS_READ_ERR;
     } // if reading the transaction nonce failed //
 
-    if((status = on_decode(txn_nonce, &encoded_nonce, sizeof(encoded_nonce)))
+    if((status = on_decode(raw_pld, encoded_pld, ON_RESP_NONCE_WORD_SIZE))
       != ONS_SUCCESS)
     {
         return status;
     } // if decoding the transaction nonce failed //
 
-    // next nonce
-    if(one_net_read(&encoded_nonce, sizeof(encoded_nonce))
-      != sizeof(encoded_nonce))
-    {
-        return ONS_READ_ERR;
-    } // if reading the transaction nonce failed //
+    // TODO check encryption technique, get encryption key
+    // TODO - decrypt raw_pld
 
-    if((status = on_decode(next_nonce, &encoded_nonce, sizeof(encoded_nonce)))
-      != ONS_SUCCESS)
-    {
-        return status;
-    } // if decoding the transaction nonce failed //
-
-    *txn_nonce >>= ON_TXN_NONCE_SHIFT;
-    *txn_nonce &= ON_TXN_NONCE_PARSE_MASK;
-
-    *next_nonce >>= ON_TXN_NONCE_SHIFT;
-    *next_nonce &= ON_TXN_NONCE_PARSE_MASK;
+    // we now have a decoded, decrypted payload of 9 bytes.  We only care about the
+	// leftmost eight bytes.
 	
-	// just read the excess in, display it to debug, and throw it away for now
-	if((tmp = one_net_read(throw_away, 9)) != 9)
+	// calculate a CRC and compare to the payload crc
+	calc_crc = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
+      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
+      ON_PLD_CRC_ORDER);
+	  
+	payload_crc = raw_pld[ON_PLD_CRC_IDX];
+	if(calc_crc != payload_crc)
 	{
+		// Error : crc's do not match
+		// TODO - fill in nack_reason with a bad CRC NACK reason.
+		
+		// for now, log it to debug.
 		#ifdef _DEBUG_DELAY
-    	    debug_delay("Error : rx_nonces_2_X : one_net_read returned %d\n",
-			    tmp);
+		    debug_delay("Error : rx_nonces_2_X : calc_crc=%d, payload_crc=%d\n",
+			    calc_crc, palyload_crc);
 		#endif
-		return ONS_READ_ERR;
+		
+		return ONS_CRC_FAIL;		
 	}
+	
+	// now grab the nonces and, if present, the nack reason.
+	
+	// get the transaction nonce
+    *txn_nonce = (raw_pld[ON_PLD_TXN_NONCE_IDX] >> ON_TXN_NONCE_SHIFT)
+      & ON_TXN_NONCE_PARSE_MASK;
 
-    #ifdef _DEBUG_DELAY
-	    debug_delay("rx_nonces_2_X : %d %d : 0x", *txn_nonce, *next_nonce);
-	    for(i = 0; i < 9; i++)
-	    {
-		    debug_delay("%02x", throw_away[i]);
-	    }
-		debug_delay("\n");
-	#endif
+    // get the response nonce
+    *next_nonce = (raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX]
+      << ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_PARSE_HIGH_MASK;
+    *next_nonce |= (raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] >> ON_RESP_NONCE_LOW_SHIFT)
+      & ON_RESP_NONCE_PARSE_LOW_MASK;
+
+    if(nack_reason)
+	{
+        *nack_reason = (raw_pld[ON_PLD_NACK_HIGH_IDX]
+          << ON_NACK_HIGH_SHIFT) & ON_NACK_PARSE_HIGH_MASK;
+        *nack_reason |= (raw_pld[ON_PLD_NACK_LOW_IDX] >> ON_NACK_LOW_SHIFT)
+          & ON_NACK_PARSE_LOW_MASK;
+	}
 		
     return ONS_SUCCESS;
 } // rx_nonces_2_X
