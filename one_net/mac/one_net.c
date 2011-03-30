@@ -2601,7 +2601,7 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
 		case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
 		#ifdef _ONE_NET_MULTI_HOP
 		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_WAKE:
+//		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_WAKE:
 		#endif
 		    #ifdef _ONE_NET_VERSION_2_X
 			    needNackReason = FALSE;
