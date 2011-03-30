@@ -2547,12 +2547,12 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
     const one_net_xtea_key_t* const key = &(on_base_param->current_key);
 
     #ifdef _ONE_NET_VERSION_2_X
-/*        ona_msg_class_t msg_class;
+        ona_msg_class_t msg_class;
 		ona_msg_type_t type;
 		BOOL useDefaultHandling = TRUE;
 		UInt8 src_unit;
 		UInt8 dst_unit;
-		UInt16 msg_data;*/
+		UInt16 msg_data;
         on_nack_rsn_t nack_reason;
 	#endif
 	
@@ -2631,6 +2631,15 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
                     } // if waiting for a stream data response //
                 #endif // ifndef _ONE_NET_SIMPLE_CLIENT //
 
+                #ifdef _ONE_NET_VERSION_2_X			   
+                    nack_reason = on_parse_single_app_pld(&(pld[ON_PLD_DATA_IDX]), &src_unit,
+                        &dst_unit, &msg_class, &type, &msg_data);
+						
+					#ifdef _DEBUG_DELAY
+		                debug_delay("nack_reason = %02x\n", nack_reason);
+	                #endif
+				#endif
+
 /*#ifndef _ONE_NET_VERSION_2_X*/
                 if(!one_net_client_handle_single_pkt(&(pld[ON_PLD_DATA_IDX]),
                   ONE_NET_RAW_SINGLE_DATA_LEN,
@@ -2652,8 +2661,7 @@ static one_net_status_t send_settings_resp(const on_encoded_did_t * const DST)
 					// nack_reason as the reason
                     status = ONS_UNHANDLED_PKT;
                 } // if master is not handling the packet //
-#endif	*/			   
-
+#endif	*/
                 break;
             } // application message case //
 

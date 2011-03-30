@@ -2610,12 +2610,12 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
     #endif
 	
     #ifdef _ONE_NET_VERSION_2_X
-/*        ona_msg_class_t msg_class;
+        ona_msg_class_t msg_class;
 		ona_msg_type_t type;
 		BOOL useDefaultHandling = TRUE;
 		UInt8 src_unit;
 		UInt8 dst_unit;
-		UInt16 msg_data;*/
+		UInt16 msg_data;
         on_nack_rsn_t nack_reason;
 	#endif
 
@@ -2714,6 +2714,15 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                 } // if waiting for the stream data response //
 
 
+                #ifdef _ONE_NET_VERSION_2_X			   
+                    nack_reason = on_parse_single_app_pld(&(pld[ON_PLD_DATA_IDX]), &src_unit,
+                        &dst_unit, &msg_class, &type, &msg_data);
+						
+					#ifdef _DEBUG_DELAY
+		                debug_delay("nack_reason = %02x\n", nack_reason);
+	                #endif
+				#endif
+
 /*#ifndef _ONE_NET_VERSION_2_X*/
                 if(!one_net_master_handle_single_pkt(&(pld[ON_PLD_DATA_IDX]),
                   ONE_NET_RAW_SINGLE_DATA_LEN,
@@ -2736,6 +2745,8 @@ one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
                     status = ONS_UNHANDLED_PKT;
                 } // if master is not handling the packet //
 #endif*/
+
+
                 break;
             } // application message case //
 
