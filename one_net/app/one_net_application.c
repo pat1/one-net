@@ -40,15 +40,24 @@
     this code for their application.
 */
 
+#include "config_options.h"
+
 #include "one_net.h"
 #include "one_net_application.h"
 #include "one_net_port_specific.h"
 
 // include proper heading, depending on Master/Client
+// 3/30/2011 - can be both master and client, like Eval Board.  Also need
+// ONE_NET_NUM_UNITS now, so need one_net_client_port_const.h
 #ifdef _ONE_NET_MASTER
     #include "one_net_master.h"
-#else
+	#include "one_net_port_const.h"
+#endif
+#ifdef _ONE_NET_CLIENT
     #include "one_net_client.h"
+	#ifdef _ONE_NET_VERSION_2_X
+	    #include "one_net_client_port_const.h"
+	#endif
 #endif
 
 //==============================================================================
@@ -140,7 +149,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 
 
 // TODO any reason why this needs to only be in 2.0?
-/*#ifdef _ONE_NET_VERSION_2_X*/
+#ifdef _ONE_NET_VERSION_2_X
 /*!
     \brief Parses the 5 byte payload of a single application packet
 
@@ -154,7 +163,7 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
     \return ON_NACK_RSN_NO_ERROR if parsing was successful			
             See on_nack_rsn_t for more possible return values.
 */
-/*on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
+on_nack_rsn_t on_parse_single_app_pld(const UInt8 * const pld, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class,
   ona_msg_type_t* const msg_type, UInt16* const msg_data)
 {
@@ -174,11 +183,39 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
     *msg_class =  hdr & ONA_MSG_CLASS_MASK;
     *msg_type  = hdr & (~ONA_MSG_CLASS_MASK);
 	
-	// TODO : Put checking here for validity
+	#ifdef _DEBUG_DELAY
+		debug_delay("on_parse_single_app_pld: pld= %02x %02x %02x %02x %02x : ",
+		    pld[0], pld[1], pld[2], pld[3], pld[4]);
+		debug_delay("src_unit = %02x : ", *src_unit);
+		debug_delay("dst_unit = %02x : ", *dst_unit);
+	    debug_delay("msg_class = %04x : ", *msg_class);
+	    debug_delay("msg_type = %03x : ", *msg_type);
+	    debug_delay("msg_data = %04x\n", *msg_data);
+	#endif
+
+    // check validity
+	switch(*msg_class)
+	{
+		case ONA_COMMAND: case ONA_QUERY: case ONA_STATUS:
+		#ifdef _POLL
+		case ONA_POLL:
+	    #endif
+		    break;
+		default: return ON_NACK_RSN_DEVICE_FUNCTION_ERR; // message class not
+		                                                 // supported
+	}
 	
+	if(*dst_unit >= ONE_NET_NUM_UNITS && *dst_unit != ONE_NET_DEV_UNIT)
+	{
+		// destination unit does not refer to the device as a whole and does not
+		// correspond to a unit on this device
+		return ON_NACK_RSN_INVALID_UNIT_ERR;
+	}
+	
+
 	return ON_NACK_RSN_NO_ERROR;
 }
-#endif*/
+#endif
 
 
 #ifndef _ONE_NET_MASTER
