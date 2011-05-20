@@ -1493,6 +1493,27 @@ tick_t one_net_client(void)
                 } // if the CLIENT has joined the network //
                 else
                 {
+                    // Derek_S 5/19/2011 - if something happens to the master for
+                    // some reason or if something else goes wrong period, the
+                    // attempts to send a status update will go on forever if we
+                    // don't put a stop to it!
+
+                    // TODO : This is a bit clumsy and I'm not sure things even work
+                    // doing it this way.  This needs to be revisited/improved.  But at
+                    // least it no longer endlessly clogs the air with messages.
+                    static UInt8 num_stat_update_attempts = 0;
+                    if(num_stat_update_attempts > 10)
+                    {
+                        txn = 0;
+                        client_joined_network = FALSE;
+                        client_looking_for_invite = TRUE;
+                        on_state = ON_JOIN_NETWORK;
+                        num_stat_update_attempts = 0;
+                        break;
+                    }
+                    num_stat_update_attempts++;
+
+
                     // try sending the transaction again since the device needs
                     // to complete the join.  The packet may need to be rebuilt
                     // if the MASTER corrected the nonce to use
