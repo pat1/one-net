@@ -75,19 +75,11 @@
 #include "uart.h"
 #endif
 
+#include "str.h"
 #include "dfi.h"
 
 extern BOOL client_joined_network;
 extern one_net_raw_did_t client_did;
-
-
-#ifdef _ONE_NET_EVAL
-// defined in one_net_master.c, for eval board only
-extern void on_master_force_save(void);
-
-// defined in one_net_client.c, for eval board only
-extern void on_client_force_save(void);
-#endif
 
 
 //==============================================================================
@@ -171,15 +163,6 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_DUMP_COMMAND 
 	static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-#ifdef _ENABLE_MEMDUMP_COMMAND 
-	static oncli_status_t memdump_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
-#ifdef _ENABLE_MEMLOAD_COMMAND 
-    static oncli_status_t memload_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
-#if defined(_ENABLE_MEMDUMP_COMMAND) || defined(_ENABLE_MEMLOAD_COMMAND)
-    static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16* length);
-#endif
 #ifdef _ENABLE_RSINGLE_COMMAND 
 	static oncli_status_t rsend_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -189,20 +172,11 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
-#ifdef _ENABLE_IDLE_COMMAND
-    static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST);
-#endif
 
 // MASTER only command handlers
 #ifdef _ENABLE_INVITE_COMMAND
 	static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-
-#ifdef _DEBUG_DELAY
-    static oncli_status_t print_debug_delay_cmd_hdlr(void);
-    static oncli_status_t clear_debug_delay_cmd_hdlr(void);
-#endif
-
 #ifdef _ENABLE_CANCEL_INVITE_COMMAND
 	static oncli_status_t cancel_invite_cmd_hdlr(void);
 #endif
@@ -265,11 +239,6 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-	static oncli_status_t display_chip_constants_cmd_hdlr(void);
-    static void oncli_display_chip_constants(void);
-#endif
-
 // parsing functions
 static const char * parse_ascii_tx_param(const char * PARAM_PTR,
   UInt8 * const src_unit, UInt8 * const dst_unit, one_net_raw_did_t * const dst,
@@ -287,6 +256,11 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 //  defined(_ENABLE_INVITE_COMMAND)
 static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel);
 //#endif
+
+static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
+  const unsigned int NUM_ASCII_CHAR);
+
+BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 //! @} oncli_hdlr_pri_func
 //						PRIVATE FUNCTION DECLARATIONS END
@@ -377,23 +351,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // if the set pin command was received //
 	#endif
 	
-	#ifdef _ENABLE_IDLE_COMMAND
-    if(!strnicmp(ONCLI_IDLE_CMD_STR, CMD, strlen(ONCLI_IDLE_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_IDLE_CMD_STR;
-
-        if(CMD[strlen(ONCLI_IDLE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &idle_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // if the set pin command was received //
-	#endif
-		
 	#ifdef _ENABLE_SET_VALUE_COMMAND
     if(!strnicmp(ONCLI_SET_VALUE_CMD_STR, CMD, strlen(ONCLI_SET_VALUE_CMD_STR)))
     {
@@ -503,42 +460,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the dump command was received //
 	#endif
-	
-	#ifdef _ENABLE_MEMDUMP_COMMAND 
-    if(!strnicmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_MEMDUMP_CMD_STR;
-
-        if(CMD[strlen(ONCLI_MEMDUMP_CMD_STR)]
-          != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &memdump_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the memdump command was received //
-	#endif
-	
-	#ifdef _ENABLE_MEMLOAD_COMMAND 
-    if(!strnicmp(ONCLI_MEMLOAD_CMD_STR, CMD, strlen(ONCLI_MEMLOAD_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_MEMLOAD_CMD_STR;
-
-        if(CMD[strlen(ONCLI_MEMLOAD_CMD_STR)]
-          != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &memload_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the memload command was received //
-	#endif	
 
 	#ifdef _ENABLE_RSINGLE_COMMAND 
     if(!strnicmp(ONCLI_RSEND_CMD_STR, CMD, strlen(ONCLI_RSEND_CMD_STR)))
@@ -584,46 +505,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return list_cmd_hdlr();
     } // else if the list command was received //
-	#endif
-	
-    #ifdef _DEBUG_DELAY
-    if(!strnicmp(ONCLI_PRINT_DEBUG_DELAY_CMD_STR, CMD, strlen(ONCLI_PRINT_DEBUG_DELAY_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_PRINT_DEBUG_DELAY_CMD_STR;
-
-        if(CMD[strlen(ONCLI_PRINT_DEBUG_DELAY_CMD_STR)] != '\n')
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        return print_debug_delay_cmd_hdlr();
-    } // else if the print_debug_delay command was received //
-	
-    if(!strnicmp(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR, CMD, strlen(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_CLEAR_DEBUG_DELAY_CMD_STR;
-
-        if(CMD[strlen(ONCLI_CLEAR_DEBUG_DELAY_CMD_STR)] != '\n')
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        return clear_debug_delay_cmd_hdlr();
-    } // else if the clear_debug_delay command was received //	
-    #endif
-
-	#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-    if(!strnicmp(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR, CMD, strlen(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_LIST_CMD_STR;
-
-        if(CMD[strlen(ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR)] != '\n')
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        return display_chip_constants_cmd_hdlr();
-    } // else if the display_chip_constants command was received //
 	#endif
 
 	#ifdef _ENABLE_INVITE_COMMAND
@@ -1748,182 +1629,6 @@ static oncli_status_t dump_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_MEMDUMP_COMMAND
-/*!
-    \brief Dumps volatile memory to UART
-    
-    The memdump command has the form
-    
-    memdump:master_param or memdump:base_param or memdump:peer or memdump:client_list
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly or a parameter is invalid.
-            ONCLI_CMD_FAIL If the parameters are valid, but the system cannot successfully
-			  complete the transaction for whatever reason.
-*/
-static oncli_status_t memdump_cmd_hdlr(const char* const ASCII_PARAM_LIST)
-{
-	UInt16 length = 0;
-    UInt8* startAddress = get_load_dump_address(ASCII_PARAM_LIST, &length);
-	
-	if(startAddress == 0 || length == 0)
-	{
-		return ONCLI_PARSE_ERR;
-	}
-
-    if(dump_volatile_memory(startAddress, length))
-	{
-		return ONCLI_SUCCESS;
-	}
-
-    return ONCLI_CMD_FAIL;
-}
-#endif
-
-
-#ifdef _ENABLE_MEMLOAD_COMMAND
-/*!
-    \brief Loads data from UART into volatile memory
-    
-    The memload command has the form
-    
-    memload:master_param or memload:base_param or memload:peer or memload:client_list
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly or a parameter is invalid.
-            ONCLI_CMD_FAIL If the parameters are valid, but the system cannot successfully
-			  complete the transaction for whatever reason.
-*/
-static oncli_status_t memload_cmd_hdlr(const char* const ASCII_PARAM_LIST)
-{
-	UInt16 length = 0;
-    UInt8* startAddress = get_load_dump_address(ASCII_PARAM_LIST, &length);
-	
-	if(startAddress == 0 || length == 0)
-	{
-		return ONCLI_PARSE_ERR;
-	}
-
-    if(load_volatile_memory(startAddress))
-	{
-        if(oncli_is_master())
-	    {
-		    on_master_force_save();
-	    }
-	    else
-	    {
-            on_client_force_save();
-	    }
-		return ONCLI_SUCCESS;
-	}
-
-    return ONCLI_RSRC_UNAVAILABLE;
-}
-#endif
-
-
-#if defined(_ENABLE_MEMDUMP_COMMAND) || defined(_ENABLE_MEMLOAD_COMMAND)
-static UInt8* get_load_dump_address(const char * const ASCII_PARAM_LIST, UInt16* length)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    char * end_ptr = 0;
-    UInt8* startAddress = 0;
-	UInt8 * nv_ptr;
-	
-	const char* const BASE_PARAM_STR = "base_param";
-    #ifdef _PEER
-	    const char* const PEER_STR = "peer";
-	#endif
-    #ifdef _ONE_NET_MASTER
-	    BOOL isMaster;
-
-	    const char* const MASTER_PARAM_STR = "master_param";
-	    const char* const CLIENT_LIST_STR = "client_list";
-		isMaster = oncli_is_master();
-	#endif
-	
-    nv_ptr = oncli_get_param();
-	if (nv_ptr == 0 || !ASCII_PARAM_LIST || !length)
-	{
-        return 0;
-	}
-
-    if(!strnicmp(PARAM_PTR, BASE_PARAM_STR, strlen(BASE_PARAM_STR)))
-    {
-        startAddress = (UInt8*) nv_ptr;
-		*length = sizeof(on_base_param_t);
-        PARAM_PTR += strlen(BASE_PARAM_STR);
-    } // base_param memory location //
-#ifdef _PEER
-    else if(!strnicmp(PARAM_PTR, PEER_STR, strlen(PEER_STR)))
-    {
-	#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
-	    if(isMaster)
-		{
-			if(!master_get_peer_assignment_to_save(&startAddress, length))
-			{
-				return ONCLI_RSRC_UNAVAILABLE_STR;
-			}      
-		}
-		else
-		{
-			startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-			*length = sizeof(on_peer_t);
-		}
-	#elif defined(_ONE_NET_MASTER)
-		if(!master_get_peer_assignment_to_save(&startAddress, length))
-		{
-			return ONCLI_RSRC_UNAVAILABLE_STR;
-		}   	
-	#else
-	    startAddress =(UInt8*) (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_t));
-        *length = sizeof(on_peer_t);
-	#endif
-        PARAM_PTR += strlen(PEER_STR);
-    } // base_param memory location //
-#endif
-#ifdef _ONE_NET_MASTER
-    else if(isMaster)
-	{		
-        if(!strnicmp(PARAM_PTR, MASTER_PARAM_STR, strlen(MASTER_PARAM_STR)))
-		{
-			startAddress = (UInt8*) nv_ptr + sizeof(on_base_param_t);
-			*length = sizeof(on_master_param_t);
-			PARAM_PTR += strlen(MASTER_PARAM_STR);
-		}// master_param memory location //
-        else if(!strnicmp(PARAM_PTR, CLIENT_LIST_STR, strlen(CLIENT_LIST_STR)))
-		{
-			startAddress = (UInt8*) nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_param_t);
-			*length = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
-			PARAM_PTR += strlen(CLIENT_LIST_STR);
-		}// client_list memory location //
-		else
-		{
-			return 0;
-		} // else we can't figure out what memory the parameters are referring to //
-	}
-#endif
-    else
-    {
-        return 0;
-    } // else we can't figure out what memory the parameters are referring to //
-    
-    if(*PARAM_PTR != '\n')
-    {
-        return 0;
-    } // if the data is not formatted correctly //
-	
-	return startAddress;
-}
-#endif
-
-
 #ifdef _ENABLE_RSINGLE_COMMAND
 /*!
     \brief Repeat sending messages
@@ -2018,22 +1723,6 @@ static oncli_status_t rssi_cmd_hdlr(void)
 #endif
 
 
-#ifdef _DEBUG_DELAY
-    static oncli_status_t print_debug_delay_cmd_hdlr(void)
-	{
-		print_debug_delay();
-		return ONCLI_SUCCESS;
-	}
-	
-	
-    static oncli_status_t clear_debug_delay_cmd_hdlr(void)
-	{
-		clear_debug_delay();
-		return ONCLI_SUCCESS;
-	}
-#endif
-
-
 #ifdef _ENABLE_LIST_COMMAND
 /*!
     \brief Prints information about the current configuration
@@ -2047,66 +1736,22 @@ static oncli_status_t list_cmd_hdlr(void)
 {
     one_net_raw_did_t raw_did;
     UInt8 * nv_ptr;
-    on_base_param_t * on_base_param = 0;
+    on_base_param_t * on_base_param;
     on_master_param_t * master_param;
     on_client_t * client_list;
     one_net_raw_did_t tmp_client_did;
 
-#ifdef _ONE_NET_EVAL
-    // update parameters by "saving" them.  Hopefully doesn't actually save them?
-#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MASTER)
-    BOOL isMaster = oncli_is_master();
-    if(isMaster)
-	{
-		on_master_force_save();
-	}
-	else
-	{
-        on_client_force_save();
-	}
-#elif defined(_ONE_NET_MASTER)
-    BOOL isMaster = TRUE;
-	on_master_force_save();
-#else
-    BOOL isMaster = FALSE;
-	on_client_force_save();
-#endif
-#endif
-
-    nv_ptr = oncli_get_param();
-	if (nv_ptr != (UInt8 *) 0)
-	{
-	    on_base_param = (on_base_param_t *) nv_ptr;
-	}
-
     oncli_send_msg(ONCLI_STARTUP_FMT, MAJOR_VER, MINOR_VER, 0);
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, REVISION_NUM, BUILD_NUM);
+
     oncli_print_invite(FALSE);
-	delay_ms(50);
-
-    // I don't THINK on_base_param would ever be NULL, but testing here anyway.  Getting a warning still.
-	if(on_base_param != 0 && (isMaster || client_joined_network))
-	{
-        // print encryption keys
-		oncli_send_msg    ("Non-stream message key : ");
-	    oncli_print_xtea_key(&(on_base_param->current_key));
-        oncli_send_msg("\n");
-		delay_ms(50);
-    	#ifdef _STREAM_MESSAGES_ENABLED
-		    oncli_send_msg("Stream message key     : ");
-	        oncli_print_xtea_key(&(on_base_param->stream_key));			
-            oncli_send_msg("\n");
-			delay_ms(50);
-		#endif
-	}
-
     oncli_print_nid(FALSE);
 	
 	// 1/25/2010 - now displaying channel for both master and client
     oncli_send_msg("Channel: ");
     oncli_print_channel(FALSE);
 		
-    if (isMaster)
+    if (oncli_is_master() == TRUE)
     {
         //
         // handle master specific output
@@ -2125,10 +1770,12 @@ static oncli_status_t list_cmd_hdlr(void)
         //
         // print the client list
         //
+        nv_ptr = oncli_get_param();
         if (nv_ptr != (UInt8 *) 0)
         {
             UInt8 i;
-    
+
+            on_base_param = (on_base_param_t *) nv_ptr;
             master_param = (on_master_param_t *)(nv_ptr + sizeof(on_base_param_t));
             client_list = (on_client_t *)
               (nv_ptr + sizeof(on_base_param_t) + sizeof(on_master_param_t));
@@ -2181,6 +1828,7 @@ static oncli_status_t list_cmd_hdlr(void)
         //
         // print this client's peer list
         //
+        nv_ptr = oncli_get_param();
         if (nv_ptr != (UInt8 *) 0)
         {
             UInt8 index,j,count;
@@ -2220,82 +1868,6 @@ static oncli_status_t list_cmd_hdlr(void)
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
-#endif
-
-
-#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-/*!
-    \brief Displaya some #define and constant values 
-    
-    \param void
-    
-    \return ONCLI_SUCCESS if the command was succesful
-*/
-static oncli_status_t display_chip_constants_cmd_hdlr(void)
-{
-	oncli_display_chip_constants();
-    return ONCLI_SUCCESS;
-}
-#endif
-
-
-#ifdef _ENABLE_IDLE_COMMAND
-/*!
-    \brief Sets the microcontroller into or idle mode or removes it from idle mode.
-    
-    The idle command has the form
-    
-    idle:on or idle:off
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            See oncli_invite for more possible return values.
-*/
-static oncli_status_t idle_cmd_hdlr(const char* const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    char * end_ptr = 0;
-    on_state_t newState;
-	
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-	
-    // read in the value to set idle to (on, off)
-    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
-    {
-        newState = ON_IDLE;
-        PARAM_PTR += strlen(ONCLI_ON_STR);
-    } // if it should be an input //
-    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
-    {
-        newState = ON_LISTEN_FOR_DATA;
-        PARAM_PTR += strlen(ONCLI_OFF_STR);
-    } // else if it should be an output //
-    else
-    {
-        return ONCLI_PARSE_ERR;
-    } // else if the priority is invalid //
-    
-    if(*PARAM_PTR != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    } // if the data is not formatted correctly //
-
-    if(set_on_state(newState))
-	{
-        return ONCLI_SUCCESS;
-	}
-	
-	// if we're "busy" and cannot change state
-	return ONCLI_RSRC_UNAVAILABLE;
-}
 #endif
 
 
@@ -3354,143 +2926,6 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#if defined(_ONE_NET_EVAL) && defined(_ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND)
-/*!
-    \brief Sends some #define values and constants down the UART
-	
-	\param none
-    
-    This may be needed for a variety of purposes, but mostly for determining the
-	size of memory blocks for memory transfers.
-*/
-static void oncli_display_chip_constants()
-{
-	one_net_raw_did_t raw_did;
-	
-    // update parameters by "saving" them.  Hopefully doesn't actually save them?
-#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MASTER)
-    BOOL isMaster = oncli_is_master();
-	UInt16 endianTest16;
-	UInt8* endianTest8;
-	
-    if(isMaster)
-	{
-		on_master_force_save();
-	}
-	else
-	{
-        on_client_force_save();
-	}
-#elif defined(_ONE_NET_MASTER)
-    BOOL isMaster = TRUE;
-	on_master_force_save();
-#else
-    BOOL isMaster = FALSE;
-	on_client_force_save();
-#endif
-
-	if(isMaster)
-	{
-		oncli_send_msg("Device Type:Master\n");
-		if (get_raw_master_did(&raw_did) != TRUE)
-        {
-            raw_did[0] = 0x00;
-            raw_did[1] = 0x00;
-        }
-		
-        #ifdef _ONE_NET_MASTER
-		    oncli_send_msg("ONE_NET_MASTER_MAX_CLIENTS:%d\n", ONE_NET_MASTER_MAX_CLIENTS);
-		#endif
-	}
-	else
-	{
-		oncli_send_msg("Device Type:Client\n");
-        if (!client_joined_network)
-        {
-            //
-            // we have not joined the network yet
-            //
-            raw_did[0] = 0x00;
-			raw_did[1] = 0x00;
-        }
-        else
-        {
-            //
-            // we have joined the network
-            //
-			raw_did[0] = client_did[0];
-			raw_did[1] = client_did[1];
-        }
-	}
-	
-	oncli_send_msg("Raw DID:%d\n", did_to_u16(&raw_did));
-	
-    #ifdef _PEER
-        oncli_send_msg("_PEER:defined\n");
-    #else
-        oncli_send_msg("_PEER:undefined\n");
-    #endif
-	
-	delay_ms(40);
-
-    #ifdef _ONE_NET_MULTI_HOP
-        oncli_send_msg("_ONE_NET_MULTI_HOP:defined\n");
-    #else
-        oncli_send_msg("_ONE_NET_MULTI_HOP:undefined\n");
-    #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-        oncli_send_msg("_STREAM_MESSAGES_ENABLED:defined\n");
-    #else
-        oncli_send_msg("_STREAM_MESSAGES_ENABLED:undefined\n");
-    #endif
-
-    #ifdef _US_CHANNELS
-        oncli_send_msg("_US_CHANNELS:defined\n");
-    #else
-        oncli_send_msg("_US_CHANNELS:undefined\n");
-    #endif
-
-    #ifdef _EUROPE_CHANNELS
-        oncli_send_msg("_EUROPE_CHANNELS:defined\n");
-    #else
-        oncli_send_msg("_EUROPE_CHANNELS:undefined\n");
-    #endif
-	
-	delay_ms(40);
-	
-    #ifdef _PEER
-        if(isMaster)
-		{
-            oncli_send_msg("NUM_MASTER_PEER:%d\n", NUM_MASTER_PEER);
-        }
-        else
-        {
-            oncli_send_msg("ONE_NET_MAX_PEER_DEV:%d\n", ONE_NET_MAX_PEER_DEV);
-            oncli_send_msg("ONE_NET_MAX_PEER_UNIT:%d\n", ONE_NET_MAX_PEER_UNIT);
-        }
-    #endif
-	
-	// knowing whether endianness is big or little would be useful
-	endianTest16 = 0x0001; // this will be stored as 00 01 for big of 01 00 for little
-	endianTest8 = (UInt8*) &endianTest16; // endianTest8 points to first byte
-	oncli_send_msg("endian:");
-	if(*endianTest8 == 0)
-	{
-		oncli_send_msg("big\n");
-	}
-	else
-	{
-		oncli_send_msg("little\n");
-	}
-	
-	/* Add any other things you want to display here */
-	
-	oncli_send_msg("DONE\n");
-}
-#endif
-
-
 /*!
     \brief Handles receiving the mode command and all it's parameters
     
@@ -4002,6 +3437,61 @@ static oncli_status_t parse_channel(const char * ASCII, UInt8 * const channel)
 //#endif
 
 
+/*!
+    \brief Converts a string of ASCCI hex digits to a byte stream.
+    
+    \param[in] STR The ASCII string of hex digits.
+    \param[out] byte_stream The byte stream that results from STR
+    \param[in] NUM_ASCII_CHAR The number of ascii characters to convert.  This
+      is really twice the number of bytes that were converted.
+    
+    \return The number of ASCII characters that were converted.
+*/
+static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
+  const UInt16 NUM_ASCII_CHAR)
+{
+    UInt16 num_converted;
+    
+    UInt8 hex;
+
+    if(!STR || !byte_stream || !NUM_ASCII_CHAR)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+
+    for(num_converted = 0; num_converted < NUM_ASCII_CHAR; num_converted++)
+    {
+        hex = ascii_hex_to_nibble(STR[num_converted]);
+        if(hex > 0x0F)
+        {
+            break;
+        } // if the conversion failed //
+
+        if(num_converted & 0x01)
+        {
+            byte_stream[num_converted >> 1] |= hex;
+        } // if the second nibble in the byte //
+        else
+        {
+            byte_stream[num_converted >> 1] = hex << 4;
+        } // else the first nibble in the byte //
+    } // loop to convert payload from ascii //
+    
+    return num_converted;
+} // ascii_hex_to_byte_stream //
+
+
+/*!
+    \brief Checks if a given character is a valid ONE-NET unique key character.
+    
+    Valid unique key for adding devices characters are '2' - '9', and 'A' - 'Z'
+    except for 'O' & 'L'.  The key is case sensitive.
+*/
+BOOL oncli_is_valid_unique_key_ch(const char CH)
+{
+    return (BOOL)(isalnum(CH) && CH >= '2'
+      && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
+} // oncli_is_valid_unique_key_ch //
 
 //! @} oncli_hdlr_pri_func
 //						PRIVATE FUNCTION IMPLEMENTATION END

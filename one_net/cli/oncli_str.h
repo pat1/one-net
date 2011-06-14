@@ -96,12 +96,6 @@ extern const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
 extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
 extern const char * const ONCLI_DATA_RATE_TEST_RESULT_FMT;
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
-
-#ifdef _DEBUG_DELAY
-    extern const char* const ONCLI_PRINT_DEBUG_DELAY_CMD_STR;
-    extern const char* const ONCLI_CLEAR_DEBUG_DELAY_CMD_STR;
-#endif
-
 #ifdef _ONE_NET_DEBUG
     //! debug format strings
     extern const char * const ONCLI_DEBUG_PREFIX_STR;
@@ -146,9 +140,6 @@ enum {ONCLI_FATAL_ERR_1_LEN = 15};
 
 
 // Command Strings
-#ifdef _ENABLE_IDLE_COMMAND
-extern const char * const ONCLI_IDLE_CMD_STR;
-#endif
 extern const char * const ONCLI_SINGLE_CMD_STR;
 extern const char * const ONCLI_SET_PIN_CMD_STR;
 extern const char * const ONCLI_SET_VALUE_CMD_STR;
@@ -161,14 +152,6 @@ extern const char * const ONCLI_SAVE_CMD_STR;
 
 #ifdef _ENABLE_DUMP_COMMAND
 extern const char * const ONCLI_DUMP_CMD_STR;
-#endif
-
-#ifdef _ENABLE_MEMDUMP_COMMAND
-extern const char* const ONCLI_MEMDUMP_CMD_STR;
-#endif
-
-#ifdef _ENABLE_MEMLOAD_COMMAND
-extern const char* const ONCLI_MEMLOAD_CMD_STR;
 #endif
 
 #ifdef _ENABLE_RSINGLE_COMMAND
@@ -186,10 +169,6 @@ extern const char * const ONCLI_LIST_PEER_TABLE_HEADING;
 extern const char * const ONCLI_LIST_PEER_FMT;
 extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
-#endif
-
-#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-extern const char * const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR;
 #endif
 
 // Mode strings

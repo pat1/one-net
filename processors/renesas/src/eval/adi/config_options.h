@@ -85,11 +85,11 @@
 // _ONE_NET_VERSION_2_X should be defined and _ONE_NET_VERSION_1_X should not be defined.
 
 #ifndef _ONE_NET_VERSION_1_X
-//	#define _ONE_NET_VERSION_1_X
+	#define _ONE_NET_VERSION_1_X
 #endif
 
 #ifndef _ONE_NET_VERSION_2_X
-	#define _ONE_NET_VERSION_2_X
+//	#define _ONE_NET_VERSION_2_X
 #endif
 
 
@@ -108,7 +108,7 @@
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
 // Define _PEER if your application implements peer assignments.  Default is _PEER assigned
 #ifndef _PEER
-	#define _PEER
+//	#define _PEER
 #endif
 
 // Block Messages
@@ -164,7 +164,7 @@
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
-//    #define _IDLE
+    #define _IDLE
 #endif
 
 
@@ -174,17 +174,6 @@
 #ifdef _IDLE
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
-	#endif
-#endif
-
-// load/dump options - commented out for now
-#ifdef _IDLE
-    #ifndef _ONE_NET_LOAD
-        #define _ONE_NET_LOAD
-	#endif
-	
-    #ifndef _ONE_NET_DUMP
-        #define _ONE_NET_DUMP
 	#endif
 #endif
 
@@ -445,7 +434,7 @@
 	
 	// _AUTO_MODE should be defined if you want the Auto Mode option available
 	#ifndef _AUTO_MODE
-		#define _AUTO_MODE
+//		#define _AUTO_MODE
 	#endif
 
 	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
@@ -484,66 +473,35 @@
 #endif
 
 
-// Command line interface (this should also be defined if you only OUTPUT to the
-// serial port - i.e. no actual user commands).
-// TODO : Think of a better name and possibly change things around for apps that
-// only need output or only need input.  Right now it's both or neither.
+
+
+// DEBUG options
+//#ifdef _ONE_NET_DEBUG
+//	#undef _ONE_NET_DEBUG
+//#endif
+
+//#ifdef _ONE_NET_DEBUG_STACK
+//	#undef _ONE_NET_DEBUG_STACK
+//#endif
+
+
+
+// Sniffer Front End
+//#ifdef _SNIFFER_FRONT_END
+//	#undef _SNIFFER_FRONT_END
+//#endif
+
+
+
+// Command line interface
 #ifndef _ENABLE_CLI
 	#define _ENABLE_CLI
 #endif
 
+// #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
+// own #define for maximum ease of enabling and disabling features.  CLI options that don't make
+// sense without other CLI options should be nested.
 
-// DEBUG options - only available if _ENABLE_CLI is defined
-#ifdef _ENABLE_CLI
-    #ifdef _ONE_NET_DEBUG
-        // #undef _ONE_NET_DEBUG
-    #endif
-
-    #ifdef _ONE_NET_DEBUG_STACK
-        // #undef _ONE_NET_DEBUG_STACK
-    #endif
-
-    /* Used for debugging purposes.  If too much is sent out the UART at once,
-    things get garbled.  _DEBUG_DELAY buffers debugging output and is meant for
-    developers.  From the command line, the print_debug_delay command displays the
-    buffer and the clear_debug_delay command clears the buffer.
-    _DEBUG_DELAY_BUFFER_SIZE is the buffer size.  Note if it is too big, there will
-    be a buffer overflow and the chip will not work, at least on the Renesas.
-    Changing other RAM values like the number of peer units allowed appears to
-    make a difference in how big the buffer can be.  See oncli.c for
-    where _DEBUG_DELAY_BUFFER_SIZE is used.  The size you can make this
-    variable will alse depend on how much RAM you have on the chip, what is
-    defined and undefined, etc. */
-    #ifndef _DEBUG_DELAY
-        // #define _DEBUG_DELAY
-        // place the buffer size below.   TODO - possibly put this in some port specific file?
-        #define _DEBUG_DELAY_BUFFER_SIZE 256
-	#endif
-
-	
-    // Sniffer Front End
-    #ifdef _SNIFFER_FRONT_END
-        //#undef _SNIFFER_FRONT_END
-    #endif
-
-
-    // Command Line Interface.  Make sure _AT_LEAST_ONE_COMMAND_ENABLED is defined if you
-	// are accepting commands from a command line interface.
-	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
-		#define _AT_LEAST_ONE_COMMAND_ENABLED
-	#endif
-#endif // if _ENABLE_CLI is defined
-
-
-// TODO - does it ever make sense to have _DEBUG_DELAY defined if _AT_LEAST_ONE_COMMAND_ENABLED
-// is not?  For right now, I am not requiring it.
-
-
-
-// Command Line Interface options - see above.  Make sure _AT_LEAST_ONE_COMMAND_ENABLED is defined.
-// _ENABLE_CLI must also be defined.  See below for note and specific command options.  Each CLI
-// option should have its own #define for maximum ease of enabling and disabling features.  CLI
-// options that don't make sense without other CLI options should be nested.
 
 
 // Note : Dec. 19, 2010 - Right now it appears to be unfeasible to not have a CLI at all as far as adapting code.
@@ -553,15 +511,13 @@
 // but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
 // define the _ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
 // _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
-
-
-	// _ENABLE_IDLE_COMMAND should be defined if you need to be able to switch the device in and out of "idle" mode
-    #ifdef _IDLE
-        #ifndef _ENABLE_IDLE_COMMAND
-            #define _ENABLE_IDLE_COMMAND
-		#endif
+#ifdef _ENABLE_CLI
+	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
+		#define _AT_LEAST_ONE_COMMAND_ENABLED
 	#endif
+#endif
+
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
 	#ifndef _ENABLE_SINGLE_COMMAND
@@ -604,26 +560,12 @@
 	#ifndef _ENABLE_SAVE_COMMAND
 		#define _ENABLE_SAVE_COMMAND
 	#endif
-
+/*
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
-/*	#ifndef _ENABLE_DUMP_COMMAND
+	#ifndef _ENABLE_DUMP_COMMAND
 		#define _ENABLE_DUMP_COMMAND
 	#endif*/
-	
-	// _ENABLE_MEMDUMP_COMMAND should be defined if you are implementing the "memdump" command option
-	#ifdef _ONE_NET_DUMP
-	    #ifndef _ENABLE_MEMDUMP_COMMAND
-		    #define _ENABLE_MEMDUMP_COMMAND
-	    #endif
-	#endif
-	
-	// _ENABLE_MEMLOAD_COMMAND should be defined if you are implementing the "memload" command option
-	#ifdef _ONE_NET_LOAD
-	    #ifndef _ENABLE_MEMLOAD_COMMAND
-		    #define _ENABLE_MEMLOAD_COMMAND
-	    #endif
-	#endif
-	
+
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	/*#ifdef _ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
@@ -737,13 +679,8 @@
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
 	#endif
-
-	// _ENABLE_DISPLAY_CONSTANTS_COMMAND should be defined if you are implementing the "display_chip_constants" command option
-	#ifndef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-		#define _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-	#endif
 #endif
-
+	
 
 
 
@@ -761,6 +698,12 @@
 //	#define _ONE_NET_TEST_NACK_WITH_REASON_FIELD
 //#endif
 
+
+// Disable _USE_STREAM_KEY if you don't want to send stream key updates
+// and request.
+#ifndef _USE_STREAM_KEY
+//    #define _USE_STREAM_KEY
+#endif
 
 
 

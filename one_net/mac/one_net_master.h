@@ -218,17 +218,13 @@ typedef struct
 
     //! Indicates if using the current key or the old key.
     BOOL use_current_key;
-
-#ifdef _STREAM_MESSAGES_ENABLED    
+    
     //! Indicates if using the current stream key, or the old stream key
     BOOL use_current_stream_key;
-#endif
 
-#ifdef _ONE_NET_MULTI_HOP
     //! The maximum number of hops the MASTER allows when sending to the CLIENT.
     //! If this field is 0, then a regular (non-Multi-Hop) packet is sent.
     UInt8 max_hops;
-#endif
 } on_client_t;
 
 
@@ -288,8 +284,10 @@ one_net_status_t one_net_master_change_frag_dly(
   const UInt32 DELAY);
 one_net_status_t one_net_master_change_key(
   const one_net_xtea_key_fragment_t KEY_FRAGMENT);
+#ifdef _USE_STREAM_KEY
 one_net_status_t one_net_master_change_stream_key(
   const one_net_xtea_key_t * const NEW_STREAM_KEY);
+#endif
 #ifdef _PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const one_net_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
@@ -321,25 +319,8 @@ one_net_status_t one_net_master_add_client(
   const one_net_master_add_client_in_t * CAPABILITIES,
   one_net_master_add_client_out_t * config);
   
-on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
-
-#ifdef _STREAM_MESSAGES_ENABLED
-    one_net_xtea_key_t* get_encryption_key(const BOOL current_key, const BOOL stream_key);
-#else
-    one_net_xtea_key_t* get_encryption_key(const BOOL current_key);
-#endif
-#ifdef _STREAM_MESSAGES_ENABLED
-    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client, const BOOL stream_key);
-#else
-    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client);
-#endif
-
-
 // Derek_S 11/2/2010 - I don't see anywhere where this function is ever called.
-one_net_status_t one_net_master_delete_last_client(one_net_raw_did_t* raw_client_did);
-
-
-
+one_net_status_t one_net_master_delete_last_client(one_net_raw_did_t * raw_client_did);
 
 // Derek_S 11/2/2010
 // TO-DO : We don't actually need to pass this the master_param parameter, do we?

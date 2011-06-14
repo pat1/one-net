@@ -335,7 +335,11 @@ oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
 		one_net_status_t ret;
         on_encode(enc_peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
 		
+#ifdef _ONE_NET_MULTI_HOP
         ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
+#else
+        ret = master_assigned_peer(SRC_UNIT, &enc_peer_did, PEER_UNIT);
+#endif		
         switch(ret)
 		{
             case ONS_SUCCESS:
@@ -694,24 +698,12 @@ void one_net_master_device_is_awake(const one_net_raw_did_t *DID)
 } // one_net_master_device_is_awake //
 
 
-
-/*#ifndef _ONE_NET_VERSION_2_X*/
 BOOL one_net_master_handle_single_pkt(const UInt8 *RX_PLD,
   UInt16 RX_PLD_LEN, const one_net_raw_did_t *SRC_ADDR)
 {
     eval_handle_single(RX_PLD, RX_PLD_LEN, SRC_ADDR);
     return TRUE;
 } // one_net_master_handle_single_pkt //
-/*#else
-BOOL one_net_master_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
-         UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
-         const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
-		 on_nack_rsn_t* nack_reason)
-{
-	return eval_handle_single(msg_class, msg_type, src_unit, dst_unit, msg_data,
-         SRC_ADDR, useDefaultHandling, nack_reason);
-}
-#endif*/
 
 
 void one_net_master_single_txn_status(one_net_status_t STATUS,
@@ -1090,9 +1082,7 @@ void init_auto_master(void)
           + client_count);
         client[client_count].use_current_key = TRUE;
         client[client_count].use_current_stream_key = TRUE;
-		#ifdef _ONE_NET_MULTI_HOP
-            client[client_count].max_hops = 0;
-		#endif
+        client[client_count].max_hops = 0;
     } // loop to fill in the CLIENT list //
 
     base_param->crc = one_net_compute_crc((UInt8 *)base_param

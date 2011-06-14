@@ -61,10 +61,6 @@
     #include "uart.h"
 #endif
 
-#ifdef _DEBUG_DELAY
-    #include "oncli.h"
-#endif
-
 #ifdef _ONE_NET_DEBUG_STACK
     #include "uart.h"
 #endif
@@ -139,17 +135,8 @@ const one_net_raw_did_t ON_RAW_BROADCAST_DID = {0x00, 0x00};
     static on_pkt_hdlr_set_t pkt_hdlr = {0, 0, 0};
 #endif // #ifndef _ONE_NET_SIMPLE_DEVICE //
 
-#ifdef _IDLE
-    //! Whether the current state is allowed to be changed
-    static BOOL allow_set_state = TRUE;
-#endif
-
 //! The current state.  This is a "protected" variable.
 on_state_t on_state = ON_INIT_STATE;
-
-
-
-
 
 //! The base parameters for the device
 on_base_param_t * on_base_param = 0;
@@ -230,16 +217,6 @@ static one_net_status_t rx_payload(UInt8 * const raw_pld,
   const UInt8 ENCODED_LEN);
 static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
   UInt8 * const next_nonce);
-  
-#ifdef _ONE_NET_VERSION_2_X
-// temporary function while porting to 2.0
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
-  UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type);
-/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
-  UInt8 * const next_nonce);*/
-#endif
-  
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
     static one_net_status_t repeat_mh_pkt(on_txn_t ** txn);
@@ -255,57 +232,6 @@ static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
 //! \ingroup ONE-NET
 //! @{
 
-
-/*!
-    \brief Returns whether the device is a client or a master and whether it
-	       is part of a network.
-
-    \param[out] member_of_network TRUE if device is already in a network
-	            FALSE otherwise
-
-    \return TRUE if device is master, false if client or not part of a network
-*/
-BOOL device_is_master(BOOL* member_of_network)
-{
-    // could not find this function, so I am writing it.  May be re-inventing
-	// the wheel.  Might be able to cut down on the code a few bytes too.
-	// Maybe use a few #define variables too?  Might also make oncli_is_master()
-	// irrelevant.  Seems like we have some redundant functions, but again, I did
-	// not see this function anywhere, so might as well write it.
-    on_encoded_did_t* enc_did;
-	
-	#ifdef _ONE_NET_USE_ENCODING
-    	on_encoded_did_t ENC_MASTER_DID = {0xB4, 0xBC}; // this must be somewhere else?
-	#else
-    	on_encoded_did_t ENC_MASTER_DID = {0x00, 0x01};
-	#endif
-	
-	// first deal with bad/uninitialized.  Just call it client and not a part of network
-    if(!member_of_network)
-	{
-		return FALSE;
-	}
-
-	if(!on_base_param)
-	{
-		*member_of_network = FALSE;
-		return FALSE;
-	}
-	
-	enc_did = (on_encoded_did_t*) (&(on_base_param->sid[ON_ENCODED_NID_LEN]));
-	*member_of_network = TRUE;
-	
-	if(did_is_broadcast(*enc_did))
-	{
-		*member_of_network = FALSE;
-		return FALSE;
-	}
-	
-	return on_encoded_did_equal(&ENC_MASTER_DID, enc_did);  
-}
-
-
-
 /*!
     \brief Initializes ONE-NET.
 
@@ -320,25 +246,6 @@ void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR)
 
     one_net_memmove(&pkt_hdlr, PKT_HDLR, sizeof(pkt_hdlr));
 } // one_net_init //
-
-
-#ifdef _IDLE
-BOOL set_on_state(UInt8 new_on_state)
-{
-	if(!allow_set_state)
-	{
-		return FALSE;
-	}
-	on_state = new_on_state;
-	return TRUE;
-}
-
-
-void set_allow_set_state(BOOL allow)
-{
-	allow_set_state = allow;
-}
-#endif
 
 
 /*!
@@ -371,91 +278,6 @@ BOOL on_is_my_NID(const on_encoded_nid_t * const NID)
 
 
 /*!
-    \brief Checks whether a did is a broadcast did / uninitialized
-	
-	Note that the DID may either be raw or encoded, hence the parameter is UInt8*
-	rather than on_encoded_did_t* or one_net_raw_did_t*
-
-    \param[in] did The did to check
-
-    \return TRUE if did is a broadcast did
-            FALSE if did is not a broadcast did
-*/
-BOOL did_is_broadcast(const UInt8* const did)
-{
-    // sometimes "encoded" dids are stored as uninitialized ({0, 0}).  We want to
-	// make sure that these are interpreted as "not taken"/ unitialized / broadcast
-	if(!did)
-	{
-        return FALSE;
-	}
-	if(did[0] == ON_ENCODED_BROADCAST_DID[0] && did[1] == ON_ENCODED_BROADCAST_DID[1])
-	{
-        return TRUE;
-	}
-	if(did[0] == ON_RAW_BROADCAST_DID[0] && did[1] == ON_RAW_BROADCAST_DID[1])
-	{
-        return TRUE;
-	}
-	
-	return FALSE;
-}
-
-
-/*!
-    \brief Compares two encoded dids and sees which is "smaller"
-
-    A broadcast did is considered a "large" id.
-	One DID is smaller than the other if the raw did is smaller.
-	
-    \param[in] enc_did1 First encoded did to compare
-    \param[in] enc_did2 Second encoded did to compare
-    
-    \return negative number if did1 is "smaller" than did2
-            postive number if did1 is "larger" than did2
-            0 if did1 and did2 have the same values
-*/
-int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* const enc_did2)
-{
-	// TODO - check for valid parameters, check for return values
-    one_net_raw_did_t raw_did1, raw_did2;
-	BOOL did1IsBroadcast, did2IsBroadcast;
-	
-	if(!enc_did1 || !enc_did2)
-	{
-        // TODO - Return value of this should be what?  Just return 0 for now
-		return 0;
-	}
-	
-	did1IsBroadcast = did_is_broadcast(*enc_did1);
-	did2IsBroadcast = did_is_broadcast(*enc_did2);
-
-    if(did1IsBroadcast && did2IsBroadcast)
-	{
-	    return 0;
-	}
-	else if(did1IsBroadcast)
-	{
-		return 1;
-	}
-	else if(did2IsBroadcast)
-	{
-		return -1;
-	}
-		
-	// TODO - what if these don't decode?
-    on_decode(raw_did1, *enc_did1, ON_ENCODED_DID_LEN);
-    on_decode(raw_did2, *enc_did2, ON_ENCODED_DID_LEN);
-
-	if(raw_did1[0] == raw_did2[0])
-	{
-		return (int) raw_did1[1] - (int) raw_did2[1];
-	}
-
-    return (int) raw_did1[0] -  (int) raw_did2[0];
-}
-
-/*!
     \brief Compares two encoded Device IDs.
 
     \param[in] LHS The left hand side of the compare equation.
@@ -467,13 +289,23 @@ int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* 
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS)
 {
-	if(!LHS || !RHS)
-	{
-        return FALSE;
-	}
-    return (enc_did_cmp(LHS, RHS) == 0);
-} // on_encoded_did_equal //
+    UInt8 i;
 
+    if(!LHS || !RHS)
+    {
+        return FALSE;
+    } // if parameters are invalid //
+
+    for(i = 0; i < ON_ENCODED_DID_LEN; i++)
+    {
+        if((*LHS)[i] != (*RHS)[i])
+        {
+            return FALSE;
+        } // if the addresses don't match //
+    } // loop through the address bytes //
+
+    return TRUE;
+} // on_encoded_did_equal //
 
 
 /*!
@@ -1087,14 +919,10 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
                               points to.
                             Output: The length (in bytes) of the packet.
     \param[in] PID The encoded packet id.
-    \param[in] nack_reason The reson for the NACK.  Only applies to NACKs and
-      only present if the _ONE_NET_VERSION_2_X preprocessor definition has been defined.
     \param[in] ENCODED_DST The encoded destination for this packet.
     \param[in] TXN_NONCE The transaction nonce associated with this packet.
     \param[in] EXPECTED_NONCE The nonce the receiver should use the next time it
       sends to this device.
-    \param[in] KEY The key used to encrypt the data.  This field is only present
-	if the _ONE_NET_VERSION_2_X preprocessor definition has been defined.
     \param[in] MAX_HOPS This field is only present if the _ONE_NET_MULTI_HOP
       preprocessor definition has been defined.  This is the maximum number of
       hops a multi-hop packet can take.
@@ -1102,8 +930,6 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     \return ONS_BAD_PARAM if any of the parameters are invalid.
             See on_build_pkt for more return types.
 */
-#ifndef _ONE_NET_VERSION_2_X
-
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
@@ -1127,7 +953,6 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
-	
 
     // build the data portion
     data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
@@ -1148,197 +973,6 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
     #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 } // on_build_response_pkt //
-
-#else // If ONE-NET Version 1.x
-
-
-
-// temporarily using this 1.x function for 2.0
-
-#ifdef _ONE_NET_MULTI_HOP
-    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS)
-#else // ifdef _ONE_NET_MULTI_HOP //
-    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE)
-#endif // else _ONE_NET_MULTI_HOP has not been defined // 
-{
-    UInt8 data[ON_RESP_NONCE_LEN];
-
-    #ifdef _ENABLE_CLI
-	    oncli_send_msg("Top of on_build_response_pkt\n");
-	#endif
-
-
-    #ifdef _ONE_NET_MULTI_HOP
-            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
-              + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
-              || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
-    #else // ifdef _ONE_NET_MULTI_HOP //
-            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
-              || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
-    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
-    {
-        return ONS_BAD_PARAM;
-    } // if parameters are invalid //
-	
-
-    // build the data portion
-    data[ON_RESP_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
-      & ON_TXN_NONCE_BUILD_MASK;
-    data[ON_RESP_RESP_NONCE_HIGH_IDX] |=
-      (EXPECTED_NONCE >> ON_RESP_NONCE_HIGH_SHIFT)
-      & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    data[ON_RESP_RESP_NONCE_LOW_IDX] =
-      (EXPECTED_NONCE << ON_RESP_NONCE_LOW_SHIFT)
-      & ON_RESP_NONCE_BUILD_LOW_MASK;
-
-
-    #ifdef _ONE_NET_MULTI_HOP
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
-              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
-    #else // ifdef _ONE_NET_MULTI_HOP //
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, data,
-            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an exrta byte 
-    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
-} // on_build_response_pkt //
-
-
-
-// temporary 2.x function (not used yet)
-#ifdef _ONE_NET_MULTI_HOP
-/*one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-   const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
-   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-   const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS)*/
-   
-one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-   const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS)   
-#else
-/*one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-   const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
-   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-   const one_net_xtea_key_t * const KEY)*/
-   
- one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-   const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-   const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE)   
-#endif
-{
-/*    one_net_status_t status;
-    UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // + 1 to include byte needed for 2 bits for encryption method.
-	
-    #ifdef _ONE_NET_USE_RANDOM_PADDING
-        UInt8 randomPadStartBitIndex = 8 + (2 * 6); // 8 bits for CRC, 6 bits each for two nonces
-        UInt8 randomPadStopBitIndex = ON_RAW_ACK_NACK_PLD_LEN * 8 - 1;
-    #endif
-
-    // build the packet
-    raw_pld[ON_PLD_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
-      & ON_TXN_NONCE_BUILD_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (EXPECTED_NONCE
-      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (EXPECTED_NONCE << 
-      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
-	
-	if(nack_reason)
-	{
-        raw_pld[ON_PLD_NACK_LOW_IDX] |= ((*nack_reason)
-          >> ON_NACK_HIGH_SHIFT) & ON_NACK_BUILD_HIGH_MASK;
-        raw_pld[ON_PLD_NACK_HIGH_IDX] = ((*nack_reason) << ON_NACK_LOW_SHIFT)
-          & ON_NACK_BUILD_LOW_MASK;
-		  
-        #ifdef _ONE_NET_USE_RANDOM_PADDING
-            randomPadStartBitIndex += 6; // add 6 more bits for the NACK reason
-            RandomPad(raw_pld, ON_RAW_ACK_NACK_PLD_LEN, randomPadStartBitIndex,
-              randomPadStopBitIndex);
-        #endif
-	}	  
-
-    // compute the crc
-    raw_pld[0] = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
-      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
-      ON_PLD_CRC_ORDER);
-
-    // TODO - ON_SINGLE possibly should not be hard-coded.  Perhaps this needs to
-    // be passed to the function or determined from the PID
-    if((status = on_encrypt(ON_SINGLE, raw_pld, KEY)) == ONS_SUCCESS)
-    {
-        #ifdef _ONE_NET_MULTI_HOP
-            status = on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
-              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
-        #else // ifdef _ONE_NET_MULTI_HOP //
-            status = on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
-              ON_RESP_NONCE_WORD_SIZE);
-        #endif // else _ONE_NET_MULTI_HOP is not defined //
-    } // if encrypting was not successful //
-
-    return status;*/
-
-    UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1];
-    on_nack_rsn_t nack;
-	on_nack_rsn_t* nack_reason = &nack;
-	
-	// make a phony nack for now.  It will be ignored.  Send it even if it's an ACK.
-	nack = ON_NACK_RSN_INVALID_UNIT_ERR;
-
-    #ifdef _ONE_NET_MULTI_HOP
-            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
-              + ON_ENCODED_HOPS_SIZE || TXN_NONCE > ON_MAX_NONCE
-              || EXPECTED_NONCE > ON_MAX_NONCE || MAX_HOPS > ON_MAX_HOPS_LIMIT)
-    #else // ifdef _ONE_NET_MULTI_HOP //
-            if(!pkt || !pkt_size || *pkt_size < ON_ACK_NACK_LEN
-              || TXN_NONCE > ON_MAX_NONCE || EXPECTED_NONCE > ON_MAX_NONCE)
-    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
-    {
-        return ONS_BAD_PARAM;
-    } // if parameters are invalid //
-	
-	// add the nonces and, if present, the nack reason
-    raw_pld[ON_PLD_TXN_NONCE_IDX] = (TXN_NONCE << ON_TXN_NONCE_SHIFT)
-      & ON_TXN_NONCE_BUILD_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (EXPECTED_NONCE
-      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (EXPECTED_NONCE << 
-      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
-	
-	if(nack_reason)
-	{
-        raw_pld[ON_PLD_NACK_HIGH_IDX] |= ((*nack_reason)
-          >> ON_NACK_HIGH_SHIFT) & ON_NACK_BUILD_HIGH_MASK;
-        raw_pld[ON_PLD_NACK_LOW_IDX] = ((*nack_reason) << ON_NACK_LOW_SHIFT)
-          & ON_NACK_BUILD_LOW_MASK;
-	}
-	
-	// TODO - add random padding here.
-
-    // compute the crc from the last 7 of the 8 bytes that are to be encrypted
-    raw_pld[ON_PLD_CRC_IDX] = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
-      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
-      ON_PLD_CRC_ORDER);
-	  
-	// TODO - encrypt the first 8 bits of raw_pld here
-	// TODO - add the unencrypted left-justified encryption technique to raw_pld here.
-	
-	#ifdef _DEBUG_DELAY
-        debug_delay("Sending Response : PID=%02x: TXN=%d RESP=%d CRC=%02x\n",
-		  PID, TXN_NONCE, EXPECTED_NONCE, raw_pld[0]);
-		debug_delay("\n");
-	#endif
-
-    #ifdef _ONE_NET_MULTI_HOP
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
-              ON_RESP_NONCE_WORD_SIZE, MAX_HOPS);
-    #else // ifdef _ONE_NET_MULTI_HOP //
-            return on_build_pkt(pkt, pkt_size, PID, ENCODED_DST, raw_pld,
-            ON_RESP_NONCE_WORD_SIZE); // the NACK reason field requires an extra byte 
-    #endif // else _ONE_NET_MULTI_HOP has not been defined // 
-}
-
-#endif // If ONE-NET Version 2.x
 
 
 /*!
@@ -2525,19 +2159,7 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     on_encoded_did_t src_did;
     UInt8 pid;
     UInt8 txn_nonce, next_nonce;
-	BOOL valid_pkt_pid = TRUE;
 
-	#ifdef _ONE_NET_VERSION_2_X
-		on_nack_rsn_t nack_reason = ON_NACK_RSN_NO_ERROR; // TODO - should this be a function parameter?
-        const one_net_xtea_key_t* key = 0;
-		BOOL member_of_network, device_is_the_master;
-		BOOL needNackReason = TRUE;
-		#ifdef _ONE_NET_MASTER
-		    on_client_t* cli; // we'll need this to get the key(old or new)
-			                  // if we are the master.  If we're not, irrelevant
-		#endif
-	#endif
-	
     #ifdef _ONE_NET_MULTI_HOP
         UInt8 hops = 0;
         BOOL mh = FALSE;
@@ -2570,24 +2192,6 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     {
         return status;
     } // if the packet is not for this device //
-	
-	#ifdef _ONE_NET_VERSION_2_X
-	    key = &(on_base_param->current_key);
-	    #ifdef _ONE_NET_MASTER
-		    device_is_the_master = device_is_master(&member_of_network);
-			if(device_is_the_master)
-			{
-				cli = client_info(&src_did);
-				if(!cli)
-				{
-					// should never get here
-					return ONS_INVALID_DATA; //
-				}
-				
-				key = get_client_encryption_key(cli, FALSE);
-			}
-		#endif
-	#endif
 
     // read the pid
     if(one_net_read(&pid, sizeof(pid)) != sizeof(pid))
@@ -2595,28 +2199,18 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
         return ONS_READ_ERR;
     } // if reading the pid failed //
 
-    switch(pid)
-	{
-		case ONE_NET_ENCODED_SINGLE_DATA_ACK:
-		case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
-		#ifdef _ONE_NET_MULTI_HOP
-		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-//		case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_WAKE:
-		#endif
-		    #ifdef _ONE_NET_VERSION_2_X
-			    needNackReason = FALSE;
-			#endif
-			break;
-		case ONE_NET_ENCODED_SINGLE_DATA_NACK:
-		#ifdef _ONE_NET_MULTI_HOP
-		case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK:
-		#endif
-		    break;
-		default:
-		    valid_pkt_pid = FALSE;
-	}
-		
-    if(!valid_pkt_pid)
+    #ifdef _ONE_NET_MULTI_HOP
+        if(pid != ONE_NET_ENCODED_SINGLE_DATA_ACK
+          && pid != ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE
+          && pid != ONE_NET_ENCODED_SINGLE_DATA_NACK
+          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_ACK
+          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE
+          && pid != ONE_NET_ENCODED_MH_SINGLE_DATA_NACK)
+    #else // ifdef _ONE_NET_MULTI_HOP //
+        if(pid != ONE_NET_ENCODED_SINGLE_DATA_ACK
+          && pid != ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE
+          && pid != ONE_NET_ENCODED_SINGLE_DATA_NACK)
+    #endif // else _ONE_NET_MULTI_HOP is not defined //
     {
     #ifdef _ONE_NET_DEBUG
         one_net_debug(ONE_NET_DEBUG_ONS_BAD_PKT_TYPE, &pid, 1);
@@ -2625,15 +2219,7 @@ static one_net_status_t rx_single_resp_pkt(on_txn_t ** txn)
     } // if the packet is not what the device is expecting //
 
     // read the nonces
-	#ifndef _ONE_NET_VERSION_2_X	
-        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-	#else
-	    // temporarily making ONE_NET_ENCODED_SINGLE_DATA_ACK calls
-		// function rx_nonces_2_X for nonces
-		status = rx_nonces_2_X(&txn_nonce, &next_nonce, needNackReason ?
-		    &nack_reason : NULL, key, ON_SINGLE);
-        if(status != ONS_SUCCESS)
-	#endif
+    if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
     {
         return status;
     } // if reading the nonces failed //
@@ -2887,11 +2473,6 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
             UInt8 hops = 0;
             BOOL mh = FALSE;
         #endif // ifdef _ONE_NET_MULTI_HOP //
-		
-	    #ifdef _ONE_NET_VERSION_2_X
-		    on_nack_rsn_t nack_reason;
-            const one_net_xtea_key_t* key = 0;
-	    #endif
 
         // only need to check 1 handler since it is all or nothing
         if(!pkt_hdlr.block_txn_hdlr)
@@ -2942,11 +2523,7 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         } // if the packet is not what the device is expecting //
 
         // read the nonces
-        #ifndef _ONE_NET_VERSION_2_X	
-            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-	    #else
-            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-	    #endif
+        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
         {
             return status;
         } // if reading the nonces failed //
@@ -3184,11 +2761,6 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
             UInt8 hops = 0;
         #endif // ifdef _ONE_NET_MULTI_HOP //
 
-	    #ifdef _ONE_NET_VERSION_2_X
-		    on_nack_rsn_t nack_reason;
-            const one_net_xtea_key_t* key = 0;
-	    #endif
-
         // only need to check 1 handler since it is all or nothing
         if(!pkt_hdlr.stream_txn_hdlr)
         {
@@ -3272,11 +2844,10 @@ static one_net_status_t rx_single_txn_ack(on_txn_t ** txn)
         } // switch(pid) //
 
         // read the nonces
-        #ifndef _ONE_NET_VERSION_2_X	
-            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-	    #else
-            if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
-	    #endif
+        if((status = rx_nonces(&txn_nonce, &next_nonce)) != ONS_SUCCESS)
+        {
+            return status;
+        } // if reading the nonces failed //
 
         if(txn_nonce != (*txn)->expected_nonce)
         {
@@ -3668,10 +3239,6 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
     one_net_status_t status;
     UInt8 encoded_nonce;
 
-	#ifdef _CLI
-	    oncli_send_msg("Top of one_net_status_t rx_nonces\n");
-	#endif
-
     if(!txn_nonce || !next_nonce)
     {
         return ONS_BAD_PARAM;
@@ -3711,92 +3278,6 @@ static one_net_status_t rx_nonces(UInt8 * const txn_nonce,
 
     return ONS_SUCCESS;
 } // rx_nonces //
-
-
-#ifdef _ONE_NET_VERSION_2_X
-// temporary function while porting to 2.0.  Right now it's the same as the
-// 1.6 version.
-static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce, 
-  UInt8 * const next_nonce, on_nack_rsn_t* const nack_reason,
-  const one_net_xtea_key_t * const key, const on_data_t type)
-/*static one_net_status_t rx_nonces_2_X(UInt8 * const txn_nonce,
-  UInt8 * const next_nonce)*/
-{
-    one_net_status_t status;
-	UInt8 calc_crc, payload_crc;	
-    UInt8 encoded_pld[ON_RESP_NONCE_LEN];
-	UInt8 raw_pld[ON_RAW_ACK_NACK_PLD_LEN + 1]; // add 1 for encryption technique
-
-    if(!txn_nonce || !next_nonce)
-    {
-        return ONS_BAD_PARAM;
-    } // if any of the parameters are invalid //
-
-
-
-    // read in all the encoded bytes
-    if(one_net_read(encoded_pld, ON_RESP_NONCE_LEN)
-      != ON_RESP_NONCE_LEN)
-    {
-        return ONS_READ_ERR;
-    } // if reading the transaction nonce failed //
-
-    if((status = on_decode(raw_pld, encoded_pld, ON_RESP_NONCE_WORD_SIZE))
-      != ONS_SUCCESS)
-    {
-        return status;
-    } // if decoding the transaction nonce failed //
-
-    // TODO check encryption technique, get encryption key
-    // TODO - decrypt raw_pld
-
-    // we now have a decoded, decrypted payload of 9 bytes.  We only care about the
-	// leftmost eight bytes.
-	
-	// calculate a CRC and compare to the payload crc
-	calc_crc = (UInt8)one_net_compute_crc(&(raw_pld[ON_PLD_TXN_NONCE_IDX]),
-      ON_RAW_ACK_NACK_PLD_LEN - ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC,
-      ON_PLD_CRC_ORDER);
-	  
-	payload_crc = raw_pld[ON_PLD_CRC_IDX];
-	if(calc_crc != payload_crc)
-	{
-		// Error : crc's do not match
-		// TODO - fill in nack_reason with a bad CRC NACK reason.
-		
-		// for now, log it to debug.
-		#ifdef _DEBUG_DELAY
-		    debug_delay("Error : rx_nonces_2_X : calc_crc=%d, payload_crc=%d\n",
-			    calc_crc, payload_crc);
-		#endif
-		
-		return ONS_CRC_FAIL;		
-	}
-	
-	// now grab the nonces and, if present, the nack reason.
-	
-	// get the transaction nonce
-    *txn_nonce = (raw_pld[ON_PLD_TXN_NONCE_IDX] >> ON_TXN_NONCE_SHIFT)
-      & ON_TXN_NONCE_PARSE_MASK;
-
-    // get the response nonce
-    *next_nonce = (raw_pld[ON_PLD_RESP_NONCE_HIGH_IDX]
-      << ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_PARSE_HIGH_MASK;
-    *next_nonce |= (raw_pld[ON_PLD_RESP_NONCE_LOW_IDX] >> ON_RESP_NONCE_LOW_SHIFT)
-      & ON_RESP_NONCE_PARSE_LOW_MASK;
-
-    if(nack_reason)
-	{
-        *nack_reason = (raw_pld[ON_PLD_NACK_HIGH_IDX]
-          << ON_NACK_HIGH_SHIFT) & ON_NACK_PARSE_HIGH_MASK;
-        *nack_reason |= (raw_pld[ON_PLD_NACK_LOW_IDX] >> ON_NACK_LOW_SHIFT)
-          & ON_NACK_PARSE_LOW_MASK;
-	}
-		
-    return ONS_SUCCESS;
-} // rx_nonces_2_X
-#endif
-
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
     /*!

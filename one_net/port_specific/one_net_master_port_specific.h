@@ -55,10 +55,6 @@
 
 #include "one_net_master.h"
 
-/*#ifdef _ONE_NET_VERSION_2_X
-    #include "one_net_application.h" // for ona_msg_class_t
-#endif*/
-
 
 //==============================================================================
 //                                  CONSTANTS
@@ -111,7 +107,6 @@
 void one_net_master_device_is_awake(const one_net_raw_did_t *DID);
 
 
-/*#ifndef _ONE_NET_VERSION_2_X*/
 /*!
     \brief Callback for the application to handle the received packet.
 
@@ -129,39 +124,6 @@ void one_net_master_device_is_awake(const one_net_raw_did_t *DID);
 */
 BOOL one_net_master_handle_single_pkt(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN, 
                                       const one_net_raw_did_t *SRC_ADDR);
-/*#else*/
-/*!
-    \brief Callback for the application to handle the received packet.
-
-    This function is application dependent.  It is called by ONE-NET when a
-    CLIENT receives a packet.  ONE-NET provides default handling for
-	query messages.  In addition, the application code can fill in a NACK reason
-	if needed.  The application can provide its own handling by setting the
-	useDefaultHandling parameter to false.  If it cannot send an immediate
-	response, it should set useDefaultHandling to false.
-	
-
-    \param[in] msg_class the type of the payload (ONA_STATUS, ONA_QUERY, ONA_POLL or ONA_COMMAND)
-    \param[in] msg_type the unit type of the destination unit
-    \param[in] src_unit the source unit number
-	\param[in] dst_unit the destination unit
-	\param[in/out] msg_data the data in the incoming message and possibly in the outgoing message
-	\param[in] SRC_ADDR the raw address of the source
-	\param[out] useDefaultHandling flag set that is read by ONE-NET.  If true, then ONE-NET will use
-	            its default handling for queries
-	            If false, the application provides its own handling
-	\param[out] nack_reason The "reason" that should be given if a NACK needs to be sent
-	
-    \return TRUE If it was a valid packet (and it will be handled)
-            FALSE If iw was an invalid packet and a NACK should be sent
-*/
-/*BOOL one_net_master_handle_single_pkt(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
-         UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
-         const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
-		 on_nack_rsn_t* nack_reason);
-#endif*/									  
-									  
-									  
 
 
 /*!

@@ -141,8 +141,6 @@ static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
   const BOOL deviceIsMaster);
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 
-static int peer_unit_cmp(const on_peer_unit_t* const unit1, const on_peer_unit_t* const unit2);
-
 
 //! @} ONE-NET_PEER_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -735,19 +733,13 @@ static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
 #endif // else _ONE_NET_MULTI_HOP is not defined //
 {
     UInt8 index, unit_list_index, dev_list_index;
-	on_peer_unit_t peerToAdd;
-    int compare;
-	
-#ifdef _ONE_NET_CLIENT
-	BOOL vacantDevSpotExists;
-#endif
 
     if(!PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
     
-    if(did_is_broadcast(*PEER_DID) || SRC_UNIT > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
+    if(SRC_UNIT > ONE_NET_NUM_UNITS || PEER_UNIT == ONE_NET_DEV_UNIT)
     {
         return ONS_INVALID_DATA;
     } // if the data is invalid //
@@ -774,91 +766,94 @@ static one_net_status_t assign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
 	
     // 7.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
     
-    // find a spot to add the peer.  List is ordered by peer did, then source
+    // find a spot to add the peer.  List is ordered by source
     // unit, then peer unit.  Empty spots should all be at the end and are
     // represented by ONE_NET_DEV_UNIT.
-	
-	// First make sure there's actually room to add to the list.  Check the last spot to make sure
-	// it is empty
-	if(!did_is_broadcast(peer_unit_list[MAX_PEER_UNITS - 1].peer_did))
-	{
-        // unit list is full
-		return ONS_RSRC_FULL;
-	}
-	
-	one_net_memmove(peerToAdd.peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
-	peerToAdd.src_unit = SRC_UNIT;
-	peerToAdd.peer_unit = PEER_UNIT;
-	
-	unit_list_index = 0;
-	compare = peer_unit_cmp(&(peer_unit_list[unit_list_index]), &peerToAdd);
-    while(compare < 0)
+    for(unit_list_index = 0; unit_list_index < MAX_PEER_UNITS; unit_list_index++)
     {
-        unit_list_index++;
-		compare = peer_unit_cmp(&(peer_unit_list[unit_list_index]), &peerToAdd);
+        if(peer_unit_list[unit_list_index].src_unit > SRC_UNIT)
+        {
+            // found our insertion index.
+            break;
+        }
+		
+		if(peer_unit_list[unit_list_index].src_unit < SRC_UNIT ||
+            peer_unit_list[unit_list_index].peer_unit < PEER_UNIT)
+		{
+            // still searching
+            continue;
+		}
+		
+        // We know by now that the source units match and that we've either found
+        // a match or we've found the insertion index.
+		
+        if(peer_unit_list[unit_list_index].peer_unit == PEER_UNIT)
+        {
+            // this peer is already on the list.  Nothing to do.  Return ONS_SUCCESS
+            return ONS_SUCCESS;
+        }
+		
+        // we've found our insertion index, so break.
+        break;
 	}
 	 
-	if(compare == 0)
-	{
-        // unit is already on the list.  Just do nothing and return success
-	    return ONS_SUCCESS;
-	}
-
-#ifdef _ONE_NET_CLIENT
+    // check to see if there's any room on the unit list.
+    if(unit_list_index >= MAX_PEER_UNITS)
+    {
+        return ONS_RSRC_FULL;
+    }
+	
 	if(!deviceIsMaster)
     {
-        // check whether we have any room on the dev list
-		vacantDevSpotExists = did_is_broadcast(peer->dev[ONE_NET_MAX_PEER_DEV - 1].did);
+        // we are a client, so we may need to adjust the peer->dev array.
 		
-        // we are a client, so we may need to adjust the peer->dev array.		
         // now let's look through the dev list and see if we need to insert anything.    
-		dev_list_index = 0;
-		compare = enc_did_cmp(&(peer->dev[dev_list_index].did), PEER_DID);
-		// we checked everything before, so we should be safe from this while loop running
-		// off the cliff into a seg fault or an infinite loop.
-		while(compare < 0)
-		{
-			dev_list_index++;
-			compare = enc_did_cmp(&(peer->dev[dev_list_index].did), PEER_DID);
-		}
+        for(dev_list_index = 0; dev_list_index < ONE_NET_MAX_PEER_DEV; dev_list_index++)
+        {
+            if(on_encoded_did_equal(PEER_DID,
+              (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+		    {
+                // Found index.  Already on the list.  Nothing to add.
+                break;
+		    }
 		
-		if(compare != 0)
-		{
-            // device is not on the list.  Add it.
-			if(!vacantDevSpotExists)
-			{
-			    return ONS_RSRC_FULL; // device list is full.
-			}
-			
-            // Need to insert at dev_list_index.  First move everything down one spot
-			one_net_memmove(&(peer->dev[dev_list_index + 1]), &(peer->dev[dev_list_index]),
-			    (ONE_NET_MAX_PEER_DEV - dev_list_index - 1) * sizeof(on_peer_dev_t));
-			
-			// fill in the new data
-			// TODO - what about the nonce and the data rate?
-            one_net_memmove(peer->dev[dev_list_index].did, *PEER_DID,
-                sizeof(peer->dev[dev_list_index].did));                     
-            #ifdef _ONE_NET_MULTI_HOP
-                peer->dev[dev_list_index].max_hops = 0; // TODO : why is max hops 0?
-                peer->dev[dev_list_index].mh_peer = MH;
-            #endif // ifdef _ONE_NET_MULTI_HOP //
-		}
+            if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID,
+              (const on_encoded_did_t * const)&(peer->dev[dev_list_index].did)))
+            {
+                // found an empty spot.  Need to insert.
+                one_net_memmove(peer->dev[dev_list_index].did, *PEER_DID,
+                  sizeof(peer->dev[dev_list_index].did));
+                      
+                  #ifdef _ONE_NET_MULTI_HOP
+                      peer->dev[dev_list_index].max_hops = 0;
+                      peer->dev[dev_list_index].mh_peer = MH;
+                  #endif // ifdef _ONE_NET_MULTI_HOP //
+			  
+			      break;
+             } // if a device slot is free //        
+        }
+
+        // Are we out of room on the dev list?
+        if(dev_list_index == ONE_NET_MAX_PEER_DEV)
+        {
+		    return ONS_RSRC_FULL;
+        }
     }
-#endif
 
     if(unit_list_index < MAX_PEER_UNITS - 1)
 	{
         // We're about to insert.  Move any elements that may be in the way down one.
-        one_net_memmove(&peer_unit_list[unit_list_index + 1], &peer_unit_list[unit_list_index],
-          sizeof(on_peer_unit_t) * (MAX_PEER_UNITS - unit_list_index - 1));
+        one_net_memmove(&peer->unit[unit_list_index + 1], &peer->unit[unit_list_index],
+          sizeof(peer->unit[unit_list_index]) * (MAX_PEER_UNITS - unit_list_index - 1));
 	}
 
     // now fill in the new information.
-    one_net_memmove(&(peer_unit_list[unit_list_index]), &peerToAdd, sizeof(on_peer_unit_t));
+    peer_unit_list[unit_list_index].src_unit = SRC_UNIT;
+    peer_unit_list[unit_list_index].peer_unit = PEER_UNIT;
+    one_net_memmove(peer_unit_list[unit_list_index].peer_did, *PEER_DID, ON_ENCODED_DID_LEN);
 	
 	return ONS_SUCCESS;
 } // assign_peer_adjust_peer_list //
-
 
 
 /*!
@@ -924,15 +919,15 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     for(index = MAX_PEER_UNITS - 1; index < 0xFFFF; index--)
     {
 		// check whether criteria for deleting this peer unit are fulfilled
-        if(peer_unit_list[index].src_unit == ONE_NET_DEV_UNIT)
+        if(peer->unit[index].src_unit == ONE_NET_DEV_UNIT)
         {
             // Blank spot.  Nothing to do.
             continue;
         }
 		
-        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer_unit_list[index].src_unit);
-        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer_unit_list[index].peer_unit);
-        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer_unit_list[index].peer_did)));
+        src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT == peer->unit[index].src_unit);
+        peer_unit_match = (PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT == peer->unit[index].peer_unit);
+        did_match = (did_wildcard || on_encoded_did_equal(PEER_DID, &(peer->unit[index].peer_did)));
 		  
         if(!src_unit_match || !peer_unit_match || !did_match)
         {
@@ -947,8 +942,8 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
         }
 
         // make the last spot blank		
-        peer_unit_list[MAX_PEER_UNITS - 1].src_unit = ONE_NET_DEV_UNIT;
-        peer_unit_list[MAX_PEER_UNITS - 1].peer_unit = ONE_NET_DEV_UNIT;
+        peer->unit[MAX_PEER_UNITS - 1].src_unit = ONE_NET_DEV_UNIT;
+        peer->unit[MAX_PEER_UNITS - 1].peer_unit = ONE_NET_DEV_UNIT;
 		one_net_memmove(peer_unit_list[MAX_PEER_UNITS - 1].peer_did,
             ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
     }
@@ -978,51 +973,6 @@ static one_net_status_t unassign_peer_adjust_peer_list(const UInt8 SRC_UNIT,
     return ONS_SUCCESS;
 } // unassign_peer_adjust_peer_list //
 
-
-/*!
-    \brief Compares two peer units and sees which is "smaller"
-
-    Peer units are ordered by this criteria
-	1) Encoded Peer DID
-	2) Source Unit
-	3) Peer Unit
-	
-    \param[in] unit1 First peer unit to compare
-    \param[in] unit2 Second peer unit to compare
-    
-    \return negative number if unit1 is "smaller" than did2
-            postive number if unit1 is "larger" than did2
-            0 if unit1 and unit2 have the same values
-*/
-static int peer_unit_cmp(const on_peer_unit_t* const unit1, const on_peer_unit_t* const unit2)
-{
-    int val1, val2;
-    int didCmp = enc_did_cmp(&(unit1->peer_did), &(unit2->peer_did));
-		
-	if(didCmp == 0)
-	{
-        // dids are equal
-		if(unit1->src_unit < unit2->src_unit)
-		{
-			return -1;
-		}
-		if(unit1->src_unit > unit2->src_unit)
-		{
-			return 1;
-		}
-		if(unit1->peer_unit < unit2->peer_unit)
-		{
-			return -1;
-		}
-		if(unit1->peer_unit > unit2->peer_unit)
-		{
-			return 1;
-		}
-		return 0;
-	}
-	
-	return didCmp;
-}
 
 #endif // if _PEER is defined //
 

@@ -107,12 +107,6 @@ const char * const ONCLI_DATA_RATE_TEST_RESULT_FMT
 //! Format output to report the channel the device is on
 const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
 
-
-#ifdef _DEBUG_DELAY
-    const char* const ONCLI_PRINT_DEBUG_DELAY_CMD_STR = "print_debug_delay";
-    const char* const ONCLI_CLEAR_DEBUG_DELAY_CMD_STR = "clear_debug_delay";
-#endif
-
 #ifdef _ONE_NET_DEBUG
     //! debug format strings
     const char * const ONCLI_DEBUG_PREFIX_STR = "d[%04x:%02x:";
@@ -262,11 +256,6 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 	const char * const ONCLI_SET_PIN_CMD_STR = "set pin";
 #endif
 
-#ifdef _ENABLE_IDLE_COMMAND
-    //! Idle command string
-	const char * const ONCLI_IDLE_CMD_STR = "idle";
-#endif
-
 #ifdef _ENABLE_SINGLE_TEXT_COMMAND
 	//! Single text command string
 	const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
@@ -295,18 +284,6 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 #ifdef _ENABLE_DUMP_COMMAND
 	//! Dump data flash command string
 	const char * const ONCLI_DUMP_CMD_STR = "dump";
-#endif
-
-#ifdef _ENABLE_MEMDUMP_COMMAND
-    const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
-#endif
-
-#ifdef _ENABLE_MEMLOAD_COMMAND
-    const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
-#endif
-
-#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
-    const char* const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR = "display_chip_constants";
 #endif
 
 #ifdef _ENABLE_RSINGLE_COMMAND

@@ -183,32 +183,32 @@
 //! the build number for the load that was tested becomes the build number for the release.
 
 
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
 enum {
     ONE_NET_VERSION_MAJOR =     1,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     6,  //! ONE-NET minor version number
     ONE_NET_VERSION_REVISION =  2,  //! ONE-NET revision version number
     ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
 };
-/*#else
+#else
 enum {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     0,  //! ONE-NET minor version number
     ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
     ONE_NET_VERSION_BUILD =     25  //! ONE-NET build version number
 };
-#endif*/
+#endif
 
 
 enum
 {
-/*#ifndef _ONE_NET_VERSION_2_X*/
+#ifndef _ONE_NET_VERSION_2_X
     //! The ONE-NET version
     ON_VERSION = 0x05,
-/*#else
+#else
     //! The ONE-NET version
     ON_VERSION = 0x85,
-#endif*/
+#endif
 
     //! The version of the on_base_param_t, on_master_param_t, client_t,
     //! on_master_t and on_peer_t structures
@@ -304,12 +304,7 @@ enum
     #endif // else _ONE_NET_MULTI_HOP is not defined //
 
     //! The length of an ack/nack packet (in bytes)
-	#ifdef _ONE_NET_VERSION_2_X
-         ON_ACK_NACK_LEN = 26,
-         ON_RAW_ACK_NACK_PLD_LEN = 8, /* does not include the bytes needed for the encryption method */
-	#else
-         ON_ACK_NACK_LEN = 17,
-	#endif
+    ON_ACK_NACK_LEN = 17,
 
     //! The length of a transaction ack packet (in bytes)
     ON_TXN_ACK_LEN = 15,
@@ -414,16 +409,6 @@ enum
     //! The maximum admin payload size (in bytes)
     ON_MAX_ADMIN_PLD_LEN = 4,
 
-#ifdef _ONE_NET_VERSION_2_X
-    //! The length (in bytes) of the raw data (nonces) in a response packet that
-    //! includes the nonces.  Note : In ONE-NET 2.0, this is an encrypted packet.
-	//! Most of this space is random padding.
-    ON_RESP_NONCE_LEN = 11,
-
-    //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
-    //! packet that includes the nonces
-    ON_RESP_NONCE_WORD_SIZE = 11
-#else
     //! The length (in bytes) of the raw data (nonces) in a response packet that
     //! includes the nonces
     ON_RESP_NONCE_LEN = 2,
@@ -431,7 +416,6 @@ enum
     //! The size (in 6 or 8 bit words) of the raw data (nonces) in a response
     //! packet that includes the nonces
     ON_RESP_NONCE_WORD_SIZE = 2
-#endif
 };
 
 //! Payload CRC releated constants
@@ -456,8 +440,6 @@ enum
 //! Payload and Response Parsing Constants
 enum
 {
-    // TODO - are the 3 constants below needed for version 2.0?
-	
     //! Index for the transaction nonce in a response packet
     ON_RESP_TXN_NONCE_IDX = 0,
 
@@ -480,21 +462,9 @@ enum
     //! Index for the low portion of the response nonce
     ON_PLD_RESP_NONCE_LOW_IDX = 2,
 
+
     //! Index for the message type
     ON_PLD_MSG_TYPE_IDX = 2,
-	
-    #ifdef _ONE_NET_VERSION_2_X
-        ON_PLD_NACK_HIGH_IDX = 2,
-        ON_PLD_NACK_LOW_IDX = 3,
-        ON_NACK_HIGH_SHIFT = 2,
-        ON_NACK_LOW_SHIFT = 6,
-        ON_NACK_BUILD_HIGH_MASK = 0x0F,
-        ON_NACK_BUILD_LOW_MASK = 0xC0,
-        ON_NACK_PARSE_HIGH_MASK = 0x3C,
-        ON_NACK_PARSE_LOW_MASK = 0x03,
-    #endif
-
-
 
     //! Index for the data portion
     ON_PLD_DATA_IDX = 3,
@@ -1139,28 +1109,6 @@ typedef enum
 } on_admin_msg_t;
 
 
-#ifdef _ONE_NET_VERSION_2_X
-/*!
-    Nack Reasons
-*/
-typedef enum
-{
-    ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
-    ON_NACK_RSN_NONCE_ERR,           //! received nonce does not match expected one
-	ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
-	ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
-	ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
-	ON_NACK_RSN_MISMATCH_UNIT_ERR,   //! Unit pair specified in Block Data Segment does not match that in Request to Receive Block
-	ON_NACK_RSN_RSRC_UNAVAIL_ERR,    //! resource(s) necessary to complete the transaction not currently available
-	ON_NACK_RSN_INVALID_LENGTH_ERR,  //! specified Device/Unit cannot handle a transaction with the specified length
-	ON_NACK_RSN_BAD_DATA_ERR,        //! improperly formatted data
-	ON_NACK_RSN_TRANSACTION_ERR,     //! invalid transaction specified (such as a Block Data packet in the absence of a previous Block Request)
-	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
-    ON_NACK_RSN_GENERAL_ERR = 0x3F   //! If no specific reason is known
-} on_nack_rsn_t;
-#endif
-
-
 /*!
     Extended admin types
 */
@@ -1434,7 +1382,7 @@ typedef struct
     //! Method to encrypt single or block data
     UInt8 single_block_encrypt;
 
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifndef _ONE_NET_SIMPLE_CLIENT
         //! Key to use for stream data transfers
         one_net_xtea_key_t stream_key;
 
@@ -1613,17 +1561,8 @@ extern const one_net_raw_did_t ON_RAW_BROADCAST_DID;
 
 void one_net_init(const on_pkt_hdlr_set_t * const PKT_HDLR);
 
-#ifdef _IDLE
-    BOOL set_on_state(UInt8 new_on_state);
-	void set_allow_set_state(BOOL allow);
-#endif
-
-BOOL device_is_master(BOOL* member_of_network);
-
 // address functions
 BOOL on_is_my_NID(const on_encoded_nid_t * const NID);
-BOOL did_is_broadcast(const UInt8* const did);
-int enc_did_cmp(const on_encoded_did_t* const enc_did1, const on_encoded_did_t* const enc_did2);
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
 one_net_status_t on_validate_dst_DID(const on_encoded_did_t * const DID);
@@ -1641,8 +1580,6 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
 // functions to build packets
 one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
   const UInt8 RESP_NONCE);
-  
-
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_build_admin_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const UInt8 MSG_TYPE, const UInt8 MSG_ID,
@@ -1656,24 +1593,9 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 RESP_NONCE, const UInt8 * const RAW_DATA,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY,
       const UInt8 MAX_HOPS);
-	  
-    #ifndef _ONE_NET_VERSION_2_X
-      one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
-    #else
-      one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
-/*      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-		const one_net_xtea_key_t * const KEY, const UInt8 MAX_HOPS);*/
-      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);	
-    #endif
-	
+    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE, const UInt8 MAX_HOPS);
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate,
       const UInt8 MAX_HOPS);
@@ -1695,25 +1617,9 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const on_encoded_did_t * const ENCODED_DST, const UInt8 TXN_NONCE,
       const UInt8 RESP_NONCE, const UInt8 * const RAW_DATA,
       const UInt8 DATA_LEN, const one_net_xtea_key_t * const KEY);
-	  
-    #ifndef _ONE_NET_VERSION_2_X
-      one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
-    #else
-      one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
-     /* one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_nack_rsn_t* const nack_reason, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE,
-		const one_net_xtea_key_t * const KEY);	*/
-		
-      one_net_status_t on_build_response_pkt_2_X(UInt8 * pkt, UInt8 * const pkt_size,
-        const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
-        const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);	
-    #endif
-	
+    one_net_status_t on_build_response_pkt(UInt8 * pkt, UInt8 * const pkt_size,
+      const UInt8 PID, const on_encoded_did_t * const ENCODED_DST,
+      const UInt8 TXN_NONCE, const UInt8 EXPECTED_NONCE);
     one_net_status_t on_build_data_rate_pkt(UInt8 * pkt, UInt8 * const pkt_size,
       const on_encoded_did_t * const ENCODED_DST, UInt8 data_rate);
     one_net_status_t on_build_pkt(UInt8 * pkt, UInt8 * const pkt_size,
@@ -1721,12 +1627,10 @@ one_net_status_t on_build_nonces(UInt8 * const data, const UInt8 TXN_NONCE,
       const UInt8 * const RAW_DATA, const UInt8 DATA_WORD_SIZE);
 #endif // else _ONE_NET_MULTI_HOP has not been defined // 
 
-
 // functions to parse packets
 one_net_status_t on_parse_pld(UInt8 * const txn_nonce, UInt8 * const resp_nonce,
   UInt8 * const msg_type, UInt8 * const pld, const UInt8 DATA_TYPE,
   const one_net_xtea_key_t * const KEY);
-
 #ifdef _ONE_NET_MULTI_HOP
     one_net_status_t on_read_and_parse_hops(UInt8 * const max_hops,
       UInt8 * const hops_left);

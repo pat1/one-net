@@ -47,30 +47,14 @@
 
 #include "oncli.h"
 
-#include <string.h>
 #include <ctype.h>
 
 #include "nprintf.h"
 #include "oncli_hdlr.h"
 #include "oncli_str.h"
-#include "str.h"
 #include "one_net_port_specific.h"
 #include "pal.h"
 #include "uart.h"
-#if defined(_ONE_NET_LOAD) || defined(_ONE_NET_DUMP)
-    #include "one_net_crc.h"
-	extern const char HEX_DIGIT[];
-#endif
-
-#if defined(_ONE_NET_CLIENT)
-    #include "one_net_client_port_const.h" // for ONE_NET_MAX_PEER_DEV
-#endif
-
-// 1-15-2010 - TO-DO - What about masters with peer assignments which aren't eval boards?
-#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_EVAL)
-    #include "one_net_eval_hal.h" // for NUM_MASTER_PEER
-#endif
-
 
 
 //==============================================================================
@@ -118,12 +102,6 @@ static UInt16 input_len = 0;
 
 //! The string being output
 static char output[ONCLI_MAX_OUTPUT_STR_LEN];
-
-#ifdef _DEBUG_DELAY
-    static int debug_delay_index = 0;
-    static const int DEBUG_DELAY_BUFFER_SIZE = _DEBUG_DELAY_BUFFER_SIZE;
-    static char debug_delay_buffer[DEBUG_DELAY_BUFFER_SIZE];
-#endif
 
 //! @} oncli_pri_var
 //							PRIVATE VARIABLES END
@@ -302,11 +280,21 @@ void oncli_print_admin_msg(const UInt8 MSG_TYPE, const UInt8 TXN_TYPE,
     {
         UInt8 i;
 
-        oncli_send_msg("\t");   		
-		// not sure what exactly this is printing, but since we now have a print function
-		// for xtea keys, use it.
-		oncli_print_xtea_key(&((one_net_xtea_key_t) ADMIN_MSG_DATA));
-		oncli_send_msg("\n");
+        oncli_send_msg("\t");        
+        for(i = 0; i < LEN; i++)
+        {
+            oncli_send_msg("%02X ", ADMIN_MSG_DATA[i]);
+
+            if((i % 16) == 15)
+            {
+                oncli_send_msg("\n\t");
+            } // if a new line //
+        } // loop to print the data //
+        
+        if(i % 16)
+        {
+            oncli_send_msg("n");
+        } // if the line should be ended //
     } // if not one of the change key messages //
     
     oncli_print_prompt();
@@ -373,7 +361,7 @@ void oncli_send_msg(const char * const FMT, ...)
     #if 0   // for debugging the garbled output on receiving a message bug TODO: RWM: remove after debugging
         if ((FMT == ONCLI_RX_DATA_FMT) || (FMT == ONCLI_RX_TXT_FMT))
         {
-            UInt8 i, high_nibble, low_nibble;
+            UInt8 i;
 #ifdef _ONE_NET_DEBUG_STACK 
             uart_write("\nIn oncli_send, stack is ", 25);
             uart_write_int8_hex( (((UInt16)(&tmp))>>8) & 0xff );
@@ -407,84 +395,6 @@ void oncli_send_msg(const char * const FMT, ...)
     #endif
 } // oncli_send_msg //
 
-
-#ifdef _DEBUG_DELAY
-void debug_delay(const char * const FMT, ...)
-{
-    va_list ap;
-    int debug_output_len;
-	int buffer_len_remaining = DEBUG_DELAY_BUFFER_SIZE - debug_delay_index;
-
-    if(!FMT)
-    {
-        return;
-    } // if the parameter is invalid //
-	
-	if(debug_delay_index < 0 || debug_delay_index >= DEBUG_DELAY_BUFFER_SIZE)
-	{
-        oncli_send_msg("Error: debug_delay_index had invalid value: %d\n",
-		    debug_delay_index);
-		clear_debug_delay();
-		return;
-	}
-
-    va_start(ap, FMT);    
-	
-    if((debug_output_len = vsnprintf(&(debug_delay_buffer[debug_delay_index]),
-	    buffer_len_remaining, FMT, ap)) > buffer_len_remaining)
-    {
-        oncli_send_msg("Error: debug_delay_buffer overflow!  Resetting!\n");
-		clear_debug_delay();
-		return;
-    } // if the output string is too short //
-
-    va_end(ap);
-    debug_delay_index += debug_output_len;
-} // debug_delay //
-
-
-void print_debug_delay(void)
-{
-	int i;
-	for(i = 0; i < debug_delay_index; i++)
-	{
-		uart_write(&(debug_delay_buffer[i]), 1);
-		delay_ms(25);
-	}
-}
-
-
-void clear_debug_delay(void)
-{
-    debug_delay_index = 0;
-}
-#endif
-
-
-/*!
-    \brief Prints an xtea key.
-    
-    
-    \param[in] KEY Pointer to xtea key to print
-    
-    \return void
-*/
-void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
-{
-    UInt8 i;
-
-    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
-    {
-		if(i != 0)
-		{
-			oncli_send_msg(" - ");
-		}
-		oncli_send_msg("(%02x-%02x-%02x-%02x)", 
-		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
-    }
-} // oncli_print_xtea_key //
-
-
 #if defined(_NEED_XDUMP) || defined(_ENABLE_DUMP_COMMAND)
 void xdump(UInt8 *pt, UInt16 len)
 {
@@ -504,446 +414,6 @@ void xdump(UInt8 *pt, UInt16 len)
 
 
 /*!
-    \brief Function to dump volatile memory to UART
-        
-    \param ptr pointer to start of memory to be dumped
-	\param length number of bytes to dump
-    
-    \return true if successful, false otherwise
-*/
-#ifdef _ONE_NET_DUMP
-    BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length)
-	{
-		// note : newline signifies a break/"your turn to send"
-		// note : Reading from uart seems to change '\n' to '\r' and/or
-		// vice-versa.  I think a newline is considered 1 character, not 2,
-		// even with Windows.  But we'll call either '\r' or '\n' a newline
-		UInt16 i, j, chunkSize;
-		UInt8 response, crc, high_nibble, low_nibble;
-		UInt8* temp_ptr;
-		UInt16 numChunks;
-		UInt8 bytesRead;
-		BOOL success, abort;
-		const UInt8 ACK = '0';  // All is OK
-		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
-		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
-		const UInt8 MAX_CHUNK_SIZE = 20;
-		UInt8 buffer[8];
-
-		// we want un-interrupted communication, so set idle and prevent anyone
-		// from changing that.
-        if(!set_on_state(ON_IDLE))
-		{
-			return FALSE;
-		}
-		
-		set_allow_set_state(FALSE);
-
-		numChunks = length / MAX_CHUNK_SIZE;
-		if(length % MAX_CHUNK_SIZE != 0)
-		{
-			numChunks++;
-		}
-		
-		// first send the start of transmission/number of bytes/number of chunks
-		success = FALSE;
-		abort = FALSE;
-		while(!success && !abort)
-		{
-			delay_ms(50);
-			buffer[0] = (UInt8)(length >> 8);
-			buffer[1] = (UInt8)(length & 0x00FF);
-			buffer[2] = (UInt8)(numChunks >> 8);
-			buffer[3] = (UInt8)(numChunks & 0x00FF);
-			buffer[4] = one_net_compute_crc(buffer, 4, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-			oncli_send_msg("TRANS_START:");
-			for(i = 0; i < 5; i++)
-			{
-				if(i == 4)
-				{
-					oncli_send_msg(":");
-				}
-                high_nibble = buffer[i] >> 4;
-                low_nibble  = buffer[i] & 0x0F;
-				oncli_send_msg("%c%c", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);
-			}
-			oncli_send_msg("\n");
-
-			bytesRead = 0;
-			do
-			{
-			    bytesRead += oncli_read(&buffer[bytesRead], 1);
-			}
-			while(bytesRead < 2);
-			
-			if(buffer[1] == '\r' || buffer[1] == '\n')
-			{
-				// we got the break.
-				if(buffer[0] == ACK)
-				{
-					success = TRUE;
-				}
-				else if(buffer[0] == NACK_ABORT)
-				{
-					// other end has given up.
-					abort = TRUE;
-				}
-			}
-		}
-		
-		for(i = 0; !abort && i < numChunks; i++)
-		{
-			delay_ms(50);
-			temp_ptr = ptr + (i * MAX_CHUNK_SIZE);
-			
-			chunkSize = MAX_CHUNK_SIZE;
-			if(i == numChunks - 1)
-			{
-				chunkSize = length - (i * MAX_CHUNK_SIZE);
-			}
-			
-            crc = one_net_compute_crc(temp_ptr, chunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-			
-			buffer[0] = HEX_DIGIT[(i & 0xF000) >> 12];
-			buffer[1] = HEX_DIGIT[(i & 0x0F00) >> 8];
-			buffer[2] = HEX_DIGIT[(i & 0x00F0) >> 4];
-			buffer[3] = HEX_DIGIT[(i & 0x000F)];
-			buffer[4] = HEX_DIGIT[(chunkSize & 0xF000) >> 12];
-			buffer[5] = HEX_DIGIT[(chunkSize & 0x0F00) >> 8];
-			buffer[6] = HEX_DIGIT[(chunkSize & 0x00F0) >> 4];
-			buffer[7] = HEX_DIGIT[(chunkSize & 0x000F)];
-			oncli_send_msg("CHUNK_START:");
-			for(j = 0; j < 8; j++)
-			{
-			    oncli_send_msg("%c", buffer[j]);
-			}
-			oncli_send_msg(":");
-			for(j = 0; j < chunkSize; j++)
-			{
-				high_nibble = (*(temp_ptr + j)) >> 4;
-				low_nibble  = (*(temp_ptr + j)) & 0x0F;
-				oncli_send_msg("%c%c", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);				
-			}
-			
-			// send the crc and the break
-			high_nibble = crc >> 4;
-			low_nibble  = crc & 0x0F;
-			oncli_send_msg(":%c%c\n", HEX_DIGIT[high_nibble], HEX_DIGIT[low_nibble]);
-			
-			// now listen for the ACK or NACK
-			bytesRead = 0;
-			do
-			{
-			    bytesRead += oncli_read(&buffer[bytesRead], 1);
-			}
-			while(bytesRead < 2);
-
-		    if(buffer[1] == '\r' || buffer[1] == '\n')
-			{
-				// we got the break.
-				if(buffer[0] == ACK)
-				{
-					success = TRUE; 
-				}
-				else if(buffer[0] == NACK_ABORT)
-				{
-					// other end has given up.
-					abort = TRUE;
-				}
-				else
-				{
-					// NACK - try again
-					i--;
-				}
-			}
-			else
-			{
-				// no newline break.  Try again.
-				i--;
-			}			
-		}
-		
-		// we're done.  Get out of idle mode and reset the flag
-		set_allow_set_state(TRUE);
-		set_on_state(ON_LISTEN_FOR_DATA);
-		
-        return !abort;
-	}
-#endif
-
-
-/*!
-    \brief Function to load data from UART into volatile memory
-        
-    \param ptr pointer to start of memory to be loaded
-    
-    \return true if successful, false otherwise
-*/
-#ifdef _ONE_NET_LOAD
-    BOOL load_volatile_memory(UInt8* ptr)
-	{
-        // note : this function is basically the reverse of the dump_volatile_memory function
-		// note : newline signifies a break/"your turn to send"
-		// note : Reading from uart seems to change '\n' to '\r' and/or
-		// vice-versa.  I think a newline is considered 1 character, not 2,
-		// even with Windows.  But we'll call either '\r' or '\n' a newline
-		
-		// This function and the last can be consolidated in many ways, plus we can shrink things
-		// down.  We aren't taking full advantage of some helper functions.  Is there a getline function?
-		int i, j;
-		UInt8 response, crc, chunkSize, expectedChunkSize, thisChunkSize, high_nibble, low_nibble, crcPos;
-		UInt8* temp_ptr;
-		UInt16 length, numChunks, chunkNumber, thisChunkNumber;
-		UInt8 bytesRead;
-		BOOL success, abort, error;
-		const UInt8 ACK = '0';  // All is OK
-		const UInt8 NACK_RESEND = '1'; // Problem.  Try again.
-		const UInt8 NACK_ABORT = '2'; // Problem.  Unrecoverable.  Abort
-		const UInt8 MIN_CHUNK_SIZE = 1;
-		const UInt8 MAX_CHUNK_SIZE = 20;
-		UInt8 ascii_buffer[2 * MAX_CHUNK_SIZE + 30];  // 30 is just a number more than big enough to 
-	                                            // contain all the "extra" characters.
-		UInt8 buffer[MAX_CHUNK_SIZE + 30] ;// 30 is just a number more than big enough to 
-	                                            // contain all the "extra" bytes.
-		
-
-		// we want un-interrupted communication, so set idle and prevent anyone
-		// from changing that.
-        if(!set_on_state(ON_IDLE))
-		{
-			return FALSE;
-		}
-		
-		set_allow_set_state(FALSE);
-		
-		// First line should be "TRANS_START:", then 8 hex digits, then ":", then
-		// 2 hex digits, then a '\r' or '\n', 24 characters total.
-		success = FALSE;
-		abort = FALSE;
-		numChunks = 0;
-		length = 0;
-		
-		while(!success && !abort)
-		{
-			delay_ms(40);
-		    bytesRead = 0;
-		    ascii_buffer[bytesRead] = 0;
-		    abort = FALSE;
-		    success = FALSE;
-		    error = FALSE;
-
-	    	while(bytesRead == 0 || (ascii_buffer[bytesRead-1] != '\r' && ascii_buffer[bytesRead-1] != '\n'))
-		    {
-			    bytesRead += oncli_read(&ascii_buffer[bytesRead], 1);
-				
-		    	if(bytesRead > 24)
-		    	{
-			    	// too long
-					error = TRUE;
-					bytesRead = 1; // read things in and throw them away.  We're in error condition.
-			    }
-		    }
-			
-			if(error || bytesRead != 24 || strnicmp("TRANS_START:", ascii_buffer, 12) ||
-			    ascii_buffer[20] != ':')
-			{
-				error = TRUE;
-			}
-			if(error || (ascii_hex_to_byte_stream(&ascii_buffer[12], buffer, 8) != 8))
-			{
-				error = TRUE;
-			}
-			if(error || (ascii_hex_to_byte_stream(&ascii_buffer[21], &buffer[4], 2) != 2))
-			{
-				error = TRUE;
-			}
-			if(!error)
-			{
-				// calculate crc
-				crc = one_net_compute_crc(buffer, 4, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-				if(crc != buffer[4])
-				{
-					// crc's don't match
-					error = TRUE;
-				}
-			}
-			
-			if(error)
-			{
-				oncli_send_msg("%c\n", NACK_RESEND);
-			}
-			else
-			{
-			    length = one_net_byte_stream_to_int16(&buffer[0]);
-			    numChunks = one_net_byte_stream_to_int16(&buffer[2]);
-				if(numChunks <= 0)
-				{
-					abort = TRUE;
-					oncli_send_msg("%c\n", NACK_ABORT);
-				}
-				else
-				{
-					success = TRUE;
-					oncli_send_msg("%c\n", ACK);
-				}
-			}
-		}
-
-
-        // we want to read in a chunk at a time, test it, and send the ACK, NACK, or ABORT.
-		// A "chunk" representing 15 bytes would look like this:
-		// CHUNK_START:0002000F:0A0B0C0D0E0F407D00000019000000:B0
-		// It starts with "CHUNK_START:", then 8 hex digits.  The first 4 represent the chunk
-		// number in hex (in this case, the chunk number is 0x0002, or 2.  The next four bits is
-		// the chunk size in bytes (in this case, the chunk number is 0x0002, or 15).
-		// Then there are 30 hexadecimal digits, representing 15 bytes (matching the chunk size of
-		// 15).  These 15 bytes will then have a CRC calculated over them.
-		// Then there is a colon, then there are 2 hexadecimal digits, which represent the CRC.  This
-		// should match the calculated CRC calculated over the 15 bytes.
-		//
-		// The total size of the line, including the newline/carriage return, should be the 25 +
-		// the chunk size times 2, so for a chunk size of 15, that would be (25 + (15 * 2)) or 55.
-		chunkNumber = 0;
-		chunkSize = 0;
-		thisChunkSize = 0;
-		success = FALSE;
-		while(!success && !abort)
-		{
-		    bytesRead = 0;
-		    ascii_buffer[bytesRead] = 0;
-		    error = FALSE;
-
-	    	while(bytesRead == 0 || (ascii_buffer[bytesRead-1] != '\r' && ascii_buffer[bytesRead-1] != '\n'))
-		    {
-			    bytesRead += oncli_read(&ascii_buffer[bytesRead], 1);			
-		    	if(bytesRead > (25 + MAX_CHUNK_SIZE * 2))
-		    	{
-			    	// too long
-					error = TRUE;
-					bytesRead = 1; // read things in and throw them away.  We're in error condition.
-			    }
-		    }
-			
-			if(error)
-			{
-				goto memload_send_chunk_reply;
-			}
-			
-			// set error to true.  If any tests fail, skip the rest with a goto command.  If all tests
-			// pass, we'll set error to false at the end.
-			error = TRUE;
-			
-			if(bytesRead < (25 + MIN_CHUNK_SIZE * 2) || strnicmp("CHUNK_START:", ascii_buffer, 12) ||
-			    ascii_buffer[20] != ':')
-			{
-				goto memload_send_chunk_reply;
-			}
-		
-			if(ascii_hex_to_byte_stream(&ascii_buffer[12], buffer, 8) != 8)
-			{
-				goto memload_send_chunk_reply;
-			}
-
-			thisChunkNumber = one_net_byte_stream_to_int16(&buffer[0]);
-			thisChunkSize = one_net_byte_stream_to_int16(&buffer[2]);
-		    if(thisChunkNumber != chunkNumber)
-			{
-				// expecting a different chunk number
-				goto memload_send_chunk_reply;
-			}
-				
-			if(chunkNumber == 0)
-			{
-				chunkSize = thisChunkSize;
-				if(chunkSize > MAX_CHUNK_SIZE)
-				{
-					abort = TRUE;
-					goto memload_send_chunk_reply;
-				}
-			}
-				
-			expectedChunkSize = chunkSize;
-			if(chunkNumber == numChunks - 1)
-			{
-				expectedChunkSize = length - (chunkNumber * chunkSize);
-				if(expectedChunkSize > chunkSize)
-				{
-					// abort.  Can't have last chunk size bigger than the other chunk sizes.
-					abort = TRUE;
-					goto memload_send_chunk_reply;
-				}
-			}
-				
-			if(thisChunkSize != expectedChunkSize)
-			{
-				// expecting a different chunk size
-				goto memload_send_chunk_reply;
-			}
-				
-			if(bytesRead != (25 + thisChunkSize * 2))
-			{
-				// length is wrong.
-				goto memload_send_chunk_reply;
-			}
-				
-			crcPos = 22 + 2 * thisChunkSize;
-			if(ascii_buffer[crcPos - 1] != ':' ||
-			    (ascii_buffer[crcPos + 2] != '\r' && ascii_buffer[crcPos + 2] != '\n'))
-			{
-				goto memload_send_chunk_reply;
-			}
-				
-			if((ascii_hex_to_byte_stream(&ascii_buffer[21], buffer, 2 * thisChunkSize) != 2 * thisChunkSize)
-			    || (ascii_hex_to_byte_stream(&ascii_buffer[crcPos], &buffer[thisChunkSize], 2) != 2))
-			{
-				goto memload_send_chunk_reply;
-			}
-				
-			// calculate crc
-		    crc = one_net_compute_crc(buffer, thisChunkSize, ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER);
-			if(crc != buffer[thisChunkSize])
-			{
-			    // crc's don't match
-			    goto memload_send_chunk_reply;
-		    }
-		 
-            // things are good.  Set error to false.
-			error = FALSE;
-			
-memload_send_chunk_reply:		
-			delay_ms(50);
-			if(abort)
-			{
-				oncli_send_msg("%c\n", NACK_ABORT);
-			}
-			else if(error)
-			{
-				oncli_send_msg("%c\n", NACK_RESEND);
-			}
-			else
-			{
-                // everything is good for this chunk.  Copy it to memory
-				temp_ptr = ptr + (chunkNumber * chunkSize);
-				one_net_memmove(temp_ptr, buffer, thisChunkSize);
-				chunkNumber++;
-				if(chunkNumber >=  numChunks)
-				{
-					success = TRUE;
-				}
-				oncli_send_msg("%c\n", ACK);
-			}
-		}
-		
-		// we're done.  Get out of idle mode and reset the flag
-		set_allow_set_state(TRUE);
-		set_on_state(ON_LISTEN_FOR_DATA);
-		
-        return !abort;
-	}
-#endif
-
-
-/*!
     \brief Main function for process handling ONE-NET Command Line Interface.
     
     This function should be called regularly from the programs main loop.
@@ -958,64 +428,6 @@ void oncli()
     read_onc();
 #endif
 } // oncli //
-
-
-/*!
-    \brief Converts a string of ASCCI hex digits to a byte stream.
-    
-    \param[in] STR The ASCII string of hex digits.
-    \param[out] byte_stream The byte stream that results from STR
-    \param[in] NUM_ASCII_CHAR The number of ascii characters to convert.  This
-      is really twice the number of bytes that were converted.
-    
-    \return The number of ASCII characters that were converted.
-*/
-UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
-  const UInt16 NUM_ASCII_CHAR)
-{
-    UInt16 num_converted;
-    
-    UInt8 hex;
-
-    if(!STR || !byte_stream || !NUM_ASCII_CHAR)
-    {
-        return 0;
-    } // if any of the parameters are invalid //
-
-    for(num_converted = 0; num_converted < NUM_ASCII_CHAR; num_converted++)
-    {
-        hex = ascii_hex_to_nibble(STR[num_converted]);
-        if(hex > 0x0F)
-        {
-            break;
-        } // if the conversion failed //
-
-        if(num_converted & 0x01)
-        {
-            byte_stream[num_converted >> 1] |= hex;
-        } // if the second nibble in the byte //
-        else
-        {
-            byte_stream[num_converted >> 1] = hex << 4;
-        } // else the first nibble in the byte //
-    } // loop to convert payload from ascii //
-    
-    return num_converted;
-} // ascii_hex_to_byte_stream //
-
-
-/*!
-    \brief Checks if a given character is a valid ONE-NET unique key character.
-    
-    Valid unique key for adding devices characters are '2' - '9', and 'A' - 'Z'
-    except for 'O' & 'L'.  The key is case sensitive.
-*/
-BOOL oncli_is_valid_unique_key_ch(const char CH)
-{
-    return (BOOL)(isalnum(CH) && CH >= '2'
-      && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
-} // oncli_is_valid_unique_key_ch //
-
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END

@@ -96,6 +96,7 @@ typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
   UInt8 * const next_state, oncli_cmd_hdlr_t * const cmd_hdlr);
 
+
 //! @} oncli_hdlr_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

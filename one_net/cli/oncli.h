@@ -119,33 +119,12 @@ void oncli_print_admin_msg(const UInt8 MSG_TYPE, const UInt8 TXN_TYPE,
 
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
 void oncli_send_msg(const char * const FMT, ...);
-void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
-
 #if defined(_NEED_XDUMP) || defined(_ENABLE_DUMP_COMMAND)
 void xdump(UInt8 *pt, UInt16 len);
 #endif
 
-#ifdef _ONE_NET_DUMP
-    BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length);
-#endif
-
-#ifdef _ONE_NET_LOAD
-    BOOL load_volatile_memory(UInt8* ptr);
-#endif
 
 void oncli(void);
-
-UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
-  const UInt16 NUM_ASCII_CHAR);
-  
-BOOL oncli_is_valid_unique_key_ch(const char CH);
-
-#ifdef _DEBUG_DELAY
-    void debug_delay(const char * const FMT, ...);
-	void print_debug_delay(void);
-	void clear_debug_delay(void);
-#endif
-
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END

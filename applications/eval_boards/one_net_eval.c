@@ -878,7 +878,6 @@ void eval_block_txn_status(one_net_status_t STATUS,
 } // eval_block_txn_status //
 
 
-/*#ifndef _ONE_NET_VERSION_2_X*/
 /*!
     \brief Handles the received single transaction.
     
@@ -933,72 +932,6 @@ void eval_handle_single(const UInt8 *RX_PLD, UInt16 RX_PLD_LEN,
 
     print_packet(ONCLI_SINGLE_TXN_STR, RX_PLD, RX_PLD_LEN, SRC_ADDR);
 } // eval_handle_single //
-/*#else*/
-/*!
-    \brief Handles the received single transaction.
-	
-    \param[in] msg_class the type of the payload (ONA_STATUS, ONA_QUERY, ONA_POLL or ONA_COMMAND)
-    \param[in] msg_type the unit type of the destination unit
-    \param[in] src_unit the source unit number
-	\param[in] dst_unit the destination unit
-	\param[in/out] msg_data the data in the incoming message and possibly in the outgoing message
-	\param[in] SRC_ADDR the raw address of the source
-	\param[out] useDefaultHandling flag set that is read by ONE-NET.  If true, then ONE-NET will use
-	            its default handling for queries
-	            If false, the application provides its own handling
-	\param[out] nack_reason The "reason" that should be given if a NACK needs to be sent
-	
-    \return TRUE If it was a valid packet (and it will be handled)
-            FALSE If it was an invalid packet and a NACK should be sent
-*/
-/*BOOL eval_handle_single(ona_msg_class_t msg_class, ona_msg_type_t msg_type, 
-         UInt8 src_unit, UInt8 dst_unit, UInt16* msg_data,
-         const one_net_raw_did_t* const SRC_ADDR, BOOL* useDefaultHandling,
-		 on_nack_rsn_t* nack_reason)
-{	
-    if(!nack_reason)
-	{
-		return FALSE;
-	}
-	
-    if(!msg_data || !SRC_ADDR || !useDefaultHandling)
-    {
-        oncli_send_msg(ONCLI_GENERAL_ERROR_FMT, ONCLI_GEN_ERR_BAD_PARAMETER, eval_handle_single);
-        *nack_reason = ON_NACK_RSN_INTERNAL_ERR;
-        return FALSE;
-    } // if any of the parameters are invalid //
-    
-	*useDefaultHandling = TRUE;
-
-    if(msg_type == ONA_SWITCH && msg_class == ONA_COMMAND)
-    {
-        if ((user_pin[0].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 0))
-        {
-            USER_PIN0 = (*msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((*msg_data == ONA_ON) ? 1 : 0);
-        } // if pin1 is an output and the message is for pin 1 //
-        else if ((user_pin[1].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 1))
-        {
-            USER_PIN1 = (*msg_data == ONA_TOGGLE) ? !USER_PIN1 : ((*msg_data == ONA_ON) ? 1 : 0);
-        } // if pin2 is an output and the message is for pin 2 //
-        else if ((user_pin[2].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 2))
-        {
-            USER_PIN2 = (*msg_data == ONA_TOGGLE) ? !USER_PIN2 : ((*msg_data == ONA_ON) ? 1 : 0);
-        } // if pin3 is an output and the message is for pin 3 //
-        else if ((user_pin[3].pin_type == ONCLI_OUTPUT_PIN) && (dst_unit == 3))
-        {
-            USER_PIN3 = (*msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((*msg_data == ONA_ON) ? 1 : 0);
-        } // if pin4 is an output and the message is for pin 4 //
-    } // if a switch command message //
-	else
-	{
-        *nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-        return FALSE;		
-	}
-
-	return TRUE;
-} // eval_handle_single
-#endif*/
-
 
 
 /*!
