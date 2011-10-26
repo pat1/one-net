@@ -3,16 +3,16 @@
 [DATABASE_VERSION]
 "2.8" 
 [PROJECT_DETAILS]
-"eval_adi" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" "M16C" "Renesas M16C Standard" "Application" "R8C/Tiny" "R8C/23" 
+"eval_adi" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" "M16C" "Renesas M16C Standard" "Application" "R8C/Tiny" "R8C/23" 
 [INFORMATION]
 "No project information available" 
 [TOOL_CHAIN]
 "Renesas M16C Standard Toolchain" "5.45.01" 
 [CONFIGURATIONS]
-"Debug" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug" 
-"Debug_M16C_R8C_Simulator" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_M16C_R8C_Simulator" 
-"Debug_R8C_E8_SYSTEM" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" 
-"Release" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Release" 
+"Debug" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug" 
+"Debug_M16C_R8C_Simulator" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_M16C_R8C_Simulator" 
+"Debug_R8C_E8_SYSTEM" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" 
+"Release" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Release" 
 [BUILD_PHASES]
 "Renesas M16C Assembler" 1 
 "Renesas M16C C Compiler" 1 
@@ -109,8 +109,8 @@
 "Relocatable file" "Renesas M16C Linker" "Renesas M16C Assembler" 
 "Relocatable file" "Renesas M16C Linker" "Renesas M16C C Compiler" 
 [PROJECT_FILES]
-"C:\HEWProj\aaaa\applications\eval_boards\one_net_eval.c" "User" "C source file" 2 
-"C:\HEWProj\aaaa\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
 [FOLDER]
 "Assembly source file" "Assembly source file" 
 "C source file" "C source file" 
@@ -119,18 +119,18 @@
 [ON_DEMAND_COMPONENTS_LOADED]
 [SYNC_SESSION_NAMES]
 [SESSIONS]
-"DefaultSession" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\DefaultSession.hsf" 0 
-"SessionM16C_R8C_Simulator" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\SessionM16C_R8C_Simulator.hsf" 0 
-"SessionR8C_E8_SYSTEM" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\SessionR8C_E8_SYSTEM.hsf" 0 
+"DefaultSession" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\DefaultSession.hsf" 0 
+"SessionM16C_R8C_Simulator" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\SessionM16C_R8C_Simulator.hsf" 0 
+"SessionR8C_E8_SYSTEM" "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\SessionR8C_E8_SYSTEM.hsf" 0 
 [GENERAL_DATA_SESSION_DefaultSession]
 [GENERAL_DATA_SESSION_SessionM16C_R8C_Simulator]
 [GENERAL_DATA_SESSION_SessionR8C_E8_SYSTEM]
 [OPTIONS_Debug_Renesas M16C Assembler]
 "Assembly source file" "0c2afc6c8639cc10" 2 
-"C:\HEWProj\aaaa\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
 [OPTIONS_Debug_Renesas M16C C Compiler]
 "C source file" "01c3ee459639cc10" 1 
-"C:\HEWProj\aaaa\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
 [OPTIONS_Debug_Renesas M16C Configurator]
 "Single Shot" "092819e6d639cc10" 6 
 [OPTIONS_Debug_Renesas M16C ConfiguratorR8C]
@@ -152,14 +152,14 @@
 "[V|VERSION|2] [B|STARTUPLINK|1] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [S|INPUTLIBRARY|^"L=nc30lib^"] [S|CPU|R8C2X] " 3 
 [EXCLUDED_FILES_Debug]
 [LINKAGE_ORDER_Debug]
-"C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug\ncrt0.r30" 
+"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug\ncrt0.r30" 
 [GENERAL_DATA_CONFIGURATION_Debug]
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Assembler]
 "Assembly source file" "0c2afc6c8639cc10" 2 
-"C:\HEWProj\aaaa\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C C Compiler]
 "C source file" "0280baa79639cc10" 1 
-"C:\HEWProj\aaaa\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Configurator]
 "Single Shot" "092819e6d639cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C ConfiguratorR8C]
@@ -181,14 +181,14 @@
 "[V|VERSION|2] [B|STARTUPLINK|1] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [S|INPUTLIBRARY|^"L=nc30lib^"] [S|CPU|R8C2X] " 3 
 [EXCLUDED_FILES_Debug_M16C_R8C_Simulator]
 [LINKAGE_ORDER_Debug_M16C_R8C_Simulator]
-"C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_M16C_R8C_Simulator\ncrt0.r30" 
+"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_M16C_R8C_Simulator\ncrt0.r30" 
 [GENERAL_DATA_CONFIGURATION_Debug_M16C_R8C_Simulator]
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Assembler]
 "Assembly source file" "0c2afc6c8639cc10" 2 
-"C:\HEWProj\aaaa\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C C Compiler]
-"C source file" "038f1f889639cc10" 1 
-"C:\HEWProj\aaaa\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C source file" "03ca2dbd7739cc10" 1 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "03ca2dbd7739cc10" 1 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Configurator]
 "Single Shot" "092819e6d639cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C ConfiguratorR8C]
@@ -203,21 +203,21 @@
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
 "[V|VERSION|1] [B|DATALENGTH|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).mot^"] [S|CPU|R8C2X] " 4 
-"[V|VERSION|1] [S|INCLUDE|^"$(WORKSPDIR)\..\..\..\..\applications\eval_boards^"|^"$(WORKSPDIR)\..\..\src\r8c23^"|^"$(WORKSPDIR)\..\..\src\eval^"|^"$(WORKSPDIR)\..\..\src\common^"] [S|OUTPUT|OBJECTCODE] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|CPU|R8C2X]
+"[V|VERSION|1] [S|INCLUDE|^"$(WORKSPDIR)\..\..\..\..\applications\eval_boards^"|^"$(WORKSPDIR)\..\..\src\r8c23^"|^"$(WORKSPDIR)\..\..\src\eval\adi^"|^"$(WORKSPDIR)\..\..\src\eval^"|^"$(WORKSPDIR)\..\..\src\common^"] [S|OUTPUT|OBJECTCODE] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|CPU|R8C2X]
 " 1 
 "[V|VERSION|1] [S|LIST|L|M] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|CPU|R8C2X] " 2 
 "[V|VERSION|1] [S|MODE|CREATE|] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).lib^"] " 5 
 "[V|VERSION|2] [B|STARTUPLINK|1] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [S|INPUTLIBRARY|^"L=nc30lib^"] [S|CPU|R8C2X] " 3 
 [EXCLUDED_FILES_Debug_R8C_E8_SYSTEM]
 [LINKAGE_ORDER_Debug_R8C_E8_SYSTEM]
-"C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30" 
+"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30" 
 [GENERAL_DATA_CONFIGURATION_Debug_R8C_E8_SYSTEM]
 [OPTIONS_Release_Renesas M16C Assembler]
 "Assembly source file" "0c2afc6c8639cc10" 2 
-"C:\HEWProj\aaaa\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "0c2afc6c8639cc10" 2 
 [OPTIONS_Release_Renesas M16C C Compiler]
 "C source file" "04ebad299639cc10" 1 
-"C:\HEWProj\aaaa\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
 [OPTIONS_Release_Renesas M16C Configurator]
 "Single Shot" "092819e6d639cc10" 6 
 [OPTIONS_Release_Renesas M16C ConfiguratorR8C]
@@ -239,7 +239,7 @@
 "[V|VERSION|2] [B|STARTUPLINK|1] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [S|INPUTLIBRARY|^"L=nc30lib^"] [S|CPU|R8C2X] " 3 
 [EXCLUDED_FILES_Release]
 [LINKAGE_ORDER_Release]
-"C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Release\ncrt0.r30" 
+"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Release\ncrt0.r30" 
 [GENERAL_DATA_CONFIGURATION_Release]
 [GENERAL_DATA_CONFIGURATION_SESSION_Debug_DefaultSession]
 [SESSION_DATA_CONFIGURATION_SESSION_Debug_DefaultSession]

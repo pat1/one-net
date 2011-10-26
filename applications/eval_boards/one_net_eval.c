@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  FILE        :eval_adi.c                                            */
+/*  FILE        :one_net_eval.c                                            */
 /*  DATE        :Tue, Oct 25, 2011                                     */
 /*  DESCRIPTION :main program file.                                    */
 /*  CPU GROUP   :23                                                    */
@@ -9,9 +9,11 @@
 /*  NOTE:THIS IS A TYPICAL EXAMPLE.                                    */
 /***********************************************************************/
 
-void main(void);
 
-void main(void)
+#include "config_options.h"
+
+
+int main(void)
 {
-	
+	return 0;
 }
