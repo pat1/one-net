@@ -1,7 +1,7 @@
 ;***************************************************************************
 ; C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
-; and Renesas Solutions Corp., All rights reserved.
+; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
+; and Renesas Solutions Corporation. All rights reserved.
 ;
 ; ncrt0.a30 : Startup Program for R8C/Tiny
 ;       
@@ -104,6 +104,6 @@ dummy_int:
 		.end
 ;***************************************************************************
 ;	C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
-; and Renesas Solutions Corp., All rights reserved.
+; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
+; and Renesas Solutions Corporation. All rights reserved.
 ;***************************************************************************

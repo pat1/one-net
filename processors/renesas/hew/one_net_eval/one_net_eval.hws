@@ -1,16 +1,14 @@
 [HIMDBVersion]
 2.0
 [DATABASE_VERSION]
-"10.0" 
+"11.0" 
 [WORKSPACE_DETAILS]
-"one_net_eval" "C:\ONE_NET\processors\renesas\hew\one_net_eval" "C:\ONE_NET\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
+"one_net_eval" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
 [SHARED_WORKSPACE_CONTROL_STATUS]
 "" "" "" 
 "" "" "" 
 [PROJECTS]
-"eval_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
-"eval_semtech" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_semtech" "C:\ONE_NET\processors\renesas\hew\one_net_eval\eval_semtech\eval_semtech.hwp" 0 
-"sniffer_fe_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\sniffer_fe_adi" "C:\ONE_NET\processors\renesas\hew\one_net_eval\sniffer_fe_adi\sniffer_fe_adi.hwp" 0 
+"eval_adi" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi" "C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
 [INFORMATION]
 "No workspace information available" 
 [SCRAP]
@@ -21,7 +19,7 @@
 [USERMENUTOOLS]
 [CUSTOMPLACEHOLDERS]
 [MAKEFILE_BUILD_INFO]
-"$(PROJECTNAME)_$(CONFIGNAME).mak" "" "$(WORKSPDIR)\make" 0 0 0 
+"$(WORKSPDIR)\make\$(PROJECTNAME)_$(CONFIGNAME).mak" "" "$(WORKSPDIR)\make" 0 0 0 
 [VD_CONFIGURATION_OPTIONS]
 "ACTIVE_DESKTOP" "0" 
 [VD_CONFIGURATIONS]
@@ -30,7 +28,7 @@
 "2" "Default3" "1" 
 "3" "Default4" "1" 
 [OPTIONS_DEBUG_TAB]
-0 0 0 0 
+0 0 0 0 0 
 [VCS]
 "" "" "" 0 
 [VCS_PROJECT]

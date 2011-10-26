@@ -1,12 +1,12 @@
 ;***************************************************************************
 ; C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
-; and Renesas Solutions Corp., All rights reserved.
+; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
+; and Renesas Solutions Corporation. All rights reserved.
 ;
 ; sect30.inc : section definition for R8C/Tiny
 ;
-; $Date: 2006/09/06 04:54:05 $
-; $Revision: 1.1 $
+; $Date: 2007/11/29 09:02:11 $
+; $Revision: 1.1.14.1 $
 ;***************************************************************************
 
 ;=====================================================================
@@ -50,11 +50,12 @@ bss_NO_top:
 ;---------------------------------------------------------------------
 ; Stack area
 ;---------------------------------------------------------------------
-		.section	stack,DATA,ALIGN
+		.section	istack,DATA,ALIGN
 		.blkb		__ISTACKSIZE__
 istack_top:
 
 .if __STACKSIZE__ != 0
+		.section	stack,DATA,ALIGN
 		.blkb		__STACKSIZE__
 stack_top:
 .endif
@@ -111,7 +112,7 @@ data_NOI_top:
 		.section	vector,ROMDATA
 		.org		__VECTOR_ADR__
 
-.if	1
+.if	0
 		.lword	dummy_int		; vector  0
 		.lword	dummy_int		; vector  1
 		.lword	dummy_int		; vector  2
@@ -129,33 +130,19 @@ data_NOI_top:
 		.lword	dummy_int		; vector 14
 		.lword	dummy_int		; vector 15
 		.lword	dummy_int		; vector 16
-		
-        .glb    _uart_tx_isr    ; UART0 transmit isr
-    	.lword	_uart_tx_isr    ; vector 17
-    
-    	.glb    _uart_rx_isr    ; UART0 receive isr
-    	.lword	_uart_rx_isr    ; vector 18
-
-    	.lword	dummy_int		; vector 19
-    	.lword	dummy_int		; vector 20
-    	.lword	dummy_int		; vector 21
-
-    	.glb    _tx_bit_isr     ; RF TX bit isr
-    	.lword	_tx_bit_isr     ; vector 22
-
-    	.lword	dummy_int		; vector 23
-
-    	.glb    _tick_timer_isr ; tick timer isr
-    	.lword	_tick_timer_isr ; vector 24
-
-        .lword	dummy_int		; vector 25
-    	.lword	dummy_int		; vector 26
-    	.lword	dummy_int		; vector 27
-    	.lword	dummy_int		; vector 28
-
-        .glb    _dataclk_isr    ; RF RX bit isr
-    	.lword	_dataclk_isr    ; vector 29
-
+		.lword	dummy_int		; vector 17
+		.lword	dummy_int		; vector 18
+		.lword	dummy_int		; vector 19
+		.lword	dummy_int		; vector 20
+		.lword	dummy_int		; vector 21
+		.lword	dummy_int		; vector 22
+		.lword	dummy_int		; vector 23
+		.lword	dummy_int		; vector 24
+		.lword	dummy_int		; vector 25
+		.lword	dummy_int		; vector 26
+		.lword	dummy_int		; vector 27
+		.lword	dummy_int		; vector 28
+		.lword	dummy_int		; vector 29
 		.lword	dummy_int		; vector 30
 		.lword	dummy_int		; vector 31
 		.lword	dummy_int		; vector 32
@@ -261,7 +248,7 @@ N_BCOPY .macro		FROM_,TO_,SECT_
 
 ;***************************************************************************
 ;	C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
-; and Renesas Solutions Corp., All rights reserved.
+; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
+; and Renesas Solutions Corporation. All rights reserved.
 ;***************************************************************************
 

@@ -1,6 +1,0 @@
-ONE-NET Evaluation Change Log.
-
-Version 	Date            Description
---------------------------------------------------------------------------------
-0.1         2007.12.11      Initial release using v0.9 of ONE-NET.
-

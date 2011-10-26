@@ -1,0 +1,227 @@
+##########################################
+# (1) LINK INFORMATION                   #
+##########################################
+c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\eval_adi.m16cl
+
+# ID CODE DATA
+.ID  "#FFFFFFFFFFFFFF"
+
+# OPTION FUNCTION SELECT REGISTER
+.OFSREG  FFH
+
+# LINK FILE INFORMATION
+ncrt0 (C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30)
+	Oct 25 23:48:44 2011
+
+one_net_eval (C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30)
+	Oct 25 23:48:44 2011
+
+init (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:53 2010
+
+mdata (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:55 2010
+
+device (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:45 2010
+
+
+##########################################
+# (2) SECTION INFORMATION                #
+##########################################
+# SECTION                        ATR TYPE    START  LENGTH ALIGN MODULENAME
+data_SE                          ABS DATA    000400 000000       ncrt0
+bss_SE                           REL DATA    000400 000000 2     ncrt0
+data_SO                          REL DATA    000400 000000       ncrt0
+bss_SO                           REL DATA    000400 000000       ncrt0
+data_NE                          REL DATA    000400 000000 2     ncrt0
+                                 REL DATA    000400 000010 2     mdata
+bss_NE                           REL DATA    000410 000000 2     ncrt0
+                                 REL DATA    000410 00003C 2     init
+                                 REL DATA    00044C 000008 2     mdata
+data_NO                          REL DATA    000454 000000       ncrt0
+bss_NO                           REL DATA    000454 000000       ncrt0
+istack                           REL DATA    000454 000080 2     ncrt0
+stack                            REL DATA    0004D4 000080 2     ncrt0
+heap                             REL DATA    000554 000080       ncrt0
+rom_NE                           ABS ROMDATA 004000 000000       ncrt0
+rom_NO                           REL ROMDATA 004000 000000       ncrt0
+data_SEI                         REL ROMDATA 004000 000000 2     ncrt0
+data_SOI                         REL ROMDATA 004000 000000       ncrt0
+data_NEI                         REL ROMDATA 004000 000000 2     ncrt0
+                                 REL ROMDATA 004000 000010       mdata
+data_NOI                         REL ROMDATA 004010 000000       ncrt0
+program                          REL CODE    004010 000000 2     ncrt0
+                                 REL CODE    004010 000001 2     one_net_eval
+                                 REL CODE    004012 00009D 2     init
+                                 REL CODE    0040B0 00011F 2     device
+interrupt                        REL CODE    0041D0 000000 2     ncrt0
+                                 REL CODE    0041D0 0000A1       ncrt0
+vector                           ABS ROMDATA 00FEDC 000000       ncrt0
+fvector                          ABS ROMDATA 00FFDC 000024       ncrt0
+# Total -------------------------------------------------------------------
+                                     DATA           0001D4(0000468) Byte(s)
+                                     ROMDATA        000034(0000052) Byte(s)
+                                     CODE           000260(0000608) Byte(s)
+
+##########################################
+# (3) GLOBAL LABEL INFORMATION           #
+##########################################
+$_pput             004188  $_sput             00416e  $exit              00426e
+$init_dev          0040b0  $speed             0040d2  __init             004012
+__iob              000410  __memt             000408  __mnext            00044c
+__msize            000450  __pool             000400  __sget             00415e
+_exit              00426e  _main              004010  dummy_int          004270
+start              0041d0  
+
+##########################################
+# (4) GLOBAL EQU SYMBOL INFORMATION      #
+##########################################
+__SB__           00000400  
+
+##########################################
+# (5) GLOBAL EQU BIT-SYMBOL INFORMATION  #
+##########################################
+
+##########################################
+# (6) LOCAL LABEL INFORMATION            #
+##########################################
+@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+
+##########################################
+# (7) LOCAL EQU SYMBOL INFORMATION       #
+##########################################
+@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+
+##########################################
+# (8) LOCAL EQU BIT-SYMBOL INFORMATION   #
+##########################################
+@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+
+*** Mapping List ***
+
+SECTION                            START      END         SIZE   ALIGN
+
+data_SE
+                                  00000400  00000400         0   1
+bss_SE
+                                  00000400  00000400         0   2
+data_SO
+                                  00000400  00000400         0   1
+bss_SO
+                                  00000400  00000400         0   1
+data_NE
+                                  00000400  0000040f        10   2
+bss_NE
+                                  00000410  00000453        44   2
+data_NO
+                                  00000454  00000454         0   1
+bss_NO
+                                  00000454  00000454         0   1
+istack
+                                  00000454  000004d3        80   2
+stack
+                                  000004d4  00000553        80   2
+heap
+                                  00000554  000005d3        80   1
+rom_NE
+                                  00004000  00004000         0   1
+rom_NO
+                                  00004000  00004000         0   1
+data_SEI
+                                  00004000  00004000         0   2
+data_SOI
+                                  00004000  00004000         0   1
+data_NEI
+                                  00004000  0000400f        10   2
+data_NOI
+                                  00004010  00004010         0   1
+program
+                                  00004010  000041ce       1bf   2
+interrupt
+                                  000041d0  00004270        a1   2
+vector
+                                  0000fedc  0000fedc         0   1
+fvector
+                                  0000ffdc  0000ffff        24   1
+
+*** Symbol List ***
+
+SECTION=
+FILE=                               START        END    SIZE
+  SYMBOL                            ADDR        SIZE    INFO      COUNTS  OPT
+
+SECTION=data_SE
+FILE=ncrt0
+                                  00000400  00000400         0
+  __SB__
+                                  00000400         0   none ,g         0
+  __pool
+                                  00000400         0   none ,g         0
+
+SECTION=data_NE
+FILE=mdata
+                                  00000400  0000040f        10
+  __memt
+                                  00000408         0   none ,g         0
+
+SECTION=bss_NE
+FILE=ncrt0
+                                  00000410  00000410         0
+  __iob
+                                  00000410         0   none ,g         0
+
+FILE=mdata
+                                  0000044c  00000453         8
+  __mnext
+                                  0000044c         0   none ,g         0
+  __msize
+                                  00000450         0   none ,g         0
+
+SECTION=data_NOI
+FILE=ncrt0
+                                  00004010  00004010         0
+  _main
+                                  00004010         1   func ,g         0
+
+SECTION=program
+FILE=init
+                                  00004012  000040ae        9d
+  __init
+                                  00004012        9d   func ,g         0
+
+FILE=device
+                                  000040b0  000041ce       11f
+  $init_dev
+                                  000040b0        21   func ,g         0
+  $speed
+                                  000040d2        8d   func ,g         0
+  __sget
+                                  0000415e         f   func ,g         0
+  $_sput
+                                  0000416e        1b   func ,g         0
+  $_pput
+                                  00004188        47   func ,g         0
+
+SECTION=interrupt
+FILE=ncrt0
+                                  000041d0  00004270        a1
+  $exit
+                                  0000426e         0   none ,g         0
+  _exit
+                                  0000426e         0   none ,g         0
+  dummy_int
+                                  00004270         0   none ,g         0
+
