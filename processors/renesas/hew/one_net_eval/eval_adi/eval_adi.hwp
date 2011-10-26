@@ -111,8 +111,11 @@
 [PROJECT_FILES]
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.h" "User" "C header file" 2 
 [FOLDER]
 "Assembly source file" "Assembly source file" 
+"C header file" "C header file" 
 "C source file" "C source file" 
 [GENERAL_DATA_PROJECT]
 "USE_CUSTOM_LINKAGE_ORDER" "1" 
@@ -131,16 +134,17 @@
 [OPTIONS_Debug_Renesas M16C C Compiler]
 "C source file" "01c3ee459639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "04b7f5b2b739cc10" 1 
 [OPTIONS_Debug_Renesas M16C Configurator]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_Renesas M16C ConfiguratorR8C]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_Renesas M16C Librarian]
-"Single Shot" "092819e6d639cc10" 5 
+"Single Shot" "04b7f5b2b739cc10" 5 
 [OPTIONS_Debug_Renesas M16C Linker]
-"Single Shot" "08d369e6d639cc10" 3 
+"Single Shot" "021f86b2b739cc10" 3 
 [OPTIONS_Debug_Renesas M16C Stype Converter]
-"Single Shot" "08d369e6d639cc10" 4 
+"Single Shot" "021f86b2b739cc10" 4 
 [OPTIONS_Debug]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -160,16 +164,17 @@
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C C Compiler]
 "C source file" "0280baa79639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "04b7f5b2b739cc10" 1 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Configurator]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C ConfiguratorR8C]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Librarian]
-"Single Shot" "092819e6d639cc10" 5 
+"Single Shot" "04b7f5b2b739cc10" 5 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Linker]
-"Single Shot" "08d369e6d639cc10" 3 
+"Single Shot" "021f86b2b739cc10" 3 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Stype Converter]
-"Single Shot" "08d369e6d639cc10" 4 
+"Single Shot" "021f86b2b739cc10" 4 
 [OPTIONS_Debug_M16C_R8C_Simulator]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -189,16 +194,17 @@
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C C Compiler]
 "C source file" "03ca2dbd7739cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "03ca2dbd7739cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "04b7f5b2b739cc10" 1 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Configurator]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C ConfiguratorR8C]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Librarian]
-"Single Shot" "092819e6d639cc10" 5 
+"Single Shot" "04b7f5b2b739cc10" 5 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Linker]
-"Single Shot" "08d369e6d639cc10" 3 
+"Single Shot" "021f86b2b739cc10" 3 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Stype Converter]
-"Single Shot" "08d369e6d639cc10" 4 
+"Single Shot" "021f86b2b739cc10" 4 
 [OPTIONS_Debug_R8C_E8_SYSTEM]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -218,16 +224,17 @@
 [OPTIONS_Release_Renesas M16C C Compiler]
 "C source file" "04ebad299639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "04b7f5b2b739cc10" 1 
 [OPTIONS_Release_Renesas M16C Configurator]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Release_Renesas M16C ConfiguratorR8C]
-"Single Shot" "092819e6d639cc10" 6 
+"Single Shot" "04b7f5b2b739cc10" 6 
 [OPTIONS_Release_Renesas M16C Librarian]
-"Single Shot" "092819e6d639cc10" 5 
+"Single Shot" "04b7f5b2b739cc10" 5 
 [OPTIONS_Release_Renesas M16C Linker]
-"Single Shot" "08d369e6d639cc10" 3 
+"Single Shot" "021f86b2b739cc10" 3 
 [OPTIONS_Release_Renesas M16C Stype Converter]
-"Single Shot" "08d369e6d639cc10" 4 
+"Single Shot" "021f86b2b739cc10" 4 
 [OPTIONS_Release]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 

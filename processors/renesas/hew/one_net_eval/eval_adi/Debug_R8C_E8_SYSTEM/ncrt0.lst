@@ -1,4 +1,4 @@
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Tue Oct 25 23:48:44 2011  PAGE 001
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Wed Oct 26 01:04:37 2011  PAGE 001
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 
@@ -64,7 +64,7 @@
     59  00037  AA0000r           1 M S  		mov.w		#(bss_NE_top & 0FFFFH), A1
     60  0003A  75C30000r         1 M    		mov.w		#sizeof bss_NE , R3
     61  0003E  7CEA              1 M    		sstr.b
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Tue Oct 25 23:48:44 2011  PAGE 002
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Wed Oct 26 01:04:37 2011  PAGE 002
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 
@@ -130,7 +130,7 @@
    121                                  ;=====================================================================
    122                                  ; Call main() function
    123                                  ;---------------------------------------------------------------------
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Tue Oct 25 23:48:44 2011  PAGE 003
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Wed Oct 26 01:04:37 2011  PAGE 003
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 

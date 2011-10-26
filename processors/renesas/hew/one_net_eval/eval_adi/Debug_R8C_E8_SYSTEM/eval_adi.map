@@ -1,7 +1,7 @@
 ##########################################
 # (1) LINK INFORMATION                   #
 ##########################################
-c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\eval_adi.m16cl
+c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\eval_adi.m16cl
 
 # ID CODE DATA
 .ID  "#FFFFFFFFFFFFFF"
@@ -10,11 +10,14 @@ c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWPr
 .OFSREG  FFH
 
 # LINK FILE INFORMATION
-ncrt0 (C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30)
-	Oct 25 23:48:44 2011
+ncrt0 (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30)
+	Oct 26 01:04:37 2011
 
-one_net_eval (C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30)
-	Oct 25 23:48:44 2011
+one_net_eval (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30)
+	Oct 26 01:04:37 2011
+
+tick (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30)
+	Oct 26 01:04:37 2011
 
 init (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
 	Jan  6 15:04:53 2010
@@ -35,44 +38,49 @@ bss_SE                           REL DATA    000400 000000 2     ncrt0
 data_SO                          REL DATA    000400 000000       ncrt0
 bss_SO                           REL DATA    000400 000000       ncrt0
 data_NE                          REL DATA    000400 000000 2     ncrt0
-                                 REL DATA    000400 000010 2     mdata
-bss_NE                           REL DATA    000410 000000 2     ncrt0
-                                 REL DATA    000410 00003C 2     init
-                                 REL DATA    00044C 000008 2     mdata
-data_NO                          REL DATA    000454 000000       ncrt0
-bss_NO                           REL DATA    000454 000000       ncrt0
-istack                           REL DATA    000454 000080 2     ncrt0
-stack                            REL DATA    0004D4 000080 2     ncrt0
-heap                             REL DATA    000554 000080       ncrt0
+                                 REL DATA    000400 000004 2     tick
+                                 REL DATA    000404 000010 2     mdata
+bss_NE                           REL DATA    000414 000000 2     ncrt0
+                                 REL DATA    000414 00003C 2     init
+                                 REL DATA    000450 000008 2     mdata
+data_NO                          REL DATA    000458 000000       ncrt0
+bss_NO                           REL DATA    000458 000000       ncrt0
+istack                           REL DATA    000458 000080 2     ncrt0
+stack                            REL DATA    0004D8 000080 2     ncrt0
+heap                             REL DATA    000558 000080       ncrt0
 rom_NE                           ABS ROMDATA 004000 000000       ncrt0
 rom_NO                           REL ROMDATA 004000 000000       ncrt0
 data_SEI                         REL ROMDATA 004000 000000 2     ncrt0
 data_SOI                         REL ROMDATA 004000 000000       ncrt0
 data_NEI                         REL ROMDATA 004000 000000 2     ncrt0
-                                 REL ROMDATA 004000 000010       mdata
-data_NOI                         REL ROMDATA 004010 000000       ncrt0
-program                          REL CODE    004010 000000 2     ncrt0
-                                 REL CODE    004010 000001 2     one_net_eval
-                                 REL CODE    004012 00009D 2     init
-                                 REL CODE    0040B0 00011F 2     device
-interrupt                        REL CODE    0041D0 000000 2     ncrt0
-                                 REL CODE    0041D0 0000A1       ncrt0
+                                 REL ROMDATA 004000 000004       tick
+                                 REL ROMDATA 004004 000010       mdata
+data_NOI                         REL ROMDATA 004014 000000       ncrt0
+program                          REL CODE    004014 000000 2     ncrt0
+                                 REL CODE    004014 000003 2     one_net_eval
+                                 REL CODE    004018 0000B1 2     tick
+                                 REL CODE    0040CA 00009D 2     init
+                                 REL CODE    004168 00011F 2     device
+interrupt                        REL CODE    004288 000000 2     ncrt0
+                                 REL CODE    004288 0000A1       ncrt0
 vector                           ABS ROMDATA 00FEDC 000000       ncrt0
 fvector                          ABS ROMDATA 00FFDC 000024       ncrt0
 # Total -------------------------------------------------------------------
-                                     DATA           0001D4(0000468) Byte(s)
-                                     ROMDATA        000034(0000052) Byte(s)
-                                     CODE           000260(0000608) Byte(s)
+                                     DATA           0001D8(0000472) Byte(s)
+                                     ROMDATA        000038(0000056) Byte(s)
+                                     CODE           000314(0000788) Byte(s)
 
 ##########################################
 # (3) GLOBAL LABEL INFORMATION           #
 ##########################################
-$_pput             004188  $_sput             00416e  $exit              00426e
-$init_dev          0040b0  $speed             0040d2  __init             004012
-__iob              000410  __memt             000408  __mnext            00044c
-__msize            000450  __pool             000400  __sget             00415e
-_exit              00426e  _main              004010  dummy_int          004270
-start              0041d0  
+$_pput             004240  $_sput             004226  $delay_100s_us     004088
+$delay_ms          00405a  $exit              004326  $init_dev          004168
+$speed             00418a  __init             0040ca  __iob              000414
+__memt             00040c  __mnext            000450  __msize            000454
+__pool             000404  __sget             004216  _exit              004326
+_get_tick_count    00403c  _init_tick         004018  _main              004014
+_polled_tick_upd   004046  _tick_count        000400  _tick_timer_isr    0040bc
+_update_tick_cou   0040ac  dummy_int          004328  start              004288
 
 ##########################################
 # (4) GLOBAL EQU SYMBOL INFORMATION      #
@@ -86,8 +94,9 @@ __SB__           00000400
 ##########################################
 # (6) LOCAL LABEL INFORMATION            #
 ##########################################
-@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
-@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
@@ -95,8 +104,9 @@ __SB__           00000400
 ##########################################
 # (7) LOCAL EQU SYMBOL INFORMATION       #
 ##########################################
-@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
-@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
@@ -104,8 +114,9 @@ __SB__           00000400
 ##########################################
 # (8) LOCAL EQU BIT-SYMBOL INFORMATION   #
 ##########################################
-@ ncrt0 ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
-@ one_net_eval ( C:\HEWProj\aaaa\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
@@ -123,19 +134,19 @@ data_SO
 bss_SO
                                   00000400  00000400         0   1
 data_NE
-                                  00000400  0000040f        10   2
+                                  00000400  00000413        14   2
 bss_NE
-                                  00000410  00000453        44   2
+                                  00000414  00000457        44   2
 data_NO
-                                  00000454  00000454         0   1
+                                  00000458  00000458         0   1
 bss_NO
-                                  00000454  00000454         0   1
+                                  00000458  00000458         0   1
 istack
-                                  00000454  000004d3        80   2
+                                  00000458  000004d7        80   2
 stack
-                                  000004d4  00000553        80   2
+                                  000004d8  00000557        80   2
 heap
-                                  00000554  000005d3        80   1
+                                  00000558  000005d7        80   1
 rom_NE
                                   00004000  00004000         0   1
 rom_NO
@@ -145,13 +156,13 @@ data_SEI
 data_SOI
                                   00004000  00004000         0   1
 data_NEI
-                                  00004000  0000400f        10   2
+                                  00004000  00004013        14   2
 data_NOI
-                                  00004010  00004010         0   1
+                                  00004014  00004014         0   1
 program
-                                  00004010  000041ce       1bf   2
+                                  00004014  00004286       273   2
 interrupt
-                                  000041d0  00004270        a1   2
+                                  00004288  00004328        a1   2
 vector
                                   0000fedc  0000fedc         0   1
 fvector
@@ -168,60 +179,79 @@ FILE=ncrt0
                                   00000400  00000400         0
   __SB__
                                   00000400         0   none ,g         0
-  __pool
-                                  00000400         0   none ,g         0
 
 SECTION=data_NE
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/tick
+                                  00000400  00000403         4
+  _tick_count
+                                  00000400         4   data ,g         0
+
 FILE=mdata
-                                  00000400  0000040f        10
+                                  00000404  00000413        10
   __memt
-                                  00000408         0   none ,g         0
+                                  0000040c         0   none ,g         0
+  __pool
+                                  00000404         0   none ,g         0
 
 SECTION=bss_NE
 FILE=ncrt0
-                                  00000410  00000410         0
+                                  00000414  00000414         0
   __iob
-                                  00000410         0   none ,g         0
+                                  00000414         0   none ,g         0
 
 FILE=mdata
-                                  0000044c  00000453         8
+                                  00000450  00000457         8
   __mnext
-                                  0000044c         0   none ,g         0
-  __msize
                                   00000450         0   none ,g         0
-
-SECTION=data_NOI
-FILE=ncrt0
-                                  00004010  00004010         0
-  _main
-                                  00004010         1   func ,g         0
+  __msize
+                                  00000454         0   none ,g         0
 
 SECTION=program
+FILE=C:/HEWProj/2_Dev/applications/eval_boards/one_net_eval
+                                  00004014  00004016         3
+  _main
+                                  00004014         3   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/tick
+                                  00004018  000040c8        b1
+  _init_tick
+                                  00004018        24   func ,g         0
+  _get_tick_count
+                                  0000403c         9   func ,g         0
+  _polled_tick_update
+                                  00004046        14   func ,g         0
+  $delay_ms
+                                  0000405a        2e   func ,g         0
+  $delay_100s_us
+                                  00004088        24   func ,g         0
+  _update_tick_count
+                                  000040ac        10   func ,g         0
+
 FILE=init
-                                  00004012  000040ae        9d
+                                  000040ca  00004166        9d
   __init
-                                  00004012        9d   func ,g         0
+                                  000040ca        9d   func ,g         0
 
 FILE=device
-                                  000040b0  000041ce       11f
+                                  00004168  00004286       11f
   $init_dev
-                                  000040b0        21   func ,g         0
+                                  00004168        21   func ,g         0
   $speed
-                                  000040d2        8d   func ,g         0
+                                  0000418a        8d   func ,g         0
   __sget
-                                  0000415e         f   func ,g         0
+                                  00004216         f   func ,g         0
   $_sput
-                                  0000416e        1b   func ,g         0
+                                  00004226        1b   func ,g         0
   $_pput
-                                  00004188        47   func ,g         0
+                                  00004240        47   func ,g         0
 
 SECTION=interrupt
 FILE=ncrt0
-                                  000041d0  00004270        a1
+                                  00004288  00004328        a1
   $exit
-                                  0000426e         0   none ,g         0
+                                  00004326         0   none ,g         0
   _exit
-                                  0000426e         0   none ,g         0
+                                  00004326         0   none ,g         0
   dummy_int
-                                  00004270         0   none ,g         0
+                                  00004328         0   none ,g         0
 
