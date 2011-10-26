@@ -113,6 +113,7 @@
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\tick.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\transceivers\adi\tal.h" "User" "C header file" 2 
 [FOLDER]
 "Assembly source file" "Assembly source file" 
 "C header file" "C header file" 
