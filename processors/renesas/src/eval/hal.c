@@ -100,7 +100,7 @@
 
     \return void
 */
-void init_ports_leds(void)
+void hal_init_ports_leds(void)
 {
     prc2 = 1;
     LED2_DIR = OUTPUT;

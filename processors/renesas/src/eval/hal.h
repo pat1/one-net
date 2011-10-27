@@ -119,8 +119,8 @@ enum
 //! @{
 
  
-#define INIT_PORTS_UART() init_ports_uart()
-#define INIT_PORTS_LEDS() init_ports_leds()
+#define INIT_PORTS_UART() hal_init_ports_uart()
+#define INIT_PORTS_LEDS() hal_init_ports_leds()
 
 
 /*!
@@ -130,7 +130,7 @@ enum
 
     \return void
 */
-void init_ports_uart(void);
+void hal_init_ports_uart(void);
 
 
 /*!
@@ -140,7 +140,7 @@ void init_ports_uart(void);
 
     \return void
 */
-void init_ports_leds(void);
+void hal_init_ports_leds(void);
 
 
 //! @} HAL_pub_func
