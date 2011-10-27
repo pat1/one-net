@@ -115,7 +115,7 @@ enum
 
     \return void
 */
-void init_ports(void)
+void pal_init_ports(void)
 {
     //pu00 = 1;
     //pu14 = 1;
@@ -136,7 +136,7 @@ void init_ports(void)
 
     \return void
 */
-void high_speed_mode(void)
+void pal_high_speed_mode(void)
 {
     prc0 = 1;                       // protect off
     fra00 = 1;                      // enable high speed oscillator
@@ -174,7 +174,7 @@ void high_speed_mode(void)
 
     \return void
 */
-void low_speed_mode(void)
+void pal_low_speed_mode(void)
 {
     prc0 = 1;                       // protect off
     ocd2 = 1;                       // select internal oscillator
@@ -190,7 +190,7 @@ void low_speed_mode(void)
 
     \return void
 */
-void enable_global_interrupts(void)
+void pal_enable_global_interrupts(void)
 {
     asm("FSET I");
 }
@@ -203,7 +203,7 @@ void enable_global_interrupts(void)
 
     \return void
 */
-void disable_global_interrupts(void)
+void pal_disable_global_interrupts(void)
 {
     asm("FCLR I");
 }
@@ -221,7 +221,7 @@ void disable_global_interrupts(void)
 
     \return void
 */
-void processor_sleep(UInt32 MS)
+void pal_processor_sleep(UInt32 MS)
 {
     // TODO - write this function, if necessary
 } // processor_sleep //
@@ -236,9 +236,9 @@ void processor_sleep(UInt32 MS)
 
     \return void
 */
-void one_net_exit(void)
+void pal_exit(void)
 {
-    disable_global_interrupts();
+    pal_disable_global_interrupts();
     asm("WAIT");
 }
 
@@ -253,15 +253,15 @@ void one_net_exit(void)
 
     \return void
 */
-void init_processor(BOOL high_speed)
+void pal_init_processor(BOOL high_speed)
 {
     if(high_speed)
     {
-        high_speed_mode();
+        pal_high_speed_mode();
     }
     else
     {
-        low_speed_mode();
+        pal_low_speed_mode();
     }
 }
 

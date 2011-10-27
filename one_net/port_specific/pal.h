@@ -84,12 +84,12 @@
 //! \ingroup PAL
 //! @{
 
-#define INIT_PORTS() init_ports()
-#define INIT_PROCESSOR(SPEED) init_processor(SPEED)
-#define ENABLE_GLOBAL_INTERRUPTS() enable_global_interrupts()
-#define DISABLE_GLOBAL_INTERRUPTS() disable_global_interrupts()
-#define SLEEP(MS) processor_sleep(MS)
-#define EXIT() one_net_exit()
+#define INIT_PORTS() pal_init_ports()
+#define INIT_PROCESSOR(SPEED) pal_init_processor(SPEED)
+#define ENABLE_GLOBAL_INTERRUPTS() pal_enable_global_interrupts()
+#define DISABLE_GLOBAL_INTERRUPTS() pal_disable_global_interrupts()
+#define SLEEP(MS) pal_processor_sleep(MS)
+#define EXIT() pal_exit()
 
 
 /*!
@@ -99,7 +99,7 @@
 
     \return void
 */
-void init_ports(void);
+void pal_init_ports(void);
 
 
 /*!
@@ -109,7 +109,7 @@ void init_ports(void);
 
     \return void
 */
-void init_processor(BOOL high_speed);
+void pal_init_processor(BOOL high_speed);
 
 
 /*!
@@ -117,7 +117,7 @@ void init_processor(BOOL high_speed);
 
     \return void
 */
-void high_speed_mode(void);
+void pal_high_speed_mode(void);
 
 
 /*!
@@ -125,7 +125,7 @@ void high_speed_mode(void);
 
     \return void
 */
-void low_speed_mode(void);
+void pal_low_speed_mode(void);
 
 
 /*!
@@ -135,7 +135,7 @@ void low_speed_mode(void);
 
     \return void
 */
-void enable_global_interrupts(void);
+void pal_enable_global_interrupts(void);
 
 
 /*!
@@ -145,7 +145,7 @@ void enable_global_interrupts(void);
 
     \return void
 */
-void disable_global_interrupts(void);
+void pal_disable_global_interrupts(void);
 
 
 /*!
@@ -158,7 +158,7 @@ void disable_global_interrupts(void);
 
     \return void
 */
-void processor_sleep(UInt32 ms);
+void pal_processor_sleep(UInt32 ms);
 
 
 /*!
@@ -170,7 +170,7 @@ void processor_sleep(UInt32 ms);
 
     \return void
 */
-void one_net_exit(void);
+void pal_exit(void);
 
 
 //! @} PAL_pub_func
