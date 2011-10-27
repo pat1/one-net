@@ -1,3 +1,10 @@
+// Derek_S 10/26/2011 - Renesas provides this file without the #define guard.
+// below.  Not sure why it wasn't there, but it seems to need it, so I am
+// adding it.
+#ifndef _SFR_R823_H
+#define _SFR_R823_H
+
+
 /***********************************************************************/
 /*                                                                     */
 /*                                                                     */
@@ -2417,3 +2424,6 @@ union	byte_def	cclkr_addr;
 #define		cclk2		cclkr_addr.bit.b2		/* CAN0 clock select bits */
 #define		cclk3		cclkr_addr.bit.b3		/* CAN0 CPU interface sleep bit */
 
+
+
+#endif // _SFR_R823_H //
