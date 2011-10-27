@@ -58,6 +58,27 @@
 //! \ingroup TICK
 //! @{
 
+
+//! The maximum value of a tick
+#define TICK_MAX 4294967295
+
+enum
+{
+    TICK_1MS = 1,                   //!< Number of ticks in a millisecond
+    TICK_1S = 1000                  //!< Number of ticks in a second
+};
+
+enum
+{
+    //! Number of times to loop through nop loop during the ms delay function.
+    NOP_COUNT_MS = 325,
+
+    //! Number of times to loop through nop loop during the 100s of us delay
+    //! function
+    NOP_COUNT_100S_US = 45
+};
+
+
 //! @} TICK_type_defs
 //                                  TYPEDEFS_END
 //==============================================================================
@@ -68,9 +89,8 @@
 //! \ingroup TICK
 //! @{
 
-//! The number of ticks since the application started.  This is not static since
-//! it will be derived by pal_tick
-tick_t tick_count = 0;
+//! The number of ticks since the application started.
+static tick_t tick_count = 0;
 
 //! @} TICK_pri_var
 //                              PRIVATE VARIABLES
@@ -82,7 +102,6 @@ tick_t tick_count = 0;
 //! \ingroup TICK
 //! @{
 
-void update_tick_count(const tick_t UPDATE);
 
 //! @} TICK_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -93,16 +112,8 @@ void update_tick_count(const tick_t UPDATE);
 //! \defgroup TICK_pub_func
 //! \ingroup TICK
 //! @{
+    
 
-/*!
-    \brief Initialize the tick timer.
-
-    1 tick = 1ms.
-
-    \param void
-
-    \return void
-*/
 void init_tick(void)
 {
     tck0_trbmr = 0;                 // Timer B count source = f1 
@@ -117,57 +128,50 @@ void init_tick(void)
     trbmr &= 0xFC;                  // Timer B : timer mode 
     trbic = 0x05;                   // Int priority level = 5, clr request
 
-    ENABLE_TICK_TIMER();            // Timer B count start flag = start
+    enable_tick_timer();            // Timer B count start flag = start
 } // init_tick //
+    
+
+tick_t ms_to_tick(UInt32 ms)
+{
+    return ms / TICK_1MS;
+} // tick_to_ms //
+    
+
+UInt32 tick_to_ms(tick_t num_ticks)
+{
+    return num_ticks * TICK_1MS;
+} // ms_to_tick //
 
 
-/*!
-    \brief Returns the current tick count.
-
-    \param void
-
-    \return The current tick count.
-*/
 tick_t get_tick_count(void)
 {
     return tick_count;
 } // get_tick_count //
 
 
-/*!
-    \brief Polls the tick ir line to see if the tick count needs to be updated.
-
-    This should only be called when the tick interrupt (or global interrupts)
-    have been disabled.
-
-    \param void
-
-    \return void
-*/
-void polled_tick_update(void)
+tick_t get_tick_diff(tick_t now, tick_t then)
 {
-    #define TICK_INTERRUPT_FLAG ir_trbic
-
-    if(TICK_INTERRUPT_FLAG)
-    {
-        tick_count++;
-        TICK_INTERRUPT_FLAG = 0;
-    } // if the tick interrupt had occurred //
-} // polled_tick_update //
+    return (now < then ? (TICK_MAX - then) + now : now - then);
+} // get_tick_diff //
 
 
-/*!
-    \brief Delay for a specified number of milliseconds.
+void set_tick_count(tick_t new_tick_count)
+{
+    tick_count = new_tick_count;
+}
 
-    Uses machine instructions to simulate delaying (doing nothing) for a
-    specified number of milliseconds.
 
-    \param[in] count The number of ms to delay for.
+void increment_tick_count(tick_t increment)
+{
+    tick_count += increment;
+}
 
-    \return void
-*/
+
 void delay_ms(UInt16 count)
 {
+    // Uses machine instructions to simulate delaying (doing nothing) for a
+    // specified number of milliseconds.
     UInt16 i; 
 
     while(count-- != 0)
@@ -189,18 +193,10 @@ void delay_ms(UInt16 count)
 } // delay_ms //
 
 
-/*!
-    \brief Delay for a specified number of 100s of micro seconds.
-
-    Uses machine instructions to simulate delaying (doing nothing) for a
-    specified number of 100s of micro seconds.
-
-    \param[in] count The number of 100s of us to delay for.
-
-    \return void
-*/
 void delay_100s_us(UInt16 count)
 {
+    // Uses machine instructions to simulate delaying (doing nothing) for a
+    // specified number of milliseconds.
     UInt16 i;
 
     while(count-- != 0)
@@ -209,6 +205,31 @@ void delay_100s_us(UInt16 count)
         while(i--);
     } // delay loop //
 } // delay_100us //
+
+
+void polled_tick_update(void)
+{
+    #define TICK_INTERRUPT_FLAG ir_trbic
+
+    if(TICK_INTERRUPT_FLAG)
+    {
+        tick_count++;
+        TICK_INTERRUPT_FLAG = 0;
+    } // if the tick interrupt had occurred //
+} // polled_tick_update //
+
+
+void enable_tick_timer(void)
+{
+    tstart_trbcr = 1;
+}
+
+
+void disable_tick_timer(void)
+{
+    tstart_trbcr = 0;
+}
+
 
 //! @} TICK_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -219,21 +240,6 @@ void delay_100s_us(UInt16 count)
 //! \defgroup TICK_pri_func
 //! \ingroup TICK
 //! @{
-
-/*!
-    \brief Updates the tick count
-    
-    This function is considered private, but it is used in processor_sleep in
-    pal.c, but it is not to be used anywhere else.
-
-    \param[in] UPDATE The number of ticks to update the tickcount by
-
-    \return void
-*/
-void update_tick_count(const tick_t UPDATE)
-{
-    tick_count += UPDATE;
-} // update_tick_count //
 
 
 /*!
@@ -248,6 +254,7 @@ void tick_timer_isr(void)
 {
     tick_count++;
 } // tick_timer //
+
 
 //! @} TICK_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END

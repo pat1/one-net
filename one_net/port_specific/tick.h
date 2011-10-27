@@ -1,15 +1,12 @@
 #ifndef _TICK_H
 #define _TICK_H
 
-#include "config_options.h"
-
 
 //! \defgroup TICK Time keeping functionality.
-//! \ingroup RENESAS_R8C
 //! @{
 
 /*
-    Copyright (c) 2010, Threshold Corporation
+    Copyright (c) 2011, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -43,8 +40,7 @@
     \brief Declarations for timing.
 
     Data types and constants associated with timing are declared in this file.
-
-    \note Threshold Corporation
+    A tick.c implementation file should be written for each processor type.
 */
 
 #include "one_net_types.h"
@@ -56,24 +52,17 @@
 //! \ingroup TICK
 //! @{
 
-//! The maximum value of a tick
-#define TICK_MAX 4294967295
 
-enum
-{
-    TICK_1MS = 1,                   //!< Number of ticks in a millisecond
-    TICK_1S = 1000                  //!< Number of ticks in a second
-};
+#define INIT_TICK() init_tick()
+#define MS_TO_TICK(MS) ms_to_tick(MS)
+#define TICK_TO_MS(NUM_TICKS) tick_to_ms(NUM_TICKS)
+#define ENABLE_TICK_TIMER() enable_tick_timer()
+#define DISABLE_TICK_TIMER() disable_tick_timer()
+#define POLLED_TICK_UPDATE() polled_tick_update()
+#define TICK_DIFF(THEN, NOW) tick_diff(THEN, NOW)
+#define SET_TICK_COUNT(NEW_TICK_COUNT) set_tick_count(NEW_TICK_COUNT)
+#define INCREMENT_TICK_COUNT(INCREMENT) increment_tick_count(INCREMENT)
 
-enum
-{
-    //! Number of times to loop through nop loop during the ms delay function.
-    NOP_COUNT_MS = 325,
-
-    //! Number of times to loop through nop loop during the 100s of us delay
-    //! function
-    NOP_COUNT_100S_US = 45
-};
 
 //! @} TICK_const
 //                                  CONSTANTS END
@@ -105,7 +94,6 @@ enum
 //! \ingroup TICK
 //! @{
 
-void init_tick(void);
 
 /*!
     \brief Initialize the tick timer.
@@ -114,7 +102,7 @@ void init_tick(void);
 
     \return void
 */
-#define INIT_TICK() init_tick()
+void init_tick(void);
 
 
 /*!
@@ -122,43 +110,92 @@ void init_tick(void);
     
     Integer math is used (as opposed to float).
     
-    \param[in] MS The number of milliseconds to convert
+    \param[in] ms The number of milliseconds to convert
     
     \return The number of ticks for the given ms value
 */
-#define MS_TO_TICK(MS) ((MS) / TICK_1MS)
+tick_t ms_to_tick(UInt32 ms);
 
 
 /*!
     \brief Converts ticks to milliseconds
-
-    Integer math is used (as opposed to float).
-
-    \param[in] TICK The number of ticks to convert
     
-    \return The number of milliseconds for the given tick value
+    Integer math is used (as opposed to float).
+    
+    \param[in] num_ticks The number of ticks to convert
+    
+    \return The number of milliseconds for the given num_ticks value
 */
-#define TICK_TO_MS(TICK) ((TICK) * TICK_1MS)
+UInt32 tick_to_ms(tick_t num_ticks);
 
 
 /*!
-    \brief Enables the tick interrupt
+    \brief Returns the current tick count.
 
     \param void
 
-    \return void
+    \return The current tick count.
 */
-#define ENABLE_TICK_TIMER() tstart_trbcr = 1
+tick_t get_tick_count(void);
 
 
 /*!
-    \brief Disables the tick interrupt
+    \brief Computes the time difference of 2 tick values.
 
-    \param void
+    \param[in] then The base time.
+    \param[in] now The current time.
+
+    \return The difference between then & then.
+*/
+tick_t get_tick_diff(tick_t then, tick_t now);
+
+
+/*!
+    \brief Allows external adjustment of the tick count when the tick count
+           needs to be reset, either due to the tick interrupt being turned
+           off due to processor sleep or for some either reason (i.e. timer
+           pausing, application code override, etc.
+
+    \param new_tick_count The new tick count
 
     \return void
 */
-#define DISABLE_TICK_TIMER() tstart_trbcr = 0
+void set_tick_count(tick_t new_tick_count);
+
+
+/*!
+    \brief Allows external increment of the tick count when the tick count
+           needs to be reset, either due to the tick interrupt being turned
+           off due to processor sleep or for some either reason (i.e. timer
+           pausing, application code override, etc.
+
+    \param increment The number of ticks to add to the current tick count.
+
+    \return void
+*/
+void increment_tick_count(tick_t increment);
+
+
+
+/*!
+    \brief Delay for a specified number of milliseconds.
+
+
+    \param[in] count The number of ms to delay for.
+
+    \return void
+*/
+void delay_ms(UInt16 count);
+
+
+/*!
+    \brief Delay for a specified number of 100s of micro seconds.
+
+    \param[in] count The number of 100s of us to delay for.
+
+    \return void
+*/
+void delay_100s_us(UInt16 count);
 
 
 /*!
@@ -171,24 +208,34 @@ void init_tick(void);
 
     \return void
 */
-#define POLLED_TICK_UPDATE() polled_tick_update()
+void polled_tick_update(void);
 
 
 /*!
-    \brief Computes the time difference of 2 tick values.
+    \brief Disables the tick interrupt
 
-    \param[in] THEN The base time.
-    \param[in] NOW The current time.
+    \param void
 
-    \return The difference between THEN & NOW.
+    \return void
 */
-#define TICK_DIFF(THEN, NOW) (NOW < THEN ? (TICK_MAX - THEN) + NOW : NOW - THEN)
+void disable_tick_timer(void);
 
 
-tick_t get_tick_count(void);
+/*!
+    \brief Enables the tick interrupt
 
-void delay_ms(UInt16 count);
-void delay_100s_us(UInt16 count);
+    \param void
+
+    \return void
+*/
+void enable_tick_timer(void);
+
+
+
+
+
+
+
 
 //! @} TICK_pub_func
 //                          PUBLIC FUNCTION DECLARATIONS END

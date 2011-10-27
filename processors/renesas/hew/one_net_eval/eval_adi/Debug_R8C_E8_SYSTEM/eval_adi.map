@@ -11,13 +11,13 @@ c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWPr
 
 # LINK FILE INFORMATION
 ncrt0 (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30)
-	Oct 26 01:04:37 2011
+	Oct 27 02:22:04 2011
 
 one_net_eval (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30)
-	Oct 26 01:04:37 2011
+	Oct 27 02:22:04 2011
 
 tick (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30)
-	Oct 26 01:04:37 2011
+	Oct 27 02:22:04 2011
 
 init (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
 	Jan  6 15:04:53 2010
@@ -58,29 +58,31 @@ data_NEI                         REL ROMDATA 004000 000000 2     ncrt0
 data_NOI                         REL ROMDATA 004014 000000       ncrt0
 program                          REL CODE    004014 000000 2     ncrt0
                                  REL CODE    004014 000003 2     one_net_eval
-                                 REL CODE    004018 0000B1 2     tick
-                                 REL CODE    0040CA 00009D 2     init
-                                 REL CODE    004168 00011F 2     device
-interrupt                        REL CODE    004288 000000 2     ncrt0
-                                 REL CODE    004288 0000A1       ncrt0
+                                 REL CODE    004018 000171 2     tick
+                                 REL CODE    00418A 00009D 2     init
+                                 REL CODE    004228 00011F 2     device
+interrupt                        REL CODE    004348 000000 2     ncrt0
+                                 REL CODE    004348 0000A1       ncrt0
 vector                           ABS ROMDATA 00FEDC 000000       ncrt0
 fvector                          ABS ROMDATA 00FFDC 000024       ncrt0
 # Total -------------------------------------------------------------------
                                      DATA           0001D8(0000472) Byte(s)
                                      ROMDATA        000038(0000056) Byte(s)
-                                     CODE           000314(0000788) Byte(s)
+                                     CODE           0003D4(0000980) Byte(s)
 
 ##########################################
 # (3) GLOBAL LABEL INFORMATION           #
 ##########################################
-$_pput             004240  $_sput             004226  $delay_100s_us     004088
-$delay_ms          00405a  $exit              004326  $init_dev          004168
-$speed             00418a  __init             0040ca  __iob              000414
+$_pput             004300  $_sput             0042e6  $delay_100s_us     004138
+$delay_ms          00410a  $exit              0043e6  $init_dev          004228
+$speed             00424a  __init             00418a  __iob              000414
 __memt             00040c  __mnext            000450  __msize            000454
-__pool             000404  __sget             004216  _exit              004326
-_get_tick_count    00403c  _init_tick         004018  _main              004014
-_polled_tick_upd   004046  _tick_count        000400  _tick_timer_isr    0040bc
-_update_tick_cou   0040ac  dummy_int          004328  start              004288
+__pool             000404  __sget             0042d6  _disable_tick_ti   004176
+_enable_tick_tim   004170  _exit              0043e6  _get_tick_count    004054
+_get_tick_diff     00405e  _increment_tick_   0040fa  _init_tick         004018
+_main              004014  _ms_to_tick        00403c  _polled_tick_upd   00415c
+_set_tick_count    0040ea  _tick_timer_isr    00417c  _tick_to_ms        004048
+dummy_int          0043e8  start              004348  
 
 ##########################################
 # (4) GLOBAL EQU SYMBOL INFORMATION      #
@@ -160,9 +162,9 @@ data_NEI
 data_NOI
                                   00004014  00004014         0   1
 program
-                                  00004014  00004286       273   2
+                                  00004014  00004346       333   2
 interrupt
-                                  00004288  00004328        a1   2
+                                  00004348  000043e8        a1   2
 vector
                                   0000fedc  0000fedc         0   1
 fvector
@@ -181,11 +183,6 @@ FILE=ncrt0
                                   00000400         0   none ,g         0
 
 SECTION=data_NE
-FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/tick
-                                  00000400  00000403         4
-  _tick_count
-                                  00000400         4   data ,g         0
-
 FILE=mdata
                                   00000404  00000413        10
   __memt
@@ -212,46 +209,58 @@ FILE=C:/HEWProj/2_Dev/applications/eval_boards/one_net_eval
   _main
                                   00004014         3   func ,g         0
 
-FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/tick
-                                  00004018  000040c8        b1
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/r8c23/tick
+                                  00004018  00004188       171
   _init_tick
-                                  00004018        24   func ,g         0
+                                  00004018        23   func ,g         0
+  _ms_to_tick
+                                  0000403c         c   func ,g         0
+  _tick_to_ms
+                                  00004048         c   func ,g         0
   _get_tick_count
-                                  0000403c         9   func ,g         0
-  _polled_tick_update
-                                  00004046        14   func ,g         0
+                                  00004054         a   func ,g         0
+  _get_tick_diff
+                                  0000405e        8c   func ,g         0
+  _set_tick_count
+                                  000040ea        10   func ,g         0
+  _increment_tick_count
+                                  000040fa        10   func ,g         0
   $delay_ms
-                                  0000405a        2e   func ,g         0
+                                  0000410a        2e   func ,g         0
   $delay_100s_us
-                                  00004088        24   func ,g         0
-  _update_tick_count
-                                  000040ac        10   func ,g         0
+                                  00004138        24   func ,g         0
+  _polled_tick_update
+                                  0000415c        14   func ,g         0
+  _enable_tick_timer
+                                  00004170         6   func ,g         0
+  _disable_tick_timer
+                                  00004176         6   func ,g         0
 
 FILE=init
-                                  000040ca  00004166        9d
+                                  0000418a  00004226        9d
   __init
-                                  000040ca        9d   func ,g         0
+                                  0000418a        9d   func ,g         0
 
 FILE=device
-                                  00004168  00004286       11f
+                                  00004228  00004346       11f
   $init_dev
-                                  00004168        21   func ,g         0
+                                  00004228        21   func ,g         0
   $speed
-                                  0000418a        8d   func ,g         0
+                                  0000424a        8d   func ,g         0
   __sget
-                                  00004216         f   func ,g         0
+                                  000042d6         f   func ,g         0
   $_sput
-                                  00004226        1b   func ,g         0
+                                  000042e6        1b   func ,g         0
   $_pput
-                                  00004240        47   func ,g         0
+                                  00004300        47   func ,g         0
 
 SECTION=interrupt
 FILE=ncrt0
-                                  00004288  00004328        a1
+                                  00004348  000043e8        a1
   $exit
-                                  00004326         0   none ,g         0
+                                  000043e6         0   none ,g         0
   _exit
-                                  00004326         0   none ,g         0
+                                  000043e6         0   none ,g         0
   dummy_int
-                                  00004328         0   none ,g         0
+                                  000043e8         0   none ,g         0
 

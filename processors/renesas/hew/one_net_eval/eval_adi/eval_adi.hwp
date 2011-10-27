@@ -111,6 +111,10 @@
 [PROJECT_FILES]
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\one_net\port_specific\tick.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\common\one_net_types.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\config_options.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\test_defines.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\undefine_all_defines.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\transceivers\adi\tal.h" "User" "C header file" 2 
