@@ -110,15 +110,22 @@
 "Relocatable file" "Renesas M16C Linker" "Renesas M16C C Compiler" 
 [PROJECT_FILES]
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\one_net\port_specific\pal.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\port_specific\tick.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\common\one_net_types.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\config_options.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\test_defines.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\undefine_all_defines.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\sfr_r823.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\sfr_r823.inc" "User" "Assembly include file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\transceivers\adi\tal.h" "User" "C header file" 2 
 [FOLDER]
+"Assembly include file" "Assembly include file" 
 "Assembly source file" "Assembly source file" 
 "C header file" "C header file" 
 "C source file" "C source file" 
@@ -139,17 +146,19 @@
 [OPTIONS_Debug_Renesas M16C C Compiler]
 "C source file" "01c3ee459639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "067013c6ca49cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "0810b127ca49cc10" 1 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 [OPTIONS_Debug_Renesas M16C Configurator]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_Renesas M16C Librarian]
-"Single Shot" "0818c7476449cc10" 5 
+"Single Shot" "0810b127ca49cc10" 5 
 [OPTIONS_Debug_Renesas M16C Linker]
-"Single Shot" "082fe7476449cc10" 3 
+"Single Shot" "07cbf127ca49cc10" 3 
 [OPTIONS_Debug_Renesas M16C Stype Converter]
-"Single Shot" "082fe7476449cc10" 4 
+"Single Shot" "07cbf127ca49cc10" 4 
 [OPTIONS_Debug]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -169,17 +178,19 @@
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C C Compiler]
 "C source file" "0280baa79639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "067013c6ca49cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "0810b127ca49cc10" 1 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Configurator]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Librarian]
-"Single Shot" "0818c7476449cc10" 5 
+"Single Shot" "0810b127ca49cc10" 5 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Linker]
-"Single Shot" "082fe7476449cc10" 3 
+"Single Shot" "07cbf127ca49cc10" 3 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Stype Converter]
-"Single Shot" "082fe7476449cc10" 4 
+"Single Shot" "07cbf127ca49cc10" 4 
 [OPTIONS_Debug_M16C_R8C_Simulator]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -199,17 +210,19 @@
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C C Compiler]
 "C source file" "05277f0b6449cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "05277f0b6449cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "067013c6ca49cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "0810b127ca49cc10" 1 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "05277f0b6449cc10" 1 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Configurator]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Librarian]
-"Single Shot" "0818c7476449cc10" 5 
+"Single Shot" "0810b127ca49cc10" 5 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Linker]
-"Single Shot" "082fe7476449cc10" 3 
+"Single Shot" "07cbf127ca49cc10" 3 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Stype Converter]
-"Single Shot" "082fe7476449cc10" 4 
+"Single Shot" "07cbf127ca49cc10" 4 
 [OPTIONS_Debug_R8C_E8_SYSTEM]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -229,17 +242,19 @@
 [OPTIONS_Release_Renesas M16C C Compiler]
 "C source file" "04ebad299639cc10" 1 
 "C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "092819e6d639cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "067013c6ca49cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "0810b127ca49cc10" 1 
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 [OPTIONS_Release_Renesas M16C Configurator]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Release_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0818c7476449cc10" 6 
+"Single Shot" "0810b127ca49cc10" 6 
 [OPTIONS_Release_Renesas M16C Librarian]
-"Single Shot" "0818c7476449cc10" 5 
+"Single Shot" "0810b127ca49cc10" 5 
 [OPTIONS_Release_Renesas M16C Linker]
-"Single Shot" "082fe7476449cc10" 3 
+"Single Shot" "07cbf127ca49cc10" 3 
 [OPTIONS_Release_Renesas M16C Stype Converter]
-"Single Shot" "082fe7476449cc10" 4 
+"Single Shot" "07cbf127ca49cc10" 4 
 [OPTIONS_Release]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 

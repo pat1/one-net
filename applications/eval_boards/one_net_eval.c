@@ -11,9 +11,43 @@
 
 
 #include "config_options.h"
+#include "tick.h"
+#include "pal.h"
+#include "hal.h"
+#include "io_port_mapping.h"
 
 
 int main(void)
 {
+    UInt8 i;
+    
+    INIT_PROCESSOR(TRUE);
+    INIT_PORTS_LEDS();
+    
+    USER_PIN0_DIR = OUTPUT;
+    USER_PIN1_DIR = OUTPUT;
+    USER_PIN2_DIR = OUTPUT;
+    USER_PIN3_DIR = OUTPUT;
+    
+    USER_PIN0 = 0;
+    USER_PIN1 = 0;
+    USER_PIN2 = 0;
+    USER_PIN3 = 0;
+    delay_ms(3000);
+    
+    
+    for(i = 0; i < 10; i++)
+    {
+        TOGGLE (USER_PIN0);
+        delay_ms(200);
+        TOGGLE (USER_PIN1);
+        delay_ms(200);
+        TOGGLE (USER_PIN2);
+        delay_ms(200);
+        TOGGLE (USER_PIN3);
+        delay_ms(1000);
+    }
+    
+    EXIT();
 	return 0;
 }
