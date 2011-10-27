@@ -109,7 +109,7 @@ void hal_init_ports_leds(void)
 
     TURN_OFF(LED2);
     TURN_OFF(LED3);
-} // init_ports_leds //
+} // hal_init_ports_leds //
 
 
 //! @} HAL_pub_func

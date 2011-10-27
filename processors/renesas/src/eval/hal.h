@@ -119,18 +119,7 @@ enum
 //! @{
 
  
-#define INIT_PORTS_UART() hal_init_ports_uart()
 #define INIT_PORTS_LEDS() hal_init_ports_leds()
-
-
-/*!
-    \brief Initialize the ports used by the uart.
-
-    \param void
-
-    \return void
-*/
-void hal_init_ports_uart(void);
 
 
 /*!
