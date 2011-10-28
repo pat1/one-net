@@ -299,7 +299,7 @@ UInt16 cb_bytes_free(const cb_rec_t * const CB)
 //
 UInt16 cb_getqueue(cb_rec_t *cb, UInt8 *data)
 {
-    return cb_enqueue(cb,data, 1);
+    return cb_dequeue(cb, data, 1);
 }
 
 
