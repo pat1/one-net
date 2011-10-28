@@ -2,6 +2,7 @@
 #define _TAL_H
 
 #include "config_options.h"
+#include "one_net_types.h"
 
 
 //! \defgroup TAL Transceiver Abstraction Layer
