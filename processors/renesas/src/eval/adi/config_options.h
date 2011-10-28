@@ -51,12 +51,417 @@
 //! @{
 
 
-// define _OVERRIDE_CONFIG_OPTIONS_FILE in the IDE if and only if you want to
-// override thiis file.
+
+// If you do not want to use the config_options.h file to implment the #define
+// values (i.e. you are using an IDE and would rather define things there),
+// make sure you define a #define variable called _OVERRIDE_CONFIG_OPTIONS_FILE.
+
+
+
 #ifndef _OVERRIDE_CONFIG_OPTIONS_FILE
 
 
-// place configuration options here
+// _OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
+
+
+
+// First undefine everything to be extra careful
+
+#include "undefine_all_defines.h"
+
+
+
+
+
+// Now add any new configuration options you need.  Comment out any you do not need.  #ifdef
+// guards aren't needed since we undefined everything above, but can't hurt so we'll leave them
+// in.
+
+
+
+
+// Master/Client
+
+#ifndef _ONE_NET_MASTER
+	#define _ONE_NET_MASTER
+#endif
+
+#ifndef _ONE_NET_CLIENT
+	#define _ONE_NET_CLIENT
+#endif
+
+
+
+// Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
+// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
+#ifndef _PEER
+	#define _PEER
+#endif
+
+// Block Messages
+#ifndef _BLOCK_MESSAGES_ENABLED
+	#define _BLOCK_MESSAGES_ENABLED
+#endif
+
+// Stream Messages -- available only if block messages are enabled.
+#ifdef _BLOCK_MESSAGES_ENABLED
+    #ifndef _STREAM_MESSAGES_ENABLED
+	    #define _STREAM_MESSAGES_ENABLED
+    #endif
+#endif
+
+// Multi-Hop
+#ifndef _ONE_NET_MULTI_HOP
+	#define _ONE_NET_MULTI_HOP
+#endif
+
+
+#ifdef _ONE_NET_MULTI_HOP
+	#ifndef _ONE_NET_MH_CLIENT_REPEATER
+		#define _ONE_NET_MH_CLIENT_REPEATER
+	#endif
+#endif
+
+
+#ifdef _ONE_NET_MULTI_HOP
+    #ifndef _RANGE_TESTING
+        #define _RANGE_TESTING
+    #endif
+#endif
+
+
+
+// ONE_NET_SIMPLE_DEVICE - a device is a simple device if it is does not
+// implement any of the following: Multi-Hop, Stream, Block
+#if defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
+    #ifdef _ONE_NET_SIMPLE_DEVICE
+        #undef _ONE_NET_SIMPLE_DEVICE
+	#endif
+#else
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        #define _ONE_NET_SIMPLE_DEVICE
+	#endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#ifdef _ONE_NET_CLIENT
+		#ifndef _ONE_NET_SIMPLE_CLIENT
+			#define _ONE_NET_SIMPLE_CLIENT
+		#endif	
+	#endif
+	#ifdef _ONE_NET_MASTER
+		#ifndef _ONE_NET_SIMPLE_MASTER
+			#define _ONE_NET_SIMPLE_MASTER
+		#endif	
+	#endif
+#endif
+
+// Idle Option - Should be defined if the device can ever be idle
+#ifndef _IDLE
+    #define _IDLE
+#endif
+
+
+// Enhanced Invite Option - Should be defined if you need the option of specifying a
+// timeout time or specifying a specific channel range for invitations.  Only valid
+// if _IDLE is defined.
+#ifdef _IDLE
+    #ifndef _ENHANCED_INVITE
+	    #define _ENHANCED_INVITE
+	#endif
+#endif
+
+
+// Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
+// define more than one.
+#ifndef _US_CHANNELS
+	#define _US_CHANNELS
+#endif
+
+#ifndef _EUROPE_CHANNELS
+	#define _EUROPE_CHANNELS
+#endif
+
+
+// Evaluation Board Options
+
+#ifndef _ONE_NET_EVAL
+	#define _ONE_NET_EVAL
+#endif
+
+#ifdef _ONE_NET_EVAL
+	#ifndef _SERIAL_ASSIGN_DEMO_PINS
+		#define _SERIAL_ASSIGN_DEMO_PINS
+	#endif
+	
+	// _AUTO_MODE should be defined if you want the Auto Mode option available
+	#ifndef _AUTO_MODE
+		#define _AUTO_MODE
+	#endif
+
+	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+	#ifndef _SNIFFER_MODE
+		#define _SNIFFER_MODE
+	#endif
+#endif
+
+
+// Other Options
+
+#ifndef _CHIP_ENABLE
+	#define _CHIP_ENABLE
+#endif
+
+#ifndef _R8C_TINY
+	#define _R8C_TINY
+#endif
+
+
+
+// Command line interface
+#ifndef _ENABLE_CLI
+	#define _ENABLE_CLI
+#endif
+
+// #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
+// own #define for maximum ease of enabling and disabling features.  CLI options that don't make
+// sense without other CLI options should be nested.
+
+
+
+// Note : Dec. 19, 2010 - Right now it appears to be unfeasible to not have a CLI at all as far as adapting code.
+// I can, however, see many cases where someone might want to take some Eval Board code and modify it where
+// there is no CLI.  However, at the present time there is a lot of functions with "oncli" return types that
+// perhaps should not have "oncli" return types.  I think these should probably be changed for more versatility,
+// but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
+// define the _ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
+// _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
+#ifdef _ENABLE_CLI
+	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
+		#define _AT_LEAST_ONE_COMMAND_ENABLED
+	#endif
+#endif
+
+#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
+
+	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
+	#ifndef _ENABLE_SINGLE_COMMAND
+		#define _ENABLE_SINGLE_COMMAND
+	#endif
+
+	// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
+	#ifndef _ENABLE_SET_VALUE_COMMAND
+		#define _ENABLE_SET_VALUE_COMMAND
+	#endif
+
+	// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
+	#ifndef _ENABLE_SET_PIN_COMMAND
+		#define _ENABLE_SET_PIN_COMMAND
+	#endif
+
+	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementing the "single text" command option
+	#ifndef _ENABLE_SINGLE_TEXT_COMMAND
+		#define _ENABLE_SINGLE_TEXT_COMMAND
+	#endif
+
+    #ifdef _BLOCK_MESSAGES_ENABLED
+	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
+	    #ifndef _ENABLE_BLOCK_COMMAND
+		    #define _ENABLE_BLOCK_COMMAND
+	    #endif
+
+	    // _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
+	    #ifndef _ENABLE_BLOCK_TEXT_COMMAND
+		    #define _ENABLE_BLOCK_TEXT_COMMAND
+	    #endif
+	#endif
+
+	// _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
+	#ifndef _ENABLE_ERASE_COMMAND
+		#define _ENABLE_ERASE_COMMAND
+	#endif
+
+	// _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
+	#ifndef _ENABLE_SAVE_COMMAND
+		#define _ENABLE_SAVE_COMMAND
+	#endif
+
+	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
+	#ifndef _ENABLE_DUMP_COMMAND
+		#define _ENABLE_DUMP_COMMAND
+	#endif
+
+	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
+	#ifdef _ENABLE_SINGLE_COMMAND
+		#ifndef _ENABLE_RSINGLE_COMMAND
+			#define _ENABLE_RSINGLE_COMMAND
+		#endif
+	#endif
+
+	// _ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
+	/*#ifndef _ENABLE_RSSI_COMMAND
+		#define _ENABLE_RSSSI_COMMAND
+	#endif*/
+
+	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
+	#ifndef _ENABLE_LIST_COMMAND
+		#define _ENABLE_LIST_COMMAND
+	#endif
+
+    // Master Only Commands
+    #ifdef _ONE_NET_MASTER
+	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
+	    #ifndef _ENABLE_INVITE_COMMAND
+		    #define _ENABLE_INVITE_COMMAND
+	    #endif
+
+	    // _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
+	    #ifndef _ENABLE_CANCEL_INVITE_COMMAND
+		    #define _ENABLE_CANCEL_INVITE_COMMAND
+	    #endif
+
+    	#ifdef _PEER
+	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
+		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
+			    #define _ENABLE_ASSIGN_PEER_COMMAND
+		    #endif
+
+		    // _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
+		    #ifndef _ENABLE_UNASSIGN_PEER_COMMAND
+			    #define _ENABLE_UNASSIGN_PEER_COMMAND
+		    #endif
+	    #endif
+		
+	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
+	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
+		    #define _ENABLE_CHANGE_KEY_COMMAND
+	    #endif
+
+	    // _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
+	    #ifndef _ENABLE_REMOVE_DEVICE_COMMAND
+		    #define _ENABLE_REMOVE_DEVICE_COMMAND
+	    #endif
+
+	    // _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementing the "set update master flag" command option
+	    #ifndef _ENABLE_UPDATE_MASTER_COMMAND
+		    #define _ENABLE_UPDATE_MASTER_COMMAND
+	    #endif
+
+	    // _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
+	    #ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+		    #define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	    #endif
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+    	    // _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
+    	    #ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    		    #define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    	    #endif
+        #endif
+	#endif
+
+	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
+	#ifndef _ENABLE_GET_CHANNEL_COMMAND
+		#define _ENABLE_GET_CHANNEL_COMMAND
+	#endif
+
+	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
+	#ifndef _ENABLE_USER_PIN_COMMAND
+		#define _ENABLE_USER_PIN_COMMAND
+	#endif
+
+	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
+	#ifndef _ENABLE_JOIN_COMMAND
+		#define _ENABLE_JOIN_COMMAND
+	#endif
+
+	// _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
+	#ifndef _ENABLE_CHANNEL_COMMAND
+		#define _ENABLE_CHANNEL_COMMAND
+	#endif
+
+	// _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
+	#ifndef _ENABLE_SETNI_COMMAND
+		#define _ENABLE_SETNI_COMMAND
+	#endif
+
+	// _ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
+	#ifdef _SNIFFER_MODE
+		#ifndef _ENABLE_SNIFF_COMMAND
+			#define _ENABLE_SNIFF_COMMAND
+		#endif
+	#endif
+
+	// _ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
+	#ifndef _ENABLE_MODE_COMMAND
+		#define _ENABLE_MODE_COMMAND
+	#endif
+
+	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
+	#ifndef _ENABLE_ECHO_COMMAND
+		#define _ENABLE_ECHO_COMMAND
+	#endif
+#endif
+	
+
+
+
+// Other Options
+
+//#ifndef _NEED_XDUMP
+//	#define _NEED_XDUMP
+//#endif
+
+//#ifndef _EVAL_0005_NO_REVISION
+//	#define _EVAL_0005_NO_REVISION
+//#endif
+
+
+#ifndef _DEBUGGING_TOOLS
+    #define _DEBUGGING_TOOLS
+#endif
+
+#ifndef _USR_SINGLE
+    #define _USR_SINGLE
+#endif
+
+
+// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
+// NO_SINGLE_QUEUE_LEVEL means no single queue is used
+// MIN_SINGLE_QUEUE_LEVEL means no "times".
+// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
+// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
+#ifndef _SINGLE_QUEUE_LEVEL
+    #define NO_SINGLE_QUEUE_LEVEL 0
+    #define MIN_SINGLE_QUEUE_LEVEL 1
+	#define MED_SINGLE_QUEUE_LEVEL 2
+	#define MAX_SINGLE_QUEUE_LEVEL 3
+	
+	#define _SINGLE_QUEUE_LEVEL MAX_SINGLE_QUEUE_LEVEL
+#endif
+
+#ifndef _EXTENDED_SINGLE
+    #define _EXTENDED_SINGLE
+#endif
+
+
+// replace with named constants
+#ifndef _ACK_NACK_LEVEL
+    #define _ACK_NACK_LEVEL 3
+#endif
+
+// enable this when you want more ROMDATA or other meemory.
+// Shortens strings to save memory, but the strings won't make
+// much sense (i.e. "zo" instead of "STATUS QUERY".  Generally used for
+// developers.  You need to look at the arrays in "oncli.c" and elsewhere
+// to make sense of the shortens strings.  However, shortening the strings
+// can allow you to use the ebugger and use other debugging tools.
+#ifndef _MINIMIZE_STRING_LENGTHS
+    #define _MINIMIZE_STRING_LENGTHS
+#endif
+
+
+
 
 
 // Now test #defines for compatibility
