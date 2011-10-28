@@ -7,6 +7,7 @@
 -I"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\mac"
 -I"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\..\..\..\..\common"
 -I"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\..\..\..\..\common\string"
+-I"C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers\adi"
 -c
 -finfo
 -dir "C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"

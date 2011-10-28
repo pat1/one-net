@@ -7,7 +7,11 @@
 [GENERAL_DATA]
 [BREAKPOINTS]
 [OPEN_WORKSPACE_FILES]
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\sect30.inc" 
+"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" 
 [WORKSPACE_FILE_STATES]
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\sect30.inc" 0 0 803 418 0 0 
+"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" -4 -30 868 630 1 1 
 [LOADED_PROJECTS]
 "eval_adi" 
 [END]
