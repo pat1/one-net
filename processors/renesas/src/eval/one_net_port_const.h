@@ -1,6 +1,8 @@
 #ifndef _ONE_NET_PORT_CONST_H
 #define _ONE_NET_PORT_CONST_H
 
+#include "config_options.h"
+#include "one_net_data_rate.h"
 
 
 //! \defgroup ONE-NET_port_const Application Specific ONE-NET constants.
@@ -51,7 +53,24 @@
 //! \defgroup ONE-NET_port_const_const
 //! \ingroup ONE-NET_port_const
 //! @{
+    
 
+
+#ifdef _ONE_NET_MULTI_HOP
+enum
+{
+    //! The maximum number of hops
+    ON_MAX_HOPS_LIMIT = 7,
+};
+#endif
+
+
+#ifdef _PEER
+enum
+{
+    ONE_NET_MAX_PEER_UNIT = 8
+};
+#endif
 
 
 // uart buffer size
@@ -60,6 +79,39 @@ enum
     UART_RX_BUF_SIZE = 50,   //!< Size of the uart receive buffer
     UART_TX_BUF_SIZE = 50    //!< Size of the uart transmit buffer
 };
+
+
+enum
+{
+    SINGLE_DATA_QUEUE_SIZE = 12,
+    SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE = 100
+};
+
+
+// data rates -- uncomment any data rates that this device handles.
+// 38,400 must be enabled / uncommented
+#ifndef DATA_RATE_38_4_CAPABLE
+    #define DATA_RATE_38_4_CAPABLE
+#endif
+#ifndef DATA_RATE_76_8_CAPABLE
+    #define DATA_RATE_76_8_CAPABLE
+#endif
+// 115,200 is supposed to be possible, but there is a bug somewhere.
+// TODO - fix
+#ifndef DATA_RATE_115_2_CAPABLE
+//    #define DATA_RATE_115_2_CAPABLE
+#endif
+#ifndef DATA_RATE_153_6_CAPABLE
+//    #define DATA_RATE_153_6_CAPABLE
+#endif
+#ifndef DATA_RATE_192_0_CAPABLE
+//    #define DATA_RATE_192_0_CAPABLE
+#endif
+// 230,400 is supposed to be possible, but there is a bug somewhere.
+// TODO - fix
+#ifndef DATA_RATE_230_4_CAPABLE
+//    #define DATA_RATE_230_4_CAPABLE
+#endif
 
 
 
