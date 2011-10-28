@@ -44,11 +44,6 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_EVAL
-    #pragma section program program_high_rom
-#endif // ifdef _R8C_TINY //
-
-
 #include "uart.h"
 #include "sfr_r823.h"
 #include "cb.h"
