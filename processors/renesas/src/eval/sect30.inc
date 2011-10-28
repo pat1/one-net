@@ -112,7 +112,7 @@ data_NOI_top:
 		.section	vector,ROMDATA
 		.org		__VECTOR_ADR__
 
-.if	0
+.if	1
 		.lword	dummy_int		; vector  0
 		.lword	dummy_int		; vector  1
 		.lword	dummy_int		; vector  2
@@ -136,27 +136,27 @@ data_NOI_top:
     
     	.glb    _uart_rx_isr    ; UART0 receive isr
     	.lword	_uart_rx_isr    ; vector 18
-        
-		.lword	dummy_int		; vector 19
-		.lword	dummy_int		; vector 20
-		.lword	dummy_int		; vector 21
-        
+
+    	.lword	dummy_int		; vector 19
+    	.lword	dummy_int		; vector 20
+    	.lword	dummy_int		; vector 21
+
     	.glb    _tx_bit_isr     ; RF TX bit isr
-    	.lword	_tx_bit_isr     ; vector 22        
-        
-		.lword	dummy_int		; vector 23
-               
+    	.lword	_tx_bit_isr     ; vector 22
+
+    	.lword	dummy_int		; vector 23
+
     	.glb    _tick_timer_isr ; tick timer isr
     	.lword	_tick_timer_isr ; vector 24
-        
-		.lword	dummy_int		; vector 25
-		.lword	dummy_int		; vector 26
-		.lword	dummy_int		; vector 27
-		.lword	dummy_int		; vector 28
-        
+
+        .lword	dummy_int		; vector 25
+    	.lword	dummy_int		; vector 26
+    	.lword	dummy_int		; vector 27
+    	.lword	dummy_int		; vector 28
+
         .glb    _dataclk_isr    ; RF RX bit isr
     	.lword	_dataclk_isr    ; vector 29
-        
+
 		.lword	dummy_int		; vector 30
 		.lword	dummy_int		; vector 31
 		.lword	dummy_int		; vector 32
