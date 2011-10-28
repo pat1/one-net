@@ -146,7 +146,7 @@ typedef enum
 */
 #define ENABLE_RX_INTR() re_u0c1 = 1
 
-void init_ports_uart(void);
+void uart_init_ports(void);
 void uart_init(const UInt8 BAUD_RATE, const UInt8 DATA_BITS,
   const UInt8 STOP_BITS, const UInt8 PARITY);
 

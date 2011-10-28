@@ -141,7 +141,7 @@ cb_rec_t uart_tx_cb = {0, 0, sizeof(uart_tx_buf) - 1, 0x00, uart_tx_buf};
 /*!
     \brief Initialize the Renesas serial port.
 
-    Port direction initialization is handled by init_ports_uart. This function
+    Port direction initialization is handled by uart_init_ports. This function
     sets the baud rate, stop bits, data bits, and parity.
 
     \param[in] BAUD_RATE The baud rate to set the port to.  This should be on of
