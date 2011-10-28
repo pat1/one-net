@@ -292,6 +292,28 @@ UInt16 cb_bytes_free(const cb_rec_t * const CB)
     return CB->wrap - cb_bytes_queued(CB);
 } // cb_bytes_free //
 
+
+//
+// Get one byte from the queue
+// If it's empty, return zero, else return 1;
+//
+UInt16 cb_getqueue(cb_rec_t *cb, UInt8 *data)
+{
+    return cb_enqueue(cb,data, 1);
+}
+
+
+//
+// Try to put a single char into the queue. If there is room,
+// put it into the buffer and return 1. 
+//
+// If the queue is already full, set overflow flag and return 0.
+//
+UInt16 cb_putqueue(cb_rec_t *cb , UInt8 data)
+{
+    cb_enqueue(cb, &data, 1);
+}
+
 //! @} cb_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
