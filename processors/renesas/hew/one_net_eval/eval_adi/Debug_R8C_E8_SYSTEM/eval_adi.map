@@ -11,13 +11,34 @@ c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\bin\ln30.exe @C:\HEWPr
 
 # LINK FILE INFORMATION
 ncrt0 (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30)
-	Oct 27 02:22:04 2011
+	Oct 27 21:13:36 2011
+
+cb (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\cb.r30)
+	Oct 27 21:13:38 2011
+
+hal (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\hal.r30)
+	Oct 27 21:13:36 2011
 
 one_net_eval (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30)
-	Oct 27 02:22:04 2011
+	Oct 27 21:13:38 2011
+
+one_net_port_specific (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_port_specific.r30)
+	Oct 27 21:13:38 2011
+
+pal (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.r30)
+	Oct 27 21:13:38 2011
+
+str (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.r30)
+	Oct 27 21:13:37 2011
 
 tick (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30)
-	Oct 27 02:22:04 2011
+	Oct 27 21:13:37 2011
+
+uart (C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\uart.r30)
+	Oct 27 21:13:38 2011
+
+cdata (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:44 2010
 
 init (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
 	Jan  6 15:04:53 2010
@@ -25,7 +46,16 @@ init (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.li
 mdata (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
 	Jan  6 15:04:55 2010
 
+nstrtol (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:05:06 2010
+
+_i4mulu (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:39 2010
+
 device (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
+	Jan  6 15:04:45 2010
+
+errno (c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib)
 	Jan  6 15:04:45 2010
 
 
@@ -40,49 +70,79 @@ bss_SO                           REL DATA    000400 000000       ncrt0
 data_NE                          REL DATA    000400 000000 2     ncrt0
                                  REL DATA    000400 000004 2     tick
                                  REL DATA    000404 000010 2     mdata
-bss_NE                           REL DATA    000414 000000 2     ncrt0
-                                 REL DATA    000414 00003C 2     init
-                                 REL DATA    000450 000008 2     mdata
-data_NO                          REL DATA    000458 000000       ncrt0
-bss_NO                           REL DATA    000458 000000       ncrt0
-istack                           REL DATA    000458 000080 2     ncrt0
-stack                            REL DATA    0004D8 000080 2     ncrt0
-heap                             REL DATA    000558 000080       ncrt0
+                                 REL DATA    000414 000002 2     errno
+bss_NE                           REL DATA    000416 000000 2     ncrt0
+                                 REL DATA    000416 000064 2     uart
+                                 REL DATA    00047A 00003C 2     init
+                                 REL DATA    0004B6 000008 2     mdata
+data_NO                          REL DATA    0004BE 000000       ncrt0
+                                 REL DATA    0004BE 000012       uart
+bss_NO                           REL DATA    0004D0 000000       ncrt0
+istack                           REL DATA    0004D0 000080 2     ncrt0
+stack                            REL DATA    000550 000080 2     ncrt0
+heap                             REL DATA    0005D0 000080       ncrt0
 rom_NE                           ABS ROMDATA 004000 000000       ncrt0
 rom_NO                           REL ROMDATA 004000 000000       ncrt0
-data_SEI                         REL ROMDATA 004000 000000 2     ncrt0
-data_SOI                         REL ROMDATA 004000 000000       ncrt0
-data_NEI                         REL ROMDATA 004000 000000 2     ncrt0
-                                 REL ROMDATA 004000 000004       tick
-                                 REL ROMDATA 004004 000010       mdata
-data_NOI                         REL ROMDATA 004014 000000       ncrt0
-program                          REL CODE    004014 000000 2     ncrt0
-                                 REL CODE    004014 000003 2     one_net_eval
-                                 REL CODE    004018 000171 2     tick
-                                 REL CODE    00418A 00009D 2     init
-                                 REL CODE    004228 00011F 2     device
-interrupt                        REL CODE    004348 000000 2     ncrt0
-                                 REL CODE    004348 0000A1       ncrt0
+                                 REL ROMDATA 004000 000011       uart
+data_SEI                         REL ROMDATA 004012 000000 2     ncrt0
+data_SOI                         REL ROMDATA 004012 000000       ncrt0
+data_NEI                         REL ROMDATA 004012 000000 2     ncrt0
+                                 REL ROMDATA 004012 000004       tick
+                                 REL ROMDATA 004016 000010       mdata
+                                 REL ROMDATA 004026 000002       errno
+data_NOI                         REL ROMDATA 004028 000000       ncrt0
+                                 REL ROMDATA 004028 000012       uart
+program                          REL CODE    00403A 000000 2     ncrt0
+                                 REL CODE    00403A 00021D 2     cb
+                                 REL CODE    004258 000019 2     hal
+                                 REL CODE    004272 00009E 2     one_net_eval
+                                 REL CODE    004310 0001F3 2     one_net_port_specific
+                                 REL CODE    004504 000064 2     pal
+                                 REL CODE    004568 000020 2     str
+                                 REL CODE    004588 0000F7 2     tick
+                                 REL CODE    004680 0001AD 2     uart
+                                 REL CODE    00482E 00009D 2     init
+                                 REL CODE    0048CC 000253 2     nstrtol
+                                 REL CODE    004B20 00001C 2     _i4mulu
+                                 REL CODE    004B3C 00011F 2     device
+interrupt                        REL CODE    004C5C 000000 2     ncrt0
+                                 REL CODE    004C5C 0000A1       ncrt0
 vector                           ABS ROMDATA 00FEDC 000000       ncrt0
 fvector                          ABS ROMDATA 00FFDC 000024       ncrt0
+rom_FO                           REL ROMDATA 010000 000101       cdata
 # Total -------------------------------------------------------------------
-                                     DATA           0001D8(0000472) Byte(s)
-                                     ROMDATA        000038(0000056) Byte(s)
-                                     CODE           0003D4(0000980) Byte(s)
+                                     DATA           000250(0000592) Byte(s)
+                                     ROMDATA        00015E(0000350) Byte(s)
+                                     CODE           000CC2(0003266) Byte(s)
 
 ##########################################
 # (3) GLOBAL LABEL INFORMATION           #
 ##########################################
-$_pput             004300  $_sput             0042e6  $delay_100s_us     004138
-$delay_ms          00410a  $exit              0043e6  $init_dev          004228
-$speed             00424a  __init             00418a  __iob              000414
-__memt             00040c  __mnext            000450  __msize            000454
-__pool             000404  __sget             0042d6  _disable_tick_ti   004176
-_enable_tick_tim   004170  _exit              0043e6  _get_tick_count    004054
-_get_tick_diff     00405e  _increment_tick_   0040fa  _init_tick         004018
-_main              004014  _ms_to_tick        00403c  _polled_tick_upd   00415c
-_set_tick_count    0040ea  _tick_timer_isr    00417c  _tick_to_ms        004048
-dummy_int          0043e8  start              004348  
+$_n_n_strtol       0048cc  $_pput             004c14  $_sput             004bfa
+$ascii_hex_to_ni   004568  $cb_bytes_free     004218  $cb_bytes_queued   0041f4
+$cb_dequeue        00403a  $cb_enqueue        00410e  $cb_getqueue       00423e
+$cb_putqueue       004248  $cb_size           0041e2  $delay_100s_us     00463a
+$delay_ms          004618  $did_to_u16        0044e8  $exit              004cfa
+$init_dev          004b3c  $one_net_byte_st   00443c  $one_net_byte_st   004476
+$one_net_int16_t   00445c  $one_net_int32_t   0044c8  $one_net_memcmp    0043fe
+$one_net_memmove   004310  $one_net_memset    004384  $one_net_memset_   0043ba
+$one_net_strtol    0044f6  $pal_init_proces   004560  $speed             004b5e
+$uart_init         004680  $uart_read         0046f0  $uart_write        00471e
+$uart_write_int8   00479a  _HEX_DIGIT         004000  __ctype            010000
+__i4mulU           004b20  __init             00482e  __iob              00047a
+__memt             00040c  __mnext            0004b6  __msize            0004ba
+__pool             000404  __sget             004bea  _disable_tick_ti   00466c
+_enable_tick_tim   004666  _errno             000414  _exit              004cfa
+_get_tick_count    0045bc  _get_tick_diff     0045c6  _hal_init_ports_   004258
+_increment_tick_   004608  _init_tick         004588  _main              004272
+_ms_to_tick        0045a4  _pal_disable_glo   004556  _pal_enable_glob   004552
+_pal_exit          00455a  _pal_high_speed_   00450e  _pal_init_ports    004504
+_pal_low_speed_m   004540  _pal_processor_s   00450c  _polled_tick_upd   004652
+_set_tick_count    0045f8  _tick_timer_isr    004672  _tick_to_ms        0045b0
+_uart_rx_buffer_   0046e0  _uart_rx_bytes_a   0046d8  _uart_rx_cb        0004be
+_uart_rx_isr       00480c  _uart_tx_buffer_   0046e8  _uart_tx_bytes_f   0046d0
+_uart_tx_cb        0004c7  _uart_tx_isr       0047c8  dummy_int          004cfc
+start              004c5c  
 
 ##########################################
 # (4) GLOBAL EQU SYMBOL INFORMATION      #
@@ -97,31 +157,61 @@ __SB__           00000400
 # (6) LOCAL LABEL INFORMATION            #
 ##########################################
 @ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ cb ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\cb.r30 )
+@ hal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\hal.r30 )
 @ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ one_net_port_specific ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_port_specific.r30 )
+@ pal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.r30 )
+@ str ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.r30 )
 @ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
+@ uart ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\uart.r30 )
+@ cdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ nstrtol ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ _i4mulu ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ errno ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 
 ##########################################
 # (7) LOCAL EQU SYMBOL INFORMATION       #
 ##########################################
 @ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ cb ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\cb.r30 )
+@ hal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\hal.r30 )
 @ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ one_net_port_specific ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_port_specific.r30 )
+@ pal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.r30 )
+@ str ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.r30 )
 @ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
+@ uart ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\uart.r30 )
+@ cdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ nstrtol ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ _i4mulu ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ errno ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 
 ##########################################
 # (8) LOCAL EQU BIT-SYMBOL INFORMATION   #
 ##########################################
 @ ncrt0 ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30 )
+@ cb ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\cb.r30 )
+@ hal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\hal.r30 )
 @ one_net_eval ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval.r30 )
+@ one_net_port_specific ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_port_specific.r30 )
+@ pal ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.r30 )
+@ str ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.r30 )
 @ tick ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\tick.r30 )
+@ uart ( C:\HEWProj\2_Dev\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\uart.r30 )
+@ cdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ init ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ mdata ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ nstrtol ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ _i4mulu ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 @ device ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
+@ errno ( c:\program files\renesas\hew\tools\renesas\nc30wa\v545r01\lib30\nc30lib.lib )
 
 *** Mapping List ***
 
@@ -136,39 +226,41 @@ data_SO
 bss_SO
                                   00000400  00000400         0   1
 data_NE
-                                  00000400  00000413        14   2
+                                  00000400  00000415        16   2
 bss_NE
-                                  00000414  00000457        44   2
+                                  00000416  000004bd        a8   2
 data_NO
-                                  00000458  00000458         0   1
+                                  000004be  000004cf        12   1
 bss_NO
-                                  00000458  00000458         0   1
+                                  000004d0  000004d0         0   1
 istack
-                                  00000458  000004d7        80   2
+                                  000004d0  0000054f        80   2
 stack
-                                  000004d8  00000557        80   2
+                                  00000550  000005cf        80   2
 heap
-                                  00000558  000005d7        80   1
+                                  000005d0  0000064f        80   1
 rom_NE
                                   00004000  00004000         0   1
 rom_NO
-                                  00004000  00004000         0   1
+                                  00004000  00004010        11   1
 data_SEI
-                                  00004000  00004000         0   2
+                                  00004012  00004012         0   2
 data_SOI
-                                  00004000  00004000         0   1
+                                  00004012  00004012         0   1
 data_NEI
-                                  00004000  00004013        14   2
+                                  00004012  00004027        16   2
 data_NOI
-                                  00004014  00004014         0   1
+                                  00004028  00004039        12   1
 program
-                                  00004014  00004346       333   2
+                                  0000403a  00004c5a       c21   2
 interrupt
-                                  00004348  000043e8        a1   2
+                                  00004c5c  00004cfc        a1   2
 vector
                                   0000fedc  0000fedc         0   1
 fvector
                                   0000ffdc  0000ffff        24   1
+rom_FO
+                                  00010000  00010100       101   1
 
 *** Symbol List ***
 
@@ -190,77 +282,202 @@ FILE=mdata
   __pool
                                   00000404         0   none ,g         0
 
-SECTION=bss_NE
-FILE=ncrt0
-                                  00000414  00000414         0
-  __iob
+FILE=errno
+                                  00000414  00000415         2
+  _errno
                                   00000414         0   none ,g         0
 
+SECTION=bss_NE
+FILE=init
+                                  0000047a  000004b5        3c
+  __iob
+                                  0000047a         0   none ,g         0
+
 FILE=mdata
-                                  00000450  00000457         8
+                                  000004b6  000004bd         8
   __mnext
-                                  00000450         0   none ,g         0
+                                  000004b6         0   none ,g         0
   __msize
-                                  00000454         0   none ,g         0
+                                  000004ba         0   none ,g         0
+
+SECTION=data_NO
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/common/uart
+                                  000004be  000004cf        12
+  _uart_rx_cb
+                                  000004be         9   data ,g         0
+  _uart_tx_cb
+                                  000004c7         9   data ,g         0
+
+SECTION=rom_NO
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/common/uart
+                                  00004000  00004010        11
+  _HEX_DIGIT
+                                  00004000        11   data ,g         0
 
 SECTION=program
+FILE=C:/HEWProj/2_Dev/common/cb
+                                  0000403a  00004256       21d
+  $cb_dequeue
+                                  0000403a        c6   func ,g         0
+  $cb_enqueue
+                                  0000410e        d4   func ,g         0
+  $cb_size
+                                  000041e2        13   func ,g         0
+  $cb_bytes_queued
+                                  000041f4        24   func ,g         0
+  $cb_bytes_free
+                                  00004218        26   func ,g         0
+  $cb_getqueue
+                                  0000423e         a   func ,g         0
+  $cb_putqueue
+                                  00004248         f   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/hal
+                                  00004258  00004270        19
+  _hal_init_ports_leds
+                                  00004258        19   func ,g         0
+
 FILE=C:/HEWProj/2_Dev/applications/eval_boards/one_net_eval
-                                  00004014  00004016         3
+                                  00004272  0000430f        9e
   _main
-                                  00004014         3   func ,g         0
+                                  00004272        9e   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/common/one_net_port_specific
+                                  00004310  00004502       1f3
+  $one_net_memmove
+                                  00004310        73   func ,g         0
+  $one_net_memset
+                                  00004384        36   func ,g         0
+  $one_net_memset_block
+                                  000043ba        44   func ,g         0
+  $one_net_memcmp
+                                  000043fe        3e   func ,g         0
+  $one_net_byte_stream_to_int16
+                                  0000443c        21   func ,g         0
+  $one_net_int16_to_byte_stream
+                                  0000445c        1a   func ,g         0
+  $one_net_byte_stream_to_int32
+                                  00004476        52   func ,g         0
+  $one_net_int32_to_byte_stream
+                                  000044c8        1f   func ,g         0
+  $did_to_u16
+                                  000044e8         e   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/eval/pal
+                                  00004504  00004567        64
+  _pal_init_ports
+                                  00004504         9   func ,g         0
+  _pal_high_speed_mode
+                                  0000450e        33   func ,g         0
+  _pal_low_speed_mode
+                                  00004540        11   func ,g         0
+  _pal_enable_global_interrupts
+                                  00004552         4   func ,g         0
+  _pal_disable_global_interrupts
+                                  00004556         4   func ,g         0
+  _pal_processor_sleep
+                                  0000450c         0   func ,g         0
+  _pal_exit
+                                  0000455a         7   func ,g         0
+  $pal_init_processor
+                                  00004560         8   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/common/string/str
+                                  00004568  00004587        20
+  $ascii_hex_to_nibble
+                                  00004568        20   func ,g         0
 
 FILE=C:/HEWProj/2_Dev/processors/renesas/src/r8c23/tick
-                                  00004018  00004188       171
+                                  00004588  0000467e        f7
   _init_tick
-                                  00004018        23   func ,g         0
+                                  00004588        1b   func ,g         0
   _ms_to_tick
-                                  0000403c         c   func ,g         0
+                                  000045a4         c   func ,g         0
   _tick_to_ms
-                                  00004048         c   func ,g         0
+                                  000045b0         c   func ,g         0
   _get_tick_count
-                                  00004054         a   func ,g         0
+                                  000045bc         a   func ,g         0
   _get_tick_diff
-                                  0000405e        8c   func ,g         0
+                                  000045c6        32   func ,g         0
   _set_tick_count
-                                  000040ea        10   func ,g         0
+                                  000045f8        10   func ,g         0
   _increment_tick_count
-                                  000040fa        10   func ,g         0
+                                  00004608        10   func ,g         0
   $delay_ms
-                                  0000410a        2e   func ,g         0
+                                  00004618        22   func ,g         0
   $delay_100s_us
-                                  00004138        24   func ,g         0
+                                  0000463a        18   func ,g         0
   _polled_tick_update
-                                  0000415c        14   func ,g         0
+                                  00004652        14   func ,g         0
   _enable_tick_timer
-                                  00004170         6   func ,g         0
+                                  00004666         6   func ,g         0
   _disable_tick_timer
-                                  00004176         6   func ,g         0
+                                  0000466c         6   func ,g         0
+
+FILE=C:/HEWProj/2_Dev/processors/renesas/src/common/uart
+                                  00004680  0000482c       1ad
+  $uart_init
+                                  00004680        4f   func ,g         0
+  _uart_tx_bytes_free
+                                  000046d0         8   func ,g         0
+  _uart_rx_bytes_available
+                                  000046d8         8   func ,g         0
+  _uart_rx_buffer_size
+                                  000046e0         8   func ,g         0
+  _uart_tx_buffer_size
+                                  000046e8         8   func ,g         0
+  $uart_read
+                                  000046f0        2e   func ,g         0
+  $uart_write
+                                  0000471e        7c   func ,g         0
+  $uart_write_int8_hex
+                                  0000479a        2f   func ,g         0
+  _uart_tx_isr
+                                  000047c8        44   func ,g         0
+  _uart_rx_isr
+                                  0000480c        21   func ,g         0
 
 FILE=init
-                                  0000418a  00004226        9d
+                                  0000482e  000048ca        9d
   __init
-                                  0000418a        9d   func ,g         0
+                                  0000482e        9d   func ,g         0
+
+FILE=nstrtol
+                                  000048cc  00004b1e       253
+  $_n_n_strtol
+                                  000048cc       253   func ,g         0
+
+FILE=_i4mulu
+                                  00004b20  00004b3b        1c
+  __i4mulU
+                                  00004b20        1c   func ,g         0
 
 FILE=device
-                                  00004228  00004346       11f
+                                  00004b3c  00004c5a       11f
   $init_dev
-                                  00004228        21   func ,g         0
+                                  00004b3c        21   func ,g         0
   $speed
-                                  0000424a        8d   func ,g         0
+                                  00004b5e        8d   func ,g         0
   __sget
-                                  000042d6         f   func ,g         0
+                                  00004bea         f   func ,g         0
   $_sput
-                                  000042e6        1b   func ,g         0
+                                  00004bfa        1b   func ,g         0
   $_pput
-                                  00004300        47   func ,g         0
+                                  00004c14        47   func ,g         0
 
 SECTION=interrupt
 FILE=ncrt0
-                                  00004348  000043e8        a1
+                                  00004c5c  00004cfc        a1
   $exit
-                                  000043e6         0   none ,g         0
+                                  00004cfa         0   none ,g         0
   _exit
-                                  000043e6         0   none ,g         0
+                                  00004cfa         0   none ,g         0
   dummy_int
-                                  000043e8         0   none ,g         0
+                                  00004cfc         0   none ,g         0
+
+SECTION=rom_FO
+FILE=cdata
+                                  00010000  00010100       101
+  __ctype
+                                  00010000         0   none ,g         0
 
