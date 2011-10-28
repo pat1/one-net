@@ -14,6 +14,7 @@
 #include "tick.h"
 #include "pal.h"
 #include "hal.h"
+#include "uart.h"
 #include "io_port_mapping.h"
 
 
@@ -23,6 +24,7 @@ int main(void)
     
     INIT_PROCESSOR(TRUE);
     INIT_PORTS_LEDS();
+    uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     
     USER_PIN0_DIR = OUTPUT;
     USER_PIN1_DIR = OUTPUT;
@@ -34,6 +36,13 @@ int main(void)
     USER_PIN2 = 0;
     USER_PIN3 = 0;
     delay_ms(3000);
+    
+    {
+        const char* const message = "Hello World!\n";
+        UInt16 len = 13;
+        uart_write(message, len);
+        delay_ms(2000);
+    }
     
     
     for(i = 0; i < 10; i++)
