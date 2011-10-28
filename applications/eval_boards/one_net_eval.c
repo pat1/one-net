@@ -39,7 +39,7 @@ int main(void)
     
     {
         const char* const message = "Hello World!\n";
-        UInt16 len = 13;
+        UInt16 len = 12;
         uart_write(message, len);
         delay_ms(2000);
     }
