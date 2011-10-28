@@ -130,8 +130,13 @@ data_NOI_top:
 		.lword	dummy_int		; vector 14
 		.lword	dummy_int		; vector 15
 		.lword	dummy_int		; vector 16
-		.lword	dummy_int		; vector 17
-		.lword	dummy_int		; vector 18
+		
+        .glb    _uart_tx_isr    ; UART0 transmit isr
+    	.lword	_uart_tx_isr    ; vector 17
+    
+    	.glb    _uart_rx_isr    ; UART0 receive isr
+    	.lword	_uart_rx_isr    ; vector 18
+        
 		.lword	dummy_int		; vector 19
 		.lword	dummy_int		; vector 20
 		.lword	dummy_int		; vector 21
