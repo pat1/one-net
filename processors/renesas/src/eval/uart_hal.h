@@ -51,8 +51,47 @@
 //! \defgroup uart_hal_const
 //! \ingroup uart_hal
 //! @{
+    
+    
+/*!
+    \brief Disables UART transmit interrupts
+    
+    \param void
+    
+    \return void
+*/
+#define DISABLE_TX_INTR() te_u0c1 = 0
 
 
+/*!
+    \brief Enables UART transmit interrupts
+    
+    \param void
+    
+    \return void
+*/
+#define ENABLE_TX_INTR() te_u0c1 = 1
+
+
+/*!
+    \brief Disables the uart receive interrupt
+    
+    \param void
+    
+    \return void
+*/
+#define DISABLE_RX_INTR() re_u0c1 = 0
+
+
+/*!
+    \brief Enables the uart receive interrupt
+    
+    \param void
+    
+    \return void
+*/
+#define ENABLE_RX_INTR() re_u0c1 = 1
+    
 
 enum
 {
