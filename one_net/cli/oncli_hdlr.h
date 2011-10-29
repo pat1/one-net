@@ -1,17 +1,12 @@
-#ifndef _ONCLI_H 
-#define _ONCLI_H 
+#ifndef _ONCLI_HDLR_H 
+#define _ONCLI_HDLR_H 
 
 
-#include "one_net_types.h"
-#include "oncli_port.h"
-
-
-
-//! \defgroup oncli ONE-NET Command Line Interface
+//! \defgroup oncli_hdlr ONE-NET Command Line Interface Handlers
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -41,10 +36,10 @@
 */
 
 /*!
-    \file oncli.h
+    \file oncli_hdlr.h
 
-    \brief Contains declarations for ONE-NET Command Line Interface
-      functionality
+    \brief Contains declarations for handling ONE-NET Command Line Interface
+      commands.
 
     The ONE-NET Command Line Interface is an ASCII protocol designed for the
     ONE-NET evaluation boards so a user can easily test and evaluate the
@@ -52,78 +47,58 @@
 */
 
 
+#include "config_options.h"
+#include "oncli_port.h"
+#include "oncli.h"
+
+
 //==============================================================================
 //								CONSTANTS
-//! \defgroup oncli_const 
-//! \ingroup oncli
+//! \defgroup oncli_hdlr_const 
+//! \ingroup oncli_hdlr
 //! @{
 
-//! @} oncli_const
+//! @} oncli_hdlr_const
 //								CONSTANTS END
 //==============================================================================
 
 //==============================================================================
 //								TYPEDEFS 
-//! \defgroup oncli_typedefs
-//! \ingroup oncli
+//! \defgroup oncli_hdlr_typedefs
+//! \ingroup oncli_hdlr
 //! @{
 
 
-//! States for reading input
-enum
-{
-    //! State while command is being read in
-    ONCLI_RX_CMD_STATE,
-    
-    //! State while reading in parameter list, looking for new line
-    ONCLI_RX_PARAM_NEW_LINE_STATE,
-    
-    //! State while reading in parameter list, looking for new line or quote
-    ONCLI_RX_PARAM_NEW_LINE_OR_QUOTE_STATE,
-
-    //! State while reading in parameter list, looking for closing quote
-    ONCLI_RX_PARAM_QUOTE_STATE
-};
-
-
-typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
-
-
-//! @} oncli_typedefs
+//! @} oncli_hdlr_typedefs
 //								TYPEDEFS END
 //==============================================================================
 
 //==============================================================================
 //                              PUBLIC VARIABLES
-//! \defgroup oncli_pub_var
-//! \ingroup oncli
+//! \defgroup oncli_hdlr_pub_var
+//! \ingroup oncli_hdlr
 //! @{
 
-
-extern BOOL echo_on;
-
-
-//! @} oncli_pub_var
+//! @} oncli_hdlr_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
 //==============================================================================
 //						PUBLIC FUNCTION DECLARATIONS
-//! \defgroup oncli_pub_func
-//! \ingroup oncli
+//! \defgroup oncli_hdlr_pub_func
+//! \ingroup oncli_hdlr
 //! @{
 
-
-void oncli_send_msg(const char * const FMT, ...);
-void oncli(void);
-UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
+oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
+  UInt8 * const next_state, oncli_cmd_hdlr_t * const cmd_hdlr);
 
 
-//! @} oncli_pub_func
+//! @} oncli_hdlr_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
-//! @} oncli
+//! @} oncli_hdlr
 
 
-#endif // #ifdef _ONCLI_H //
+#endif // #ifdef _ONCLI_HDLR_H //
+

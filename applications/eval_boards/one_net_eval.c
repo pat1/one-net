@@ -62,6 +62,13 @@ int main(void)
     oncli_send_msg("\n:Done:  String=%s, i=%d", message, i);
     delay_ms(3000);
     
+    while(1)
+    {
+        oncli();
+        delay_ms(25);
+    }
+    
+    
     EXIT();
 	return 0;
 }
