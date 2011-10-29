@@ -2,6 +2,7 @@
 #define _ONE_NET_XTEA_H
 
 #include "config_options.h"
+#include "one_net_types.h"
 
 
 //! \defgroup one_net_xtea XTEA functionality
@@ -46,8 +47,6 @@
       updated.
 */
 
-#include "one_net_types.h"
-
 
 //==============================================================================
 //                                  CONSTANTS
@@ -76,6 +75,57 @@ enum
 
 //! Typedef the xtea key
 typedef UInt8 one_net_xtea_key_t[ONE_NET_XTEA_KEY_LEN];
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Encryption method used to encrypt single and block transactions
+
+    The encryption method for a packets payload is only 2 bits.  These
+    enumerations represent the 2 bit field indicating what method of
+    encryption was used (already shifted to their position in the payload).
+*/
+typedef enum
+{
+    //! No encryption used. DEBUG ONLY
+    ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE = 0x00,
+
+    //! 32 round XTEA
+    ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32 = 0x40,
+
+    //! TBD
+    ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0 = 0x80,
+
+    //! TBD
+    ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1 = 0xC0
+} one_net_single_blk_encryption_t;
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Encryption method used to encrypt stream transactions
+
+    The encryption method for a packets payload is only 2 bits.  These
+    enumerations represent the 2 bit field indicating what method of
+    encryption was used (already shifted to their position in the payload).
+*/
+typedef enum
+{
+    //! No encryption used. DEBUG ONLY
+    ONE_NET_STREAM_ENCRYPT_NONE = 0x00,
+
+    //! 32 round XTEA
+    ONE_NET_STREAM_ENCRYPT_XTEA8 = 0x40,
+
+    //! TBD
+    ONE_NET_STREAM_ENCRYPT_TBD0 = 0x80,
+
+    //! TBD
+    ONE_NET_STREAM_ENCRYPT_TBD1 = 0xC0
+} one_net_stream_encryption_t;
+#endif
+
 
 //! @} one_net_xtea_typedefs
 //                                  TYPEDEFS END
