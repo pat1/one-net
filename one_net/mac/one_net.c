@@ -141,9 +141,17 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE, 0, 0,
 #endif // if block messages are not enabled //
 
 
-#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MASTER)
-BOOL device_is_master; //! true if device is functioning as a master, false otherwise
+//! true if device is functioning as a master, false otherwise
+#ifndef _ONE_NET_MASTER
+BOOL device_is_master = FALSE;
+#else
+BOOL device_is_master = TRUE; // if device cvan be master OR client, the
+                              // initialization code will need to set this
+                              // value
 #endif
+
+
+one_net_startup_status_t startup_status = ON_STARTUP_IN_PROGRESS;
 
 
 //                              PUBLIC VARIABLES
