@@ -128,9 +128,18 @@
 "C:\HEWProj\2_Dev\one_net\app\one_net_message.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\one_net\app\one_net_packet.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_port.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\mac\one_net.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\one_net\mac\one_net.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\mac\one_net_constants.h" "User" "C header file" 2 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.c" "User" "C source file" 2 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\mac\one_net_status_codes.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\port_specific\one_net_port_specific.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\one_net\port_specific\pal.h" "User" "C header file" 2 
@@ -158,6 +167,7 @@
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "User" "C source file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\oncli_port_const.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\one_net_port_const.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\one_net_timer_port_const.h" "User" "C header file" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "User" "C source file" 2 
@@ -197,7 +207,11 @@
 "C:\HEWProj\2_Dev\one_net\app\one_net_features.c" "0e150c0a1859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_message.c" "0b177e873859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "08076326c759cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.c" "0dc0c0554a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.c" "0921a02e2b59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.c" "0abaf9588a59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\mac\one_net.c" "0f59571b9959cc10" 1 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.c" "0006c0812c59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_crc.c" "02d00e325759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_encode.c" "0e5785825759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_prand.c" "05ad3bf25759cc10" 1 
@@ -212,15 +226,15 @@
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 "C:\HEWProj\2_Dev\transceivers\adi\adi.c" "043784068659cc10" 1 
 [OPTIONS_Debug_Renesas M16C Configurator]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_Renesas M16C Librarian]
-"Single Shot" "0ad62b49c959cc10" 5 
+"Single Shot" "0006c0812c59cc10" 5 
 [OPTIONS_Debug_Renesas M16C Linker]
-"Single Shot" "0845eb49c959cc10" 3 
+"Single Shot" "0e7ba1812c59cc10" 3 
 [OPTIONS_Debug_Renesas M16C Stype Converter]
-"Single Shot" "0845eb49c959cc10" 4 
+"Single Shot" "0e7ba1812c59cc10" 4 
 [OPTIONS_Debug]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -248,7 +262,11 @@
 "C:\HEWProj\2_Dev\one_net\app\one_net_features.c" "0e150c0a1859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_message.c" "0b177e873859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "08076326c759cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.c" "0dc0c0554a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.c" "0921a02e2b59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.c" "0abaf9588a59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\mac\one_net.c" "0f59571b9959cc10" 1 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.c" "0006c0812c59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_crc.c" "02d00e325759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_encode.c" "0e5785825759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_prand.c" "05ad3bf25759cc10" 1 
@@ -263,15 +281,15 @@
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 "C:\HEWProj\2_Dev\transceivers\adi\adi.c" "043784068659cc10" 1 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Configurator]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Librarian]
-"Single Shot" "0ad62b49c959cc10" 5 
+"Single Shot" "0006c0812c59cc10" 5 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Linker]
-"Single Shot" "0845eb49c959cc10" 3 
+"Single Shot" "0e7ba1812c59cc10" 3 
 [OPTIONS_Debug_M16C_R8C_Simulator_Renesas M16C Stype Converter]
-"Single Shot" "0845eb49c959cc10" 4 
+"Single Shot" "0e7ba1812c59cc10" 4 
 [OPTIONS_Debug_M16C_R8C_Simulator]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
@@ -289,47 +307,51 @@
 "Assembly source file" "0bbdb2268d49cc10" 2 
 "C:\HEWProj\2_Dev\processors\renesas\src\eval\ncrt0.a30" "0bbdb2268d49cc10" 2 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C C Compiler]
-"C source file" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\common\cb.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\common\string\nprintf.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\common\string\str.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\app\one_net_acknowledge.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\app\one_net_application.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\app\one_net_features.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\app\one_net_message.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\mac\one_net.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_crc.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_encode.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_prand.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_timer.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_xtea.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\common\one_net_port_specific.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\common\print.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\common\uart.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\hal_adi.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "052ef9830a59cc10" 1 
-"C:\HEWProj\2_Dev\transceivers\adi\adi.c" "052ef9830a59cc10" 1 
+"C source file" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\common\cb.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\common\string\nprintf.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\common\string\str.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\app\one_net_acknowledge.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\app\one_net_application.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\app\one_net_features.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\app\one_net_message.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.c" "0921a02e2b59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.c" "0abaf9588a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\mac\one_net.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.c" "0006c0812c59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\utility\one_net_crc.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\utility\one_net_encode.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\utility\one_net_prand.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\utility\one_net_timer.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\utility\one_net_xtea.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\common\one_net_port_specific.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\common\print.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\common\uart.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\adi\hal_adi.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\hal.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\eval\pal.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0b954fc64a59cc10" 1 
+"C:\HEWProj\2_Dev\transceivers\adi\adi.c" "0b954fc64a59cc10" 1 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Configurator]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Librarian]
-"Single Shot" "0ad62b49c959cc10" 5 
+"Single Shot" "0006c0812c59cc10" 5 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Linker]
-"Single Shot" "0845eb49c959cc10" 3 
+"Single Shot" "0e7ba1812c59cc10" 3 
 [OPTIONS_Debug_R8C_E8_SYSTEM_Renesas M16C Stype Converter]
-"Single Shot" "0845eb49c959cc10" 4 
+"Single Shot" "0e7ba1812c59cc10" 4 
 [OPTIONS_Debug_R8C_E8_SYSTEM]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
 "[V|VERSION|1] [B|DATALENGTH|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).mot^"] [S|CPU|R8C2X] " 4 
 "[V|VERSION|1] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|LIST|L|M] [B|JOPT|1] [S|CPU|R8C2X]
 " 2 
-"[V|VERSION|1] [S|INCLUDE|^"$(WORKSPDIR)\..\..\..\..\applications\eval_boards^"|^"$(WORKSPDIR)\..\..\src\r8c23^"|^"$(WORKSPDIR)\..\..\src\eval\adi^"|^"$(WORKSPDIR)\..\..\src\eval^"|^"$(WORKSPDIR)\..\..\src\common^"|^"$(WORKSPDIR)\..\..\..\..\one_net\port_specific^"|^"$(WORKSPDIR)\..\..\..\..\one_net\mac^"|^"$(WORKSPDIR)\..\..\..\..\common^"|^"$(WORKSPDIR)\..\..\..\..\common\string^"|^"$(WORKSPDIR)\..\..\..\..\transceivers\adi^"|^"$(WORKSPDIR)\..\..\..\..\one_net\app^"|^"$(WORKSPDIR)\..\..\..\..\one_net\utility^"] [S|OUTPUT|OBJECTCODE] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|OPTIMIZE|5] [B|OR|1] [B|OGLB_JMP|1] [B|FNEAR_ROM|1] [S|CPU|R8C2X]
+"[V|VERSION|1] [S|INCLUDE|^"$(WORKSPDIR)\..\..\..\..\applications\eval_boards^"|^"$(WORKSPDIR)\..\..\src\r8c23^"|^"$(WORKSPDIR)\..\..\src\eval\adi^"|^"$(WORKSPDIR)\..\..\src\eval^"|^"$(WORKSPDIR)\..\..\src\common^"|^"$(WORKSPDIR)\..\..\..\..\one_net\port_specific^"|^"$(WORKSPDIR)\..\..\..\..\one_net\mac^"|^"$(WORKSPDIR)\..\..\..\..\common^"|^"$(WORKSPDIR)\..\..\..\..\common\string^"|^"$(WORKSPDIR)\..\..\..\..\transceivers\adi^"|^"$(WORKSPDIR)\..\..\..\..\one_net\app^"|^"$(WORKSPDIR)\..\..\..\..\one_net\utility^"|^"$(WORKSPDIR)\..\..\..\..\one_net\cli^"] [S|OUTPUT|OBJECTCODE] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|OPTIMIZE|5] [B|OR|1] [B|OGLB_JMP|1] [B|FNEAR_ROM|1] [S|CPU|R8C2X]
 " 1 
 "[V|VERSION|1] [S|MODE|CREATE|] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).lib^"] " 5 
 "[V|VERSION|3] [S|INPUTLIBRARY|^"L=nc30lib^"] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [B|JOPT|1] [B|STARTUPLINK|1] [S|CPU|R8C2X]
@@ -352,7 +374,11 @@
 "C:\HEWProj\2_Dev\one_net\app\one_net_features.c" "0e150c0a1859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_message.c" "0b177e873859cc10" 1 
 "C:\HEWProj\2_Dev\one_net\app\one_net_packet.c" "08076326c759cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli.c" "0dc0c0554a59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_hdlr.c" "0921a02e2b59cc10" 1 
+"C:\HEWProj\2_Dev\one_net\cli\oncli_str.c" "0abaf9588a59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\mac\one_net.c" "0f59571b9959cc10" 1 
+"C:\HEWProj\2_Dev\one_net\mac\one_net_peer.c" "0006c0812c59cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_crc.c" "02d00e325759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_encode.c" "0e5785825759cc10" 1 
 "C:\HEWProj\2_Dev\one_net\utility\one_net_prand.c" "05ad3bf25759cc10" 1 
@@ -367,15 +393,15 @@
 "C:\HEWProj\2_Dev\processors\renesas\src\r8c23\tick.c" "0818c7476449cc10" 1 
 "C:\HEWProj\2_Dev\transceivers\adi\adi.c" "043784068659cc10" 1 
 [OPTIONS_Release_Renesas M16C Configurator]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Release_Renesas M16C ConfiguratorR8C]
-"Single Shot" "0ad62b49c959cc10" 6 
+"Single Shot" "0006c0812c59cc10" 6 
 [OPTIONS_Release_Renesas M16C Librarian]
-"Single Shot" "0ad62b49c959cc10" 5 
+"Single Shot" "0006c0812c59cc10" 5 
 [OPTIONS_Release_Renesas M16C Linker]
-"Single Shot" "0845eb49c959cc10" 3 
+"Single Shot" "0e7ba1812c59cc10" 3 
 [OPTIONS_Release_Renesas M16C Stype Converter]
-"Single Shot" "0845eb49c959cc10" 4 
+"Single Shot" "0e7ba1812c59cc10" 4 
 [OPTIONS_Release]
 "" 0 
 "[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
