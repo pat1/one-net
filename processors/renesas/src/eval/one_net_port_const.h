@@ -53,7 +53,15 @@
 //! \defgroup ONE-NET_port_const_const
 //! \ingroup ONE-NET_port_const
 //! @{
-    
+
+
+#ifdef _PEER
+enum
+{
+    ONE_NET_MAX_PEER_UNIT = 8
+};
+#endif
+
 
 
 #ifdef _ONE_NET_MULTI_HOP
