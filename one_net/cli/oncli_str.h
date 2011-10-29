@@ -56,9 +56,17 @@
 //! @{
 
 
+
+// Device strings
+extern const char * const ONCLI_MASTER_STR;
+extern const char * const ONCLI_CLIENT_STR;
+
+
+
 // Argument strings
 extern const char * const ONCLI_ON_STR;
 extern const char * const ONCLI_OFF_STR;
+
 
 
 // Command Strings
@@ -67,20 +75,44 @@ extern const char * const ONCLI_OFF_STR;
 #endif
 
 
+
+// Reponse Strings
+extern const char * const ONCLI_CMD_SUCCESS_STR;
+extern const char * const ONCLI_SUCCEEDED_STR;
+extern const char * const ONCLI_FAILED_STR;
+extern const char * const ONCLI_CLR_INPUT_STR;
+
+
+
 // Error Formats
-extern const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT;
+extern const char * const ONCLI_INVALID_CMD_FMT;
+extern const char * const ONCLI_CMD_FAIL_FMT;
+extern const char * const ONCLI_INVALID_CMD_FOR_DEVICE_FMT;
 extern const char * const ONCLI_INTERNAL_ERR_FMT;
+extern const char * const ONCLI_GENERAL_ERROR_FMT;
 extern const char * const ONCLI_RX_INVALID_CH_FMT;
+extern const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT;
 
 
 // Error Strings
-extern const char * const ONCLI_CLR_INPUT_STR;
+extern const char * const ONCLI_IN_PROGRESS_STR;
+extern const char * const ONCLI_RSRC_UNAVAILABLE_STR;
+extern const char * const ONCLI_UNSUPPORTED_STR;
+extern const char * const ONCLI_INVALID_FORMAT_STR;
+extern const char * const ONCLI_SNGH_STR;
+extern const char * const ONCLI_ONS_NOT_INIT_ERR_STR;
+extern const char * const ONCLI_INTERNAL_ERR_STR;
+extern const char * const ONCLI_INVALID_DST_STR;
+extern const char * const ONCLI_NEED_TO_JOIN_STR;
 extern const char * const ONCLI_INVALID_CMD_LEN_STR;
+extern const char * const ONCLI_LOAD_FAIL_STR;
+extern const char * const ONCLI_DISPLAY_INVITE_STR;
 extern const char * const ONCLI_FATAL_ERR_1_STR;
 enum
 {
     ONCLI_FATAL_ERR_1_LEN = 15
 };
+
 
 
 //! @} oncli_str_const

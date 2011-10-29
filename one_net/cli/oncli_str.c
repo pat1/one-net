@@ -50,6 +50,15 @@
 //! @{
 
 
+// Device strings
+//! MASTER string
+const char * const ONCLI_MASTER_STR = "MASTER";
+
+//! CLIENT string
+const char * const ONCLI_CLIENT_STR = "CLIENT";
+
+
+
 // Argument strings
 //! on argument string
 const char * const ONCLI_ON_STR = "on";
@@ -67,30 +76,97 @@ const char * const ONCLI_OFF_STR = "off";
 
 
 
+// Reponse Strings
+//! Response sent when the command was successfully parsed.
+const char * const ONCLI_CMD_SUCCESS_STR = "OK\n";
+
+//! String to output when an action succeeded
+const char * const ONCLI_SUCCEEDED_STR = "succeeded";
+
+//! String to output when an action failed
+const char * const ONCLI_FAILED_STR = "failed";
+
+//! String sent to notify that the input is being cleared.
+const char * const ONCLI_CLR_INPUT_STR = "Clearing input\n";
+
+
 
 // Error formats
-//! Format to indicate the output string is too short
-const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
-  = "Buffer is not big enough; have %u, needed %u\n";
+//! indicates that the command was not valid
+const char * const ONCLI_INVALID_CMD_FMT = "Invalid command \"%s\"\n";
 
-//! Fatal error 1
-const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
+//! Indicates why the command was invalid.
+const char * const ONCLI_CMD_FAIL_FMT = "The \"%s\" command failed - %s\n";
+
+//! String that is output when a command
+const char * const ONCLI_INVALID_CMD_FOR_DEVICE_FMT
+  = "Invalid command for %s\n";
 
 //! Format for outputting an internal error at a location, and informing the
 //! user that the device is halting.
 const char * const ONCLI_INTERNAL_ERR_FMT
   = "Internal error occurred at %08X.\n";
 
+//! Format to indicate an error occurred, the number indicates what type of
+//! error and the address indicates the approximate location.
+const char * const ONCLI_GENERAL_ERROR_FMT
+  = "Error %d occurred at %08X.\n";
+ 
 //! Format to indicate that a character not in the character set was received.
 const char * const ONCLI_RX_INVALID_CH_FMT
   = "An invalid character (0x%02X) was received\n";
 
-//! String sent to notify that the input is being cleared.
-const char * const ONCLI_CLR_INPUT_STR = "Clearing input\n";
+//! Format to indicate the output string is too short
+const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
+  = "Buffer is not big enough; have %u, needed %u\n";
+
+
+
+// Error strings
+//! String to indicate the operation is already in progress
+const char * const ONCLI_IN_PROGRESS_STR = "already in progress";
+
+//! String to indicate that the required resources are unavailable
+const char * const ONCLI_RSRC_UNAVAILABLE_STR
+  = "Required resources are not available";
+
+//! String to indicate that the request is not supported  
+const char * const ONCLI_UNSUPPORTED_STR = "Unsupported request";
+
+//! Indicates that the format was invalid.
+const char * const ONCLI_INVALID_FORMAT_STR = "invalid format";
+
+//! Indicates that a "Should Not Get Here" error occurred.
+const char * const ONCLI_SNGH_STR = "should not get here error";
+
+//! Indicates a ONE-NET operation was attempted, but ONE-NET was not initialized.
+const char * const ONCLI_ONS_NOT_INIT_ERR_STR = "initialization not complete, please try again";
+
+//! String to indicate that an internal error has occured.
+const char * const ONCLI_INTERNAL_ERR_STR = "Internal error";
+
+//! String to indicate the destination is not valid
+const char * const ONCLI_INVALID_DST_STR
+  = "Invalid DID and/or unit";
+
+//! String to indicate the device needs to join a network
+const char * const ONCLI_NEED_TO_JOIN_STR
+  = "Device needs to join a network first";
 
 //! The length of the parameters exceeds the limit.
 const char * const ONCLI_INVALID_CMD_LEN_STR
   = "The command (and parameters) exceeds the max possible length\n";
+
+//! String to indicate loading from the flash failed.
+const char * const ONCLI_LOAD_FAIL_STR
+  = "Loading from flash failed!  Starting as a new device.  The flash should"
+  "be erased\n";
+ 
+//! Fatal error 1
+const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";  
+  
+  
+  
 
 
 //! @} oncli_str_const
