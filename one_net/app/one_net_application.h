@@ -223,6 +223,63 @@ ONE_NET_INLINE void put_dst_unit(UInt8 data, UInt8 *payload)
 //! @{
 
 
+typedef enum _ona_unit_type
+{
+    //! Simple ON/OFF switch
+    ONA_SIMPLE_SWITCH = 0x00,
+
+    //! Switch w/ ON/OFF & dimmer
+    ONA_DIMMER_SWITCH = 0x01,
+
+    //! Simple ON/OFF switch w/ display
+    ONA_DISPLAY_SWITCH = 0x02,
+
+    //! Switch w/ ON/OFF, dimmer & display
+    ONA_DISPLAY_DIMMER_SWITCH = 0x03,
+
+    //! Simple ON/OFF light
+    ONA_SIMPLE_LIGHT = 0x04,
+
+    //! Light w/ ON/OFF & dimmer
+    ONA_DIMMING_LIGHT = 0x05,
+
+    //! ON/OFF outlet
+    ONA_OUTLET = 0x06,
+
+    //! Speaker module
+    ONA_SPEAKER = 0x07,
+
+    //! Temperature sensor
+    ONA_TEMPERATURE_SENSOR = 0x08,
+
+    //! Humidity sensor
+    ONA_HUMIDITY_SENSOR = 0x09,
+
+    //! Door/Window sensor
+    ONA_DOOR_WINDOW_SENSOR = 0x0A,
+
+    //! Motion sensor
+    ONA_MOTION_SENSOR = 0x0B,
+
+    //! ONE-NET/X10 bridge
+    ONA_ONE_NET_X10_BRIDGE = 0x0C,
+
+    //! ONE-NET/INSTEON bridge
+    ONA_ONE_NET_INSTEON_BRIDGE = 0x0D
+} ona_unit_type_t;
+
+
+//! Structure that holds information on the unit type count
+typedef struct
+{
+    //! The type of unit
+    ona_unit_type_t type;
+
+    //! The number of this type of unit this device supports.
+    UInt8 count;
+} ona_unit_type_count_t;
+
+
 //! @} ONE-NET_APP_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
