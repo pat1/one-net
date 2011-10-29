@@ -65,3 +65,11 @@ int main(void)
     EXIT();
 	return 0;
 }
+
+
+
+
+void oncli_print_prompt(void)
+{
+    oncli_send_msg("ocm> ");
+} // oncli_print_prompt //
