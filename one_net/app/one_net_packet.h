@@ -65,7 +65,7 @@
 
 #ifndef _ONA_MSG_TYPE_MASK
     //! Mask the message type bits
-    #define ONA_MSG_TYPE_MASK = 0xFFF
+    #define ONA_MSG_TYPE_MASK 0xFFF
 #endif
    
     
