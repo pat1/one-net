@@ -54,6 +54,17 @@
 //! \defgroup oncli_str_const
 //! \ingroup oncli_str
 //! @{
+    
+    
+    
+// Mode strings
+#ifdef _AUTO_MODE
+extern const char * const ONCLI_AUTO_MODE_STR;
+#endif
+#ifdef _SNIFFER_MODE
+extern const char * const ONCLI_SNIFFER_STR;
+#endif
+extern const char * const ONCLI_SERIAL_MODE_STR;
 
 
 

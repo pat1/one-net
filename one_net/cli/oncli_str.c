@@ -48,6 +48,44 @@
 //! \defgroup oncli_str_const
 //! \ingroup oncli_str
 //! @{
+    
+    
+
+// Mode strings
+#ifdef _AUTO_MODE
+//! Auto mode string
+const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
+#endif
+
+#ifdef _SNIFFER_MODE
+//! sniffer string
+const char * const ONCLI_SNIFFER_STR = "SNIFFER";
+#endif
+
+//! Serial mode string
+const char * const ONCLI_SERIAL_MODE_STR = "SERIAL MODE";
+
+
+
+// Device strings
+//! MASTER string
+const char * const ONCLI_MASTER_STR = "MASTER";
+
+//! CLIENT string
+const char * const ONCLI_CLIENT_STR = "CLIENT";
+
+
+
+
+   
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 // Device strings
