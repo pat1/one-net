@@ -461,6 +461,10 @@
 #endif
 
 
+// Enable this if the device has transmit and receive LEDS
+#ifndef _HAS_LEDS
+    #define _HAS_LEDS
+#endif
 
 
 
