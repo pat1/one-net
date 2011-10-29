@@ -120,6 +120,16 @@ typedef enum
     ONS_SNGH_INTERNAL_ERR           //!< [41] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
+
+typedef
+{
+    ON_STARTUP_SUCCESS, //! startup was successful and is complete
+    ON_STARTUP_IN_PROGRESS, //! startup is in progress
+    ON_STARTUP_FAIL //! startup failed and is complete
+} one_net_startup_process_t;
+
+
+
 //! @} ONE-NET_status_codes_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
