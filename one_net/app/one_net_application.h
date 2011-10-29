@@ -280,6 +280,25 @@ typedef struct
 } ona_unit_type_count_t;
 
 
+//! flags for settings admin packet 
+enum
+{
+    //! Flag set when the device is part of the network
+    ON_JOINED = 0x80,
+
+    //! Flag to indicate a CLIENT should send a message that it sent to its peer
+    //! to the MASTER too.
+    ON_SEND_TO_MASTER = 0x40
+};
+
+
+enum
+{
+    //! Unit number that refers to device as a whole
+    ONE_NET_DEV_UNIT = 0x0F
+};
+
+
 //! @} ONE-NET_APP_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
