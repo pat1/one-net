@@ -179,6 +179,7 @@ void oncli_print_prompt(void)
 
 int main(void)
 {
+    INIT_PORTS();
     INIT_PROCESSOR(TRUE);
     INIT_PORTS_LEDS();
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
