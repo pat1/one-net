@@ -65,6 +65,11 @@
 
 enum
 {
+    //! The maximum command string length, including the NULL termination
+    //! (needs to be big enough to handle the longest command string in
+    //! oncli_str.h).
+    ONCLI_MAX_INPUT_STR_LEN = 128,
+    
     //! Max length for the output string, including byte for NULL termination
     ONCLI_MAX_OUTPUT_STR_LEN = 128
 };
