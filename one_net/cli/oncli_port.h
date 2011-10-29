@@ -53,6 +53,7 @@
 
 
 #include "config_options.h"
+#include "one_net_types.h"
 
 
 //==============================================================================
@@ -76,22 +77,15 @@
 typedef enum
 {
     ONCLI_SUCCESS,                  //!< The command was handled successfully
-
     ONCLI_BAD_PARAM,                //!< A param passed to the hdlr was invalid
     ONCLI_INTERNAL_ERR,             //!< An internal error occured
-
     ONCLI_ALREADY_IN_PROGRESS,      //!< The action is already in progress
     ONCLI_RSRC_UNAVAILABLE,         //!< The resource is unavailable
     ONCLI_UNSUPPORTED,              //!< If a request is not supported
-
     ONCLI_INVALID_CMD,              //!< The command is invalid
     ONCLI_CMD_FAIL,                 //!< If the command was not successful
     ONCLI_INVALID_DST,              //!< The destination did.unit is invalid
     ONCLI_NOT_JOINED,               //!< The device needs to join a network.
-	#ifdef _AUTO_MODE
-    	ONCLI_INVALID_CMD_FOR_MODE,     //!< cmd is unavailable in the current mode
-	#endif
-    ONCLI_INVALID_CMD_FOR_NODE,     //!< cmd is unavailable for current node
     ONCLI_PARSE_ERR,                //!< The cli data is not formatted properly
     ONCLI_SNGH_INTERNAL_ERR,        //!< Encountered a "Should Not Get Here" error.
     ONCLI_ONS_NOT_INIT_ERR          //!< Encountered a ONS_NOT_INIT return code from ONE-NET.
