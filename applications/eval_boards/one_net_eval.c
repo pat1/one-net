@@ -19,6 +19,8 @@
 #include "oncli.h"
 #include "one_net_constants.h"
 #include "one_net_xtea.h"
+#include "io_port_mapping.h"
+#include "oncli_str.h"
 
 
 
@@ -106,6 +108,15 @@ const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
 //! \defgroup ONE-NET_eval_pri_var
 //! \ingroup ONE-NET_eval
 //! @{
+  
+    
+#ifdef _AUTO_MODE
+//! True if in Auto Mode
+static BOOL in_auto_mode;
+
+//! If in auto mode and a client, the index number of the client
+static UInt8 auto_client_index;
+#endif
 
 
 //! @} ONE-NET_eval_pri_var
@@ -147,6 +158,25 @@ int main(void)
     INIT_PORTS_LEDS();
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     ENABLE_GLOBAL_INTERRUPTS();
+    
+#ifdef _AUTO_MODE
+	// check mode switch (Auto/Serial)
+	if(SW_MODE_SELECT == 0)
+	{
+		in_auto_mode = TRUE;
+		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
+	} // if auto mode //
+	else
+	{
+		in_auto_mode = FALSE;
+		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+	} // else serial //
+#else
+	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+#endif    
+    
+    
+    
     
     USER_PIN0_DIR = OUTPUT;
     USER_PIN1_DIR = OUTPUT;
