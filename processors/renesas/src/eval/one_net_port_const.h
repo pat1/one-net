@@ -63,20 +63,11 @@ enum
 #endif
 
 
-
 #ifdef _ONE_NET_MULTI_HOP
 enum
 {
     //! The maximum number of hops
     ON_MAX_HOPS_LIMIT = 7,
-};
-#endif
-
-
-#ifdef _PEER
-enum
-{
-    ONE_NET_MAX_PEER_UNIT = 8
 };
 #endif
 
