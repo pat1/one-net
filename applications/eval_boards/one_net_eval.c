@@ -21,6 +21,7 @@
 #include "one_net_xtea.h"
 #include "io_port_mapping.h"
 #include "oncli_str.h"
+#include "one_net.h"
 
 
 
@@ -84,6 +85,23 @@ const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
 const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
 
 
+//! Master prompt
+static const char* const master_prompt = "-m";
+
+//! Client prompt
+static const char* const client_prompt = "-c";
+
+#ifdef _AUTO_MODE
+//! Auto Client prompts
+static const char* const auto_client_prompts[] = {"-c1", "-c2", "-c3"};
+#endif
+
+#ifdef _SNIFFER_MODE
+//! Sniffer prompt
+static const char* const sniffer_prompt = "-s";
+#endif
+
+
 
 //! @} ONE-NET_eval_const
 //                                  CONSTANTS END
@@ -112,11 +130,16 @@ const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
     
 #ifdef _AUTO_MODE
 //! True if in Auto Mode
-static BOOL in_auto_mode;
+static BOOL in_auto_mode = FALSE;
 
 //! If in auto mode and a client, the index number of the client
 static UInt8 auto_client_index;
 #endif
+
+#ifdef _SNIFFER_MODE
+static BOOL in_sniffer_mode = FALSE;
+#endif
+
 
 
 //! @} ONE-NET_eval_pri_var
@@ -128,6 +151,11 @@ static UInt8 auto_client_index;
 //! \defgroup ONE-NET_eval_pri_func
 //! \ingroup ONE-NET_eval
 //! @{
+
+
+
+static const char* get_prompt_string(void);
+static void eval_set_modes_from_switch_positions(void);
 
 
 
@@ -144,73 +172,34 @@ static UInt8 auto_client_index;
 
 
 void oncli_print_prompt(void)
-{
-    oncli_send_msg("ocm> ");
+{   
+    oncli_send_msg("ocm%s> ", get_prompt_string());
 } // oncli_print_prompt //
 
 
 int main(void)
 {
-    UInt8 i;
-    const char* const message = "Hello World!";
-    
     INIT_PROCESSOR(TRUE);
     INIT_PORTS_LEDS();
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     ENABLE_GLOBAL_INTERRUPTS();
+    eval_set_modes_from_switch_positions();
     
 #ifdef _AUTO_MODE
 	// check mode switch (Auto/Serial)
-	if(SW_MODE_SELECT == 0)
+	if(in_auto_mode)
 	{
-		in_auto_mode = TRUE;
 		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
 	} // if auto mode //
 	else
 	{
-		in_auto_mode = FALSE;
 		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 	} // else serial //
 #else
 	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
-#endif    
-    
-    
-    
-    
-    USER_PIN0_DIR = OUTPUT;
-    USER_PIN1_DIR = OUTPUT;
-    USER_PIN2_DIR = OUTPUT;
-    USER_PIN3_DIR = OUTPUT;
-    
-    USER_PIN0 = 0;
-    USER_PIN1 = 0;
-    USER_PIN2 = 0;
-    USER_PIN3 = 0;
-    delay_ms(3000);
-    
-    {
-        UInt16 len = 12;
-        uart_write(message, len);
-        delay_ms(2000);
-    }
-    
-    
-    for(i = 0; i < 10; i++)
-    {
-        TOGGLE (USER_PIN0);
-        delay_ms(200);
-        TOGGLE (USER_PIN1);
-        delay_ms(200);
-        TOGGLE (USER_PIN2);
-        delay_ms(200);
-        TOGGLE (USER_PIN3);
-        delay_ms(1000);
-    }
-    
-    oncli_send_msg("\n:Done:  String=%s, i=%d", message, i);
-    delay_ms(3000);
-    
+#endif
+ 
+    oncli_print_prompt();    
     while(1)
     {
         oncli();
@@ -233,6 +222,94 @@ int main(void)
 //! \addtogroup ONE-NET_eval_pri_func
 //! \ingroup ONE-NET_eval
 //! @{
+
+
+
+/*!
+    \brief returns the string to use as part of the Command-line-interface
+           prompt
+        
+    \return string to use as part of the Command-line-interface prompt
+*/
+static const char* get_prompt_string(void)
+{
+    #ifdef _SNIFFER_MODE
+    if(in_sniffer_mode)
+    {
+        return sniffer_prompt;
+    }
+    #endif
+    
+    #ifdef _ONE_NET_MASTER
+        #ifdef _ONE_NET_CLIENT
+        if(device_is_master)
+        {
+            return master_prompt;
+        }
+        #else
+        return master_prompt;
+        #endif
+    #endif
+    
+    #ifndef _AUTO_MODE
+    return client_prompt;
+    #else
+        if(!in_auto_mode)
+        {
+            return client_prompt;
+        }
+        
+        return auto_client_prompts[auto_client_index];
+    #endif
+}
+
+
+/*!
+    \brief Checks the three switches to see whether the device boots in
+        auto mode, whether the device is a master or a client, and,
+        if in auto mode and a client, which client the device should
+        be assigned.
+        
+    \return none
+*/
+static void eval_set_modes_from_switch_positions(void)
+{
+    device_is_master = FALSE;
+    
+    #ifdef _AUTO_MODE
+	// check mode switch (Auto/Serial)
+	if(SW_MODE_SELECT == 0)
+	{
+		in_auto_mode = TRUE;
+    }
+    #endif
+
+    #ifdef _ONE_NET_MASTER
+    if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))  
+    {
+        device_is_master = TRUE;
+    }
+    #endif
+    
+    #ifdef _AUTO_MODE
+    if(!device_is_master && in_auto_mode)
+    {
+        if((SW_ADDR_SELECT1 == 1) && (SW_ADDR_SELECT2 == 0))
+        {
+            auto_client_index = 0;
+        }
+        else if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 1))        
+        {
+            auto_client_index = 1;
+        }
+        else       
+        {
+            auto_client_index = 2;
+        }
+    }
+    #endif
+}
+
 
 
 //! @} ONE-NET_eval_pri_func
