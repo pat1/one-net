@@ -451,10 +451,12 @@ extern on_txn_t stream_txn;
 //! ONE_NET_NUM_UNITS
 extern const ona_unit_type_count_t
   ONE_NET_DEVICE_UNIT_TYPE[ONE_NET_NUM_UNIT_TYPES];
-  
-#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MASTER)
-extern BOOL device_is_master; //! true if device is functioning as a master, false otherwise
-#endif
+
+//! true if device is functioning as a master, false otherwise 
+extern BOOL device_is_master;
+
+//! current status of startup
+extern one_net_startup_status_t startup_status;
 
 
 //! @} ONE-NET_pub_var
