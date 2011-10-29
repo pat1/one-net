@@ -121,12 +121,12 @@ typedef enum
 } one_net_status_t;
 
 
-typedef
+typedef enum
 {
     ON_STARTUP_SUCCESS, //! startup was successful and is complete
     ON_STARTUP_IN_PROGRESS, //! startup is in progress
     ON_STARTUP_FAIL //! startup failed and is complete
-} one_net_startup_process_t;
+} one_net_startup_status_t;
 
 
 
