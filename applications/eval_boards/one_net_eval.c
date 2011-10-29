@@ -16,11 +16,13 @@
 #include "hal.h"
 #include "uart.h"
 #include "io_port_mapping.h"
+#include "oncli.h"
 
 
 int main(void)
 {
     UInt8 i;
+    const char* const message = "Hello World!";
     
     INIT_PROCESSOR(TRUE);
     INIT_PORTS_LEDS();
@@ -39,7 +41,6 @@ int main(void)
     delay_ms(3000);
     
     {
-        const char* const message = "Hello World!\n";
         UInt16 len = 12;
         uart_write(message, len);
         delay_ms(2000);
@@ -57,6 +58,9 @@ int main(void)
         TOGGLE (USER_PIN3);
         delay_ms(1000);
     }
+    
+    oncli_send_msg("\n:Done:  String=%s, i=%d", message, i);
+    delay_ms(3000);
     
     EXIT();
 	return 0;
