@@ -76,27 +76,6 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 
 
 
-
-   
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-// Device strings
-//! MASTER string
-const char * const ONCLI_MASTER_STR = "MASTER";
-
-//! CLIENT string
-const char * const ONCLI_CLIENT_STR = "CLIENT";
-
-
-
 // Argument strings
 //! on argument string
 const char * const ONCLI_ON_STR = "on";
