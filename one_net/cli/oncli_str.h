@@ -46,19 +46,36 @@
 */
 
 
+#include "config_options.h"
+
 
 //==============================================================================
 //								CONSTANTS
 //! \defgroup oncli_str_const
 //! \ingroup oncli_str
 //! @{
-    
+
+
+// Argument strings
+extern const char * const ONCLI_ON_STR;
+extern const char * const ONCLI_OFF_STR;
+
+
+// Command Strings
+#ifdef _ENABLE_ECHO_COMMAND
+    extern const char * const ONCLI_ECHO_CMD_STR;
+#endif
+
 
 // Error Formats
 extern const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT;
+extern const char * const ONCLI_INTERNAL_ERR_FMT;
+extern const char * const ONCLI_RX_INVALID_CH_FMT;
 
 
 // Error Strings
+extern const char * const ONCLI_CLR_INPUT_STR;
+extern const char * const ONCLI_INVALID_CMD_LEN_STR;
 extern const char * const ONCLI_FATAL_ERR_1_STR;
 enum
 {

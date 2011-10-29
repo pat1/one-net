@@ -50,6 +50,24 @@
 //! @{
 
 
+// Argument strings
+//! on argument string
+const char * const ONCLI_ON_STR = "on";
+
+//! off argument string
+const char * const ONCLI_OFF_STR = "off";
+
+
+
+// Command Strings
+#ifdef _ENABLE_ECHO_COMMAND
+	//! echo command string
+	const char * const ONCLI_ECHO_CMD_STR = "echo";
+#endif
+
+
+
+
 // Error formats
 //! Format to indicate the output string is too short
 const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
@@ -57,6 +75,22 @@ const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
 
 //! Fatal error 1
 const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
+
+//! Format for outputting an internal error at a location, and informing the
+//! user that the device is halting.
+const char * const ONCLI_INTERNAL_ERR_FMT
+  = "Internal error occurred at %08X.\n";
+
+//! Format to indicate that a character not in the character set was received.
+const char * const ONCLI_RX_INVALID_CH_FMT
+  = "An invalid character (0x%02X) was received\n";
+
+//! String sent to notify that the input is being cleared.
+const char * const ONCLI_CLR_INPUT_STR = "Clearing input\n";
+
+//! The length of the parameters exceeds the limit.
+const char * const ONCLI_INVALID_CMD_LEN_STR
+  = "The command (and parameters) exceeds the max possible length\n";
 
 
 //! @} oncli_str_const
