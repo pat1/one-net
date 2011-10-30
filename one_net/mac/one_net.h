@@ -151,6 +151,10 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 //! \defgroup ONE-NET_typedefs
 //! \ingroup ONE-NET
 //! @{
+    
+    
+//! type of the XTEA key fragment
+typedef UInt8 one_net_xtea_key_fragment_t[ONE_NET_XTEA_KEY_FRAGMENT_SIZE];
 
 
 /*!
@@ -459,7 +463,7 @@ extern BOOL device_is_master;
 extern one_net_startup_status_t startup_status;
 
 //! The current state.
-on_state_t on_state;
+extern on_state_t on_state;
 
 
 //! @} ONE-NET_pub_var
