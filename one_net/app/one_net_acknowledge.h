@@ -182,6 +182,21 @@ typedef union
 } ack_nack_payload_t;
 
 
+
+// to preserve stack space for function calls, combining nack reason,
+// nack handle, and nack payload into single structure.  I wish I didn't
+// have to do this and maybe it shouldn't be done, but stack space is at
+// a premium.  This requires being careful about which elements of the
+// struct to adjust and which not to when the structure is passed.
+typedef struct
+{
+    on_nack_reason_t nack_reason;
+    on_ack_nack_handle_t handle;
+    ack_nack_payload_t payload;
+} on_ack_nack_t;
+
+
+
 //! @} ONE-NET_ACKNOWLEDGE_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
