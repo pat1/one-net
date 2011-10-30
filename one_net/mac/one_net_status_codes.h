@@ -133,7 +133,7 @@ typedef enum
 //! handlers to tell ONE-NET how / whether to proceed with a transaction.
 //! Also used to inform application code of how a transaction concluded
 //! (i.e. success, failure, aborted, etc.)
-typedef
+typedef enum
 {
     ON_MSG_DEFAULT_BHVR, //! use default ONE-NET behavior.
     ON_MSG_CONTINUE, //! continue processing message.
