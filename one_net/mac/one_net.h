@@ -477,6 +477,12 @@ extern on_state_t on_state;
 //! @{
 
 
+
+// address functions
+BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
+  const on_encoded_did_t * const RHS);
+
+
 //! the main function
 BOOL one_net(on_txn_t ** txn);
 
