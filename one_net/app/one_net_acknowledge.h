@@ -192,7 +192,7 @@ typedef struct
 {
     on_nack_reason_t nack_reason;
     on_ack_nack_handle_t handle;
-    ack_nack_payload_t payload;
+    ack_nack_payload_t* payload;
 } on_ack_nack_t;
 
 
