@@ -4,6 +4,7 @@
 #include "config_options.h"
 #include "one_net_types.h"
 #include "one_net_constants.h"
+#include "one_net_xtea.h"
 
 
 //! \defgroup ONE-NET_PACKET ONE-NET Packet Definitions and Lengths
@@ -597,6 +598,30 @@ enum
 
     //! The order of the crc computed over the non-volatile parameters
     ON_PARAM_CRC_ORDER = 8
+};
+
+
+//! constants dealing with the raw payload of a data packet (i.e. does not
+//! include nonces, crc, or nack reason.
+enum
+{
+    ONA_DATA_INDEX = 3, //! the index in a data packet where the actual
+                        //! data starts
+    ONA_SINGLE_PACKET_PAYLOAD_LEN = ONE_NET_XTEA_BLOCK_SIZE -
+      ONA_DATA_INDEX, //! the number of data bytes in a single message
+    
+    #ifdef _EXTENDED_SINGLE
+    ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN = ONA_SINGLE_PACKET_PAYLOAD_LEN +
+      ONE_NET_XTEA_BLOCK_SIZE, //! the number of data bytes in a large
+                               //! single message
+    ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN +
+      ONE_NET_XTEA_BLOCK_SIZE, //! the number of data bytes in an extended
+                               //! single message
+                               
+    ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN
+    #else
+    ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN = ONA_SINGLE_PACKET_PAYLOAD_LEN    
+    #endif
 };
 
 

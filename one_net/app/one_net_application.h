@@ -88,9 +88,6 @@ enum
     ONA_MSG_DATA_LEN = 2,
 
     ONA_MSG_NUM_BYTES = 3, // three of the five bites are msg stuff
-
-    ONA_SINGLE_PACKET_PAYLOAD_LEN = 5 // 1 + msg_hdr_len + msg_data_len
-
 };
 
 
