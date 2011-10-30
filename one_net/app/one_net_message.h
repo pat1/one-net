@@ -195,6 +195,19 @@ typedef struct
 } on_single_data_queue_t;
 
 
+//! Combining three common elements of a message to save stack space when
+//! calling functions.
+typedef struct
+{
+    on_pid_t pid; //! PID of message
+    UInt8 msg_id; //! message id of this transaction
+    on_msg_type_t msg_type; //! message type (i.e. admin, app, etc.)
+} on_msg_hdr_t;
+
+
+
+
+
 //! @} ONE-NET_MESSAGE_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -229,6 +242,7 @@ int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
 #else
 int single_data_queue_ready_to_send(void);
 #endif
+
 
 
 //! @} ONE-NET_MESSAGE_pub_func
