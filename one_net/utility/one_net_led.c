@@ -153,15 +153,10 @@ void tx_and_rx_led_blink(UInt16 duration, UInt8 num_times)
         LED_TURN_OFF(TX_LED);
         LED_TURN_OFF(RX_LED);
         
-        oncli_send_msg("a\n");
-        
         if(num_times == 0 || i > 1)
         {
             delay_ms(duration);
         }
-        
-        oncli_send_msg("b\n");
-
     }
 }
 
