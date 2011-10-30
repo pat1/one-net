@@ -3,6 +3,7 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
+#include "one_net_packet.h"
 
 
 
@@ -170,13 +171,14 @@ typedef struct
 */
 typedef union
 {
-    UInt8 status_resp[5]; // only valid for ACKs.  Generally, but not
-	                      // exclusively intended for "fast query"/"poll"
-						  // responses.
-	UInt8 ack_payload[5];
+    UInt8 status_resp[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN]; //! only valid for
+      //! ACKs.  Generally, but not exclusively intended for "fast query"/
+      //! "poll" responses.
+	UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
 	ack_value_t ack_value;
     tick_t ack_time_ms;
-	UInt8 nack_payload[4]; // NACK cannot hold 5 bytes since it has the reason field
+	UInt8 nack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN - 1];
+      // subtract 1 byte for the nack reason
 	UInt32 nack_value;
     tick_t nack_time_ms;
 } ack_nack_payload_t;
@@ -190,7 +192,7 @@ typedef union
 // struct to adjust and which not to when the structure is passed.
 typedef struct
 {
-    on_nack_reason_t nack_reason;
+    on_nack_rsn_t nack_reason;
     on_ack_nack_handle_t handle;
     ack_nack_payload_t* payload;
 } on_ack_nack_t;
