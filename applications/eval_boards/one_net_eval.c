@@ -22,6 +22,9 @@
 #include "io_port_mapping.h"
 #include "oncli_str.h"
 #include "one_net.h"
+#ifdef _HAS_LEDS
+    #include "one_net_led.h"
+#endif
 
 
 
@@ -181,9 +184,14 @@ int main(void)
 {
     INIT_PORTS();
     INIT_PROCESSOR(TRUE);
-    INIT_PORTS_LEDS();
+
+    #ifdef _HAS_LEDS
+        initialize_leds();
+    #endif    
+
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     ENABLE_GLOBAL_INTERRUPTS();
+
     eval_set_modes_from_switch_positions();
     
 #ifdef _AUTO_MODE
@@ -206,8 +214,7 @@ int main(void)
         oncli();
         delay_ms(25);
     }
-    
-    
+
     EXIT();
 	return 0;
 } // main //

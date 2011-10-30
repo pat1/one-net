@@ -53,23 +53,23 @@
 
 
 /*!
-    \brief Turns on a LED
+    \brief Set a pin high
 
-    \param[out] led The LED pin to set
+    \param[in] led The pin to set high
 
     \return void
 */
-#define TURN_ON(led)    led = 1
+#define TURN_ON(pin)    pin = 1
 
 
 /*!
-    \brief Turns off a LED
+    \brief Set a pin low
 
-    \param[out] led The LED pin to clear
+    \param[in] led The pin to set low
 
-    \return
+    \return void
 */
-#define TURN_OFF(led)   led = 0
+#define TURN_OFF(pin)    pin = 0
 
 
 /*!
@@ -117,19 +117,6 @@ enum
 //! \defgroup HAL_pub_func
 //! \ingroup HAL
 //! @{
-
- 
-#define INIT_PORTS_LEDS() hal_init_ports_leds()
-
-
-/*!
-    \brief Initialize the ports used by the LEDs.
-
-    \param void
-
-    \return void
-*/
-void hal_init_ports_leds(void);
 
 
 //! @} HAL_pub_func

@@ -93,25 +93,6 @@
 //! @{
 
 
-/*!
-    \brief Initializes the ports used by LEDs
-
-    \param void
-
-    \return void
-*/
-void hal_init_ports_leds(void)
-{
-    prc2 = 1;
-    LED2_DIR = OUTPUT;
-    LED3_DIR = OUTPUT;
-    prc2 = 0;
-
-    TURN_OFF(LED2);
-    TURN_OFF(LED3);
-} // hal_init_ports_leds //
-
-
 //! @} HAL_pub_func
 //!                     PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
