@@ -122,8 +122,10 @@ void hal_init_ports_leds(void)
 {
     prc2 = 1; // protect off
     LED2_DIR = OUTPUT;
-    LED3_DIR = OUTPUT;    
-    prc2 = 0; // protect on
+    prc2 = 0; // protect on    
+    prc2 = 1; // protect off
+    LED3_DIR = OUTPUT;
+    prc2 = 0; // protect on    
     
     LED_TURN_OFF(LED2);
     LED_TURN_OFF(LED3);
