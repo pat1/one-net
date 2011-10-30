@@ -129,6 +129,34 @@ typedef enum
 } one_net_startup_status_t;
 
 
+//! Generally set by application data message handlers and the ack/nack
+//! handlers to tell ONE-NET how / whether to proceed with a transaction.
+//! Also used to inform application code of how a transaction concluded
+//! (i.e. success, failure, aborted, etc.)
+typedef
+{
+    ON_MSG_DEFAULT_BHVR, //! use default ONE-NET behavior.
+    ON_MSG_CONTINUE, //! continue processing message.
+    ON_MSG_ABORT, //! abort this transaction(note : this status DOES NOT
+                  //! NECESSARILY mean a failure occurred.  Its meaning will
+                  //! depend on the application -- for example it could be
+                  //! interpreted as "I have all the information I need.  No "
+                  //! need to send any more")
+    ON_MSG_SUCCESS, //! Successful completion.  Transaction should terminate.
+    ON_MSG_FAIL, //! Failure.  Transation should terminate.
+    ON_RESPOND, //! Message should be responded to with an ACK or a NACK.
+    ON_IGNORE, //! Message hould be ignored.  ONE-NET should not send a response.
+               //! This doesn't man a response won't be sent.  It could be sent
+               //! by the application code later.
+    ON_NUM_MESSAGE_STATUS_CODES,
+    
+    //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to
+    //! be interpreted purely by the application handler.  These codes will
+    //! be user-supplied and vary from application to application.
+    ON_MIN_APPLICATION_STATUS_CODE = ON_NUM_MESSAGE_STATUS_CODES
+} on_message_status_t;
+
+
 
 //! @} ONE-NET_status_codes_typedefs
 //                                  TYPEDEFS END
