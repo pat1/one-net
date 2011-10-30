@@ -52,6 +52,12 @@
 //! \defgroup ONE-NET Constants_typedefs
 //! \ingroup ONE-NET Constants
 //! @{
+    
+    
+
+#ifndef NULL
+    #define NULL (void*)0
+#endif
 
 
 //! Address related constants
