@@ -458,6 +458,9 @@ extern BOOL device_is_master;
 //! current status of startup
 extern one_net_startup_status_t startup_status;
 
+//! The current state.
+on_state_t on_state;
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END

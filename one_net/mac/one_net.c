@@ -165,7 +165,7 @@ one_net_startup_status_t startup_status = ON_STARTUP_IN_PROGRESS;
 //! @{
 
 
-//! The current state.  This is a "protected" variable.
+//! The current state.
 on_state_t on_state = ON_INIT_STATE;
 
 
