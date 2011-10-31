@@ -296,6 +296,23 @@ enum
 };
 
 
+// pin constants
+enum
+{
+    INPUT = 0,                      //!< Value when setting a pin as an input
+    OUTPUT = 1                      //!< Value when setting a pin as an output
+};
+
+
+typedef enum
+{
+    ON_INPUT_PIN = INPUT,        //!< Value when setting a pin as an input
+    ON_OUTPUT_PIN = OUTPUT,      //!< Value when setting a pin as an output
+    ON_DISABLE_PIN = 2           //!< Indicates the pin is not being used
+} on_pin_state_t;
+
+
+
 //! @} ONE-NET_APP_typedefs
 //                                  TYPEDEFS END
 //==============================================================================

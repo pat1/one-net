@@ -44,6 +44,8 @@
 #include "sfr_r823.h"
 #include "io_port_mapping.h"
 #include "tick.h"
+#include "one_net_application.h" // for "INPUT" and "OUTPUT"
+
 
 
 //==============================================================================
@@ -70,12 +72,6 @@
 #ifndef ROM
     #define ROM const
 #endif
-
-enum
-{
-    INPUT = 0,                      //!< Value when setting a pin as an input
-    OUTPUT = 1                      //!< Value when setting a pin as an output
-};
 
 
 //! @} PAL_typedefs

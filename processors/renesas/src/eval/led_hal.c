@@ -41,6 +41,7 @@
 
 #include "led_hal.h"
 #include "tick.h"
+#include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
 
 

@@ -92,11 +92,7 @@
 //! \ingroup HAL
 //! @{
 
-enum
-{
-    INPUT = 0,                      //!< Value when setting a pin as an input
-    OUTPUT = 1                      //!< Value when setting a pin as an output
-};
+
 
 //! @} HAL_typedefs
 //                                  TYPEDEFS END

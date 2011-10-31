@@ -22,6 +22,7 @@
 #include "io_port_mapping.h"
 #include "oncli_str.h"
 #include "one_net.h"
+#include "one_net_eval.h"
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
 #endif
@@ -127,6 +128,9 @@ BOOL in_auto_mode = FALSE;
 UInt8 auto_client_index;
 #endif
 
+//! the pins on the eval board.
+user_pin_t user_pin[NUM_USER_PINS];
+
 
 	
 //! @} ONE-NET_eval_pub_var
@@ -174,6 +178,22 @@ static void eval_set_modes_from_switch_positions(void);
 //! \ingroup ONE-NET_eval
 //! @{
 
+
+/*!
+    \brief Initializes the parameters used with the user pins.
+    
+    \param[in] USER_PIN_TYPE List containing the state of the user pins.  If
+      this is 0, then the default configuration will be used.
+    \param[in] USER_PIN_COUNT The number of pins to configure.  This should be
+      equal to the number of user pins, or else the default configuration will
+      be used.
+    
+    \return void
+*/
+void init_user_pin(const UInt8 *user_pin_type,
+  UInt8 user_pin_count)
+{
+} // init_user_pin //
 
 
 void oncli_print_prompt(void)

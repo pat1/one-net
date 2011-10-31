@@ -254,23 +254,6 @@ static void init_base_param(on_base_param_t* base_param)
 } // init_base_param //
 
 
-/*!
-    \brief Initializes the parameters used with the user pins.
-    
-    \param[in] USER_PIN_TYPE List containing the state of the user pins.  If
-      this is 0, then the default configuration will be used.
-    \param[in] USER_PIN_COUNT The number of pins to configure.  This should be
-      equal to the number of user pins, or else the default configuration will
-      be used.
-    
-    \return void
-*/
-static void init_master_user_pin(const UInt8 *user_pin_type,
-  UInt8 user_pin_count)
-{
-} // init_master_user_pin //
-
-
 #ifdef _AUTO_MODE
 /*!
     \brief Automatically sends a message when in auto mode.
