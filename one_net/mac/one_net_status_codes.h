@@ -117,7 +117,7 @@ typedef enum
 
     ONS_READ_ERR,                   //!< [39] Did not read specified number of bytes.
     ONS_WRITE_ERR,                  //!< [40] Didn't write specified number of bytes.
-    ONS_FAIL                        //!< [41] Generic failure code.
+    ONS_FAIL,                       //!< [41] Generic failure code.
     ONS_SNGH_INTERNAL_ERR           //!< [42] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
