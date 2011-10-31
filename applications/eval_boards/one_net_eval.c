@@ -118,6 +118,16 @@ static const char* const sniffer_prompt = "-s";
 //! \ingroup ONE-NET_eval
 //! @{
 
+
+#ifdef _AUTO_MODE
+//! True if in Auto Mode
+BOOL in_auto_mode = FALSE;
+
+//! If in auto mode and a client, the index number of the client
+UInt8 auto_client_index;
+#endif
+
+
 	
 //! @} ONE-NET_eval_pub_var
 //                              PUBLIC VARIABLES END
@@ -130,14 +140,6 @@ static const char* const sniffer_prompt = "-s";
 //! \ingroup ONE-NET_eval
 //! @{
   
-    
-#ifdef _AUTO_MODE
-//! True if in Auto Mode
-static BOOL in_auto_mode = FALSE;
-
-//! If in auto mode and a client, the index number of the client
-static UInt8 auto_client_index;
-#endif
 
 #ifdef _SNIFFER_MODE
 static BOOL in_sniffer_mode = FALSE;
