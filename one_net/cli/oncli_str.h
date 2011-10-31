@@ -56,8 +56,16 @@
 //! @{
     
     
-    
-// Mode strings
+// Application Format
+extern const char * const ONCLI_STARTUP_FMT;
+
+//! Tail end of the startup banner, because the va_args does not seem to be able to 
+//! handle more than two arguments.
+extern const char * const ONCLI_STARTUP_REV_FMT;
+
+
+
+// Mode strings (TODO - move these into application code?)
 #ifdef _AUTO_MODE
 extern const char * const ONCLI_AUTO_MODE_STR;
 #endif
@@ -83,6 +91,15 @@ extern const char * const ONCLI_OFF_STR;
 // Command Strings
 #ifdef _ENABLE_ECHO_COMMAND
     extern const char * const ONCLI_ECHO_CMD_STR;
+#endif
+
+#ifdef _ENABLE_LIST_COMMAND
+extern const char * const ONCLI_LIST_CMD_STR;
+#ifdef _PEER
+extern const char * const ONCLI_LIST_PEER_TABLE_HEADING;
+extern const char * const ONCLI_LIST_PEER_FMT;
+extern const char * const ONCLI_LIST_NO_PEERS;
+#endif
 #endif
 
 

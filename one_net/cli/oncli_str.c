@@ -48,7 +48,17 @@
 //! \defgroup oncli_str_const
 //! \ingroup oncli_str
 //! @{
-    
+   
+   
+
+// Application Format
+const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
+
+//! Tail end of the startup banner, because the va_args does not seem to be able to 
+//! handle more than two arguments.
+//! Oct. 31 -- This appears to no longer be true?  Keeping it as it is though.
+const char * const ONCLI_STARTUP_REV_FMT = ".%d (Build %03d)\n";   
+
     
 
 // Mode strings
@@ -89,6 +99,21 @@ const char * const ONCLI_OFF_STR = "off";
 #ifdef _ENABLE_ECHO_COMMAND
 	//! echo command string
 	const char * const ONCLI_ECHO_CMD_STR = "echo";
+#endif
+
+#ifdef _ENABLE_LIST_COMMAND
+	//! Info command string
+	const char * const ONCLI_LIST_CMD_STR = "list";
+#ifdef _PEER
+	//! Format for printing peers in the CLI list command
+	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
+
+	//! Peer table heading string.
+	const char * const ONCLI_LIST_PEER_TABLE_HEADING = "Peer table:\n";
+
+	//! No peers in table string.
+	const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
+#endif
 #endif
 
 

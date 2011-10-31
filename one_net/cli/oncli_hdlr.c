@@ -45,6 +45,7 @@
 #include "oncli.h"
 #include "oncli_str.h"
 #include "str.h"
+#include "one_net.h"
 
 
 
@@ -92,11 +93,15 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 //! @{
 
 
-// Transaction command handlers.
+// Command handlers.
 #ifdef _ENABLE_ECHO_COMMAND
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
+#ifdef _ENABLE_LIST_COMMAND 
+	static oncli_status_t list_cmd_hdlr(void);
+#endif
 
+// Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
 
@@ -168,12 +173,28 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         
         return ONCLI_SUCCESS;
     } // else if the echo command was received //
+	#endif
+    
+	#ifdef _ENABLE_LIST_COMMAND 
+    else if(!strnicmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_LIST_CMD_STR;
+
+        if(CMD[strlen(ONCLI_LIST_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return list_cmd_hdlr();
+    } // else if the list command was received //
+	#endif
+    
     else
     {
         *CMD_STR = CMD;
         return ONCLI_INVALID_CMD;
     } // else the command was invalid //
-	#endif
+    
 
     return FALSE;
 } // oncli_parse_cmd //
@@ -239,6 +260,26 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     echo_on = echo;
     return ONCLI_SUCCESS;
 } // echo_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_LIST_COMMAND
+/*!
+    \brief Prints information about the current configuration
+    of the device.
+    
+    \param void
+    
+    \return ONCLI_SUCCESS if saving the current settings was successful
+*/
+static oncli_status_t list_cmd_hdlr(void)
+{
+    oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
+      ONE_NET_VERSION_MINOR);
+    oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
+      ONE_NET_VERSION_BUILD);
+    return ONCLI_SUCCESS;
+} // list_cmd_hdlr //
 #endif
 
 
