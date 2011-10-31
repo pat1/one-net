@@ -74,13 +74,17 @@ enum
 
 enum
 {
+    //! Number of pins on this device.  The Eval Board contains 4 switches
+    //! so this value is 4.
+    NUM_USER_PINS = 4,
+    
     //! The number of different unit types this device supports.
     //! The Eval Board contains only switches, so this value is 1
     ONE_NET_NUM_UNIT_TYPES = 1,
-
+    
     //! Number of units on this device.  The Eval Board contains 4 switches
     //! so this value is 4.
-    ONE_NET_NUM_UNITS = 4
+    ONE_NET_NUM_UNITS = NUM_USER_PINS
 };
 
 
