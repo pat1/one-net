@@ -46,6 +46,8 @@
 #include "oncli_str.h"
 #include "str.h"
 #include "one_net.h"
+#include "oncli_port.h"
+#include "one_net_port_specific.h"
 
 
 
@@ -97,13 +99,24 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 #ifdef _ENABLE_ECHO_COMMAND
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
+
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
 
+#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+
+
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
+
+static oncli_status_t oncli_parse_channel(const char * ASCII,
+  UInt8 * const channel);
+
 
 
 //! @} oncli_hdlr_pri_func
@@ -187,6 +200,25 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return list_cmd_hdlr();
     } // else if the list command was received //
+	#endif
+
+	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+    else if(!strnicmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
+    {
+        oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SNIFF_CMD_STR) + 1);
+        
+        *CMD_STR = ONCLI_SNIFF_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SNIFF_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &sniff_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the sniff command was received //
 	#endif
     
     else
@@ -284,7 +316,43 @@ static oncli_status_t list_cmd_hdlr(void)
 
 
 /*!
-    \brief Converts a string of ASCCI hex digits to a byte stream.
+    \brief Puts the device into sniffer mode
+    
+    The sniff command has the form
+    
+    sniff:NN
+    
+    where NN is the channel number to sniff.  The channel is 0 based.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    oncli_status_t status;
+
+    UInt8 channel;
+
+    if((status = oncli_parse_channel(ASCII_PARAM_LIST, &channel)) !=
+      ONCLI_SUCCESS)
+    {
+        return status;
+    } // if parsing the channel was not successful //
+
+    return oncli_reset_sniff(channel);
+} // sniff_cmd_hdlr //
+#endif
+
+
+/*!
+    \brief Converts a string of ASCII hex digits to a byte stream.
     
     \param[in] STR The ASCII string of hex digits.
     \param[out] byte_stream The byte stream that results from STR
@@ -325,6 +393,118 @@ static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
     
     return num_converted;
 } // ascii_hex_to_byte_stream //
+
+
+/*!
+    \brief Parses the channel data from the oncli and returns the adjust channel
+      number based on the data read in.
+
+    \param[in] ASCII The ascii parameters to be parsed.
+    \param[out] channel The adjusted channel.
+    
+    \return ONCLI_SUCCESS If the parameters were successfully parsed.
+            ONCLI_BAD_PARAM If any of the parameter are invalid
+            ONCLI_PARSE_ERR If ASCII could not be parsed
+            ONCLI_INTERNAL_ERR If something unexpected occured.
+*/
+//#if (defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)) ||\
+//  defined(_ENABLE_INVITE_COMMAND)
+static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const channel)
+{
+    enum
+    {
+        ONCLI_US,                   //! US region
+        ONCLI_EUR                   //! European region
+    };
+    
+    const char * END_PTR = 0;
+    
+    UInt8 region;
+
+    if(!ASCII || !channel)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // get the region
+#ifdef _US_CHANNELS
+    if(!strnicmp(ASCII, ONCLI_US_STR, strlen(ONCLI_US_STR)))
+    {
+        region = ONCLI_US;
+        ASCII += strlen(ONCLI_US_STR);
+    } // if it's a US frequency //
+#endif
+#ifdef _EUROPE_CHANNELS
+#ifdef _US_CHANNELS
+    else if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+#else
+    if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+#endif
+    {
+        region = ONCLI_EUR;
+        ASCII += strlen(ONCLI_EUR_STR);
+    } // else if it's a European frequency //
+#endif
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else the priority is invalid //
+    
+    if(*ASCII != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the command isn't formatted properly //
+    ASCII++;
+
+    // Get the channel number
+    if(!isdigit(*ASCII))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+    *channel = one_net_strtol(ASCII, &END_PTR, 0) - 1;
+    if(!END_PTR || END_PTR == ASCII || (*END_PTR != '\n'))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the parameter was not valid //
+    
+    switch(region)
+    {
+#ifdef _US_CHANNELS
+        case ONCLI_US:
+        {
+            if((SInt8)(*channel) < (SInt8)ONE_NET_MIN_US_CHANNEL
+              || *channel > ONE_NET_MAX_US_CHANNEL)
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the parameter is invalid //
+            break;
+        } // US case //
+#endif
+#ifdef _EUROPE_CHANNELS
+        case ONCLI_EUR:
+        {
+            *channel += ONE_NET_EUR_CHANNEL_1;
+			// typecast to override "comparison is always false" warning
+            if((SInt8) *channel < ONE_NET_MIN_EUR_CHANNEL
+              || *channel > ONE_NET_MAX_EUR_CHANNEL)
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the parameter is invalid //
+            break;
+        } // European case //
+#endif       
+        default:
+        {
+            return ONCLI_INTERNAL_ERR;
+            break;
+        } // default case //
+    } // switch(region) //
+    
+    return ONCLI_SUCCESS;
+} // oncli_parse_channel //
+//#endif
+
 
 
 //! @} oncli_hdlr_pri_func

@@ -82,6 +82,17 @@ extern const char * const ONCLI_CLIENT_STR;
 
 
 
+// Region Strings -- add as more regions are added (so far only US and Europe)
+#ifdef _US_CHANNELS
+extern const char * const ONCLI_US_STR;
+#endif
+#ifdef _EUROPE_CHANNELS
+//! European argument string
+extern const char * const ONCLI_EUR_STR;
+#endif
+
+
+
 // Argument strings
 extern const char * const ONCLI_ON_STR;
 extern const char * const ONCLI_OFF_STR;
@@ -102,6 +113,16 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
 #endif
 
+#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+//! sniff command string
+extern const char * const ONCLI_SNIFF_CMD_STR;
+#endif
+
+
+
+// Response Formats
+extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
+
 
 
 // Reponse Strings
@@ -109,6 +130,8 @@ extern const char * const ONCLI_CMD_SUCCESS_STR;
 extern const char * const ONCLI_SUCCEEDED_STR;
 extern const char * const ONCLI_FAILED_STR;
 extern const char * const ONCLI_CLR_INPUT_STR;
+extern const char * const ONCLI_CHANNEL_NOT_SELECTED_STR;
+extern const char * const ONCLI_CHANNEL_INVALID_STR;
 
 
 
@@ -152,6 +175,22 @@ enum
 //! \defgroup oncli_str_typedefs
 //! \ingroup oncli_str
 //! @{
+
+
+// this is used by the oncli_format_channel function and must be long
+// enough to accomodate the longest possible string format for a channel,
+// including the NULL terminator.  Currently that is "EUR 3" or "US 25",
+// which is 6 characters including the NULL terminator.  This value should
+// be adjusted if the channel format changes, loocales are added, or if
+// this maximum size should change. I must also be long enough to accomodate
+// the ONCLI_CHANNEL_INVALID_STR, which is "invalid channel" string, which is
+// 16 including the NULL terminator
+enum
+{
+    MAX_CHANNEL_STRING_FORMAT_LENGTH = 16 // includes NULL terminator
+};
+
+
 
 //! @} oncli_str_typedefs
 //								TYPEDEFS END

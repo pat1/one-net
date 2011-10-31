@@ -17,6 +17,7 @@
 #include "one_net_port_const.h"
 #include "one_net_constants.h"
 #include "one_net_eval.h"
+#include "tick.h"
 
 
 
@@ -126,6 +127,16 @@ void init_auto_client(UInt8 index)
 */
 void client_eval(void)
 {
+    // empty function right now.  Just print something to prove we're here.
+    static UInt8 delay_counter = 0;
+    delay_ms(10);
+    if(delay_counter == 0)
+    {
+        oncli_send_msg("Currently in client_eval() function\n");
+    }
+    delay_counter++;    
+    
+    
     client_check_user_pins();
     one_net_client();
 } // client_eval //

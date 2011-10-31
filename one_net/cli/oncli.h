@@ -117,6 +117,7 @@ extern BOOL echo_on;
 void oncli_send_msg(const char * const FMT, ...);
 void oncli(void);
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
+char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len);
 
 
 //! @} oncli_pub_func

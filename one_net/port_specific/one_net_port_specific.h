@@ -223,6 +223,22 @@ void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 UInt16 did_to_u16(const on_raw_did_t *DID);
 
 
+/*!
+    \brief Converts string to long integer.
+    
+    \param[in] str String to convert
+    \param[in] endptr Reference to an object of type char*, whose value is set
+        by the function to the next character in str after the numerical
+        value.  This parameter can also be a null pointer, in which case it is
+        not used.
+    \param[in] base String to convert
+    
+    \return The "base" of the string representation.
+*/
+long int one_net_strtol(const char * str, char ** endptr, int base);
+
+
+
 //! @} ONE-NET_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

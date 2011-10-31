@@ -86,6 +86,19 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 
 
 
+// Region Strings -- add as more regions are added (so far only US and Europe)
+#ifdef _US_CHANNELS
+//! US argument string
+const char * const ONCLI_US_STR = "US";
+#endif
+
+#ifdef _EUROPE_CHANNELS
+//! European argument string
+const char * const ONCLI_EUR_STR = "EUR";
+#endif
+
+
+
 // Argument strings
 //! on argument string
 const char * const ONCLI_ON_STR = "on";
@@ -116,6 +129,18 @@ const char * const ONCLI_OFF_STR = "off";
 #endif
 #endif
 
+#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+//! sniff command string
+const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+#endif
+
+
+
+// Response Formats
+
+//! Format output to report the channel the device is on
+const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
+
 
 
 // Reponse Strings
@@ -130,6 +155,13 @@ const char * const ONCLI_FAILED_STR = "failed";
 
 //! String sent to notify that the input is being cleared.
 const char * const ONCLI_CLR_INPUT_STR = "Clearing input\n";
+
+//! Message to output when the channel has not been set yet.
+const char * const ONCLI_CHANNEL_NOT_SELECTED_STR = "channel not selected";
+
+//! Message to output when the channel has not been set yet.
+const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
+
 
 
 
@@ -221,6 +253,8 @@ const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 //! \ingroup oncli_str
 //! @{
 
+
+
 //! @} oncli_str_typedefs
 //								TYPEDEFS END
 //==============================================================================
@@ -234,6 +268,23 @@ const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 //! @} oncli_str_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
+
+
+//==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup oncli_str_pub_var
+//! \ingroup oncli_str
+//! @{
+
+
+
+
+
+//! @} oncli_str_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
+
+
 
 //==============================================================================
 //						PRIVATE FUNCTION DECLARATIONS

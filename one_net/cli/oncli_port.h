@@ -144,6 +144,22 @@ oncli_status_t oncli_set_verbosity(const UInt8 VERBOSITY);
 void oncli_print_prompt(void);
 
 
+/*!
+    \brief Resets the device to sniff mode.
+    
+    \param CHANNEL The channel to sniff.
+    
+    \return ONCLI_SUCCESS if setting to sniff mode was successful
+            ONCLI_INVALID_CMD_FOR_MODE if the command is not valid for the mode
+              the device is in.
+            ONCLI_INTERNAL_ERR if something unexpected happened.
+*/
+#ifdef _SNIFFER_MODE
+	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL);
+#endif
+
+
+
 //! @} oncli_port_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

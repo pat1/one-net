@@ -131,6 +131,15 @@ UInt8 auto_client_index;
 //! the pins on the eval board.
 user_pin_t user_pin[NUM_USER_PINS];
 
+#ifdef _SNIFFER_MODE
+//! True if in Sniffer Mode
+BOOL in_sniffer_mode = FALSE;
+#endif
+
+//! Pointer to the device dependent (MASTER, CLIENT, SNIFF) function that
+//! should be called in the main loop
+void(*node_loop_func)(void) = 0;
+
 
 	
 //! @} ONE-NET_eval_pub_var
@@ -144,11 +153,6 @@ user_pin_t user_pin[NUM_USER_PINS];
 //! \ingroup ONE-NET_eval
 //! @{
   
-
-#ifdef _SNIFFER_MODE
-static BOOL in_sniffer_mode = FALSE;
-#endif
-
 
 
 //! @} ONE-NET_eval_pri_var
@@ -243,8 +247,8 @@ int main(void)
     oncli_print_prompt();    
     while(1)
     {
+        (*node_loop_func)();
         oncli();
-        delay_ms(25);
     }
 
     EXIT();
@@ -314,7 +318,16 @@ static const char* get_prompt_string(void)
 */
 static void eval_set_modes_from_switch_positions(void)
 {
-    device_is_master = FALSE;
+    #ifdef _ONE_NET_CLIENT
+        // note : this includes devices which are both master and clients
+        // If that is the case and we are in master mode, it will be set
+        // below
+        device_is_master = FALSE;
+        node_loop_func = &client_eval;
+    #else
+        device_is_master = TRUE;
+        node_loop_func = &master_eval;    
+    #endif
     
     #ifdef _AUTO_MODE
 	// check mode switch (Auto/Serial)
@@ -328,6 +341,7 @@ static void eval_set_modes_from_switch_positions(void)
     if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))  
     {
         device_is_master = TRUE;
+        node_loop_func = &master_eval;
     }
     #endif
     

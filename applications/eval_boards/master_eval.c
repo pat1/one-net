@@ -16,6 +16,7 @@
 #include "one_net_constants.h"
 #include "one_net.h"
 #include "one_net_master.h"
+#include "tick.h"
 
 
 //=============================================================================
@@ -101,7 +102,6 @@ void disable_user_pins(void);
 void init_auto_master(void);
 #endif
 void init_serial_master(void);
-void master_eval(void);
 
 
 
@@ -207,6 +207,15 @@ void init_serial_master(void)
 */
 void master_eval(void)
 {
+    // empty function right now.  Just print something to prove we're here.
+    static UInt8 delay_counter = 0;
+    delay_ms(10);
+    if(delay_counter == 0)
+    {
+        oncli_send_msg("Currently in master_eval() function\n");
+    }
+    delay_counter++;
+
     #ifdef _AUTO_MODE
     if(in_auto_mode)
     {

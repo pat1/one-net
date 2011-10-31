@@ -48,7 +48,8 @@
 #include "nprintf.h"
 #include "uart.h"
 #include "oncli_hdlr.h"
-#include "ctype.h"
+#include <ctype.h>
+#include "one_net_channel.h"
 
 
 
@@ -139,6 +140,76 @@ static void print_cmd_result(const char * const CMD,
 //! \defgroup oncli_pub_func
 //! \ingroup oncli
 //! @{
+
+
+/*!
+    \brief Formats a channel in a string format that shows the region.
+    
+    \param[in] channel : The channel (0 based) to display.
+    \param[out] bufffer : The string representation of the buffer
+    \param[in] buffer_len : The size of the buffer.
+    
+    \return A pointer to buffer.
+*/
+char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
+{
+    // As new channel domains are added, adjust this function as well as
+    // the one_net_channel.h, oncli_str.h, and oncli_str.c files.
+    // As of October 31, 2011, only U.S. and European domains are defined.
+    if(!buffer)
+    {
+        // we are likely to crash here if we don't return something valid.
+        // It is the reponsibility of the caller to make sure buffer is not
+        // NULL.  We'll try to help it out by returning an "internal error"
+        // string in case they try to immediately print a NULL string.  The
+        // "internal error" string is a const char* const type, so it
+        // shouldn't be changed.  However, we're in error recovery here, so
+        // we'll just typecast to a char* and hope they do not change it.
+        // It's a "should never get here" type of thing.
+        return (char*) ONCLI_INTERNAL_ERR_STR;
+    }
+
+    if(buffer_len < MAX_CHANNEL_STRING_FORMAT_LENGTH)
+    {
+        // same thing here.  Just return a char* typedefed pointer to
+        // ONCLI_INTERNAL_ERR_STR and hope they don't change it.  Should not
+        // get here.
+        return  (char*) ONCLI_INTERNAL_ERR_STR;
+    }
+    
+    
+#ifdef _US_CHANNELS
+    if((SInt8)channel >= ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
+          ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR, channel
+          - ONE_NET_MIN_US_CHANNEL + 1);
+    } // if a US channel //
+#endif
+#ifdef _EUROPE_CHANNELS
+#ifdef _US_CHANNELS
+    else if(channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#else
+    if((SInt8) channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#endif
+#endif
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
+          ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR, channel
+          - ONE_NET_MIN_EUR_CHANNEL + 1);
+    } // else if a European channel //
+    else
+    {
+        snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
+          "%s", ONCLI_CHANNEL_INVALID_STR);
+    } // else the channel is invalid //
+    
+    return buffer;
+} // oncli_format_channel //
 
 
 /*!

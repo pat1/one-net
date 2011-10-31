@@ -15,6 +15,7 @@
 
 
 #include "one_net_application.h"
+#include "one_net_port_const.h"
 
 
 //=============================================================================
@@ -46,6 +47,7 @@ typedef struct
 } user_pin_t;
 
 
+
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
 //=============================================================================
@@ -57,6 +59,13 @@ typedef struct
 //! @{
 
 extern user_pin_t user_pin[NUM_USER_PINS];
+#ifdef _SNIFFER_MODE
+extern BOOL in_sniffer_mode;
+#endif
+
+//! Pointer to the device dependent (MASTER, CLIENT, SNIFF) function that
+//! should be called in the main loop
+extern void(*node_loop_func)(void);
 
 //! @} ONE-NET_eval_pub_var
 //                              PUBLIC VARIABLES END
@@ -71,6 +80,15 @@ extern user_pin_t user_pin[NUM_USER_PINS];
 
 void disable_user_pins(void);
 void init_user_pin(const UInt8 *user_pin_type, UInt8 user_pin_count);
+#ifdef _ONE_NET_MASTER
+void master_eval(void); // in master_eval.c
+#endif
+#ifdef _ONE_NET_CLIENT
+void client_eval(void); // in client_eval.c
+#endif
+#ifdef _SNIFFER_MODE
+void sniff_eval(void); // in sniff_eval.c
+#endif
 
 
 //! @} ONE-NET_eval_pub_func
