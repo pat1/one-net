@@ -213,6 +213,15 @@ int main(void)
 
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     ENABLE_GLOBAL_INTERRUPTS();
+    
+    // startup greeting
+    oncli_send_msg("\n\n");
+    oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
+      ONE_NET_VERSION_MINOR);
+    oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
+      ONE_NET_VERSION_BUILD);   
+    oncli_send_msg("\n\n");
+    delay_ms(10);
 
     eval_set_modes_from_switch_positions();
     
@@ -230,6 +239,7 @@ int main(void)
 	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 #endif
  
+    delay_ms(10);
     oncli_print_prompt();    
     while(1)
     {
