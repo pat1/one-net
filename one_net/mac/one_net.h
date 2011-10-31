@@ -222,6 +222,9 @@ typedef enum
 */
 typedef struct
 {
+    //! crc over the parameters
+    UInt8 crc;
+
     //! Version of the non--volatile memory structures
     UInt16 version;
 
