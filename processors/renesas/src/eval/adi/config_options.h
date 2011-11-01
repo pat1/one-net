@@ -415,6 +415,13 @@
 	#ifndef _ENABLE_ECHO_COMMAND
 		#define _ENABLE_ECHO_COMMAND
 	#endif
+    
+    // _ENABLE_SET_DATA_RATE_COMMAND should be defined if you are implementing the "set data rate" command option
+    #ifdef _DATA_RATE
+        #ifndef _ENABLE_SET_DATA_RATE_COMMAND
+            #define _ENABLE_SET_DATA_RATE_COMMAND
+        #endif
+    #endif
 #endif
 	
 
