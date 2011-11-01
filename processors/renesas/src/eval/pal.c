@@ -68,11 +68,6 @@
 //! @{
 
 
-//! Using const (ROM) causes variables to be placed in program memory
-#ifndef ROM
-    #define ROM const
-#endif
-
 
 //! @} PAL_typedefs
 //                                  TYPEDEFS END
