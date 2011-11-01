@@ -91,8 +91,8 @@ enum
 // uart buffer size
 enum
 {
-    UART_RX_BUF_SIZE = 50,   //!< Size of the uart receive buffer
-    UART_TX_BUF_SIZE = 50    //!< Size of the uart transmit buffer
+    UART_RX_BUF_SIZE = 100,   //!< Size of the uart receive buffer
+    UART_TX_BUF_SIZE = 100    //!< Size of the uart transmit buffer
 };
 
 
