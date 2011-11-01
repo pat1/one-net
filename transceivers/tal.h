@@ -1,8 +1,10 @@
 #ifndef _TAL_H
 #define _TAL_H
 
+
 #include "config_options.h"
 #include "one_net_types.h"
+#include "one_net_status_codes.h"
 
 
 //! \defgroup TAL Transceiver Abstraction Layer
@@ -54,10 +56,7 @@
 //! \ingroup TAL
 //! @{
 
-#define ON_POLLED 0                 //!< If polling
-#define ON_INTERRUPT 1              //!< If interrupt driven
 
-#define ON_RF_TRANSFER ON_INTERRUPT //!< How the rf data is transferred.
 
 //! @} TAL_const
 //                                  CONSTANTS END
@@ -68,6 +67,18 @@
 //! \defgroup TAL_type_defs
 //! \ingroup TAL
 //! @{
+
+
+#define TAL_INIT_TRANSCEIVER() tal_init_transceiver()
+#define one_net_channel_is_clear() tal_channel_is_clear()
+#define one_net_write(X, Y) tal_write_packet(X, Y)
+#define one_net_write_done() tal_write_packet_done()
+#define one_net_read(X) tal_read_bytes(X)
+#define one_net_look_for_pkt(X) tal_look_for_packet(X)
+#define one_net_set_data_rate(X) tal_set_data_rate(X)
+#define one_net_set_channel(X) tal_set_channel(X)
+
+
 
 //! @} TAL_type_defs
 //                                  TYPEDEFS END
@@ -89,21 +100,9 @@
 //! \ingroup TAL
 //! @{
 
-void tal_init_transceiver(void);
-void tal_init_ports(void);
-BOOL init_rf_interrupts(UInt8 DATA_RATE);
 
-UInt16 read_battery(void);
 
-/*!
-    \brief Initialize (bit by bit) the i/o ports between the processor and the
-      transceiver.
 
-    \param void
-
-    \return void
-*/
-#define TAL_INIT_PORTS() tal_init_ports()
 
 
 /*!
@@ -119,84 +118,115 @@ UInt16 read_battery(void);
 
     \return void
 */
-#define TAL_INIT_TRANSCEIVER() tal_init_transceiver()
-
-
-#ifdef _CHIP_ENABLE
-    /*!
-        \brief Enables the transceiver
-
-        \param void
-
-        \return void
-    */
-    #define ENABLE_TRANSCEIVER() CHIP_ENABLE = 1
-    
-    /*!
-        \brief Disables the transceiver
-
-        \param void
-
-        \return void
-    */
-    #define DISABLE_TRANSCEIVER() CHIP_ENABLE = 0
-#else // ifdef _CHIP_ENABLE //
-    /*!
-        \brief Enables the transceiver
-
-        \param void
-
-        \return void
-    */
-    #define ENABLE_TRANSCEIVER()
-    
-    /*!
-        \brief Disables the transceiver
-
-        \param void
-
-        \return void
-    */
-    #define DISABLE_TRANSCEIVER()
-#endif // else _CHIP_ENABLE is not defined //
+void tal_init_transceiver(void);
 
 
 /*!
-    \brief Initialize / change interrupts needed for ADI 7025 operation.
-
-    \param x data rate to change to
-
-    \return TRUE if successful, false otherwise
-*/
-#define INIT_RF_INTERRUPTS(x) init_rf_interrupts(x)
-
-
-/*!
-    \brief Turn on the transceiver's receiver.
-
-    This function tells the transceiver to turn on its receiver. If the receiver
-    needs some time to come up to full operation, this function should wait that
-    amount of time so that upon exit the receiver is ready.
+    \brief Enables the transceiver.
 
     \param void
 
     \return void
 */
-#define TAL_TURN_ON_RECEIVER() tal_turn_on_receiver()
+void tal_enable_transceiver(void);
 
 
 /*!
-    \brief Turn on the transceiver's transmitter.
-
-    This function tells the transceiver to turn on its transmitter. If the
-    transmitter needs some time to come up to full operation, this function
-    should wait that amount of time so that upon exit the transmitter is ready.
+    \brief Disables the transceiver
 
     \param void
 
     \return void
 */
-#define TAL_TURN_ON_TRANSMITTER() tal_turn_on_transmitter()
+void tal_disable_transceiver(void);
+
+
+/*!
+    \brief Checks the channel to see if it is clear.
+
+    This function performs the Carrier Sense.  It is called before a device
+    transmits.
+
+    \param void
+
+    \return TRUE if the channel is clear
+            FALSE if the channel is currently in use.
+*/
+BOOL tal_channel_is_clear(void);
+
+
+/*!
+    \brief Sends bytes out of the rf interface.
+
+    This function is application specific and will need to be implemented by
+    the application designer.
+
+    \param[in] data An array of bytes to be sent out of the rf interface
+    \param[in] len The number of bytes to send
+
+    \return The number of bytes sent.
+*/
+UInt16 tal_write_packet(const UInt8 * data, const UInt16 len);
+
+
+/*!
+    \brief Returns TRUE if writing the data out of the rf channel is complete.
+
+    \param void
+
+    \return TRUE If the device is done writing the data out of the rf channel.
+            FALSE If the device is still writing the data out of the rf channel.
+*/
+BOOL tal_write_packet_done(void);
+
+
+/*!
+    \brief Reads bytes out from the rf interface.
+
+    This function is application specific and will need to be implemented by
+    the application designer.
+
+    \param[out] data Byte array to store the receive data in.
+    \param[in] len The number of bytes to receive (data is at least this long).
+    \return The number of bytes read
+*/
+UInt16 tal_read_bytes(UInt8 * data, const UInt16 len);
+
+
+/*!
+    \brief Waits a specified number of ticks for receiption of a packet
+    
+    \param[in] duration Time in ticks to look for a packet before giving up
+
+    \return ONS_SUCCESS if a packet has been received.
+*/
+one_net_status_t tal_look_for_packet(tick_t duration);
+
+
+/*!
+    \brief Changes the data rate the device is operating at.
+
+    The ONE-NET code does not keep track if it is changing the data rate to a
+    rate that is already set.  It is up to the implementer to check this.
+
+    \param[in] data_rate The data rate to set the transceiver to. See
+      data_rate_t for values.
+
+    \return ONS_SUCCESS if data rate was successfully changed, error otherwise
+*/
+one_net_status_t tal_set_data_rate(UInt8 data_rate);
+
+
+/*!
+    \brief Changes the channel the device is on
+
+    \param[in] channel The channel to change to.  This is one of the values
+      in one_net_channel_t.
+
+    \return ONS_SUCCEESS if channel was set successfully, error message otherwise
+*/
+one_net_status_t tal_set_channel(const UInt8 channel);
+
 
 
 //! @} TAL_pub_func

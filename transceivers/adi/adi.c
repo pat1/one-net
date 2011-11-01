@@ -43,7 +43,6 @@
 */
 
 #include "config_options.h"
-#include "hal_adi.h"
 #include "io_port_mapping.h"
 #include "tal.h"
 #include "one_net_status_codes.h"
@@ -103,6 +102,8 @@ static void turn_on_agc(void);
 //! \ingroup ADI
 //! @{
 
+
+
 /*!
     \brief Initializes the ADI transceiver.
 
@@ -120,6 +121,64 @@ static void turn_on_agc(void);
 void tal_init_transceiver(void)
 {
 } // tal_init_transceiver //
+
+
+void tal_enable_transceiver(void)
+{
+} // tal_enable_transceiver //
+
+
+void tal_disable_transceiver(void)
+{
+} // tal_disable_transceiver //
+
+
+BOOL tal_channel_is_clear(void)
+{
+    return TRUE;
+} // tal_channel_is_clear //
+
+
+UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
+{
+    return 0;
+}
+
+
+BOOL tal_write_packet_done()
+{
+    return TRUE;
+}
+
+
+UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
+{
+}
+
+
+one_net_status_t tal_look_for_packet(tick_t duration)
+{
+    return ONS_FAIL;
+}
+
+
+one_net_status_t tal_set_data_rate(UInt8 data_rate)
+{
+    return ONS_SUCCESS;
+}
+
+
+one_net_status_t tal_set_channel(const UInt8 channel)
+{
+    return ONS_SUCCESS;
+}
+
+
+
+
+
+
+
 
 
 /*!
@@ -187,87 +246,6 @@ UInt16 read_adc(void)
 } // read_adc //
 
 
-/*!
-    \brief  Get the current ONE_NET channel.
-
-    This function is transceiver specific. The ONE-NET channel
-    number is be used to configure the frequency 
-    used by the transceiver.
-
-    \param void
-
-    \return The channel the device is operating on.  This is one of the values
-      from on_channel_t
-
-*/
-UInt8 one_net_get_channel(void)
-{
-    return 0;
-} // one_net_get_channel //
-
-
-/*!
-    \brief Changes the channel the device is on
-
-    \param[in] CHANNEL The channel to change to (0-based).
-
-    \return void
-*/
-void one_net_set_channel(const UInt8 CHANNEL)
-{
-} // one_net_set_channel //
-
-
-// returns TRUE if the channel is clear (declared in one_net_port_specific.h).
-BOOL one_net_channel_is_clear(void)
-{
-    return TRUE;
-} // one_net_channel_is_clear //
-
-
-// sets the data rate the transceiver operates at (see one_net_port_specefic.h).
-// return TRUE if successful, FALSE otherwise.
-BOOL one_net_set_data_rate(UInt8 DATA_RATE)
-{
-    return TRUE;
-} // one_net_set_data_rate //
-
-
-one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
-{
-    return ONS_SUCCESS;
-} // one_net_look_for_pkt //
-
-
-UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
-{
-    return 0;
-} // one_net_read //
-
-
-/*!
-    \brief Sends bytes out of the rf interface.
-
-    This function is application specific and will need to be implemented by
-    the application designer.
-
-    \param[in] DATA An array of bytes to be sent out of the rf interface
-    \param[in] LEN The number of bytes to send
-
-    \return The number of bytes sent.
-*/
-UInt16 one_net_write(const UInt8 * DATA, const UInt16 LEN)
-{
-    return 0;
-} // one_net_write //
-
-
-BOOL one_net_write_done(void)
-{
-    return TRUE;
-} // one_net_write_done //
-
-
 UInt16 read_revision(void)
 {
     return 0;
@@ -305,6 +283,7 @@ UInt16 calc_rssi(const UInt16 READBACK_CODE)
 {
     return 0;
 } // calc_rssi //
+
 
 
 //! @} ADI_pub_func
@@ -360,9 +339,9 @@ static void turn_on_agc(void)
 {
 } // turn_on_agc //
 
+
 //! @} ADI_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
 
 //! @} ADI
-
