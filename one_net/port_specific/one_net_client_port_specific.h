@@ -2,6 +2,10 @@
 #define _ONE_NET_CLIENT_PORT_SPECIFIC_H
 
 #include "config_options.h"
+
+#ifdef _ONE_NET_CLIENT
+
+
 #include "one_net_status_codes.h"
 #include "one_net_constants.h"
 #include "one_net_acknowledge.h"
@@ -314,10 +318,44 @@ on_message_status_t one_net_client_handle_ack_nack_response(
 
 
 
+#ifdef _NON_VOLATILE_MEMORY
+/*!
+    \brief Saves ONE-NET client settings to non-volatile memory
+    
+    \return ONS_SUCCESS If parameters were saved successfully
+            ONS_FAIL or any other failure message upon failure.
+*/
+one_net_status_t one_net_client_save_settings(void);
+
+
+/*!
+    \brief Loads ONE-NET client settings from non-volatile memory(i.e. Flash)
+    
+    \return ONS_SUCCESS If parameters were loaded successfully
+            ONS_FAIL or any other failure message upon failure.
+*/
+one_net_status_t one_net_client_load_settings(void);
+
+
+/*!
+    \brief Erases ONE-NET client settings(if any) from non-volatile memory(i.e. Flash)
+    
+    \return ONS_SUCCESS If non-volatile memory was erased successfully
+            ONS_FAIL or any other failure message upon failure.
+*/
+one_net_status_t one_net_client_erase_settings(void);
+#endif
+
+
+
 //! @} ON_CLIENT_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
 //! @} ON_CLIENT_port_specific
+
+
+#endif // ifdef _ONE_NET_CLIENT //
+
 
 #endif // _ONE_NET_CLIENT_PORT_SPECIFIC_H //
