@@ -293,25 +293,35 @@ UInt16 cb_bytes_free(const cb_rec_t * const CB)
 } // cb_bytes_free //
 
 
-//
-// Get one byte from the queue
-// If it's empty, return zero, else return 1;
-//
-UInt16 cb_getqueue(cb_rec_t *cb, UInt8 *data)
+/*!
+    \brief Dequeues a single byte from the circular buffer
+
+    \param[in/out] cb Pointer to the circular buffer record (cb_rec_t) to 
+      be accessed.
+    \param[out] byte Pointer to a UInt8 to store the byte obtained from
+      the circular buffer.
+
+    \return The number of bytes read from the buffer (0 or 1).
+*/
+UInt8 cb_getqueue(cb_rec_t *cb, UInt8 *byte)
 {
-    return cb_dequeue(cb, data, 1);
+    return (UInt8) (cb_dequeue(cb, byte, 1));
 }
 
 
-//
-// Try to put a single char into the queue. If there is room,
-// put it into the buffer and return 1. 
-//
-// If the queue is already full, set overflow flag and return 0.
-//
-UInt16 cb_putqueue(cb_rec_t *cb , UInt8 data)
+/*!
+    \brief Enqueues a single byte onto the circular buffer
+
+    \param[in/out] cb Pointer to the circular buffer record (cb_rec_t) to 
+      be accessed.
+    \param[out] byte Pointer to a UInt8 to store the byte obtained from
+      the circular buffer.
+
+    \return The number of bytes read from the buffer (0 or 1).
+*/
+UInt8 cb_putqueue(cb_rec_t *cb , UInt8 byte)
 {
-    cb_enqueue(cb, &data, 1);
+    return (UInt8) (cb_enqueue(cb, &byte, 1));
 }
 
 //! @} cb_pub_func
