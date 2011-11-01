@@ -134,6 +134,16 @@ const char * const ONCLI_OFF_STR = "off";
 const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 #endif
 
+#ifdef _ENABLE_ERASE_COMMAND
+	//! Erase data flash command string
+	const char * const ONCLI_ERASE_CMD_STR = "erase";
+#endif
+
+#ifdef _ENABLE_SAVE_COMMAND
+	//! Save data flash command string
+	const char * const ONCLI_SAVE_CMD_STR = "save";
+#endif
+
 
 
 // Response Formats

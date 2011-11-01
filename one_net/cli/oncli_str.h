@@ -114,8 +114,15 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
 
 #if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
-//! sniff command string
 extern const char * const ONCLI_SNIFF_CMD_STR;
+#endif
+
+#ifdef _ENABLE_ERASE_COMMAND
+extern const char * const ONCLI_ERASE_CMD_STR;
+#endif
+
+#ifdef _ENABLE_SAVE_COMMAND
+extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
 
