@@ -107,15 +107,6 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 */
 void sniff_eval(void)
 {
-    // empty function right now.  Just print something to prove we're here.
-    static UInt8 delay_counter = 0;
-    delay_ms(10);
-    if(delay_counter == 0)
-    {
-        oncli_send_msg("Currently sniffing channel %s\n",
-          channel_format_buffer);
-    }
-    delay_counter++;
 } // sniff_eval //
 
 
