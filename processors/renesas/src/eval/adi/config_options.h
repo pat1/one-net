@@ -217,6 +217,12 @@
 #endif
 
 
+// Enable this if the device has the ability to save to / load from
+// non-volatile memory (i.e. Flash memory)
+#ifndef _NON_VOLATILE_MEMORY
+    #define _NON_VOLATILE_MEMORY
+#endif
+
 
 // Command line interface
 #ifndef _ENABLE_CLI
@@ -275,16 +281,18 @@
 		    #define _ENABLE_BLOCK_TEXT_COMMAND
 	    #endif
 	#endif
+    
+    #ifdef _NON_VOLATILE_MEMORY
+        // _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
+        #ifndef _ENABLE_ERASE_COMMAND
+            #define _ENABLE_ERASE_COMMAND
+        #endif
 
-	// _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
-	#ifndef _ENABLE_ERASE_COMMAND
-		#define _ENABLE_ERASE_COMMAND
-	#endif
-
-	// _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
-	#ifndef _ENABLE_SAVE_COMMAND
-		#define _ENABLE_SAVE_COMMAND
-	#endif
+        // _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
+        #ifndef _ENABLE_SAVE_COMMAND
+	        #define _ENABLE_SAVE_COMMAND
+        #endif
+    #endif
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
@@ -465,7 +473,6 @@
 #ifndef _HAS_LEDS
     #define _HAS_LEDS
 #endif
-
 
 
 // Now test #defines for compatibility
