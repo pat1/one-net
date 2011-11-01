@@ -47,7 +47,14 @@
 #include "str.h"
 #include "one_net.h"
 #include "oncli_port.h"
+
 #include "one_net_port_specific.h"
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client_port_specific.h"
+#endif
+#ifdef _ONE_NET_MASTER
+#include "one_net_master_port_specific.h"
+#endif
 
 
 
@@ -102,6 +109,14 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 
 #ifdef _ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
+#endif
+
+#ifdef _ENABLE_ERASE_COMMAND 
+	static oncli_status_t erase_cmd_hdlr(void);
+#endif
+
+#ifdef _ENABLE_SAVE_COMMAND 
+	static oncli_status_t save_cmd_hdlr(void);
 #endif
 
 #if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
@@ -200,6 +215,34 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return list_cmd_hdlr();
     } // else if the list command was received //
+	#endif
+    
+	#ifdef _ENABLE_ERASE_COMMAND 
+    else if(!strnicmp(ONCLI_ERASE_CMD_STR, CMD, strlen(ONCLI_ERASE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_ERASE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_ERASE_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return erase_cmd_hdlr();
+    } // else if the erase command was received //
+	#endif
+    
+	#ifdef _ENABLE_SAVE_COMMAND 
+    else if(!strnicmp(ONCLI_SAVE_CMD_STR, CMD, strlen(ONCLI_SAVE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SAVE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SAVE_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return save_cmd_hdlr();
+    } // else if the save command was received //
 	#endif
 
 	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
@@ -302,7 +345,7 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     \param void
     
-    \return ONCLI_SUCCESS if saving the current settings was successful
+    \return ONCLI_SUCCESS if listing the current settings was successful
 */
 static oncli_status_t list_cmd_hdlr(void)
 {
@@ -312,6 +355,60 @@ static oncli_status_t list_cmd_hdlr(void)
       ONE_NET_VERSION_BUILD);
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_ERASE_COMMAND
+/*!
+    \brief Erases the settings from non-volatile memory
+    
+    \param void
+    
+    \return ONCLI_SUCCESS if erasing the current settings was successful
+            ONCLI_CMD_FAIL otherwise
+*/
+static oncli_status_t erase_cmd_hdlr(void)
+{
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        return ((one_net_master_erase_settings() == ONS_SUCCESS) ?
+          ONCLI_SUCCESS : ONCLI_CMD_FAIL);
+    }
+    #endif
+    
+    #ifdef _ONE_NET_CLIENT
+    return ((one_net_client_erase_settings() == ONS_SUCCESS) ?
+      ONCLI_SUCCESS : ONCLI_CMD_FAIL);    
+    #endif
+}
+#endif
+
+
+#ifdef _ENABLE_SAVE_COMMAND
+/*!
+    \brief Saves the settings to non-volatile memory
+    
+    \param void
+    
+    \return ONCLI_SUCCESS if saving the current settings was successful
+            ONCLI_CMD_FAIL otherwise
+*/
+static oncli_status_t save_cmd_hdlr(void)
+{
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        return ((one_net_master_save_settings() == ONS_SUCCESS) ?
+          ONCLI_SUCCESS : ONCLI_CMD_FAIL);
+    }
+    #endif
+    
+    #ifdef _ONE_NET_CLIENT
+    return ((one_net_client_save_settings() == ONS_SUCCESS) ?
+      ONCLI_SUCCESS : ONCLI_CMD_FAIL);    
+    #endif
+}
 #endif
 
 
