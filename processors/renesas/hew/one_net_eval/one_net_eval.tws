@@ -7,15 +7,7 @@
 [GENERAL_DATA]
 [BREAKPOINTS]
 [OPEN_WORKSPACE_FILES]
-"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_led.c" 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_led.h" 
-"C:\HEWProj\2_Dev\processors\renesas\src\eval\led_hal.h" 
 [WORKSPACE_FILE_STATES]
-"C:\HEWProj\2_Dev\applications\eval_boards\one_net_eval.c" -4 -30 911 618 1 0 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_led.c" 132 174 771 410 0 3 
-"C:\HEWProj\2_Dev\one_net\utility\one_net_led.h" 22 29 815 282 0 2 
-"C:\HEWProj\2_Dev\processors\renesas\src\eval\led_hal.h" 0 0 815 282 0 1 
 [LOADED_PROJECTS]
 "eval_adi" 
 [END]

@@ -40,12 +40,12 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_EVAL
-    #pragma section program program_high_rom
-#endif // ifdef _R8C_TINY //
+
+#ifdef _NON_VOLATILE_MEMORY
 
 
 #include "flash.h"
+#include "sfr_r823.h"
 
 
 //==============================================================================
@@ -306,3 +306,7 @@ void clr_status_reg(UInt8 * addr)
 //==============================================================================
 
 //! @} FLASH
+
+
+
+#endif // ifdef _NON_VOLATILE_MEMORY //
