@@ -44,9 +44,9 @@ static const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04,
   0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 #endif
 
-//! Default SID to use if no NID is found in the manufacturing data segment
+//! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
-static const UInt8 DEFAULT_RAW_SID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
+static const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
 
 
 
