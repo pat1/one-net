@@ -224,6 +224,12 @@
 #endif
 
 
+// Enable this if data rates can be changed to anything besides the 38,400 base.
+#ifndef _DATA_RATE
+    #define _DATA_RATE
+#endif
+
+
 // Command line interface
 #ifndef _ENABLE_CLI
 	#define _ENABLE_CLI

@@ -144,6 +144,11 @@ const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 	const char * const ONCLI_SAVE_CMD_STR = "save";
 #endif
 
+#ifdef _DATA_RATE
+    //! Sets the data rate of a device
+    const char * const ONCLI_DATA_RATE_CMD_STR = "set data rate";
+#endif
+
 
 
 // Response Formats

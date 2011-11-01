@@ -125,6 +125,10 @@ extern const char * const ONCLI_ERASE_CMD_STR;
 extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
+#ifdef _DATA_RATE
+extern const char * const ONCLI_DATA_RATE_CMD_STR;
+#endif
+
 
 
 // Response Formats

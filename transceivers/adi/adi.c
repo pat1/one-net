@@ -294,7 +294,12 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
 {
     one_net_status_t status;
     
-    
+    #ifndef _DATA_RATE
+    if(data_rate != ONE_NET_DATA_RATE_38_4)
+    {
+        return ONS_DEVICE_NOT_CAPABLE;;
+    }
+    #else
     // all checking for valid data rates occurs BEFORE calling
     // init_rf_interrupts.  TODO -- should this check happen here
     // or in the init_rf_interrupts() function?
@@ -317,6 +322,7 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
     {
         return ONS_DEVICE_NOT_CAPABLE;
     }
+    #endif
     
     // TODO - any other tests to do?  To we need to test any
     // base parameters?  Perhaps the DEVICE can handle this data
