@@ -38,6 +38,20 @@
 //! @{
 
 
+/*!
+    \brief Checks to see if the data flash should be erased (and erases it if
+      it should -- i.e. erase if a "shorting device" is attached to the uart port).
+
+    Checks if the uart rx & tx pins are connected to indicate that the flash
+    should be erased (i.e. a person has physically attached a shorting plus
+    that does this)
+    
+    \param void
+    
+    \return void
+*/
+#define FLASH_ERASE_CHECK() flash_erase_check()
+
 
 //! @} nv_hal_typedefs
 //                                  TYPEDEFS END

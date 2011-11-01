@@ -14,6 +14,7 @@
 #include "tick.h"
 #include "pal.h"
 #include "hal.h"
+#include "nv_hal.h"
 #include "uart.h"
 #include "io_port_mapping.h"
 #include "oncli.h"
@@ -213,7 +214,10 @@ int main(void)
 
     #ifdef _HAS_LEDS
         initialize_leds();
-    #endif    
+    #endif
+    
+    INIT_TICK();
+    FLASH_ERASE_CHECK();
 
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     ENABLE_GLOBAL_INTERRUPTS();

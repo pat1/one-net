@@ -47,6 +47,10 @@
 #include "nv_hal.h"
 #include "one_net_types.h"
 #include "dfi.h"
+#include "one_net_application.h"
+#include "io_port_mapping.h"
+#include "tick.h"
+#include "one_net_led.h"
 
 
 //=============================================================================
@@ -122,18 +126,54 @@ typedef struct
 
 /*!
     \brief Checks to see if the data flash should be erased (and erases it if
-      it does).
+      it should -- i.e. erase if a "shorting device" is attached to the uart port).
 
     Checks if the uart rx & tx pins are connected to indicate that the flash
-    should be erased.
-
+    should be erased (i.e. a person has physically attached a shorting plus
+    that does this)
+    
     \param void
-
+    
     \return void
 */
 void flash_erase_check(void)
 {
-    // TODO -- write
+    UInt8 i;
+    
+    FLASH_CHECK_TX_PIN_DIR = OUTPUT;
+    FLASH_CHECK_RX_PIN_DIR = INPUT;
+
+    // Note that all pullups were enabled in init_ports(), so, in
+    // particular, the FLASH_CHECK_RX_PIN is pulled up.
+    
+    FLASH_CHECK_TX_PIN = 0;
+
+    //
+    // Loop to see if FLASH_CHECK_RX_PIN follows FLASH_CHECK_TX_pin
+    //
+    for (i = 0; i < 2; i++)
+    {
+        FLASH_CHECK_TX_PIN = !FLASH_CHECK_TX_PIN;
+		delay_ms(2); // dje: give the rx time to get through RS-232
+        if (FLASH_CHECK_RX_PIN != FLASH_CHECK_TX_PIN) 
+        {
+            //
+            // Pins not connected: Give a quick blink
+            // of the Rx LED (the green one) and return
+            // since the shorting plug is not connected.  If it was, the two
+            // pins would be physically connected and would therefore share
+            // the same state and we would not get here
+            FLASH_CHECK_TX_PIN = 0;
+            rx_led_blink(125, 1);
+            return;
+        } // if the pins aren't connected //
+    }
+    //
+    // Pins are connected: Erase the flash and give something like a
+    // two second blink on the Tx LED (the red one).
+    //
+    eval_erase_data_flash();
+    tx_led_blink(2000, 1);
 } // flash_erase_check //
 
 
