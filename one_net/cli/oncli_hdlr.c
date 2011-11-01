@@ -47,6 +47,8 @@
 #include "str.h"
 #include "one_net.h"
 #include "oncli_port.h"
+#include "one_net_data_rate.h"
+#include "tal.h"
 
 #include "one_net_port_specific.h"
 #ifdef _ONE_NET_CLIENT
@@ -121,6 +123,10 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 
 #if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 
@@ -263,17 +269,34 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the sniff command was received //
 	#endif
+
+	#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+    else if(!strnicmp(ONCLI_SET_DATA_RATE_CMD_STR, CMD,
+      strlen(ONCLI_SET_DATA_RATE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SET_DATA_RATE_CMD_STR;
+        
+        if(CMD[strlen(ONCLI_SET_DATA_RATE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+        
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &set_data_rate_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the set data rate command was received //
+	#endif
     
     else
     {
         *CMD_STR = CMD;
         return ONCLI_INVALID_CMD;
     } // else the command was invalid //
-    
+}
 
-    return FALSE;
-} // oncli_parse_cmd //
-
+   
+   
 //! @} oncli_hdlr_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
@@ -446,6 +469,42 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     return oncli_reset_sniff(channel);
 } // sniff_cmd_hdlr //
 #endif
+
+
+
+
+
+
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+#include "tick.h"
+oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    long int new_data_rate;
+    oncli_status_t status;
+    const char* endptr = 0;
+    
+    new_data_rate = one_net_strtol(ASCII_PARAM_LIST, &endptr, 10);
+    if(*endptr == 0 || endptr == ASCII_PARAM_LIST || *endptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(new_data_rate < 0 || new_data_rate >=
+      (long int) ONE_NET_DATA_RATE_LIMIT)
+    {
+        return ONCLI_UNSUPPORTED;
+    }
+    
+    switch(one_net_set_data_rate((UInt8) new_data_rate))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        case ONS_DEVICE_NOT_CAPABLE: return ONCLI_UNSUPPORTED;
+        default: return ONCLI_CMD_FAIL;
+    }
+}
+#endif
+
+
 
 
 /*!
