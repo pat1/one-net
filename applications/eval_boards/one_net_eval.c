@@ -14,6 +14,7 @@
 #include "tick.h"
 #include "pal.h"
 #include "hal.h"
+#include "tal.h"
 #include "nv_hal.h"
 #include "uart.h"
 #include "io_port_mapping.h"
@@ -210,6 +211,7 @@ void oncli_print_prompt(void)
 int main(void)
 {
     INIT_PORTS();
+    TAL_INIT_TRANSCEIVER();
     INIT_PROCESSOR(TRUE);
 
     #ifdef _HAS_LEDS
