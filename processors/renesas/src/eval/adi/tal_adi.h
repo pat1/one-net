@@ -1,6 +1,11 @@
-//! \addtogroup HAL_ADI Processor Abstraction Layer for ADI ADF7025.
+//! \defgroup TAL_ADI Processor Abstraction Layer for ADI ADF7025.
 //! \ingroup ADI
 //! @{
+
+
+#ifndef _TAL_ADI_H
+#define _TAL_ADI_H
+
 
 /*
     Copyright (c) 2011, Threshold Corporation
@@ -33,120 +38,62 @@
 */
 
 /*!
-    \file hal_adi.c
-    \brief Processor abstraction layer for the ADI ADF7025.
+    \file tal_adi.h
+    \brief TAL Abstraction layer for the ADI ADF7025.
 
-    This file implements the processor specific functionality needed by the ADI
-    transceiver (such as interrupts for the various communication).  This file
-    is for R8C devices that have the ADI set up to use TimerZ has the transmit
-    bit interrupt, and INT1 as the data clock interrupt for receive mode.
+    This file declares the transceiver specific functionality needed by
+    the ADI transceiver.
 */
 
-#include "hal_adi.h"
-#include "io_port_mapping.h"
-#include "tal.h"
+#include "one_net_status_codes.h"
+#include "one_net_types.h"
 
 //=============================================================================
 //                                  CONSTANTS
-//! \defgroup HAL_ADI_const
-//! \ingroup HAL_ADI
+//! \defgroup TAL_ADI_const
+//! \ingroup TAL_ADI
 //! @{
 
-//! @} HAL_ADI_const
+//! @} TAL_ADI_const
 //                                  CONSTANTS END
 //=============================================================================
 
 //=============================================================================
 //                                  TYPEDEFS
-//! \defgroup HAL_ADI_typedefs
-//! \ingroup HAL_ADI
+//! \defgroup TAL_ADI_typedefs
+//! \ingroup TAL_ADI
 //! @{
 
-//! @} HAL_ADI_typedefs
+//! @} TAL_ADI_typedefs
 //                                  TYPEDEFS END
 //=============================================================================
 
 //=============================================================================
-//                              PRIVATE VARIABLES
-//! \defgroup HAL_ADI_pri_var
-//! \ingroup HAL_ADI
+//                              PUBLIC VARIABLES
+//! \defgroup TAL_ADI_pub_var
+//! \ingroup TAL_ADI
 //! @{
 
-//! @} HAL_ADI_pri_var
-//                              PRIVATE VARIABLES END
+//! @} TAL_ADI_pub_var
+//                              PUBLIC VARIABLES END
 //=============================================================================
 
 //=============================================================================
-//                      PRIVATE FUNCTION DECLARATIONS
-//! \defgroup HAL_ADI_pri_func
-//! \ingroup HAL_ADI
-//! @{
-
-
-
-//! @} HAL_ADI_pri_func
-//                      PRIVATE FUNCTION DECLARATIONS END
-//=============================================================================
-
-//=============================================================================
-//                      PUBLIC FUNCTION IMPLEMENTATION
-//! \defgroup HAL_ADI_pub_func
-//! \ingroup HAL_ADI
-//! @{
-
-/*!
-    \brief Initialize ports used by the ADI.
-
-    \param void
-
-    \return void
-*/
-void tal_init_ports(void)
-{
-} // tal_init_ports //
-
-
-
-//! @} HAL_ADI_pub_func
-//                      PUBLIC FUNCTION IMPLEMENTATION END
-//=============================================================================
-
-//=============================================================================
-//                      PRIVATE FUNCTION IMPLEMENTATION
-//! \addtogroup HAL_ADI_pri_func
-//! \ingroup HAL_ADI
+//                      PUBLIC FUNCTION DECLARATIONS
+//! \defgroup TAL_ADI_pub_func
+//! \ingroup TAL_ADI
 //! @{
 
 
-/*!
-    \brief ISR for bit timer to transmit data.
-
-    \param void
-
-    \return void
-*/
-#pragma interrupt tx_bit_isr
-void tx_bit_isr(void)
-{
-} // interrupt tx_bit_isr //
+one_net_status_t init_rf_interrupts(UInt8 DATA_RATE);
 
 
-/*!
-    \brief ISR for the data clock
 
-    The ISR that should be called once every bit time during rf receive.  The
-    ADI provides this data clock signal when the transceiver is in receive mode.
-
-    \param void
-    \return  void
-*/
-#pragma interrupt dataclk_isr
-void dataclk_isr(void)
-{
-} // dataclk_isr //
-
-//! @} HAL_ADI_pri_func
-//                      PRIVATE FUNCTION IMPLEMENTATION END
+//! @} TAL_ADI_pub_func
+//                      PUBLIC FUNCTION DECLARATIONS END
 //=============================================================================
 
 //! @} ADI
+
+
+#endif // ifndef _TAL_ADI_H

@@ -43,8 +43,8 @@
 */
 
 #include "config_options.h"
-#include "io_port_mapping.h"
 #include "tal.h"
+#include "tal_adi.h"
 #include "one_net_status_codes.h"
 #include "one_net_channel.h"
 #include "one_net_data_rate.h"
@@ -286,13 +286,52 @@ UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
 
 one_net_status_t tal_look_for_packet(tick_t duration)
 {
-    return ONS_FAIL;
+    return ONS_SUCCESS;
 }
 
 
 one_net_status_t tal_set_data_rate(UInt8 data_rate)
 {
-    return ONS_SUCCESS;
+    one_net_status_t status;
+    
+    
+    // all checking for valid data rates occurs BEFORE calling
+    // init_rf_interrupts.  TODO -- should this check happen here
+    // or in the init_rf_interrupts() function?
+    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
+    {
+        // invalid data rate.
+        return ONS_BAD_PARAM;
+    }
+    
+    if(data_rate == ONE_NET_DATA_RATE_153_6 ||
+      data_rate == ONE_NET_DATA_RATE_192_0)
+    {
+        // cannot be achieved by the ADI?
+        // TODO -- confirm this.  Also, is this ALL ADI transceivers or just
+        // one of them?  Perhaps this should not be in adi.c but rather in
+        // tal_adi.c?
+        return ONS_DEVICE_NOT_CAPABLE;
+    }
+    if(!features_data_rate_capable(THIS_DEVICE_FEATURES, data_rate))
+    {
+        return ONS_DEVICE_NOT_CAPABLE;
+    }
+    
+    // TODO - any other tests to do?  To we need to test any
+    // base parameters?  Perhaps the DEVICE can handle this data
+    // rate, but the network master has told it not to operate at this
+    // level for whatever reason.  There are other reasons a device might
+    // reject a request to change to a data rate that it is CAPABLE of
+    // achieving.
+    
+    
+    if((status = init_rf_interrupts(data_rate)) == ONS_SUCCESS)
+    {
+        write_reg(DATA_RATE_SETTING[data_rate], TRUE);
+    } // if the data rate is valid //
+    
+    return status;
 }
 
 
