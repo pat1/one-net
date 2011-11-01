@@ -46,6 +46,9 @@
 #include "io_port_mapping.h"
 #include "tal.h"
 #include "one_net_status_codes.h"
+#include "one_net_channel.h"
+#include "one_net_data_rate.h"
+#include "one_net_features.h"
 
 
 //==============================================================================
@@ -53,6 +56,131 @@
 //! \defgroup ADI_const
 //! \ingroup ADI
 //! @{
+
+
+
+enum
+{
+    NUM_INIT_REGS = 9,              //!< The number of registers to initialize
+    REG_SIZE = 4,                   //!< Number of bytes in each register
+
+    //! If the RSSI is below this level, the channel is clear
+    RSSI_CLR_LEVEL = -75,
+};
+
+// transmit/receive register values
+enum
+{
+    //! The byte index into the register to switch the transceiver between
+    //! transmit and receive mode.
+    TX_RX_BYTE_IDX = 0x00,
+
+    //! The byte index into the register where the address nibble is
+    ADDR_IDX = 3,
+
+    //! Mask out the tx/rx bit
+    TX_RX_MASK = 0xf7,
+
+    //! Set the transceiver to transmit
+    TX_RX_TRANSMIT = 0x00,
+
+    //! Set the transceiver to receive
+    TX_RX_RECEIVE = 0x08
+};
+
+/*!
+    \brief Initial register values for ADF7025
+
+    Output Frequency  =     918.500 MHz
+    Deviation         = +/- 240.000 kHz
+    Bit Rate          =      38.400 kBaud
+    Crystal Frequency =      22.118 MHz
+*/
+const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
+{
+#ifdef _US_CHANNELS
+    {0x79, 0x4C, 0x36, 0x40},
+#endif //_US_CHANNELS
+#ifdef _EUROPE_CHANNELS
+   #ifndef _US_CHANNELS
+    {0x79, 0x39, 0x26, 0xB0},       // european channel 0 only if US channels not included
+   #endif //_US_CHANNELS
+#endif //_EUROPE_CHANNELS
+#if defined(_CLOCK_OUT_DIVIDE_BY_TWO)
+    {0x00, 0xbc, 0x91, 0x11},       // clockout divide by 2 for board testing
+#else
+    {0x10, 0xBC, 0x91, 0x11},       // configuration before DO_CLOCK_OUT_DIVIDE_BY_TWO was added
+#endif
+    {0x80, 0x59, 0x7E, 0x32},
+    {0x00, 0xDD, 0x09, 0xA3},
+    {0x01, 0x00, 0x04, 0x44},
+    {0x55, 0x55, 0x33, 0x35},
+    {0x1B, 0xA8, 0x00, 0xC6},
+    {0x1B, 0xA0, 0x00, 0xC6},
+    {0x00, 0x02, 0x78, 0xF9}
+};
+
+//! The register settings for setting the desired base frequency.
+const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
+{
+#ifdef _US_CHANNELS
+    {0x79, 0x46, 0x9B, 0x20},       // channel=  US1, frequency= 903.0 MHz
+    {0x79, 0x46, 0xF7, 0xB0},       // channel=  US2, frequency= 904.0 MHz
+    {0x79, 0x47, 0x54, 0x50},       // channel=  US3, frequency= 905.0 MHz
+    {0x79, 0x47, 0xB0, 0xE0},       // channel=  US4, frequency= 906.0 MHz
+    {0x79, 0x48, 0x0D, 0x80},       // channel=  US5, frequency= 907.0 MHz
+    {0x79, 0x48, 0x6A, 0x10},       // channel=  US6, frequency= 908.0 MHz
+    {0x79, 0x48, 0xC6, 0xB0},       // channel=  US7, frequency= 909.0 MHz
+    {0x79, 0x49, 0x23, 0x40},       // channel=  US8, frequency= 910.0 MHz
+    {0x79, 0x49, 0x7F, 0xE0},       // channel=  US9, frequency= 911.0 MHz
+    {0x79, 0x49, 0xDC, 0x70},       // channel= US10, frequency= 912.0 MHz
+    {0x79, 0x4A, 0x39, 0x10},       // channel= US11, frequency= 913.0 MHz
+    {0x79, 0x4A, 0x95, 0xA0},       // channel= US12, frequency= 914.0 MHz
+    {0x79, 0x4A, 0xF2, 0x40},       // channel= US13, frequency= 915.0 MHz
+    {0x79, 0x4B, 0x4E, 0xD0},       // channel= US14, frequency= 916.0 MHz
+    {0x79, 0x4B, 0xAB, 0x70},       // channel= US15, frequency= 917.0 MHz
+    {0x79, 0x4C, 0x08, 0x00},       // channel= US16, frequency= 918.0 MHz
+    {0x79, 0x4C, 0x64, 0xA0},       // channel= US17, frequency= 919.0 MHz
+    {0x79, 0x4C, 0xC1, 0x30},       // channel= US18, frequency= 920.0 MHz
+    {0x79, 0x4D, 0x1D, 0xC0},       // channel= US19, frequency= 921.0 MHz
+    {0x79, 0x4D, 0x7A, 0x60},       // channel= US20, frequency= 922.0 MHz
+    {0x79, 0x4D, 0xD6, 0xF0},       // channel= US21, frequency= 923.0 MHz
+    {0x79, 0x4E, 0x33, 0x90},       // channel= US22, frequency= 924.0 MHz
+    {0x79, 0x4E, 0x90, 0x20},       // channel= US23, frequency= 925.0 MHz
+    {0x79, 0x4E, 0xEC, 0xC0},       // channel= US24, frequency= 926.0 MHz
+    {0x79, 0x4F, 0x49, 0x50},       // channel= US25, frequency= 927.0 MHz
+#endif
+#ifdef _EUROPE_CHANNELS
+    {0x79, 0x39, 0x26, 0xB0},       // channel= EUR1, frequency= 865.8 MHz
+    {0x79, 0x39, 0x67, 0x80},       // channel= EUR2, frequency= 866.5 MHz
+    {0x79, 0x39, 0xA8, 0x50}        // channel= EUR3, frequency= 867.2 MHz
+#endif
+};
+
+
+/*!
+    \brief The register settings for setting the desired data rate.
+
+    These values need to coincide with the data rates to be supported.  See
+    data_rate_t in one_net.h for data rates.  The values to set the data rate
+    are based on XTAL == 22.1184 Mhz
+*/
+const UInt8 DATA_RATE_SETTING[ONE_NET_DATA_RATE_LIMIT][REG_SIZE] =
+{
+    {0x00, 0xdd, 0x09, 0xa3},        // 38400 bps
+    {0x00, 0xdd, 0x03, 0xe3},        // 76800 bps
+    {0x00, 0xdd, 0x03, 0xa3},        // 115200 bps
+    {0x00, 0x00, 0x00, 0x00},        // 153600  bps unachievable -- fill with 0
+    {0x00, 0x00, 0x00, 0x00},        // 192000  bps unachievable -- fill with 0
+    {0x00, 0xdd, 0x01, 0xe3},        // 230400  bps
+};
+
+
+//! Low battery voltage threshold.  This is used when reading the battery status
+const UInt16 BATTERY_THRESHOLD = 0x003D;
+
+//! Low voltage threshold.  This is used when reading the adcin status
+const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 
 
 
