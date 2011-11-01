@@ -183,58 +183,6 @@ static void eval_set_modes_from_switch_positions(void);
 //! @{
 
 
-
-#ifdef _NON_VOLATILE_MEMORY
-
-#ifdef _ONE_NET_MASTER
-one_net_status_t one_net_master_save_settings(void)
-{
-    return ONS_SUCCESS;
-} // one_net_master_save_settings //
-
-
-one_net_status_t one_net_master_load_settings(void)
-{
-    return ONS_FAIL;
-} // one_net_master_load_settings //
-
-
-one_net_status_t one_net_master_erase_settings(void)
-{
-    return ONS_SUCCESS;
-} // one_net_master_erase_settings //
-#endif // #ifdef _ONE_NET_MASTER //
-
-
-#ifdef _ONE_NET_CLIENT
-one_net_status_t one_net_client_save_settings(void)
-{
-    return ONS_SUCCESS;
-} // one_net_client_save_settings //
-
-
-one_net_status_t one_net_client_load_settings(void)
-{
-    return ONS_FAIL;
-} // one_net_client_load_settings //
-
-
-one_net_status_t one_net_client_erase_settings(void)
-{
-    return ONS_SUCCESS;
-} // one_net_client_erase_settings //
-
-#endif // #ifdef _ONE_NET_CLIENT //
-#endif // #ifdef _NON_VOLATILE_MEMORY //
-
-
-
-
-
-
-
-
-
 /*!
     \brief Initializes the parameters used with the user pins.
     

@@ -99,7 +99,28 @@ static void client_check_user_pins(void);
 //! \defgroup ONE-NET_client_eval_pub_func
 //! \ingroup ONE-NET_client_eval
 //! @{
+    
+    
+    
+#ifdef _NON_VOLATILE_MEMORY
+one_net_status_t one_net_client_save_settings(void)
+{
+    return ONS_SUCCESS;
+} // one_net_client_save_settings //
 
+
+one_net_status_t one_net_client_load_settings(void)
+{
+    return ONS_FAIL;
+} // one_net_client_load_settings //
+
+
+one_net_status_t one_net_client_erase_settings(void)
+{
+    return ONS_SUCCESS;
+} // one_net_client_erase_settings //
+#endif // ifdef _NON_VOLATILE_MEMORY //     
+    
 
 void one_net_client_client_remove_device(void)
 {

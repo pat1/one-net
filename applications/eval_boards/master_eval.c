@@ -153,6 +153,27 @@ static void master_user_pin(void);
 //! \defgroup ONE-NET_master_eval_pub_func
 //! \ingroup ONE-NET_master_eval
 //! @{
+    
+    
+#ifdef _NON_VOLATILE_MEMORY
+one_net_status_t one_net_master_save_settings(void)
+{
+    return ONS_SUCCESS;
+} // one_net_master_save_settings //
+
+
+one_net_status_t one_net_master_load_settings(void)
+{
+    return ONS_FAIL;
+} // one_net_master_load_settings //
+
+
+one_net_status_t one_net_master_erase_settings(void)
+{
+    return ONS_SUCCESS;
+} // one_net_master_erase_settings //
+#endif // ifdef _NON_VOLATILE_MEMORY //    
+    
 
 
 void one_net_master_device_is_awake(const on_raw_did_t *DID)
