@@ -34,7 +34,7 @@
 
 #include "config_options.h"
 
-#ifdef __NON_VOLATILE_MEMORY
+#ifdef _NON_VOLATILE_MEMORY
 
 
 /*!
@@ -137,18 +137,24 @@ void flash_erase_check(void)
 } // flash_erase_check //
 
 
-
 /*!
     \brief Erases the data flash.
-
+    
     \param void
-
+    
     \return TRUE if erasing the entire data flash was successful
             FALSE if erasing the entire data flash failed
 */
 BOOL eval_erase_data_flash(void)
 {
-    // TODO -- write
+/*    UInt8 segment_type_list[] = { DFI_ST_DEVICE_MFG_DATA };
+    UInt8 segment_type_list_size = sizeof(segment_type_list);
+    
+    //
+    // delete all segments except for the manufacturing data segment type
+    //
+    dfi_delete_segments_except_for(segment_type_list, segment_type_list_size);
+*/
     return TRUE;
 } // eval_erase_data_flash //
 
@@ -212,4 +218,4 @@ BOOL eval_save(void)
 //! @} nv_hal
 
 
-#endif // #ifdef __NON_VOLATILE_MEMORY //
+#endif // #ifdef _NON_VOLATILE_MEMORY //

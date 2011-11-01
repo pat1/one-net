@@ -17,6 +17,7 @@
 #include "one_net.h"
 #include "one_net_master.h"
 #include "tick.h"
+#include "nv_hal.h"
 
 
 //=============================================================================
@@ -170,7 +171,7 @@ one_net_status_t one_net_master_load_settings(void)
 
 one_net_status_t one_net_master_erase_settings(void)
 {
-    return ONS_SUCCESS;
+    return (eval_erase_data_flash() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_master_erase_settings //
 #endif // ifdef _NON_VOLATILE_MEMORY //    
     

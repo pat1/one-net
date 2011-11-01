@@ -7,6 +7,9 @@
 #ifdef _NON_VOLATILE_MEMORY
 
 
+#include "one_net_types.h"
+
+
 //! \defgroup nv_hal The ONE-NET Evaluation Project Hardware Abstraction Layer for non-volatile memory.
 //! @{
 
