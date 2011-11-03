@@ -228,11 +228,9 @@ int main(void)
     oncli_send_msg("\n\n");
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
       ONE_NET_VERSION_MINOR);
-    delay_ms(10);
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
       ONE_NET_VERSION_BUILD);   
     oncli_send_msg("\n\n");
-    delay_ms(10);
 
     eval_set_modes_from_switch_positions();
     
@@ -250,7 +248,6 @@ int main(void)
 	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 #endif
  
-    delay_ms(10);
     oncli_print_prompt();    
     while(1)
     {
