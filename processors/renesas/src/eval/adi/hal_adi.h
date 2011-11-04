@@ -32,6 +32,11 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "config_options.h"
+#ifdef _HAS_LEDS
+    #include "one_net_led.h"
+#endif
+
 /*!
     \file hal_adi.h
     \brief Processor abstraction layer for the ADI ADF7025.
@@ -87,7 +92,11 @@
 
     return void
 */
-#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1; turn_on_rx_led()
+#ifdef _HAS_LEDS
+#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1; set_rx_led(TRUE)
+#else
+#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1
+#endif
 
 
 /*!
@@ -111,7 +120,11 @@
 
     return void
 */
-#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1; turn_on_tx_led()
+#ifdef _HAS_LEDS
+#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1; set_tx_led(TRUE)
+#else
+#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1
+#endif
 
 
 /*!
