@@ -149,6 +149,15 @@ void tal_init_ports(void)
 #pragma interrupt tx_bit_isr
 void tx_bit_isr(void)
 {
+    if(bit_mask == 0)
+    {
+        // reset to first bit of next byte
+        bit_mask = 0x80;    
+        tx_rf_idx++;
+    } // if done with current byte //
+    RF_DATA = ((tx_rf_data[tx_rf_idx] & bit_mask) && 1);
+
+    bit_mask >>= 1;    
 } // interrupt tx_bit_isr //
 
 
