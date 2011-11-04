@@ -305,6 +305,38 @@ UInt16 read_rssi(void);
 */
 void tal_init_transceiver(void)
 {
+    enum
+    {
+        CALIBRATION_REGISTER = 6,   //!< The calibration register
+        REGISTER_MASK = 0x0F        //!< Mask to get register address
+    };
+
+    UInt8 msg_count;                   
+    UInt8 calibration = 0;
+    
+    tal_init_ports();
+
+    tal_enable_transceiver();
+
+    // write registers after register 0
+    for(msg_count = 0; msg_count < NUM_INIT_REGS; msg_count++)
+    {
+        write_reg(INIT_REG_VAL[msg_count], TRUE);
+
+        // if we just programmed the calibration register delay 200 us to
+        // allow the calibration to be performed, but don't delay when we
+        // write the calibration register to turn calibration off.
+        if((INIT_REG_VAL[msg_count][ADDR_IDX] & REGISTER_MASK)
+          == CALIBRATION_REGISTER && !calibration)
+        {
+            // delay 200us
+            delay_100s_us(2);
+            calibration = 1;
+        } // if this is the calibration register //
+    } // for each register (or message) //
+
+    init_rf_interrupts(ONE_NET_DATA_RATE_38_4); // initialize to lowest data
+                      // rate.  It can be changed to something higher later.
 } // tal_init_transceiver //
 
 
