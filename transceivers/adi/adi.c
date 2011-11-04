@@ -223,6 +223,10 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
 
+//! Masks each bit in a byte in the interrupt routines when data is sent
+//! or received.
+UInt8 bit_mask = 0;
+
 
 //! @} ADI_pub_var
 //                              PUBLIC VARIABLES END
