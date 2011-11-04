@@ -488,6 +488,12 @@
 #endif
 
 
+// "Blocking" versus "Non-blocking" uart.
+#ifndef _BLOCKING_UART
+    #define _BLOCKING_UART
+#endif
+
+
 // Now test #defines for compatibility
 #include "test_defines.h"
 
