@@ -227,6 +227,26 @@ static UInt16 calc_rssi(const UInt16 READBACK_CODE);
 //                      PRIVATE FUNCTION DECLARATIONS END
 //==============================================================================
 
+
+
+//==============================================================================
+//                      PUBLIC FUNCTION DECLARATIONS
+//! \defgroup ADI_pub_func
+//! \ingroup ADI
+//! @{
+
+
+UInt16 read_rssi(void);
+
+
+//! @} ADI_pub_func
+//                      PUBLIC FUNCTION DECLARATIONS END
+//==============================================================================
+
+
+
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION IMPLEMENTATION
 //! \defgroup ADI_pub_func
@@ -266,7 +286,7 @@ void tal_disable_transceiver(void)
 
 BOOL tal_channel_is_clear(void)
 {
-    return TRUE;
+    return (SInt16)read_rssi() < RSSI_CLR_LEVEL;
 } // tal_channel_is_clear //
 
 
