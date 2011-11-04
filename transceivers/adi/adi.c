@@ -310,11 +310,13 @@ void tal_init_transceiver(void)
 
 void tal_enable_transceiver(void)
 {
+    CHIP_ENABLE = 1;
 } // tal_enable_transceiver //
 
 
 void tal_disable_transceiver(void)
 {
+    CHIP_ENABLE = 0;
 } // tal_disable_transceiver //
 
 
