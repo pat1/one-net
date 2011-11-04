@@ -220,6 +220,7 @@ static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE);
 static void turn_off_agc(void);
 static void turn_on_agc(void);
 static UInt16 adi_7025_read(const UInt8 * const MSG);
+static UInt16 calc_rssi(const UInt16 READBACK_CODE);
 
 
 //! @} ADI_pri_func
@@ -432,22 +433,6 @@ UInt16 read_revision(void)
 } // read_revision //
 
 
-/*!
-    \brief Calculates the rssi.
-    
-    The value passed in should be the readback_code returned by the transceiver.
-    This function will convert the read back code to a RSSI reading in dBm.
-
-    \param[in] READBACK_CODE The value returned by the ADI.
-
-    \return The RSSI value in dBm.
-*/
-UInt16 calc_rssi(const UInt16 READBACK_CODE)
-{
-    return 0;
-} // calc_rssi //
-
-
 
 //! @} ADI_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -544,6 +529,64 @@ static UInt16 adi_7025_read(const UInt8 * const MSG)
     SLE = 0;
     return (((UInt16)resp_byte[0] << 8) | (UInt16)resp_byte[1]);
 } /* adi_7025_read */
+
+
+/*!
+    \brief Calculates the rssi.
+    
+    The value passed in should be the readback_code returned by the transceiver.
+    This function will convert the read back code to a RSSI reading in dBm.
+
+    \param[in] READBACK_CODE The value returned by the ADI.
+
+    \return The RSSI value in dBm.
+*/
+static UInt16 calc_rssi(const UInt16 READBACK_CODE)
+{
+    UInt16 rssi = READBACK_CODE & 0x007f;
+
+    // switching on a 4 bit nibble with bits (LG2 LG1 FG2 FG1)
+    switch((READBACK_CODE >> 7) & 0x000F)
+    {
+        case 0x00:
+        {
+            rssi += 113;
+            break;
+        } // case 0000 //
+
+        case 0x04:
+        {
+            rssi += 90;
+            break;
+        } // case 0100 //
+
+        case 0x08:
+        {
+            rssi += 65;
+            break;
+        } // case 1000 //
+
+        case 0x09:
+        {
+            rssi += 53;
+            break;
+        } // case 1001 //
+
+        case 0x0A:
+        {
+            rssi += 17;
+            break;
+        } // case 1010 //
+
+        default:
+        {
+            // don't add anything
+            break;
+        } // default case //
+    } // switch on LNA & Filter gain //
+
+    return (rssi >> 1) - 98;
+} // calc_rssi //
 
 
 
