@@ -223,6 +223,15 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
 
+//! length of tx_rf_data
+UInt16 tx_rf_len = 0;
+
+//! index into tx_rf_data
+UInt16 tx_rf_idx = 0;
+
+//! Buffer to transmit data from the rf interface
+const UInt8 * tx_rf_data;
+
 //! Masks each bit in a byte in the interrupt routines when data is sent
 //! or received.
 UInt8 bit_mask = 0;

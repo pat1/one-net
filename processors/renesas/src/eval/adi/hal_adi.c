@@ -75,7 +75,12 @@
 //! @{
 
 
+
+extern UInt16 tx_rf_len;
+extern UInt16 tx_rf_idx;
+extern const UInt8 * tx_rf_data;
 extern UInt8 bit_mask;
+
 
 
 //! @} HAL_ADI_pub_var
