@@ -116,21 +116,19 @@ enum
     //! The maximum number of times to try a transaction
     ON_MAX_RETRY = 8,
 
-    //! The number of times to send a data rate test packet when permoring a
-    //! data rate test
-    ON_MAX_DATA_RATE_TRIES = 8,
-
     //! The max nonce
     ON_MAX_NONCE = 63,
 
     //! Value to use to mark an invalid nonce
     ON_INVALID_NONCE = 0xFF,
 
+    #ifdef _ONE_NET_MULTI_HOP
     //! Represents an invalid hops value
     ON_INVALID_HOPS = ON_MAX_HOPS_LIMIT + 1,
 
     //! The number of hops to try when sending the first Multi-Hop packet
     ON_FIRST_MH_MAX_HOPS_COUNT = 2,
+    #endif
     
     //! Size in bytes of a XTEA key fragment
     ONE_NET_XTEA_KEY_FRAGMENT_SIZE = 4
