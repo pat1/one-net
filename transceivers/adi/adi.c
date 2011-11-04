@@ -50,6 +50,8 @@
 #include "one_net_channel.h"
 #include "one_net_data_rate.h"
 #include "one_net_features.h"
+#include "tick.h"
+#include "one_net_port_specific.h"
 
 
 //==============================================================================
@@ -421,6 +423,22 @@ void tal_turn_on_receiver(void)
 */
 void tal_turn_on_transmitter(void)
 {
+    UInt8 msg[REG_SIZE];
+
+    // copy register 0 values for the current channel
+    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
+
+    // set transmit/receive bit to transmit
+    // clear the TR1 bit
+    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
+    // set the TR1 bit to transmit
+    msg[TX_RX_BYTE_IDX] |= TX_RX_TRANSMIT; 
+
+    write_reg(msg, TRUE);
+    RF_DATA_DIR = 1;                // set the data line to an output
+    
+    // give the transmitter some time to be ready to transmit.
+    delay_100s_us(1);   
 } // tal_turn_on_transmitter //
 
 
