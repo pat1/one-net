@@ -172,6 +172,11 @@ UInt16 cb_enqueue(cb_rec_t * const cb, const UInt8 * DATA, const UInt16 LEN)
     {
         return FALSE;
     } // if any of the parameters are invalid //
+    
+    if(cb->head == cb->tail)
+    {
+        cb->head = cb->tail = 0;
+    }
 
     last_free_position = cb->tail ? cb->tail - 1 : cb->wrap;
 
