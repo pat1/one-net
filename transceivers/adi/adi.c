@@ -209,6 +209,25 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //                              PRIVATE VARIABLES END
 //==============================================================================
 
+
+
+//==============================================================================
+//                              PUBLIC VARIABLES
+//! \defgroup ADI_pub_var
+//! \ingroup ADI
+//! @{
+
+
+//! The current ONE-NET channel
+UInt8 current_channel = 0;
+
+
+//! @} ADI_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
+
+
+
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
 //! \defgroup ADI_pri_func
@@ -371,15 +390,14 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
 
 one_net_status_t tal_set_channel(const UInt8 channel)
 {
-    return ONS_SUCCESS;
-}
-
-
-
-
-
-
-
+    if(channel < ONE_NET_NUM_CHANNELS)
+    {
+        current_channel = channel;
+        return ONS_SUCCESS;
+    } // if the parameter is valid //
+    
+    return ONS_BAD_PARAM;
+} // tal_set_channel //
 
 
 /*!

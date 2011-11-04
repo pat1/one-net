@@ -90,6 +90,12 @@
 //! \ingroup TAL
 //! @{
 
+
+//! The current ONE-NET channel
+extern UInt8 current_channel; // current_channel should be declared in
+                              // the transceiver .c file.
+
+
 //! @} TAL_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
