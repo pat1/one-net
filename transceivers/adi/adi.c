@@ -45,6 +45,7 @@
 #include "config_options.h"
 #include "tal.h"
 #include "tal_adi.h"
+#include "io_port_mapping.h"
 #include "one_net_status_codes.h"
 #include "one_net_channel.h"
 #include "one_net_data_rate.h"
@@ -218,6 +219,7 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE);
 static void turn_off_agc(void);
 static void turn_on_agc(void);
+static UInt16 adi_7025_read(const UInt8 * const MSG);
 
 
 //! @} ADI_pri_func
@@ -431,23 +433,6 @@ UInt16 read_revision(void)
 
 
 /*!
-    \brief Reads information from the ADI.
-
-    Write the four bytes passed in the array to the registers, then reads two
-    back from the transceiver.  This function is considered protected, and is
-    derived by adi_dbg_code.c.
-
-    \param[in] MSG The information to read.
-
-    \return The information read.
-*/
-UInt16 adi_7025_read(const UInt8 * const MSG)
-{
-    return 0;
-} /* adi_7025_read */
-
-
-/*!
     \brief Calculates the rssi.
     
     The value passed in should be the readback_code returned by the transceiver.
@@ -516,6 +501,50 @@ static void turn_off_agc(void)
 static void turn_on_agc(void)
 {
 } // turn_on_agc //
+
+
+/*!
+    \brief Reads information from the ADI.
+
+    Write the four bytes passed in the array to the registers, then reads two
+    back from the transceiver.
+
+    \param[in] MSG The information to read.
+
+    \return The information read.
+*/
+static UInt16 adi_7025_read(const UInt8 * const MSG)
+{
+    enum
+    {
+        NUM_RESPONSE_BYTE = 2
+    };
+
+    UInt8 resp_byte[NUM_RESPONSE_BYTE];
+    UInt8 byte_count, bit;
+
+    write_reg(MSG, FALSE);
+
+    // manual ignore the first clock cycle.
+    SCLK   = 1;
+    SCLK   = 0;
+    
+    // read the 2 byte response
+    for(byte_count = 0; byte_count < NUM_RESPONSE_BYTE; byte_count++)
+    {
+        resp_byte[byte_count] = 0;
+        for(bit = 0; bit < 8; bit++)
+        {
+            SCLK   = 1;
+            SCLK   = 0;
+            resp_byte[byte_count] = (resp_byte[byte_count] << 1) | SREAD;
+        } // loop to read in each bit of the byte //
+    } // loop to read the bytes //
+
+    SLE = 0;
+    return (((UInt16)resp_byte[0] << 8) | (UInt16)resp_byte[1]);
+} /* adi_7025_read */
+
 
 
 //! @} ADI_pri_func
