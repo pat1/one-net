@@ -278,33 +278,47 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
 {
     UInt16 bytes_written = 0;
     UInt16 i;
-    UInt8 temp;
-    for (i = 0; i < LEN; i++) {
-        temp = DATA[i];
-        if (DATA[i]== '\n') { // silently send a carriage return
-            temp = cb_putqueue(&uart_tx_cb, '\r');
-            if (!temp) { // can't send it; we are done
+    UInt8 byte;
+    char* end_of_line = "\r\n";   
+    
+    #ifdef _BLOCKING_UART
+    if(cb_bytes_free(&uart_tx_cb) < LEN)
+    {
+        while(uart_tx_cb.head != uart_tx_cb.tail)
+        {
+            // do nothing till everything clears
+        }
+    }
+    #endif
+    
+    for (i = 0; i < LEN; i++) 
+    {
+        if (DATA[i]== '\r') 
+        {
+            continue;
+        }
+        else if (DATA[i]== '\n') 
+        {
+            // silently send a newline
+            if(cb_enqueue(&uart_tx_cb, end_of_line, 2) != 2)
+            {
                 break;
             }
+            bytes_written += 2;
         }
-        else if (DATA[i]== '\r') { // silently send a newline
-            temp = cb_putqueue(&uart_tx_cb, '\n');
-            if (!temp) { // can't send it; we are done
+        else
+        {
+            if(cb_enqueue(&uart_tx_cb, &DATA[i], 1) != 1)
+            {
                 break;
             }
+            ++bytes_written;
         }
-        cb_putqueue(&uart_tx_cb, DATA[i]);
-        if (!temp) {
-            break;
-        }
-        ++bytes_written;
     }
     
     if(TX_BUFFER_EMPTY())
     {
-        UInt8 byte;
-
-        if(cb_getqueue(&uart_tx_cb, &byte))
+        if(cb_dequeue(&uart_tx_cb, &byte, 1) == 1)
         {
             ENABLE_TX_INTR();
             u0tbl = byte;
