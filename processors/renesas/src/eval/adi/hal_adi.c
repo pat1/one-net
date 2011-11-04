@@ -45,6 +45,7 @@
 #include "hal_adi.h"
 #include "io_port_mapping.h"
 #include "tal.h"
+#include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
 //=============================================================================
 //                                  CONSTANTS
@@ -124,6 +125,23 @@ extern UInt8 bit_mask;
 */
 void tal_init_ports(void)
 {
+    // pins used to configure registers
+    SCLK_DIR = OUTPUT;
+    SDATA_DIR = OUTPUT;
+    SLE_DIR = OUTPUT;
+    SREAD_DIR = INPUT;
+
+    // set up data and clock pins
+    RF_DATA_DIR = INPUT;
+    RX_BIT_CLK_DIR = INPUT;
+
+    // set up sync detect pin
+    SYNCDET_DIR = INPUT;
+
+    // define out compile time if desired
+    #ifdef _CHIP_ENABLE
+        CHIP_ENABLE_DIR = OUTPUT;
+    #endif // ifdef SYNC_DET //
 } // tal_init_ports //
 
 
