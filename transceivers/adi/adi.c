@@ -395,7 +395,9 @@ void tal_turn_on_transmitter(void)
 */
 UInt16 read_rssi(void)
 {
-    return 0;
+    const UInt8 MSG[REG_SIZE] = {0x00, 0x00, 0x01, 0x47};
+
+    return calc_rssi(adi_7025_read(MSG));
 } // read_rssi //
 
 
