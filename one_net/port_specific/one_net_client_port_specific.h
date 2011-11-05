@@ -317,6 +317,13 @@ on_message_status_t one_net_client_handle_ack_nack_response(
 #endif
 
 
+/*!
+    \brief Returns a pointer to the invite key to use in for joining a network.
+    
+    \return A pointer to the invite key to use.
+*/
+UInt8 * one_net_client_get_invite_key(void);
+
 
 #ifdef _NON_VOLATILE_MEMORY
 /*!

@@ -168,6 +168,17 @@ void client_eval(void)
 } // client_eval //
 
 
+/*!
+    \brief Returns a pointer to the invite key to use in for joining a network.
+    
+    \return A pointer to the invite key to use.
+*/
+UInt8 * one_net_client_get_invite_key(void)
+{
+    return(&DEFAULT_INVITE_KEY[0]);
+}
+
+
 
 //! @} ONE-NET_client_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
