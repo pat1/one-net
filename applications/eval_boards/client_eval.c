@@ -135,7 +135,7 @@ void one_net_client_client_remove_device(void)
 */
 void init_auto_client(UInt8 index)
 {
-    if(index <= NUM_AUTO_CLIENTS)
+    if(index >= NUM_AUTO_CLIENTS)
     {
         return; // out of range
     }
@@ -147,6 +147,7 @@ void init_auto_client(UInt8 index)
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = THIS_DEVICE_FEATURES;
     one_net_memmove(master->device.did, MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
+    client_joined_network = TRUE;
 } // init_auto_client //
 #endif
 
