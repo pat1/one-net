@@ -9,6 +9,7 @@
 #include "one_net_port_const.h"
 #include "one_net_features.h"
 #include "one_net_application.h"
+#include "one_net_acknowledge.h"
 
 
 //! \defgroup ONE-NET ONE-NET
@@ -419,6 +420,20 @@ typedef enum
     CANCEL_INVITE_OTHER_REASON /* If none of the reasons above fit. */	
 } cancel_invite_reason_t;
 #endif
+
+
+//! Packet Handling Function for data packets
+typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
+  on_pkt_t* const pkt);
+
+//! Packet Handling Function for responses
+typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t** txn,
+  on_pkt_t* const pkt, on_ack_nack_t* ack_nack);
+
+//! Transaction handler
+typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
+  on_pkt_t* const pkt, const on_message_status_t status);
+
 
 
 //! @} ONE-NET_typedefs
