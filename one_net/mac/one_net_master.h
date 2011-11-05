@@ -71,6 +71,11 @@ enum
 };
 
 
+//! Value to increment the next CLIENT did by each time a device is added
+//! to the network
+#define ON_CLIENT_DID_INCREMENT 0x0010
+
+
 
 //! @} ONE-NET_MASTER_const
 //                                  CONSTANTS END

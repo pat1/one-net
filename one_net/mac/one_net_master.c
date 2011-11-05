@@ -59,11 +59,6 @@
 //! @{
 
 
-
-//! Value to increment the next CLIENT did by each time a device is added
-//! to the network
-#define ON_CLIENT_DID_INCREMENT 0x0010
-
 //! Number of bits to shift the initial CLIENT address to use as a 16-bit
 //! or raw address value
 #define ON_INIT_CLIENT_SHIFT RAW_DID_SHIFT
