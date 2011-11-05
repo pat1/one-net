@@ -168,12 +168,17 @@ extern const char * const ONCLI_INVALID_DST_STR;
 extern const char * const ONCLI_NEED_TO_JOIN_STR;
 extern const char * const ONCLI_INVALID_CMD_LEN_STR;
 extern const char * const ONCLI_LOAD_FAIL_STR;
-extern const char * const ONCLI_DISPLAY_INVITE_STR;
 extern const char * const ONCLI_FATAL_ERR_1_STR;
 enum
 {
     ONCLI_FATAL_ERR_1_LEN = 15
 };
+
+
+
+#ifdef _ONE_NET_CLIENT
+extern const char * const ONCLI_DISPLAY_INVITE_STR;
+#endif
 
 
 

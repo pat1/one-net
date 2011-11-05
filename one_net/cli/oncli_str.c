@@ -252,7 +252,13 @@ const char * const ONCLI_LOAD_FAIL_STR
   "be erased\n";
  
 //! Fatal error 1
-const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";  
+const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
+
+
+#ifdef _ONE_NET_CLIENT
+//! String to display invite code
+const char * const ONCLI_DISPLAY_INVITE_STR = "Invite code: %.4s-%.4s\n";
+#endif
   
   
   
