@@ -143,25 +143,6 @@
 #endif
 
 
-/*!
-    \brief Turns on the RX_LED
-
-    \param void
-
-    \return void
-*/
-#define TURN_ON_RX_LED()            // do nothing
-
-
-/*!
-    \brief Turns off the RX_LED
-
-    \param void
-
-    \return void
-*/
-#define TURN_OFF_RX_LED()           // do nothing
-
 
 //! @} HAL_ADI_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
