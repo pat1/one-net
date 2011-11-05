@@ -376,6 +376,15 @@ static oncli_status_t list_cmd_hdlr(void)
       ONE_NET_VERSION_MINOR);
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
       ONE_NET_VERSION_BUILD);
+      
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        oncli_print_invite();
+    }
+    #endif
+      
+      
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
 #endif

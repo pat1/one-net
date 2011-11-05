@@ -50,6 +50,9 @@
 #include "oncli_hdlr.h"
 #include <ctype.h>
 #include "one_net_channel.h"
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client_port_specific.h"
+#endif
 
 
 
@@ -210,6 +213,24 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     
     return buffer;
 } // oncli_format_channel //
+
+
+#ifdef _ONE_NET_CLIENT
+/*!
+    \brief Prints the invite code.
+    
+    \return ONCLI_SUCCESS If the message was successfully output.
+*/
+oncli_status_t oncli_print_invite(void)
+{
+    UInt8 * ptr_invite_key = one_net_client_get_invite_key();
+    oncli_send_msg(ONCLI_DISPLAY_INVITE_STR, &ptr_invite_key[0], &ptr_invite_key[4]);
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+
 
 
 /*!

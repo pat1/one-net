@@ -8,6 +8,7 @@
 
 #include "one_net_status_codes.h"
 #include "one_net_constants.h"
+#include "one_net_message.h"
 #include "one_net_acknowledge.h"
 
 

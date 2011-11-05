@@ -118,6 +118,10 @@ void oncli_send_msg(const char * const FMT, ...);
 void oncli(void);
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
 char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len);
+#ifdef _ONE_NET_CLIENT
+oncli_status_t oncli_print_invite(void);
+#endif
+
 
 
 //! @} oncli_pub_func
