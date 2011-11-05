@@ -38,17 +38,6 @@
 //! @{
 
 
-enum
-{
-    //! The time in milliseconds to leave the LEDs on. 50ms
-    EVAL_LED_ON_TIME = 50,
-    
-    #ifdef _AUTO_MODE
-    //! The number of clients in AUTO mode.
-    NUM_AUTO_CLIENTS = 3
-    #endif
-};
-
 
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
@@ -64,11 +53,11 @@ enum
 
 
 #ifdef _AUTO_MODE
-	//! The raw CLIENT DIDs for auto mode
-	static const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
-	{
-	    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
-	};
+//! The raw CLIENT DIDs for auto mode
+const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
+{
+    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
+};
 #endif
 
 //! The key used in the evaluation network ("protected")
@@ -85,10 +74,12 @@ const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 //! is found in data flash.
 const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
                                      '2', '2', '2', '2',   '2', '2', '2', '2'};
-
-//! Default SID to use if no manufacturing data (SID and invite key) segment
-//! is found in data flash.
-const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
+                                     
+#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+//! Default NID to use if no NID is found in the manufacturing data segment
+//! of data flash.
+const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
+#endif
 
 
 //! Master prompt

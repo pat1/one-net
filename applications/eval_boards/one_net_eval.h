@@ -26,6 +26,16 @@
 
 
 
+#ifdef _AUTO_MODE
+extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
+#endif
+
+#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+extern const UInt8 DEFAULT_RAW_NID[];
+#endif
+
+
+
 //! @} ONE-NET_eval_const
 //                                  CONSTANTS END
 //=============================================================================
@@ -35,6 +45,15 @@
 //! \defgroup ONE-NET_eval_typedefs
 //! \ingroup ONE-NET_eval
 //! @{
+    
+    
+enum
+{
+    #ifdef _AUTO_MODE
+    //! The number of clients in AUTO mode.
+    NUM_AUTO_CLIENTS = 3
+    #endif
+};    
 
 
 /*!
