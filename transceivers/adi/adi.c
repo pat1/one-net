@@ -261,12 +261,15 @@ UInt8 bit_mask = 0;
 //! @{
 
 
+
 static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE);
 static void turn_off_agc(void);
 static void turn_on_agc(void);
 static UInt16 adi_7025_read(const UInt8 * const MSG);
 static UInt16 calc_rssi(const UInt16 READBACK_CODE);
+static void tal_turn_on_receiver(void);
 static void tal_turn_on_transmitter(void);
+
 
 
 //! @} ADI_pri_func
@@ -466,18 +469,6 @@ one_net_status_t tal_set_channel(const UInt8 channel)
     
     return ONS_BAD_PARAM;
 } // tal_set_channel //
-
-
-/*!
-    \brief Sets the transceiver to receive mode
-
-    \param void
-
-    \return void
-*/
-void tal_turn_on_receiver(void)
-{
-} // tal_turn_on_receiver //
 
 
 /*!
@@ -683,6 +674,31 @@ static UInt16 calc_rssi(const UInt16 READBACK_CODE)
 
     return (rssi >> 1) - 98;
 } // calc_rssi //
+
+
+/*!
+    \brief Sets the transceiver to receive mode
+
+    \param void
+
+    \return void
+*/
+static void tal_turn_on_receiver(void)
+{
+    UInt8 msg[REG_SIZE];
+
+    // copy register 0 values for the current channel
+    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
+
+    // set transmit/receive bit to transmit
+    // by clearing the TR1 bit
+    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
+    // set the TR1 bit to receive
+    msg[TX_RX_BYTE_IDX] |= TX_RX_RECEIVE; 
+
+    write_reg(msg, TRUE);
+    RF_DATA_DIR = 0;                // set the data line to an input
+} // tal_turn_on_receiver //
 
 
 /*!
