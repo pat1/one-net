@@ -18,6 +18,8 @@
 #include "one_net_master.h"
 #include "tick.h"
 #include "nv_hal.h"
+#include "one_net_eval.h"
+#include "one_net_encode.h"
 
 
 //=============================================================================
@@ -204,6 +206,22 @@ BOOL one_net_master_remove_device_result(const on_raw_did_t *DID,
 */
 void init_auto_master(void)
 {
+    UInt8 i;
+    master_param->client_count = NUM_AUTO_CLIENTS;
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID +
+      NUM_AUTO_CLIENTS * ON_CLIENT_DID_INCREMENT;
+    for(i = 0; i < NUM_AUTO_CLIENTS; i++)
+    {
+        on_encode(client_list[i].device_send_info.did,
+          RAW_AUTO_CLIENT_DID[i], ON_ENCODED_DID_LEN);
+        client_list[i].device_send_info.features = THIS_DEVICE_FEATURES;
+        client_list[i].device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
+        client_list[i].flags = ON_JOINED;
+        client_list[i].use_current_key = TRUE;
+        #ifdef _STREAM_MESSAGES_ENABLED
+        client_list[i].use_current_stream_key = TRUE;
+        #endif
+    }
 } // init_auto_master //
 #endif
 
