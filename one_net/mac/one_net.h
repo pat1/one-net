@@ -433,6 +433,19 @@ typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t** txn,
 //! Transaction handler
 typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
   on_pkt_t* const pkt, const on_message_status_t status);
+  
+//! The set of needed packet handlers
+typedef struct
+{
+    //! Single Data Packet Handler
+    on_pkt_hdlr_t single_data_hdlr;
+	
+	//! Single Data ACK/NACK Handler
+	on_ack_nack_hdlr_t single_ack_nack_hdlr;
+
+    //! Single transaction handler
+    on_txn_hdlr_t single_txn_hdlr;
+} on_pkt_hdlr_set_t;
 
 
 
