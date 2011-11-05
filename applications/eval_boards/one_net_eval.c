@@ -11,6 +11,8 @@
 
 
 #include "config_options.h"
+#include "one_net_encode.h"
+#include "one_net_port_specific.h"
 #include "tick.h"
 #include "pal.h"
 #include "hal.h"
@@ -58,6 +60,9 @@ const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
 {
     {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
 };
+
+//! The default keep alive for Eval Boards
+const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000;
 #endif
 
 //! The key used in the evaluation network ("protected")
@@ -225,10 +230,47 @@ int main(void)
 
     eval_set_modes_from_switch_positions();
     
+    // do some initialization here.  It may get written over later, but
+    // that's OK.
+    on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
+    one_net_memmove(on_base_param->current_key, EVAL_KEY,
+      ONE_NET_XTEA_KEY_LEN);
+    on_base_param->single_block_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
+    on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
+    on_base_param->features = THIS_DEVICE_FEATURES;
+    
+    #ifdef _AUTO_MODE
+    on_base_param->channel = DEFAULT_EVAL_CHANNEL;
+    #endif
+    
+    #ifdef _BLOCK_MASSGES_ENABLED
+    on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
+    on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
+    #endif
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    one_net_memmove(on_base_param->stream_key, EVAL_STREAM_KEY,
+      ONE_NET_XTEA_KEY_LEN);
+    on_base_param->stream_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
+    #endif
+    
+    
 #ifdef _AUTO_MODE
-	// check mode switch (Auto/Serial)
 	if(in_auto_mode)
 	{
+        #ifdef _ONE_NET_MASTER
+        if(device_is_master)
+        {
+            init_auto_master();
+        }
+        #endif
+        #ifdef _ONE_NET_CLIENT
+        if(!device_is_master)
+        {
+            init_auto_client(auto_client_index);
+        }
+        #endif
+        
 		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
 	} // if auto mode //
 	else

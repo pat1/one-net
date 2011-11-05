@@ -28,11 +28,14 @@
 
 #ifdef _AUTO_MODE
 extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
+extern const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS;
 #endif
 
 #if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
 extern const UInt8 DEFAULT_RAW_NID[];
 #endif
+
+
 
 
 
@@ -51,7 +54,10 @@ enum
 {
     #ifdef _AUTO_MODE
     //! The number of clients in AUTO mode.
-    NUM_AUTO_CLIENTS = 3
+    NUM_AUTO_CLIENTS = 3,
+    
+    //! The channel for Auto Mode
+    DEFAULT_EVAL_CHANNEL = 1,
     #endif
 };    
 
@@ -64,6 +70,7 @@ typedef struct
     on_pin_state_t pin_type;        //!< Functionality type
     UInt8 old_state;                //!< The last state of the pin
 } user_pin_t;
+
 
 
 
@@ -107,6 +114,14 @@ void client_eval(void); // in client_eval.c
 #endif
 #ifdef _SNIFFER_MODE
 void sniff_eval(void); // in sniff_eval.c
+#endif
+#ifdef _AUTO_MODE
+#ifdef _ONE_NET_MASTER
+void init_auto_master(void);
+#endif
+#ifdef _ONE_NET_CLIENT
+void init_auto_client(UInt8 index);
+#endif
 #endif
 
 

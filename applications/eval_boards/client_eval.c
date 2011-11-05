@@ -19,6 +19,8 @@
 #include "one_net_eval.h"
 #include "nv_hal.h"
 #include "tick.h"
+#include "one_net_encode.h"
+#include "one_net_port_specific.h"
 
 
 
@@ -69,11 +71,6 @@ static const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2',
 //! \ingroup ONE-NET_eval
 //! @{
 
-
-#ifdef _AUTO_MODE
-void init_auto_client(UInt8 index);
-#endif
-void init_serial_client(void);
 
 
 //! @} ONE-NET_client_eval_pub_func
@@ -138,6 +135,18 @@ void one_net_client_client_remove_device(void)
 */
 void init_auto_client(UInt8 index)
 {
+    if(index <= NUM_AUTO_CLIENTS)
+    {
+        return; // out of range
+    }
+
+    on_encode(&on_base_param->sid[ON_ENCODED_NID_LEN],
+      RAW_AUTO_CLIENT_DID[index], ON_ENCODED_DID_LEN);
+    master->keep_alive_interval = DEFAULT_EVAL_KEEP_ALIVE_MS;
+    master->flags = ON_JOINED;
+    master->device.data_rate = ONE_NET_DATA_RATE_38_4;
+    master->device.features = THIS_DEVICE_FEATURES;
+    one_net_memmove(master->device.did, MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
 } // init_auto_client //
 #endif
 
