@@ -51,6 +51,7 @@
 #include "one_net_channel.h"
 #include "one_net_data_rate.h"
 #include "one_net_features.h"
+#include "one_net_packet.h"
 #include "tick.h"
 #include "one_net_port_specific.h"
 
@@ -223,6 +224,15 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
+
+//! index into rx_rf_data
+UInt16 rx_rf_idx = 0;
+
+//! bytes currently in rx_rf_data
+UInt16 rx_rf_count = 0;
+
+//! Buffer to receive data from the rf interface
+UInt8 rx_rf_data[ON_MAX_ENCODED_PKT_SIZE] = {0x00};
 
 //! length of tx_rf_data
 UInt16 tx_rf_len = 0;

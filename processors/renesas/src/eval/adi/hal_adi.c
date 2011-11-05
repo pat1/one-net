@@ -77,6 +77,9 @@
 
 
 
+extern UInt16 rx_rf_idx;
+extern UInt16 rx_rf_count;
+extern UInt8 rx_rf_data[];
 extern UInt16 tx_rf_len;
 extern UInt16 tx_rf_idx;
 extern const UInt8 * tx_rf_data;
