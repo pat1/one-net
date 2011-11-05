@@ -136,7 +136,11 @@
 
     return void
 */
+#ifdef _HAS_LEDS
+#define DISABLE_TX_BIT_INTERRUPTS()  tstart_tracr = 0; set_tx_led(FALSE)
+#else
 #define DISABLE_TX_BIT_INTERRUPTS()  tstart_tracr = 0
+#endif
 
 
 /*!
