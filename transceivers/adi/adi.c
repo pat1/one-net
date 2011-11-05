@@ -383,13 +383,21 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     ENABLE_TX_BIT_INTERRUPTS();
 
     return len;
-}
+} // tal_write_packet //
 
 
 BOOL tal_write_packet_done()
 {
+    if(tx_rf_idx < tx_rf_len)
+    {
+        return FALSE;
+    } // if not done //
+
+    DISABLE_TX_BIT_INTERRUPTS();
+    tal_turn_on_receiver();
+
     return TRUE;
-}
+} // tal_write_packet_done //
 
 
 UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
