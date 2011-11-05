@@ -77,7 +77,15 @@ enum
 {
     //! Time in ticks a device must wait in between checking if a channel is
     //! clear (5ms)
-    ONE_NET_CLR_CHANNEL_TIME = 5
+    ONE_NET_CLR_CHANNEL_TIME = 5,
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Base Fragment delay in ticks for low priority transactions (125ms)
+    ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = 125,
+
+    //! Base Fragment delay in ticks for high priority transactions (25ms)
+    ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25
+    #endif
 };
 
 
