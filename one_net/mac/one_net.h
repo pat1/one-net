@@ -232,6 +232,9 @@ typedef struct
 
     //! The channel the network is on
     UInt8 channel;
+    
+    //! The features that this device supports
+    on_features_t features;
 
     //! Data rate the device is currently using
     UInt8 data_rate;
