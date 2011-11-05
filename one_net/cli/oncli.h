@@ -6,6 +6,7 @@
 #include "oncli_port.h"
 #include "one_net_xtea.h"
 #include "one_net_constants.h"
+#include "one_net_features.h"
 
 
 
@@ -126,6 +127,7 @@ oncli_status_t oncli_print_invite(void);
 void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
 oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did);
 oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid);
+oncli_status_t oncli_print_data_rates(on_features_t features);
 
 
 

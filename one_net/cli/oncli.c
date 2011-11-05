@@ -55,6 +55,7 @@
 #ifdef _ONE_NET_CLIENT
 #include "one_net_client_port_specific.h"
 #endif
+#include "one_net_features.h"
 
 
 
@@ -273,7 +274,7 @@ oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did)
     on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN);
     oncli_send_msg("DID: 0x%03X", did_to_u16(&raw_did));
     return ONCLI_SUCCESS;
-}
+} // oncli_print_did //
 
 
 /*!
@@ -312,10 +313,28 @@ oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
     oncli_print_did((on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])));
     oncli_send_msg("\n");
     return ONCLI_SUCCESS;
-}
+} // oncli_print_sid //
 
 
-
+/*!
+    \brief Prints the data rate capabilities of a device
+    
+    \param[in] features the features the device supports.
+        
+    \return ONCLI_SUCCESS If the data rates were successfully output.
+*/
+oncli_status_t oncli_print_data_rates(on_features_t features)
+{
+    UInt8 i;
+    for(i = 0; i < ONE_NET_DATA_RATE_LIMIT; i++)
+    {
+        BOOL dr_capable = features_data_rate_capable(features, i);
+        oncli_send_msg("Data rate %s : %s\n", DATA_RATE_STR[i],
+          dr_capable ? CAPABLE_STR : NOT_CAPABLE_STR);
+    }
+    
+    return ONCLI_SUCCESS;
+} // oncli_print_data_rates //
 
 
 /*!
