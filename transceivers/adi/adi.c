@@ -556,6 +556,28 @@ UInt16 read_revision(void)
 */
 static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE)
 {
+    UInt8 byte_count;
+    UInt8 mask;
+
+    SCLK = 0;
+    SDATA = 0;
+    SLE = 0;
+
+    for(byte_count = 0; byte_count < REG_SIZE; byte_count++)
+    {
+        for(mask = 0x80; mask; mask >>= 1)
+        {
+            SDATA  = ((REG[byte_count] & mask) != 0);
+            SCLK   = 1;
+            SCLK   = 0;
+        } // loop through the bits in the byte //
+    } // loop through the bytes //
+    
+    SLE = 1;
+    if(CLR_SLE)
+    {
+        SLE = 0;
+    } // if clear the SLE flag //    
 } // write_reg //
 
 
