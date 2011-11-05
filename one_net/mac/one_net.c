@@ -46,6 +46,7 @@
 #include "config_options.h"
 #include "one_net_packet.h"
 #include "one_net.h"
+#include "tal.h"
 #include "one_net_crc.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
@@ -192,6 +193,11 @@ on_state_t on_state = ON_INIT_STATE;
 //! @{
 
 
+
+static BOOL check_for_clr_channel(void);
+
+
+
 //! @} ONE-NET_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
 //==============================================================================
@@ -257,6 +263,32 @@ BOOL one_net(on_txn_t ** txn)
 //! \addtogroup ONE-NET_pri_func
 //! \ingroup ONE-NET
 //! @{
+
+
+
+/*!
+    \brief Checks if the channel is clear.
+
+    If the channel is not clear, this function will set the clear channel time
+    and will not check the channel again until the timer has expired.
+
+    \param void
+
+    \return TRUE If the channel is clear
+            FALSE If the channel is not clear.
+*/
+static BOOL check_for_clr_channel(void)
+{
+    if(ont_inactive_or_expired(ONT_CLR_CHANNEL_TIMER))
+    {
+        ont_set_timer(ONT_CLR_CHANNEL_TIMER,
+          MS_TO_TICK(ONE_NET_CLR_CHANNEL_TIME));
+        return one_net_channel_is_clear();
+    } // if it is time to check the channel //
+
+    return FALSE;
+} // check_for_clr_channel //
+
 
 
 //! @} ONE-NET_pri_func

@@ -72,6 +72,15 @@ enum
 #endif
 
 
+//! Timer related constants
+enum
+{
+    //! Time in ticks a device must wait in between checking if a channel is
+    //! clear (5ms)
+    ONE_NET_CLR_CHANNEL_TIME = 5
+};
+
+
 enum
 {
     //! Number of pins on this device.  The Eval Board contains 4 switches

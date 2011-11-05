@@ -82,6 +82,9 @@ enum
     //! General purpose timer
     ONT_GENERAL_TIMER = ONT_NUM_APP_TIMERS,
     
+    //! Timer to check for a clear channel
+    ONT_CLR_CHANNEL_TIMER,
+    
     ONT_SINGLE_TIMER,
     
     ONT_RESPONSE_TIMER,
