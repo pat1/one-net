@@ -230,6 +230,30 @@ oncli_status_t oncli_print_invite(void)
 #endif
 
 
+/*!
+    \brief Prints an xtea key.
+    
+    
+    \param[in] KEY Pointer to xtea key to print
+    
+    \return void
+*/
+void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
+{
+    UInt8 i;
+
+    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
+    {
+		if(i != 0)
+		{
+			oncli_send_msg(" - ");
+		}
+		oncli_send_msg("(%02x-%02x-%02x-%02x)", 
+		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
+    }
+} // oncli_print_xtea_key //
+
+
 
 
 

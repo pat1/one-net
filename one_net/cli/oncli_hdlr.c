@@ -52,6 +52,7 @@
 
 #include "one_net_port_specific.h"
 #ifdef _ONE_NET_CLIENT
+#include "one_net_client.h"
 #include "one_net_client_port_specific.h"
 #endif
 #ifdef _ONE_NET_MASTER
@@ -383,8 +384,24 @@ static oncli_status_t list_cmd_hdlr(void)
         oncli_print_invite();
     }
     #endif
-      
-      
+    
+    #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
+	if(device_is_master || client_joined_network)
+    #elif defined(_ONE_NET_CLIENT)
+    if(client_joined_network)
+    #endif
+	{
+        // print encryption keys
+		oncli_send_msg    ("Non-stream message key : ");
+	    oncli_print_xtea_key(&(on_base_param->current_key));
+        oncli_send_msg("\n");
+    	#ifdef _STREAM_MESSAGES_ENABLED
+		oncli_send_msg("Stream message key     : ");
+	    oncli_print_xtea_key(&(on_base_param->stream_key));			
+        oncli_send_msg("\n");
+		#endif
+	}
+
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
 #endif

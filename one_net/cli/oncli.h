@@ -4,6 +4,7 @@
 
 #include "one_net_types.h"
 #include "oncli_port.h"
+#include "one_net_xtea.h"
 
 
 
@@ -121,6 +122,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len);
 #ifdef _ONE_NET_CLIENT
 oncli_status_t oncli_print_invite(void);
 #endif
+void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
 
 
 
