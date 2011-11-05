@@ -40,7 +40,9 @@
     These strings are to be used in a case insensitive manner.
 */
 
+#include "config_options.h"
 #include "oncli_str.h"
+#include "one_net_data_rate.h"
 
 
 //==============================================================================
@@ -259,6 +261,21 @@ const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 //! String to display invite code
 const char * const ONCLI_DISPLAY_INVITE_STR = "Invite code: %.4s-%.4s\n";
 #endif
+
+
+// Data Rate Strings
+const char* const DATA_RATE_STR[ONE_NET_DATA_RATE_LIMIT] =
+{
+    "38,400",
+    "76,800",
+    "115,200",
+    "153,600",
+    "192,000",
+    "230,400"
+};
+
+const char* const CAPABLE_STR = "Capable";
+const char* const NOT_CAPABLE_STR = "Not Capable";
   
   
   

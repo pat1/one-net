@@ -181,6 +181,14 @@ extern const char * const ONCLI_DISPLAY_INVITE_STR;
 #endif
 
 
+// Data Rate Strings
+extern const char* const DATA_RATE_STR[];
+
+
+extern const char* const CAPABLE_STR;
+extern const char* const NOT_CAPABLE_STR;
+
+
 
 //! @} oncli_str_const
 //								CONSTANTS END
