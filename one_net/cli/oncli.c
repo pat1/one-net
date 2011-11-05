@@ -41,6 +41,7 @@
 
 
 #include "oncli.h"
+#include "one_net_encode.h"
 #include "oncli_str.h"
 #include "one_net_types.h"
 #include "oncli_port_const.h"
@@ -48,6 +49,7 @@
 #include "nprintf.h"
 #include "uart.h"
 #include "oncli_hdlr.h"
+#include "one_net_port_specific.h"
 #include <ctype.h>
 #include "one_net_channel.h"
 #ifdef _ONE_NET_CLIENT
@@ -61,6 +63,10 @@
 //! \defgroup oncli_const
 //! \ingroup oncli
 //! @{
+
+
+extern const char HEX_DIGIT[];
+
 
 //! @} oncli_const
 //								CONSTANTS END
@@ -252,6 +258,61 @@ void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
 		    (*KEY)[i*4], (*KEY)[i*4+1], (*KEY)[i*4+2], (*KEY)[i*4+3]);
     }
 } // oncli_print_xtea_key //
+
+
+/*!
+    \brief Prints the Raw DID
+    
+    \param[in] enc_did the encoded did
+    
+    \return ONCLI_SUCCESS if the DID was successfully output
+*/
+oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did)
+{
+    on_raw_did_t raw_did;
+    on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN);
+    oncli_send_msg("DID: 0x%03X", did_to_u16(&raw_did));
+    return ONCLI_SUCCESS;
+}
+
+
+/*!
+    \brief Prints the SID(NID and DID)
+    
+    \param[in] enc_sid the encoded sid
+        
+    \return ONCLI_SUCCESS If the SID was successfully output.
+*/
+oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
+{
+    on_raw_nid_t raw_nid;
+    UInt8 i, nibble;
+    
+    on_decode(raw_nid, *enc_sid, ON_ENCODED_NID_LEN);
+
+    oncli_send_msg("NID: 0x");
+    for (i = 0; i < ON_RAW_NID_LEN; i++)
+    {
+        // 
+        // print the high order nibble
+        //
+        nibble = (raw_nid[i] >> 4) & 0x0f;
+        oncli_send_msg("%c", HEX_DIGIT[nibble]);
+
+        //
+        // if this is the not the last byte, print the low order nibble also
+        //
+        if (i < ON_RAW_NID_LEN-1)
+        {
+            nibble = raw_nid[i] & 0x0f;
+            oncli_send_msg("%c", HEX_DIGIT[nibble]);
+        }
+    }
+    oncli_send_msg("\n");
+    oncli_print_did((on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])));
+    oncli_send_msg("\n");
+    return ONCLI_SUCCESS;
+}
 
 
 
