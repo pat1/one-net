@@ -47,6 +47,7 @@
 */
 
 #include "one_net_types.h"
+#include "one_net_packet.h"
 #include "one_net_status_codes.h"
 
 
@@ -56,39 +57,6 @@
 //! \ingroup ONE-NET_APP
 //! @{
 
-
-/* Single message payload constants */
-enum
-{
-    //! Index of header within single packet payload (header is message
-    //! class and message type
-    //dje: 4-bit src/destination addresses are now first in the payload
-    ONA_MSG_FIRST_IDX      = 0,
-    ONA_MSG_SECOND_IDX     = 3,
-    ONA_MSG_THIRD_IDX      = 4,
-
-    ONA_MSG_SRC_UNIT_IDX   = ONA_MSG_FIRST_IDX, // Where the byte is
-    ONA_MSG_SRC_UNIT_MASK  = 0xf0,  // Where the bits are in the byte
-    ONA_MSG_SRC_UNIT_SHIFT = 4,     // Shift left this much to put them in
-
-    ONA_MSG_DST_UNIT_IDX   = ONA_MSG_FIRST_IDX,     // Where the byte is
-    ONA_MSG_DST_UNIT_MASK  = 0x0f,  // Where the bits are in the byte
-    ONA_MSG_DST_UNIT_SHIFT = 0,     // Shift left this much to put them in
-
-    // Header now follows src/dst addresses
-    ONA_MSG_HDR_IDX = 1,
-
-    //! Length of the header within single packet payload
-    ONA_MSG_HDR_LEN = 2,
-
-    //! Index of Message Data within payload
-    ONA_MSG_DATA_IDX = ONA_MSG_SECOND_IDX,
-
-    //! Length of Message Data
-    ONA_MSG_DATA_LEN = 2,
-
-    ONA_MSG_NUM_BYTES = 3, // three of the five bites are msg stuff
-};
 
 
 ONE_NET_INLINE void get_three_message_bytes_from_payload(UInt8 *msg, const UInt8 *payload)

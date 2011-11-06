@@ -601,6 +601,122 @@ enum
 };
 
 
+/* Normal Single message payload constants */
+enum
+{
+    //! Five bytes are as follows...
+    //!
+    //! Byte 0 -- Source and destination units.  4 most significant bits are
+    //!           source unit bits.  4 least significant bits are destination
+    //!           unit bits.
+    //! Bytes 1 and 2 -- Message class and type.  Message class
+    //!           (i.e. ONA_COMMAND) are the 4 most significant bits of the
+    //!           bits of bytes 1 and 2.  The remaining 12 bits are the
+    //!           message type (i.e ONA_SWITCH)
+    //! Bytes 3 and 4 -- Message data.  The "data" of the message.  For a
+    //!           normal switch message, this would be ONA_ON, ONA_OFF, or
+    //!           ONA_TOGGLE
+    //!
+    //!
+    //! Bytes 1 and 2(message type and class) are the "header".
+    //!
+    //!
+    //! So a "Turn switch on command from unit 4 to unit 6 would be as follows
+    //!
+    //! Source Unit                 = 4 = 0100
+    //! Destination Unit            = 6 = 0110
+    //! Message Class = ONA_COMMAND = 5 = 0101 (note ONA_COMMAND is 0x5000.
+    //!                                         We are isolating the left-most
+    //!                                         4 bits.)
+    //!
+    //! Message Type = ONA_SWITCH   = 0 = 000000000000 (12 bits)
+    //! Message Data = ONA_ON       = 1 = 0000000000000001 (16 bits)
+    //!
+    //!
+    //! 5 byte message is...
+    //!
+    //! SSSSDDDDCCCCTTTTTTTTTTTTXXXXXXXXXXXXXXXX
+    //! 0100011001010000000000000000000000000001
+    //!
+    //! which is 0x4650000001 in Hex
+    //!
+    //! S = Source Unit
+    //! D = Dest. Unit
+    //! C = Message Class
+    //! T = Message Type
+    //! X = Message Data
+    //!
+    //! Again, Class and Type are combined into "Header".
+    //!
+    //! one_net_application.h defines "getters" and "setters" for source
+    //! unit, destination unit, header, and data.
+    //!
+    //! 1) put_src_unit and get_src_unit
+    //! 2) put_dst_unit and get_dst_unit
+    //! 3) put_msg_hdr and get_msg_hdr
+    //! 4) put_msg_data and get_msg_data
+    //!
+    //!
+    //! To place the message above into a 5 byte payload, the following
+    //! code may be used...
+    //!
+    //!
+    //!   UInt8 payload[5];
+    //!   put_src_unit(4, payload);
+    //!   put_dst_unit(6, payload);
+    //!   put_msg_hdr(ONA_COMMAND | ONA_SWITCH, payload);
+    //!   put_msg_data(ONA_ON, payload);
+    //!
+    //!
+    //!   The message classes are shifted 12 bits precisely so that the "OR"
+    //!   operator will work as above.  ONA_COMMAND is defined as 0x5000, that
+    //!   is 5 followed by 12 empty bits.  ONA_SWITCH is 0x000, which is
+    //!   exactly 12 bits long.  Thus the message class and message type do
+    //!   not overlap and the message class is shifted in such a way that the
+    //!   | ("OR") operator can be used.
+    //!
+    //!
+    //!   The "get" functions work in precisely the reverse order, so they
+    //!   take a five byte payload and parse it.
+    //!
+    //!
+    //!   This 5-byte payload is specified in the ONE-NET specification and
+    //!   should be used whenever for all "ON_APP_MSG" messages.  Users can send
+    //!   5-byte payloads which do not follow this layout, but they must not
+    //!   specify "ON_APP_MSG" when creating the message.
+
+    
+    
+    //! Index of header within single packet payload (header is message
+    //! class and message type
+    ONA_MSG_FIRST_IDX      = 0,
+    ONA_MSG_SECOND_IDX     = 3,
+    ONA_MSG_THIRD_IDX      = 4,
+
+    ONA_MSG_SRC_UNIT_IDX   = ONA_MSG_FIRST_IDX, // Where the byte is
+    ONA_MSG_SRC_UNIT_MASK  = 0xf0,  // Where the bits are in the byte
+    ONA_MSG_SRC_UNIT_SHIFT = 4,     // Shift left this much to put them in
+
+    ONA_MSG_DST_UNIT_IDX   = ONA_MSG_FIRST_IDX,     // Where the byte is
+    ONA_MSG_DST_UNIT_MASK  = 0x0f,  // Where the bits are in the byte
+    ONA_MSG_DST_UNIT_SHIFT = 0,     // Shift left this much to put them in
+
+    // Header now follows src/dst addresses
+    ONA_MSG_HDR_IDX = 1,
+
+    //! Length of the header within single packet payload
+    ONA_MSG_HDR_LEN = 2,
+
+    //! Index of Message Data within payload
+    ONA_MSG_DATA_IDX = ONA_MSG_SECOND_IDX,
+
+    //! Length of Message Data
+    ONA_MSG_DATA_LEN = 2,
+
+    ONA_MSG_NUM_BYTES = 3, // three of the five bites are msg stuff
+};
+
+
 //! constants dealing with the raw payload of a data packet (i.e. does not
 //! include nonces, crc, or nack reason.
 enum
