@@ -62,9 +62,17 @@ const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
     {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
 };
 
+//! The encoded CLIENT DIDs for auto mode
+const on_encoded_did_t ENC_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
+{
+    {0xB4, 0xB3}, {0xB4, 0xBA}, {0xB4, 0xB5}
+};
+#endif
+
+
 //! The default keep alive for Eval Boards
 const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000;
-#endif
+
 
 //! The key used in the evaluation network ("protected")
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
