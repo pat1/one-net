@@ -147,7 +147,7 @@ void init_auto_client(UInt8 index)
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = THIS_DEVICE_FEATURES;
     one_net_memmove(master->device.did, MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
-    client_joined_network = TRUE;
+    one_net_client_init(NULL, 0);
 } // init_auto_client //
 #endif
 

@@ -145,7 +145,7 @@ static BOOL mh_repeater_available = FALSE;
 
 
 
-static void init_internal(void);
+static one_net_status_t init_internal(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 static void sort_client_list_by_encoded_did(void);
@@ -208,7 +208,7 @@ one_net_status_t one_net_master_create_network(
     parameters.
 
     \param[in] PARAM The parameters (or part) that were saved.  If NULL, then
-                     the caller has already initialized things.
+                     the caller has already initialized the base memory.
     \param[in] PARAM_LEN The size in bytes of the parameters being loaded.
 
     \return ONS_SUCCESS If loading all of the parameters have completed
@@ -224,6 +224,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN)
 {
     UInt8 i;
+    one_net_status_t status;
     
     if(PARAM != NULL)
     {
@@ -241,7 +242,11 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
         } // if a mh repeater capable CLIENT was found //
     } // loop to look for any Multi-Hop repeaters //
     
-    init_internal();
+    if((status = init_internal()) != ONS_SUCCESS)
+    {
+        return status;
+    } // if initializing the internals failed //
+    
     on_state = ON_LISTEN_FOR_DATA;
    
     return ONS_SUCCESS;
@@ -390,6 +395,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+
+
 /*!
     \brief Initializes internal data structures.
 
@@ -397,13 +404,14 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     \param void
 
-    \return void
+    \return ONS_SUCCESS upon success.
 */
-static void init_internal(void)
+static one_net_status_t init_internal(void)
 {
     // TODO -- assign packet handling functions here.
     device_is_master = TRUE;
     one_net_init();
+    return ONS_SUCCESS;
 } // init_internal //
 
 

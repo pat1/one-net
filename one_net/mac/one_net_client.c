@@ -147,6 +147,7 @@ on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
+static one_net_status_t init_internal(void);
 
 
 //! @} ONE-NET_CLIENT_pri_func
@@ -223,7 +224,8 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
     If the CLIENT has not yet joined a network, one_net_client_look_for_invite
     needs to be called instead of this function.
 
-    \param[in] PARAM The parameters that were saved to non-volatile memory.
+    \param[in] PARAM The parameters (or part) that were saved.  If NULL, then
+                     the caller has already initialized the base memory.
     \param[in] PARAM_LEN The sizeof PARAM in bytes.
 
     \return ONS_SUCCESS If initializing the CLIENT was successful
@@ -232,6 +234,27 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 one_net_status_t one_net_client_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN)
 {
+    one_net_status_t status;
+    
+    if(PARAM != NULL)
+    {
+        // code here to initalize things from PARAM and PARAM_LEN
+    }
+
+    if(!(master->flags & ON_JOINED))
+    {
+        return ONS_NOT_JOINED;
+    } // if not connected //
+
+    if((status = init_internal()) != ONS_SUCCESS)
+    {
+        return status;
+    } // if initializing the internals failed //
+
+    on_state = ON_LISTEN_FOR_DATA;
+    client_joined_network = TRUE;
+	client_looking_for_invite = FALSE;
+   
     return ONS_SUCCESS;
 } // one_net_client_init //
 
@@ -274,6 +297,9 @@ tick_t one_net_client(void)
 */
 static one_net_status_t init_internal(void)
 {
+    // TODO -- assign packet handling functions here.
+    device_is_master = TRUE;
+    one_net_init();
     return ONS_SUCCESS;
 } // init_internal //
 
