@@ -65,13 +65,17 @@
 //==============================================================================
 
 //==============================================================================
-//                              PRIVATE VARIABLES
-//! \defgroup ONE-NET_APP_pri_var
+//                              PUBLIC VARIABLES
+//! \defgroup ONE-NET_APP_pub_var
 //! \ingroup ONE-NET_APP
 //! @{
 
-//! @} ONE-NET_APP_pri_var
-//                              PRIVATE VARIABLES END
+
+one_net_send_single_func_t one_net_send_single;
+
+
+//! @} ONE-NET_APP_pub_var
+//                              PUBLIC VARIABLES END
 //==============================================================================
 
 //==============================================================================

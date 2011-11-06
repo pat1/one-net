@@ -157,6 +157,22 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
 
+static one_net_status_t one_net_client_send_single(UInt8 pid,
+  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
+  const on_encoded_did_t* const src_did,
+  const on_encoded_did_t* const enc_dst
+  #ifdef _PEER
+      , BOOL send_to_peer_list,
+      UInt8 src_unit
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , tick_t* send_time_from_now
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , tick_t* expire_time_from_now
+  #endif
+  );
+
 
 //! @} ONE-NET_CLIENT_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -333,6 +349,7 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_data_hdlr = &on_client_single_data_hdlr;
     pkt_hdlr.single_ack_nack_hdlr = &on_client_handle_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
+    one_net_send_single = &one_net_client_send_single;
     device_is_master = FALSE;
     one_net_init();
     return ONS_SUCCESS;
@@ -425,6 +442,52 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 
     return &(sending_dev_list[match_idx].sender);
 } // sender_info //
+
+
+/*!
+    \brief Sends a single data message.
+    
+    The message is either sent to the peer list or only to the specific device
+    that is passed in.
+    
+    \param[in] pid The pid of the message.
+    \param[in] msg_type The message type of the message(admin, application, etc.)
+    \param[in] data The data to send.
+    \param[in] data_len The length of DATA (in bytes).
+    \param[in] priority The priority of the transaction.
+    \param[in] src_did The source of the message (if NULL, the source will be
+      assumed to be this device).
+    \param[in] enc_dst The device the message is destined for.  This can be
+      NULL if the message is to be sent to the peer list.
+    \param[in] send_to_peer_list If true, the message will be sent to.
+    \param[in] src_unit The unit that the message originated from.  Relevant
+      only if sending to the peer list.
+	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
+	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
+    
+    \return ONS_SUCCESS If the single data has been queued successfully.
+            ONS_BAD_PARAM If the parameters are invalid.
+            ONS_RSRC_FULL If no resources are currently available to handle the
+              request.
+*/
+static one_net_status_t one_net_client_send_single(UInt8 pid,
+  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
+  const on_encoded_did_t* const src_did,
+  const on_encoded_did_t* const enc_dst
+  #ifdef _PEER
+      , BOOL send_to_peer_list,
+      UInt8 src_unit
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , tick_t* send_time_from_now
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , tick_t* expire_time_from_now
+  #endif
+  )
+{
+    return ONS_SUCCESS;
+}
 
 
 

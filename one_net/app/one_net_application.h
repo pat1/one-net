@@ -315,10 +315,10 @@ typedef enum
 //! Send Function
 typedef one_net_status_t (*one_net_send_single_func_t)(UInt8 pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const raw_dst
+  const on_encoded_did_t* const src_did,
+  const on_encoded_did_t* const enc_dst
   #ifdef _PEER
-      , const on_encoded_did_t* const repeater_did,
-      BOOL send_to_peer_list,
+      , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -340,6 +340,10 @@ typedef one_net_status_t (*one_net_send_single_func_t)(UInt8 pid,
 //! \defgroup ONE-NET_APP_pub_var
 //! \ingroup ONE-NET_APP
 //! @{
+
+
+extern one_net_send_single_func_t one_net_send_single;
+
 
 //! @} ONE-NET_APP_pub_var
 //                              PUBLIC VARIABLES END
