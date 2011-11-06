@@ -17,10 +17,13 @@
 #include "one_net.h"
 #include "one_net_master.h"
 #include "one_net_application.h"
+#include "one_net_timer.h"
 #include "tick.h"
 #include "nv_hal.h"
+#include "hal.h"
 #include "one_net_eval.h"
 #include "one_net_encode.h"
+#include "one_net_port_specific.h"
 
 
 //=============================================================================
@@ -224,6 +227,9 @@ void init_auto_master(void)
     }
     
     one_net_master_init(NULL, 0);
+    
+    // initialize timer for auto mode to send right away
+    ont_set_timer(AUTO_MODE_TIMER, 0);
 } // init_auto_master //
 #endif
 
@@ -364,6 +370,30 @@ static void init_base_param(on_base_param_t* base_param)
 */
 static void send_auto_msg(void)
 {
+    if(oncli_user_input())
+    {
+        ont_set_timer(AUTO_MODE_TIMER, MS_TO_TICK(AUTO_MANUAL_DELAY));
+        return;
+    } // if there is user input //
+
+    if(ont_expired(AUTO_MODE_TIMER))
+    {
+        UInt8 i;
+        on_encoded_did_t* src_did = (on_encoded_did_t*)
+          (&(on_base_param->sid[ON_ENCODED_NID_LEN]));
+        
+        UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+        
+        // each client gets a different text message
+        char* auto_messages[NUM_AUTO_CLIENTS] = {"11", "22", "33"};
+
+        for(i = 0; i < NUM_AUTO_CLIENTS; i++)
+        {
+            send_simple_text_command(auto_messages[i], ONE_NET_DEV_UNIT,
+              ONE_NET_DEV_UNIT, &ENC_AUTO_CLIENT_DID[i]);
+        }
+        ont_set_timer(AUTO_MODE_TIMER, MS_TO_TICK(AUTO_INTERVAL));
+    } // if the timer has expired //
 } // send_auto_msg //
 #endif
 
