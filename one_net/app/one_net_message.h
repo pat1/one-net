@@ -182,8 +182,8 @@ typedef struct
     UInt8 msg_type;
     UInt8* payload;
     UInt8 payload_size;
+	on_encoded_did_t src_did;
     #ifdef _PEER
-	on_encoded_did_t repeater_did;
 	BOOL send_to_peer_list;
     UInt8 src_unit;
     #endif
