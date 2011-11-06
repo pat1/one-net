@@ -290,6 +290,13 @@ on_message_status_t eval_handle_ack_nack_response(
 
 
 
+#ifdef _AUTO_MODE
+one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
+  UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
+#endif
+
+
+
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //=============================================================================
