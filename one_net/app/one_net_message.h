@@ -178,12 +178,12 @@ typedef struct
 {
     UInt8 pid; 
     UInt8 priority;   
-	on_raw_did_t raw_dst;
+	on_encoded_did_t raw_dst;
     UInt8 msg_type;
     UInt8* payload;
     UInt8 payload_size;
     #ifdef _PEER
-	on_raw_did_t repeater_did;
+	on_encoded_did_t repeater_did;
 	BOOL send_to_peer_list;
     UInt8 src_unit;
     #endif
