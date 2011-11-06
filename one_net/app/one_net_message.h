@@ -183,8 +183,9 @@ typedef struct
     UInt8* payload;
     UInt8 payload_size;
     #ifdef _PEER
+	on_raw_did_t repeater_did;
 	BOOL send_to_peer_list;
-    UInt8 src_unit; // relevant only if sending to peer list.
+    UInt8 src_unit;
     #endif
     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 	tick_t send_time;
