@@ -308,6 +308,27 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 }
 
 
+#ifndef _ONE_NET_MULTI_HOP
+on_message_status_t eval_handle_ack_nack_response(
+  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
+  const on_msg_hdr_t* const resp_msg_hdr,
+  on_ack_nack_t* const resp_ack_nack,
+  const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, UInt8* const retries)
+#else
+on_message_status_t eval_handle_ack_nack_response(
+  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
+  const on_msg_hdr_t* const resp_msg_hdr,
+  on_ack_nack_t* const resp_ack_nack,
+  const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, UInt8* const retries,
+  UInt8 hops, UInt8* const max_hops)
+#endif
+{
+    return ON_MSG_CONTINUE;
+}
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
