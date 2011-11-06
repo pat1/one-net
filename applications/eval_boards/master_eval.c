@@ -222,6 +222,8 @@ void init_auto_master(void)
         client_list[i].use_current_stream_key = TRUE;
         #endif
     }
+    
+    one_net_master_init(NULL, 0);
 } // init_auto_master //
 #endif
 
