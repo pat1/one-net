@@ -117,6 +117,7 @@ extern BOOL echo_on;
 //! @{
 
 
+BOOL oncli_user_input(void);
 void oncli_send_msg(const char * const FMT, ...);
 void oncli(void);
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);

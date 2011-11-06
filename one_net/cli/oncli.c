@@ -153,6 +153,21 @@ static void print_cmd_result(const char * const CMD,
 //! @{
 
 
+
+/*!
+    \brief Returns TRUE if there is user input.
+    
+    \param void
+    
+    \return TRUE if there is user input
+            FALSE if there is no user input
+*/
+BOOL oncli_user_input(void)
+{
+    return (BOOL)input_len;
+} // oncli_user_input //
+
+
 /*!
     \brief Formats a channel in a string format that shows the region.
     
