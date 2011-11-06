@@ -287,7 +287,10 @@ void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
 oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did)
 {
     on_raw_did_t raw_did;
-    on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN);
+    if(on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_CMD_FAIL;
+    }
     oncli_send_msg("DID: 0x%03X", did_to_u16(&raw_did));
     return ONCLI_SUCCESS;
 } // oncli_print_did //
@@ -304,8 +307,12 @@ oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
 {
     on_raw_nid_t raw_nid;
     UInt8 i, nibble;
-    
-    on_decode(raw_nid, *enc_sid, ON_ENCODED_NID_LEN);
+
+    // first extract the nid portion and decode it.
+    if(on_decode(raw_nid, *enc_sid, ON_ENCODED_NID_LEN) != ONCLI_SUCCESS)
+    {
+        return ONCLI_CMD_FAIL;
+    }
 
     oncli_send_msg("NID: 0x");
     for (i = 0; i < ON_RAW_NID_LEN; i++)
@@ -326,7 +333,13 @@ oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
         }
     }
     oncli_send_msg("\n");
-    oncli_print_did((on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])));
+
+    if(oncli_print_did((on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])))
+      != ONCLI_SUCCESS)
+    {
+        return ONCLI_CMD_FAIL;
+    }
+
     oncli_send_msg("\n");
     return ONCLI_SUCCESS;
 } // oncli_print_sid //
