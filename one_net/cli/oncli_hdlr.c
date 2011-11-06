@@ -428,7 +428,11 @@ static oncli_status_t list_cmd_hdlr(void)
 		#endif
         oncli_send_msg("\n");
         // print the NID and the DID
-        oncli_print_sid(&(on_base_param->sid));
+        if(oncli_print_sid((on_encoded_sid_t*)(on_base_param->sid)) !=
+          ONCLI_SUCCESS)
+        {
+            return ONCLI_CMD_FAIL;
+        }
 	}
     
     oncli_send_msg("\n\nDevice Features...\n");
