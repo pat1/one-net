@@ -405,8 +405,24 @@ static oncli_status_t list_cmd_hdlr(void)
         oncli_print_sid(&(on_base_param->sid));
 	}
     
-    oncli_send_msg("\n\nFeatures...\n");
+    oncli_send_msg("\n\nDevice Features...\n");
     oncli_print_features(on_base_param->features);
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master && !client_joined_network)
+    {
+        oncli_send_msg("\n\nCLIENT : Not Joined\n\n");
+        return ONCLI_SUCCESS;
+    }
+    #endif
+    
+    #ifdef _ONE_NET_MASTER
+    if(on_state == ON_JOIN_NETWORK || on_state == ON_INIT_STATE)
+    {
+        oncli_send_msg("\n\nMASTER : Initializing\n\n");
+        return ONCLI_SUCCESS;        
+    }
+    #endif
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
