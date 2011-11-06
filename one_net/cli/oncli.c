@@ -41,6 +41,7 @@
 
 
 #include "oncli.h"
+#include "one_net.h"
 #include "one_net_encode.h"
 #include "oncli_str.h"
 #include "one_net_types.h"
@@ -365,6 +366,46 @@ oncli_status_t oncli_print_features(on_features_t features)
     
     return ONCLI_SUCCESS;
 } // oncli_print_features //
+
+
+/*!
+    \brief Prints the current channel
+        
+    \return ONCLI_SUCCESS If the channel was successfully output.
+    \return ONCLI_CMD_FAIL If the cahnnel is invalid.
+*/
+oncli_status_t oncli_print_channel(void)
+{
+    #ifdef _US_CHANNELS
+    if((SInt8)on_base_param->channel >= ONE_NET_MIN_US_CHANNEL &&
+      on_base_param->channel <= ONE_NET_MAX_US_CHANNEL)
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR,
+          on_base_param->channel - ONE_NET_MIN_US_CHANNEL + 1);
+    } // if a US channel //
+    #endif
+    #ifdef _EUROPE_CHANNELS
+    #ifdef _US_CHANNELS
+    else if(on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
+      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
+    #else
+    if((SInt8) on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
+      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
+    #endif
+    #endif
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR,
+          on_base_param->channel - ONE_NET_MIN_EUR_CHANNEL + 1);
+    } // else if a European channel //
+    else
+    {
+        return ONCLI_CMD_FAIL;
+    } // else the channel is not selected //
+
+    return ONCLI_SUCCESS;    
+}
 
 
 /*!

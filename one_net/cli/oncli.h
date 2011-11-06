@@ -129,6 +129,7 @@ oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did);
 oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid);
 oncli_status_t oncli_print_data_rates(on_features_t features);
 oncli_status_t oncli_print_features(on_features_t features);
+oncli_status_t oncli_print_channel(void);
 
 
 

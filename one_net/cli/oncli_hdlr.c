@@ -373,6 +373,8 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 */
 static oncli_status_t list_cmd_hdlr(void)
 {
+    oncli_status_t status;
+    
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
       ONE_NET_VERSION_MINOR);
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
@@ -417,12 +419,31 @@ static oncli_status_t list_cmd_hdlr(void)
     #endif
     
     #ifdef _ONE_NET_MASTER
-    if(on_state == ON_JOIN_NETWORK || on_state == ON_INIT_STATE)
+    if(device_is_master && (on_state == ON_JOIN_NETWORK ||
+      on_state == ON_INIT_STATE))
     {
         oncli_send_msg("\n\nMASTER : Initializing\n\n");
         return ONCLI_SUCCESS;        
     }
     #endif
+    
+    // print channel
+    oncli_send_msg("\n\nChannel: ");
+    if((status = oncli_print_channel()) != ONCLI_SUCCESS)
+    {
+        return status;
+    }
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        oncli_send_msg("\n\nSend To Master: %s\n\n", master->flags &
+          ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+        oncli_send_msg("\n\nMaster Features...\n\n");
+        oncli_print_features(master->device.features);
+    }
+    #endif
+
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
