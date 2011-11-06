@@ -180,6 +180,27 @@ UInt8 * one_net_client_get_invite_key(void)
 }
 
 
+#ifndef _ONE_NET_MULTI_HOP
+on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
+  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
+#else
+on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
+  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
+  UInt8 hops, UInt8* const max_hops)
+#endif
+{
+#ifndef _ONE_NET_MULTI_HOP
+    return eval_handle_single(raw_pld, msg_hdr, src_did, repeater_did,
+      ack_nack);
+#else
+    return eval_handle_single(raw_pld, msg_hdr, src_did, repeater_did,
+      ack_nack, hops, max_hops);
+#endif
+}
+
+
 
 //! @} ONE-NET_client_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

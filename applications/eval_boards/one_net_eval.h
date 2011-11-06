@@ -16,6 +16,7 @@
 
 #include "one_net_application.h"
 #include "one_net_port_const.h"
+#include "one_net_acknowledge.h"
 
 
 //=============================================================================
@@ -123,6 +124,62 @@ void init_auto_master(void);
 void init_auto_client(UInt8 index);
 #endif
 #endif
+
+
+/*!
+    \brief Handles the received single packet.
+	
+    \param[in] raw_pld the raw single payload.  Note that ack_nack.ayload below
+      also points to this parameter, so the memory can be changed.  Therefore,
+      if the application code needs this payload to NOT change after sending
+      a response, it must copy it.
+    \param[in/out] msg_hdr of packet / response -- only the pid portion of
+      this parameter should be changed.  The message type is irrelevant for
+      a response message (the equivalent of a "message type" can be specified
+      in the "handle" portion of the "ack_nack" parameter below.  The message
+      id should not be changed.  The pid should be changed to the type of ACK
+      or NACK that should be sent.
+	\param[in] src_did the raw address of the source
+	\param[in] repeater_did the raw address of the repeater, if any.  This will
+               always equal the source id if 1) this is not a multi-hop message
+               and 2) this is not a "forwarded" message by either the peer
+               manager or the application code.  Most applications will ignore
+               this parameter.
+	\param[out] ack_nack: Contains three parts...
+                  nack_reason... if nacking, the reason for the NACK.  Irrelevant for ACKs
+	            handle... if including a payload, how the payload should be parsed.
+                  For example, if this is a ffast query or command response that contains
+                  a status message, the handle should be set to ON_ACK_STATUS.
+                  If the message contains a time, this should be set to
+                  ON_ACK_TIME_MS or ON_NACK_MS.  If the message contains an
+                  application-specific value, this should be set to ON_ACK_VALUE
+                  or ON_NACK_VALUE.  If simply sending an ACK or a NACK without
+                  any payload, this parameter can be ignored.
+                payload...
+                  The "payload" of the NACK or ACK.  Irrelevant if the handle
+                  is not set.  Note that this also points to raw_pld to save
+                  space.
+    \param[in] hops the number of hops it took to get here.  Can be ignored by
+                    most applications.
+    \param[in/out] max_hops in --> the maximum number of hops that was set for the message
+	                        out --> the maximum number of hops to use for a response.  Can
+                                    generally be ignored if you want the maximum number of
+                                    hops to remain unchanged.
+                 
+    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+*/
+#ifndef _ONE_NET_MULTI_HOP
+on_message_status_t eval_handle_single(const UInt8* const raw_pld,
+  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
+#else
+on_message_status_t eval_handle_single(const UInt8* const raw_pld,
+  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
+  UInt8 hops, UInt8* const max_hops);
+#endif
+
 
 
 //! @} ONE-NET_eval_pub_func
