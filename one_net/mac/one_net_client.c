@@ -138,13 +138,21 @@ on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
 
 
-
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_CLIENT_pri_func
 //! \ingroup ONE-NET_CLIENT
 //! @{
 
+
+
+// packet handlers
+static on_message_status_t on_client_single_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt); 
+static on_message_status_t on_client_handle_ack_nack_response(on_txn_t** txn,
+  on_pkt_t* const pkt, on_ack_nack_t* ack_nack);
+static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt, const on_message_status_t status);
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
@@ -285,6 +293,31 @@ tick_t one_net_client(void)
 
 
 
+// TODO -- document
+static on_message_status_t on_client_single_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt)
+{
+    return ON_MSG_CONTINUE;
+}
+ 
+  
+// TODO -- document  
+static on_message_status_t on_client_handle_ack_nack_response(on_txn_t** txn,
+  on_pkt_t* const pkt, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+  
+
+// TODO -- document 
+static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt, const on_message_status_t status)
+{
+    return ON_MSG_CONTINUE;
+}
+
+
+
 /*!
     \brief Initializes internal data structures.
 
@@ -297,8 +330,10 @@ tick_t one_net_client(void)
 */
 static one_net_status_t init_internal(void)
 {
-    // TODO -- assign packet handling functions here.
-    device_is_master = TRUE;
+    pkt_hdlr.single_data_hdlr = &on_client_single_data_hdlr;
+    pkt_hdlr.single_ack_nack_hdlr = &on_client_handle_ack_nack_response;
+    pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
+    device_is_master = FALSE;
     one_net_init();
     return ONS_SUCCESS;
 } // init_internal //

@@ -145,6 +145,14 @@ static BOOL mh_repeater_available = FALSE;
 
 
 
+// packet handlers
+static on_message_status_t on_master_single_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt); 
+static on_message_status_t on_master_handle_ack_nack_response(on_txn_t** txn,
+  on_pkt_t* const pkt, on_ack_nack_t* ack_nack);
+static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt, const on_message_status_t status);
+
 static one_net_status_t init_internal(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
@@ -397,6 +405,30 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
 
 
+// TODO -- document
+static on_message_status_t on_master_single_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt)
+{
+    return ON_MSG_CONTINUE;
+}
+ 
+  
+// TODO -- document  
+static on_message_status_t on_master_handle_ack_nack_response(on_txn_t** txn,
+  on_pkt_t* const pkt, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+  
+
+// TODO -- document 
+static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt, const on_message_status_t status)
+{
+    return ON_MSG_CONTINUE;
+}
+
+
 /*!
     \brief Initializes internal data structures.
 
@@ -408,7 +440,9 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 */
 static one_net_status_t init_internal(void)
 {
-    // TODO -- assign packet handling functions here.
+    pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
+    pkt_hdlr.single_ack_nack_hdlr = &on_master_handle_ack_nack_response;
+    pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
     device_is_master = TRUE;
     one_net_init();
     return ONS_SUCCESS;
