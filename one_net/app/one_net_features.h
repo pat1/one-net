@@ -121,7 +121,7 @@ enum
         #ifdef _BLOCK_MESSAGES_ENABLED
             + ON_BLOCK_FEATURE_MASK
         #endif        
-        #ifdef _ONE_NET_MUULTI_HOP
+        #ifdef _ONE_NET_MULTI_HOP
             + ON_MH_FEATURE_MASK
         #endif
         #ifdef _ONE_NET_MH_CLIENT_REPEATER
