@@ -57,6 +57,7 @@
 #endif
 #ifdef _ONE_NET_MASTER
 #include "one_net_master_port_specific.h"
+#include "one_net_master.h"
 #endif
 
 
@@ -374,6 +375,7 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 static oncli_status_t list_cmd_hdlr(void)
 {
     oncli_status_t status;
+    UInt8 i;
     
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
       ONE_NET_VERSION_MINOR);
@@ -441,6 +443,24 @@ static oncli_status_t list_cmd_hdlr(void)
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
         oncli_send_msg("\n\nMaster Features...\n\n");
         oncli_print_features(master->device.features);
+    }
+    #endif
+    
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        // print the client list
+        oncli_send_msg("Client count: %d\n", master_param->client_count);
+        for (i = 0; i < master_param->client_count; i++)
+        {
+            on_client_t* client = &client_list[i];
+            oncli_send_msg("\n\n\n  Client %d : ", i + 1);
+            oncli_print_did(&(client->device_send_info.did));
+            oncli_send_msg("\n");
+            oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
+              client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+            oncli_print_features(client->device_send_info.features);
+        }
     }
     #endif
 
