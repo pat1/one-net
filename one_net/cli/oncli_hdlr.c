@@ -486,7 +486,7 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     #endif
 
-
+    oncli_print_user_pin_cfg();
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //
 #endif

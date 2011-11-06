@@ -176,6 +176,17 @@ void oncli_print_prompt(void);
 oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
 
 
+/*!
+      \brief Print the current configuration of the user pins.
+ 
+      For each user pin, print the pin number and whether it is 
+      configured as an input, an output, or disabled.
+
+      \return void
+*/
+void oncli_print_user_pin_cfg(void);
+
+
 
 //! @} oncli_port_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END

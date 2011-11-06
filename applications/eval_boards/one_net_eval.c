@@ -402,6 +402,68 @@ oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type)
 } // oncli_set_user_pin_type //
 
 
+void oncli_print_user_pin_cfg(void)
+{
+    UInt8 i;
+    UInt8 state;
+    const UInt8 * type_string;
+
+    oncli_send_msg("User pins:\n");
+    for(i = 0; i < NUM_USER_PINS; i++)
+    {
+        //
+        // collect the state of the user pin, so we can print it
+        //
+        switch (i)
+        {
+            case 0:
+            {
+                state = USER_PIN0;
+                break;
+            }
+
+            case 1:
+            {
+                state = USER_PIN1;
+                break;
+            }
+
+            case 2:
+            {
+                state = USER_PIN2;
+                break;
+            }
+
+            case 3:
+            {
+                state = USER_PIN3;
+                break;
+            }
+
+            default:
+            {
+                state = 3;
+            }
+        }
+        type_string = ONCLI_DISABLE_STR;
+        if (user_pin[i].pin_type == ON_INPUT_PIN)
+        {
+            type_string = ONCLI_INPUT_STR;
+            oncli_send_msg("  %d %s state: %d\n", i, type_string, state); 
+        }
+        else if (user_pin[i].pin_type == ON_OUTPUT_PIN)
+        {
+            type_string = ONCLI_OUTPUT_STR;
+            oncli_send_msg("  %d %s state: %d\n", i, type_string, state); 
+        }
+        else
+        {
+            oncli_send_msg("  %d %s\n", i, type_string); 
+        }
+    }
+} // oncli_print_user_pin_cfg //
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
