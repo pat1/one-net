@@ -400,10 +400,13 @@ static oncli_status_t list_cmd_hdlr(void)
 	    oncli_print_xtea_key(&(on_base_param->stream_key));			
         oncli_send_msg("\n");
 		#endif
-        
+        oncli_send_msg("\n");
         // print the NID and the DID
         oncli_print_sid(&(on_base_param->sid));
 	}
+    
+    oncli_send_msg("\n\nFeatures...\n");
+    oncli_print_features(on_base_param->features);
 
     return ONCLI_SUCCESS;
 } // list_cmd_hdlr //

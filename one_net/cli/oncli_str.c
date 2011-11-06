@@ -276,6 +276,9 @@ const char* const DATA_RATE_STR[ONE_NET_DATA_RATE_LIMIT] =
 
 const char* const CAPABLE_STR = "Capable";
 const char* const NOT_CAPABLE_STR = "Not Capable";
+const char* const TRUE_STR = "True";
+const char* const FALSE_STR = "False";
+
   
   
   

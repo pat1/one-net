@@ -187,6 +187,8 @@ extern const char* const DATA_RATE_STR[];
 
 extern const char* const CAPABLE_STR;
 extern const char* const NOT_CAPABLE_STR;
+extern const char* const TRUE_STR;
+extern const char* const FALSE_STR;
 
 
 

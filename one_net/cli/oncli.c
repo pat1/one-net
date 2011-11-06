@@ -338,6 +338,36 @@ oncli_status_t oncli_print_data_rates(on_features_t features)
 
 
 /*!
+    \brief Prints the features / capabilities of a device
+    
+    \param[in] features the features the device supports.
+        
+    \return ONCLI_SUCCESS If the features were successfully output.
+*/
+oncli_status_t oncli_print_features(on_features_t features)
+{
+    oncli_send_msg("Max Hops : %d\n", features_max_hops(features));
+    oncli_send_msg("Max Peers : %d\n", features_max_peers(features));
+    oncli_send_msg("Multi-Hop : %s\n", features_mh_capable(features) ?
+      CAPABLE_STR : NOT_CAPABLE_STR);
+    oncli_send_msg("Multi-Hop Repeat : %s\n",
+      features_mh_repeat_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
+    oncli_send_msg("Block : %s\n",
+      features_block_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
+    oncli_send_msg("Stream : %s\n",
+      features_stream_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
+    oncli_send_msg("Device Sleeps : %s\n",
+      features_device_sleeps(features) ? TRUE_STR : FALSE_STR);
+    oncli_send_msg("ACK / NACK Level : %d\n",
+      features_ack_nack_level(features));
+    oncli_send_msg("\n\nData Rates...\n\n");
+    oncli_print_data_rates(features);
+    
+    return ONCLI_SUCCESS;
+} // oncli_print_features //
+
+
+/*!
     \brief Sends a message out of the serial port.
     
     The std library provided by Renesas does not provide output functions that
