@@ -605,7 +605,7 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
 {
     // source is this device
     on_encoded_did_t* src_did = (on_encoded_did_t*)
-      (&(on_base_param->sid[ON_ENCODED_DID_LEN]));    
+      (&(on_base_param->sid[ON_ENCODED_NID_LEN]));    
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
 
     put_src_unit(src_unit, raw_pld);
