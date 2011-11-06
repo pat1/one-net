@@ -113,37 +113,37 @@ UInt8 features_max_peers(on_features_t features)
 
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 {
-    return (((features.data_rates >> data_rate) & 0x01) == 1);
+    return (((features.data_rates >> data_rate) & 0x01) != 0);
 }
 
 
 BOOL features_peer_capable(on_features_t features)
 {
-    return ((features.feature_flags & ON_PEER_FEATURE_MASK) == 1);
+    return ((features.feature_flags & ON_PEER_FEATURE_MASK) != 0);
 }
 
 
 BOOL features_mh_capable(on_features_t features)
 {
-    return ((features.feature_flags & ON_MH_FEATURE_MASK) == 1);
+    return ((features.feature_flags & ON_MH_FEATURE_MASK) != 0);
 }
 
 
 BOOL features_mh_repeat_capable(on_features_t features)
 {
-    return ((features.feature_flags & ON_MH_REPEATER_FEATURE_MASK) == 1);
+    return ((features.feature_flags & ON_MH_REPEATER_FEATURE_MASK) != 0);
 }
 
 
 BOOL features_block_capable(on_features_t features)
 {
-    return ((features.feature_flags & ON_BLOCK_FEATURE_MASK) == 1);
+    return ((features.feature_flags & ON_BLOCK_FEATURE_MASK) != 0);
 }
 
 
 BOOL features_stream_capable(on_features_t features)
 {
-    return ((features.feature_flags & ON_STREAM_FEATURE_MASK) == 1);
+    return ((features.feature_flags & ON_STREAM_FEATURE_MASK) != 0);
 }
 
 
