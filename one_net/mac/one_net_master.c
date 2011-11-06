@@ -207,7 +207,8 @@ one_net_status_t one_net_master_create_network(
     subset of the parameters.  The calls must preserve the byte order of the
     parameters.
 
-    \param[in] PARAM The parameters (or part) that were saved.
+    \param[in] PARAM The parameters (or part) that were saved.  If NULL, then
+                     the caller has already initialized things.
     \param[in] PARAM_LEN The size in bytes of the parameters being loaded.
 
     \return ONS_SUCCESS If loading all of the parameters have completed
@@ -222,6 +223,27 @@ one_net_status_t one_net_master_create_network(
 one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN)
 {
+    UInt8 i;
+    
+    if(PARAM != NULL)
+    {
+        // code here to initalize things from PARAM and PARAM_LEN
+    }
+    
+    // check for repeater
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(features_mh_repeat_capable(
+          client_list[i].device_send_info.features))
+        {
+            mh_repeater_available = TRUE;
+            break;
+        } // if a mh repeater capable CLIENT was found //
+    } // loop to look for any Multi-Hop repeaters //
+    
+    init_internal();
+    on_state = ON_LISTEN_FOR_DATA;
+   
     return ONS_SUCCESS;
 } // one_net_master_init //
 
@@ -379,6 +401,9 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 */
 static void init_internal(void)
 {
+    // TODO -- assign packet handling functions here.
+    device_is_master = TRUE;
+    one_net_init();
 } // init_internal //
 
 

@@ -498,6 +498,10 @@ extern one_net_startup_status_t startup_status;
 extern on_state_t on_state;
 
 
+//! The set of packet handlers
+extern on_pkt_hdlr_set_t pkt_hdlr;
+
+
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
@@ -513,6 +517,10 @@ extern on_state_t on_state;
 // address functions
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
+
+
+// initialization
+void one_net_init(void);
 
 
 //! the main function

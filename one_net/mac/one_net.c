@@ -109,6 +109,10 @@ UInt8 nv_param[NV_PARAM_SIZE_BYTES];
 on_base_param_t* const on_base_param = (on_base_param_t* const) nv_param;
 
 
+//! The set of packet handlers
+on_pkt_hdlr_set_t pkt_hdlr;
+
+
 //! location to store the encoded data for an ack/nack packet
 UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
@@ -231,7 +235,18 @@ BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
     } // if parameters are invalid //
 
     return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_DID_LEN) == 0);
-} // on_encoded_did_equal //    
+} // on_encoded_did_equal //
+
+
+/*!
+    \brief Initializes ONE-NET.
+
+    \return void
+*/
+void one_net_init(void)
+{
+    one_net_set_channel(on_base_param->channel);
+} // one_net_init //
     
 
 
