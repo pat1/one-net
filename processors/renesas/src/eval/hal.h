@@ -37,12 +37,14 @@
 */
 
 /*!
-    \file pal.h
+    \file hal.h
     \brief Contains common hardware declarations.  Implementation will be
         processor-specific and possibly hardware-specific.  Not all ports will
         implement all functions here.
 */
 
+
+#include "config_options.h"
 
 
 //==============================================================================
@@ -91,6 +93,21 @@
 //! \defgroup HAL_typedefs
 //! \ingroup HAL
 //! @{
+
+
+
+#ifdef _AUTO_MODE
+enum
+{
+    //! The interval in ms to automatically send data when in auto mode.
+    //! 1 second
+    AUTO_INTERVAL = 1000,
+
+    //! The timeout after a user switches the mode switch before the device
+    //! goes back to automatically sending commands (AUTO_INTERVAL). 20s
+    AUTO_MANUAL_DELAY = 20000,
+};
+#endif
 
 
 
