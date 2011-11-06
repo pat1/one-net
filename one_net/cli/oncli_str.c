@@ -151,6 +151,20 @@ const char * const ONCLI_SNIFF_CMD_STR = "sniff";
     const char * const ONCLI_SET_DATA_RATE_CMD_STR = "set data rate";
 #endif
 
+#ifdef _ENABLE_USER_PIN_COMMAND
+//! Command to enable or disable user pins
+const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
+
+//! input argument string
+const char * const ONCLI_INPUT_STR = "input";
+
+//! output argument string
+const char * const ONCLI_OUTPUT_STR = "output";
+
+//! disable argument string
+const char * const ONCLI_DISABLE_STR = "disable";
+#endif
+
 
 
 // Response Formats
@@ -278,6 +292,9 @@ const char* const CAPABLE_STR = "Capable";
 const char* const NOT_CAPABLE_STR = "Not Capable";
 const char* const TRUE_STR = "True";
 const char* const FALSE_STR = "False";
+
+
+
 
   
   

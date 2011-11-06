@@ -131,6 +131,10 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_USER_PIN_COMMAND
+	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 
 
 // Parsing functions.
@@ -288,6 +292,24 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the set data rate command was received //
+	#endif
+    
+	#ifdef _ENABLE_USER_PIN_COMMAND
+    if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
+      strlen(ONCLI_USER_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_USER_PIN_CMD_STR;
+        
+        if(CMD[strlen(ONCLI_USER_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+        
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &user_pin_cmd_hdlr;
+        
+        return ONCLI_SUCCESS;
+    } // else if the user pin command was received //
 	#endif
     
     else
@@ -593,6 +615,82 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 }
 #endif
 
+
+/*!
+    \brief Handles receiving the user pin command and all it's parameters.
+
+    \param[in] ASCII_PARAM_LIST ASCII parameter list.
+
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            See user_pin for more return values.
+*/
+#ifdef _ENABLE_USER_PIN_COMMAND
+static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+
+    char * end_ptr;
+
+    UInt8 pin;
+    UInt8 pin_type;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    if(!isdigit(*PARAM_PTR))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+    
+    // read in the pin
+    pin = (UInt8) one_net_strtol(PARAM_PTR, &end_ptr, 0);
+    if(!end_ptr || end_ptr == PARAM_PTR)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+    PARAM_PTR = end_ptr;
+
+    // check the delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // check the action
+    if(!strnicmp(PARAM_PTR, ONCLI_INPUT_STR, strlen(ONCLI_INPUT_STR)))
+    {
+        pin_type = ON_INPUT_PIN;
+        PARAM_PTR += strlen(ONCLI_INPUT_STR);
+    } // if it should be an input //
+    else if(!strnicmp(PARAM_PTR, ONCLI_OUTPUT_STR, strlen(ONCLI_OUTPUT_STR)))
+    {
+        pin_type = ON_OUTPUT_PIN;
+        PARAM_PTR += strlen(ONCLI_OUTPUT_STR);
+    } // else if it should be an output //
+    else if(!strnicmp(PARAM_PTR, ONCLI_DISABLE_STR, strlen(ONCLI_DISABLE_STR)))
+    {
+        pin_type = ON_DISABLE_PIN;
+        PARAM_PTR += strlen(ONCLI_DISABLE_STR);
+    } // else if it should be an output //
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else if the priority is invalid //
+
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+    
+    return oncli_set_user_pin_type(pin, pin_type);
+} // user_pin_cmd_hdlr //
+#endif
 
 
 

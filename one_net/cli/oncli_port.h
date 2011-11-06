@@ -54,6 +54,7 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
+#include "one_net_application.h"
 
 
 //==============================================================================
@@ -157,6 +158,22 @@ void oncli_print_prompt(void);
 #ifdef _SNIFFER_MODE
 	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL);
 #endif
+
+
+/*!
+    \brief Changes a user pin function.
+    
+    \param[in] pin The user pin number (between 1 & 255) to change.
+    \param[in] pin_type The functionality for the pin.  Input, output, or
+      disable -- see on_pin_state_t for options
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
 
 
 

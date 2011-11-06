@@ -16,6 +16,7 @@
 #include "one_net_constants.h"
 #include "one_net.h"
 #include "one_net_master.h"
+#include "one_net_application.h"
 #include "tick.h"
 #include "nv_hal.h"
 #include "one_net_eval.h"
@@ -107,7 +108,6 @@ extern BOOL in_auto_mode; // declared in one_net_eval.c
 
 
 
-void disable_user_pins(void);
 #ifdef _AUTO_MODE
 void init_auto_master(void);
 #endif
@@ -313,6 +313,7 @@ on_message_status_t one_net_master_handle_ack_nack_response(
       resp_ack_nack, src_did, repeater_did, retries, hops, max_hops);
     #endif    
 }
+
 
 
 //! @} ONE-NET_master_eval_pub_func

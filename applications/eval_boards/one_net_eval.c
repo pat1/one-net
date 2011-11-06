@@ -11,6 +11,7 @@
 
 
 #include "config_options.h"
+#include "oncli_port.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
 #include "tick.h"
@@ -218,6 +219,7 @@ int main(void)
     FLASH_ERASE_CHECK();
 
     uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+    disable_user_pins();
     ENABLE_GLOBAL_INTERRUPTS();
     
     // startup greeting
@@ -327,6 +329,77 @@ on_message_status_t eval_handle_ack_nack_response(
 {
     return ON_MSG_CONTINUE;
 }
+
+
+/*!
+    \brief disables the user pins
+
+    \param void
+
+    \return void
+*/
+void disable_user_pins(void)
+{
+    UInt8 i;
+    
+    for(i = 0; i < NUM_USER_PINS; i++)
+    {
+        user_pin[i].pin_type = ON_DISABLE_PIN;
+    } // loop to clear user pins //
+} // disable_user_pins //
+
+
+oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type)
+{
+    if(pin_type > ON_DISABLE_PIN)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    switch(pin)
+    {
+        case 0:
+        {
+            user_pin[0].old_state = USER_PIN0;
+            USER_PIN0_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
+              : pin_type;
+            break;
+        } // pin 0 case //
+
+        case 1:
+        {
+            user_pin[1].old_state = USER_PIN1;
+            USER_PIN1_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
+              : pin_type;
+            break;
+        } // pin 1 case //
+
+        case 2:
+        {
+            user_pin[2].old_state = USER_PIN2;
+            USER_PIN2_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
+              : pin_type;
+            break;
+        } // pin 2 case //
+
+        case 3:
+        {
+            user_pin[3].old_state = USER_PIN3;
+            USER_PIN3_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
+              : pin_type;
+            break;
+        } // pin 3 case //
+
+        default:
+        {
+            return ONCLI_BAD_PARAM;
+            break;
+        } // default case //
+    } // switch(PIN) //
+
+    user_pin[pin].pin_type = pin_type;
+    return ONCLI_SUCCESS;
+} // oncli_set_user_pin_type //
 
 
 
