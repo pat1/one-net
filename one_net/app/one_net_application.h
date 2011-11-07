@@ -325,6 +325,11 @@ extern one_net_send_single_func_t one_net_send_single;
 
 one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
   ona_msg_class_t *msg_class, ona_msg_type_t *msg_type);
+  
+
+// address functions
+BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
+  const on_encoded_did_t * const RHS);
 
 
 //! @} ONE-NET_APP_pub_func

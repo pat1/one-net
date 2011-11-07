@@ -42,6 +42,8 @@
 
 #include "one_net_application.h"
 #include "one_net_packet.h"
+#include "one_net_port_specific.h"
+#include "one_net_constants.h"
 
 
 //==============================================================================
@@ -117,6 +119,30 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 
     return ONS_SUCCESS;
 } // parse_msg_class_and_type //
+
+
+
+// address functions
+/*!
+    \brief Compares two encoded Device IDs.
+
+    \param[in] LHS The left hand side of the compare equation.
+    \param[in] RHS The right hand side of the compare equation.
+
+    \return TRUE if the DIDs match.
+            FALSE if the DIDs do not match.
+*/
+BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
+  const on_encoded_did_t * const RHS)
+{
+    if(!LHS || !RHS)
+    {
+        return FALSE;
+    } // if parameters are invalid //
+
+    return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_DID_LEN) == 0);
+} // on_encoded_did_equal //
+
 
 
 //! @} ONE-NET_APP_pub_func

@@ -514,10 +514,6 @@ extern on_pkt_hdlr_set_t pkt_hdlr;
 
 
 
-// address functions
-BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
-  const on_encoded_did_t * const RHS);
-
 
 // initialization
 void one_net_init(void);

@@ -223,30 +223,6 @@ static BOOL check_for_clr_channel(void);
     
     
 
-// address functions
-
-
-/*!
-    \brief Compares two encoded Device IDs.
-
-    \param[in] LHS The left hand side of the compare equation.
-    \param[in] RHS The right hand side of the compare equation.
-
-    \return TRUE if the DIDs match.
-            FALSE if the DIDs do not match.
-*/
-BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
-  const on_encoded_did_t * const RHS)
-{
-    if(!LHS || !RHS)
-    {
-        return FALSE;
-    } // if parameters are invalid //
-
-    return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_DID_LEN) == 0);
-} // on_encoded_did_equal //
-
-
 /*!
     \brief Initializes ONE-NET.
 
