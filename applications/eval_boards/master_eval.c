@@ -233,6 +233,7 @@ void init_auto_master(void)
         client_list[i].device_send_info.expected_nonce = ON_INVALID_NONCE;
         client_list[i].device_send_info.last_nonce = ON_INVALID_NONCE;
         client_list[i].device_send_info.send_nonce = ON_INVALID_NONCE;
+        client_list[i].device_send_info.msg_id = ON_MAX_MSG_ID + 1; // invalid
     }
     
     one_net_master_init(NULL, 0);

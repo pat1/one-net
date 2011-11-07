@@ -147,6 +147,12 @@ void init_auto_client(UInt8 index)
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = THIS_DEVICE_FEATURES;
     one_net_memmove(master->device.did, MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
+    
+    master->device.expected_nonce = ON_INVALID_NONCE;
+    master->device.last_nonce = ON_INVALID_NONCE;
+    master->device.send_nonce = ON_INVALID_NONCE;
+    master->device.msg_id = ON_MAX_MSG_ID + 1; // invalid
+    
     one_net_client_init(NULL, 0);
 } // init_auto_client //
 #endif
