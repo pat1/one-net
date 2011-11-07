@@ -187,7 +187,7 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
           &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
     }
     
-    one_net_memmove(element->raw_dst, *src_did, ON_ENCODED_DID_LEN);
+    one_net_memmove(element->raw_dst, *enc_dst, ON_ENCODED_DID_LEN);
     
     #ifdef _PEER
 	element->send_to_peer_list = send_to_peer_list;
