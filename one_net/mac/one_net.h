@@ -329,6 +329,9 @@ typedef struct
     
     //! Device information for the recipient
     on_sending_device_t* device;
+    
+    //! Key to use for this transaction
+    one_net_xtea_key_t* key;
 } on_txn_t;
 
 
