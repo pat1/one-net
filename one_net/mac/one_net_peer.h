@@ -131,7 +131,7 @@ typedef struct
    
     //! Index into the list.  Negative number signifies that sending to the
     //! peer list either has not started, has finished, or is not relevant
-    UInt8 peer_send_index;
+    SInt8 peer_send_index;
 } on_peer_send_list_t;
 
 
