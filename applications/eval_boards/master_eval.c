@@ -286,7 +286,7 @@ void master_eval(void)
 #ifndef _ONE_NET_MULTI_HOP
 on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
 #else
 on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
@@ -397,7 +397,7 @@ static void send_auto_msg(void)
         // each client gets a different text message
         char* auto_messages[NUM_AUTO_CLIENTS] = {"11", "22", "33"};
 
-        for(i = 0; i < NUM_AUTO_CLIENTS; i++)
+        for(i = 0; i < /*NUM_AUTO_CLIENTS*/1; i++)
         {
             send_simple_text_command(auto_messages[i], ONE_NET_DEV_UNIT,
               ONE_NET_DEV_UNIT, &ENC_AUTO_CLIENT_DID[i]);

@@ -189,7 +189,7 @@ UInt8 * one_net_client_get_invite_key(void)
 #ifndef _ONE_NET_MULTI_HOP
 on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
+  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
 #else
 on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
