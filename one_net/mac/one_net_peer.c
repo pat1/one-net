@@ -101,7 +101,14 @@ const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 UInt8 peer_storage[PEER_STORAGE_SIZE_BYTES];
 
 on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
-peer_msg_mgr_t peer_msg_mgr;
+
+//! The list of peers to send to for THIS message
+on_peer_send_list_t peer_send_list;
+
+//! Pointer to the list of peers to send to for THIS message.  Generally
+//! will point either to NULL or peer_send_list.  However, the user is
+//! allowed to provide their own peer lists.
+on_peer_send_list_t* peer_send_list_ptr = NULL;
 
 
 

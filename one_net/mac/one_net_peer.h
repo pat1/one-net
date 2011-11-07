@@ -101,23 +101,39 @@ enum
 };
 
 
+// Note -- the two structures replace peer_msg_mgr_t.
 /*!
-    \brief Manages messages sent to the peers of a given source unit.
+    \brief The A peer to send for THIS message(same as on_peer_unit_t but
+           without the source unit
 */
 typedef struct
 {
-    //! The source unit for the message.  A value of ONE_NET_DEV_UNIT indicates that
-    //! it is not in use.
-    UInt8 src_unit;
+    //! did of the of the peer
+    on_encoded_did_t peer_did;
+	
+    //! The unit in the peer to send to.
+    UInt8 peer_unit;
+} on_peer_send_item_t;
+
+
+/*!
+    \brief The list of peers to send for THIS message.  ONE-NET can fill this
+           based on the peer list.  The application code can also override
+           that behavior and fill the list on its own.
+*/
+typedef struct
+{
+    //! List of peers to send to for THIS message
+    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN];
     
-    //! Where we currently are when iterating through the peer unit list.
-    UInt8 current_idx;
-    
-    //! Index in the message that contains the destination did that needs to
-    //! be changed when the message is sent to the next peer.  A value of
-    //! ON_MAX_RAW_PLD_LEN indicates that the message is not to be changed.
-    UInt8 msg_dst_unit_idx;
-} peer_msg_mgr_t;
+    //! The number of peers for THIS transaction
+    UInt8 num_send_peers;
+   
+    //! Index into the list.  Negative number signifies that sending to the
+    //! peer list either has not started, has finished, or is not relevant
+    UInt8 peer_send_index;
+} on_peer_send_list_t;
+
 
 
 //! @} ONE-NET_PEER_typedefs
