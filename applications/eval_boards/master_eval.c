@@ -219,11 +219,20 @@ void init_auto_master(void)
           RAW_AUTO_CLIENT_DID[i], ON_ENCODED_DID_LEN);
         client_list[i].device_send_info.features = THIS_DEVICE_FEATURES;
         client_list[i].device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
+        #ifdef _ONE_NET_MULTI_HOP
+        client_list[i].device_send_info.hops = 0;
+        client_list[i].device_send_info.max_hops =
+          features_max_hops(THIS_DEVICE_FEATURES);
+        #endif
         client_list[i].flags = ON_JOINED;
         client_list[i].use_current_key = TRUE;
         #ifdef _STREAM_MESSAGES_ENABLED
         client_list[i].use_current_stream_key = TRUE;
         #endif
+        
+        client_list[i].device_send_info.expected_nonce = ON_INVALID_NONCE;
+        client_list[i].device_send_info.last_nonce = ON_INVALID_NONCE;
+        client_list[i].device_send_info.send_nonce = ON_INVALID_NONCE;
     }
     
     one_net_master_init(NULL, 0);
