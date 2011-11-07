@@ -178,7 +178,7 @@ typedef struct
 {
     UInt8 pid; 
     UInt8 priority;   
-	on_encoded_did_t raw_dst;
+	on_encoded_did_t dst_did;
     UInt8 msg_type;
     UInt8* payload;
     UInt8 payload_size;
