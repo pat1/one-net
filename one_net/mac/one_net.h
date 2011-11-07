@@ -513,6 +513,7 @@ extern on_pkt_hdlr_set_t pkt_hdlr;
 //! @{
 
 
+BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 
 
 // initialization
@@ -530,3 +531,4 @@ BOOL one_net(on_txn_t ** txn);
 //! @} ONE-NET
 
 #endif // _ONE_NET_H //
+ 

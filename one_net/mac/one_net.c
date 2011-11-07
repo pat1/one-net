@@ -224,6 +224,49 @@ static BOOL check_for_clr_channel(void);
     
 
 /*!
+    \brief Sets the pointers of an on_pkt_t structure.
+
+    \param[in] pid pid of the packet
+    \param[in] pkt_bytes The array holding the packet bytes
+    \param[out] pkt The on_pkt_t structure to fill
+
+    \return TRUE if the on_pkt structure was set up successfully.
+            FALSE upon error.
+*/
+BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
+{
+    SInt8 len = get_encoded_payload_len(pid);
+    if(len < 0)
+    {
+        return FALSE; // bad pid
+    }
+    
+    if(!pkt_bytes || !pkt)
+    {
+        return FALSE;
+    }
+    
+    pkt->packet_header    = &pkt_bytes[0];
+    pkt->pid              = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    pkt->enc_msg_id       = &pkt_bytes[ONE_NET_ENCODED_MSG_ID_IDX];
+    pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
+    pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
+    pkt->enc_dst_did      = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX];
+    pkt->enc_repeater_did = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX];
+    pkt->enc_nid          = (on_encoded_nid_t*) &pkt_bytes[ON_ENCODED_NID_IDX];
+    pkt->payload          = &pkt_bytes[ON_PLD_IDX];
+    pkt->payload_len      = (UInt8) len;
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    pkt->enc_hops_field = pkt->payload + pkt->payload_len;
+    #endif
+    
+    return TRUE;
+}
+
+    
+
+/*!
     \brief Initializes ONE-NET.
 
     \return void
