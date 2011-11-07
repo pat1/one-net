@@ -120,6 +120,9 @@ enum
     //! The max nonce
     ON_MAX_NONCE = 63,
 
+    //! The max nonce
+    ON_MAX_MSG_ID = 63,
+
     //! Value to use to mark an invalid nonce
     ON_INVALID_NONCE = 0xFF,
 
