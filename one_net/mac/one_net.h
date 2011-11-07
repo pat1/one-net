@@ -306,9 +306,6 @@ typedef struct
 
     //! How many times this txn has been tried
     UInt8 retry;
-    
-    //! The type of message.  See msg_type_t for values
-    UInt8 msg_type;
 
     //! The timer that contains the time the next block/stream transaction
     //! is supposed to occur if this is a block or stream transaction.

@@ -117,14 +117,14 @@ on_pkt_hdlr_set_t pkt_hdlr;
 UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
 //! Used to send a response
-on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE, 0,
+on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0,
   0, sizeof(response_pkt), response_pkt, NULL};
 
 //! location to store the encoded data for the single transaction
 UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
 
 //! Used to send a single message
-on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE, 0, 0,
+on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, 0, 0,
   sizeof(single_pkt), single_pkt, NULL};
 
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -132,7 +132,7 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE, 0, 0,
     UInt8 block_pkt[ON_BLOCK_ENCODED_PKT_SIZE];
     
     //! The current block transaction
-    on_txn_t block_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE,
+    on_txn_t block_txn = {ONE_NET_NO_PRIORITY, 0,
       ONT_BLOCK_TIMER, 0, sizeof(block_pkt), block_pkt, NULL};
 
     #ifdef _STREAM_MESSAGES_ENABLED
@@ -140,7 +140,7 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE, 0, 0,
     UInt8 stream_pkt[ON_STREAM_ENCODED_PKT_SIZE];
     
     //! The current stream transaction
-    on_txn_t stream_txn = {ONE_NET_NO_PRIORITY, 0, ON_INVALID_MSG_TYPE,
+    on_txn_t stream_txn = {ONE_NET_NO_PRIORITY, 0,
       ONT_STREAM_TIMER, 0, sizeof(stream_pkt), stream_pkt, NULL};    
     #endif
 #endif // if block messages are not enabled //
@@ -201,7 +201,7 @@ on_state_t on_state = ON_INIT_STATE;
     static UInt8 mh_pkt[ON_MAX_ENCODED_PKT_SIZE] = {0x55, 0x55, 0x55, 0x33};
 
     // Transaction for forwarding on MH packets.
-    static on_txn_t mh_txn = {ONE_NET_LOW_PRIORITY, 0, ON_INVALID_MSG_TYPE,
+    static on_txn_t mh_txn = {ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
 
@@ -329,7 +329,6 @@ BOOL one_net(on_txn_t ** txn)
                         // Now let's get things ready to send.
                         
                         // we'll fill in what we can here.
-                        single_txn.msg_type = single_msg.msg_type;
                         single_txn.priority = single_msg.priority;
                         single_txn.retry = 0;
                         single_txn.next_txn_timer = ONT_SINGLE_TIMER;
