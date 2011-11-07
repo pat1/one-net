@@ -46,6 +46,7 @@
 #include "one_net_acknowledge.h"
 #include "one_net_port_specific.h"
 #include "tick.h"
+#include "one_net.h"
 
 
 //==============================================================================
@@ -106,6 +107,111 @@ static UInt16 pld_buffer_tail_idx = 0;
 //! \defgroup ONE-NET_MESSAGE_pub_func
 //! \ingroup ONE-NET_MESSAGE
 //! @{
+
+
+
+/*!
+    \brief Add a single message to the queue.
+    
+    The message is either sent to the peer list or only to the specific device
+    that is passed in.
+    
+    \param[in] pid The pid of the message.
+    \param[in] msg_type The message type of the message(admin, application, etc.)
+    \param[in] data The data to send.
+    \param[in] data_len The length of DATA (in bytes).
+    \param[in] priority The priority of the transaction.
+    \param[in] src_did The source of the message (if NULL, the source will be
+      assumed to be this device).
+    \param[in] enc_dst The device the message is destined for.  This can be
+      NULL if the message is to be sent to the peer list.
+    \param[in] send_to_peer_list If true, the message will be sent to.
+    \param[in] src_unit The unit that the message originated from.  Relevant
+      only if sending to the peer list.
+	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
+	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
+    
+    \return pointer to the queue element if the queue add was successful
+            NULL if error or no room in queue.
+*/
+on_single_data_queue_t* push_queue_element(UInt8 pid,
+  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
+  const on_encoded_did_t* const src_did,
+  const on_encoded_did_t* const enc_dst
+  #ifdef _PEER
+      , BOOL send_to_peer_list,
+      UInt8 src_unit
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , tick_t* send_time_from_now
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , tick_t* expire_time_from_now
+  #endif
+  )
+{
+    on_single_data_queue_t* element = NULL;
+    
+    if(!raw_data || !enc_dst)
+    {
+        return NULL; // invalid parameter
+    }
+    
+    if(single_data_queue_size >= SINGLE_DATA_QUEUE_SIZE)
+    {
+        return NULL; // no room in queue
+    }
+    if((data_len + pld_buffer_tail_idx) >
+      SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE)
+    {
+        return NULL; // no room in queue
+    }
+    
+    element = &single_data_queue[single_data_queue_size];
+    
+    element->pid = pid;
+    element->priority = priority;
+    element->msg_type = msg_type;
+    element->payload_size = data_len;
+    element->payload = &payload_buffer[pld_buffer_tail_idx];
+    pld_buffer_tail_idx += data_len;
+    one_net_memmove(element->payload, raw_data, data_len);
+    
+    if(src_did != NULL)
+    {
+        one_net_memmove(element->src_did, *src_did, ON_ENCODED_DID_LEN);
+    }
+    else
+    {
+        one_net_memmove(element->src_did,
+          &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
+    }
+    
+    one_net_memmove(element->raw_dst, *src_did, ON_ENCODED_DID_LEN);
+    
+    #ifdef _PEER
+	element->send_to_peer_list = send_to_peer_list;
+    element->src_unit = src_unit;
+    #endif
+    
+    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    element->send_time = 0;
+    if(send_time_from_now)
+    {
+        element->send_time = *send_time_from_now;
+    }
+    #endif
+    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+    element->expire_time = 0;
+    if(expire_time_from_now)
+    {
+	    element->expire_time = *expire_time_from_now;
+    }
+    #endif
+    
+    single_data_queue_size++;
+    return element;
+}
 
 
 // return true if an element was popped, false otherwise.

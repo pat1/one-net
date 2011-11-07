@@ -244,6 +244,22 @@ int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
 int single_data_queue_ready_to_send(void);
 #endif
 
+on_single_data_queue_t* push_queue_element(UInt8 pid,
+  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
+  const on_encoded_did_t* const src_did,
+  const on_encoded_did_t* const enc_dst
+  #ifdef _PEER
+      , BOOL send_to_peer_list,
+      UInt8 src_unit
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , tick_t* send_time_from_now
+  #endif
+  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , tick_t* expire_time_from_now
+  #endif
+  );
+
 
 
 //! @} ONE-NET_MESSAGE_pub_func
