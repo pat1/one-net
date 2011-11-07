@@ -50,6 +50,7 @@
 #include "tick.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
+#include "one_net_status_codes.h"
 
 
 //==============================================================================
@@ -627,7 +628,25 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
 	  , tick_t* expire_time_from_now
   #endif
   )
-{
+{    
+    if(push_queue_element(pid, msg_type, raw_data, data_len, priority, src_did,
+      enc_dst
+      #ifdef _PEER
+          , send_to_peer_list, src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , send_time_from_now
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , expire_time_from_now
+      #endif
+      ) == NULL)
+    {
+        oncli_send_msg("\n\n\nError : Queue is full.\n\n\n");
+        return ONS_RSRC_FULL;
+    }
+    
+    
     return ONS_SUCCESS;
 }
 
