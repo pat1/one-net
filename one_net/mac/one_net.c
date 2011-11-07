@@ -189,6 +189,9 @@ on_state_t on_state = ON_INIT_STATE;
 //! A place to store a single message with payload.
 static on_single_data_queue_t single_msg;
 
+//! A place to store the single message raw payload.
+static UInt8 single_data_raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
+
 //! Pointer to the current single message being sent.  If none, this will be
 //! NULL.  Generally this will point to single_msg.
 static on_single_data_queue_t* single_msg_ptr = NULL;
@@ -294,6 +297,42 @@ void one_net_init(void)
 */
 BOOL one_net(on_txn_t ** txn)
 {
+    switch(on_state)
+    {
+        case ON_LISTEN_FOR_DATA:
+        {
+            // we are listinging for data.  Make sure we have nothing
+            // pending
+            if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
+              && single_msg_ptr == NULL)
+            {
+                tick_t next_pop_time; // we don't sleep, so we won't use
+                                       // this.  But the function requires it
+                                       // as a parameter.
+                
+                // nothing is pending.  See if we have anything ready to go
+                int index = single_data_queue_ready_to_send(&next_pop_time);
+                if(index >= 0)
+                {
+                    if(pop_queue_element(&single_msg, single_data_raw_pld, index))
+                    {
+                        // we have a message ready to send and we've popped it.
+                        // Now let's get things ready to send.
+                        
+                        // we'll fill in what we can here.
+                        single_txn.msg_type = single_msg.msg_type;
+                        single_txn.priority = single_msg.priority;
+                        single_txn.retry = 0;
+                        single_txn.next_txn_timer = ONT_SINGLE_TIMER;
+                        single_txn.data_len = get_encoded_payload_len(single_msg.pid);
+                        single_msg_ptr = &single_msg;
+                        *txn = &single_txn;
+                        return FALSE;
+                    }
+                }
+            }
+        }
+    }
     return TRUE;
 } // one_net //
 
