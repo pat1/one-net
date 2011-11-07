@@ -58,7 +58,12 @@
 #ifdef _PEER
 enum
 {
-    ONE_NET_MAX_PEER_UNIT = 8
+    //! Size of the peer table
+    ONE_NET_MAX_PEER_UNIT = 8,
+    
+    //! Number of peers than any one message / transaction can send to
+    //! (not including the original recipient).
+    ONE_NET_MAX_PEER_PER_TXN = 4
 };
 #endif
 
