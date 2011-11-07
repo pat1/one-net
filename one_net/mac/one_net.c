@@ -333,6 +333,16 @@ BOOL one_net(on_txn_t ** txn)
                         // we have a message ready to send and we've popped it.
                         // Now let's get things ready to send.
                         
+                        
+                        if(!setup_pkt_ptr(single_msg.pid, single_pkt,
+                          &data_pkt_ptrs))
+                        {
+                            // an error of some sort occurred.  We likely have
+                            // a bad pid.  Unrecoverable.  Just abort.
+                            return TRUE; // no outstanding transaction
+                        }
+                        
+
                         // we'll fill in what we can here.
                         single_txn.priority = single_msg.priority;
                         single_txn.retry = 0;
@@ -340,11 +350,42 @@ BOOL one_net(on_txn_t ** txn)
                         single_txn.data_len = get_encoded_payload_len(single_msg.pid);
                         single_msg_ptr = &single_msg;
                         *txn = &single_txn;
-                        return FALSE;
+                        
+                        // now fill in as much of the packet as we can.
+                        
+                        // the preamble is always the same
+                        one_net_memmove(data_pkt_ptrs.packet_header,
+                          HEADER, sizeof(HEADER));
+                          
+                        // the repeater did is always us
+                        one_net_memmove(data_pkt_ptrs.enc_repeater_did,
+                          &on_base_param->sid[ON_ENCODED_NID_LEN],
+                          ON_ENCODED_DID_LEN);
+                          
+                        // fill in the destination
+                        one_net_memmove(*(data_pkt_ptrs.enc_dst_did),
+                          single_msg.dst_did, ON_ENCODED_DID_LEN);
+                          
+                        // fill in the NID
+                        one_net_memmove(*(data_pkt_ptrs.enc_nid),
+                          on_base_param->sid, ON_ENCODED_NID_LEN);
+                        
+                        // fill in the PID
+                        *(data_pkt_ptrs.pid) = single_msg.pid;
+                        
+                        // that's about all we can fill in.  one_net_client or
+                        // one_net_master will have to complete.  Set on_state
+                        // to ON_SEND_PKT, but keep the priority as
+                        // ONE_NET_NO_PRIORITY so that one_net_client or
+                        // one_net_master know that 1) they need to send a
+                        // single packet, but 2) more needs to be done before
+                        // the packet can be sent.
+                        on_state = ON_SEND_SINGLE_DATA_PKT;
+                        return FALSE; // transaction is not complete
                     }
                 }
             }
-        }
+        } // case ON_LISTEN_FOR_DATA //
     }
     return TRUE;
 } // one_net //
