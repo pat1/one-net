@@ -77,7 +77,6 @@ enum
 typedef UInt8 one_net_xtea_key_t[ONE_NET_XTEA_KEY_LEN];
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
 /*!
     \brief Encryption method used to encrypt single and block transactions
 
@@ -99,7 +98,6 @@ typedef enum
     //! TBD
     ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1 = 0xC0
 } one_net_single_blk_encryption_t;
-#endif
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
