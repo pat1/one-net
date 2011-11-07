@@ -50,6 +50,7 @@
 
 #include "one_net_types.h"
 #include "one_net_peer.h"
+#include "one_net_application.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
 
@@ -148,9 +149,71 @@ one_net_status_t one_net_reset_peers(void)
     on_peer_unit_t empty_peer = {{0xB4, 0xB4}, ONE_NET_DEV_UNIT,
       ONE_NET_DEV_UNIT};
     one_net_memset_block(peer, sizeof(empty_peer),
-      ONE_NET_MAX_PEER_UNIT, &empty_peer);      
+      ONE_NET_MAX_PEER_UNIT, &empty_peer);   
     return ONS_SUCCESS;
 } // one_net_reset_peers //
+
+
+/*!
+    \brief Fills in peer send list with the list of peers to send to
+    
+    \param[in] send_list the peer send list to fill in.  If NULL, the list
+                 that ONE-NET provides will be used.  This parameter is
+                 usually NULL.  Only applications that maintain their own
+                 peer lists will have a non-NULL parameter here
+    \param[in] src_did The "original" source of the message.  If NULL, the
+                 source ID will be considered this device.  Used to prevent
+                 circular messages of peers sending to the peers that
+                 originally sent to THEM.
+    \param[in] src_unit The source unit on THIS device for the message
+    
+    \return pointer to a filled peer send list.  If send_list was not NULL,
+                 it will be returned.  If it was NULL, the peer send list
+                 that ONE-NET provides will be returned.
+*/
+on_peer_send_list_t* fill_in_peer_send_list(
+  on_peer_send_list_t* send_list, const on_encoded_did_t* src_did,
+  UInt8 unit)
+{
+    UInt8 i;
+    
+    if(send_list == NULL)
+    {
+        send_list = &peer_send_list;
+    }
+    
+    send_list->num_send_peers = 0;
+    send_list->peer_send_index = -1;
+    
+    for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
+      i < ONE_NET_MAX_PEER_UNIT; i++)
+    {
+        if(unit != peer[i].src_unit)
+        {
+            continue;
+        }
+        
+        if(src_did != NULL)
+        {
+            if(on_encoded_did_equal(src_did,
+              (on_encoded_did_t*) (peer[i].peer_did)))
+            {
+                // This peer get the message before us or maybe even
+                // originated it, so don't send it.
+                continue;
+            }
+        }
+        
+        // we have a match.  Add it.
+        one_net_memmove(
+          send_list->peer_list[send_list->num_send_peers].peer_did,
+          peer[i].peer_did, ON_ENCODED_DID_LEN);
+        send_list->peer_list[send_list->num_send_peers].peer_unit =
+          peer[i].peer_unit;
+        (send_list->num_send_peers)++;
+    }
+}
+
 
 
 //! @} ONE-NET_PEER_pub_func

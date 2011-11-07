@@ -163,6 +163,9 @@ extern on_peer_unit_t* const peer;
 
 
 one_net_status_t one_net_reset_peers(void);
+on_peer_send_list_t* fill_in_peer_send_list(
+  on_peer_send_list_t* send_list, const on_encoded_did_t* src_did,
+  UInt8 unit);
 
 
 //! @} ONE-NET_PEER_pub_func
