@@ -186,6 +186,15 @@ on_state_t on_state = ON_INIT_STATE;
 #endif
 
 
+//! A place to store a single message with payload.
+static on_single_data_queue_t single_msg;
+
+//! Pointer to the current single message being sent.  If none, this will be
+//! NULL.  Generally this will point to single_msg.
+static on_single_data_queue_t* single_msg_ptr = NULL;
+
+
+
 //! @} ONE-NET_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
