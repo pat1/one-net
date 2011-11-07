@@ -505,6 +505,20 @@ extern on_state_t on_state;
 extern on_pkt_hdlr_set_t pkt_hdlr;
 
 
+//! A place to store a single message with payload.
+extern on_single_data_queue_t single_msg;
+
+//! A place to store the single message raw payload.
+extern UInt8 single_data_raw_pld[];
+
+//! Pointer to the current single message being sent.  If none, this will be
+//! NULL.  Generally this will point to single_msg.
+extern on_single_data_queue_t* single_msg_ptr;
+
+
+
+
+
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================

@@ -159,6 +159,26 @@ BOOL device_is_master = TRUE; // if device cvan be master OR client, the
 one_net_startup_status_t startup_status = ON_STARTUP_IN_PROGRESS;
 
 
+//! an on_pkt_t structure for data packets
+on_pkt_t data_pkt_ptrs;
+
+//! an on_pkt_t structure for response packets
+on_pkt_t response_pkt_ptrs;
+
+
+//! A place to store a single message with payload.
+on_single_data_queue_t single_msg;
+
+//! A place to store the single message raw payload.
+UInt8 single_data_raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
+
+//! Pointer to the current single message being sent.  If none, this will be
+//! NULL.  Generally this will point to single_msg.
+on_single_data_queue_t* single_msg_ptr = NULL;
+
+
+
+
 //                              PUBLIC VARIABLES
 //==============================================================================
 
@@ -184,17 +204,6 @@ on_state_t on_state = ON_INIT_STATE;
     static on_txn_t mh_txn = {ONE_NET_LOW_PRIORITY, 0, ON_INVALID_MSG_TYPE,
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
-
-
-//! A place to store a single message with payload.
-static on_single_data_queue_t single_msg;
-
-//! A place to store the single message raw payload.
-static UInt8 single_data_raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
-
-//! Pointer to the current single message being sent.  If none, this will be
-//! NULL.  Generally this will point to single_msg.
-static on_single_data_queue_t* single_msg_ptr = NULL;
 
 
 
