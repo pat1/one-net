@@ -120,14 +120,15 @@ on_pkt_hdlr_set_t pkt_hdlr;
 UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
 //! Used to send a response
-on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, ONT_RESPONSE_TIMER,
-  0, sizeof(response_pkt), response_pkt, NULL, NULL};
+on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
+  ONT_RESPONSE_TIMER, 0, sizeof(response_pkt), response_pkt,
+  NULL, NULL};
 
 //! location to store the encoded data for the single transaction
 UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
 
 //! Used to send a single message
-on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
+on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
   sizeof(single_pkt), single_pkt, NULL, NULL};
 
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -135,7 +136,7 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
     UInt8 block_pkt[ON_BLOCK_ENCODED_PKT_SIZE];
     
     //! The current block transaction
-    on_txn_t block_txn = {ONE_NET_NO_PRIORITY, 0,
+    on_txn_t block_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
       ONT_BLOCK_TIMER, 0, sizeof(block_pkt), block_pkt, NULL, NULL};
 
     #ifdef _STREAM_MESSAGES_ENABLED
@@ -143,10 +144,11 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
     UInt8 stream_pkt[ON_STREAM_ENCODED_PKT_SIZE];
     
     //! The current stream transaction
-    on_txn_t stream_txn = {ONE_NET_NO_PRIORITY, 0,
+    on_txn_t stream_txn = {ON_STREAM, ONE_NET_NO_PRIORITY, 0,
       ONT_STREAM_TIMER, 0, sizeof(stream_pkt), stream_pkt, NULL, NULL};    
     #endif
 #endif // if block messages are not enabled //
+
 
 
 //! true if device is functioning as a master, false otherwise
@@ -204,7 +206,7 @@ on_state_t on_state = ON_INIT_STATE;
     static UInt8 mh_pkt[ON_MAX_ENCODED_PKT_SIZE] = {0x55, 0x55, 0x55, 0x33};
 
     // Transaction for forwarding on MH packets.
-    static on_txn_t mh_txn = {ONE_NET_LOW_PRIORITY, 0,
+    static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
 

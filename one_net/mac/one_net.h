@@ -301,6 +301,10 @@ typedef struct
 //! Transaction structure
 typedef struct
 {
+    //! The type of transaction (i.e. block, stream, invite, single, response)
+    //! See on_data_t for details.
+    UInt8 txn_type;
+    
     //! The priority of the transaction
     UInt8 priority;
 

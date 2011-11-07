@@ -105,8 +105,9 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
 UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
 
 //! The current invite transaction
-on_txn_t invite_txn = {ONE_NET_NO_PRIORITY, 0,
+on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
   ONT_INVITE_TIMER, 0, sizeof(invite_pkt), invite_pkt, NULL, NULL};
+
 
 
 //! @} ONE-NET_MASTER_pub_var
