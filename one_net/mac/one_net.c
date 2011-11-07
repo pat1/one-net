@@ -117,15 +117,15 @@ on_pkt_hdlr_set_t pkt_hdlr;
 UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
 //! Used to send a response
-on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0,
+on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, ONT_RESPONSE_TIMER,
   0, sizeof(response_pkt), response_pkt, NULL, NULL};
 
 //! location to store the encoded data for the single transaction
 UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
 
 //! Used to send a single message
-on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, 0, 0,
-  sizeof(single_pkt), single_pkt, NULL};
+on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
+  sizeof(single_pkt), single_pkt, NULL, NULL};
 
 #ifdef _BLOCK_MESSAGES_ENABLED
     //! location to store the encoded data for a block transaction.
