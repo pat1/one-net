@@ -118,7 +118,7 @@ UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
 //! Used to send a response
 on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0,
-  0, sizeof(response_pkt), response_pkt, NULL};
+  0, sizeof(response_pkt), response_pkt, NULL, NULL};
 
 //! location to store the encoded data for the single transaction
 UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
@@ -133,7 +133,7 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, 0, 0,
     
     //! The current block transaction
     on_txn_t block_txn = {ONE_NET_NO_PRIORITY, 0,
-      ONT_BLOCK_TIMER, 0, sizeof(block_pkt), block_pkt, NULL};
+      ONT_BLOCK_TIMER, 0, sizeof(block_pkt), block_pkt, NULL, NULL};
 
     #ifdef _STREAM_MESSAGES_ENABLED
     //! location to store the encoded data for a stream transaction.
@@ -141,7 +141,7 @@ on_txn_t single_txn = {ONE_NET_NO_PRIORITY, 0, 0, 0,
     
     //! The current stream transaction
     on_txn_t stream_txn = {ONE_NET_NO_PRIORITY, 0,
-      ONT_STREAM_TIMER, 0, sizeof(stream_pkt), stream_pkt, NULL};    
+      ONT_STREAM_TIMER, 0, sizeof(stream_pkt), stream_pkt, NULL, NULL};    
     #endif
 #endif // if block messages are not enabled //
 
