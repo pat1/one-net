@@ -441,8 +441,6 @@ void one_net_master(void)
                 }
             }
             
-            #if 0
-            // TODO -- add this function
             if(on_build_data_pkt(single_data_raw_pld,
               single_msg_ptr->msg_type, &data_pkt_ptrs, txn, txn->device) !=
               ONS_SUCCESS)
@@ -454,7 +452,6 @@ void one_net_master(void)
                 single_msg_ptr = 0;
                 break;                
             }
-            #endif
             
             {
                 UInt8 i;
