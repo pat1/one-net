@@ -239,6 +239,97 @@ static BOOL check_for_clr_channel(void);
 //! @{
     
     
+#ifdef _ONE_NET_MULTI_HOP
+/*!
+    \brief Builds the encoded hops field for the packet.
+
+    \param[out] hops The hops field to be sent with the pkt.
+    \param[in] MAX_HOPS The maximum number of hops the packet can take.
+    \param[in] HOPS_LEFT The number of hops remaining that the pkt can take.
+
+    \return ONS_SUCCESS If building the hops field was successful
+            ONS_BAD_PARAM If any of the parameters are invalid.
+*/
+one_net_status_t on_build_hops(UInt8 * hops, UInt8 MAX_HOPS,
+  UInt8 HOPS_LEFT)
+{
+    UInt8 raw_hops;
+
+    if(!hops || MAX_HOPS > ON_MAX_HOPS_LIMIT || HOPS_LEFT > MAX_HOPS)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    raw_hops = ((MAX_HOPS << ON_MAX_HOPS_SHIFT) & ON_MAX_HOPS_BUILD_MASK)
+      | ((HOPS_LEFT << ON_HOPS_LEFT_SHIFT) & ON_HOPS_LEFT_BUILD_MASK);
+
+    on_encode(hops, &raw_hops, ON_ENCODED_HOPS_SIZE);
+
+    return ONS_SUCCESS;
+} // on_build_hops //
+#endif // ifdef _ONE_NET_MULTI_HOP //
+    
+
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+{
+    UInt8 status;
+    SInt8 num_xtea_blocks = get_encoded_payload_len(*(pkt_ptrs->pid)) / 4;
+    if(num_xtea_blocks < 1 || num_xtea_blocks > 4)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    if(packet_is_multihop(pkt_ptrs->pid))
+    {
+        // build hops
+        if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
+          pkt_ptrs->max_hops)) != ONS_SUCCESS)
+        {
+            return status;
+        }
+    }
+    #endif
+    
+    // check nonces.  If they are invalid, pick some random ones
+    if(device->expected_nonce > ON_MAX_NONCE)
+    {
+        device->expected_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+    }
+    if(device->send_nonce > ON_MAX_NONCE)
+    {
+        device->send_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+    }
+    
+
+    // build the packet
+    pkt_ptrs->payload[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
+      ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
+    pkt_ptrs->payload[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
+      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    pkt_ptrs->payload[ON_PLD_RESP_NONCE_LOW_IDX] = (device->expected_nonce <<
+      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
+    pkt_ptrs->payload[ON_PLD_MSG_TYPE_IDX] |= msg_type;
+    one_net_memmove(&(raw_pld[ON_PLD_DATA_IDX]), raw_pld, (num_xtea_blocks *
+      ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX);
+    
+    return ONS_SUCCESS;
+}
+
+
+
+
+
+
+
+
+
+
+   
+    
 
 /*!
     \brief Sets the pointers of an on_pkt_t structure.

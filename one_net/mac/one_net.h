@@ -542,7 +542,15 @@ extern on_single_data_queue_t* single_msg_ptr;
 //! @{
 
 
+
+#ifdef _ONE_NET_MULTI_HOP
+one_net_status_t on_build_hops(UInt8 * hops, UInt8 MAX_HOPS,
+  UInt8 HOPS_LEFT);
+#endif
 BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+
 
 
 // initialization
