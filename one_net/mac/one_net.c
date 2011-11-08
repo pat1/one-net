@@ -366,7 +366,7 @@ BOOL one_net(on_txn_t ** txn)
                           HEADER, sizeof(HEADER));
                           
                         // the repeater did is always us
-                        one_net_memmove(data_pkt_ptrs.enc_repeater_did,
+                        one_net_memmove(*(data_pkt_ptrs.enc_repeater_did),
                           &on_base_param->sid[ON_ENCODED_NID_LEN],
                           ON_ENCODED_DID_LEN);
                           
@@ -377,6 +377,10 @@ BOOL one_net(on_txn_t ** txn)
                         // fill in the NID
                         one_net_memmove(*(data_pkt_ptrs.enc_nid),
                           on_base_param->sid, ON_ENCODED_NID_LEN);
+                          
+                        // fill in the source
+                        one_net_memmove(*(data_pkt_ptrs.enc_src_did),
+                          single_msg.src_did, ON_ENCODED_NID_LEN);
                         
                         // fill in the PID
                         *(data_pkt_ptrs.pid) = single_msg.pid;
