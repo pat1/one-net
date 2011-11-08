@@ -332,6 +332,113 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 }
 
 
+one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did)
+{
+    if(!pkt_ptrs || !nid || !repeater_did || !dst_did || !src_did)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    one_net_memmove(pkt_ptrs->enc_nid, *nid, ON_ENCODED_NID_LEN);
+    one_net_memmove(pkt_ptrs->enc_repeater_did, *repeater_did,
+      ON_ENCODED_DID_LEN);
+    one_net_memmove(pkt_ptrs->enc_dst_did, *dst_did,
+      ON_ENCODED_DID_LEN);
+    one_net_memmove(pkt_ptrs->enc_src_did, *src_did,
+      ON_ENCODED_DID_LEN);
+      
+    return ONS_SUCCESS;
+}
+
+
+one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did)
+{
+    on_encoded_nid_t* nid = (on_encoded_nid_t*) on_base_param->sid;
+    on_encoded_did_t* repeater_did = (on_encoded_did_t*) (nid +
+      ON_ENCODED_DID_LEN);
+    if(src_did == NULL)
+    {
+        // source must be the same as repeater (i.e. we are originating)
+        src_did = repeater_did;
+    }
+    
+    return on_build_pkt_addresses(pkt_ptrs, nid, repeater_did, dst_did,
+      src_did);
+}
+
+
+one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
+  UInt8 msg_id, UInt8 pid)
+{
+    UInt8 msg_crc_calc_len;
+    UInt8* msg_crc_start;
+    
+    if(!pkt_ptrs)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    // A quick check of the payload length to make sure it's been set.
+    // Should not be necessary, but check anyway.
+    if(pkt_ptrs->payload_len > ON_MAX_ENCODED_PLD_LEN_WITH_TECH)
+    {
+        return ONS_INTERNAL_ERR;
+    }
+    
+    // message CRC calculation length includes everything past the message CRC
+    // and stops immediately BEFORE the hops field, if any, which is NOT part
+    // of the message CRC.
+    msg_crc_start = pkt_ptrs->enc_msg_crc + ONE_NET_ENCODED_MSG_CRC_LEN;
+    msg_crc_calc_len = (pkt_ptrs->payload + pkt_ptrs->payload_len) -
+      msg_crc_start;
+    
+    // stick the message id into pkt_ptrs if it isn't already there.
+    // TODO - If we have the message ID and the CRC and the payload length
+    // in the packet pointers and the payload length, why not the pid?
+    // There are some redundancies and confusion about what structure should
+    // store what.  Whenever two structures store the same thing, you have to
+    // decide whether that is
+    // worth it and be careful to update BOTH structures when needed.
+    pkt_ptrs->msg_id = msg_id;
+    
+    // we shift in order to encode.  We saved the unshifted message id before
+    // shifting.
+    msg_id <<= 2;
+    on_encode(pkt_ptrs->enc_msg_id, &msg_id, ONE_NET_ENCODED_MSG_ID_LEN);
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    // fill in hops if needed
+    if(packet_is_multihop(pid))
+    {
+        one_net_status_t status;
+        if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
+          pkt_ptrs->max_hops) != ONS_SUCCESS)
+        {
+            return status;
+        }
+    }
+    #endif
+    
+    // preamble and start of frame
+    one_net_memmove(pkt_ptrs->packet_header, HEADER, sizeof(HEADER));
+
+    // we have everything filled in but the the msg_crc, so we can calculate
+    // it now.
+    pkt_ptrs->msg_crc = (UInt8) one_net_compute_crc(msg_crc_start,
+      msg_crc_calc_len, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+    // we are only interested in the 6 most significant bits, so mask them
+    pkt_ptrs->msg_crc &= 0xFC; // 11111100 -- six most significant bits.
+    // now encode for the message
+    on_encode(pkt_ptrs->enc_msg_crc, &(pkt_ptrs->msg_crc),
+      ONE_NET_ENCODED_MSG_ID_LEN);
+      
+    return ONS_SUCCESS;
+}
+
+
 
 
 

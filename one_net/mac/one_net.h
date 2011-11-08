@@ -548,8 +548,19 @@ one_net_status_t on_build_hops(UInt8 * hops, UInt8 MAX_HOPS,
   UInt8 HOPS_LEFT);
 #endif
 BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
+
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+  
+one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
+  
+one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
+
+one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
+  UInt8 msg_id, UInt8 pid);
   
 
 
