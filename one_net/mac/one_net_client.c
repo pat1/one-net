@@ -415,13 +415,15 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 
     if(match_idx != i)
     {
+        UInt8* ptr = on_base_param->sid;
         // replace the least recently used device
         match_idx = max_lru_idx;
         one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
           sizeof(sending_dev_list[match_idx].sender.did));
-        sending_dev_list[match_idx].sender.expected_nonce
-          = one_net_prand(get_tick_count(), ON_MAX_NONCE);
+        sending_dev_list[match_idx].sender.expected_nonce = ON_INVALID_NONCE;
+        sending_dev_list[match_idx].sender.send_nonce = ON_INVALID_NONCE;
         sending_dev_list[match_idx].sender.last_nonce = ON_INVALID_NONCE;
+        sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
     } // if the device was not found in the list //
 
     if(lru)
