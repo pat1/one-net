@@ -350,6 +350,7 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr = &on_client_handle_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
     one_net_send_single = &one_net_client_send_single;
+    get_sender_info = &sender_info;
     device_is_master = FALSE;
     one_net_init();
     return ONS_SUCCESS;
