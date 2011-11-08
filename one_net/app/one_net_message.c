@@ -203,9 +203,9 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     #endif
     #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
     element->expire_time = 0;
-    if(expire_time_from_now)
+    if(expire_time_from_now && *expire_time_from_now > 0)
     {
-	    element->expire_time = *expire_time_from_now;
+	    element->expire_time = get_tick_count() + *expire_time_from_now;
     }
     #endif
     
@@ -397,7 +397,8 @@ static void delete_expired_queue_elements(void)
     tick_t cur_tick = get_tick_count();
     for(i = single_data_queue_size - 1; i >= 0 ; i--)
     {
-        if(single_data_queue[i].expire_time < cur_tick)
+        if(single_data_queue[i].expire_time > 0 &&
+          single_data_queue[i].expire_time < cur_tick)
         {
             pop_queue_element(NULL, NULL, i);
         }
