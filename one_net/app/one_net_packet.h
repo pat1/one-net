@@ -581,6 +581,69 @@ enum
 };
 
 
+//! Nonce, Message type, Payload indexes, masks, shifts
+enum
+{
+    //! Index into the payload where the crc starts
+    ON_PLD_CRC_IDX = 0,
+
+    //! Index for the transaction nonce
+    ON_PLD_TXN_NONCE_IDX = 1,
+
+    //! Index for the high portion of the response nonce
+    ON_PLD_RESP_NONCE_HIGH_IDX = 1,
+
+    //! Index for the low portion of the response nonce
+    ON_PLD_RESP_NONCE_LOW_IDX = 2,
+
+
+    //! Index for the message type
+    ON_PLD_MSG_TYPE_IDX = 2,
+
+    //! Index for the data portion
+    ON_PLD_DATA_IDX = 3,
+
+    // If any of the shift values change, the masks where these values are used
+    // will also need to change
+    //! Number of bits to shift the transaction nonce
+    ON_TXN_NONCE_SHIFT = 2,
+
+    //! Number of bits to shift the high portion of the response nonce
+    ON_RESP_NONCE_HIGH_SHIFT = 4,
+
+    //! Number of bits to shift the low portion of the response nonce
+    ON_RESP_NONCE_LOW_SHIFT = 4,
+
+    //! The mask to use for the transaction nonce when building the payload
+    //! field of a data packet
+    ON_TXN_NONCE_BUILD_MASK = 0xFC,
+
+    //! The mask to use for the transaction nonce when parsing the payload
+    //! field of a data packet
+    ON_TXN_NONCE_PARSE_MASK = 0x3F,
+
+    //! The mask to use for the high portion of the response nonce when
+    //! building the payload field of a data packet
+    ON_RESP_NONCE_BUILD_HIGH_MASK = 0x03,
+
+    //! The mask to use for the high portion of the response nonce when
+    //! parsing the payload field of a data packet
+    ON_RESP_NONCE_PARSE_HIGH_MASK = 0x30,
+
+    //! The mask to use for the low portion of the response nonce when
+    //! building the payload field of a data packet
+    ON_RESP_NONCE_BUILD_LOW_MASK = 0xF0,
+
+    //! The mask to use for the low portion of the response nonce when
+    //! parsing the payload field of a data packet
+    ON_RESP_NONCE_PARSE_LOW_MASK = 0x0F,
+
+    //! The mask to use for the message type when building or parsing the
+    //! payload field of a data packet
+    ON_PLD_MSG_TYPE_MASK = 0x0F
+};
+
+
 //! Payload CRC releated constants
 enum
 {
