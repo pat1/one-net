@@ -516,12 +516,26 @@ enum
     #ifdef _BLOCK_MESSAGES_ENABLED
         //! The maximum length of a raw payload field (not including the extra
         //! byte needed to store the 2 bits for the encryption method type).
-        ON_MAX_RAW_PLD_LEN = ON_BLOCK_ENCODED_PLD_LEN - 1
+        ON_MAX_RAW_PLD_LEN = ON_BLOCK_ENCODED_PLD_LEN - 1,
     #else // if block messages are defined //
         //! The maximum length of a raw payload field (not including the extra
         //! byte needed to store the 2 bits for the encryption method type).
-        ON_MAX_RAW_PLD_LEN = ON_INVITE_ENCODED_PLD_LEN - 1
+        ON_MAX_RAW_PLD_LEN = ON_INVITE_ENCODED_PLD_LEN - 1,
     #endif // else if block messages are not defined //
+    
+    
+    // TODO -- there appear to be a lot of constants with the word "raw" in
+    // them which appear to be "encoded" lengths.  I'm already confused.  We
+    // need to clean up the language.  Adding a constant called
+    // "ON_MAX_ENCODED_PLD_LEN_WITH_TECH", which is the maximum length of the
+    // payload portion of a packet WITH the encryption technique.  This is
+    // calculated by adding 1 to "ON_MAX_RAW_PLD_LEN".  In other words, we
+    // are supposedly adding 1 to a "raw" length and getting an "encoded"
+    // length.  Clearly this is not true.  (I hope) the math works out and
+    // everything is grand, but clearly the names need to change.  I'm
+    // confused and I wrote most of it.  Anyone new READING this code is in
+    // for a fun time.
+    ON_MAX_ENCODED_PLD_LEN_WITH_TECH = ON_MAX_RAW_PLD_LEN + 1
 };
 
 
