@@ -510,6 +510,13 @@ extern on_state_t on_state;
 extern on_pkt_hdlr_set_t pkt_hdlr;
 
 
+//! an on_pkt_t structure for data packets
+extern on_pkt_t data_pkt_ptrs;
+
+//! an on_pkt_t structure for response packets
+extern on_pkt_t response_pkt_ptrs;
+
+
 //! A place to store a single message with payload.
 extern on_single_data_queue_t single_msg;
 
