@@ -182,6 +182,102 @@ SInt8 get_encoded_payload_len(UInt8 pid)
 }
 
 
+/*!
+    \brief Returns the number of XTEA blocks in the payload for a PID
+
+    \param[in] pid pid of the packet
+
+    \return the number of XTEA blocks in the payload, -1 if the pid is
+           not valid.
+*/
+SInt8 get_num_payload_blocks(UInt8 pid)
+{
+    switch(pid)
+    {
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_ENCODED_BLOCK_TXN_ACK:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_BLOCK_TXN_ACK:
+        #endif
+            return 0;
+        #endif
+        
+
+        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
+        #endif
+            return 3;
+
+
+        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
+        #ifdef ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
+        #endif
+            return 1;
+            
+                    
+        #ifdef _EXTENDED_SINGLE
+        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN:
+        #endif
+            return 2;        
+        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
+        #endif
+            return 3;
+        #endif        
+        
+
+        case ONE_NET_ENCODED_SINGLE_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_SINGLE_DATA:
+        #endif
+            return 1;
+      
+
+        #ifdef _EXTENDED_SINGLE
+        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
+        #endif
+            return 2;
+        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+        #endif
+            return 3;
+        #endif
+        
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_ENCODED_BLOCK_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_BLOCK_DATA:
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ONE_NET_ENCODED_STREAM_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_STREAM_DATA:
+        #endif
+        #endif
+            return 4;
+        #endif
+
+        default:
+            return -1;
+    }
+} // get_num_payload_blocks //
+
+
 
 /*!
     \brief Returns the packet length for a PID
