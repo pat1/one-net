@@ -432,6 +432,10 @@ typedef enum
 } cancel_invite_reason_t;
 #endif
 
+//! Function to retrieve sending device information
+typedef on_sending_device_t* (*one_net_get_sender_info_func_t)
+  (const on_encoded_did_t * const DID);;
+
 
 //! Packet Handling Function for data packets
 typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
@@ -516,6 +520,9 @@ extern on_pkt_t data_pkt_ptrs;
 //! an on_pkt_t structure for response packets
 extern on_pkt_t response_pkt_ptrs;
 
+//! a function to retrieve the sender information
+extern one_net_get_sender_info_func_t get_sender_info;
+
 
 //! A place to store a single message with payload.
 extern on_single_data_queue_t single_msg;
@@ -574,6 +581,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
 // initialization
 void one_net_init(void);
+
 
 // this is a master-specific function, but we're declaring it in one_net.h
 // rather than one_net_master.h because we want to avoid if possible having

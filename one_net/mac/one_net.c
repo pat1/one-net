@@ -115,6 +115,9 @@ on_base_param_t* const on_base_param = (on_base_param_t* const) nv_param;
 //! The set of packet handlers
 on_pkt_hdlr_set_t pkt_hdlr;
 
+//! a function to retrieve the sender information
+extern one_net_get_sender_info_func_t get_sender_info;
+
 
 //! location to store the encoded data for an ack/nack packet
 UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
