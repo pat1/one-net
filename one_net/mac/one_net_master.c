@@ -177,6 +177,9 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
 	  , tick_t* expire_time_from_now
   #endif
   );
+  
+  
+static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 
 
 
@@ -811,6 +814,32 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
     
     
     return ONS_SUCCESS;
+}
+
+
+/*!
+    \brief Finds the sender info.
+
+    The return value should be checked for 0.  The expected_nonce and last nonce
+    should then be compared.  If these two values are equal, then it is a new
+    location so a NACK should be sent to the sender, and the new nonce filled
+    out.  The last nonce value should not be a valid nonce value and should be
+    left unchanged for the time being.
+
+    \param[in] DID The device id of the device.
+
+    \return Pointer to location that holds the sender information (should be
+      checked for 0, and should be checked if a new location).
+*/
+static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
+{
+    on_client_t* client = client_info(DID);
+    if(client == NULL)
+    {
+        return NULL;
+    }
+    
+    return &(client->device_send_info);
 }
 
 
