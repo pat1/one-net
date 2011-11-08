@@ -351,6 +351,67 @@ one_net_status_t one_net_master_remove_device(
 
 
 /*!
+    \brief Returns the encryption key used by a client(or by the master
+      itself).  This is a master-specific function added so that one_net.c
+      can get the correct key for a client.  It is declared in one_net.h
+      rather than one_net_master.h so that one_net.h does not have to
+      include one_net_master.h
+
+    \param[in] type Stream, Block, or Single
+    \param[in] did of the device
+
+    \return The key to use.  NULL if type is invalid or the device is not
+            part of the network
+*/
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_xtea_key_t* master_get_encryption_key(on_data_t type,
+  const on_encoded_did_t* const did)
+#else
+one_net_xtea_key_t* master_get_encryption_key(
+  const on_encoded_did_t* const did)
+#endif
+{
+    on_client_t* client;
+    
+    if(!did)
+    {
+        return NULL;
+    }
+    
+    if(on_encoded_did_equal(did, &MASTER_ENCODED_DID))
+    {
+        // the device is this master device.  Master is using the current key.
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if(type == ON_STREAM)
+        {
+            return (one_net_xtea_key_t*)(on_base_param->stream_key);
+        }
+        #endif
+        return (one_net_xtea_key_t*)(on_base_param->current_key);
+    }
+    
+    client = client_info(did);
+    if(client == NULL)
+    {
+        return NULL; // not in the network
+    }
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(type == ON_STREAM)
+    {
+        return client->use_current_stream_key ?
+          (one_net_xtea_key_t*)(on_base_param->stream_key) :
+          (one_net_xtea_key_t*)(master_param->old_stream_key);
+    }
+    #endif
+    
+    return client->use_current_key ?
+      (one_net_xtea_key_t*)(on_base_param->current_key) :
+      (one_net_xtea_key_t*)(master_param->old_key);
+} // master_get_encryption_key //
+
+
+/*!
     \brief The main function for the ONE-NET MASTER.
 
     \param void

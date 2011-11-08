@@ -575,6 +575,20 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 // initialization
 void one_net_init(void);
 
+// this is a master-specific function, but we're declaring it in one_net.h
+// rather than one_net_master.h because we want to avoid if possible having
+// one_net.h include one_net_master.h.  The implementation is in
+// one_net_master.c
+#ifdef _ONE_NET_MASTER
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_xtea_key_t* master_get_encryption_key(on_data_t type,
+  const on_encoded_did_t* const did);
+#else
+one_net_xtea_key_t* master_get_encryption_key(
+  const on_encoded_did_t* const did);
+#endif
+#endif
+
 
 //! the main function
 BOOL one_net(on_txn_t ** txn);
