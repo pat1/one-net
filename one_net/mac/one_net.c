@@ -315,9 +315,24 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     pkt_ptrs->payload[ON_PLD_MSG_TYPE_IDX] |= msg_type;
     one_net_memmove(&(raw_pld[ON_PLD_DATA_IDX]), raw_pld, (num_xtea_blocks *
       ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX);
-    
-    return ONS_SUCCESS;
+      
+    // compute the crc
+    pkt_ptrs->payload[0] = (UInt8)one_net_compute_crc(
+      &(pkt_ptrs->payload[ON_PLD_CRC_SIZE]),
+      (num_xtea_blocks * ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX -
+      ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+      
+    if((status = on_encrypt(txn->txn_type, raw_pld, txn->key,
+      ONE_NET_XTEA_BLOCK_SIZE * num_xtea_blocks)) == ONS_SUCCESS)
+    {
+        // TODO -- encode
+    } // if encrypting was successful //
+
+    return status;
 }
+
+
+
 
 
 
@@ -371,6 +386,213 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     
     return TRUE;
 }
+
+
+
+
+/*!
+    \brief Encrypt the data passed in.
+
+    data should be formatted such that the first byte is the location where
+    the 8-bit crc is going to go, then the next N bytes are the data that is
+    being encrypted, and there should be room for 1 extra byte on the end
+    for the encryption type.  In short, data should be the format of the
+    payload field for the appropriate data type.
+
+    \param[in] DATA_TYPE Type of data to be sent.  (see on_data_t in one_net.h)
+    \param[in/out] data The data to encrypt
+    \param[in] KEY The XTEA key used to encrypt the data
+    \param[in] payload_len Length to be encrypted, including one byte that is
+               NOT to be encrypted and instead holds the encryption TECHNIQUE.
+               Must be a multiple of 8, plus 1 (i.e. 9, 17, 25, 33, ...)
+
+    \return The status of the operation
+*/
+one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+{
+    // # of encryption rounds
+    UInt8 rounds = 0;
+
+    if(!data || !KEY || (payload_len < 9) || ((payload_len % 8) != 1))
+    {
+        return ONS_BAD_PARAM;
+    } // if invalid parameter //
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    // get the number of XTEA rounds
+    if(DATA_TYPE != ON_STREAM)
+    {
+	#endif
+        switch(on_base_param->single_block_encrypt)
+        {
+            case ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE:
+            {
+                rounds = 0;
+                break;
+            } // no encryption //
+
+            case ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32:
+            {
+                rounds = ON_XTEA_32_ROUNDS;
+                break;
+            } // xtea with 32 rounds //
+
+            default:
+            {
+                return ONS_INTERNAL_ERR;
+                break;
+            } // default //
+        } // switch on encryption type //
+
+        data[payload_len - 1] = on_base_param->single_block_encrypt;
+	#ifdef _STREAM_MESSAGES_ENABLED
+    } // if not stream //
+        else
+        {
+            switch(on_base_param->stream_encrypt)
+            {
+                case ONE_NET_STREAM_ENCRYPT_NONE:
+                {
+                    rounds = 0;
+                    break;
+                } // no encryption //
+
+                case ONE_NET_STREAM_ENCRYPT_XTEA8:
+                {
+                    rounds = ON_XTEA_8_ROUNDS;
+                    break;
+                } // xtea with 8 rounds //
+
+                default:
+                {
+                    return ONS_INTERNAL_ERR;
+                    break;
+                } // default //
+            } // switch on encryption type //
+
+            data[payload_len - 1] = on_base_param->stream_encrypt;
+        } // else stream //
+    #endif // if _STREAM_MESSAGES_ENABLED is not defined //
+
+    if(rounds)
+    {
+        UInt8 i;
+
+        // -1 since we're not enciphering the byte that has the 2 bits for
+        // the encryption type used.
+        for(i = 0; i < payload_len - 1; i += ONE_NET_XTEA_BLOCK_SIZE)
+        {
+            one_net_xtea_encipher(rounds, &(data[i]), KEY);
+        } // process 8 bytes at a time //
+    } // if  rounds //
+
+    return ONS_SUCCESS;
+} // on_encrypt //
+
+
+/*!
+    \brief Decrypt the data passed in.
+
+    The last 2 bits of the data should contain the method used to decrypt the
+    packet.  These 2 bits are the high 2 bits of the last byte, as not all of
+    the bits in the last byte are used.
+
+    \param[in] DATA_TYPE Type of data to decrypted.  (see on_data_t in
+      one_net.h)
+    \param[in/out] data The data to decrypt
+    \param[in] key The XTEA key used to decrypt the data
+    \param[in] payload_len Length to be encrypted, including one byte that is
+               NOT to be encrypted and instead holds the encryption TECHNIQUE.
+               Must be a multiple of 8, plus 1 (i.e. 9, 17, 25, 33, ...)
+
+    \return The status of the operation
+*/
+one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+{
+    // # of encryption rounds
+    UInt8 rounds = 0;
+
+    if(!data)
+    {
+        return ONS_BAD_PARAM;
+    } // if invalid parameter //
+
+    if(!data || !KEY || (payload_len < 9) || ((payload_len % 8) != 1))
+    {
+        return ONS_BAD_PARAM;
+    } // if invalid parameter //
+
+    // get the number of XTEA rounds
+	#ifdef _STREAM_MESSAGES_ENABLED
+    if(DATA_TYPE != ON_STREAM)
+    {
+	#endif
+        switch(data[payload_len - 1])
+        {
+            case ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE:
+            {
+                rounds = 0;
+                break;
+            } // no encryption //
+
+            case ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32:
+            {
+                rounds = ON_XTEA_32_ROUNDS;
+                break;
+            } // xtea with 32 rounds //
+
+            default:
+            {
+                return ONS_INTERNAL_ERR;
+                break;
+            } // default //
+        } // switch on encryption type //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    } // if not stream //
+       else
+        {
+            switch(data[payload_len - 1])
+            {
+                case ONE_NET_STREAM_ENCRYPT_NONE:
+                {
+                    rounds = 0;
+                    break;
+                } // no encryption //
+
+                case ONE_NET_STREAM_ENCRYPT_XTEA8:
+                {
+                    rounds = ON_XTEA_8_ROUNDS;
+                    break;
+                } // xtea with 8 rounds //
+
+                default:
+                {
+                    return ONS_INTERNAL_ERR;
+                    break;
+                } // default //
+            } // switch on encryption type //
+        } // else stream //
+    #endif // ifdef _STREAM_MESSAGES_ENABLED //
+   
+    if(rounds)
+    {
+        UInt8 i;
+
+        // -1 since we're not enciphering the byte that has the 2 bits for
+        // the encryption type used.
+        for(i = 0; i < payload_len - 1; i += ONE_NET_XTEA_BLOCK_SIZE)
+        {
+            one_net_xtea_decipher(rounds, &(data[i]), KEY);
+        } // process 8 bytes at a time //
+    } // if  rounds //
+
+    return ONS_SUCCESS;
+} // on_decrypt //
+
+
+
 
     
 

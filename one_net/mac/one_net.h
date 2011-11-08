@@ -550,6 +550,14 @@ one_net_status_t on_build_hops(UInt8 * hops, UInt8 MAX_HOPS,
 BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+  
+
+
+// encrypting / decrypting
+one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len);
+one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len);
 
 
 
