@@ -440,12 +440,6 @@ void one_net_master(void)
         {
             break;
         } // ON_JOIN_NETWORK case //
-        
-        case ON_SEND_SINGLE_DATA_PKT:
-        {
-            break;
-        } // ON_SEND_SINGLE_DATA_PKT case //
-
 
         default:
         {
