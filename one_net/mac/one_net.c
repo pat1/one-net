@@ -761,12 +761,6 @@ BOOL one_net(on_txn_t ** txn)
                 int index = single_data_queue_ready_to_send(&next_pop_time);
                 if(index >= 0)
                 {
-                    // we are testing the partial packet building.  Fill
-                    // with 0xED to mark things
-                    one_net_memset(single_pkt, 0xED, sizeof(single_pkt));
-                    oncli_send_msg("adds--->%p\n", single_pkt);
-                    
-                    
                     if(pop_queue_element(&single_msg, single_data_raw_pld, index))
                     {
                         // we have a message ready to send and we've popped it.
