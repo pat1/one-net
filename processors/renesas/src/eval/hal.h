@@ -111,6 +111,21 @@ enum
 
 
 
+#ifdef _SNIFFER_MODE
+// constants for the sniffer
+enum
+{
+    //! Number of ms of inactivity before the prompt is displayed. 5s
+    PROMPT_PERIOD = 5000,
+	
+    //! Number of ms to wait after user input has been detected before
+    //! sniffing the channel again.  5s
+    USER_INPUT_PAUSE_TIME = 5000
+};
+#endif
+
+
+
 //! @} HAL_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
