@@ -194,7 +194,28 @@ void tx_bit_isr(void)
 #pragma interrupt dataclk_isr
 void dataclk_isr(void)
 {
+    set_rx_led(TRUE);
+    if(RF_DATA)
+    {
+        rx_rf_data[rx_rf_count] |= bit_mask;
+    } // if a 1 was receeived //
+    else
+    {
+        rx_rf_data[rx_rf_count] &= ~bit_mask;
+    } // else a 0 was received //
+
+    bit_mask >>= 1;
+    if(bit_mask == 0)
+    {
+        bit_mask = 0x80;
+        if(++rx_rf_count >= ON_MAX_ENCODED_PKT_SIZE)
+        {
+            rx_rf_count = 0;
+        } // if the end of the receive buffer has been passed //
+    } // if done receiving a byte //
 } // dataclk_isr //
+
+
 
 //! @} HAL_ADI_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
