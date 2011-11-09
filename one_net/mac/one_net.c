@@ -367,8 +367,8 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
   const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did)
 {
     on_encoded_nid_t* nid = (on_encoded_nid_t*) on_base_param->sid;
-    on_encoded_did_t* repeater_did = (on_encoded_did_t*) (nid +
-      ON_ENCODED_DID_LEN);
+    on_encoded_did_t* repeater_did = (on_encoded_did_t*)
+      (&on_base_param->sid[ON_ENCODED_NID_LEN]);
     if(src_did == NULL)
     {
         // source must be the same as repeater (i.e. we are originating)
