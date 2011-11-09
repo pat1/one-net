@@ -92,93 +92,13 @@
 */
 SInt8 get_encoded_payload_len(UInt8 pid)
 {
-    switch(pid)
+    SInt8 num_payload_blocks = get_num_payload_blocks(pid);   
+    switch(num_payload_blocks)
     {
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_TXN_ACK:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_TXN_ACK:
-        #endif
-            return 0;
-        #endif
-        
-
-        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
-        #endif
-            return ON_INVITE_ENCODED_PLD_LEN;
-
-
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
-        #ifdef ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        #endif
-            return ON_ACK_NACK_ENCODED_PLD_LEN;
-            
-                    
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN:
-        #endif
-            return ON_LARGE_ACK_NACK_ENCODED_PLD_LEN;        
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
-        #endif
-            return ON_EXTENDED_ACK_NACK_ENCODED_PLD_LEN;
-        #endif        
-        
-
-        case ONE_NET_ENCODED_SINGLE_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA:
-        #endif
-            return ON_SINGLE_ENCODED_PLD_LEN;
-      
-
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
-        #endif
-            return ON_LARGE_SINGLE_ENCODED_PLD_LEN;
-        #endif
-        
-
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
-        #endif
-            return ON_EXTENDED_SINGLE_ENCODED_PLD_LEN;
-        #endif
-        
-
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_DATA:
-        #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_STREAM_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_STREAM_DATA:
-        #endif
-        #endif
-            return ON_BLOCK_ENCODED_PLD_LEN;
-        #endif
-
-        default:
-            return -1;
-    }  
+        case 1: case 2: case 3: return 11 * num_payload_blocks;
+        case 4: return 43;
+        default: return num_payload_blocks;
+    }
 }
 
 
