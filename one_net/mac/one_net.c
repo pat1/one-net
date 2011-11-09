@@ -751,12 +751,13 @@ BOOL one_net(on_txn_t ** txn)
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
               && single_msg_ptr == NULL)
             {
+                on_sending_device_t* device;
+                
                 tick_t next_pop_time; // we don't sleep, so we won't use
                                        // this.  But the function requires it
                                        // as a parameter.
                 
-                
-                
+
                 // nothing is pending.  See if we have anything ready to go
                 int index = single_data_queue_ready_to_send(&next_pop_time);
                 if(index >= 0)
@@ -766,6 +767,18 @@ BOOL one_net(on_txn_t ** txn)
                         // we have a message ready to send and we've popped it.
                         // Now let's get things ready to send.
                         
+                        // first get the sending device info.
+                        device = (*get_sender_info)((on_encoded_did_t*)
+                          single_msg.dst_did);
+                        if(device == NULL)
+                        {
+                            // an error occurred somewhere.  Abort.
+                            return TRUE; // no pending transaction since we're
+                                         // aborting
+                        }
+                        
+                        // fill with 0xEE for test purposes
+                        one_net_memset(single_txn.pkt, 0xEE, ON_SINGLE_ENCODED_PKT_SIZE);
                         
                         if(!setup_pkt_ptr(single_msg.pid, single_pkt,
                           &data_pkt_ptrs))
@@ -774,56 +787,101 @@ BOOL one_net(on_txn_t ** txn)
                             // a bad pid.  Unrecoverable.  Just abort.
                             return TRUE; // no outstanding transaction
                         }
-                        
 
-                        // we'll fill in what we can here.
+                        // pick a message id if we don't already have one.
+                        if(device->msg_id < ON_MAX_MSG_ID)
+                        {
+                            // message id is valid and is not ready for a
+                            // "roll-over".  Increment it.
+                            (device->msg_id)++;
+                        }
+                        else
+                        {
+                            // pick a random one.
+                            device->msg_id = /*one_net_prand(get_tick_count(),
+                              ON_MAX_MSG_ID)*/0x35;
+                        }
+                        
+                        // Check the nonces too.  See if they are valid
+                        if(device->send_nonce > ON_MAX_NONCE)
+                        {
+                            device->send_nonce = /*one_net_prand(
+                              get_tick_count(), ON_MAX_NONCE)*/28;
+                        }
+                        // Check the nonces too.  See if they are valid
+                        if(device->expected_nonce > ON_MAX_NONCE)
+                        {
+                            device->expected_nonce = /*one_net_prand(
+                              get_tick_count(), ON_MAX_NONCE)*/0x12;
+                        }
+                        
+                        #ifdef _ONE_NET_MULTI_HOP
+                        // TODO -- What about hops?
+                        #endif
+                        
+                        // now fill in the packet
+                        
+                        // fill in the addresses
+                        if(on_build_my_pkt_addresses(&data_pkt_ptrs,
+                          (on_encoded_did_t*) single_msg.dst_did,
+                          (on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
+                        {
+                            // An error of some sort occurred.  Abort.
+                            return TRUE; // no outstanding transaction
+                        }
+
+                        // we'll need to fill in the key.  We're dealing with
+                        // a single transaction here.  Fill in the key.
+                        #ifdef _ONE_NET_CLIENT
+                        single_txn.key =
+                          (one_net_xtea_key_t*) on_base_param->current_key;
+                        #endif
+                        #ifdef _ONE_NET_MASTER
+                        if(device_is_master)
+                        {
+                            // we're the master.  We may or may not be dealing
+                            // with a client using the old key.
+                            #ifdef _ONE_NET_MULTI_HOP
+                            single_txn.key = master_get_encryption_key(ON_SINGLE,
+                              (on_encoded_did_t*) single_msg.dst_did);
+                            #else
+                            single_txn.key = master_get_encryption_key(
+                              (on_encoded_did_t*) single_msg.dst_did);
+                            #endif
+                        }
+                        #endif
+                        
+                        // It's a data packet.  Fill in the data portion
+                        if(on_build_data_pkt(single_msg.payload,
+                          single_msg.msg_type, &data_pkt_ptrs, &single_txn,
+                          device)!= ONS_SUCCESS)
+                        {
+                            // An error of some sort occurred.  Abort.
+                            return TRUE; // no outstanding transaction
+                        }
+
+                        // now finish building the packet.
+                        if(on_complete_pkt_build(&data_pkt_ptrs,
+                          device->msg_id, single_msg.pid) != ONS_SUCCESS)
+                        {
+                            // An error of some sort occurred.  Abort.
+                            return TRUE; // no outstanding transaction                            
+                        }                       
+
+                        // packet was built successfully.  Set the transaction,
+                        // state, etc.
                         single_txn.priority = single_msg.priority;
-                        single_txn.retry = 0;
-                        single_txn.next_txn_timer = ONT_SINGLE_TIMER;
-                        single_txn.data_len = get_encoded_payload_len(single_msg.pid);
-                        single_msg_ptr = &single_msg;
                         *txn = &single_txn;
-                        
-                        // now fill in as much of the packet as we can.
-                        
-                        // the preamble is always the same
-                        one_net_memmove(data_pkt_ptrs.packet_header,
-                          HEADER, sizeof(HEADER));
-                          
-                        // the repeater did is always us
-                        one_net_memmove(*(data_pkt_ptrs.enc_repeater_did),
-                          &on_base_param->sid[ON_ENCODED_NID_LEN],
-                          ON_ENCODED_DID_LEN);
-                          
-                        // fill in the destination
-                        one_net_memmove(*(data_pkt_ptrs.enc_dst_did),
-                          single_msg.dst_did, ON_ENCODED_DID_LEN);
-                          
-                        // fill in the NID
-                        one_net_memmove(*(data_pkt_ptrs.enc_nid),
-                          on_base_param->sid, ON_ENCODED_NID_LEN);
-                          
-                        // fill in the source
-                        one_net_memmove(*(data_pkt_ptrs.enc_src_did),
-                          single_msg.src_did, ON_ENCODED_NID_LEN);
-                        
-                        // fill in the PID
-                        *(data_pkt_ptrs.pid) = single_msg.pid;
-                        
-                        // that's about all we can fill in.  one_net_client or
-                        // one_net_master will have to complete.  Set on_state
-                        // to ON_SEND_PKT, but keep the priority as
-                        // ONE_NET_NO_PRIORITY so that one_net_client or
-                        // one_net_master know that 1) they need to send a
-                        // single packet, but 2) more needs to be done before
-                        // the packet can be sent.
+                        single_msg_ptr = &single_msg;
                         on_state = ON_SEND_SINGLE_DATA_PKT;
+                        
                         return FALSE; // transaction is not complete
                     }
                 }
             }
         } // case ON_LISTEN_FOR_DATA //
     }
+    
     return TRUE;
 } // one_net //
 
