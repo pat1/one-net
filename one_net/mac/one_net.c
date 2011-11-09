@@ -231,8 +231,8 @@ on_state_t on_state = ON_INIT_STATE;
 //! @{
 
 
-
-static BOOL check_for_clr_channel(void);
+// Nov. 9, 2011 -- temorarily making global for testing
+/* static*/ BOOL check_for_clr_channel(void);
 
 
 
@@ -960,7 +960,10 @@ BOOL one_net(on_txn_t ** txn)
     \return TRUE If the channel is clear
             FALSE If the channel is not clear.
 */
-static BOOL check_for_clr_channel(void)
+
+
+// Nov. 9, 2011 -- temporarily making global for sniff testing purposes
+/*static*/ BOOL check_for_clr_channel(void)
 {
     if(ont_inactive_or_expired(ONT_CLR_CHANNEL_TIMER))
     {

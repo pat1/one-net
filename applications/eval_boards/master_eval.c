@@ -270,8 +270,54 @@ void init_serial_master(void)
 
     \return void
 */
+
+
+#if 1
+// temporarily changing it so we send a 26 bit "turn switch on" message
+// to 002 unit 3 in the 1.X strain format as a test to see if it can be
+// sniffed by the 1.X sniffer.  This is an invalid 2.0 Beta packet, but
+// a valid 2.0 Alpha and 1.X packet.  The packet was sniffed from a
+// 2.0 Alpha packet.  The {0x55, 0x55, 0x55, 0x33} header has been added
+// to the front.
+#include "tal.h"
+static UInt8 send_sing_pkt[26] =
+{
+    0x55, 0x55, 0x55, 0x33, 0xB4, 0xB3,
+    0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xBC,
+    0xB4, 0xBC, 0xB9, 0x32, 0x93, 0x3C,
+    0xD5, 0xD9, 0x33, 0x53, 0x32, 0x34,
+    0xAA, 0x69
+};
+
+
+// see one_net.c -- temporarily making one_net.c static function global
+BOOL check_for_clr_channel(void);
+#endif
 void master_eval(void)
 {
+    #if 1
+    // temporarily changing it so we send a 26 bit "turn switch on" message
+    // to 002 unit 3 in the 1.X strain format as a test to see if it can be
+    // sniffed.
+    while(1)
+    {
+        delay_ms(1000);
+        while(!check_for_clr_channel())
+        {
+        }
+
+        tal_write_packet(send_sing_pkt, 26);
+        
+        while(!tal_write_packet_done())
+        {
+        }
+    }
+    #endif
+    
+
+    
+    
+    
     #ifdef _AUTO_MODE
     if(in_auto_mode)
     {
