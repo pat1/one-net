@@ -866,20 +866,40 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             // An error of some sort occurred.  Abort.
                             return TRUE; // no outstanding transaction                            
-                        }                       
+                        }
 
                         // packet was built successfully.  Set the transaction,
                         // state, etc.
                         single_txn.priority = single_msg.priority;
+                        single_txn.data_len =
+                          get_encoded_packet_len(single_msg.pid, TRUE);
                         *txn = &single_txn;
                         single_msg_ptr = &single_msg;
                         on_state = ON_SEND_SINGLE_DATA_PKT;
                         
+                        // set the timer to send immediately
+                        ont_set_timer((*txn)->next_txn_timer, 0);
+
                         return FALSE; // transaction is not complete
                     }
                 }
             }
         } // case ON_LISTEN_FOR_DATA //
+        
+        case ON_SEND_SINGLE_DATA_PKT:
+        {
+            if(ont_inactive_or_expired((*txn)->next_txn_timer)
+              && check_for_clr_channel())
+            {
+                one_net_write((*txn)->pkt, (*txn)->data_len);
+
+                ont_set_timer(ONT_RESPONSE_TIMER,
+                  MS_TO_TICK(ONE_NET_RESPONSE_TIME_OUT));
+                on_state++;
+            } // if the channel is clear //
+            
+            break;
+        } // case ON_SEND_SINGLE_DATA_PKT //
     }
     
     return TRUE;
