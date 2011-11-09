@@ -586,7 +586,15 @@ UInt16 read_battery(void)
 */
 UInt16 read_adc(void)
 {
-    return 0;
+    const UInt8 MSG[REG_SIZE] = {0x00, 0x00, 0x01, 0x77};
+
+    UInt16 adc;
+
+    turn_off_agc();
+    adc = adi_7025_read(MSG) & 0x007F;
+    turn_on_agc();
+
+    return adc;
 } // read_adc //
 
 
