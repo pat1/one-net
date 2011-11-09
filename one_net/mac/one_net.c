@@ -320,7 +320,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
       ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
     decoded_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
       >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    decoded_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (device->expected_nonce <<
+    decoded_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
       ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
     decoded_pld[ON_PLD_MSG_TYPE_IDX] |= msg_type;
     one_net_memmove(&decoded_pld[ON_PLD_DATA_IDX], raw_pld, (num_xtea_blocks *
@@ -329,8 +329,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     // compute the crc
     decoded_pld[0] = (UInt8)one_net_compute_crc(
       &decoded_pld[ON_PLD_CRC_SIZE],
-      (num_xtea_blocks * ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX -
-      ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER); 
+      (num_xtea_blocks * ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_CRC_SIZE,
+      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
     if((status = on_encrypt(txn->txn_type, decoded_pld, txn->key,
       1 + ONE_NET_XTEA_BLOCK_SIZE * num_xtea_blocks)) == ONS_SUCCESS)
