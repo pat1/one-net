@@ -185,6 +185,12 @@ UInt8 single_data_raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
 on_single_data_queue_t* single_msg_ptr = NULL;
 
 
+//! A place to store the raw packet bytes when encrypting, decrypting, etc.
+//! so that it will not have to be declared inside of functions and risk a
+//! overflow.
+UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
+
+
 
 //                              PUBLIC VARIABLES
 //==============================================================================
@@ -211,12 +217,6 @@ on_state_t on_state = ON_INIT_STATE;
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
-
-
-//! A place to store the raw packet bytes when encrypting, decrypting, etc.
-//! so that it will not have to be declared inside of functions and risk a
-//! overflow.
-static UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
 
 
 

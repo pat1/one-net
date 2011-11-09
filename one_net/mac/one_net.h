@@ -535,7 +535,10 @@ extern UInt8 single_data_raw_pld[];
 extern on_single_data_queue_t* single_msg_ptr;
 
 
-
+//! A place to store the raw packet bytes when encrypting, decrypting, etc.
+//! so that it will not have to be declared inside of functions and risk a
+//! overflow.
+extern UInt8 raw_payload_bytes[];
 
 
 //! @} ONE-NET_pub_var
