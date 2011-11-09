@@ -750,7 +750,7 @@ BOOL one_net(on_txn_t ** txn)
             // temporarily changing it so we send a 26 bit "turn switch on" message
             // to 002 unit 3 in the 1.X strain format as a test to see if it can be
             // sniffed.
-            while(1)
+            //while(1)
             {
                 delay_ms(1000);
                 while(!check_for_clr_channel())
@@ -762,6 +762,8 @@ BOOL one_net(on_txn_t ** txn)
                 while(!tal_write_packet_done())
                 {
                 }
+                
+                break;
             }
             #endif
 
