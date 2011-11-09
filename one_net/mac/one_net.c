@@ -868,29 +868,7 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             // An error of some sort occurred.  Abort.
                             return TRUE; // no outstanding transaction                            
-                        }
-                        
-                        #if 1
-                        // temporarily changing it so we send a 26 bit "turn switch on" message
-                        // to 002 unit 3 in the 1.X strain format as a test to see if it can be
-                        // sniffed.
-                        //while(1)
-                        {
-                            delay_ms(1000);
-                            while(!check_for_clr_channel())
-                            {
-                            }
-
-                            tal_write_packet(NULL, 0);
-        
-                            while(!tal_write_packet_done())
-                            {
-                            }
-                
-                            break;
-                        }
-                        #endif                        
-                        
+                        }                        
 
                         // packet was built successfully.  Set the transaction,
                         // state, etc.
@@ -912,6 +890,33 @@ BOOL one_net(on_txn_t ** txn)
         
         case ON_SEND_SINGLE_DATA_PKT:
         {
+            #if 1
+            // temporarily changing it so we send a 26 bit "turn switch on" message
+            // to 002 unit 3 in the 1.X strain format as a test to see if it can be
+            // sniffed.
+            //while(1)
+            {
+                delay_ms(1000);
+                while(!check_for_clr_channel())
+                {
+                }
+
+                tal_write_packet(NULL, 0);
+
+                while(!tal_write_packet_done())
+                {
+                }
+    
+                (*txn)->priority = ONE_NET_NO_PRIORITY;
+                *txn = NULL;
+                on_state = ON_LISTEN_FOR_DATA;
+                break;
+            }
+            #endif              
+            
+            
+            
+            
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
