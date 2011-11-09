@@ -746,31 +746,6 @@ BOOL one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
-            #if 1
-            // temporarily changing it so we send a 26 bit "turn switch on" message
-            // to 002 unit 3 in the 1.X strain format as a test to see if it can be
-            // sniffed.
-            //while(1)
-            {
-                delay_ms(1000);
-                while(!check_for_clr_channel())
-                {
-                }
-
-                tal_write_packet(NULL, 0);
-        
-                while(!tal_write_packet_done())
-                {
-                }
-                
-                break;
-            }
-            #endif
-
-
-
-            
-            
             // we are listinging for data.  Make sure we have nothing
             // pending
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
@@ -791,6 +766,29 @@ BOOL one_net(on_txn_t ** txn)
                     {
                         // we have a message ready to send and we've popped it.
                         // Now let's get things ready to send.
+                        
+                        
+                        #if 1
+                        // temporarily changing it so we send a 26 bit "turn switch on" message
+                        // to 002 unit 3 in the 1.X strain format as a test to see if it can be
+                        // sniffed.
+                        //while(1)
+                        {
+                            delay_ms(1000);
+                            while(!check_for_clr_channel())
+                            {
+                            }
+
+                            tal_write_packet(NULL, 0);
+        
+                            while(!tal_write_packet_done())
+                            {
+                            }
+                
+                            break;
+                        }
+                        #endif                        
+                        
                         
                         // first get the sending device info.
                         device = (*get_sender_info)((on_encoded_did_t*)
