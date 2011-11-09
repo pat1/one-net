@@ -488,6 +488,7 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     
     pkt->packet_header    = &pkt_bytes[0];
     pkt->pid              = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    *(pkt->pid)           = pid;
     pkt->enc_msg_id       = &pkt_bytes[ONE_NET_ENCODED_MSG_ID_IDX];
     pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
     pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
