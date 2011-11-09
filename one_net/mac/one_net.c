@@ -786,31 +786,7 @@ BOOL one_net(on_txn_t ** txn)
                             // an error of some sort occurred.  We likely have
                             // a bad pid.  Unrecoverable.  Just abort.
                             return TRUE; // no outstanding transaction
-                        }
-                        
-                        
-                        
-                        #if 1
-                        // temporarily changing it so we send a 26 bit "turn switch on" message
-                        // to 002 unit 3 in the 1.X strain format as a test to see if it can be
-                        // sniffed.
-                        //while(1)
-                        {
-                            delay_ms(1000);
-                            while(!check_for_clr_channel())
-                            {
-                            }
-
-                            tal_write_packet(NULL, 0);
-        
-                            while(!tal_write_packet_done())
-                            {
-                            }
-                
-                            break;
-                        }
-                        #endif                          
-                        
+                        }                        
 
                         // pick a message id if we don't already have one.
                         if(device->msg_id < ON_MAX_MSG_ID)
@@ -842,6 +818,29 @@ BOOL one_net(on_txn_t ** txn)
                         #ifdef _ONE_NET_MULTI_HOP
                         // TODO -- What about hops?
                         #endif
+                        
+
+                        #if 1
+                        // temporarily changing it so we send a 26 bit "turn switch on" message
+                        // to 002 unit 3 in the 1.X strain format as a test to see if it can be
+                        // sniffed.
+                        //while(1)
+                        {
+                            delay_ms(1000);
+                            while(!check_for_clr_channel())
+                            {
+                            }
+
+                            tal_write_packet(NULL, 0);
+        
+                            while(!tal_write_packet_done())
+                            {
+                            }
+                
+                            break;
+                        }
+                        #endif                           
+                        
                         
                         // now fill in the packet
                         
