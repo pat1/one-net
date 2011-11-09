@@ -101,7 +101,7 @@ enum
 {
     //! The interval in ms to automatically send data when in auto mode.
     //! 1 second
-    AUTO_INTERVAL = 1000,
+    AUTO_INTERVAL = 25000,
 
     //! The timeout after a user switches the mode switch before the device
     //! goes back to automatically sending commands (AUTO_INTERVAL). 20s

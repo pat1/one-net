@@ -746,6 +746,9 @@ BOOL one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
+            delay_ms(5000);
+            
+            
             // we are listinging for data.  Make sure we have nothing
             // pending
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
@@ -896,7 +899,6 @@ BOOL one_net(on_txn_t ** txn)
             // sniffed.
             //while(1)
             {
-                delay_ms(1000);
                 while(!check_for_clr_channel())
                 {
                 }
