@@ -55,6 +55,14 @@
 //! @{
 
 
+enum
+{
+    //! Time in ms to spend checking for reception of a packet
+    //! (the PREAMBLE & SOF). 10ms
+    ONE_NET_WAIT_FOR_SOF_TIME = 10
+};
+
+
 #ifdef _PEER
 enum
 {
