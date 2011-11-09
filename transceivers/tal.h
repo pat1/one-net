@@ -73,7 +73,7 @@
 #define one_net_channel_is_clear() tal_channel_is_clear()
 #define one_net_write(X, Y) tal_write_packet(X, Y)
 #define one_net_write_done() tal_write_packet_done()
-#define one_net_read(X) tal_read_bytes(X)
+#define one_net_read(X, Y) tal_read_bytes(X, Y)
 #define one_net_look_for_pkt(X) tal_look_for_packet(X)
 #define one_net_set_data_rate(X) tal_set_data_rate(X)
 #define one_net_set_channel(X) tal_set_channel(X)
