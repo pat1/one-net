@@ -892,14 +892,46 @@ BOOL one_net(on_txn_t ** txn)
               && check_for_clr_channel())
             {
                 one_net_write((*txn)->pkt, (*txn)->data_len);
-
-                ont_set_timer(ONT_RESPONSE_TIMER,
-                  MS_TO_TICK(ONE_NET_RESPONSE_TIME_OUT));
                 on_state++;
             } // if the channel is clear //
             
             break;
         } // case ON_SEND_SINGLE_DATA_PKT //
+        
+        case ON_SEND_SINGLE_DATA_WRITE_WAIT:
+        {
+            if(one_net_write_done())
+            {
+                on_state++;
+                ont_set_timer(ONT_RESPONSE_TIMER,
+                  MS_TO_TICK(ONE_NET_RESPONSE_TIME_OUT));
+            } // if write is complete //
+            break;
+        } // send single data write wait case //
+        
+        case ON_WAIT_FOR_SINGLE_DATA_RESP:
+        {
+            if(ont_inactive_or_expired(ONT_RESPONSE_TIMER))
+            {
+                oncli_send_msg("Timed out without a response.  Incrementing "
+                  "retries and will try again if any remain.\n");
+                ((*txn)->retry)++;
+                if((*txn)->retry < ON_MAX_RETRY)
+                {
+                    // set the timer to send immediately
+                    ont_set_timer((*txn)->next_txn_timer, 0);
+                    on_state -= 2;
+                }
+                else
+                {
+                    oncli_send_msg("All retries have expired.  Transaction "
+                      "failed.\n");
+                    *txn = 0;
+                    on_state = ON_LISTEN_FOR_DATA;
+                }
+            }
+            break;
+        } // case ON_WAIT_FOR_SINGLE_DATA_RESP
     }
     
     return TRUE;
