@@ -852,7 +852,24 @@ BOOL one_net(on_txn_t ** txn)
                         }
                         #endif
                         
-                      
+                  
+                        // It's a data packet.  Fill in the data portion
+                        if(on_build_data_pkt(single_msg.payload,
+                          single_msg.msg_type, &data_pkt_ptrs, &single_txn,
+                          device)!= ONS_SUCCESS)
+                        {
+                            // An error of some sort occurred.  Abort.
+                            return TRUE; // no outstanding transaction
+                        }
+
+                        // now finish building the packet.
+                        if(on_complete_pkt_build(&data_pkt_ptrs,
+                          device->msg_id, single_msg.pid) != ONS_SUCCESS)
+                        {
+                            // An error of some sort occurred.  Abort.
+                            return TRUE; // no outstanding transaction                            
+                        }
+                        
                         #if 1
                         // temporarily changing it so we send a 26 bit "turn switch on" message
                         // to 002 unit 3 in the 1.X strain format as a test to see if it can be
@@ -872,25 +889,8 @@ BOOL one_net(on_txn_t ** txn)
                 
                             break;
                         }
-                        #endif
+                        #endif                        
                         
-                        
-                        // It's a data packet.  Fill in the data portion
-                        if(on_build_data_pkt(single_msg.payload,
-                          single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                          device)!= ONS_SUCCESS)
-                        {
-                            // An error of some sort occurred.  Abort.
-                            return TRUE; // no outstanding transaction
-                        }
-
-                        // now finish building the packet.
-                        if(on_complete_pkt_build(&data_pkt_ptrs,
-                          device->msg_id, single_msg.pid) != ONS_SUCCESS)
-                        {
-                            // An error of some sort occurred.  Abort.
-                            return TRUE; // no outstanding transaction                            
-                        }
 
                         // packet was built successfully.  Set the transaction,
                         // state, etc.
