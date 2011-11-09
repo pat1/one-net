@@ -87,8 +87,8 @@
 
     \param[in] pid pid of the packet
 
-    \return the length of the payload if the pid is valid, -1 if the pid is
-           not valid.
+    \return the length of the encoded payload if the pid is valid,
+           -1 if the pid is not valid.
 */
 SInt8 get_encoded_payload_len(UInt8 pid)
 {
@@ -97,6 +97,27 @@ SInt8 get_encoded_payload_len(UInt8 pid)
     {
         case 1: case 2: case 3: return 11 * num_payload_blocks;
         case 4: return 43;
+        default: return num_payload_blocks;
+    }
+}
+
+
+/*!
+    \brief Returns the raw payload len for a PID
+
+    \param[in] pid pid of the packet
+
+    \return the length of the raw payload if the pid is valid, -1 if the pid
+           is not valid.
+*/
+SInt8 get_raw_payload_len(UInt8 pid)
+{
+    // includes 1 byte for the encryption method
+    SInt8 num_payload_blocks = get_num_payload_blocks(pid);   
+    switch(num_payload_blocks)
+    {
+        case 1: case 2: case 3: case 4:
+            return ONE_NET_XTEA_BLOCK_SIZE * num_payload_blocks + 1;
         default: return num_payload_blocks;
     }
 }

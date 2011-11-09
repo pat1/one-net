@@ -871,6 +871,7 @@ typedef struct
 //! @{
 
 SInt8 get_encoded_payload_len(UInt8 pid);
+SInt8 get_raw_payload_len(UInt8 pid);
 SInt8 get_num_payload_blocks(UInt8 pid);
 UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
 
