@@ -295,7 +295,7 @@ BOOL check_for_clr_channel(void);
 #endif
 void master_eval(void)
 {
-    #if 1
+    #if 0
     // temporarily changing it so we send a 26 bit "turn switch on" message
     // to 002 unit 3 in the 1.X strain format as a test to see if it can be
     // sniffed.

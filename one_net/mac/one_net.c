@@ -746,6 +746,29 @@ BOOL one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
+            #if 1
+            // temporarily changing it so we send a 26 bit "turn switch on" message
+            // to 002 unit 3 in the 1.X strain format as a test to see if it can be
+            // sniffed.
+            while(1)
+            {
+                delay_ms(1000);
+                while(!check_for_clr_channel())
+                {
+                }
+
+                tal_write_packet(NULL, 0);
+        
+                while(!tal_write_packet_done())
+                {
+                }
+            }
+            #endif
+
+
+
+            
+            
             // we are listinging for data.  Make sure we have nothing
             // pending
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
