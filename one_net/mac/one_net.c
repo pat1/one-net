@@ -277,10 +277,18 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 {
     UInt8 status;
-    SInt8 num_xtea_blocks = get_encoded_payload_len(*(pkt_ptrs->pid)) / 4;
-    if(num_xtea_blocks < 1 || num_xtea_blocks > 4)
+    UInt8 decoded_pld[4 * ONE_NET_XTEA_BLOCK_SIZE + 1]; // TODO -- make global
+    UInt8 num_words;
+    
+    SInt8 num_xtea_blocks = get_num_payload_blocks(*(pkt_ptrs->pid));
+    
+    switch(num_xtea_blocks)
     {
-        return ONS_BAD_PARAM;
+        case 1: num_words = 11; break;
+        case 2: num_words = 22; break;
+        case 3: num_words = 33; break;
+        case 4: num_words = 43; break;
+        default : return ONS_BAD_PARAM;
     }
     
     #ifdef _ONE_NET_MULTI_HOP
@@ -306,29 +314,28 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         device->send_nonce = one_net_prand(get_tick_count(),
           ON_MAX_NONCE);
     }
-    
 
     // build the packet
-    pkt_ptrs->payload[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
+    decoded_pld[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
       ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
-    pkt_ptrs->payload[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
+    decoded_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
       >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    pkt_ptrs->payload[ON_PLD_RESP_NONCE_LOW_IDX] = (device->expected_nonce <<
+    decoded_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (device->expected_nonce <<
       ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
-    pkt_ptrs->payload[ON_PLD_MSG_TYPE_IDX] |= msg_type;
-    one_net_memmove(&(raw_pld[ON_PLD_DATA_IDX]), raw_pld, (num_xtea_blocks *
+    decoded_pld[ON_PLD_MSG_TYPE_IDX] |= msg_type;
+    one_net_memmove(&decoded_pld[ON_PLD_DATA_IDX], raw_pld, (num_xtea_blocks *
       ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX);
       
     // compute the crc
-    pkt_ptrs->payload[0] = (UInt8)one_net_compute_crc(
-      &(pkt_ptrs->payload[ON_PLD_CRC_SIZE]),
+    decoded_pld[0] = (UInt8)one_net_compute_crc(
+      &decoded_pld[ON_PLD_CRC_SIZE],
       (num_xtea_blocks * ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX -
-      ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+      ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER); 
       
-    if((status = on_encrypt(txn->txn_type, raw_pld, txn->key,
-      ONE_NET_XTEA_BLOCK_SIZE * num_xtea_blocks)) == ONS_SUCCESS)
+    if((status = on_encrypt(txn->txn_type, decoded_pld, txn->key,
+      1 + ONE_NET_XTEA_BLOCK_SIZE * num_xtea_blocks)) == ONS_SUCCESS)
     {
-        // TODO -- encode
+        status = on_encode(pkt_ptrs->payload, decoded_pld, num_words);
     } // if encrypting was successful //
 
     return status;
