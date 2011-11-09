@@ -292,7 +292,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 
     
     #ifdef _ONE_NET_MULTI_HOP
-    if(packet_is_multihop(pkt_ptrs->pid))
+    if(packet_is_multihop(*(pkt_ptrs->pid)))
     {
         // build hops
         if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
@@ -425,7 +425,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     {
         one_net_status_t status;
         if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
-          pkt_ptrs->max_hops) != ONS_SUCCESS)
+          pkt_ptrs->max_hops) != ONS_SUCCESS))
         {
             return status;
         }
