@@ -407,6 +407,51 @@ UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
 
 one_net_status_t tal_look_for_packet(tick_t duration)
 {
+    UInt8 blks_to_rx = ON_MAX_ENCODED_PKT_SIZE;
+
+    tick_t end = get_tick_count() + duration;
+
+    tal_turn_on_receiver();   
+
+    rx_rf_count = 0;
+    rx_rf_idx = 0;
+
+    while(!SYNCDET)
+    {   
+        if(get_tick_count() >= end)
+        {
+		    return ONS_TIME_OUT;
+        } // if done looking //
+    } // while no sync detect //
+
+    ENABLE_RX_BIT_INTERRUPTS();
+
+    do
+    {
+        // the id length should be the location in the byte stream where the
+        // PID will be received.  Look for the PID so we know how many bytes
+        // to receive.
+        if(rx_rf_count ==
+          ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_RPTR_DID_IDX + 1)
+        {
+            // All packet size constants below are including the PREAMBLE &
+            // SOF.  Since these cause the sync detect, these won't be read
+            // in, so the packet size that is being read in is shorter, so
+            // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
+            // read is being started.
+            blks_to_rx = get_encoded_packet_len(rx_rf_data[ONE_NET_ENCODED_PID_IDX - 
+              ONE_NET_ENCODED_RPTR_DID_IDX], FALSE);
+            if(blks_to_rx == 0)
+            {
+                // bad packet type
+                DISABLE_RX_BIT_INTERRUPTS();
+                return ONS_BAD_PKT_TYPE;
+            }
+        } // if PID read //
+    } while(rx_rf_count < blks_to_rx);
+
+    DISABLE_RX_BIT_INTERRUPTS();
+
     return ONS_SUCCESS;
 }
 
