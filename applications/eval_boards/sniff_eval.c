@@ -19,6 +19,8 @@
 #include "tick.h"
 #include "one_net_port_specific.h"
 #include "one_net_eval.h"
+#include "hal.h"
+#include "tal.h"
 
 
 
@@ -107,6 +109,61 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 */
 void sniff_eval(void)
 {
+    UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
+
+    UInt16 i, bytes_read = sizeof(pkt);
+
+    if(oncli_user_input())
+    {
+        ont_set_timer(USER_INPUT_TIMER, MS_TO_TICK(USER_INPUT_PAUSE_TIME));
+        return;
+    } // if there has been user input //
+
+    if(ont_active(USER_INPUT_TIMER))
+    {
+        if(ont_expired(USER_INPUT_TIMER))
+        {
+            ont_stop_timer(USER_INPUT_TIMER);
+        } // if the user input timer has expired //
+        else
+        {
+            return;
+        } // else the user input timer has not expired //
+    } // if there had been user input //
+
+
+    if(one_net_look_for_pkt(MS_TO_TICK(ONE_NET_WAIT_FOR_SOF_TIME))
+      != ONS_SUCCESS)
+    {
+        if(ont_active(PROMPT_TIMER) && ont_expired(PROMPT_TIMER))
+        {
+            ont_stop_timer(PROMPT_TIMER);
+            oncli_print_prompt();
+        } // if the prompt needs to be displayed //
+
+        return;
+    } // if SOF was not received //
+
+    bytes_read = one_net_read(pkt, bytes_read);
+
+    oncli_send_msg("%lu received %u bytes:\r\n", get_tick_count(), bytes_read);
+    for(i = 0; i < bytes_read; i++)
+    {
+        oncli_send_msg("%02X ", pkt[i]);
+    
+        if((i % 16) == 15)
+        {
+            oncli_send_msg("\r\n");
+        } // if need to output a new line //
+    } // loop to output the bytes that were read //
+
+    if((i % 16) != 15)
+    {
+        oncli_send_msg("\n");
+    } // if a new line needs to be output //
+
+    // update the time to display the prompt
+    ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);
 } // sniff_eval //
 
 
