@@ -186,7 +186,6 @@ on_single_data_queue_t* single_msg_ptr = NULL;
 
 
 
-
 //                              PUBLIC VARIABLES
 //==============================================================================
 
@@ -212,6 +211,12 @@ on_state_t on_state = ON_INIT_STATE;
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
+
+
+//! A place to store the raw packet bytes when encrypting, decrypting, etc.
+//! so that it will not have to be declared inside of functions and risk a
+//! overflow.
+static UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
 
 
 
@@ -277,7 +282,6 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 {
     UInt8 status;
-    UInt8 decoded_pld[4 * ONE_NET_XTEA_BLOCK_SIZE + 1]; // TODO -- make global
     SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
     SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
     
@@ -312,25 +316,25 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     }
 
     // build the packet
-    decoded_pld[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
+    raw_payload_bytes[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
       ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
-    decoded_pld[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
+    raw_payload_bytes[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
       >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    decoded_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
+    raw_payload_bytes[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
       ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
-    decoded_pld[ON_PLD_MSG_TYPE_IDX] |= msg_type;
-    one_net_memmove(&decoded_pld[ON_PLD_DATA_IDX], raw_pld,
+    raw_payload_bytes[ON_PLD_MSG_TYPE_IDX] |= msg_type;
+    one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
       (raw_pld_len - 1) - ON_PLD_DATA_IDX);
       
     // compute the crc
-    decoded_pld[0] = (UInt8)one_net_compute_crc(
-      &decoded_pld[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
+    raw_payload_bytes[0] = (UInt8)one_net_compute_crc(
+      &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
-    if((status = on_encrypt(txn->txn_type, decoded_pld, txn->key,
+    if((status = on_encrypt(txn->txn_type, raw_payload_bytes, txn->key,
       raw_pld_len)) == ONS_SUCCESS)
     {
-        status = on_encode(pkt_ptrs->payload, decoded_pld,
+        status = on_encode(pkt_ptrs->payload, raw_payload_bytes,
           num_words);
     } // if encrypting was successful //
 
