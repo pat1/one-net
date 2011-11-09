@@ -402,6 +402,29 @@ BOOL tal_write_packet_done()
 
 UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
 {
+    UInt16 bytes_to_read;
+    
+    // check the parameters, and check to see if there is data to be read
+    if(!data || !len || rx_rf_idx >= rx_rf_count)
+    {
+        return 0;
+    } // if the parameters are invalid, or there is no more data to read //
+    
+    if(rx_rf_idx + len > rx_rf_count)
+    {
+        // more bytes have been requested than are available, so give the
+        // caller what is available
+        bytes_to_read = rx_rf_count - rx_rf_idx;
+    } // if more by requested than available //
+    else
+    {
+        bytes_to_read = len;
+    } // else read number of bytes requested //
+    
+    one_net_memmove(data, &(rx_rf_data[rx_rf_idx]), bytes_to_read);
+    rx_rf_idx += bytes_to_read;
+    
+    return bytes_to_read;
 }
 
 
