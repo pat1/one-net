@@ -278,18 +278,14 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 {
     UInt8 status;
     UInt8 decoded_pld[4 * ONE_NET_XTEA_BLOCK_SIZE + 1]; // TODO -- make global
-    UInt8 num_words;
+    SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
+    SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
     
-    SInt8 num_xtea_blocks = get_num_payload_blocks(*(pkt_ptrs->pid));
-    
-    switch(num_xtea_blocks)
+    if(num_words <= 0)
     {
-        case 1: num_words = 11; break;
-        case 2: num_words = 22; break;
-        case 3: num_words = 33; break;
-        case 4: num_words = 43; break;
-        default : return ONS_BAD_PARAM;
+        return ONS_INTERNAL_ERR; // not a data PID
     }
+
     
     #ifdef _ONE_NET_MULTI_HOP
     if(packet_is_multihop(pkt_ptrs->pid))
@@ -323,19 +319,19 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     decoded_pld[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
       ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
     decoded_pld[ON_PLD_MSG_TYPE_IDX] |= msg_type;
-    one_net_memmove(&decoded_pld[ON_PLD_DATA_IDX], raw_pld, (num_xtea_blocks *
-      ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_DATA_IDX);
+    one_net_memmove(&decoded_pld[ON_PLD_DATA_IDX], raw_pld,
+      (raw_pld_len - 1) - ON_PLD_DATA_IDX);
       
     // compute the crc
     decoded_pld[0] = (UInt8)one_net_compute_crc(
-      &decoded_pld[ON_PLD_CRC_SIZE],
-      (num_xtea_blocks * ONE_NET_XTEA_BLOCK_SIZE) - ON_PLD_CRC_SIZE,
+      &decoded_pld[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
     if((status = on_encrypt(txn->txn_type, decoded_pld, txn->key,
-      1 + ONE_NET_XTEA_BLOCK_SIZE * num_xtea_blocks)) == ONS_SUCCESS)
+      raw_pld_len)) == ONS_SUCCESS)
     {
-        status = on_encode(pkt_ptrs->payload, decoded_pld, num_words);
+        status = on_encode(pkt_ptrs->payload, decoded_pld,
+          num_words);
     } // if encrypting was successful //
 
     return status;
