@@ -884,6 +884,8 @@ BOOL one_net(on_txn_t ** txn)
                     }
                 }
             }
+            
+            break;
         } // case ON_LISTEN_FOR_DATA //
         
         case ON_SEND_SINGLE_DATA_PKT:
