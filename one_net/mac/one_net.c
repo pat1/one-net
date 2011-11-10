@@ -231,8 +231,8 @@ on_state_t on_state = ON_INIT_STATE;
 //! @{
 
 
-// Nov. 9, 2011 -- temorarily making global for testing
-/* static*/ BOOL check_for_clr_channel(void);
+
+static BOOL check_for_clr_channel(void);
 
 
 
@@ -746,9 +746,6 @@ BOOL one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
-            delay_ms(5000);
-            
-            
             // we are listinging for data.  Make sure we have nothing
             // pending
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
@@ -789,7 +786,7 @@ BOOL one_net(on_txn_t ** txn)
                             // an error of some sort occurred.  We likely have
                             // a bad pid.  Unrecoverable.  Just abort.
                             return TRUE; // no outstanding transaction
-                        }                        
+                        }
 
                         // pick a message id if we don't already have one.
                         if(device->msg_id < ON_MAX_MSG_ID)
@@ -821,7 +818,6 @@ BOOL one_net(on_txn_t ** txn)
                         #ifdef _ONE_NET_MULTI_HOP
                         // TODO -- What about hops?
                         #endif
-                        
                         
                         // now fill in the packet
                         
@@ -855,7 +851,6 @@ BOOL one_net(on_txn_t ** txn)
                         }
                         #endif
                         
-                  
                         // It's a data packet.  Fill in the data portion
                         if(on_build_data_pkt(single_msg.payload,
                           single_msg.msg_type, &data_pkt_ptrs, &single_txn,
@@ -871,7 +866,7 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             // An error of some sort occurred.  Abort.
                             return TRUE; // no outstanding transaction                            
-                        }                        
+                        }
 
                         // packet was built successfully.  Set the transaction,
                         // state, etc.
@@ -893,32 +888,6 @@ BOOL one_net(on_txn_t ** txn)
         
         case ON_SEND_SINGLE_DATA_PKT:
         {
-            #if 1
-            // temporarily changing it so we send a 26 bit "turn switch on" message
-            // to 002 unit 3 in the 1.X strain format as a test to see if it can be
-            // sniffed.
-            //while(1)
-            {
-                while(!check_for_clr_channel())
-                {
-                }
-
-                tal_write_packet(NULL, 0);
-
-                while(!tal_write_packet_done())
-                {
-                }
-    
-                (*txn)->priority = ONE_NET_NO_PRIORITY;
-                *txn = NULL;
-                on_state = ON_LISTEN_FOR_DATA;
-                break;
-            }
-            #endif              
-            
-            
-            
-            
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
@@ -991,10 +960,7 @@ BOOL one_net(on_txn_t ** txn)
     \return TRUE If the channel is clear
             FALSE If the channel is not clear.
 */
-
-
-// Nov. 9, 2011 -- temporarily making global for sniff testing purposes
-/*static*/ BOOL check_for_clr_channel(void)
+static BOOL check_for_clr_channel(void)
 {
     if(ont_inactive_or_expired(ONT_CLR_CHANNEL_TIMER))
     {

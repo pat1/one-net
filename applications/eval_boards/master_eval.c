@@ -270,12 +270,8 @@ void init_serial_master(void)
 
     \return void
 */
-
-
 void master_eval(void)
 {
-    delay_ms(1000);    
-    
     #ifdef _AUTO_MODE
     if(in_auto_mode)
     {

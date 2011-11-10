@@ -373,27 +373,11 @@ BOOL tal_channel_is_clear(void)
 } // tal_channel_is_clear //
 
 
-#if 1
-static UInt8 send_sing_pkt[26] =
-{
-    0x55, 0x55, 0x55, 0x33, 0xB4, 0xB3,
-    0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xBC,
-    0xB4, 0xBC, 0xB9, 0x32, 0x93, 0x3C,
-    0xD5, 0xD9, 0x33, 0x53, 0x32, 0x34,
-    0xAA, 0x69
-};
-#endif
 UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
 {
-    // Nov. 9, 2011 -- temporarily overriding parameters.
     tx_rf_idx = 0;
-    #if 0
     tx_rf_data = data;
     tx_rf_len = len;
-    #else
-    tx_rf_data = send_sing_pkt;
-    tx_rf_len = 26; 
-    #endif
 
     tal_turn_on_transmitter();
     ENABLE_TX_BIT_INTERRUPTS();
