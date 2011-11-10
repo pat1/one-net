@@ -80,8 +80,9 @@ typedef enum
     ON_NACK_RSN_OUT_OF_RANGE,        //! Device is out of range, is asleep, or cannot be reached for some reason.
     ON_NACK_RSN_ROUTE_ERROR,         //! message is not routed properly or no repeaters are available that can reach the device.
     ON_NACK_RSN_INVALID_DATA_RATE,   //! The transaction cannot be completed at this data rate either because device(s) cannot handle the rate it or currently unabled / not allowed to to swith to it. 
+    ON_NACK_RSN_NO_RESPONSE,         //! The transaction (or a single message within the transaction) has timed out with no response.
 
-    // 0x0E through 0x15 are currently unused and are available for assignment as non-fatal ONE-NET NACKs
+    // 0x0F through 0x15 are currently unused and are available for assignment as non-fatal ONE-NET NACKs
 
     ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
     ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
