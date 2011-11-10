@@ -237,7 +237,7 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 mh_bytes = packet_is_multihop(pid) ? ON_ENCODED_HOPS_SIZE : 0;
     #endif
-    UInt8 header_offset = include_header ? 0 : ONE_NET_ENCODED_DST_DID_IDX;
+    UInt8 header_offset = include_header ? 0 : ONE_NET_ENCODED_RPTR_DID_IDX;
     pkt_group_t pkt_grp = get_pkt_family(pid);
     
     switch(pkt_grp)
