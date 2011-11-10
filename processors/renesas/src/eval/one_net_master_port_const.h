@@ -55,11 +55,26 @@
 //! \ingroup on_master_port_const
 //! @{
 
+
+
 enum
 {
     //! The number of CLIENTS the MASTER keeps track of.
     ONE_NET_MASTER_MAX_CLIENTS = 5,
+
+    //! Frequency in ms to send new CLIENT Invite
+    ONE_NET_MASTER_INVITE_SEND_TIME = 250,
+    
+    //! The number of ms to poll a given channel to see if it is clear when a
+    //! network is created for the first time.
+    ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME = 5000,
+    
+    //! The number of ticks to wait before deciding all channels viewed so far
+    //! are busy and to lower the channel clear time to try and find the least
+    //! busy channel.
+    ONE_NET_MASTER_CHANNEL_SCAN_TIME = 10000
 };
+
 
 
 //! @} on_master_port_const_const
