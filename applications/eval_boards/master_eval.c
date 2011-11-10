@@ -44,18 +44,6 @@ enum
 
 
 
-//! The key used in the evaluation network ("protected")
-static const one_net_xtea_key_t DEFAULT_EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-  0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-
-#ifdef _STREAM_MESSAGES_ENABLED
-//! The key to use for stream transactions
-static const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-  0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-#endif
-
-
-
 //! @} ONE-NET_master_eval_const
 //                                  CONSTANTS END
 //=============================================================================
@@ -341,7 +329,9 @@ on_message_status_t one_net_master_handle_ack_nack_response(
 
 one_net_status_t one_net_master_reset_master(void)
 {
-    // TODO -- write this
+    one_net_status_t status;
+    one_net_xtea_key_t key, stream_key;
+    initialize_default_master_pins();
     return ONS_SUCCESS;
 }
 

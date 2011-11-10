@@ -73,13 +73,12 @@ const on_encoded_did_t ENC_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
 //! The default keep alive for Eval Boards
 const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000;
 
-
-//! The key used in the evaluation network ("protected")
+//! The key used in the evaluation network
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
   0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
 #ifdef _STREAM_MESSAGES_ENABLED
-//! The key to use for stream transactions in the eval network ("protected")
+//! The key to use for stream transactions in the eval network
 const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
   0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 #endif

@@ -29,12 +29,7 @@
 //! \defgroup ONE-NET_client_eval_const
 //! \ingroup ONE-NET_client_eval
 //! @{
-
-
-//! Default invite key to use if no invite key is found in the manufacturing data segment
-//! of data flash.
-static const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
-                                     '2', '2', '2', '2',   '2', '2', '2', '2'};
+    
 
 
 //! @} ONE-NET_client_eval_const
