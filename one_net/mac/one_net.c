@@ -874,6 +874,7 @@ BOOL one_net(on_txn_t ** txn)
                         single_txn.data_len =
                           get_encoded_packet_len(single_msg.pid, TRUE);
                         *txn = &single_txn;
+                        (*txn)->retry = 0;
                         single_msg_ptr = &single_msg;
                         on_state = ON_SEND_SINGLE_DATA_PKT;
                         
@@ -929,6 +930,8 @@ BOOL one_net(on_txn_t ** txn)
                     oncli_send_msg("All retries have expired.  Transaction "
                       "failed.\n");
                     *txn = 0;
+                    single_msg_ptr = NULL;
+                    single_txn.priority = ONE_NET_NO_PRIORITY;
                     on_state = ON_LISTEN_FOR_DATA;
                 }
             }
