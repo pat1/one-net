@@ -90,6 +90,9 @@ extern BOOL in_auto_mode; // declared in one_net_eval.c
 //! @{
 
 
+//! The state of handling the user pins the MASTER is in;
+static UInt8 master_user_pin_state;
+
 
 //! @} ONE-NET_master_eval_pri_var
 //                              PRIVATE VARIABLES END
@@ -127,12 +130,12 @@ void init_serial_master(void);
 
 
 static void init_base_param(on_base_param_t *base_param);
-static void init_master_user_pin(const UInt8 *user_pin_type, 
-                                       UInt8 user_pin_count);
 #ifdef _AUTO_MODE
 static void send_auto_msg(void);
 #endif
 static void initialize_default_master_pins(void);
+static void init_master_user_pin(const UInt8 *user_pin_type,
+  UInt8 user_pin_count);
 static void master_check_user_pins(void);
 static void master_send_user_pin_input(void);
 static void master_user_pin(void);
@@ -374,13 +377,45 @@ one_net_status_t one_net_master_reset_master(void)
 
     \return void
 */
-void initialize_default_master_pins(void)
+static void initialize_default_master_pins(void)
 {
     oncli_set_user_pin_type(0, ON_INPUT_PIN);
     oncli_set_user_pin_type(1, ON_INPUT_PIN);
     oncli_set_user_pin_type(2, ON_OUTPUT_PIN);
     oncli_set_user_pin_type(3, ON_OUTPUT_PIN);
 }
+
+
+/*!
+    \brief Initializes the parameters used with the master user pins.
+    
+    \param[in] USER_PIN_TYPE List containing the state of the user pins.  If
+      this is 0, then the default configuration will be used.
+    \param[in] USER_PIN_COUNT The number of pins to configure.  This should be
+      equal to the number of user pins, or else the default configuration will
+      be used.
+    
+    \return void
+*/
+static void init_master_user_pin(const UInt8 *user_pin_type,
+  UInt8 user_pin_count)
+{
+    master_user_pin_state = M_CHECK_USER_PIN;
+    
+    if(user_pin_type && user_pin_count == NUM_USER_PINS)
+    {
+        UInt8 i;
+
+        for(i = 0; i < NUM_USER_PINS; i++)
+        {
+            oncli_set_user_pin_type(i, user_pin_type[i]);
+        } // loop to set the user pin type //
+    } // if the pins should be configured a certain way //
+    else
+    {
+        disable_user_pins();
+    } // else use the default pin configuration //
+} // init_master_user_pin //
 
 
 
