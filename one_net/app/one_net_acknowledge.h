@@ -80,10 +80,9 @@ typedef enum
     ON_NACK_RSN_OUT_OF_RANGE,        //! Device is out of range, is asleep, or cannot be reached for some reason.
     ON_NACK_RSN_ROUTE_ERROR,         //! message is not routed properly or no repeaters are available that can reach the device.
     ON_NACK_RSN_INVALID_DATA_RATE,   //! The transaction cannot be completed at this data rate either because device(s) cannot handle the rate it or currently unabled / not allowed to to swith to it. 
-    ON_NACK_RSN_NO_RESPONSE,         //! The transaction (or a single message within the transaction) has timed out with no response.
+    ON_NACK_RSN_NO_RESPONSE,         //! A single message within the transaction has timed out with no response.
 
     // 0x0F through 0x15 are currently unused and are available for assignment as non-fatal ONE-NET NACKs
-
     ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
     ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
 
@@ -100,8 +99,9 @@ typedef enum
 	ON_NACK_RSN_TRANSACTION_ERR,     //! invalid transaction specified (such as a Block Data packet in the absence of a previous Block Request)
     ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED, //! Attempted and failed too many times.
 	ON_NACK_RSN_BUSY,                //! Application level code specifying that the device cannot service the request at this time.  No specification of when to try again.  Considered "fatal" by ONE-NET.
-
-    // 0x22 through 0x26 are currently unused and are available for assignment as fatal ONE-NET NACKs 
+    ON_NACK_RSN_NO_RESPONSE_TXN,     //! The transaction has timed out with no response.
+    
+    // 0x23 through 0x26 are currently unused and are available for assignment as fatal ONE-NET NACKs 
     
     ON_NACK_RSN_FATAL_ERR = 0x27,    //! Some unspecified fatal error occurred.  Don't try to resend.
     ON_NACK_RSN_MAX_ONE_NET_FATAL = 0x27,   
