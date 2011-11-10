@@ -531,6 +531,9 @@ static void master_check_user_pins(void)
 */
 static void master_send_user_pin_input(void)
 {
+    oncli_send_msg("Pin %d has changed to state %d\n", user_pin_src_unit,
+      user_pin[user_pin_src_unit].old_state);
+    master_user_pin_state = M_CHECK_USER_PIN;
 } // master_send_user_pin_input //
 
 
