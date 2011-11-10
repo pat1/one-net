@@ -200,9 +200,9 @@ typedef struct
 //! calling functions.
 typedef struct
 {
-    on_pid_t pid; //! PID of message
+    UInt8 pid; //! PID of message
     UInt8 msg_id; //! message id of this transaction
-    on_msg_type_t msg_type; //! message type (i.e. admin, app, etc.)
+    UInt8 msg_type; //! message type (i.e. admin, app, etc.)
 } on_msg_hdr_t;
 
 
