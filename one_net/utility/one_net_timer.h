@@ -165,11 +165,11 @@ typedef struct
 
 
 // TODO -- add debugging tools.
-#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME;
-#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT;
-#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME;
-#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL;
-#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT;
+#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
+#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT
+#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME
+#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL
+#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
 
 
 #else
@@ -179,11 +179,11 @@ typedef struct
 // code so we could use them for the debugging tools.  Define those variables
 // as constants with #define statements so things work like they are supposed
 // to.
-#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME;
-#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT;
-#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME;
-#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL;
-#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT;
+#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
+#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT
+#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME
+#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL
+#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
 
 
 #endif
