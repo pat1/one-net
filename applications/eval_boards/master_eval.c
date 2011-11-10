@@ -383,6 +383,7 @@ static void initialize_default_master_pins(void)
     oncli_set_user_pin_type(1, ON_INPUT_PIN);
     oncli_set_user_pin_type(2, ON_OUTPUT_PIN);
     oncli_set_user_pin_type(3, ON_OUTPUT_PIN);
+    master_user_pin_state = M_CHECK_USER_PIN;
 }
 
 
