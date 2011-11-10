@@ -54,6 +54,7 @@
 #include "one_net_packet.h"
 #include "tick.h"
 #include "one_net_port_specific.h"
+#include "cb.h"
 
 
 //==============================================================================
@@ -248,6 +249,11 @@ const UInt8 * tx_rf_data;
 UInt8 bit_mask = 0;
 
 
+//! From uart.c.  Used by tal_write_packet to check whether the uart is
+//! clear.
+extern cb_rec_t uart_tx_cb;
+
+
 //! @} ADI_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
@@ -375,9 +381,20 @@ BOOL tal_channel_is_clear(void)
 
 UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
 {
+    BOOL uart_pause_needed = FALSE;
     tx_rf_idx = 0;
     tx_rf_data = data;
     tx_rf_len = len;
+
+    while(cb_bytes_queued(&uart_tx_cb))
+    {
+        uart_pause_needed = TRUE;
+    }
+    if(uart_pause_needed)
+    {
+        delay_ms(2); // slight pause to let the uart clear so nothing
+                     // gets garbled.
+    }
 
     tal_turn_on_transmitter();
     ENABLE_TX_BIT_INTERRUPTS();
