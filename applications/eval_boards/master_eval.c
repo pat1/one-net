@@ -246,11 +246,6 @@ void init_auto_master(void)
 
 /*!
     \brief Initializes the device as a MASTER in serial mode
-    
-    This is not static since it will be called from eval, but we don't want it
-    called from anywhere else.
-    
-    \param EVAL_SID_IDX Index of the SID to use.
 
     \return void
 */

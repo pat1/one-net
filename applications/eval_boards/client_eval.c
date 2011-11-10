@@ -159,6 +159,18 @@ void init_auto_client(UInt8 index)
 
 
 /*!
+    \brief Initializes the client in serial mode
+  
+    \param void
+    
+    \return void
+*/
+void init_serial_client(void)
+{
+}
+
+
+/*!
     \brief The CLIENT evaluation application
     
     This is the main function for the CLIENT evaluation.  The CLIENT is

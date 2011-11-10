@@ -290,9 +290,33 @@ int main(void)
 	} // if auto mode //
 	else
 	{
-		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+        #ifdef _ONE_NET_MASTER
+        if(device_is_master)
+        {
+            init_serial_master();
+        }
+        #endif
+        #ifdef _ONE_NET_CLIENT
+        if(!device_is_master)
+        {
+            init_serial_client();
+        }
+        #endif
+   		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 	} // else serial //
 #else
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        init_serial_master();
+    }
+    #endif
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        init_serial_client();
+    }
+    #endif
 	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
 #endif
  

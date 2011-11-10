@@ -111,6 +111,7 @@ void master_eval(void); // in master_eval.c
 #endif
 #ifdef _ONE_NET_CLIENT
 void client_eval(void); // in client_eval.c
+void init_serial_client(void); // in client_eval.c
 #endif
 #ifdef _SNIFFER_MODE
 void sniff_eval(void); // in sniff_eval.c
@@ -123,6 +124,8 @@ void init_auto_master(void);
 void init_auto_client(UInt8 index);
 #endif
 #endif
+
+
 
 void disable_user_pins(void);
 
