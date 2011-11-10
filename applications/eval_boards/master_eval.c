@@ -24,6 +24,8 @@
 #include "one_net_eval.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
+#include "one_net_master_port_specific.h"
+#include "dfi.h"
 
 
 //=============================================================================
@@ -251,6 +253,16 @@ void init_auto_master(void)
 */
 void init_serial_master(void)
 {
+    const UInt8 * MASTER_PARAM;
+    UInt16 master_len;
+
+    if(eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &master_len, &MASTER_PARAM))
+    {
+    } // if prervious settings were stored //
+    else
+    {
+        one_net_master_reset_master();
+    } // else start a new network //    
 } // init_serial_master //
 
 
@@ -323,6 +335,13 @@ on_message_status_t one_net_master_handle_ack_nack_response(
     return eval_handle_ack_nack_response(raw_pld, msg_hdr, resp_msg_hdr,
       resp_ack_nack, src_did, repeater_did, retries, hops, max_hops);
     #endif    
+}
+
+
+one_net_status_t one_net_master_reset_master(void)
+{
+    // TODO -- write this
+    return ONS_SUCCESS;
 }
 
 

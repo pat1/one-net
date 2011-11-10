@@ -347,6 +347,18 @@ one_net_status_t one_net_master_erase_settings(void);
 #endif
 
 
+/*!
+    \brief Resets the device to MASTER mode.
+    
+    When the device is reset to MASTER mode, the network is empty and CLIENT
+    will need to be added to the network using their unique key.
+    
+    \return ONS_SUCCESS If reseting to MASTER mode was successful
+            ONS_FAIL If the command failed
+*/
+one_net_status_t one_net_master_reset_master(void);
+
+
 
 //! @} ON_MASTER_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
