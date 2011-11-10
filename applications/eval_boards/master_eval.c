@@ -26,6 +26,7 @@
 #include "one_net_port_specific.h"
 #include "one_net_master_port_specific.h"
 #include "dfi.h"
+#include "oncli_port.h"
 
 
 //=============================================================================
@@ -141,7 +142,7 @@ static void init_master_user_pin(const UInt8 *user_pin_type,
 #ifdef _AUTO_MODE
 static void send_auto_msg(void);
 #endif
-static void initialize_master_pins(void);
+static void initialize_default_master_pins(void);
 static void master_check_user_pins(void);
 static void master_send_user_pin_input(void);
 static void master_user_pin(void);
@@ -258,10 +259,10 @@ void init_serial_master(void)
 
     if(eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &master_len, &MASTER_PARAM))
     {
-    } // if prervious settings were stored //
+    } // if previous settings were stored //
     else
     {
-        one_net_master_reset_master();
+        one_net_master_reset_master(); // start a brand new network
     } // else start a new network //    
 } // init_serial_master //
 
@@ -358,15 +359,27 @@ one_net_status_t one_net_master_reset_master(void)
 
 
 
-
 /*!
     \brief Initializes the pins of the master to the default directions and values
     
+    This functions sets pins 0 and 1 as inputs and pins 2 and 3 as output
+    Clients have a default of 0 and 1 as outputs and 2 and 3 as inputs.
+    These can all be changed, but allows for quick commands without having
+    to set pin directions on the Eval Board.
+
     \return void
 */
-static void initialize_master_pins(void)
+void initialize_default_master_pins(void)
 {
+    oncli_set_user_pin_type(0, ON_INPUT_PIN);
+    oncli_set_user_pin_type(1, ON_INPUT_PIN);
+    oncli_set_user_pin_type(2, ON_OUTPUT_PIN);
+    oncli_set_user_pin_type(3, ON_OUTPUT_PIN);
 }
+
+
+
+
 
 
 /*!
