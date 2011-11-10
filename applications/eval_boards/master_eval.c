@@ -509,6 +509,20 @@ static void master_send_user_pin_input(void)
 */
 static void master_user_pin(void)
 {
+    switch(master_user_pin_state)
+    {
+        case M_SEND_USER_PIN_INPUT:
+        {
+            master_send_user_pin_input();
+            break;
+        } // M_USER_PIN_SEND_INPUT state //
+
+        default:
+        {
+            master_check_user_pins();
+            break;
+        } // default case //
+    } // switch(master_user_pin_state) //
 } // master_user_pin //
 
 
