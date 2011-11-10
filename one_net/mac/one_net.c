@@ -218,6 +218,13 @@ on_state_t on_state = ON_INIT_STATE;
       ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
 #endif
 
+//! A place to store a message header for a data packet
+static on_msg_hdr_t data_msg_hdr;
+
+//! A place to store a message header for a reponse packet
+static on_msg_hdr_t resp_msg_hdr;
+
+
 
 
 //! @} ONE-NET_pri_var
