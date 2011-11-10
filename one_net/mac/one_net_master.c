@@ -46,8 +46,10 @@
 
 #include "config_options.h"
 #include "one_net_master.h"
+#include "one_net_master_port_const.h"
 #include "one_net_timer.h"
 #include "tick.h"
+#include "tal.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
 #include "one_net_status_codes.h"
@@ -225,6 +227,56 @@ one_net_status_t one_net_master_create_network(
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
 #endif  
 {
+	UInt8 i;
+
+#ifdef _STREAM_MESSAGES_ENABLED
+    if(!SID || !KEY
+      || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
+      || !STREAM_KEY || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
+#else
+    if(!SID || !KEY
+      || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32)
+#endif
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    on_base_param->version = ON_PARAM_VERSION;
+    on_encode(on_base_param->sid, *SID, sizeof(on_base_param->sid));
+
+    on_base_param->channel = one_net_prand(get_tick_count(),
+      ONE_NET_MAX_CHANNEL);
+    // randomly pick any channel //
+    
+    on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
+    one_net_memmove(on_base_param->current_key, *KEY,
+      sizeof(on_base_param->current_key));
+    on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
+	
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_memmove(on_base_param->stream_key, *STREAM_KEY,
+      sizeof(on_base_param->stream_key));
+    on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;
+#endif
+#ifdef _BLOCK_MESSAGES_ENABLED
+    on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
+    on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
+#endif
+
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    master_param->client_count = 0;
+
+    init_internal();
+    new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
+    
+    // see comment in the "case ON_JOIN_NETWORK" segment of the
+    // one_net_master() loop to explain we are using these timers and what
+    // we're doing.
+    ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(new_channel_clear_time_out));
+    ont_set_timer(ONT_CHANGE_KEY_TIMER,
+      MS_TO_TICK(one_net_master_channel_scan_time));
+    on_state = ON_JOIN_NETWORK;
+
     return ONS_SUCCESS;
 } // one_net_master_create_network //
 
@@ -438,6 +490,45 @@ void one_net_master(void)
 
         case ON_JOIN_NETWORK:
         {
+            // If we are in ON_JOIN_NETWORK state, we aren't doing anything
+            // except cruising for channels.  Nothing else occurs until we
+            // find one.  We don't check transactions and we don't check any
+            // timers except for timers involved in finding the clear channel.
+            // Therefore we don't need to create a new timer for this process.
+            // Instead we'll just use two that we already have since we know
+            // that they aren't currently being used for their normal purposes.
+            // We'll use the general timer and the change key timer.  Note that
+            // they were initially set in the one_net_master_create_network()
+            // function.
+            if(one_net_channel_is_clear())
+            {
+                if(ont_expired(ONT_GENERAL_TIMER))
+                {
+                    on_state = ON_LISTEN_FOR_DATA;
+                    ont_stop_timer(ONT_CHANGE_KEY_TIMER);
+                } // if channel has been clear for enough time //
+            } // if channel is clear //
+            else
+            {
+                // TODO - should this be random or should we simply increment?
+                on_base_param->channel++;
+                if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
+                {
+                    on_base_param->channel = 0;
+                }
+
+                ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
+
+                // check if it's been long enough where the device thinks that
+                // there is traffic on all the channels.  If that is the case
+                // lower the time in hopes of finding the least busy channel.
+                if(ont_inactive_or_expired(ONT_CHANGE_KEY_TIMER))
+                {
+                    new_channel_clear_time_out >>= 1;
+                    ont_set_timer(ONT_CHANGE_KEY_TIMER,
+                      ONE_NET_MASTER_CHANNEL_SCAN_TIME);
+                } // if time to lower the channel clear time //
+            } // else channel is not clear //
             break;
         } // ON_JOIN_NETWORK case //
 
