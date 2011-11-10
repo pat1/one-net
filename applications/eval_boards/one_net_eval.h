@@ -107,6 +107,10 @@ extern const UInt8 DEFAULT_INVITE_KEY[];
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 extern const UInt8 DEFAULT_RAW_NID[];
+
+//! Default SID to use if no NID is found in the manufacturing data segment
+//! of data flash.
+extern const on_raw_sid_t DEFAULT_RAW_SID;
 #endif
 
 

@@ -92,6 +92,10 @@ const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
+
+//! Default SID to use if no NID is found in the manufacturing data segment
+//! of data flash.
+const on_raw_sid_t DEFAULT_RAW_SID = {0x00, 0x00, 0x00, 0x00, 0x10, 0x01};
 #endif
 
 
