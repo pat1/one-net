@@ -51,9 +51,12 @@
 */
 
 
+#include "config_options.h"
+
 #include <stdlib.h>
 #include "one_net_types.h"
 #include "one_net_constants.h"
+#include "one_net_status_codes.h"
 
 
 //==============================================================================
@@ -236,6 +239,53 @@ UInt16 did_to_u16(const on_raw_did_t *DID);
     \return The "base" of the string representation.
 */
 long int one_net_strtol(const char * str, char ** endptr, int base);
+
+
+#ifdef _ONE_NET_MULTI_HOP
+/*!
+    \brief Application level code to change the number of hops and/or
+           max hops for a device.
+           
+    This function should be used when the application code wants to
+    change the TRANSACTION-SPECIFIC number of hops or the TRANSACTION-
+    SPECIFIC maximum number of hops.  If the default behavior is to be used,
+    this function should not change the behavior and should return
+    ON_MSG_DEFAULT_BHVR.  To abort the transaction, ON_MSG_ABORT should be
+    returned.  To override the hops and/or max_hops, the application
+    code should change one or both of them and return ON_MSG_CONTINUE.
+    
+    This function is called when the previous number of hops FAILED and
+    ONE-NET will try again with a new "hops" value.  It is also called
+    BEFORE the first attempt is made.
+    
+    Again, this is a TRANSACTION-SPECIFIC function.  To change the number
+    of hops for a device and have the change remain for future transactions,
+    the application code should call either the one_net_set_hops() or the
+    one_net_set_max_hops() functions.  This should be done when the
+    application code has knowledge of how many hops it believes the
+    transaction SHOULD take or the maximum possible number of hops the
+    transaction SHOULD take.  If this is a multi-hop-capable device, but
+    hops should NOT be taken, then max_hops should be set to 0.  If no
+    inside knowledge of hops is known and no fine-tuning is desired, this
+    should be an empty function and should return ON_MSG_DEFAULT_BHVR will
+    use the default behavior.
+    
+    This function is particularly useful when the number of hops between
+    devices varies either from data rate changes, distance changes,
+    network changes, or atmospheric / enviroment changes.
+    
+    \param[in] raw_dst The raw device ID of the recipient.
+    \param[in/out] hops The number of hops to use.
+    \param[in/out] max_hops Th maximum number of hops to use
+    
+    \return ON_MSG_CONTINUE if changing the number of hops or max_hops.
+    \return ON_MSG_DEFAULT_BHVR if no changes are to be made and default
+            behavior should continue.
+    \return ON_MSG_ABORT if the transaction should be aborted.
+*/
+on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
+  UInt8* const hops, UInt8* const max_hops);
+#endif
 
 
 
