@@ -213,6 +213,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
           - ONE_NET_MIN_US_CHANNEL + 1);
     } // if a US channel //
 #endif
+
 #ifdef _EUROPE_CHANNELS
 #ifdef _US_CHANNELS
     else if(channel >= ONE_NET_MIN_EUR_CHANNEL
@@ -221,13 +222,13 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     if((SInt8) channel >= ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
 #endif
-#endif
     {
         // +1 since channels are stored 0 based, but output 1 based
         snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
           ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR, channel
           - ONE_NET_MIN_EUR_CHANNEL + 1);
     } // else if a European channel //
+#endif
     else
     {
         snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
@@ -421,12 +422,12 @@ oncli_status_t oncli_print_channel(void)
     if((SInt8) on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
       && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
     #endif
-    #endif
     {
         // +1 since channels are stored 0 based, but output 1 based
         oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR,
           on_base_param->channel - ONE_NET_MIN_EUR_CHANNEL + 1);
     } // else if a European channel //
+    #endif
     else
     {
         return ONCLI_CMD_FAIL;
