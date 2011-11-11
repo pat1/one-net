@@ -97,31 +97,25 @@
 
 
 #ifdef _AUTO_MODE
-enum
-{
-    //! The interval in ms to automatically send data when in auto mode.
-    //! 1 second
-    AUTO_INTERVAL = 1000,
+//! The interval in ms to automatically send data when in auto mode.
+//! 1 second
+#define AUTO_INTERVAL 1000
 
-    //! The timeout after a user switches the mode switch before the device
-    //! goes back to automatically sending commands (AUTO_INTERVAL). 20s
-    AUTO_MANUAL_DELAY = 20000,
-};
+//! The timeout after a user switches the mode switch before the device
+//! goes back to automatically sending commands (AUTO_INTERVAL). 20s
+#define AUTO_MANUAL_DELAY 20000
 #endif
 
 
 
 #ifdef _SNIFFER_MODE
 // constants for the sniffer
-enum
-{
-    //! Number of ms of inactivity before the prompt is displayed. 5s
-    PROMPT_PERIOD = 5000,
-	
-    //! Number of ms to wait after user input has been detected before
-    //! sniffing the channel again.  5s
-    USER_INPUT_PAUSE_TIME = 5000
-};
+//! Number of ms of inactivity before the prompt is displayed. 5s
+#define PROMPT_PERIOD 5000
+
+//! Number of ms to wait after user input has been detected before
+//! sniffing the channel again.  5s
+#define USER_INPUT_PAUSE_TIME 5000
 #endif
 
 
