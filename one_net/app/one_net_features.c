@@ -41,6 +41,7 @@
 
 #include "config_options.h"
 #include "one_net_features.h"
+#include "one_net_port_specific.h"
 
 
 
@@ -98,6 +99,12 @@ const on_features_t FEATURES_UNKNOWN =
 //! \defgroup ONE-NET_FEATURES_pub_func
 //! \ingroup ONE-NET_FEATURES
 //! @{
+    
+BOOL features_known(on_features_t features)
+{
+    return !(one_net_memcmp(&features, &FEATURES_UNKNOWN,
+      sizeof(on_features_t)) == 0);
+}
 
 UInt8 features_max_hops(on_features_t features)
 {

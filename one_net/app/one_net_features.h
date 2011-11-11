@@ -207,6 +207,7 @@ extern const on_features_t FEATURES_UNKNOWN;
 //! \ingroup ONE-NET_FEATURES
 //! @{
 
+BOOL features_known(on_features_t features);
 UInt8 features_max_hops(on_features_t features);
 UInt8 features_max_peers(on_features_t features);
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate);
