@@ -21,6 +21,7 @@
 #include "tick.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
+#include "one_net_client_port_specific.h"
 
 
 
@@ -238,6 +239,19 @@ on_message_status_t one_net_client_handle_ack_nack_response(
     return eval_handle_ack_nack_response(raw_pld, msg_hdr, resp_msg_hdr,
       resp_ack_nack, src_did, repeater_did, retries, hops, max_hops);
     #endif    
+}
+
+
+#ifndef _ONE_NET_MULTI_HOP
+void one_net_client_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
+#else
+void one_net_client_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
+#endif
+{
 }
 
 
