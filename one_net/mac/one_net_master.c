@@ -151,11 +151,13 @@ static BOOL mh_repeater_available = FALSE;
 
 // packet handlers
 static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt); 
-static on_message_status_t on_master_handle_ack_nack_response(on_txn_t** txn,
-  on_pkt_t* const pkt, on_ack_nack_t* ack_nack);
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type); 
+static on_message_status_t on_master_handle_single_ack_nack_response(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt, const on_message_status_t status);
+  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
+  const on_message_status_t status);
 
 static one_net_status_t init_internal(void);
 static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
@@ -580,15 +582,16 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
 // TODO -- document
 static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt)
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
 {
     return ON_MSG_CONTINUE;
 }
  
   
 // TODO -- document  
-static on_message_status_t on_master_handle_ack_nack_response(on_txn_t** txn,
-  on_pkt_t* const pkt, on_ack_nack_t* ack_nack)
+static on_message_status_t on_master_handle_single_ack_nack_response(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;
 }
@@ -596,7 +599,8 @@ static on_message_status_t on_master_handle_ack_nack_response(on_txn_t** txn,
 
 // TODO -- document 
 static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt, const on_message_status_t status)
+  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
+  const on_message_status_t status)
 {
     return ON_MSG_CONTINUE;
 }
@@ -614,7 +618,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 static one_net_status_t init_internal(void)
 {
     pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
-    pkt_hdlr.single_ack_nack_hdlr = &on_master_handle_ack_nack_response;
+    pkt_hdlr.single_ack_nack_hdlr =
+      &on_master_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
     one_net_send_single = &one_net_master_send_single;
     get_sender_info = &sender_info;

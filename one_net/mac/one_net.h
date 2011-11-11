@@ -439,15 +439,17 @@ typedef on_sending_device_t* (*one_net_get_sender_info_func_t)
 
 //! Packet Handling Function for data packets
 typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
-  on_pkt_t* const pkt);
+  on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
 
 //! Packet Handling Function for responses
 typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t** txn,
-  on_pkt_t* const pkt, on_ack_nack_t* ack_nack);
+  on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 
 //! Transaction handler
 typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
-  on_pkt_t* const pkt, const on_message_status_t status);
+  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
+  const on_message_status_t status);
   
 //! The set of needed packet handlers
 typedef struct
