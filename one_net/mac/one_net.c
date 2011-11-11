@@ -1012,6 +1012,86 @@ BOOL one_net(on_txn_t ** txn)
     return TRUE;
 } // one_net //
 
+
+
+
+#ifdef _ONE_NET_MULTI_HOP
+SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops)
+{
+    on_encoded_did_t enc_did;
+    on_sending_device_t* device;
+
+    
+    if(!raw_did || on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN) !=
+      ONS_SUCCESS)
+    {
+        return -1;
+    }
+    
+    device = (*get_sender_info)(&enc_did);
+    if(device == NULL)
+    {
+        return -1;
+    }
+    
+    if(!features_known(device->features))
+    {
+        return -1;
+    }
+    
+    if(hops > features_max_hops(device->features))
+    {
+        hops = features_max_hops(device->features);
+    }
+    
+    if(hops > device->max_hops)
+    {
+        device->max_hops = hops;
+    }
+    
+    device->hops = hops;
+    return (SInt8) hops;
+} // one_net_set_hops //
+
+
+SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
+{
+    on_encoded_did_t enc_did;
+    on_sending_device_t* device;
+
+    
+    if(!raw_did || on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN) !=
+      ONS_SUCCESS)
+    {
+        return -1;
+    }
+    
+    device = (*get_sender_info)(&enc_did);
+    if(device == NULL)
+    {
+        return -1;
+    }
+    
+    if(!features_known(device->features))
+    {
+        return -1;
+    }
+    
+    if(max_hops > features_max_hops(device->features))
+    {
+        max_hops = features_max_hops(device->features);
+    }
+    
+    if(device->hops > max_hops)
+    {
+        device->hops = max_hops;
+    }
+    
+    device->max_hops = max_hops;
+    return (SInt8) max_hops;
+} // one_net_set_max_hops //
+#endif
+
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

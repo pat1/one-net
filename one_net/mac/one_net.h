@@ -609,6 +609,34 @@ one_net_xtea_key_t* master_get_encryption_key(
 BOOL one_net(on_txn_t ** txn);
 
 
+#ifdef _ONE_NET_MULTI_HOP
+/*!
+    \brief Sets the hops for a device
+    
+    \param[in] raw_dst The raw device ID of the device's hops to change.
+    \param[in] hops The desired new number of hops for the device
+    
+    \return The new number of hops for the device.
+    \return -1 if device id could not be decoded or is not in this
+               device's sending table.
+*/
+SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops);
+
+
+/*!
+    \brief Sets the max_hops for a device
+    
+    \param[in] raw_dst The raw device ID of the device's max hops to change.
+    \param[in] max_hops The desired new number of max_hops for the device.
+    
+    \return The new maximum number of hops for the device
+    \return -1 if device id could not be decoded or is not in this
+               device's sending table.
+*/
+SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
+#endif
+
+
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
