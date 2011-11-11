@@ -326,9 +326,6 @@ typedef struct
     //! is at a different index for each packet type
     UInt8 data_len;
 
-    //! The size of the location pkt points to (in bytes)
-    UInt8 pkt_size;
-
     //! The packet to be sent
     UInt8 * pkt;
     

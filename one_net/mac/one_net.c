@@ -124,7 +124,7 @@ UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
 
 //! Used to send a response
 on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
-  ONT_RESPONSE_TIMER, 0, sizeof(response_pkt), response_pkt,
+  ONT_RESPONSE_TIMER, 0, response_pkt,
   NULL, NULL};
 
 //! location to store the encoded data for the single transaction
@@ -132,7 +132,7 @@ UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
 
 //! Used to send a single message
 on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
-  sizeof(single_pkt), single_pkt, NULL, NULL};
+  single_pkt, NULL, NULL};
 
 #ifdef _BLOCK_MESSAGES_ENABLED
     //! location to store the encoded data for a block transaction.
@@ -140,7 +140,7 @@ on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
     
     //! The current block transaction
     on_txn_t block_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
-      ONT_BLOCK_TIMER, 0, sizeof(block_pkt), block_pkt, NULL, NULL};
+      ONT_BLOCK_TIMER, 0, block_pkt, NULL, NULL};
 
     #ifdef _STREAM_MESSAGES_ENABLED
     //! location to store the encoded data for a stream transaction.
@@ -148,7 +148,7 @@ on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
     
     //! The current stream transaction
     on_txn_t stream_txn = {ON_STREAM, ONE_NET_NO_PRIORITY, 0,
-      ONT_STREAM_TIMER, 0, sizeof(stream_pkt), stream_pkt, NULL, NULL};    
+      ONT_STREAM_TIMER, 0, stream_pkt, NULL, NULL};    
     #endif
 #endif // if block messages are not enabled //
 
@@ -215,7 +215,7 @@ on_state_t on_state = ON_INIT_STATE;
 
     // Transaction for forwarding on MH packets.
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
-      ONT_MH_TIMER, 0, sizeof(mh_pkt), mh_pkt};
+      ONT_MH_TIMER, 0, mh_pkt};
 #endif
 
 //! A place to store a message header for a data packet
