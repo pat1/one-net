@@ -154,7 +154,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
   on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status);
+  const on_message_status_t status, on_ack_nack_t* ack_nack);
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
@@ -331,7 +331,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 // TODO -- document 
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status)
+  const on_message_status_t status, on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;
 }

@@ -451,7 +451,7 @@ typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t** txn,
 //! Transaction handler
 typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status);
+  const on_message_status_t status, on_ack_nack_t* ack_nack);
   
 //! The set of needed packet handlers
 typedef struct
