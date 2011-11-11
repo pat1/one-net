@@ -256,12 +256,12 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
             &payload_buffer[0];
         UInt16 next_msg_buffer_start_idx = this_msg_buffer_start_idx +
             single_data_queue[index].payload_size;
-        UInt16 bytes_to_move = pld_buffer_tail_idx - next_msg_buffer_start_idx + 1;
+        UInt16 bytes_to_move = pld_buffer_tail_idx - next_msg_buffer_start_idx;
         one_net_memmove(&payload_buffer[this_msg_buffer_start_idx],
             &payload_buffer[next_msg_buffer_start_idx], bytes_to_move);
             
         // payloads have been moved.  Now adjust the payload pointers
-        for(i = index + 1; index < single_data_queue_size; i++)
+        for(i = index + 1; i < single_data_queue_size; i++)
         {
             single_data_queue[i].payload -= single_data_queue[index].payload_size;
         }
