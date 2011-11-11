@@ -19,6 +19,7 @@
 #include "one_net_acknowledge.h"
 
 
+
 //=============================================================================
 //                                  CONSTANTS
 //! \defgroup ONE-NET_eval_const
@@ -138,6 +139,7 @@ extern void(*node_loop_func)(void);
 void init_user_pin(const UInt8 *user_pin_type, UInt8 user_pin_count);
 #ifdef _ONE_NET_MASTER
 void master_eval(void); // in master_eval.c
+void init_serial_master(void); // in master_eval.c
 #endif
 #ifdef _ONE_NET_CLIENT
 void client_eval(void); // in client_eval.c
@@ -154,7 +156,6 @@ void init_auto_master(void);
 void init_auto_client(UInt8 index);
 #endif
 #endif
-
 
 
 void disable_user_pins(void);

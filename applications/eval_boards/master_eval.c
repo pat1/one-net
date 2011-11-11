@@ -114,13 +114,6 @@ static UInt8 user_pin_src_unit;
 
 
 
-#ifdef _AUTO_MODE
-void init_auto_master(void);
-#endif
-void init_serial_master(void);
-
-
-
 //! @} ONE-NET_master_eval_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //=============================================================================
