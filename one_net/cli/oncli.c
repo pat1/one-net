@@ -205,7 +205,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     
     
 #ifdef _US_CHANNELS
-    if((SInt8)channel >= ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
+    if((SInt8)channel >= (SInt8)ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
     {
         // +1 since channels are stored 0 based, but output 1 based
         snprintf(buffer, MAX_CHANNEL_STRING_FORMAT_LENGTH,
@@ -405,7 +405,7 @@ oncli_status_t oncli_print_features(on_features_t features)
 oncli_status_t oncli_print_channel(void)
 {
     #ifdef _US_CHANNELS
-    if((SInt8)on_base_param->channel >= ONE_NET_MIN_US_CHANNEL &&
+    if((SInt8)on_base_param->channel >= (SInt8)ONE_NET_MIN_US_CHANNEL &&
       on_base_param->channel <= ONE_NET_MAX_US_CHANNEL)
     {
         // +1 since channels are stored 0 based, but output 1 based
