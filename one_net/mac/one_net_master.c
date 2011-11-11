@@ -595,25 +595,40 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
+    on_raw_did_t src_did;
+    on_message_status_t status = ON_MSG_DEFAULT_BHVR;
+    on_msg_hdr_t msg_hdr;
+    
     if(!ack_nack || !txn || !(*txn))
     {
         // not sure how we got here, but we can't do anything
-        return ON_MSG_DEFAULT_BHVR;
-    }
+        return status;
+    }    
+
+    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.msg_id = pkt->msg_id;
+    msg_hdr.msg_type = *msg_type;
+
+    on_decode(src_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
     
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE ||
-      ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE_TXN)
+    
+    #ifndef _ONE_NET_MULTI_HOP
+    status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
+      ack_nack, &src_did, NULL, ((*txn)->retry));
+    #else
+    status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
+      ack_nack, &src_did, NULL, &((*txn)->retry), pkt->hops, &(pkt->max_hops));
+    #endif
+    
+    if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
         if((*txn)->retry >= ON_MAX_RETRY)
         {
-            ack_nack->nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
             return ON_MSG_TIMEOUT;
         }
-        
-        return ON_MSG_CONTINUE;
     }
-    
-    return ON_MSG_DEFAULT_BHVR;
+
+    return status;
 }
   
 

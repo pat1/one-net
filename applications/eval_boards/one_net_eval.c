@@ -28,6 +28,7 @@
 #include "oncli_str.h"
 #include "one_net.h"
 #include "one_net_eval.h"
+#include "one_net_prand.h"
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
 #endif
@@ -367,6 +368,18 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    UInt32 randnum;
+
+    if(one_net_prand(get_tick_count(), 5) == 0)
+    {
+        oncli_send_msg("Aborting\n");
+        return ON_MSG_ABORT;
+    }
+    
+    randnum = one_net_prand(get_tick_count(), 1000);
+    oncli_send_msg("New timeout = %08X ms.\n", randnum);
+    resp_ack_nack->handle = ON_NACK_TIME_MS;
+    resp_ack_nack->payload->nack_time_ms = randnum;
     return ON_MSG_CONTINUE;
 }
 
