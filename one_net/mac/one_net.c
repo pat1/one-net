@@ -848,7 +848,7 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             // we're the master.  We may or may not be dealing
                             // with a client using the old key.
-                            #ifdef _ONE_NET_MULTI_HOP
+                            #ifdef _STREAM_MESSAGES_ENABLED
                             single_txn.key = master_get_encryption_key(ON_SINGLE,
                               (on_encoded_did_t*) single_msg.dst_did);
                             #else
