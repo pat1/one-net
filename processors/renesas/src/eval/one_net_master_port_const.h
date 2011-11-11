@@ -60,7 +60,7 @@
 enum
 {
     //! The number of CLIENTS the MASTER keeps track of.
-    ONE_NET_MASTER_MAX_CLIENTS = 5,
+    ONE_NET_MASTER_MAX_CLIENTS = /*5*/3,
 };
 
 

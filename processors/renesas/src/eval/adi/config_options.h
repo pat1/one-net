@@ -100,7 +100,7 @@
 
 // Block Messages
 #ifndef _BLOCK_MESSAGES_ENABLED
-	#define _BLOCK_MESSAGES_ENABLED
+//	#define _BLOCK_MESSAGES_ENABLED
 #endif
 
 // Stream Messages -- available only if block messages are enabled.
@@ -118,7 +118,7 @@
 
 #ifdef _ONE_NET_MULTI_HOP
 	#ifndef _ONE_NET_MH_CLIENT_REPEATER
-		#define _ONE_NET_MH_CLIENT_REPEATER
+//		#define _ONE_NET_MH_CLIENT_REPEATER
 	#endif
 #endif
 
