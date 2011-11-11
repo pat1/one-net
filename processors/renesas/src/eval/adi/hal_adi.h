@@ -83,6 +83,9 @@
 //! @{
 
 
+void tal_init_ports(void);
+
+
 /*!
     \brief Enables the interrupt used to receive bits.
 
