@@ -883,6 +883,7 @@ BOOL one_net(on_txn_t ** txn)
                         *txn = &single_txn;
                         (*txn)->retry = 0;
                         single_msg_ptr = &single_msg;
+                        (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
                         on_state = ON_SEND_SINGLE_DATA_PKT;
                         
                         // set the timer to send immediately
@@ -914,7 +915,7 @@ BOOL one_net(on_txn_t ** txn)
             {
                 on_state++;
                 ont_set_timer(ONT_RESPONSE_TIMER,
-                  MS_TO_TICK(ONE_NET_RESPONSE_TIME_OUT));
+                  MS_TO_TICK((*txn)->response_timeout));
             } // if write is complete //
             break;
         } // send single data write wait case //
