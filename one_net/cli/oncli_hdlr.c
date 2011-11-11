@@ -831,9 +831,11 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
 #ifdef _EUROPE_CHANNELS
         case ONCLI_EUR:
         {
+            #ifdef _US_CHANNELS
             *channel += ONE_NET_EUR_CHANNEL_1;
+            #endif
 			// typecast to override "comparison is always false" warning
-            if((SInt8) *channel < ONE_NET_MIN_EUR_CHANNEL
+            if((SInt8) *channel < (SInt8)ONE_NET_MIN_EUR_CHANNEL
               || *channel > ONE_NET_MAX_EUR_CHANNEL)
             {
                 return ONCLI_PARSE_ERR;

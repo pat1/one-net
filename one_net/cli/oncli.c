@@ -219,7 +219,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     else if(channel >= ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
 #else
-    if((SInt8) channel >= ONE_NET_MIN_EUR_CHANNEL
+    if((SInt8) channel >= (SInt8)ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
 #endif
     {
@@ -419,7 +419,7 @@ oncli_status_t oncli_print_channel(void)
     else if(on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
       && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
     #else
-    if((SInt8) on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
+    if((SInt8) on_base_param->channel >= (SInt8)ONE_NET_MIN_EUR_CHANNEL
       && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
     #endif
     {
