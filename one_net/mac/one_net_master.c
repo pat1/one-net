@@ -52,6 +52,7 @@
 #include "tal.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
+#include "one_net_master_port_specific.h"
 #include "one_net_status_codes.h"
 
 
@@ -620,7 +621,21 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
+    on_msg_hdr_t msg_hdr;
+    on_raw_did_t dst;
+    
+    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.msg_id = pkt->msg_id;
+    msg_hdr.msg_type = *msg_type;
+    on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+
+    #ifndef _ONE_NET_MULTI_HOP
+    one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
+      raw_pld, &dst, ack_nack);
+    #else
+    one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
+      raw_pld, &dst, ack_nack, pkt->hops);
+    #endif  
 }
 
 
