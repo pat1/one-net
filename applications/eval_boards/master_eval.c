@@ -28,6 +28,7 @@
 #include "one_net_master_port_specific.h"
 #include "dfi.h"
 #include "oncli_port.h"
+#include "oncli.h"
 
 
 //=============================================================================

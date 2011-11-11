@@ -21,6 +21,7 @@
 #include "one_net_eval.h"
 #include "hal.h"
 #include "tal.h"
+#include "oncli.h"
 
 
 
