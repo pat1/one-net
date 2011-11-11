@@ -187,6 +187,7 @@
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\hal.h" "User" "C header file" 2 
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\led_hal.c" "User" "C source file" 2 
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\led_hal.h" "User" "C header file" 2 
+"C:\HEWProj\2d_tran3\processors\renesas\src\eval\nc_define.inc" "User" "Assembly include file" 2 
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\ncrt0.a30" "User" "Assembly source file" 2 
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\nv_hal.c" "User" "C source file" 2 
 "C:\HEWProj\2d_tran3\processors\renesas\src\eval\nv_hal.h" "User" "C header file" 2 
