@@ -593,7 +593,24 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
+    if(!ack_nack || !txn || !(*txn))
+    {
+        // not sure how we got here, but we can't do anything
+        return ON_MSG_DEFAULT_BHVR;
+    }
+    
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE ||
+      ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE_TXN)
+    {
+        if((*txn)->retry >= ON_MAX_RETRY)
+        {
+            return ON_MSG_TIMEOUT;
+        }
+        
+        return ON_MSG_CONTINUE;
+    }
+    
+    return ON_MSG_DEFAULT_BHVR;
 }
   
 
