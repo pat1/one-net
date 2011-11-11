@@ -17,7 +17,14 @@
 -dir "C:\HEWProj\2d_tran3\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"
 -O5
 -OR
+-O5OA
 -OGJ
+-fCE
+-fD32
+-fNA
+-fNC
 -fNROM
+-fSA
+-fUD
 -R8CE
 "C:\HEWProj\2d_tran3\applications\eval_boards\one_net_eval.c"
