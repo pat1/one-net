@@ -355,6 +355,34 @@ one_net_status_t one_net_client_erase_settings(void);
 #endif
 
 
+/*!
+    \brief The status of a single transaction.
+
+    Callback to report the status of sending an application single data packet.
+
+    \param[in] status The status of the transaction.
+    \param[in] retry_count The number of times that the packet had to be sent.
+    \param[in] msg_hdr message id, message type, and pid of the message.
+    \param[in] data The data that was sent.
+    \param[in] dst The raw did of where the packet was sent.
+    \param[in] ack_nack The reason for failure, if relevant.  A response
+               payload, if relevant.
+    \param[in] hops Number of hops it took to deliver the message, if
+               known and relevant.  Negative number implies unknown or
+               not relevant / reliable.
+    \return void
+*/
+#ifndef _ONE_NET_MULTI_HOP
+void one_net_client_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, UInt8* data,
+  const one_net_raw_did_t *dst, on_ack_nack_t* ack_nack);
+#else
+void one_net_client_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, UInt8* data,
+  on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
+#endif
+
+
 
 //! @} ON_CLIENT_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
