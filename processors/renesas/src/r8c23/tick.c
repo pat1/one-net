@@ -62,21 +62,18 @@
 //! The maximum value of a tick
 #define TICK_MAX 4294967295
 
-enum
-{
-    TICK_1MS = 1,                   //!< Number of ticks in a millisecond
-    TICK_1S = 1000                  //!< Number of ticks in a second
-};
 
-enum
-{
-    //! Number of times to loop through nop loop during the ms delay function.
-    NOP_COUNT_MS = 325,
+#define TICK_1MS 1                  //!< Number of ticks in a millisecond
+#define TICK_1S  1000               //!< Number of ticks in a second
 
-    //! Number of times to loop through nop loop during the 100s of us delay
-    //! function
-    NOP_COUNT_100S_US = 45
-};
+
+//! Number of times to loop through nop loop during the ms delay function.
+#define NOP_COUNT_MS 325
+
+//! Number of times to loop through nop loop during the 100s of us delay
+//! function
+#define NOP_COUNT_100S_US 45
+
 
 
 //! @} TICK_type_defs
