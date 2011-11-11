@@ -375,7 +375,7 @@ one_net_status_t one_net_client_erase_settings(void);
 #ifndef _ONE_NET_MULTI_HOP
 void one_net_client_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, UInt8* data,
-  const one_net_raw_did_t *dst, on_ack_nack_t* ack_nack);
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
 #else
 void one_net_client_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, UInt8* data,
