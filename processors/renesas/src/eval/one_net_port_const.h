@@ -102,6 +102,12 @@ enum
     //! Base Fragment delay in ms for high priority transactions (25ms)
     ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25
     #endif
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    //! Multi-hop retpeater latency -- i.e. estimated time it takes for a
+    //! repeater to forward a message in milliseconds
+    ONE_NET_MH_LATENCY = 5
+    #endif
 };
 
 
