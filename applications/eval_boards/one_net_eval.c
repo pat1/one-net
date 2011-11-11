@@ -376,8 +376,8 @@ on_message_status_t eval_handle_ack_nack_response(
         return ON_MSG_ABORT;
     }
     
-    randnum = one_net_prand(get_tick_count(), 1000);
-    oncli_send_msg("New timeout = %08X ms.\n", randnum);
+    randnum = one_net_prand(get_tick_count(), 3000);
+    oncli_send_msg("New timeout = %d ms.\n", randnum);
     resp_ack_nack->handle = ON_NACK_TIME_MS;
     resp_ack_nack->payload->nack_time_ms = randnum;
     return ON_MSG_CONTINUE;

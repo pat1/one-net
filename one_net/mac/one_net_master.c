@@ -626,6 +626,10 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
         {
             return ON_MSG_TIMEOUT;
         }
+        else
+        {
+            (*txn)->response_timeout = ack_nack->payload->nack_time_ms;
+        }
     }
 
     return status;
