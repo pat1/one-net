@@ -315,9 +315,14 @@ typedef struct
     //! How many times this txn has been tried
     UInt8 retry;
 
-    //! The timer that contains the time the next block/stream transaction
+    //! The timer that contains the time the next transaction
     //! is supposed to occur if this is a block or stream transaction.
     UInt8 next_txn_timer;
+    
+    //! Time in ms before the message is considered timed out.  Note this is
+    //! 16 bit value rather than a UInt32 or tick_t because there is no way
+    //! we'll ever want to wait more than 65535 milliseconds for a response
+    UInt16 response_timeout;
 
     //! The length of the data the packet contains (in bytes).  This will not
     //! contain the hops field, so if a multihop packet is being sent, the
