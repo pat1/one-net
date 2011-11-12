@@ -155,6 +155,8 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
     in_sniffer_mode = TRUE;
     sniff_channel = CHANNEL;
     node_loop_func = &sniff_eval;
+    on_base_param->channel = sniff_channel;
+    one_net_set_channel(on_base_param->channel);
     
     return ONCLI_SUCCESS;
 } // oncli_reset_sniff //
