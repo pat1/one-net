@@ -159,6 +159,7 @@ UInt16 uart_tx_buffer_size(void);
 UInt16 uart_read(UInt8 * const data, const UInt16 LEN);
 UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN);
 void uart_write_int8_hex(const UInt8 DATA);
+void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len);
 
 //! @} uart_pub_func
 //                  PUBLIC FUNCTION DECLARATIONS END

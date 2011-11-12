@@ -342,6 +342,32 @@ void uart_write_int8_hex(const UInt8 DATA)
     cb_putqueue(&uart_tx_cb, (HEX_DIGIT[DATA & 0x0F]));
 } // uart_write_int8_hex //
 
+
+/*!
+    \brief Write an array of bytes in hex format out of the serial port
+    
+    \param[in] DATA The byte to be written in hex
+    \param[in] separate If TRUE, add a space between each byte
+    \param[in] len The number of bytes to write
+    
+    \return void
+*/
+void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
+{
+    UInt8 i;
+    for(i = 0; i < len; i++)
+    {
+        if(separate && i > 0)
+        {
+            cb_putqueue(&uart_tx_cb, ' ');
+        }
+        uart_write_int8_hex(DATA[i]);
+    }
+} // uart_write_int8_hex_array //
+
+
+
+
 //! @} uart_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
