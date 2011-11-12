@@ -878,7 +878,8 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
 #ifdef _ONE_NET_MULTI_HOP
 BOOL packet_is_multihop(UInt8 pid);
 #endif
-
+BOOL packet_is_invite(UInt8 pid);
+BOOL packet_is_stream(UInt8 pid);
 pkt_group_t get_pkt_family(UInt8 pid);
 
     

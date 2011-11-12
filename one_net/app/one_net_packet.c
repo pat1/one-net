@@ -359,6 +359,42 @@ BOOL packet_has_reason_field(UInt8 pid)
 }
 
 
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL packet_is_stream(UInt8 pid)
+{
+    switch(pid)
+    {
+        case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
+        case ONE_NET_ENCODED_STREAM_DATA:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE:
+        case ONE_NET_ENCODED_MH_STREAM_DATA:
+        #endif
+            return TRUE;
+
+        default:
+            return FALSE;
+    }    
+}
+#endif
+
+
+BOOL packet_is_invite(UInt8 pid)
+{
+    switch(pid)
+    {
+        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
+        #endif
+            return TRUE;
+
+        default:
+            return FALSE;
+    }    
+}
+
+
 pkt_group_t get_pkt_family(UInt8 pid)
 {
     switch(pid)
