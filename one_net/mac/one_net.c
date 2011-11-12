@@ -930,6 +930,7 @@ BOOL one_net(on_txn_t ** txn)
             break;
         } // case ON_LISTEN_FOR_DATA //
         
+        case ON_SEND_PKT:
         case ON_SEND_SINGLE_DATA_PKT:
         {
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
@@ -942,13 +943,22 @@ BOOL one_net(on_txn_t ** txn)
             break;
         } // case ON_SEND_SINGLE_DATA_PKT //
         
+        case ON_SEND_PKT_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
         {
             if(one_net_write_done())
             {
-                on_state++;
-                ont_set_timer(ONT_RESPONSE_TIMER,
+                ont_set_timer((*txn)->next_txn_timer,
                   MS_TO_TICK((*txn)->response_timeout));
+                  
+                if(on_state == ON_SEND_PKT_WRITE_WAIT)
+                {
+                    on_state = ON_LISTEN_FOR_DATA;
+                }
+                else
+                {
+                    on_state++;
+                }
             } // if write is complete //
             break;
         } // send single data write wait case //
