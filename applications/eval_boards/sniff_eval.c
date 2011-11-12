@@ -27,6 +27,7 @@
 #include "tal.h"
 #include "oncli.h"
 #include "cb.h"
+#include "one_net_crc.h"
 
 
 
@@ -371,6 +372,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                     
                     for(j = 0; j < num_keys; j++)
                     {
+                        UInt8 calc_payload_crc;
+                        BOOL crc_match;
                         oncli_send_msg("Decrypted using key ");
                         oncli_print_xtea_key(&keys[j]);
                         oncli_send_msg("\n");
@@ -394,6 +397,15 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                             } // if need to output a new line //
                         } // loop to output the raw payload //
                         oncli_send_msg("\n");
+
+                        calc_payload_crc = (UInt8)one_net_compute_crc(
+                          &decrypted[ON_PLD_CRC_SIZE], raw_pld_len - 1 -
+                          ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+
+                        crc_match = (calc_payload_crc == decrypted[0]);
+                        oncli_send_msg("Payload CRC = 0x%02X, Calculated "
+                          "Payload CRC = 0x%02X, CRCs%s match.\n",
+                          decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
                     }
                 }
             }
