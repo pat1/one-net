@@ -818,6 +818,42 @@ enum
 };
 
 
+//! Invite related constants
+enum
+{
+    //! The length (in bytes) of the raw invite request packet.  The 25th byte
+    //! contains the 2 bits for the method used to encrypt the data with.
+    ON_RAW_INVITE_SIZE = 25,
+
+    //! The length (in bytes) of the encoded invite portion of the invite
+    //! request packet.  This includes the extra byte needed to store the 2 bits
+    //! for the encryption type.  This is also the size of the invite in 6 bit
+    //! words
+    ON_ENCODED_INVITE_SIZE = 33,
+
+    //! The number of bytes to compute the crc over in the invite message
+    ON_INVITE_DATA_LEN = 23,
+
+    //! The version index
+    ON_INVITE_VERSION_IDX = 1,
+
+    //! The assigned DID index
+    ON_INVITE_ASSIGNED_DID_IDX = 2,
+
+    //! The key index
+    ON_INVITE_KEY_IDX = 4,
+
+    //! The features index
+    ON_INVITE_FEATURES_IDX = 20,
+
+    //! The crc index
+    ON_INVITE_CRC_IDX = 0,
+    
+    //! The index to start computing the CRC over
+    ON_INVITE_CRC_START_IDX = ON_INVITE_CRC_IDX + 1
+};
+
+
 //! To save stack space when processing function calls, to simplify things,
 //! and for (at times) fewer parameters, this is a structure containing
 //! common portions of a packet.  Everything, even UInt8 portions, is a
