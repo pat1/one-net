@@ -460,9 +460,9 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
     // everything worked out fine.  Set the transactions and timers
     invite_txn.data_len = ON_ENCODED_INVITE_SIZE;
+    invite_txn.response_timeout = one_net_master_invite_send_time;
     invite_txn.priority = ONE_NET_LOW_PRIORITY;
-    ont_set_timer(invite_txn.next_txn_timer,
-      MS_TO_TICK(one_net_master_invite_send_time));
+    ont_set_timer(invite_txn.next_txn_timer, 0);
     ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
 
     return ONS_SUCCESS;
@@ -616,6 +616,7 @@ void one_net_master(void)
                     on_base_param->channel = 0;
                 }
 
+                one_net_set_channel(on_base_param->channel);
                 ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
 
                 // check if it's been long enough where the device thinks that
@@ -630,6 +631,50 @@ void one_net_master(void)
             } // else channel is not clear //
             break;
         } // ON_JOIN_NETWORK case //
+        
+        case ON_LISTEN_FOR_DATA:
+        {
+            if(invite_txn.priority != ONE_NET_NO_PRIORITY &&
+              ont_inactive_or_expired(invite_txn.next_txn_timer))
+            {
+                UInt8 pid = ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT;
+                
+                if(ont_expired(ONT_INVITE_TIMER))
+                {
+                    one_net_master_invite_result(ONS_TIME_OUT, invite_key, 0);
+                    one_net_master_cancel_invite(
+                      (const one_net_xtea_key_t * const)&invite_key);
+                    break;
+                } // if trying to add device timed out //
+                
+                txn = &invite_txn;
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                txn->retry++;
+                if(mh_repeater_available && txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
+                {
+                    txn->retry = 0;
+                    pid = ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT;
+                } // if time to send a multi hop packet //
+                #endif
+
+                if(!setup_pkt_ptr(pid, invite_pkt, &data_pkt_ptrs))
+                {
+                    break; // we should never get here
+                }
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                if(pid == ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT)
+                {
+                    on_build_hops(data_pkt_ptrs.enc_hops_field,
+                      features_max_hops(THIS_DEVICE_FEATURES), 0);
+                }
+                #endif
+
+                on_state = ON_SEND_PKT;
+                break;
+            }
+        }
 
         default:
         {
