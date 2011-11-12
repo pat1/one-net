@@ -186,7 +186,6 @@ static oncli_status_t oncli_parse_channel(const char * ASCII,
             ONCLI_BAD_PARAM If any of the parameters passed in were invalid.
             ONCLI_PARSE_ERR If the command was not parsed correctly
 */
-extern BOOL add_it;
 oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
   UInt8 * const next_state, oncli_cmd_hdlr_t * const cmd_hdlr)
 {
@@ -315,12 +314,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     
     else
     {
-        if(!strnicmp("add_it", CMD, 6))
-        {
-            add_it = TRUE;
-        }
-      
-      
         *CMD_STR = CMD;
         return ONCLI_INVALID_CMD;
     } // else the command was invalid //
