@@ -77,6 +77,12 @@ enum
 //! busy channel.
 #define ONE_NET_MASTER_CHANNEL_SCAN_TIME 10000
 
+//! The default keep alive interval in ticks to assign to new clients.
+#define ONE_NET_MASTER_DEFAULT_KEEP_ALIVE 1800000
+
+//! Duration the MASTER sends the new CLIENT invite.
+#define ONE_NET_MASTER_INVITE_DURATION 600000
+
 
 
 //! @} on_master_port_const_const
