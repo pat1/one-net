@@ -92,7 +92,10 @@ enum
     #if defined(_ONE_NET_MASTER) || defined(_ENHANCED_INVITE)
     ONT_INVITE_TIMER,
     #endif
-    
+    #ifdef _ONE_NET_MASTER
+    ONT_INVITE_SEND_TIMER,
+    #endif
+
     #ifdef _BLOCK_MESSAGES_ENABLED
     ONT_BLOCK_TIMER,
     #endif
