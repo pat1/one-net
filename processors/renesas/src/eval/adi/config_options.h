@@ -356,6 +356,13 @@
 	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
 		    #define _ENABLE_CHANGE_KEY_COMMAND
 	    #endif
+		
+        #ifdef _STREAM_MESSAGES_ENABLED
+    	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change stream key" command option
+    	    #ifndef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+    		    #define _ENABLE_CHANGE_STREAM_KEY_COMMAND
+    	    #endif
+        #endif
 
 	    // _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
 	    #ifndef _ENABLE_REMOVE_DEVICE_COMMAND
