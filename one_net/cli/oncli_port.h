@@ -187,6 +187,18 @@ oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
 void oncli_print_user_pin_cfg(void);
 
 
+/*!
+      \brief Print a packet.
+      
+      \param[in] packet_bytes The encoded packet bytes, including the header
+      \param[in] num_bytes The number of bytes in the packat, including the
+                 header
+
+      \return void
+*/
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
+
+
 
 //! @} oncli_port_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
