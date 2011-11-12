@@ -235,12 +235,14 @@ void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
          UInt8* queue_size, UInt16* tail_idx);
 #endif
 
+#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, int index);
+#endif
 
 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
-#else
+#elif _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(void);
 #endif
 

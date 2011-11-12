@@ -755,21 +755,29 @@ BOOL one_net(on_txn_t ** txn)
         {
             // we are listinging for data.  Make sure we have nothing
             // pending
+            #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
               && single_msg_ptr == NULL)
+            #else
+            if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
+              && single_msg_ptr != NULL)
+            #endif
             {
                 on_sending_device_t* device;
-                
-                tick_t next_pop_time; // we don't sleep, so we won't use
-                                       // this.  But the function requires it
-                                       // as a parameter.
-                
 
                 // nothing is pending.  See if we have anything ready to go
+                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                tick_t next_pop_time; // if we sleep, we may need to know for
+                                      // how long
                 int index = single_data_queue_ready_to_send(&next_pop_time);
+                #elif _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
+                int index = single_data_queue_ready_to_send();
+                #endif
+                #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
                 if(index >= 0)
                 {
                     if(pop_queue_element(&single_msg, single_data_raw_pld, index))
+                #endif
                     {
                         // we have a message ready to send and we've popped it.
                         // Now let's get things ready to send.
@@ -890,7 +898,9 @@ BOOL one_net(on_txn_t ** txn)
 
                         return FALSE; // transaction is not complete
                     }
+                #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
                 }
+                #endif
             }
             
             break;

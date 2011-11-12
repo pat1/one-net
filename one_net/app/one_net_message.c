@@ -92,10 +92,12 @@ static void delete_expired_queue_elements(void);
 //! \ingroup ONE-NET_TIMER
 //! @{
 
+#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 static UInt8 payload_buffer[SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE];
 static on_single_data_queue_t single_data_queue[SINGLE_DATA_QUEUE_SIZE];
 static UInt8 single_data_queue_size = 0;
 static UInt16 pld_buffer_tail_idx = 0;
+#endif
 
 //! @} ONE-NET_MESSAGE_pri_var
 //                              PRIVATE VARIABLES END
@@ -157,6 +159,7 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
         return NULL; // invalid parameter
     }
     
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     if(single_data_queue_size >= SINGLE_DATA_QUEUE_SIZE)
     {
         return NULL; // no room in queue
@@ -166,15 +169,28 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     {
         return NULL; // no room in queue
     }
-    
+
     element = &single_data_queue[single_data_queue_size];
+    #else
+    if(single_msg_ptr != NULL)
+    {
+        return NULL;  // no room
+    }
+    single_msg_ptr = &single_msg;
+    element= single_msg_ptr;
+    #endif
     
     element->pid = pid;
     element->priority = priority;
     element->msg_type = msg_type;
     element->payload_size = data_len;
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     element->payload = &payload_buffer[pld_buffer_tail_idx];
     pld_buffer_tail_idx += data_len;
+    #else
+    element->payload = single_data_raw_pld;
+    #endif
+
     one_net_memmove(element->payload, raw_data, data_len);
     
     if(src_did != NULL)
@@ -209,11 +225,14 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     }
     #endif
     
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     single_data_queue_size++;
+    #endif
     return element;
 }
 
 
+#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 // return true if an element was popped, false otherwise.
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, int index)
@@ -281,6 +300,7 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
     single_data_queue_size--;
     return TRUE;
 }
+#endif
 
 
 /*!
@@ -352,7 +372,7 @@ int single_data_queue_ready_to_send(tick_t* const next_pop_time)
 	
 	return -1; // nothing ready to pop.
 }
-#else
+#elif _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(void)
 {
     if(single_data_queue_size == 0)
