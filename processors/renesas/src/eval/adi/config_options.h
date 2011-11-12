@@ -203,6 +203,12 @@
 	#ifndef _SNIFFER_MODE
 		#define _SNIFFER_MODE
 	#endif
+    
+    #ifdef _SNIFFER_MODE
+        // Enter 0 for minimal sniff, 1 for semi-detailed sniff,
+        // 2 for detailed sniff
+        #define _SNIFFER_VERBOSE_LEVEL 2
+    #endif
 #endif
 
 
