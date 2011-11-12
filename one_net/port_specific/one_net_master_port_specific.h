@@ -385,6 +385,22 @@ void one_net_master_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
 #endif
+
+
+/*!
+    \brief Returns results of the invite new CLIENT operation.
+
+    \param[in] STATUS ONS_SUCCESS if the device was successfully added.
+                      TIME_OUT if the operation timed out.
+                      ONS_CANCELED is the operation was cancelled
+    \param[in] KEY The unique key used to add the device.
+    \param[in] CLIENT_DID The did the CLIENT was assigned if STATUS == SUCCESS,
+      otherwise 0.
+
+    \return void
+*/
+void one_net_master_invite_result(one_net_status_t STATUS,
+  one_net_xtea_key_t KEY, const on_raw_did_t *CLIENT_DID);
                  
 
 
