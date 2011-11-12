@@ -111,7 +111,7 @@ UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
 
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
-  ONT_INVITE_TIMER, 0, 0, invite_pkt, NULL, NULL};
+  ONT_INVITE_SEND_TIMER, 0, 0, invite_pkt, NULL, NULL};
 
 
 
@@ -380,7 +380,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     one_net_status_t status;
     UInt8 raw_invite[ON_RAW_INVITE_SIZE];
 
-    if(!KEY)
+    if(!KEY || timeout == 0)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
@@ -413,29 +413,59 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       &raw_invite[ON_INVITE_CRC_START_IDX],
       ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
 
-    if((status = on_encrypt(ON_INVITE, raw_invite,
-      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE))
-      == ONS_SUCCESS)
-    {
-        invite_txn.data_len = ON_ENCODED_INVITE_SIZE;
-        
-        // TODO -- Actually build the packet
-    } // if encrypting was not successful //
+    status = on_encrypt(ON_INVITE, raw_invite,
+      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE);
 
-    if(status == ONS_SUCCESS)
-    {
-        invite_txn.priority = ONE_NET_LOW_PRIORITY;
-        ont_set_timer(invite_txn.next_txn_timer,
-          ONE_NET_MASTER_INVITE_SEND_TIME);
-        ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
-    } // if the invite has successfully been created //
-    else
+
+    if(status != ONS_SUCCESS)
     {
         one_net_master_cancel_invite(
           (const one_net_xtea_key_t * const)&invite_key);
+        return status;
     } // if the invite was not created successfully //
 
-    return status;
+
+    // so far, so good.  Start building the packet.
+    if(!setup_pkt_ptr(ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT, invite_pkt,
+      &data_pkt_ptrs))
+    {
+        return ONS_INTERNAL_ERR;
+    }
+
+    // pick a random message id
+    data_pkt_ptrs.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
+
+    // fill in the addresses
+    if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
+      (on_encoded_did_t*) ON_ENCODED_BROADCAST_DID,
+      (on_encoded_did_t*) MASTER_ENCODED_DID)) != ONS_SUCCESS)
+    {
+        return status;
+    }
+    
+    // encode the payload
+    if(status = on_encode(data_pkt_ptrs.payload, raw_invite,
+      ON_ENCODED_INVITE_SIZE) != ONS_SUCCESS)
+    {
+        return status;
+    }
+    
+    // now finish building the packet.
+    if(status = on_complete_pkt_build(&data_pkt_ptrs,
+      data_pkt_ptrs.msg_id, ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT)
+      != ONS_SUCCESS)
+    {
+        return status;                          
+    }
+
+    // everything worked out fine.  Set the transactions and timers
+    invite_txn.data_len = ON_ENCODED_INVITE_SIZE;
+    invite_txn.priority = ONE_NET_LOW_PRIORITY;
+    ont_set_timer(invite_txn.next_txn_timer,
+      MS_TO_TICK(one_net_master_invite_send_time));
+    ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
+
+    return ONS_SUCCESS;
 } // one_net_master_invite //
 
 
