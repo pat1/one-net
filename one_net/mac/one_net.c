@@ -64,13 +64,13 @@
 
 
 //! Preamble
-static const UInt8 PREAMBLE[] = {0x55, 0x55, 0x55};
+const UInt8 PREAMBLE[] = {0x55, 0x55, 0x55};
 
 //! Start of Frame
-static const UInt8 SOF[] = {0x33};
+const UInt8 SOF[] = {0x33};
 
 //! Header(Preamble and SOF)
-static const UInt8 HEADER[] = {0x55, 0x55, 0x55, 0x33};
+const UInt8 HEADER[] = {0x55, 0x55, 0x55, 0x33};
 
 
 enum
