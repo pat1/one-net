@@ -55,6 +55,7 @@
 #include "one_net_master_port_specific.h"
 #include "one_net_status_codes.h"
 #include "one_net_prand.h"
+#include "one_net_crc.h"
 
 
 //==============================================================================
@@ -136,6 +137,9 @@ static tick_t new_channel_clear_time_out = 0;
 
 //! flag that indicates if any Multi-Hop Repeaters have joined the network
 static BOOL mh_repeater_available = FALSE;
+
+//! Unique key of the device being invited into the network
+static one_net_xtea_key_t invite_key;
 
 
 
@@ -359,6 +363,8 @@ one_net_status_t one_net_master_change_stream_key(
     \brief Starts the network process to invite a CLIENT to join the network.
 
     \param[in] KEY The unique key of the device to invite to join the network.
+    \param[in] timeout The length of time, in milliseconds, that the master
+                   should attempt to invite the device before giving up.
 
     \return ONS_SUCCESS if the process was successfully started
             ONS_BAD_PARAM if the parameter is invalid
@@ -368,9 +374,68 @@ one_net_status_t one_net_master_change_stream_key(
               invite.
             See on_encrypt & on_build_pkt for more return codes
 */
-one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY)
+one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
+  UInt32 timeout)
 {
-    return ONS_SUCCESS;
+    one_net_status_t status;
+    UInt8 raw_invite[ON_RAW_INVITE_SIZE];
+
+    if(!KEY)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if(on_state == ON_INIT_STATE || on_state == ON_JOIN_NETWORK)
+    {
+        return ONS_NOT_INIT;
+    } // if the network has not been created yet //
+
+    if(invite_txn.priority != ONE_NET_NO_PRIORITY)
+    {
+        return ONS_ALREADY_IN_PROGRESS;
+    } // if already in the process of inviting //
+
+    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    {
+        return ONS_DEVICE_LIMIT;
+    } // if the MASTER has reached it's device limit //
+
+    one_net_memmove(invite_key, *KEY, sizeof(invite_key));
+    raw_invite[ON_INVITE_VERSION_IDX] = ON_INVITE_PKT_VERSION;
+    one_net_int16_to_byte_stream(master_param->next_client_did,
+      &(raw_invite[ON_INVITE_ASSIGNED_DID_IDX]));
+    one_net_memmove(&(raw_invite[ON_INVITE_KEY_IDX]),
+      on_base_param->current_key, sizeof(on_base_param->current_key));
+    one_net_memmove(&raw_invite[ON_INVITE_FEATURES_IDX],
+      &THIS_DEVICE_FEATURES, sizeof(on_features_t));
+
+    raw_invite[ON_INVITE_CRC_IDX] = (UInt8)one_net_compute_crc(
+      &raw_invite[ON_INVITE_CRC_START_IDX],
+      ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+
+    if((status = on_encrypt(ON_INVITE, raw_invite,
+      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE))
+      == ONS_SUCCESS)
+    {
+        invite_txn.data_len = ON_ENCODED_INVITE_SIZE;
+        
+        // TODO -- Actually build the packet
+    } // if encrypting was not successful //
+
+    if(status == ONS_SUCCESS)
+    {
+        invite_txn.priority = ONE_NET_LOW_PRIORITY;
+        ont_set_timer(invite_txn.next_txn_timer,
+          ONE_NET_MASTER_INVITE_SEND_TIME);
+        ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
+    } // if the invite has successfully been created //
+    else
+    {
+        one_net_master_cancel_invite(
+          (const one_net_xtea_key_t * const)&invite_key);
+    } // if the invite was not created successfully //
+
+    return status;
 } // one_net_master_invite //
 
 

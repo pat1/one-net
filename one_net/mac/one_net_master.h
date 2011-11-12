@@ -141,7 +141,8 @@ one_net_status_t one_net_master_change_stream_key(
   const one_net_xtea_key_t * const NEW_STREAM_KEY);
 #endif
 
-one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY);
+one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
+  UInt32 timeout);
 one_net_status_t one_net_master_cancel_invite(
   const one_net_xtea_key_t * const KEY);
 
