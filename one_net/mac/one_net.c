@@ -456,6 +456,30 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
 }
 
 
+/*!
+    \brief Calculates the decoded message CRC of a packet
+
+    \param[in] pkt_ptrs the filled-in packet
+
+    \return the message crc
+*/
+UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs)
+{
+    // message CRC calculation length includes everything past the message CRC
+    // and stops immediately BEFORE the hops field, if any, which is NOT part
+    // of the message CRC.
+    UInt8* msg_crc_start = pkt_ptrs->enc_msg_crc + ONE_NET_ENCODED_MSG_CRC_LEN;
+    UInt8 msg_crc_calc_len = (pkt_ptrs->payload + pkt_ptrs->payload_len) -
+      msg_crc_start;
+      
+    UInt8 msg_crc = (UInt8) one_net_compute_crc(msg_crc_start,
+      msg_crc_calc_len, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+      
+    // we are only interested in the 6 most significant bits, so mask them
+    return msg_crc & 0xFC; // 11111100 -- six most significant bits.
+}
+
+
 
 
 

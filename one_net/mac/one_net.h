@@ -576,6 +576,8 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
 one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
   UInt8 msg_id, UInt8 pid);
   
+UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
+  
 
 
 // encrypting / decrypting
