@@ -611,14 +611,13 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 
     on_decode(src_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
     
-    
     #ifndef _ONE_NET_MULTI_HOP
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, ((*txn)->retry));
     #else
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &((*txn)->retry), pkt->hops, &(pkt->max_hops));
-    #endif
+    #endif    
     
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
@@ -856,11 +855,9 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
       #endif
       ) == NULL)
     {
-        oncli_send_msg("\n\n\nError : Queue is full.\n\n\n");
         return ONS_RSRC_FULL;
     }
-    
-    
+
     return ONS_SUCCESS;
 }
 

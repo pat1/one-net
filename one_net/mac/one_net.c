@@ -885,7 +885,6 @@ BOOL one_net(on_txn_t ** txn)
                         single_msg_ptr = &single_msg;
                         (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
                         on_state = ON_SEND_SINGLE_DATA_PKT;
-                        
                         // set the timer to send immediately
                         ont_set_timer((*txn)->next_txn_timer, 0);
 
@@ -987,9 +986,6 @@ BOOL one_net(on_txn_t ** txn)
                       &(single_msg_ptr->msg_type), ON_MSG_TIMEOUT,
                       &ack_nack);                    
                     #endif
-                    
-                    oncli_send_msg("Transaction failed.  Reached maximum "
-                      "number of failed attempts.\n");
                       
                     // clear the transaction.
                     (*txn)->priority = ONE_NET_NO_PRIORITY;
@@ -999,8 +995,6 @@ BOOL one_net(on_txn_t ** txn)
                 }
                 else
                 {
-                    oncli_send_msg("Timed out without a response. Trying "
-                      "again.\n");
                     ont_set_timer((*txn)->next_txn_timer, 0);
                       on_state -= 2;  
                 }
