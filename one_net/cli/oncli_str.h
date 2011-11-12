@@ -137,6 +137,35 @@ extern const char * const ONCLI_DISABLE_STR;
 #endif
 
 
+// Master only commands
+#ifdef _ENABLE_INVITE_COMMAND
+extern const char * const ONCLI_INVITE_CMD_STR;
+#endif
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+extern const char * const ONCLI_CANCEL_INVITE_CMD_STR;
+#endif
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+extern const char * const ONCLI_ASSIGN_PEER_CMD_STR;
+#endif
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+extern const char * const ONCLI_UNASSIGN_PEER_CMD_STR;
+#endif
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+extern const char * const ONCLI_UPDATE_MASTER_CMD_STR;
+#endif
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+extern const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
+#endif
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+extern const char * const ONCLI_CHANGE_KEY_CMD_STR;
+#endif
+#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+extern const char * const ONCLI_CHANGE_STREAM_KEY_CMD_STR;
+#endif
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+extern const char * const ONCLI_RM_DEV_CMD_STR;
+#endif
+
 
 // Response Formats
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;

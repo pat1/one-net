@@ -166,6 +166,55 @@ const char * const ONCLI_DISABLE_STR = "disable";
 #endif
 
 
+// Master only commands
+#ifdef _ENABLE_INVITE_COMMAND
+	//! Command to invite a specific CLIENT to join the network.
+	const char * const ONCLI_INVITE_CMD_STR = "invite";
+#endif
+
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+	//! Cancel Invite command string
+	const char * const ONCLI_CANCEL_INVITE_CMD_STR = "cancel invite";
+#endif
+
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+	//! Assign peer command string
+	const char * const ONCLI_ASSIGN_PEER_CMD_STR = "assign peer";
+#endif
+
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+	//! Unassign peer command string
+	const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
+#endif
+
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+	//! Update MASTER command string
+	const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
+#endif
+
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	//! Change keep alive command string
+	const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
+#endif
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+	//! Change key command string
+	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change key";
+#endif
+
+#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+	//! Change stream key command string
+	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change stream key";
+#endif
+
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+	//! Remove device command string
+	const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
+#endif
+
+
+
+
 
 // Response Formats
 
