@@ -57,6 +57,7 @@
 #endif
 #ifdef _ONE_NET_MASTER
 #include "one_net_master_port_specific.h"
+#include "one_net_master_port_const.h"
 #include "one_net_master.h"
 #endif
 
@@ -182,6 +183,11 @@ static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
 
 static oncli_status_t oncli_parse_channel(const char * ASCII,
   UInt8 * const channel);
+  
+#ifdef _ENABLE_INVITE_COMMAND
+static oncli_status_t parse_invite_key(const char * ASCII,
+  char** end_ptr, one_net_xtea_key_t * const key);
+#endif
 
 
 
@@ -900,9 +906,69 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _ENABLE_INVITE_COMMAND
+/*!
+    \brief Handles receiving the invite command and all its parameters.
+    
+    The invite command has the form
+    
+    invite:AAAA-BBBB:TTTT
+    
+    where AAAA-BBBB is the unique invite key for the CLIENT to invite
+    and TTTT (note : TTTT is not necessarily exactly 4 characters) is an
+    optional timeout time
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+*/
 static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
+    oncli_status_t status;
+    char* ptr;
+    char* end_ptr;
+    long int timeout = ONE_NET_MASTER_INVITE_DURATION;
+    one_net_xtea_key_t invite_key;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = parse_invite_key(ASCII_PARAM_LIST, &end_ptr,
+      &invite_key)) != ONCLI_SUCCESS)
+    {
+        return status;
+    } // if parsing the key was not successful //
+    
+    if(*end_ptr == ONCLI_PARAM_DELIMITER)
+    {
+        ptr = end_ptr + 1;
+        timeout = one_net_strtol(ptr, &end_ptr, 10);
+        if(timeout <= 0)
+        {
+            return ONCLI_BAD_PARAM;
+        }
+    }
+    
+    if(*end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    switch(one_net_master_invite(&invite_key, (UInt32) timeout))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        case ONS_DEVICE_LIMIT: return ONCLI_RSRC_UNAVAILABLE;
+        case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
+        case ONS_NOT_INIT: return ONCLI_ONS_NOT_INIT_ERR;
+        case ONS_BAD_PARAM: return ONCLI_BAD_PARAM;
+        case ONS_INTERNAL_ERR: return ONCLI_INTERNAL_ERR;
+        default: return ONCLI_CMD_FAIL;
+    }
 }
 #endif
 
@@ -1033,8 +1099,6 @@ static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
             ONCLI_PARSE_ERR If ASCII could not be parsed
             ONCLI_INTERNAL_ERR If something unexpected occured.
 */
-//#if (defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)) ||\
-//  defined(_ENABLE_INVITE_COMMAND)
 static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const channel)
 {
     enum
@@ -1131,7 +1195,79 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
     
     return ONCLI_SUCCESS;
 } // oncli_parse_channel //
-//#endif
+
+
+/*!
+    \brief Parses the key (or portion of the key) from the ASCII parameter.
+    
+    ASCII contains two groups of four chars: xxxx-xxxx.
+    These are duplicated in the upper two groups. So, for example if this
+    function is passed "eval-0006" as the ASCII invite key
+
+    the key is created as a 16 byte ASCII conversion of "eval0006eval0006"
+    
+    
+    \param[in] ASCII The ASCII representation of the key
+    \param[out] end_ptr Pointer to the character AFTER the key
+    \param[out] key They key that ASCII represents.
+    
+    \return ONCLI_SUCCESS If the key was successfully parsed
+            ONCLI_BAD_PARAM if any of the parameters are invalid
+            ONCLI_PARSE_ERR If the ASCII parameter was not formatted correctly.
+*/
+#ifdef _ENABLE_INVITE_COMMAND
+static oncli_status_t parse_invite_key(const char * ASCII,
+  char** end_ptr, one_net_xtea_key_t * const key)
+{
+    enum
+    {
+        END_OF_PARAM_IDX = 9, // now it requires xxxx-xxxx
+
+        // number of characters in the key that are grouped together.
+        KEY_CH_GROUP_SIZE = 4,
+
+        // The position where the group delimiter character occurs (every nth).
+        // This is 1 more than the size of the grouping.
+        KEY_DELIMITER_POS
+    };
+
+    // delimits the unique key into 2 sets of 4 values.
+    const char GROUP_DELIMITER = '-';
+
+    UInt8 param_idx, key_idx;
+
+    if(!ASCII || !key || !end_ptr)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if any of the parameters are invalid //
+    
+    *end_ptr = (char*) (ASCII + END_OF_PARAM_IDX);
+
+    // parse the key parameter
+    for(param_idx = 0, key_idx = 0; param_idx < END_OF_PARAM_IDX; param_idx++)
+    {
+        if((param_idx % KEY_DELIMITER_POS) == KEY_CH_GROUP_SIZE)
+        {
+            if(ASCII[param_idx] != GROUP_DELIMITER)
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the character is not the delimiter //
+        } // if the character should be the delimiter //
+        else
+        {
+            if(!oncli_is_valid_unique_key_ch(ASCII[param_idx]))
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the character is invalid //
+
+            (*key)[key_idx+8] = ASCII[param_idx]; // group is duplicated
+            (*key)[key_idx++] = ASCII[param_idx];
+        } // else it should be a key character //
+    } // loop to read in the unique key //
+    
+    return ONCLI_SUCCESS;
+} // parse_invite_key //
+#endif
 
 
 
