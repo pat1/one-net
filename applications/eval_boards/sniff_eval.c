@@ -154,6 +154,7 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
     in_sniffer_mode = TRUE;
     sniff_channel = CHANNEL;
     node_loop_func = &sniff_eval;
+    
     return ONCLI_SUCCESS;
 } // oncli_reset_sniff //
 
@@ -334,11 +335,28 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                     UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
                     UInt8 j;
                     UInt8* encrypted = (UInt8*) raw_payload_bytes;
+                    on_data_t data_type = ON_SINGLE;
                     
-                    // TODO - what about stream and invite pcket keys
                     UInt8 num_keys = NUM_SNIFF_ENCRYPT_KEYS;
                     const one_net_xtea_key_t* keys =
                       (const one_net_xtea_key_t*) &sniff_enc_keys[0];
+                      
+                    if(packet_is_invite(pid))
+                    {
+                        num_keys = NUM_SNIFF_INVITE_KEYS;
+                        keys = (const one_net_xtea_key_t*)
+                          &sniff_invite_keys[0];
+                        data_type = ON_INVITE;
+                    }
+                    #ifdef _STREAM_MESSAGES_ENABLED
+                    else if(packet_is_stream(pid))
+                    {
+                        num_keys = NUM_SNIFF_STREAM_ENCRYPT_KEYS;
+                        keys = (const one_net_xtea_key_t*)
+                        &sniff_stream_enc_keys[0];
+                        data_type = ON_STREAM;
+                    }
+                    #endif
                     
                     for(j = 0; j < num_keys; j++)
                     {
@@ -347,7 +365,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                         oncli_send_msg("\n");
                         one_net_memmove(decrypted, encrypted, raw_pld_len);
                         
-                        if(on_decrypt(ON_SINGLE, decrypted,
+                        if(on_decrypt(data_type, decrypted,
                           (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
                           ONS_SUCCESS)
                         {
