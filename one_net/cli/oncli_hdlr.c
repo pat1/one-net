@@ -137,6 +137,45 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 
 
 
+// MASTER only command handlers
+#ifdef _ENABLE_INVITE_COMMAND
+	static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+	static oncli_status_t cancel_invite_cmd_hdlr(void);
+#endif
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+	static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+	static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+	static oncli_status_t unassign_peer_cmd_hdlr(
+	  const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+	static oncli_status_t update_master_cmd_hdlr(
+	  const char * const ASCII_PARAM_LIST);
+#endif  
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	static oncli_status_t change_keep_alive_cmd_hdlr(
+	  const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+	static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+	static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+
+
+
+
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
@@ -295,7 +334,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_USER_PIN_COMMAND
-    if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
+    else if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
       strlen(ONCLI_USER_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_USER_PIN_CMD_STR;
@@ -311,6 +350,167 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the user pin command was received //
 	#endif
+    
+	#ifdef _ENABLE_INVITE_COMMAND
+    else if(!strnicmp(ONCLI_INVITE_CMD_STR, CMD, strlen(ONCLI_INVITE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_INVITE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_INVITE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &invite_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the invite command was received //
+	#endif
+	
+	#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+    else if(!strnicmp(ONCLI_CANCEL_INVITE_CMD_STR, CMD,
+      strlen(ONCLI_CANCEL_INVITE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CANCEL_INVITE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CANCEL_INVITE_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return cancel_invite_cmd_hdlr();
+    } // else if the cancel invite command was received //
+	#endif
+
+	#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+    else if(!strnicmp(ONCLI_RM_DEV_CMD_STR, CMD, strlen(ONCLI_RM_DEV_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_RM_DEV_CMD_STR;
+
+        if(CMD[strlen(ONCLI_RM_DEV_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &rm_dev_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the remove device command was received //
+	#endif
+    
+	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+    else if(!strnicmp(ONCLI_ASSIGN_PEER_CMD_STR, CMD,
+      strlen(ONCLI_ASSIGN_PEER_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_ASSIGN_PEER_CMD_STR;
+
+        if(CMD[strlen(ONCLI_ASSIGN_PEER_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &assign_peer_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the assign peer command was received //
+	#endif
+		
+	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND	
+    else if(!strnicmp(ONCLI_UNASSIGN_PEER_CMD_STR, CMD,
+      strlen(ONCLI_UNASSIGN_PEER_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_UNASSIGN_PEER_CMD_STR;
+
+        if(CMD[strlen(ONCLI_UNASSIGN_PEER_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &unassign_peer_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the unassign peer command was received //
+	#endif
+
+	#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+    else if(!strnicmp(ONCLI_UPDATE_MASTER_CMD_STR, CMD,
+      strlen(ONCLI_UPDATE_MASTER_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_UPDATE_MASTER_CMD_STR;
+
+        if(CMD[strlen(ONCLI_UPDATE_MASTER_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &update_master_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the update MASTER command was received //
+	#endif
+    
+	#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+    else if(!strnicmp(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR, CMD,
+      strlen(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR)]
+          != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &change_keep_alive_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the change keep alive command was received //
+	#endif
+    
+	#ifdef _ENABLE_CHANGE_KEY_COMMAND
+    else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
+      strlen(ONCLI_CHANGE_KEY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CHANGE_KEY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CHANGE_KEY_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &change_key_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the change key command was received //
+	#endif
+    
+	#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+    else if(!strnicmp(ONCLI_CHANGE_STREAM_KEY_CMD_STR, CMD,
+      strlen(ONCLI_CHANGE_STREAM_KEY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CHANGE_STREAM_KEY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CHANGE_STREAM_KEY_CMD_STR)] !=
+          ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &change_stream_key_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the change stream key command was received //
+	#endif
+    
+    
     
     else
     {
@@ -695,6 +895,85 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     return oncli_set_user_pin_type(pin, pin_type);
 } // user_pin_cmd_hdlr //
 #endif
+
+
+
+
+#ifdef _ENABLE_INVITE_COMMAND
+static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+static oncli_status_t cancel_invite_cmd_hdlr(void)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+static oncli_status_t unassign_peer_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+static oncli_status_t update_master_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+static oncli_status_t change_keep_alive_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
+static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
 
 
 
