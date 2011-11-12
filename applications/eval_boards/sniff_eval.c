@@ -38,6 +38,7 @@
 
 
 extern const char HEX_DIGIT[];
+extern const UInt8 HEADER[];
 
 
 //! @} ONE-NET_sniff_eval_const
@@ -213,8 +214,165 @@ static void sniff_display_nid(const char* const description,
 #endif
 
 
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
+{
+    UInt8 i;
+    for(i = 0; i < num_bytes; i++)
+    {
+        oncli_send_msg("%02X ", packet_bytes[i]);
+    
+        if((i % 16) == 15)
+        {
+            oncli_send_msg("\n");
+        } // if need to output a new line //
+    } // loop to output the bytes that were read //
+    oncli_send_msg("\n\n");   
 
+    #if _SNIFFER_VERBOSE_LEVEL > 0
+    {
+        UInt8 pid = packet_bytes[ONE_NET_ENCODED_PID_IDX];
+        on_pkt_t sniff_pkt_ptrs;
+        oncli_send_msg("pid=%02X", pid);
 
+        if(!setup_pkt_ptr(pid, packet_bytes, &sniff_pkt_ptrs))
+        {
+            oncli_send_msg(" is invalid\n");
+        }
+        else
+        {
+            if(get_encoded_packet_len(pid, TRUE) != num_bytes)
+            {
+                oncli_send_msg(" -- Invalid number of bytes for pid %02X, "
+                  "Expected=%d, Actual=%d\n\n", pid,
+                  get_encoded_packet_len(pid, TRUE), num_bytes);
+                return;
+            }
+            
+            oncli_send_msg("\n");
+            oncli_send_msg("Enc. Msg ID : 0x%02X", *(sniff_pkt_ptrs.enc_msg_id));
+            #if _SNIFFER_VERBOSE_LEVEL > 1
+            {
+                oncli_send_msg(" -- Decoded : ");
+                if(on_decode(&sniff_pkt_ptrs.msg_id, sniff_pkt_ptrs.enc_msg_id,
+                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not decodable");
+                }
+                else
+                {
+                    oncli_send_msg("0x%02X", sniff_pkt_ptrs.msg_id >> 2);
+                }
+            }
+            #else
+            oncli_send_msg("\n");
+            #endif
+            
+            oncli_send_msg("\n");
+            oncli_send_msg("Enc. Msg CRC : 0x%02X", *(sniff_pkt_ptrs.enc_msg_crc));
+            #if _SNIFFER_VERBOSE_LEVEL > 1
+            {
+                oncli_send_msg(" -- Decoded 6 bit : ");
+                if(on_decode(&sniff_pkt_ptrs.msg_crc, sniff_pkt_ptrs.enc_msg_crc,
+                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not decodable\n");
+                }
+                else
+                {
+                    oncli_send_msg("0x%02X\n", sniff_pkt_ptrs.msg_crc >> 2);
+                }
+            }
+            #else
+            oncli_send_msg("\n");
+            #endif
+            
+            sniff_display_did("Repeater DID",
+              sniff_pkt_ptrs.enc_repeater_did);
+            sniff_display_did("Dest. DID",
+              sniff_pkt_ptrs.enc_dst_did);
+            sniff_display_nid("NID",
+              sniff_pkt_ptrs.enc_nid);
+            sniff_display_did("Source DID",
+              sniff_pkt_ptrs.enc_src_did);
+              
+            oncli_send_msg("Encoded Payload Length : %d\n",
+              sniff_pkt_ptrs.payload_len);
+            for(i = 0; i < sniff_pkt_ptrs.payload_len; i++)
+            {
+                oncli_send_msg("%02X ", sniff_pkt_ptrs.payload[i]);
+    
+                if((i % 16) == 15)
+                {
+                    oncli_send_msg("\n");
+                } // if need to output a new line //
+            } // loop to output the bytes that were read //
+            
+            #if _SNIFFER_VERBOSE_LEVEL > 1
+            {
+                UInt8 raw_pld_len = get_raw_payload_len(pid);
+                oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
+                  raw_pld_len);
+                if(on_decode(raw_payload_bytes, sniff_pkt_ptrs.payload,
+                  sniff_pkt_ptrs.payload_len) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not Decodable\n\n");
+                    return;
+                }
+                
+                for(i = 0; i < raw_pld_len; i++)
+                {
+                    oncli_send_msg("%02X ", raw_payload_bytes[i]);
+    
+                    if((i % 16) == 15)
+                    {
+                        oncli_send_msg("\n");
+                    } // if need to output a new line //
+                } // loop to output the raw payload //
+                oncli_send_msg("\n");
+                
+                {
+                    UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
+                    UInt8 j;
+                    UInt8* encrypted = (UInt8*) raw_payload_bytes;
+                    
+                    // TODO - what about stream and invite pcket keys
+                    UInt8 num_keys = NUM_SNIFF_ENCRYPT_KEYS;
+                    const one_net_xtea_key_t* keys =
+                      (const one_net_xtea_key_t*) &sniff_enc_keys[0];
+                    
+                    for(j = 0; j < num_keys; j++)
+                    {
+                        oncli_send_msg("Decrypted using key ");
+                        oncli_print_xtea_key(&keys[j]);
+                        oncli_send_msg("\n");
+                        one_net_memmove(decrypted, encrypted, raw_pld_len);
+                        
+                        if(on_decrypt(ON_SINGLE, decrypted,
+                          (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
+                          ONS_SUCCESS)
+                        {
+                            oncli_send_msg("Not decryptable\n");
+                            break;
+                        }
+                        
+                        for(i = 0; i < raw_pld_len -  1; i++)
+                        {
+                            oncli_send_msg("%02X ", decrypted[i]);
+    
+                            if((i % 16) == 15)
+                            {
+                                oncli_send_msg("\n");
+                            } // if need to output a new line //
+                        } // loop to output the raw payload //
+                        oncli_send_msg("\n");
+                    }
+                }
+            }
+            #endif
+        }
+    }
+    #endif
+}
 
 
 /*!
@@ -230,7 +388,9 @@ void sniff_eval(void)
 {
     UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
     UInt8* pkt_wo_header = &pkt[ONE_NET_ENCODED_RPTR_DID_IDX];
-    UInt16 i, bytes_read = sizeof(pkt);
+    UInt16 bytes_read = sizeof(pkt);
+    
+    one_net_memmove(pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
 
     if(oncli_user_input())
     {
@@ -264,80 +424,11 @@ void sniff_eval(void)
     } // if SOF was not received //
 
     bytes_read = one_net_read(pkt_wo_header, bytes_read);
-
-    oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read);
-    for(i = 0; i < bytes_read; i++)
-    {
-        oncli_send_msg("%02X ", pkt_wo_header[i]);
-    
-        if((i % 16) == 15)
-        {
-            oncli_send_msg("\n");
-        } // if need to output a new line //
-    } // loop to output the bytes that were read //
-    oncli_send_msg("\n\n");   
-
-    #if _SNIFFER_VERBOSE_LEVEL > 0
-    {
-        UInt8 pid = pkt[ONE_NET_ENCODED_PID_IDX];
-        on_pkt_t sniff_pkt_ptrs;
-        oncli_send_msg("pid=%02X", pid);
-
-        if(!setup_pkt_ptr(pid, pkt, &sniff_pkt_ptrs))
-        {
-            oncli_send_msg(" is invalid\n");
-        }
-        else
-        {
-            oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg ID : %02X", *(sniff_pkt_ptrs.enc_msg_id));
-            #if _SNIFFER_VERBOSE_LEVEL > 1
-            {
-                oncli_send_msg(" -- Decoded : ");
-                if(on_decode(&sniff_pkt_ptrs.msg_id, sniff_pkt_ptrs.enc_msg_id,
-                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
-                {
-                    oncli_send_msg("Not decodable");
-                }
-                else
-                {
-                    oncli_send_msg("%d", sniff_pkt_ptrs.msg_id >> 2);
-                }
-            }
-            #else
-            oncli_send_msg("\n");
-            #endif
-            
-            oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg CRC : %02X", *(sniff_pkt_ptrs.enc_msg_crc));
-            #if _SNIFFER_VERBOSE_LEVEL > 1
-            {
-                oncli_send_msg(" -- Decoded 6 bit : ");
-                if(on_decode(&sniff_pkt_ptrs.msg_crc, sniff_pkt_ptrs.enc_msg_crc,
-                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
-                {
-                    oncli_send_msg("Not decodable\n");
-                }
-                else
-                {
-                    oncli_send_msg("%d\n", sniff_pkt_ptrs.msg_crc >> 2);
-                }
-            }
-            #else
-            oncli_send_msg("\n");
-            #endif
-            
-            sniff_display_did("Repeater DID",
-              sniff_pkt_ptrs.enc_repeater_did);
-            sniff_display_did("Dest. DID",
-              sniff_pkt_ptrs.enc_dst_did);
-            sniff_display_nid("NID",
-              sniff_pkt_ptrs.enc_nid);
-            sniff_display_did("Source DID",
-              sniff_pkt_ptrs.enc_src_did);
-        }
-    }
-    #endif
+    oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read +
+      ONE_NET_PREAMBLE_HEADER_LEN);
+      
+    display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
+    oncli_send_msg("\n\n\n");
 
     // update the time to display the prompt
     ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);
