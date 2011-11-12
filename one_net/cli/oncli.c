@@ -509,6 +509,21 @@ UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE)
 } // oncli_read //
 
 
+/*!
+    \brief Checks if a given character is a valid ONE-NET unique key character.
+    
+    \param[in] CH the character to check for key validity.
+    
+    Valid unique key for adding devices characters are '2' - '9', and 'A' - 'Z'
+    except for 'O' & 'L'.  The key is case sensitive.
+*/
+BOOL oncli_is_valid_unique_key_ch(const char CH)
+{
+    return (BOOL)(isalnum(CH) && CH >= '2'
+      && ((CH | 0x20) != 'o' && (CH | 0x20) != 'l'));
+} // oncli_is_valid_unique_key_ch //
+
+
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
