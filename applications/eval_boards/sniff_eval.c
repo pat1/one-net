@@ -272,7 +272,9 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
             oncli_send_msg("Enc. Msg CRC : 0x%02X", *(sniff_pkt_ptrs.enc_msg_crc));
             #if _SNIFFER_VERBOSE_LEVEL > 1
             {
-                oncli_send_msg(" -- Decoded 6 bit : ");
+                UInt8 calculated_msg_crc;
+
+                oncli_send_msg(" -- Decoded Msg. CRC : ");
                 if(on_decode(&sniff_pkt_ptrs.msg_crc, sniff_pkt_ptrs.enc_msg_crc,
                   ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
@@ -280,8 +282,17 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                 }
                 else
                 {
-                    oncli_send_msg("0x%02X\n", sniff_pkt_ptrs.msg_crc >> 2);
+                    oncli_send_msg("0x%02X\n", sniff_pkt_ptrs.msg_crc);
                 }
+                
+                calculated_msg_crc = calculate_msg_crc(&sniff_pkt_ptrs);
+                oncli_send_msg("Calulated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
+                
+                if(calculated_msg_crc != sniff_pkt_ptrs.msg_crc)
+                {
+                    oncli_send_msg("Calc. msg. CRC does not match packet "
+                      "CRC!\n");
+                } 
             }
             #else
             oncli_send_msg("\n");
