@@ -400,7 +400,7 @@ void one_net_master_single_txn_status(on_message_status_t status,
     \return void
 */
 void one_net_master_invite_result(one_net_status_t STATUS,
-  one_net_xtea_key_t KEY, const on_raw_did_t *CLIENT_DID);
+  one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID);
                  
 
 

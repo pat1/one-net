@@ -112,6 +112,11 @@ UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
   ONT_INVITE_SEND_TIMER, 0, 0, invite_pkt, NULL, NULL};
+  
+  
+  
+//! Unique key of the device being invited into the network
+one_net_xtea_key_t invite_key;
 
 
 
@@ -137,10 +142,6 @@ static tick_t new_channel_clear_time_out = 0;
 
 //! flag that indicates if any Multi-Hop Repeaters have joined the network
 static BOOL mh_repeater_available = FALSE;
-
-//! Unique key of the device being invited into the network
-static one_net_xtea_key_t invite_key;
-
 
 
 //! @} ONE-NET_MASTER_pri_var
@@ -480,11 +481,17 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     \param[in] KEY The unique key of the device to cancel the invite request for
 
     \return ONS_SUCCESS if the invite request was canceled.
-            ONS_BAD_PARAM if the parameter is invalid.
 */
 one_net_status_t one_net_master_cancel_invite(
-  const one_net_xtea_key_t * const KEY)
+  const one_net_xtea_key_t* const KEY)
 {
+    UInt8 i;
+    invite_txn.priority = ONE_NET_NO_PRIORITY;
+    ont_stop_timer(invite_txn.next_txn_timer);
+    ont_stop_timer(ONT_INVITE_TIMER);
+    
+    // zero out invite_key_for good measure    
+    one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
     return ONS_SUCCESS;
 } // one_net_master_cancel_invite //
 
@@ -641,7 +648,7 @@ void one_net_master(void)
                 
                 if(ont_expired(ONT_INVITE_TIMER))
                 {
-                    one_net_master_invite_result(ONS_TIME_OUT, invite_key, 0);
+                    one_net_master_invite_result(ONS_TIME_OUT, &invite_key, 0);
                     one_net_master_cancel_invite(
                       (const one_net_xtea_key_t * const)&invite_key);
                     break;

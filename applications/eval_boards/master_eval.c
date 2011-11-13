@@ -180,7 +180,7 @@ void one_net_master_device_is_awake(const on_raw_did_t *DID)
 
 
 void one_net_master_invite_result(one_net_status_t STATUS,
-  one_net_xtea_key_t KEY, const on_raw_did_t *CLIENT_DID)
+  one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID)
 {
 } // one_net_master_invite_result //
 

@@ -974,8 +974,11 @@ static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _ENABLE_CANCEL_INVITE_COMMAND
+extern one_net_xtea_key_t invite_key;
 static oncli_status_t cancel_invite_cmd_hdlr(void)
 {
+    one_net_master_invite_result(ONS_CANCELED, &invite_key, 0);
+    one_net_master_cancel_invite(&invite_key);
     return ONCLI_SUCCESS;
 }
 #endif
