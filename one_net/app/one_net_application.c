@@ -161,7 +161,82 @@ BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
     } // if parameters are invalid //
 
     return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_NID_LEN) == 0);
-} // on_encoded_did_equal //
+} // on_encoded_did_equal //  
+  
+
+/*!
+    \brief Compares the NID passed to the function to this device's NID
+    
+    \param[in] nid The network ID to compare.
+    
+    \return TRUE if the NID is this device's NID.
+    \return FALSE if NID is NULL or the NIDs do not match
+*/
+BOOL is_my_nid(const on_encoded_nid_t* nid)
+{
+    on_encoded_nid_t* my_nid = (on_encoded_nid_t*) (on_base_param->sid);
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master && !client_joined_network)
+    {
+        return FALSE; // client does notm have a network ID yet since it is
+                      // not a member of a network
+    }
+    #endif
+    
+    return on_encoded_nid_equal(nid, my_nid);
+}
+
+
+/*!
+    \brief Compares the DID passed to the function to the master's DID
+    
+    \param[in] did The Device ID to compare.
+    
+    \return TRUE if the DID is not the master device's DID.
+    \return FALSE if DID is NULL or the DID is not the master device's DID.
+*/
+BOOL is_master_did(const on_encoded_did_t* did)
+{
+    return on_encoded_did_equal(did, &MASTER_ENCODED_DID);
+}
+
+
+/*!
+    \brief Compares the DID passed to the function to this device's DID
+    
+    \param[in] did The Device ID to compare.
+    
+    \return TRUE if the DID is this device's DID.
+    \return FALSE if DID is NULL or the DID is not this device's DID.
+*/
+BOOL is_my_did(const on_encoded_did_t* did)
+{
+    on_encoded_did_t* my_did = (on_encoded_did_t*)
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master && !client_joined_network)
+    {
+        return FALSE; // client does notm have a DID yet since it is
+                      // not a member of a network
+    }
+    
+    return on_encoded_did_equal(did, my_did);
+    #endif
+}
+
+
+/*!
+    \brief Compares the DID passed to the function to the broadcast DID
+    
+    \param[in] did The Device ID to compare.
+    
+    \return TRUE if the DID is the broadcast DID
+    \return FALSE if DID is NULL or the DID is not the broadcast DID
+*/
+BOOL is_broadcast_did(const on_encoded_did_t* did)
+{
+    return on_encoded_did_equal(did, &ON_ENCODED_BROADCAST_DID);
+}
 
 
 

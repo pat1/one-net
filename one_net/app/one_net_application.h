@@ -332,6 +332,12 @@ BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
 BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
+BOOL is_my_nid(const on_encoded_nid_t* nid);
+BOOL is_master_did(const on_encoded_did_t* did);
+BOOL is_my_did(const on_encoded_did_t* did);
+BOOL is_broadcast_did(const on_encoded_did_t* did);
+
+
 
 
 //! @} ONE-NET_APP_pub_func
