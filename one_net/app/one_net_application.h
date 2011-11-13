@@ -49,6 +49,8 @@
 #include "one_net_types.h"
 #include "one_net_packet.h"
 #include "one_net_status_codes.h"
+#include "one_net_features.h"
+#include "one_net_xtea.h"
 
 
 //==============================================================================
