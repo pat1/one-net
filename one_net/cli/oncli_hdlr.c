@@ -49,6 +49,7 @@
 #include "oncli_port.h"
 #include "one_net_data_rate.h"
 #include "tal.h"
+#include "one_net_encode.h"
 
 #include "one_net_port_specific.h"
 #ifdef _ONE_NET_CLIENT
@@ -107,6 +108,24 @@ static const char* ADD_DEV_CMD_STR = "add dev";
 //! \defgroup oncli_hdlr_pri_var
 //! \ingroup oncli_hdlr
 //! @{
+
+// temporary --  debugging
+static const on_features_t add_master_features = {0x2E, 0x03, 0x3F, 0x87};
+static const on_raw_nid_t  add_nid = {0x00, 0x00, 0x00, 0x00, 0x10};
+static const one_net_xtea_key_t add_key = {0x00, 0x01, 0x02, 0x03, 0x04,
+  0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+static const UInt8 add_flags = ON_JOINED | ON_SEND_TO_MASTER;
+static const tick_t add_keep_alive = 1800000;
+static const UInt8 add_channel = 1;
+static const UInt8 add_single_block_encrypt =
+  ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
+#ifdef _BLOCK_MESSAGES_ENABLED
+static const UInt8 add_fragment_delay_low = 125;
+static const UInt8 add_fragment_delay_high = 25;
+#endif
+#ifdef _STREAM_MESSAGES_ENABLED
+static const UInt8 add_stream_encrypt = ONE_NET_STREAM_ENCRYPT_XTEA8;
+#endif
 
 
 //! @} oncli_hdlr_pri_var
@@ -951,27 +970,32 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    // read in the did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
-      != ONCLI_ASCII_RAW_DID_SIZE)
+    if(!device_is_master)
     {
-        return ONCLI_PARSE_ERR;
-    } // if converting the source peer did failed //
-    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-    
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+        // read in the did
+        if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
+          != ONCLI_ASCII_RAW_DID_SIZE)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if converting the source peer did failed //
+        PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    }
+    else
     {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
+        if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if malformed parameter //
     
-    // read in features
-    if(ascii_hex_to_byte_stream(PARAM_PTR, (UInt8*) &features,
-      2 * sizeof(on_features_t)) != 2 * sizeof(on_features_t))
-    {
-        return ONCLI_PARSE_ERR;
-    } // if converting the features failed //    
+        // read in features
+        if(ascii_hex_to_byte_stream(PARAM_PTR, (UInt8*) &features,
+          2 * sizeof(on_features_t)) != 2 * sizeof(on_features_t))
+        {
+            return ONCLI_PARSE_ERR;
+        } // if converting the features failed //    
     
-    PARAM_PTR += (2 * sizeof(on_features_t));
+        PARAM_PTR += (2 * sizeof(on_features_t));
+    }
     
     if(*PARAM_PTR != '\n')
     {
@@ -985,12 +1009,40 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         {
             return ONCLI_CMD_FAIL;
         }
-        
-        return ONCLI_SUCCESS;
+    }
+    else
+    {
+        on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]), did,
+          ON_ENCODED_DID_LEN);
+        on_encode(on_base_param->sid, add_nid, ON_ENCODED_NID_LEN);
+        master->device.features = add_master_features;
+        master->device.expected_nonce = ON_INVALID_NONCE;
+        master->device.last_nonce = ON_INVALID_NONCE;
+        master->device.send_nonce = 0;
+    #ifdef _ONE_NET_MULTI_HOP
+        master->device.max_hops = features_max_hops(add_master_features);
+        master->device.hops = 0;
+    #endif
+        one_net_memmove(on_base_param->current_key, add_key,
+          sizeof(one_net_xtea_key_t));
+        master->keep_alive_interval = add_keep_alive;
+        on_base_param->single_block_encrypt = add_single_block_encrypt;
+        on_base_param->channel = add_channel;
+    #ifdef _STREAM_MESSAGES_ENABLED
+        one_net_memmove(on_base_param->stream_key, add_key,
+          sizeof(one_net_xtea_key_t));
+        on_base_param->stream_encrypt = add_stream_encrypt;
+    #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+        on_base_param->fragment_delay_low = add_fragment_delay_low;
+        on_base_param->fragment_delay_high = add_fragment_delay_high;
+    #endif
+    
+        client_joined_network = TRUE;
+        client_looking_for_invite = FALSE;
     }
 
-    // TODO -- add client
-    return ONCLI_CMD_FAIL;
+    return ONCLI_SUCCESS;
 }
 
 
