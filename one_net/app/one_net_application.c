@@ -143,6 +143,26 @@ BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
     return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_DID_LEN) == 0);
 } // on_encoded_did_equal //
 
+/*!
+    \brief Compares two encoded Network IDs.
+
+    \param[in] LHS The left hand side of the compare equation.
+    \param[in] RHS The right hand side of the compare equation.
+
+    \return TRUE if the NIDs match.
+            FALSE if the NIDs do not match.
+*/
+BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
+  const on_encoded_did_t * const RHS)
+{
+    if(!LHS || !RHS)
+    {
+        return FALSE;
+    } // if parameters are invalid //
+
+    return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_NID_LEN) == 0);
+} // on_encoded_did_equal //
+
 
 
 //! @} ONE-NET_APP_pub_func

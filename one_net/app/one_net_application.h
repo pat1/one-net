@@ -330,6 +330,8 @@ one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
 // address functions
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
   const on_encoded_did_t * const RHS);
+BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
+  const on_encoded_did_t * const RHS);
 
 
 //! @} ONE-NET_APP_pub_func
