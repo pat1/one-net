@@ -155,6 +155,29 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 //! @{
     
     
+typedef enum
+{
+    //! Master and client have not successfully passed any messages
+    INVITE_START,
+
+    //! Client has sent its features
+    INVITE_FEATURES_TRANSFERRED,
+
+    //! Master has sent the keep alive time and the flags
+    INVITE_KEEP_ALIVE_FLAGS_TRANSFERRED,
+
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Master has sent the fragment delay values
+    INVITE_FRAG_DELAY_TRANSFERRED,
+    #endif
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    //! Master has sent the stream key
+    INVITE_STREAM_KEY_TRANSFERRED
+    #endif
+} invite_accept_stage_t;
+    
+    
 //! type of the XTEA key fragment
 typedef UInt8 one_net_xtea_key_fragment_t[ONE_NET_XTEA_KEY_FRAGMENT_SIZE];
 
