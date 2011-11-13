@@ -49,7 +49,14 @@
 #include "one_net_client_port_const.h"
 #include "one_net.h"
 #include "one_net_port_specific.h"
+#include "one_net_client_port_specific.h"
 #include "tick.h"
+#include "one_net_timer.h"
+#include "tal.h"
+#include "one_net_encode.h"
+
+// debugging -- temporary
+#include "oncli.h"
 
 
 
@@ -174,6 +181,8 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
 	  , tick_t* expire_time_from_now
   #endif
   );
+  
+static BOOL look_for_invite(void);
 
 
 //! @} ONE-NET_CLIENT_pri_func
@@ -496,6 +505,97 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
 {
     return ONS_SUCCESS;
 }
+
+
+/*!
+    \brief Looks for the Invite packet when the device is being added to the
+      network.
+
+    Scans the channels (in the shared multitasking environment) for the MASTER
+    Invite New CLIENT packet.  This packet is read, and parsed here.
+
+    \param void
+
+    \return TRUE If the invite was found
+            FALSE If the invite was not found
+*/
+static BOOL look_for_invite(void)
+{
+    UInt8* pid = &invite_pkt[ONE_NET_ENCODED_PID_IDX];
+    UInt8 bytes_read = ONE_NET_ENCODED_PID_IDX + 1;
+    UInt8 bytes_left_to_read;
+
+	
+#ifdef _ENHANCED_INVITE
+    if(ont_expired(ONT_INVITE_TIMER))
+	{
+        client_invite_timed_out = TRUE;
+	    client_looking_for_invite = FALSE;
+        one_net_client_invite_result(NULL, ONS_TIME_OUT);
+	    return FALSE;
+	}
+#endif
+
+    // try to read in a packet
+    if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) == ONS_SUCCESS
+      && one_net_read(invite_pkt, bytes_read) == bytes_read &&
+      packet_is_invite(*pid))
+    {
+        #ifdef _ONE_NET_MULTI_HOP
+        bytes_left_to_read = ON_INVITE_ENCODED_PLD_LEN +
+          packet_is_multihop(*pid) ? ON_ENCODED_HOPS_SIZE : 0;
+        #else
+        bytes_left_to_read = ON_INVITE_ENCODED_PLD_LEN;
+        #endif
+        if(one_net_read(&invite_pkt[bytes_read], bytes_left_to_read) ==
+          bytes_left_to_read)
+        {
+            UInt8 raw_invite[ON_RAW_INVITE_SIZE];
+            
+            // verify message CRC and addresses
+            if(setup_pkt_ptr(*pid, invite_pkt, &data_pkt_ptrs) &&
+              is_broadcast_did(data_pkt_ptrs.enc_dst_did) &&
+              is_master_did(data_pkt_ptrs.enc_src_did) &&
+              verify_msg_crc(&data_pkt_ptrs))
+            {
+                if(on_decode(raw_invite, data_pkt_ptrs.payload,
+                  ON_INVITE_ENCODED_PLD_LEN) == ONS_SUCCESS)
+                {
+                    if(on_decrypt(ON_INVITE, raw_invite, &invite_key,
+                      ON_RAW_INVITE_SIZE) == ONS_SUCCESS &&
+                      verify_payload_crc(*(data_pkt_ptrs.pid), raw_invite))
+                    {
+                        oncli_send_msg("Received an invite packet!!\n\n");
+                        // TODO parse the invite packet and respond
+                    }
+                }
+            }
+        }
+    } // if a packet was received //
+
+    if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
+    {
+        // need to try the next channel
+        on_base_param->channel++;
+#ifndef _ENHANCED_INVITE
+        if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
+        {
+            on_base_param->channel = 0;
+        } // if the channel has overflowed //
+#else
+        if(on_base_param->channel > high_invite_channel)
+        {
+            on_base_param->channel = low_invite_channel;
+        } // if the channel has overflowed //
+#endif
+		
+        one_net_set_channel(on_base_param->channel);
+        ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
+    } // if the timer expired //
+
+    return FALSE;
+} // look_for_invite //
+
 
 
 
