@@ -22,6 +22,8 @@
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
 #include "one_net_client_port_specific.h"
+#include "oncli_str.h"
+#include "oncli.h"
 
 
 
@@ -93,6 +95,22 @@ static void client_check_user_pins(void);
 //! \defgroup ONE-NET_client_eval_pub_func
 //! \ingroup ONE-NET_client_eval
 //! @{
+    
+    
+void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
+  one_net_status_t status)
+{
+    switch(status)
+    {
+        case ONS_CANCELED: oncli_send_msg("Invite process cancelled.\n");
+          return;
+        case ONS_TIME_OUT: oncli_send_msg("Invite process timed out.\n");
+          return;
+        case ONS_SUCCESS:
+          // print the joined message
+          oncli_send_msg(ONCLI_JOINED_FMT, did_to_u16(RAW_DID));
+    }
+}
     
     
     
