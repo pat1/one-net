@@ -29,6 +29,7 @@
 #include "dfi.h"
 #include "oncli_port.h"
 #include "oncli.h"
+#include "oncli_str.h"
 
 
 //=============================================================================
@@ -182,6 +183,54 @@ void one_net_master_device_is_awake(const on_raw_did_t *DID)
 void one_net_master_invite_result(one_net_status_t STATUS,
   one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID)
 {
+    if(!KEY)
+    {
+        oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
+          &one_net_master_invite_result);
+        return;
+    }
+
+    switch(STATUS)
+    {
+        case ONS_SUCCESS:
+        {
+            if(!CLIENT_DID)
+            {
+                oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
+                  &one_net_master_invite_result);
+            } // if the parameters are invalid //
+            else
+            {
+                oncli_send_msg(ONCLI_DEVICE_ADD_FMT, &((*KEY)[0]),
+                  &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  did_to_u16(CLIENT_DID));
+            } // else the parameter is valid //
+            break;
+        } // success case //
+        
+        case ONS_TIME_OUT:
+        {
+            oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
+              &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              "timed out.");
+            break;
+        } // timeout case // 
+               
+        case ONS_CANCELED:
+        {
+            oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
+              &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              "cancelled.");
+            break;
+        } // cancelled case //
+
+        default:
+        {
+            oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
+              &one_net_master_invite_result);
+            break;
+        } // default case //
+    } // switch(STATUS) //
 } // one_net_master_invite_result //
 
 
