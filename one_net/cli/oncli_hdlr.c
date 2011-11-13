@@ -82,6 +82,10 @@ enum
 //! Parameter delimiter
 static const char ONCLI_PARAM_DELIMITER = ':';
 
+// debugging -- temporary
+static const char* ADD_DEV_CMD_STR = "add dev";
+
+
 
 
 //! @} oncli_hdlr_const
@@ -182,6 +186,9 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+
+// temporary debugging
+static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 
 
 
@@ -487,6 +494,22 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the change keep alive command was received //
 	#endif
+
+    // debugging temporary
+    else if(!strnicmp("add dev", CMD, 7))
+    {
+        *CMD_STR = ADD_DEV_CMD_STR;
+
+        if(CMD[7] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &add_dev_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the "add dev" command was received //
     
 	#ifdef _ENABLE_CHANGE_KEY_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
@@ -911,6 +934,64 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 } // user_pin_cmd_hdlr //
 #endif
 
+
+// temporary -- debugging
+#include "one_net_master.h"
+static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_raw_did_t did;
+    on_features_t features;
+    on_base_param_t out_base_param;
+    on_master_t out_master_param;
+
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    // read in the did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the source peer did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // read in features
+    if(ascii_hex_to_byte_stream(PARAM_PTR, (UInt8*) &features,
+      2 * sizeof(on_features_t)) != 2 * sizeof(on_features_t))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the features failed //    
+    
+    PARAM_PTR += (2 * sizeof(on_features_t));
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    if(device_is_master)
+    {
+        if(one_net_master_add_client(features, &out_base_param,
+          &out_master_param) != ONS_SUCCESS)
+        {
+            return ONCLI_CMD_FAIL;
+        }
+        
+        return ONCLI_SUCCESS;
+    }
+
+    // TODO -- add client
+    return ONCLI_CMD_FAIL;
+}
 
 
 
