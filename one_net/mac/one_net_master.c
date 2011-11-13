@@ -704,6 +704,70 @@ void one_net_master(void)
 one_net_status_t one_net_master_add_client(const on_features_t features,
   on_base_param_t* out_base_param, on_master_t* out_master_param)
 {
+    // instead of separate arguments for values returned.
+    one_net_status_t status;
+    on_raw_did_t raw_did;
+
+    on_client_t * client;
+    
+    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    {
+        return ONS_DEVICE_LIMIT;
+    }
+
+    // a device is being added, place it in the next available client_t
+    // structure
+    client = &client_list[master_param->client_count];
+
+    //
+    // initialize the fields in the client_t structure for this new client
+    //
+    client->device_send_info.expected_nonce = ON_INVALID_NONCE;
+    client->device_send_info.last_nonce = ON_INVALID_NONCE;
+    client->device_send_info.send_nonce = 0;
+    client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
+    client->device_send_info.features = features;
+    client->use_current_key = TRUE;
+#ifdef _ONE_NET_MULTI_HOP
+    client->device_send_info.max_hops = features_max_hops(features);
+    client->device_send_info.hops = 0;
+#endif
+    one_net_int16_to_byte_stream(master_param->next_client_did, raw_did);
+    on_encode(client->device_send_info.did, raw_did, ON_ENCODED_DID_LEN);
+    
+    one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
+      client->device_send_info.did, ON_ENCODED_DID_LEN);
+    one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
+    out_master_param->device.features = THIS_DEVICE_FEATURES;
+    out_master_param->device.expected_nonce = ON_INVALID_NONCE;
+    out_master_param->device.last_nonce = ON_INVALID_NONCE;
+    out_master_param->device.send_nonce = 0;
+#ifdef _ONE_NET_MULTI_HOP
+    out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
+    out_master_param->device.hops = 0;
+#endif
+    one_net_memmove(out_master_param->device.did,
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
+
+
+    one_net_memmove(out_base_param->current_key, on_base_param->current_key,
+      sizeof(one_net_xtea_key_t));
+    out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+    out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
+    out_base_param->channel = on_base_param->channel;
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_memmove(out_base_param->stream_key, on_base_param->stream_key,
+      sizeof(one_net_xtea_key_t));
+    out_base_param->stream_encrypt = on_base_param->stream_encrypt;
+#endif
+#ifdef _BLOCK_MESSAGES_ENABLED
+    out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
+    out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;
+#endif
+
+    master_param->client_count++;
+    master_param->next_client_did = find_lowest_vacant_did();
+
     return ONS_SUCCESS;
 } // one_net_master_add_client //
 
