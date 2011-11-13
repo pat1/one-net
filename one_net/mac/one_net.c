@@ -936,7 +936,8 @@ BOOL one_net(on_txn_t ** txn)
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
-                one_net_write((*txn)->pkt, (*txn)->data_len);
+                one_net_write((*txn)->pkt, get_encoded_packet_len(
+                  (*txn)->pkt[ONE_NET_ENCODED_PID_IDX], TRUE));
                 on_state++;
             } // if the channel is clear //
             
@@ -954,6 +955,7 @@ BOOL one_net(on_txn_t ** txn)
                 if(on_state == ON_SEND_PKT_WRITE_WAIT)
                 {
                     on_state = ON_LISTEN_FOR_DATA;
+                    *txn = 0;
                 }
                 else
                 {
