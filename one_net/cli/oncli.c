@@ -376,7 +376,10 @@ oncli_status_t oncli_print_data_rates(on_features_t features)
 */
 oncli_status_t oncli_print_features(on_features_t features)
 {
-    oncli_send_msg("Max Hops : %d\n", features_max_hops(features));
+    oncli_send_msg("Feature Bytes : ");
+    uart_write_int8_hex_array((UInt8*) &features, TRUE,
+      sizeof(on_features_t));
+    oncli_send_msg("\nMax Hops : %d\n", features_max_hops(features));
     oncli_send_msg("Max Peers : %d\n", features_max_peers(features));
     oncli_send_msg("Multi-Hop : %s\n", features_mh_capable(features) ?
       CAPABLE_STR : NOT_CAPABLE_STR);
