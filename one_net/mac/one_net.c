@@ -195,6 +195,9 @@ extern BOOL client_joined_network; // declared extern in one_net_client.h but
      // we do not want to include one_net_client.h so we declare it here too.
 #endif
 
+//! location to store the encoded data for an invite transaction.
+UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
+
 
 
 //                              PUBLIC VARIABLES

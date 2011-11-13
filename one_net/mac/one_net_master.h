@@ -102,7 +102,6 @@ enum
 
 extern on_master_param_t * const master_param;
 extern on_client_t * const client_list;
-extern UInt8 invite_pkt[];
 extern on_txn_t invite_txn;
 
 

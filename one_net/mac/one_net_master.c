@@ -105,9 +105,6 @@ on_master_param_t * const master_param =
 //! List of the CLIENTS
 on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
   sizeof(on_base_param_t) + sizeof(on_master_param_t));
-  
-//! location to store the encoded data for an invite transaction.
-UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
 
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,

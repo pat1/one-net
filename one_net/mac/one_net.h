@@ -544,6 +544,8 @@ extern on_single_data_queue_t* single_msg_ptr;
 //! overflow.
 extern UInt8 raw_payload_bytes[];
 
+extern UInt8 invite_pkt[];
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
