@@ -71,8 +71,17 @@
 //! @{
 
 
+
+enum
+{
+    //! The number of ASCII hex characters per raw did
+    ONCLI_ASCII_RAW_DID_SIZE = 3,
+};
+
+
 //! Parameter delimiter
 static const char ONCLI_PARAM_DELIMITER = ':';
+
 
 
 //! @} oncli_hdlr_const
