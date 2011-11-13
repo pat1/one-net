@@ -466,6 +466,9 @@ extern UInt8 raw_payload_bytes[];
 
 extern UInt8 invite_pkt[];
 
+//! Unique key of the device being invited into the network
+extern one_net_xtea_key_t invite_key;
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END

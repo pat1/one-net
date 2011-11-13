@@ -198,6 +198,9 @@ extern BOOL client_joined_network; // declared extern in one_net_client.h but
 //! location to store the encoded data for an invite transaction.
 UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
 
+//! Unique key of the device being invited into the network
+one_net_xtea_key_t invite_key;
+
 
 
 //                              PUBLIC VARIABLES
@@ -520,7 +523,7 @@ BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs)
 */
 BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
 {
-    UInt8* crc_calc_start;
+    const UInt8* crc_calc_start;
     UInt8 crc_calc, crc_calc_len;
     SInt8 num_encoded_blocks = get_num_payload_blocks(pid);
     
@@ -538,7 +541,7 @@ BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
         return FALSE; // bad parameter
     }
     
-    crc_calc_len = (UINt8) (num_encoded_blocks * ONE_NET_XTEA_BLOCK_SIZE -
+    crc_calc_len = (UInt8) (num_encoded_blocks * ONE_NET_XTEA_BLOCK_SIZE -
       ON_PLD_CRC_SIZE);
     crc_calc_start = &decrypted[ON_PLD_CRC_SIZE];
     crc_calc = (UInt8) one_net_compute_crc(crc_calc_start, crc_calc_len,
