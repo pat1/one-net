@@ -96,6 +96,21 @@
 //! \defgroup ON_CLIENT_port_specific_pub_func
 //! \ingroup ON_CLIENT_port_specific
 //! @{
+    
+    
+/*!
+    \brief Callback when the CLIENT has successfully joined a network.
+    
+    This function is called by ONE-NET after a CLIENT has successfully joined
+    a network in which it had been invited (received the invite packet).
+
+    \param[in] RAW_DID The did assigned to the CLIENT.
+    \param[in] status Result of the invitation (success, timeout, cancelled)
+
+    \return void
+*/
+void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
+  one_net_status_t status);
 
 
 
