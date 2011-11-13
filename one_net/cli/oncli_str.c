@@ -221,6 +221,21 @@ const char * const ONCLI_DISABLE_STR = "disable";
 //! Format output to report the channel the device is on
 const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
 
+#ifdef _ONE_NET_MASTER
+//! Format output when a device successfully joined the network.
+const char * const ONCLI_DEVICE_ADD_FMT
+  = "Device %.4s-%.4s added as %03X\n";
+
+//! Format output when a device is not added to the network.
+const char * const ONCLI_DEVICE_NOT_ADDED_FMT
+  = "Device %.4s-%.4s not added.  Invite %s\n";
+#endif
+
+#ifdef _ONE_NET_CLIENT
+//! Format output when a CLIENT successfully joins a network
+const char * const ONCLI_JOINED_FMT = "Successfully joined network as %03X\n";
+#endif
+
 
 
 // Reponse Strings

@@ -171,6 +171,15 @@ extern const char * const ONCLI_RM_DEV_CMD_STR;
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
 
 
+#ifdef _ONE_NET_MASTER
+extern const char * const ONCLI_DEVICE_ADD_FMT;
+extern const char * const ONCLI_DEVICE_NOT_ADDED_FMT;
+#endif
+#ifdef _ONE_NET_CLIENT
+extern const char * const ONCLI_JOINED_FMT;
+#endif
+
+
 
 // Reponse Strings
 extern const char * const ONCLI_CMD_SUCCESS_STR;
