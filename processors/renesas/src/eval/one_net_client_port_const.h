@@ -56,6 +56,13 @@ enum
 };
 
 
+//! Time constants
+//! Number of ticks to scan each channel when trying to join the network.
+//! 1s
+#define ONE_NET_SCAN_CHANNEL_TIME 1000
+
+
+
 
 //                                  CONSTANTS END
 //=============================================================================
