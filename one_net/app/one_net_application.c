@@ -73,7 +73,16 @@
 //! @{
 
 
+
 one_net_send_single_func_t one_net_send_single;
+extern BOOL device_is_master;
+#ifdef _ONE_NET_CLIENT
+extern BOOL client_joined_network;
+#endif
+extern on_base_param_t* const on_base_param;
+extern const on_encoded_did_t MASTER_ENCODED_DID;
+extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
+
 
 
 //! @} ONE-NET_APP_pub_var
