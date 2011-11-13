@@ -577,6 +577,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
   UInt8 msg_id, UInt8 pid);
   
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
+BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);
+BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted);
   
 
 
@@ -609,6 +611,7 @@ one_net_xtea_key_t* master_get_encryption_key(
 
 //! the main function
 BOOL one_net(on_txn_t ** txn);
+
 
 
 #ifdef _ONE_NET_MULTI_HOP

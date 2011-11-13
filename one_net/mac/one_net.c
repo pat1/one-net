@@ -190,6 +190,11 @@ on_single_data_queue_t* single_msg_ptr = NULL;
 //! overflow.
 UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
 
+#ifdef _ONE_NET_CLIENT
+extern BOOL client_joined_network; // declared extern in one_net_client.h but
+     // we do not want to include one_net_client.h so we declare it here too.
+#endif
+
 
 
 //                              PUBLIC VARIABLES
@@ -477,6 +482,66 @@ UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs)
       
     // we are only interested in the 6 most significant bits, so mask them
     return msg_crc & 0xFC; // 11111100 -- six most significant bits.
+}
+
+
+/*!
+    \brief Verify that the message CRC is valid
+
+    \param[in] pkt_ptrs the filled-in packet
+
+    \return TRUE if the message CRC is valid, FALSE otherwise
+*/
+BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs)
+{
+    UInt8 enc_crc;
+    UInt8 raw_crc = calculate_msg_crc(pkt_ptrs);
+    
+    if(on_encode(&enc_crc, &raw_crc, ONE_NET_ENCODED_MSG_CRC_LEN) !=
+      ONS_SUCCESS)
+    {
+        return FALSE;
+    }
+    
+    return (*(pkt_ptrs->enc_msg_crc) == enc_crc);
+}
+
+
+/*!
+    \brief Verify that the payload CRC is valid
+
+    \param[in] pid The pid of the packet
+    \param[in] decrypted The decrypted bytes
+
+    \return TRUE if the message CRC is valid, FALSE otherwise
+*/
+BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
+{
+    UInt8* crc_calc_start;
+    UInt8 crc_calc, crc_calc_len;
+    SInt8 num_encoded_blocks = get_num_payload_blocks(pid);
+    
+    if(num_encoded_blocks == 0)
+    {
+        return TRUE; // no CRC to check.
+    }
+    else if(num_encoded_blocks < 0)
+    {
+        return FALSE; // invalid CRC
+    }
+    
+    if(!decrypted)
+    {
+        return FALSE; // bad parameter
+    }
+    
+    crc_calc_len = (UINt8) (num_encoded_blocks * ONE_NET_XTEA_BLOCK_SIZE -
+      ON_PLD_CRC_SIZE);
+    crc_calc_start = &decrypted[ON_PLD_CRC_SIZE];
+    crc_calc = (UInt8) one_net_compute_crc(crc_calc_start, crc_calc_len,
+      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+    
+    return (crc_calc == decrypted[0]); // CRC is always the very first byte
 }
 
 
@@ -1051,8 +1116,6 @@ BOOL one_net(on_txn_t ** txn)
     
     return TRUE;
 } // one_net //
-
-
 
 
 #ifdef _ONE_NET_MULTI_HOP
