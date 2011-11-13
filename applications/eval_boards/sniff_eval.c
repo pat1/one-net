@@ -289,7 +289,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                 }
                 
                 calculated_msg_crc = calculate_msg_crc(&sniff_pkt_ptrs);
-                oncli_send_msg("Calulated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
+                oncli_send_msg("Calculated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
                 
                 if(calculated_msg_crc != sniff_pkt_ptrs.msg_crc)
                 {
