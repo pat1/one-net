@@ -282,12 +282,9 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
     char* end_of_line = "\r\n";   
     
     #ifdef _BLOCKING_UART
-    if(cb_bytes_free(&uart_tx_cb) < LEN)
+    // add 15 for a little bit of a buffer
+    while(cb_bytes_free(&uart_tx_cb) < (LEN + 15))
     {
-        while(uart_tx_cb.head != uart_tx_cb.tail)
-        {
-            // do nothing till everything clears
-        }
     }
     #endif
     
