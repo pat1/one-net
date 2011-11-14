@@ -98,6 +98,11 @@ const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
 //! \defgroup ONE-NET_PEER_pub_var
 //! \ingroup ONE-NET_PEER
 //! @{
+    
+    
+extern BOOL device_is_master;
+extern const on_encoded_did_t MASTER_ENCODED_DID;
+
 
 UInt8 peer_storage[PEER_STORAGE_SIZE_BYTES];
 
@@ -186,6 +191,9 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
   #endif
 {
     UInt8 i;
+    #ifdef _ONE_NET_CLIENT
+    BOOL master_added = FALSE;
+    #endif
     
     if(send_list == NULL)
     {
@@ -194,39 +202,87 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
 
     send_list->num_send_peers = 0;
     send_list->peer_send_index = -1;
-
-    if(!peer_list)
+    
+    if(dst_did != NULL)
     {
-        return send_list; // just return for now.  We'll do some more later.
+        one_net_memmove(
+          send_list->peer_list[send_list->num_send_peers].peer_did, *dst_did,
+            ON_ENCODED_DID_LEN);
+        send_list->peer_list[send_list->num_send_peers].peer_unit = dst_unit;
+        (send_list->num_send_peers)++;
+        
+        #ifdef _ONE_NET_CLIENT
+        if(!device_is_master && is_master_did(dst_did))
+        {
+            master_added = FALSE;
+        }
+        #endif
     }
 
-    for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
-      i < ONE_NET_MAX_PEER_UNIT; i++)
+    if(peer_list != NULL)
     {
-        if(src_unit != peer_list[i].src_unit)
+        for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
+          i < ONE_NET_MAX_PEER_UNIT; i++)
         {
-            continue;
-        }
-        
-        if(src_did != NULL)
-        {
-            if(on_encoded_did_equal(src_did,
-              (on_encoded_did_t*) (peer_list[i].peer_did)))
+            if(src_unit != peer_list[i].src_unit)
             {
-                // This peer get the message before us or maybe even
-                // originated it, so don't send it.
                 continue;
             }
-        }
         
-        // we have a match.  Add it.
+            if(src_did != NULL)
+            {
+                if(on_encoded_did_equal(src_did,
+                  (on_encoded_did_t*) (peer_list[i].peer_did)))
+                {
+                    // This peer get the message before us or maybe even
+                    // originated it, so don't send it.
+                    continue;
+                }
+            }
+        
+            // now check to see if this did is the original destination
+            if(dst_did != NULL && on_encoded_did_equal(dst_did,
+              &(peer_list[i].peer_did)))
+            {
+                continue; // it's already been added
+            }
+        
+            #ifdef _ONE_NET_CLIENT
+            if(!device_is_master && is_master_did(&(peer_list[i].peer_did)))
+            {
+                if(master_added)
+                {
+                    // it's already been added.
+                    continue;
+                }
+            
+                // it hasn't been added yet, but it will be below, so flag it now
+                master_added = TRUE;
+            }
+            #endif
+        
+            // we have a match.  Add it.
+            one_net_memmove(
+              send_list->peer_list[send_list->num_send_peers].peer_did,
+              peer_list[i].peer_did, ON_ENCODED_DID_LEN);
+            send_list->peer_list[send_list->num_send_peers].peer_unit =
+              peer_list[i].peer_unit;
+            (send_list->num_send_peers)++;
+        }
+    } // if peer_list is not NULL //
+
+    #ifdef _ONE_NET_CLIENT
+    if(send_to_master && !master_added)
+    {
+        // Add the master since we haven't yet and we need to.
         one_net_memmove(
           send_list->peer_list[send_list->num_send_peers].peer_did,
-          peer_list[i].peer_did, ON_ENCODED_DID_LEN);
+          MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
         send_list->peer_list[send_list->num_send_peers].peer_unit =
-          peer_list[i].peer_unit;
-        (send_list->num_send_peers)++;
+          ONE_NET_DEV_UNIT;
+        (send_list->num_send_peers)++;        
     }
+    #endif
 
     return send_list;
 }
