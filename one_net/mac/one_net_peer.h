@@ -172,7 +172,7 @@ extern on_peer_unit_t* const peer;
 
 one_net_status_t one_net_reset_peers(void);
 on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
+  UInt8 dst_unit, on_peer_send_list_t* send_list, const on_peer_unit_t* peer_list,
   #ifdef _ONE_NET_CLIENT
   const on_encoded_did_t* src_did, UInt8 src_unit, BOOL send_to_master);
   #else

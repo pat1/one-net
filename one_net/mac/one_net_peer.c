@@ -163,8 +163,8 @@ one_net_status_t one_net_reset_peers(void)
                  that ONE-NET provides will be used.  This parameter is
                  usually NULL.  Only applications that maintain their own
                  peer lists will have a non-NULL parameter here
-    \param[in] peer_list The peer list.  If NULL, the list that ONE-NET
-                 provides will be used.
+    \param[in] peer_list The peer list.  If NULL, we are not sending to a
+                 peer list.
     \param[in] src_did The "original" source of the message.  If NULL, the
                  source ID will be considered this device.  Used to prevent
                  circular messages of peers sending to the peers that
@@ -178,7 +178,7 @@ one_net_status_t one_net_reset_peers(void)
                  that ONE-NET provides will be returned.
 */
 on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
+  UInt8 dst_unit, on_peer_send_list_t* send_list, const on_peer_unit_t* peer_list,
   #ifdef _ONE_NET_CLIENT
   const on_encoded_did_t* src_did, UInt8 src_unit, BOOL send_to_master)
   #else
@@ -191,14 +191,15 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
     {
         send_list = &peer_send_list;
     }
-    if(peer_list == NULL)
-    {
-        peer_list = peer;
-    }
-    
+
     send_list->num_send_peers = 0;
     send_list->peer_send_index = -1;
-    
+
+    if(!peer_list)
+    {
+        return send_list; // just return for now.  We'll do some more later.
+    }
+
     for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
       i < ONE_NET_MAX_PEER_UNIT; i++)
     {
@@ -226,7 +227,7 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
           peer_list[i].peer_unit;
         (send_list->num_send_peers)++;
     }
-    
+
     return send_list;
 }
 
