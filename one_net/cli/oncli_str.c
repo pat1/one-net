@@ -212,6 +212,12 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
 #endif
 
+#ifdef _ENABLE_CHANNEL_COMMAND
+	//! Command to restart in MASTER mode on the given channel
+    //! (with an empty network)
+	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
+#endif
+
 
 
 

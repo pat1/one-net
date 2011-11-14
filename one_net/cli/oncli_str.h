@@ -165,6 +165,9 @@ extern const char * const ONCLI_CHANGE_STREAM_KEY_CMD_STR;
 #ifdef _ENABLE_REMOVE_DEVICE_COMMAND
 extern const char * const ONCLI_RM_DEV_CMD_STR;
 #endif
+#ifdef _ENABLE_CHANNEL_COMMAND
+extern const char * const ONCLI_CHANNEL_CMD_STR;
+#endif
 
 
 // Response Formats
