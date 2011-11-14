@@ -123,9 +123,17 @@ typedef struct
 */
 typedef struct
 {
-    //! List of peers to send to for THIS message
-    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN];
-    
+    // add 1 for the original recipient.  If the device is a master, add
+    // another one for the master in case the ON_SEND_TO_MASTER flag is set
+    // and none of the peers are the master, nor is the original destination.
+    #ifdef _ONE_NET_CLIENT
+    //! List of reciptients to send to for THIS message
+    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 2];
+    #else
+    //! List of recipients to send to for THIS message
+    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 1];
+    #endif
+
     //! The number of peers for THIS transaction
     UInt8 num_send_peers;
    
