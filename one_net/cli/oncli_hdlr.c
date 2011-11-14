@@ -205,6 +205,10 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_CHANNEL_COMMAND
+static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 
 // temporary debugging
 static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -567,8 +571,25 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the change stream key command was received //
 	#endif
     
+	#ifdef _ENABLE_CHANNEL_COMMAND
+    if(!strnicmp(ONCLI_CHANNEL_CMD_STR, CMD,
+      strlen(ONCLI_CHANNEL_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CHANNEL_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CHANNEL_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &channel_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the channel command was received //
+	#endif
     
-    
+
     else
     {
         *CMD_STR = CMD;
@@ -1182,6 +1203,44 @@ static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_
 {
     return ONCLI_SUCCESS;
 }
+#endif
+
+
+#ifdef _ENABLE_CHANNEL_COMMAND
+/*!
+    \brief Handles receiving the channel command and all it's parameters
+    
+    The channel command has the form
+    
+    channel:LL:NN
+    
+    where LL is the locale("US" or "EUR" and NN is the channel number to change to.
+    The channel is 1 based(1-25 for US and 1-3 for Europe).  This command is only
+    valid in MASTER mode.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    oncli_status_t status;
+    UInt8 channel;
+
+    if((status = oncli_parse_channel(ASCII_PARAM_LIST, &channel)) !=
+      ONCLI_SUCCESS)
+    {
+        return status;
+    } // if parsing the channel was not successful //
+    
+    one_net_reset_master_with_channel(channel);
+    return ONCLI_SUCCESS;
+} // channel_cmd_hdlr //
 #endif
 
 
