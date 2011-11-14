@@ -112,6 +112,20 @@ static UInt16 pld_buffer_tail_idx = 0;
 
 
 
+#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+/*
+    \brief Remove all messages from the queue
+    
+    \return void
+*/
+void empty_queue(void)
+{
+    single_data_queue_size = 0;
+    pld_buffer_tail_idx = 0;
+}
+#endif
+
+
 /*!
     \brief Add a single message to the queue.
     

@@ -236,6 +236,10 @@ void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
 #endif
 
 #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+void empty_queue(void);
+#endif
+
+#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, int index);
 #endif
