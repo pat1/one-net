@@ -1014,6 +1014,7 @@ BOOL one_net(on_txn_t ** txn)
         
         case ON_SEND_PKT:
         case ON_SEND_SINGLE_DATA_PKT:
+        case ON_SEND_SINGLE_DATA_RESP:
         {
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
@@ -1028,16 +1029,19 @@ BOOL one_net(on_txn_t ** txn)
         
         case ON_SEND_PKT_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
+        case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         {
             if(one_net_write_done())
             {
                 ont_set_timer((*txn)->next_txn_timer,
                   MS_TO_TICK((*txn)->response_timeout));
                   
-                if(on_state == ON_SEND_PKT_WRITE_WAIT)
+                if(on_state == ON_SEND_PKT_WRITE_WAIT || on_state ==
+                  ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT)
                 {
                     on_state = ON_LISTEN_FOR_DATA;
                     *txn = 0;
+                    return TRUE;
                 }
                 else
                 {
@@ -1120,6 +1124,7 @@ BOOL one_net(on_txn_t ** txn)
                     *txn = 0;
                     single_msg_ptr = 0;
                     on_state = ON_LISTEN_FOR_DATA;
+                    return TRUE;
                 }
                 else
                 {
@@ -1131,7 +1136,7 @@ BOOL one_net(on_txn_t ** txn)
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
     }
     
-    return TRUE;
+    return FALSE;
 } // one_net //
 
 
