@@ -164,8 +164,8 @@ extern on_peer_unit_t* const peer;
 
 one_net_status_t one_net_reset_peers(void);
 on_peer_send_list_t* fill_in_peer_send_list(
-  on_peer_send_list_t* send_list, const on_encoded_did_t* src_did,
-  UInt8 unit);
+  on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
+  const on_encoded_did_t* src_did, UInt8 unit);
 one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT);

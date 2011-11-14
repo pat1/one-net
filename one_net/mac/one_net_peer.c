@@ -161,6 +161,8 @@ one_net_status_t one_net_reset_peers(void)
                  that ONE-NET provides will be used.  This parameter is
                  usually NULL.  Only applications that maintain their own
                  peer lists will have a non-NULL parameter here
+    \param[in] peer_list The peer list.  If NULL, the list that ONE-NET
+                 provides will be used.
     \param[in] src_did The "original" source of the message.  If NULL, the
                  source ID will be considered this device.  Used to prevent
                  circular messages of peers sending to the peers that
@@ -172,14 +174,18 @@ one_net_status_t one_net_reset_peers(void)
                  that ONE-NET provides will be returned.
 */
 on_peer_send_list_t* fill_in_peer_send_list(
-  on_peer_send_list_t* send_list, const on_encoded_did_t* src_did,
-  UInt8 unit)
+  on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
+  const on_encoded_did_t* src_did, UInt8 unit)
 {
     UInt8 i;
     
     if(send_list == NULL)
     {
         send_list = &peer_send_list;
+    }
+    if(peer_list == NULL)
+    {
+        peer_list = peer;
     }
     
     send_list->num_send_peers = 0;
@@ -188,7 +194,7 @@ on_peer_send_list_t* fill_in_peer_send_list(
     for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
       i < ONE_NET_MAX_PEER_UNIT; i++)
     {
-        if(unit != peer[i].src_unit)
+        if(unit != peer_list[i].src_unit)
         {
             continue;
         }
@@ -196,7 +202,7 @@ on_peer_send_list_t* fill_in_peer_send_list(
         if(src_did != NULL)
         {
             if(on_encoded_did_equal(src_did,
-              (on_encoded_did_t*) (peer[i].peer_did)))
+              (on_encoded_did_t*) (peer_list[i].peer_did)))
             {
                 // This peer get the message before us or maybe even
                 // originated it, so don't send it.
@@ -207,11 +213,13 @@ on_peer_send_list_t* fill_in_peer_send_list(
         // we have a match.  Add it.
         one_net_memmove(
           send_list->peer_list[send_list->num_send_peers].peer_did,
-          peer[i].peer_did, ON_ENCODED_DID_LEN);
+          peer_list[i].peer_did, ON_ENCODED_DID_LEN);
         send_list->peer_list[send_list->num_send_peers].peer_unit =
-          peer[i].peer_unit;
+          peer_list[i].peer_unit;
         (send_list->num_send_peers)++;
     }
+    
+    return send_list;
 }
 
 
