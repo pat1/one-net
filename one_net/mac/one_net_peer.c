@@ -157,6 +157,8 @@ one_net_status_t one_net_reset_peers(void)
 /*!
     \brief Fills in peer send list with the list of peers to send to
     
+    \param[in] dst_did destination did of this message
+    \param[in] dst_unit destination unit of this message
     \param[in] send_list the peer send list to fill in.  If NULL, the list
                  that ONE-NET provides will be used.  This parameter is
                  usually NULL.  Only applications that maintain their own
@@ -168,14 +170,20 @@ one_net_status_t one_net_reset_peers(void)
                  circular messages of peers sending to the peers that
                  originally sent to THEM.
     \param[in] src_unit The source unit on THIS device for the message
-    
+    \param[in] src_unit The source unit on THIS device for the message
+    \param[in] send_to_master True if master should be sent this message.
+               Relevant only for clients.    
     \return pointer to a filled peer send list.  If send_list was not NULL,
                  it will be returned.  If it was NULL, the peer send list
                  that ONE-NET provides will be returned.
 */
-on_peer_send_list_t* fill_in_peer_send_list(
-  on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
-  const on_encoded_did_t* src_did, UInt8 unit)
+on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
+  UInt8 dst_unit, on_peer_send_list_t* send_list, on_peer_unit_t* peer_list,
+  #ifdef _ONE_NET_CLIENT
+  const on_encoded_did_t* src_did, UInt8 src_unit, BOOL send_to_master)
+  #else
+  const on_encoded_did_t* src_did, UInt8 src_unit)
+  #endif
 {
     UInt8 i;
     
@@ -194,7 +202,7 @@ on_peer_send_list_t* fill_in_peer_send_list(
     for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
       i < ONE_NET_MAX_PEER_UNIT; i++)
     {
-        if(unit != peer_list[i].src_unit)
+        if(src_unit != peer_list[i].src_unit)
         {
             continue;
         }
