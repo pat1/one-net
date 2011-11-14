@@ -53,6 +53,9 @@
 #include "one_net_timer.h"
 #include "one_net_prand.h"
 #include "one_net_xtea.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 
 
 
@@ -824,6 +827,14 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 void one_net_init(void)
 {
     one_net_set_channel(on_base_param->channel);
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    empty_queue();
+    #endif
+    #ifdef _PEER
+    one_net_reset_peers();
+    #endif
+    single_msg_ptr = NULL;
+    single_txn.priority = ONE_NET_NO_PRIORITY;
 } // one_net_init //
     
 
