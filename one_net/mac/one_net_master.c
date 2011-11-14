@@ -336,6 +336,24 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
 } // one_net_master_init //
 
 
+/*!
+    \brief Resets the master to a new channel and wipes out all clients
+
+    \param[in] channel The new channel to set the network to
+    
+    \return void
+*/
+void one_net_reset_master_with_channel(UInt8 channel)
+{
+    one_net_master_cancel_invite(&invite_key);
+    on_base_param->channel = channel;
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    master_param->client_count = 0;
+    on_state = ON_JOIN_NETWORK;
+    one_net_init();
+}
+
+
 one_net_status_t one_net_master_change_key(
   const one_net_xtea_key_fragment_t KEY_FRAGMENT)
 {

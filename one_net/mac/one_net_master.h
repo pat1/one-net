@@ -131,6 +131,8 @@ one_net_status_t one_net_master_create_network(
 
 one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   const UInt16 PARAM_LEN);
+  
+void one_net_reset_master_with_channel(UInt8 channel);
 
 one_net_status_t one_net_master_change_key(
   const one_net_xtea_key_fragment_t KEY_FRAGMENT);
