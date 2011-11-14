@@ -57,6 +57,9 @@
 #include "one_net_client_port_specific.h"
 #endif
 #include "one_net_features.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 
 
 
@@ -365,6 +368,59 @@ oncli_status_t oncli_print_data_rates(on_features_t features)
     
     return ONCLI_SUCCESS;
 } // oncli_print_data_rates //
+
+
+#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
+/*!
+    \brief Prints the peer list
+        
+    \return ONCLI_SUCCESS upon success, failure message otherwise
+*/
+oncli_status_t oncli_print_peer_list(void)
+{
+    on_raw_did_t my_raw_did, raw_did;
+    UInt8 i, count;
+    oncli_status_t status;
+      
+    oncli_send_msg(ONCLI_LIST_PEER_TABLE_HEADING);
+    count = 0;
+    
+    if((status = on_decode(my_raw_did,
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_RAW_DID_LEN))
+      != ONS_SUCCESS)
+    {
+        return status;
+    }
+
+    //
+    // loop through each unit/user pin (i)
+    //
+    for (i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
+    {
+        if(one_net_memcmp(INVALID_PEER, peer[i].peer_did, ON_ENCODED_DID_LEN)
+          != 0)
+        {
+            //
+            // found a peer, print it
+            //
+            if((status = on_decode(raw_did, peer[i].peer_did, ON_RAW_DID_LEN))
+              != ONS_SUCCESS)
+            {
+                return status;
+            }
+            
+            oncli_send_msg(ONCLI_LIST_PEER_FMT, did_to_u16(&my_raw_did),
+              peer[i].src_unit, did_to_u16(&raw_did), peer[i].peer_unit);
+            count++;
+        }
+    }
+    if (count == 0)
+    {
+        oncli_send_msg(ONCLI_LIST_NO_PEERS);
+    }
+    return status;
+} // oncli_print_peer_list //
+#endif
 
 
 /*!
