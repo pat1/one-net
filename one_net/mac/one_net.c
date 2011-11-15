@@ -1148,7 +1148,8 @@ BOOL one_net(on_txn_t ** txn)
                 }
                 else
                 {
-                    ont_set_timer((*txn)->next_txn_timer, 0);
+                    ont_set_timer((*txn)->next_txn_timer,
+                      MS_TO_TICK((*txn)->response_timeout));
                       on_state -= 2;  
                 }
             }
