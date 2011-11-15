@@ -1053,6 +1053,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         one_net_memmove(on_base_param->current_key, add_key,
           sizeof(one_net_xtea_key_t));
         master->keep_alive_interval = add_keep_alive;
+        master->flags = add_flags;
         on_base_param->single_block_encrypt = add_single_block_encrypt;
         on_base_param->channel = add_channel;
     #ifdef _STREAM_MESSAGES_ENABLED
