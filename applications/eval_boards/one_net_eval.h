@@ -328,6 +328,8 @@ on_message_status_t eval_handle_ack_nack_response(
 one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
   UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 #endif
+one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
+  UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 
 
 

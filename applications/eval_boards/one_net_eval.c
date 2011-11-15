@@ -570,6 +570,48 @@ static const char* get_prompt_string(void)
 
 
 /*!
+    \brief Sends a switch command message when a switch is flipped.
+    
+    \param[in] src_unit The source unit 
+    \param[in] status The status of the pin
+    \param[in] dst_unit The destination unit
+    \param[in] enc_dst The device that is to receive this message.
+    
+    \return ONS_SUCCESS if the message was successfully queued.
+            ONS_INTERNAL_ERR If the send single function could not be retrieved.
+            See one_net_client_send_single & one_net_master_send_single for
+            more return values.
+*/
+one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
+  UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
+{
+    // source is this device
+    on_encoded_did_t* src_did = (on_encoded_did_t*)
+      (&(on_base_param->sid[ON_ENCODED_NID_LEN]));    
+    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+
+    put_src_unit(src_unit, raw_pld);
+    put_msg_hdr(ONA_STATUS_CHANGE | ONA_SWITCH, raw_pld);
+    put_msg_data(status, raw_pld);
+    put_dst_unit(dst_unit, raw_pld);
+
+    return (*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+      ONE_NET_HIGH_PRIORITY, src_did, enc_dst
+      #ifdef _PEER
+          , TRUE, src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , NULL
+      #endif
+      );    
+} // send_switch_status_change_msg //
+
+
+/*!
     \brief Checks the three switches to see whether the device boots in
         auto mode, whether the device is a master or a client, and,
         if in auto mode and a client, which client the device should
