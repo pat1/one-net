@@ -590,6 +590,18 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 #endif
 
 
+one_net_status_t rx_single_data(on_txn_t** txn);
+#ifdef _BLOCK_MESSAGES_ENABLED
+one_net_status_t rx_block_data(on_txn_t** txn);
+#endif
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t rx_stream_data(on_txn_t** txn);
+#endif
+one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
+  on_txn_t ** txn);
+
+
+
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

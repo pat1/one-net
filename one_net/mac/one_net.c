@@ -1238,6 +1238,159 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 } // one_net_set_max_hops //
 #endif
 
+
+one_net_status_t rx_single_data(on_txn_t** txn)
+{
+    return ONS_SUCCESS;
+}
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+one_net_status_t rx_block_data(on_txn_t** txn)
+{
+    return ONS_SUCCESS;
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t rx_stream_data(on_txn_t** txn)
+{
+    return ONS_SUCCESS;
+}
+#endif
+
+
+/*!
+    \brief Receives data packets only.
+
+    This function is to only receive Single, Block, and Stream packets.
+    All other packets are discarded.
+
+    \param[in] EXPECTED_SRC_DID The encoded DID of the device that this device
+      expects to receive a packet from.  If this is set to the broadcast
+      address, this device does not expect a packet from anyone in particular.
+    \param[in/out] The current transaction being carried out.
+
+    \return ONS_NOT_INIT If the device was not initialized properly.
+            ONS_BAD_PARAM If the parameter is invalid.
+            ONS_READ_ERR If there was an error while reading the packet.
+            ONS_BAD_PKT_TYPE If a packet type that was not expected was
+              received.
+            ONS_INTERNAL_ERR if control reaches the end of the function.
+            ONS_INVALID_DATA If data received is not valid.
+            For more return codes, see rx_pkt_addr.
+*/
+one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
+  on_txn_t ** txn)
+{
+    one_net_status_t status;
+    on_encoded_did_t src_did;
+    UInt8 pid;
+    BOOL dst_is_broadcast = FALSE;
+    UInt8 pkt_hdr[ON_PLD_IDX];
+
+    // only need to check 1 handler since it is all or nothing
+    if(!pkt_hdlr.single_data_hdlr)
+    {
+        return ONS_NOT_INIT;
+    } // if this device was not initialized //
+
+    if(!EXPECTED_SRC_DID || !txn)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
+    {
+        return ONS_READ_ERR;
+    }
+    
+    if(one_net_read(pkt_hdr, ON_PLD_IDX) != ON_PLD_IDX)
+    {
+        return ONS_READ_ERR;
+    }
+    
+    // check some addresses
+    if(!is_my_nid((on_encoded_nid_t*) (&pkt_hdr[ON_ENCODED_NID_IDX])))
+    {
+        return ONS_NID_FAILED; // not our network
+    }
+    
+    #ifdef _RANGE_CHECK
+    // check the repeater did
+    #endif
+    
+    if(!is_my_did((on_encoded_did_t*) (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX])))
+    {
+        if(!(*txn) && is_broadcast_did((on_encoded_did_t*)
+          (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX])))
+        {
+            dst_is_broadcast = TRUE;
+        }
+        else
+        {
+            #ifdef _ONE_NET_CLIENT_REPEATER
+            if(!(*txn) && !device_is_master)
+            {
+                // code to check / change the hops and repeat
+                // change state to ON_SEND_PKT;
+                return ONS_SUCCESS; // TODO -- correct return value?
+            }
+            #endif
+            return ONS_DID_FAILED;
+        }
+    }
+
+    if(!is_broadcast_did(EXPECTED_SRC_DID))
+    {
+        if(!on_encoded_did_equal(EXPECTED_SRC_DID,
+          (on_encoded_did_t*) (&pkt_hdr[ON_ENCODED_SRC_DID_IDX])))
+        {
+            return ONS_DID_FAILED;
+        }
+    }
+    
+    pid = pkt_hdr[ONE_NET_ENCODED_PID_IDX];
+    
+    switch(get_pkt_family(pid))
+    {
+        case SINGLE_PKT_GRP:
+        {
+            *txn = &single_txn;
+            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
+            status = rx_single_data(txn);
+            break;
+        }
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case BLOCK_PKT_GRP:
+        {
+            *txn = &block_txn;
+            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
+            status = rx_single_data(txn);
+            break;            
+        }
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case STREAM_PKT_GRP:
+        {
+            *txn = &stream_txn;
+            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
+            status = rx_single_data(txn);
+            break;            
+        }
+        default
+        {
+            return ONS_BAD_PKT_TYPE;
+        }
+        #endif
+    }
+    
+    return status;
+} // on_rx_data_pkt //
+
+
+
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
