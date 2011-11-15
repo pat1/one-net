@@ -102,6 +102,10 @@ const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
     
 extern BOOL device_is_master;
 extern const on_encoded_did_t MASTER_ENCODED_DID;
+#ifdef _ONE_NET_CLIENT
+#include "one_net.h"
+extern on_master_t * const master;
+#endif
 
 
 UInt8 peer_storage[PEER_STORAGE_SIZE_BYTES];
@@ -140,6 +144,81 @@ on_peer_send_list_t* peer_send_list_ptr = NULL;
 //! @{
 
 
+
+on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
+  const on_peer_unit_t* peer_list, on_peer_send_list_t* send_list)
+{
+    peer_send_list_ptr = NULL;
+    
+    if(msg_ptr == NULL)
+    {
+        return NULL;
+    }
+    
+    if(send_list == NULL)
+    {
+        send_list = &peer_send_list;
+    }
+    
+    peer_send_list_ptr = send_list;
+    
+    if(peer_list == NULL)
+    {
+        peer_list = peer;
+    }
+
+    fill_in_peer_send_list(&(msg_ptr->dst_did), get_dst_unit(
+      msg_ptr->payload), peer_send_list_ptr,
+      msg_ptr->send_to_peer_list ? peer_list : NULL,
+      #ifdef _ONE_NET_CLIENT
+      &(msg_ptr->src_did), msg_ptr->src_unit, msg_ptr->msg_type == ON_APP_MSG
+        ? master->flags & ON_SEND_TO_MASTER : FALSE);
+      #else
+      &(msg_ptr->src_did), msg_ptr->src_unit);
+      #endif
+
+    if(peer_send_list_ptr->num_send_peers <= 0)
+    {
+        return NULL;
+    }
+    
+    peer_send_list_ptr->peer_send_index = -1;
+    return send_list;
+}
+
+
+on_single_data_queue_t* load_next_peer(on_single_data_queue_t* msg_ptr)
+{
+    on_peer_send_item_t* peer_send_item;
+    
+    if(!msg_ptr || !peer_send_list_ptr)
+    {
+        return NULL;
+    }
+    
+    (peer_send_list_ptr->peer_send_index)++;
+    if(peer_send_list_ptr->peer_send_index >=
+      peer_send_list_ptr->num_send_peers
+      || peer_send_list_ptr->peer_send_index < 0)
+    {
+        peer_send_list_ptr->peer_send_index = -2; // end of list
+        return NULL;
+    }
+    
+    if(msg_ptr->msg_type != ON_APP_MSG)
+    {
+        return msg_ptr; // no changes.
+    }
+    
+    peer_send_item =
+      &(peer_send_list_ptr->peer_list[peer_send_list_ptr->peer_send_index]);
+    one_net_memmove(msg_ptr->dst_did, peer_send_item->peer_did,
+      ON_ENCODED_DID_LEN);
+    put_dst_unit(peer_send_item->peer_unit, msg_ptr->payload);
+    return msg_ptr;
+}
+
+
 /*!
     \brief Resets the peer memory.
     
@@ -154,7 +233,10 @@ one_net_status_t one_net_reset_peers(void)
     on_peer_unit_t empty_peer = {{0xB4, 0xB4}, ONE_NET_DEV_UNIT,
       ONE_NET_DEV_UNIT};
     one_net_memset_block(peer, sizeof(empty_peer),
-      ONE_NET_MAX_PEER_UNIT, &empty_peer);   
+      ONE_NET_MAX_PEER_UNIT, &empty_peer);
+      
+    peer_send_list.peer_send_index = -2; // inactive 
+    peer_send_list_ptr = NULL; 
     return ONS_SUCCESS;
 } // one_net_reset_peers //
 
@@ -201,7 +283,7 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
     }
 
     send_list->num_send_peers = 0;
-    send_list->peer_send_index = -1;
+    send_list->peer_send_index = -2;
     
     if(dst_did != NULL)
     {
