@@ -94,6 +94,9 @@ typedef enum
 } on_priority_t;
 
 
+extern const on_encoded_did_t NO_DESTINALTION;
+
+
 //! @} ONE-NET_MESSAGE_const
 //                                  CONSTANTS END
 //==============================================================================

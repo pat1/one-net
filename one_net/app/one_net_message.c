@@ -55,6 +55,10 @@
 //! \ingroup ONE-NET_MESSAGE
 //! @{
 
+
+const on_encoded_did_t NO_DESTINALTION = {0xFF, 0xFF};
+
+
 //! @} ONE-NET_MESSAGE_const
 //                                  CONSTANTS END
 //==============================================================================
@@ -168,7 +172,7 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
 {
     on_single_data_queue_t* element = NULL;
     
-    if(!raw_data || !enc_dst)
+    if(!raw_data)
     {
         return NULL; // invalid parameter
     }
@@ -217,7 +221,14 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
           &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
     }
     
-    one_net_memmove(element->dst_did, *enc_dst, ON_ENCODED_DID_LEN);
+    if(enc_dst)
+    {
+        one_net_memmove(element->dst_did, *enc_dst, ON_ENCODED_DID_LEN);
+    }
+    else
+    {
+        one_net_memmove(element->dst_did, NO_DESTINALTION, ON_ENCODED_DID_LEN);
+    }
     
     #ifdef _PEER
 	element->send_to_peer_list = send_to_peer_list;

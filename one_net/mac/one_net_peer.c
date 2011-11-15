@@ -53,6 +53,7 @@
 #include "one_net_application.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
+#include "one_net_message.h"
 
 
 //==============================================================================
@@ -280,6 +281,11 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
     if(send_list == NULL)
     {
         send_list = &peer_send_list;
+    }
+    
+    if(dst_did != NULL && on_encoded_did_equal(dst_did, &NO_DESTINALTION))
+    {
+        dst_did = NULL;
     }
 
     send_list->num_send_peers = 0;
