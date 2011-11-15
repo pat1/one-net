@@ -875,7 +875,7 @@ BOOL one_net(on_txn_t ** txn)
                 #endif
                 
                 // first see if we're in the middle of a message.
-                if(!load_next_peer(single_msg_ptr))
+                if(!load_next_peer(&single_msg))
                 {
                     // we are not in the middle of a message.  We might have
                     // something ready to pop though.
@@ -894,7 +894,7 @@ BOOL one_net(on_txn_t ** txn)
                             // we have just popped a message.  Set things up
                             // with the peer list, then next time the
                             // load_next_peer will take it from there.
-                            if(setup_send_list(single_msg_ptr, NULL, NULL))
+                            if(setup_send_list(&single_msg, NULL, NULL))
                             {
                                 // we have a message.  We'll take it further
                                 // the next trip through.
@@ -1021,12 +1021,11 @@ BOOL one_net(on_txn_t ** txn)
                   get_encoded_packet_len(single_msg.pid, TRUE);
                 *txn = &single_txn;
                 (*txn)->retry = 0;
-                single_msg_ptr = &single_msg;
                 (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
-
+                single_msg_ptr = &single_msg;
                 return FALSE; // transaction is not complete
             }
 
