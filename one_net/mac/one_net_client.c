@@ -303,6 +303,32 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
 */
 tick_t one_net_client(void)
 {
+    // The current transaction
+    static on_txn_t * txn = 0;
+    
+    // The time the application can sleep for in ticks (as opposed to ms).
+    // Probably relevant only for devices which sleep, but we'll let the
+    // application code decide that.  We'll return the correct value
+    // regardless of whether the device sleeps.
+    tick_t sleep_time = 0;
+    
+    if(client_joined_network && !pkt_hdlr.single_data_hdlr)
+    {
+        one_net_client_init(0, 0);
+        on_state = ON_LISTEN_FOR_DATA;
+    }
+    
+    switch(on_state)
+    {
+        case ON_LISTEN_FOR_DATA:
+        {
+            on_rx_data_pkt(&ON_ENCODED_BROADCAST_DID, &txn);
+        }
+    }
+    
+    txn = 0;
+    one_net(&txn);
+    
     return 0;
 } // one_net_client //
 
