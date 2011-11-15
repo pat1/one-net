@@ -1306,7 +1306,9 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_READ_ERR;
     }
     
-    if(one_net_read(pkt_hdr, ON_PLD_IDX) != ON_PLD_IDX)
+    if(one_net_read(&pkt_hdr[ONE_NET_PREAMBLE_HEADER_LEN],
+      ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN) !=
+      ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN)
     {
         return ONS_READ_ERR;
     }
