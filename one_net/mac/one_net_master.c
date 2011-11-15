@@ -347,9 +347,10 @@ void one_net_reset_master_with_channel(UInt8 channel)
 {
     one_net_master_cancel_invite(&invite_key);
     on_base_param->channel = channel;
+    one_net_set_channel(channel);
     master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
     master_param->client_count = 0;
-    on_state = ON_JOIN_NETWORK;
+    on_state = ON_LISTEN_FOR_DATA;
     one_net_init();
 }
 
