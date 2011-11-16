@@ -204,7 +204,7 @@ const char * const ONCLI_DISABLE_STR = "disable";
 
 #ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
 	//! Change stream key command string
-	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change stream key";
+	const char * const ONCLI_CHANGE_STREAM_KEY_CMD_STR = "change stream key";
 #endif
 
 #ifdef _ENABLE_REMOVE_DEVICE_COMMAND
