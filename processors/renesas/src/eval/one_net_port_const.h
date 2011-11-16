@@ -100,7 +100,7 @@ enum
     ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = 125,
 
     //! Base Fragment delay in ms for high priority transactions (25ms)
-    ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25
+    ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25,
     #endif
     
     #ifdef _ONE_NET_MULTI_HOP
