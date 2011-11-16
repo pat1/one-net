@@ -1239,10 +1239,24 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 #endif
 
 
-one_net_status_t rx_single_data(on_txn_t** txn)
+
+/*!
+    \brief Finishes reception of a single data pkt
+
+    \param[in] PID The PID that was received.  Should be
+      ONE_NET_ENCODED_SINGLE_DATA, ONE_NET_ENCODED_REPEAT_SINGLE_DATA,
+      ONE_NET_ENCODED_MH_SINGLE_DATA, or ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA.
+    \param[in] SRC_DID Pointer to the did of the sender.
+    \param[in/out] txn The transaction that is being carried out.
+
+    \return ONS_READ_ERR If the hops field could not be read.
+            ONS_INTERNAL_ERR If something unexpexted happened.
+            See rx_payload & single_data_hdlr for more options.
+*/
+one_net_status_t rx_single_data(on_txn_t ** txn)
 {
     return ONS_SUCCESS;
-}
+} // rx_single_data //
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1287,8 +1301,17 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     one_net_status_t status;
     on_encoded_did_t src_did;
     UInt8 pid;
-    BOOL dst_is_broadcast = FALSE;
+    BOOL dst_is_broadcast, dst_is_me, src_match;
+    #ifdef _ONE_NET_MULTI_HOP
+    BOOL packet_is_mh;
+    UInt8 raw_hops_field;
+    #endif
+    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    BOOL repeat_this_packet = FALSE;
+    #endif
     UInt8 pkt_hdr[ON_PLD_IDX];
+    on_txn_t* this_txn = NULL;
+
 
     // only need to check 1 handler since it is all or nothing
     if(!pkt_hdlr.single_data_hdlr)
@@ -1319,76 +1342,179 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_NID_FAILED; // not our network
     }
     
+    #ifdef _ONE_NET_MULTI_HOP
+    // first check the source.  If it was us originally, then we probably
+    // got back our own repeated packet.
+    if(is_my_did((on_encoded_did_t*) &pkt_hdr[ON_ENCODED_SRC_DID_IDX]))
+    {
+        return ONS_DID_FAILED; // We SENT this packet, so no sense RECEIVING
+                               // it.
+    }
+    #endif    
+
     #ifdef _RANGE_CHECK
     // check the repeater did
     #endif
     
-    if(!is_my_did((on_encoded_did_t*) (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX])))
-    {
-        if(!(*txn) && is_broadcast_did((on_encoded_did_t*)
-          (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX])))
-        {
-            dst_is_broadcast = TRUE;
-        }
-        else
-        {
-            #ifdef _ONE_NET_CLIENT_REPEATER
-            if(!(*txn) && !device_is_master)
-            {
-                // code to check / change the hops and repeat
-                // change state to ON_SEND_PKT;
-                return ONS_SUCCESS; // TODO -- correct return value?
-            }
-            #endif
-            return ONS_DID_FAILED;
-        }
-    }
-
-    if(!is_broadcast_did(EXPECTED_SRC_DID))
-    {
-        if(!on_encoded_did_equal(EXPECTED_SRC_DID,
-          (on_encoded_did_t*) (&pkt_hdr[ON_ENCODED_SRC_DID_IDX])))
-        {
-            return ONS_DID_FAILED;
-        }
-    }
-    
     pid = pkt_hdr[ONE_NET_ENCODED_PID_IDX];
+    dst_is_broadcast = is_broadcast_did((on_encoded_did_t*)
+      (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX]));
+    dst_is_me = is_my_did((on_encoded_did_t*)
+      (&pkt_hdr[ONE_NET_ENCODED_DST_DID_IDX]));
+    src_match = is_broadcast_did(EXPECTED_SRC_DID) ||
+      on_encoded_did_equal(EXPECTED_SRC_DID,
+      (on_encoded_did_t*) &pkt_hdr[ON_ENCODED_SRC_DID_IDX]);
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    packet_is_mh = packet_is_multihop(pid);
+    #endif
+    
+    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+    if(!src_match || (!dst_is_me && !dst_is_broadcast))
+    {
+        return ONS_BAD_ADDR;
+    }
+    #else
+    if(!src_match || (!dst_is_me && !dst_is_broadcast))
+    {
+        // not to us, but maybe we'll repeat it if we're not the master,
+        // not in the middle of our own transaction, it's a multi-hop
+        // packet, and it wasn't to us.
+        if(dst_is_me || device_is_master || *txn || !packet_is_multihop)
+        {
+            return ONS_BAD_PARAM;
+        }
+        
+        // we'll repeat it if there are any hops left.
+        repeat_this_packet = TRUE;
+    }
+    #endif
     
     switch(get_pkt_family(pid))
     {
         case SINGLE_PKT_GRP:
         {
-            *txn = &single_txn;
-            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
-            status = rx_single_data(txn);
+            this_txn = &single_txn;
             break;
         }
         #ifdef _BLOCK_MESSAGES_ENABLED
         case BLOCK_PKT_GRP:
         {
-            *txn = &block_txn;
-            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
-            status = rx_single_data(txn);
-            break;            
+            if(*txn != &block_txn)
+            {
+                return ONS_UNHANDLED_PKT; // why are we getting a block packet
+                  // if we are not in the middle of a block transaction?
+            }
+            this_txn = &block_txn;
+            break;
         }
         #endif
         #ifdef _STREAM_MESSAGES_ENABLED
         case STREAM_PKT_GRP:
         {
-            *txn = &stream_txn;
-            one_net_memmove((*txn)->pkt, pkt_hdr, ON_PLD_IDX);
-            status = rx_single_data(txn);
-            break;            
+            if(*txn != &stream_txn)
+            {
+                return ONS_UNHANDLED_PKT; // why are we getting a block packet
+                  // if we are not in the middle of a block transaction?
+            }
+            this_txn = &stream_txn;
+            break;
         }
-        default
+        #endif
+        default:
         {
             return ONS_BAD_PKT_TYPE;
         }
-        #endif
     }
     
-    return status;
+    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    if(repeat_this_packet)
+    {
+        this_txn = &mh_txn;
+    }
+    #endif
+    
+    one_net_memmove(this_txn->pkt, pkt_hdr, ON_PLD_IDX);
+
+    if(!setup_pkt_ptr(pid, this_txn->pkt, &data_pkt_ptrs))
+    {
+        return ONS_INTERNAL_ERR;
+    }
+    
+    if(!one_net_read(&(this_txn->pkt[ON_PLD_IDX]), data_pkt_ptrs.payload_len)
+      != data_pkt_ptrs.payload_len)
+    {
+        return ONS_READ_ERR;
+    }
+    
+    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+    if(!verify_msg_crc(&data_pkt_ptrs))
+    #else
+    // don't bother verifying if we are just going to repeat.
+    if(!repeat_this_packet && !verify_msg_crc(&data_pkt_ptrs))
+    #endif
+    {
+        return ONS_CRC_FAIL;
+    }
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    if(packet_is_mh)
+    {
+        UInt8 raw_hops_field;
+
+        if(one_net_read(data_pkt_ptrs.enc_hops_field, ON_ENCODED_HOPS_SIZE)
+          != ON_ENCODED_HOPS_SIZE)
+        {
+            return ONS_READ_ERR;
+        }
+
+        if(on_decode(&raw_hops_field, data_pkt_ptrs.enc_hops_field,
+          ON_ENCODED_HOPS_SIZE) != ONS_SUCCESS)
+        {
+            return ONS_BAD_ENCODING;
+        }
+        
+        // TODO -- use defined masks and shifts
+        raw_hops_field >>= 2;
+        data_pkt_ptrs.max_hops = raw_hops_field & 0x07;
+        data_pkt_ptrs.hops = (raw_hops_field >> 3);
+        
+        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        if(repeat_this_packet)
+        {
+            if(data_pkt_ptrs.hops >= data_pkt_ptrs.max_hops)
+            {
+                // too many hops.  Don't repeat.
+                return ONS_UNHANDLED_PKT;
+            }
+            
+            // we have everything.  Increment the hops, add ourself as the
+            // repeater, and send the message.
+            (data_pkt_ptrs.hops)++;
+            
+            // TODO -- fix the building and parsing of hops.  Some start with
+            // 0 and add each time, some start with the max and SUBTRACT each
+            // time.  Doesn't matter which we do, but be consistent
+            // everywhere.
+            raw_hops_field = (((data_pkt_ptrs.hops) << 3) +
+              data_pkt_ptrs.max_hops) << 2;
+            on_encode(data_pkt_ptrs.enc_hops_field, &raw_hops_field,
+              ON_ENCODED_HOPS_SIZE);
+            one_net_memmove(data_pkt_ptrs.enc_repeater_did,
+              &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
+            // packet is all filled in.  Send it back.
+            *txn = &mh_txn;
+            on_state = ON_SEND_PKT;
+            return ONS_SUCCESS;
+        }
+        #endif
+    }
+    #endif
+    
+    // TODO -- more parsing, then send the packet to its individual packet
+    // handlers.
+    
+    return ONS_SUCCESS;
 } // on_rx_data_pkt //
 
 
