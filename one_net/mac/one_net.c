@@ -1299,7 +1299,9 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn)
 {
     one_net_status_t status;
+    on_message_status_t hdlr_status;
     on_encoded_did_t src_did;
+    one_net_xtea_key_t* key = NULL;
     UInt8 pid;
     BOOL dst_is_broadcast, dst_is_me, src_match;
     #ifdef _ONE_NET_MULTI_HOP
@@ -1311,6 +1313,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     UInt8 pkt_hdr[ON_PLD_IDX];
     on_txn_t* this_txn = NULL;
+    on_data_t type;
 
 
     // only need to check 1 handler since it is all or nothing
@@ -1389,17 +1392,20 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
         repeat_this_packet = TRUE;
     }
     #endif
-    
+
+
     switch(get_pkt_family(pid))
     {
         case SINGLE_PKT_GRP:
         {
+            type = ON_SINGLE;
             this_txn = &single_txn;
             break;
         }
         #ifdef _BLOCK_MESSAGES_ENABLED
         case BLOCK_PKT_GRP:
         {
+            type = ON_BLOCK;
             if(*txn != &block_txn)
             {
                 return ONS_UNHANDLED_PKT; // why are we getting a block packet
@@ -1412,6 +1418,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
         #ifdef _STREAM_MESSAGES_ENABLED
         case STREAM_PKT_GRP:
         {
+            type = ON_STREAM;
             if(*txn != &stream_txn)
             {
                 return ONS_UNHANDLED_PKT; // why are we getting a block packet
@@ -1523,8 +1530,67 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     }
     #endif
     
-    // TODO -- more parsing, then send the packet to its individual packet
-    // handlers.
+    key = &(on_base_param->current_key);
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(type == ON_STREAM)
+    {
+        key = &(on_base_param->stream_key);
+    }
+    #endif
+    
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        #ifdef _STREAM_MESSAGES_ENABLED
+        key = master_get_encryption_key(type, data_pkt_ptrs.enc_src_did);
+        #else
+        key = master_get_encryption_key(data_pkt_ptrs.enc_src_did);
+        #endif
+    }
+    #endif
+    
+    if((status = on_decrypt(type, raw_payload_bytes, key,
+      data_pkt_ptrs.payload_len)) != ONS_SUCCESS)
+    {
+        return status;
+    }
+    
+    // check the payload CRC.
+    if(!verify_payload_crc(pid, raw_payload_bytes))
+    {
+        return ONS_CRC_FAIL;
+    }
+    
+    // decode the message id and fill it in.
+    on_decode(&(data_pkt_ptrs.msg_id), data_pkt_ptrs.enc_msg_id,
+      ONE_NET_ENCODED_MSG_ID_LEN);
+
+    // so far, so good.
+    *txn = this_txn; // pass it to the individual handlers
+    switch(type)
+    {
+        // note -- we'll pass NULL as the message type and let the
+        // handlers handle it further.  TODO -- we may decide to parse
+        // some of that here.
+        case ON_SINGLE: hdlr_status = (*pkt_hdlr.single_data_hdlr)(txn,
+          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        #ifdef _BLOCK_MESSAGES_ENABLED  
+        case ON_BLOCK: hdlr_status = (*pkt_hdlr.block_data_hdlr)(txn,
+          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED  
+        case ON_STREAM: hdlr_status = (*pkt_hdlr.stream_data_hdlr)(txn,
+          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        #endif
+    }
+    
+    // TODO -- harness the return value?  What handles aborting of the
+    // transaction, etc., when the transaction needs to be aborted,
+    // paused, re-sent, etc.?  We'll probably NOT handle much of it in the
+    // main ONE-NET state machine, but instead handle a lot of it here.
+    // The handling of block, stream, and single-SPECIFIC issues should
+    // be handled there, not here, but anything in common, should be
+    // handled here.  For now, if we got this far, just return ONS_SUCCESS.
     
     return ONS_SUCCESS;
 } // on_rx_data_pkt //
