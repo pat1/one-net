@@ -112,7 +112,7 @@ static const one_net_xtea_key_t sniff_enc_keys[NUM_SNIFF_ENCRYPT_KEYS] =
      0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F}
 };
 
-#ifdef _SNIFF_MESSAGES_ENABLED
+#ifdef _STREAM_MESSAGES_ENABLED
 //! Place any known stream encryption keys in the array below
 static const one_net_xtea_key_t
   sniff_stream_enc_keys[NUM_SNIFF_STREAM_ENCRYPT_KEYS] =
@@ -367,7 +367,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                     {
                         num_keys = NUM_SNIFF_STREAM_ENCRYPT_KEYS;
                         keys = (const one_net_xtea_key_t*)
-                        &sniff_stream_enc_keys[0];
+                          &sniff_stream_enc_keys[0];
                         data_type = ON_STREAM;
                     }
                     #endif
