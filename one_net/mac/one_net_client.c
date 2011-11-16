@@ -155,7 +155,15 @@ on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
 // packet handlers
 static on_message_status_t on_client_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type); 
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+#ifdef _BLOCK_MESSAGES_ENABLED
+static on_message_status_t on_client_block_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+#endif
+#ifdef _STREAM_MESSAGES_ENABLED
+static on_message_status_t on_client_stream_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+#endif
 static on_message_status_t on_client_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
@@ -352,8 +360,8 @@ static on_message_status_t on_client_single_data_hdlr(
 {
     return ON_MSG_CONTINUE;
 }
- 
-  
+
+
 // TODO -- document  
 static on_message_status_t on_client_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
@@ -361,7 +369,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 {
     return ON_MSG_CONTINUE;
 }
-  
+
 
 // TODO -- document 
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
@@ -370,6 +378,67 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 {
     return ON_MSG_CONTINUE;
 }
+
+
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+// TODO -- document
+static on_message_status_t on_client_block_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
+{
+    return ON_MSG_CONTINUE;
+}
+
+
+// TODO -- document  
+static on_message_status_t on_client_handle_block_ack_nack_response(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+  
+
+// TODO -- document 
+static on_message_status_t on_client_block_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
+  const on_message_status_t status, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+#endif
+
+
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+// TODO -- document
+static on_message_status_t on_client_stream_data_hdlr(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
+{
+    return ON_MSG_CONTINUE;
+}
+
+
+// TODO -- document  
+static on_message_status_t on_client_handle_stream_ack_nack_response(
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+  
+
+// TODO -- document 
+static on_message_status_t on_client_stream_txn_hdlr(on_txn_t ** txn,
+  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
+  const on_message_status_t status, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_CONTINUE;
+}
+#endif
+
 
 
 
@@ -389,6 +458,21 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr =
       &on_client_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    pkt_hdlr.block_data_hdlr = &on_client_block_data_hdlr;
+    pkt_hdlr.block_ack_nack_hdlr =
+      &on_client_handle_block_ack_nack_response;
+    pkt_hdlr.block_txn_hdlr = &on_client_block_txn_hdlr;
+    #endif
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    pkt_hdlr.stream_data_hdlr = &on_client_stream_data_hdlr;
+    pkt_hdlr.stream_ack_nack_hdlr =
+      &on_client_handle_stream_ack_nack_response;
+    pkt_hdlr.stream_txn_hdlr = &on_client_stream_txn_hdlr;
+    #endif
+
     one_net_send_single = &one_net_client_send_single;
     get_sender_info = &sender_info;
     device_is_master = FALSE;
