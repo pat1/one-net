@@ -407,6 +407,28 @@ typedef struct
 
     //! Single transaction handler
     on_txn_hdlr_t single_txn_hdlr;
+
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Single Data Packet Handler
+    on_pkt_hdlr_t block_data_hdlr;
+	
+	//! Single Data ACK/NACK Handler
+	on_ack_nack_hdlr_t block_ack_nack_hdlr;
+
+    //! Single transaction handler
+    on_txn_hdlr_t block_txn_hdlr;
+    #endif
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    //! Stream Data Packet Handler
+    on_pkt_hdlr_t stream_data_hdlr;
+	
+	//! Stream Data ACK/NACK Handler
+	on_ack_nack_hdlr_t stream_ack_nack_hdlr;
+
+    //! Stream transaction handler
+    on_txn_hdlr_t stream_txn_hdlr;
+    #endif
 } on_pkt_hdlr_set_t;
 
 
