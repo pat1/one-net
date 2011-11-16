@@ -1421,6 +1421,18 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             break;
         }
         #endif
+        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        case INVITE_PKT_GRP: case ACK_NACK_PKT_GRP:
+        {
+            // this definitely isn't for us, but maybe we'll repeat it.
+            if(device_is_master || *txn || !packet_is_multihop)
+            {
+                return ONS_UNHANDLED_PKT;
+            }
+            repeat_this_packet = TRUE;
+            break;
+        }
+        #endif
         default:
         {
             return ONS_BAD_PKT_TYPE;
