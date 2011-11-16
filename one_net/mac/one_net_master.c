@@ -835,7 +835,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     
     #ifndef _ONE_NET_MULTI_HOP
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, ((*txn)->retry));
+      ack_nack, &src_did, NULL, &((*txn)->retry));
     #else
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &((*txn)->retry), pkt->hops, &(pkt->max_hops));
