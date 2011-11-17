@@ -408,6 +408,28 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                         oncli_send_msg("Payload CRC = 0x%02X, Calculated "
                           "Payload CRC = 0x%02X, CRCs%s match.\n",
                           decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
+                        #ifdef _ONE_NET_MULTI_HOP
+                        {
+                            if(packet_is_multihop(pid))
+                            {
+                                oncli_send_msg("Encoded Hops Field : %02X  ",
+                                  *(sniff_pkt_ptrs.enc_hops_field));
+                                if(on_parse_hops(
+                                  *(sniff_pkt_ptrs.enc_hops_field),
+                                  &(sniff_pkt_ptrs.hops),
+                                  &(sniff_pkt_ptrs.max_hops)) != ONS_SUCCESS)
+                                {
+                                    oncli_send_msg("Not Decodable\n");
+                                }
+                                else
+                                {
+                                    oncli_send_msg("Hops : %d Max Hops : %d\n",
+                                      sniff_pkt_ptrs.hops,
+                                      sniff_pkt_ptrs.max_hops);
+                                }
+                            }
+                        }
+                        #endif
                     }
                 }
             }
