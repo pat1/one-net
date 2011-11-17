@@ -326,7 +326,7 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
     } // if any of the parameters are invalid //
     
     if((status = on_decode(&raw_hops_field, &enc_hops_field,
-      ON_ENCODED_DID_LEN)) != ONS_SUCCESS)
+      ON_ENCODED_HOPS_SIZE)) != ONS_SUCCESS)
     {
         return status;
     }
