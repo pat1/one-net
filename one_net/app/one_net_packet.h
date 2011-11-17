@@ -466,9 +466,6 @@ enum
     //! Mask to use on the max hops field when building the packet
     ON_MAX_HOPS_BUILD_MASK = 0xE0,
 
-    //! Mask to use on the max hops field when parsing the packet
-    ON_MAX_HOPS_PARSE_MASK = 0x07,
-
     //! Mask to use on the hops remaining field when building the packet
     ON_HOPS_LEFT_BUILD_MASK = 0x1C,
 
