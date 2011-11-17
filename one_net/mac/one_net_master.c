@@ -132,9 +132,6 @@ on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 */
 static tick_t new_channel_clear_time_out = 0;
 
-//! flag that indicates if any Multi-Hop Repeaters have joined the network
-static BOOL mh_repeater_available = FALSE;
-
 
 //! @} ONE-NET_MASTER_pri_var
 //                              PRIVATE VARIABLES END

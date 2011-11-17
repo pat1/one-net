@@ -107,6 +107,12 @@ const on_encoded_did_t MASTER_ENCODED_DID = {0xB4, 0xBC};
 //                              PUBLIC VARIABLES
 
 
+#ifdef _ONE_NET_MULTI_HOP
+//! flag that indicates if any Multi-Hop Repeaters have joined the network
+BOOL mh_repeater_available = FALSE;
+#endif
+
+
 //! Contiguous block of memory to store parameters that are saved to
 //! non-volatile memory.  Parameters will point to locations in the array
 UInt8 nv_param[NV_PARAM_SIZE_BYTES];

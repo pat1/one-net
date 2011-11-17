@@ -451,6 +451,12 @@ typedef struct
 //! \ingroup ONE-NET
 //! @{
 
+
+#ifdef _ONE_NET_MULTI_HOP
+//! flag that indicates if any Multi-Hop Repeaters have joined the network
+extern BOOL mh_repeater_available;
+#endif
+
 //! The encoded broadcast did.
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
 
