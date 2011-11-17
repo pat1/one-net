@@ -246,6 +246,16 @@ static on_msg_hdr_t resp_msg_hdr;
 
 
 
+#ifdef _RANGE_TESTING
+//! Stores the DIDs of the devices which are in range.
+static on_encoded_did_t range_test_did_array[RANGE_TESTING_ARRAY_SIZE];
+
+//! If true, trange test.  If false, do not.
+static BOOL range_testing_on = FALSE;
+#endif
+
+
+
 
 //! @} ONE-NET_pri_var
 //                              PRIVATE VARIABLES END
