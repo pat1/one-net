@@ -295,8 +295,9 @@ one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
 
-    raw_hops = ((max_hops << ON_MAX_HOPS_SHIFT) & ON_MAX_HOPS_BUILD_MASK)
-      | ((hops << ON_HOPS_LEFT_SHIFT) & ON_HOPS_LEFT_BUILD_MASK);
+    raw_hops = ((max_hops << ON_MAX_HOPS_BUILD_SHIFT) &
+      ON_MAX_HOPS_BUILD_MASK) | ((hops << ON_HOPS_BUILD_SHIFT)
+      & ON_HOPS_BUILD_MASK);
 
     on_encode(enc_hops_field, &raw_hops, ON_ENCODED_HOPS_SIZE);
 
@@ -984,15 +985,13 @@ BOOL one_net(on_txn_t ** txn)
                 on_decode(raw_did, device->did, ON_ENCODED_DID_LEN);
                 single_txn.hops = 0;
                 single_txn.max_hops = device->hops;
-                
-                
+
                 // give the application code a chance to override if it
                 // wants to.
                 switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
                 {
                     case ON_MSG_ABORT: return TRUE; // aborting
                 }
-                
                 
                 // change the pid if needed
                 if(single_txn.max_hops)
@@ -1012,6 +1011,9 @@ BOOL one_net(on_txn_t ** txn)
                           break;
                     }
                 }
+                
+                data_pkt_ptrs.hops = single_txn.hops;
+                data_pkt_ptrs.max_hops = single_txn.max_hops;
                 #endif
 
                 // pick a message id if we don't already have one.

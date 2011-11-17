@@ -458,16 +458,16 @@ enum
 enum
 {
     //! The number of bits to shift the max hops field
-    ON_MAX_HOPS_SHIFT = 2,
+    ON_MAX_HOPS_BUILD_SHIFT = 2,
 
-    //! Number of bits to shift the hops left field
-    ON_HOPS_LEFT_SHIFT = 5,
+    //! Number of bits to shift the hops field
+    ON_HOPS_BUILD_SHIFT = 5,
 
     //! Mask to use on the max hops field when building the packet
     ON_MAX_HOPS_BUILD_MASK = 0x1C,
 
     //! Mask to use on the hops field when building the packet
-    ON_HOPS_LEFT_BUILD_MASK = 0xE0,
+    ON_HOPS_BUILD_MASK = 0xE0,
 
     //! Shift to use when parsing hops
     ON_PARSE_HOPS_SHIFT = 5,
