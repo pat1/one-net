@@ -1100,6 +1100,7 @@ BOOL one_net(on_txn_t ** txn)
                 *txn = &single_txn;
                 (*txn)->retry = 0;
                 (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
+                (*txn)->device = device;
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
