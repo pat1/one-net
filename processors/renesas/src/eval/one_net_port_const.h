@@ -82,6 +82,17 @@ enum
     //! The maximum number of hops
     ON_MAX_HOPS_LIMIT = 7,
 };
+
+
+#ifdef _RANGE_TESTING
+enum
+{
+    //! When Multi-Hop range testing (i.e. declaring devices in and out of
+    //! range when they actually are physically in range, the maximum
+    //! number of in-range devices.
+    RANGE_TESTING_ARRAY_SIZE = 5
+};
+#endif
 #endif
 
 
