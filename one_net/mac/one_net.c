@@ -946,14 +946,13 @@ BOOL one_net(on_txn_t ** txn)
                 
                 #ifdef _ONE_NET_MULTI_HOP
                 on_decode(raw_did, device->did, ON_ENCODED_DID_LEN);
-                single_txn.hops = device->hops;
-                single_txn.max_hops = device->max_hops;
+                single_txn.hops = 0;
+                single_txn.max_hops = device->hops;
                 
                 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &(single_txn.hops),
-                  &(single_txn.max_hops)))
+                switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
                 {
                     case ON_MSG_ABORT: return TRUE; // aborting
                 }
@@ -1094,8 +1093,15 @@ BOOL one_net(on_txn_t ** txn)
         {
             if(one_net_write_done())
             {
+                #ifdef _ONE_NET_MULTI_HOP
+                UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
+                  + (1 + (*txn)->max_hops) * (*txn)->response_timeout;
+                #else
+                UInt32 new_timeout_ms = (*txn)->response_timeout;
+                #endif
+
                 ont_set_timer((*txn)->next_txn_timer,
-                  MS_TO_TICK((*txn)->response_timeout));
+                  MS_TO_TICK(new_timeout_ms));
                   
                 if(on_state == ON_SEND_PKT_WRITE_WAIT || on_state ==
                   ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT)
@@ -1190,11 +1196,12 @@ BOOL one_net(on_txn_t ** txn)
                 else
                 {
                     #ifdef _ONE_NET_MULTI_HOP
-                    UInt32 new_timeout_ms = (*txn)->hops * ONE_NET_MH_LATENCY +
-                      (1 + (*txn)->hops) * (*txn)->response_timeout;
+                    UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY +
+                      (1 + (*txn)->max_hops) * (*txn)->response_timeout;
                     #else
                     UInt32 new_timeout_ms = (*txn)->response_timeout;
                     #endif
+
                     ont_set_timer((*txn)->next_txn_timer,
                       MS_TO_TICK(new_timeout_ms));
                       on_state -= 2;  
