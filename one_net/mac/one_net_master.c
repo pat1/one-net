@@ -808,6 +808,11 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     master_param->client_count++;
     master_param->next_client_did = find_lowest_vacant_did();
+    
+    if(features_mh_repeat_capable(features))
+    {
+        mh_repeater_available = TRUE;
+    }
 
     return ONS_SUCCESS;
 } // one_net_master_add_client //
