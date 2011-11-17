@@ -904,6 +904,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 
                 (*txn)->hops = 0;
                 (*txn)->retry = 0;
+                pkt->hops = (*txn)->hops;
+                pkt->max_hops = (*txn)->max_hops;
 
                 // change the pid if needed
                 if((*txn)->max_hops)
