@@ -1699,6 +1699,119 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
 } // on_rx_data_pkt //
 
 
+#ifdef _RANGE_TESTING
+/*!
+    \brief Turns range testing either on or off.
+
+    \param on If false, range testing should be turned off. If true, range
+              testing should be turned on.
+    \return void
+*/
+void enable_range_testing(BOOL on)
+{
+    range_testing_on = on;
+}
+
+
+/*!
+    \brief Places a device either in range or out of range.
+
+    \param did encoded did of the device
+    \param add if true, make this device in range.  If false, then the device
+               is out of range.
+    \return TRUE If the list was changed
+            FALSE If the list was not changed.
+*/
+BOOL adjust_range_test_did_array(on_encoded_did_t* const did, BOOL add)
+{
+    SInt8 i;
+    SInt8 index = -1;
+    SInt8 empty_index = -1;
+    
+    for(i = RANGE_TESTING_ARRAY_SIZE - 1; i >= 0 ; i--)
+    {
+        if(one_net_memcmp(range_test_did_array[i], ON_ENCODED_BROADCAST_DID,
+          ON_ENCODED_DID_LEN) == 0)
+        {
+            empty_index = i;
+        }
+        else if(one_net_memcmp(range_test_did_array[i], *did,
+          ON_ENCODED_DID_LEN) == 0)
+        {
+            index = i;
+        }
+    }
+    
+    if(!add && index == -1)
+    {
+        return TRUE; // nothing to do
+    }
+    else if(add && index != -1)
+    {
+        return TRUE; // nothing to do.
+    }
+    else if(add && empty_index == -1)
+    {
+        return FALSE; // no room.
+    }
+    else if(add)
+    {
+        one_net_memmove(range_test_did_array[empty_index], *did,
+          ON_ENCODED_DID_LEN);
+        return TRUE; // added
+    }
+    else
+    {
+        one_net_memmove(range_test_did_array[index],
+          ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+        return TRUE; // added        
+    }
+}
+
+
+/*!
+    \brief Resets the range testing array to make everything out of range
+
+    \return void
+*/
+void reset_range_test_did_array(void)
+{
+    one_net_memset_block(&range_test_did_array[0], ON_ENCODED_DID_LEN,
+      RANGE_TESTING_ARRAY_SIZE, ON_ENCODED_BROADCAST_DID);
+}
+
+
+/*!
+    \brief Checks to see whether a device is within range of this device
+
+    \param did encoded did of the device
+
+    \return TRUE If the device is in range
+            FALSE If the device not in range
+*/
+BOOL device_in_range(on_encoded_did_t* did)
+{
+    SInt8 i;
+    
+    if(!range_testing_on)
+    {
+        return TRUE;
+    }
+    
+    for(i = RANGE_TESTING_ARRAY_SIZE - 1; i >= 0 ; i--)
+    {
+        if(one_net_memcmp(range_test_did_array[i], *did,
+          ON_ENCODED_DID_LEN) == 0)
+        {
+            return TRUE;
+        }
+    }
+    
+    return FALSE;
+}
+#endif
+
+
 
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

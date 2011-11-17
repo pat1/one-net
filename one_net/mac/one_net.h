@@ -637,6 +637,15 @@ one_net_status_t rx_stream_data(on_txn_t** txn);
 #endif
 one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn);
+  
+
+#ifdef _RANGE_TESTING
+void enable_range_testing(BOOL on);
+BOOL adjust_range_test_did_array(on_encoded_did_t* const did, BOOL add);
+void reset_range_test_did_array(void);
+BOOL device_in_range(on_encoded_did_t* did);
+#endif
+
 
 
 
