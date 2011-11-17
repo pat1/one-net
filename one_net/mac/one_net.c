@@ -922,7 +922,7 @@ BOOL one_net(on_txn_t ** txn)
                     return TRUE; // no pending transaction since we're
                                  // aborting
                 }
-                        
+  
                 // fill with 0xEE for test purposes
                 one_net_memset(single_txn.pkt, 0xEE, ON_SINGLE_ENCODED_PKT_SIZE);
                 
@@ -933,6 +933,31 @@ BOOL one_net(on_txn_t ** txn)
                     // a bad pid.  Unrecoverable.  Just abort.
                     return TRUE; // no outstanding transaction
                 }
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                single_txn.hops = device->hops;
+                single_txn.max_hops = device->max_hops;
+                
+                
+                // change the pid if needed
+                if(device->hops)
+                {
+                    switch(single_msg.pid)
+                    {
+                        case ONE_NET_ENCODED_SINGLE_DATA:
+                          *(data_pkt_ptrs.pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+                          *(data_pkt_ptrs.pid) =
+                            ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+                          *(data_pkt_ptrs.pid) =
+                            ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
+                          break;
+                    }
+                }
+                #endif
 
                 // pick a message id if we don't already have one.
                 if(device->msg_id < ON_MAX_MSG_ID)
@@ -960,10 +985,6 @@ BOOL one_net(on_txn_t ** txn)
                     device->expected_nonce = /*one_net_prand(
                       get_tick_count(), ON_MAX_NONCE)*/0x12;
                 }
-                        
-                #ifdef _ONE_NET_MULTI_HOP
-                // TODO -- What about hops?
-                #endif
                 
                 // now fill in the packet
                 
@@ -1148,8 +1169,14 @@ BOOL one_net(on_txn_t ** txn)
                 }
                 else
                 {
+                    #ifdef _ONE_NET_MULTI_HOP
+                    UInt32 new_timeout_ms = (*txn)->hops * ONE_NET_MH_LATENCY +
+                      (1 + (*txn)->hops) * (*txn)->response_timeout;
+                    #else
+                    UInt32 new_timeout_ms = (*txn)->response_timeout;
+                    #endif
                     ont_set_timer((*txn)->next_txn_timer,
-                      MS_TO_TICK((*txn)->response_timeout));
+                      MS_TO_TICK(new_timeout_ms));
                       on_state -= 2;  
                 }
             }
