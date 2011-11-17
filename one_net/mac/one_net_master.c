@@ -875,6 +875,10 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
             // we may be able to re-send with more hops.
             if(mh_repeater_available && (*txn)->hops < (*txn)->max_hops)
             {
+                on_raw_did_t raw_did;
+                on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+                
+                
                 if((*txn)->hops == 0)
                 {
                     (*txn)->hops = 1;
@@ -889,20 +893,48 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                     (*txn)->hops = (*txn)->max_hops;
                 }
                 
+                // give the application code a chance to override if it
+                // wants to.
+                switch(one_net_adjust_hops(&raw_did, &(*txn)->hops,
+                  &(*txn)->hops))
+                {
+                    case ON_MSG_ABORT: return ON_MSG_ABORT;
+                }
+                
+                
                 (*txn)->retry = 0;
+
                 
                 // change the pid if needed
-                switch(*(pkt->pid))
+                if((*txn)->max_hops)
                 {
-                    case ONE_NET_ENCODED_SINGLE_DATA:
-                      *(pkt->pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
-                      break;
-                    case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-                      *(pkt->pid) = ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
-                      break;
-                    case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
-                      *(pkt->pid) = ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
-                      break;
+                    switch(*(pkt->pid))
+                    {
+                        case ONE_NET_ENCODED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
+                          break;
+                    }
+                }
+                else
+                {
+                    switch(*(pkt->pid))
+                    {
+                        case ONE_NET_ENCODED_MH_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+                          break;
+                    }
                 }
                 
                 if(on_complete_pkt_build(pkt, pkt->msg_id, *(pkt->pid)) !=
