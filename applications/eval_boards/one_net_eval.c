@@ -369,7 +369,7 @@ on_message_status_t eval_handle_ack_nack_response(
 #endif
 {
     resp_ack_nack->handle = ON_NACK_TIME_MS;
-    resp_ack_nack->payload->nack_time_ms = 3000;
+    resp_ack_nack->payload->nack_time_ms = 300;
     return ON_MSG_CONTINUE;
 }
 
@@ -509,7 +509,7 @@ void oncli_print_user_pin_cfg(void)
 
 #ifdef _ONE_NET_MULTI_HOP
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
-  UInt8* const hops, UInt8* const max_hops)
+  UInt8* const max_hops)
 {
     return ON_MSG_DEFAULT_BHVR;
 }
