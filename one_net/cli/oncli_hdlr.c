@@ -134,6 +134,23 @@ static const UInt8 add_stream_encrypt = ONE_NET_STREAM_ENCRYPT_XTEA8;
 //							PRIVATE VARIABLES END
 //==============================================================================
 
+
+
+//==============================================================================
+//							PRIVATE VARIABLES
+//! \defgroup oncli_hdlr_pub_var
+//! \ingroup oncli_hdlr
+//! @{
+
+
+
+//! @} oncli_hdlr_pub_var
+//							PRIVATE VARIABLES END
+//==============================================================================
+
+
+
+
 //==============================================================================
 //						PRIVATE FUNCTION DECLARATIONS
 //! \defgroup oncli_hdlr_pri_func
@@ -689,6 +706,11 @@ static oncli_status_t list_cmd_hdlr(void)
     {
         oncli_print_invite();
     }
+    #endif
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    oncli_send_msg("MH Repeater Available : %s\n",
+      mh_repeater_available ? TRUE_STR : FALSE_STR);
     #endif
     
     #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
