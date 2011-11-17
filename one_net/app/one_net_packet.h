@@ -469,8 +469,14 @@ enum
     //! Mask to use on the hops remaining field when building the packet
     ON_HOPS_LEFT_BUILD_MASK = 0x1C,
 
-    //! Mask to use on the hops remaining field when parsing the packet
-    ON_HOPS_LEFT_PARSE_MASK = 0x07
+    //! Shift to use when parsing hops
+    ON_PARSE_HOPS_SHIFT = 5,
+
+    //! Shift to use when parsing max hops
+    ON_PARSE_MAX_HOPS_SHIFT = 2,
+    
+    //! Mask to use when parsing hops / max hops once shifted
+    ON_PARSE_RAW_HOPS_FIELD_MASK = 0x07
 };
 #endif
 
