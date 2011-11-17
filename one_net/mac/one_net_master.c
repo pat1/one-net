@@ -869,42 +869,42 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
         (*txn)->response_timeout = ack_nack->payload->nack_time_ms;
+        
         if((*txn)->retry >= ON_MAX_RETRY)
         {
             #ifdef _ONE_NET_MULTI_HOP
-            // we may be able to re-send with more hops.
-            if(mh_repeater_available && (*txn)->hops < (*txn)->max_hops)
+            // we may be able to re-send with a higher max hops.
+            
+            if(mh_repeater_available && (*txn)->max_hops <
+              (*txn)->device->max_hops)
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
                 
-                
-                if((*txn)->hops == 0)
+                if((*txn)->max_hops == 0)
                 {
-                    (*txn)->hops = 1;
+                    (*txn)->max_hops = 1;
                 }
                 else
                 {
-                    ((*txn)->hops) *= 2;
+                    ((*txn)->max_hops) *= 2;
                 }
                 
-                if((*txn)->hops > (*txn)->max_hops)
+                if((*txn)->max_hops > (*txn)->device->max_hops)
                 {
-                    (*txn)->hops = (*txn)->max_hops;
+                    (*txn)->max_hops = (*txn)->device->max_hops;
                 }
                 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &(*txn)->hops,
-                  &(*txn)->hops))
+                switch(one_net_adjust_hops(&raw_did, &(*txn)->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
-                }
+                }             
                 
-                
+                (*txn)->hops = 0;
                 (*txn)->retry = 0;
 
-                
                 // change the pid if needed
                 if((*txn)->max_hops)
                 {
