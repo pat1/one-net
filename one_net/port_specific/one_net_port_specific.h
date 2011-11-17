@@ -275,8 +275,7 @@ long int one_net_strtol(const char * str, char ** endptr, int base);
     network changes, or atmospheric / enviroment changes.
     
     \param[in] raw_dst The raw device ID of the recipient.
-    \param[in/out] hops The number of hops to use.
-    \param[in/out] max_hops Th maximum number of hops to use
+    \param[in/out] max_hops The maximum number of hops to use
     
     \return ON_MSG_CONTINUE if changing the number of hops or max_hops.
     \return ON_MSG_DEFAULT_BHVR if no changes are to be made and default
@@ -284,7 +283,7 @@ long int one_net_strtol(const char * str, char ** endptr, int base);
     \return ON_MSG_ABORT if the transaction should be aborted.
 */
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
-  UInt8* const hops, UInt8* const max_hops);
+  UInt8* const max_hops);
 #endif
 
 
