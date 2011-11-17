@@ -282,6 +282,14 @@ typedef struct
     
     //! Key to use for this transaction
     one_net_xtea_key_t* key;
+
+    #ifdef _ONE_NET_MULTI_HOP
+    //! Number of hops
+    UInt8 hops;
+
+    //! Max number of hops
+    UInt8 max_hops;
+    #endif
 } on_txn_t;
 
 
