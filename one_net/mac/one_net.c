@@ -272,27 +272,27 @@ static BOOL check_for_clr_channel(void);
 /*!
     \brief Builds the encoded hops field for the packet.
 
-    \param[out] hops The hops field to be sent with the pkt.
-    \param[in] MAX_HOPS The maximum number of hops the packet can take.
-    \param[in] HOPS_LEFT The number of hops remaining that the pkt can take.
+    \param[out] enc_hops_field The hops field to be sent with the pkt.
+    \param[in] hops The number of hops taken so far.
+    \param[in] max_hops maximum number of hops the packet can take.
 
     \return ONS_SUCCESS If building the hops field was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
-one_net_status_t on_build_hops(UInt8 * hops, UInt8 MAX_HOPS,
-  UInt8 HOPS_LEFT)
+one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
+  UInt8 max_hops)
 {
     UInt8 raw_hops;
 
-    if(!hops || MAX_HOPS > ON_MAX_HOPS_LIMIT || HOPS_LEFT > MAX_HOPS)
+    if(!enc_hops_field || max_hops > ON_MAX_HOPS_LIMIT || hops > max_hops)
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
 
-    raw_hops = ((MAX_HOPS << ON_MAX_HOPS_SHIFT) & ON_MAX_HOPS_BUILD_MASK)
-      | ((HOPS_LEFT << ON_HOPS_LEFT_SHIFT) & ON_HOPS_LEFT_BUILD_MASK);
+    raw_hops = ((max_hops << ON_MAX_HOPS_SHIFT) & ON_MAX_HOPS_BUILD_MASK)
+      | ((hops << ON_HOPS_LEFT_SHIFT) & ON_HOPS_LEFT_BUILD_MASK);
 
-    on_encode(hops, &raw_hops, ON_ENCODED_HOPS_SIZE);
+    on_encode(enc_hops_field, &raw_hops, ON_ENCODED_HOPS_SIZE);
 
     return ONS_SUCCESS;
 } // on_build_hops //
