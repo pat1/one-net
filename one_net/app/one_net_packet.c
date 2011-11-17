@@ -326,6 +326,7 @@ BOOL packet_is_multihop(UInt8 pid)
         #ifdef _STREAM_MESSAGES_ENABLED
         case ONE_NET_ENCODED_MH_STREAM_DATA:
         #endif
+            return TRUE;
             
             
         default:
