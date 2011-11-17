@@ -865,6 +865,10 @@ BOOL one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
+            #ifdef _ONE_NET_MULTI_HOP
+            on_raw_did_t raw_did;
+            #endif
+            
             // we are listinging for data.  Make sure we have nothing
             // pending
             #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
@@ -941,12 +945,22 @@ BOOL one_net(on_txn_t ** txn)
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
+                on_decode(raw_did, device->did, ON_ENCODED_DID_LEN);
                 single_txn.hops = device->hops;
                 single_txn.max_hops = device->max_hops;
                 
                 
+                // give the application code a chance to override if it
+                // wants to.
+                switch(one_net_adjust_hops(&raw_did, &(single_txn.hops),
+                  &(single_txn.max_hops)))
+                {
+                    case ON_MSG_ABORT: return TRUE; // aborting
+                }
+                
+                
                 // change the pid if needed
-                if(device->hops)
+                if(single_txn.max_hops)
                 {
                     switch(single_msg.pid)
                     {
