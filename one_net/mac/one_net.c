@@ -302,6 +302,42 @@ one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
 
     return ONS_SUCCESS;
 } // on_build_hops //
+
+
+/*!
+    \brief Parses the encoded hops field for the packet.
+
+    \param[in] enc_hops_field The hops field to be sent with the pkt.
+    \param[out] hops The number of hops taken so far.
+    \param[out] max_hops maximum number of hops the packet can take.
+
+    \return ONS_SUCCESS If parsing the hops field was successful
+            ONS_BAD_PARAM If any of the parameters are invalid.
+*/
+one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
+  UInt8* max_hops)
+{
+    UInt8 raw_hops_field;
+    one_net_status_t status;
+
+    if(!hops || !max_hops)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+    
+    if((status = on_decode(&raw_hops_field, &enc_hops_field,
+      ON_ENCODED_DID_LEN)) != ONS_SUCCESS)
+    {
+        return status;
+    }
+
+    *hops = (raw_hops_field >> ON_PARSE_HOPS_SHIFT) &
+      ON_PARSE_RAW_HOPS_FIELD_MASK;
+    *max_hops = (raw_hops_field >> ON_PARSE_MAX_HOPS_SHIFT) &
+      ON_PARSE_RAW_HOPS_FIELD_MASK;
+
+    return ONS_SUCCESS;
+} // on_parse_hops //
 #endif // ifdef _ONE_NET_MULTI_HOP //
     
 
