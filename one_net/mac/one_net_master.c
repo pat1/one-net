@@ -840,6 +840,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
   on_ack_nack_t* ack_nack)
 {
     on_raw_did_t src_did;
+    UInt8 raw_hops_field;
     on_message_status_t status = ON_MSG_DEFAULT_BHVR;
     on_msg_hdr_t msg_hdr;
     
@@ -865,13 +866,53 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
+        (*txn)->response_timeout = ack_nack->payload->nack_time_ms;
         if((*txn)->retry >= ON_MAX_RETRY)
         {
+            #ifdef _ONE_NET_MULTI_HOP
+            // we may be able to re-send with more hops.
+            if(mh_repeater_available && (*txn)->hops < (*txn)->max_hops)
+            {
+                if((*txn)->hops == 0)
+                {
+                    (*txn)->hops = 1;
+                }
+                else
+                {
+                    ((*txn)->hops) *= 2;
+                }
+                
+                if((*txn)->hops > (*txn)->max_hops)
+                {
+                    (*txn)->hops = (*txn)->max_hops;
+                }
+                
+                (*txn)->retry = 0;
+                
+                // change the pid if needed
+                switch(*(pkt->pid))
+                {
+                    case ONE_NET_ENCODED_SINGLE_DATA:
+                      *(pkt->pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
+                      break;
+                    case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+                      *(pkt->pid) = ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
+                      break;
+                    case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+                      *(pkt->pid) = ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
+                      break;
+                }
+                
+                if(on_complete_pkt_build(pkt, pkt->msg_id, *(pkt->pid)) !=
+                  ONS_SUCCESS)
+                {
+                    return ON_MSG_TIMEOUT; // should never get here?
+                }
+                
+                return ON_MSG_CONTINUE;
+            }
+            #endif
             return ON_MSG_TIMEOUT;
-        }
-        else
-        {
-            (*txn)->response_timeout = ack_nack->payload->nack_time_ms;
         }
     }
 
