@@ -1358,6 +1358,12 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 */
 one_net_status_t rx_single_data(on_txn_t ** txn)
 {
+    // adding a little debugging
+    oncli_send_msg("Rcv'd single : source=%02X%02X repeater=%02X%02X\n",
+      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX],
+      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX + 1],
+      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
+      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
     return ONS_SUCCESS;
 } // rx_single_data //
 
@@ -1459,7 +1465,16 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif    
 
     #ifdef _RANGE_TESTING
-    // check the repeater did
+    if(device_in_range((on_encoded_did_t*)
+      pkt_hdr[ONE_NET_ENCODED_RPTR_DID_IDX]))
+    {
+        // we'll pretend that this device was out of range and we couldn't
+        // read it.
+        oncli_send_msg("Repeater %02X%02X is not within range.\n",
+          pkt_hdr[ONE_NET_ENCODED_RPTR_DID_IDX],
+          pkt_hdr[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
+        return ONS_READ_ERR;
+    }
     #endif
     
     pid = pkt_hdr[ONE_NET_ENCODED_PID_IDX];
