@@ -235,7 +235,10 @@ const char * const ONCLI_DISABLE_STR = "disable";
     const char* const DISPLAY_STR = "display";
 #endif
 
-
+#ifdef _RANGE_TESTING
+	//! Command set the mh_repeater_avaialable variable true or false.
+	const char * const ONCLI_MH_REPEAT_CMD_STR = "mh_repeat";
+#endif
 
 
 

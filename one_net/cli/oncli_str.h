@@ -176,6 +176,10 @@ extern const char* const CLEAR_STR;
 extern const char* const DISPLAY_STR;
 #endif
 
+#ifdef _RANGE_TESTING
+extern const char * const ONCLI_MH_REPEAT_CMD_STR;
+#endif
+
 
 // Response Formats
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;

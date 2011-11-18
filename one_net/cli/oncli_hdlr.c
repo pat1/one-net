@@ -232,7 +232,10 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-
+#ifdef _RANGE_TESTING
+// temporary debugging
+static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
 
 // temporary debugging
 static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -632,7 +635,25 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the range test command was received //
     #endif
+    
+    #ifdef _RANGE_TESTING
+    if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
+      strlen(ONCLI_MH_REPEAT_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MH_REPEAT_CMD_STR;
 
+        if(CMD[strlen(ONCLI_MH_REPEAT_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &mh_repeat_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the range test command was received //
+    #endif
+    
     else
     {
         *CMD_STR = CMD;
@@ -1514,6 +1535,45 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     return ONCLI_CMD_FAIL;
 } // range_test_cmd_hdlr //
+#endif
+
+
+#ifdef _RANGE_TESTING
+// temporary debugging
+static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    BOOL repeater_present = FALSE;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    if(!strnicmp(PARAM_PTR, TRUE_STR, strlen(TRUE_STR)))
+    {
+        PARAM_PTR += strlen(TRUE_STR);
+        repeater_present = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, FALSE_STR, strlen(FALSE_STR)))
+    {
+        PARAM_PTR += strlen(FALSE_STR);
+        repeater_present = FALSE;
+    }
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    mh_repeater_available = repeater_present;
+    
+    return ONCLI_SUCCESS;
+}
 #endif
 
 
