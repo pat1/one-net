@@ -228,8 +228,11 @@ const char * const ONCLI_DISABLE_STR = "disable";
     //! "remove" argument
     const char* const REMOVE_STR = "remove";
     
-    //! "remove" argument
+    //! "clear" argument
     const char* const CLEAR_STR = "clear";
+    
+    //! "display" argument
+    const char* const DISPLAY_STR = "display";
 #endif
 
 

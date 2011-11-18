@@ -1384,6 +1384,7 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     range test:on  --> turns range testing on
     range test:off  --> turns range testing off
     range test:clear --> makes all devices out of range
+    range test:display --> Displays in-range DIDs.
     range test:add:003 --> places device with raw DID 003 within range
     range test:remove:003 --> places device with raw DID 003 out of range
     
@@ -1404,6 +1405,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     BOOL turn_on = FALSE;
     BOOL turn_off = FALSE;
     BOOL clear = FALSE;
+    BOOL display = FALSE;
     BOOL add = FALSE;
 
     if(!ASCII_PARAM_LIST)
@@ -1425,6 +1427,11 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         PARAM_PTR += strlen(CLEAR_STR);
         clear = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
+    {
+        PARAM_PTR += strlen(DISPLAY_STR);
+        display = TRUE;
     }
     else
     {
@@ -1477,6 +1484,27 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         reset_range_test_did_array();
         return ONCLI_SUCCESS;
     }
+    else if(display)
+    {
+        UInt8 i;
+        on_encoded_did_t enc_did_array[RANGE_TESTING_ARRAY_SIZE];
+        UInt8 num_in_range = RANGE_TESTING_ARRAY_SIZE;
+        if(!devices_within_range(enc_did_array, &num_in_range))
+        {
+            oncli_send_msg("In-Range Device List Unretrievable.\n");
+            return ONCLI_CMD_FAIL;
+        }
+        
+        oncli_send_msg("# of In-Range Devices : %d\n", num_in_range);
+        for(i = 0; i < num_in_range; i++)
+        {
+            oncli_send_msg("Encoded DID : %02X%02X -- Raw ",
+              enc_did_array[i][0], enc_did_array[i][1]);
+            oncli_print_did((on_encoded_did_t*) enc_did_array[i]);
+        }
+        return ONCLI_SUCCESS;
+    }
+    
     
     if(adjust_range_test_did_array(&enc_did, add))
     {
