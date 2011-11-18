@@ -1501,6 +1501,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
             oncli_send_msg("Encoded DID : %02X%02X -- Raw ",
               enc_did_array[i][0], enc_did_array[i][1]);
             oncli_print_did((on_encoded_did_t*) enc_did_array[i]);
+            oncli_send_msg("\n");
         }
         return ONCLI_SUCCESS;
     }
