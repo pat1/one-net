@@ -1465,7 +1465,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif    
 
     #ifdef _RANGE_TESTING
-    if(device_in_range((on_encoded_did_t*)
+    if(!device_in_range((on_encoded_did_t*)
       pkt_hdr[ONE_NET_ENCODED_RPTR_DID_IDX]))
     {
         // we'll pretend that this device was out of range and we couldn't
