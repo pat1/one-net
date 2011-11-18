@@ -888,6 +888,9 @@ void one_net_init(void)
     #endif
     single_msg_ptr = NULL;
     single_txn.priority = ONE_NET_NO_PRIORITY;
+    #ifdef _RANGE_TESTING
+    reset_range_test_did_array();
+    #endif
 } // one_net_init //
     
 
