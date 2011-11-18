@@ -1458,7 +1458,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     }
     #endif    
 
-    #ifdef _RANGE_CHECK
+    #ifdef _RANGE_TESTING
     // check the repeater did
     #endif
     
