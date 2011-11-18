@@ -218,6 +218,20 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
 #endif
 
+#ifdef _RANGE_TESTING
+    //! Command to adjust range testing
+    const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
+    
+    //! "add" argument
+    const char* const ADD_STR = "add";
+    
+    //! "remove" argument
+    const char* const REMOVE_STR = "remove";
+    
+    //! "remove" argument
+    const char* const CLEAR_STR = "clear";
+#endif
+
 
 
 

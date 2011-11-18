@@ -228,6 +228,11 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _RANGE_TESTING
+static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+
 
 // temporary debugging
 static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -246,6 +251,8 @@ static oncli_status_t oncli_parse_channel(const char * ASCII,
 static oncli_status_t parse_invite_key(const char * ASCII,
   char** end_ptr, one_net_xtea_key_t * const key);
 #endif
+
+
 
 
 
@@ -608,6 +615,23 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the channel command was received //
 	#endif
     
+    #ifdef _RANGE_TESTING
+    if(!strnicmp(ONCLI_RANGE_TEST_CMD_STR, CMD,
+      strlen(ONCLI_RANGE_TEST_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_RANGE_TEST_CMD_STR;
+
+        if(CMD[strlen(ONCLI_RANGE_TEST_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &range_test_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the range test command was received //
+    #endif
 
     else
     {
@@ -1350,6 +1374,118 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
+#ifdef _RANGE_TESTING
+/*!
+    \brief Turns on or off range testing for debugging purposes.  Sets a
+           device as either within range or out of range of this device
+    
+    The "range test" command has the form
+    
+    range test:on  --> turns range testing on
+    range test:off  --> turns range testing off
+    range test:clear --> makes all devices out of range
+    range test:add:003 --> places device with raw DID 003 within range
+    range test:remove:003 --> places device with raw DID 003 out of range
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_raw_did_t did;
+    on_encoded_did_t enc_did;
+    BOOL turn_on = FALSE;
+    BOOL turn_off = FALSE;
+    BOOL clear = FALSE;
+    BOOL add = FALSE;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_ON_STR);
+        turn_on = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_OFF_STR);
+        turn_off = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
+    {
+        PARAM_PTR += strlen(CLEAR_STR);
+        clear = TRUE;
+    }
+    else
+    {
+        if(!strnicmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
+        {
+            add = TRUE;
+            PARAM_PTR += strlen(ADD_STR);
+        }
+        else if(!strnicmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
+        {
+            PARAM_PTR += strlen(REMOVE_STR);
+        }
+        else
+        {
+            return ONCLI_PARSE_ERR;
+        }
+        
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        }
+        PARAM_PTR++;
+        
+        // read in the did
+        if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
+          != ONCLI_ASCII_RAW_DID_SIZE)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if converting the source peer did failed //
+        PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+        
+        if(on_encode(enc_did, did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+        {
+            return ONCLI_PARSE_ERR;
+        }
+    }
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(turn_on || turn_off)
+    {
+        enable_range_testing(turn_on);
+        return ONCLI_SUCCESS;
+    }
+    else if(clear)
+    {
+        reset_range_test_did_array();
+        return ONCLI_SUCCESS;
+    }
+    
+    if(adjust_range_test_did_array(&enc_did, add))
+    {
+        return ONCLI_SUCCESS;
+    }
+    
+    return ONCLI_CMD_FAIL;
+} // range_test_cmd_hdlr //
+#endif
 
 
 
