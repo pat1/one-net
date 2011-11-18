@@ -1729,6 +1729,55 @@ void enable_range_testing(BOOL on)
 
 
 /*!
+    \brief Returns an array of the encoded dids which are within range
+
+    \param[out] enc_dids Array of encoded dids to store the in-range devices
+    \param[in/out] num_in_range in --> size of array passed.  out --> number
+                   of devices within range.
+    
+    \return TRUE if no errors and devices could be retrieved.
+            FALSE is bad paraemter, device is not in a network, or not enough
+                  room exists in the passed array.
+*/
+BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range)
+{
+    UInt8 i = 0;
+    UInt8 arr_size;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master && !client_joined_network)
+    {
+        return FALSE; // not in a network yet.
+    }
+    #endif
+    
+    if(!enc_dids || !num_in_range)
+    {
+        return FALSE; // bad parameter.
+    }
+
+    arr_size = *num_in_range;
+    *num_in_range = 0;
+    
+    while(i < RANGE_TESTING_ARRAY_SIZE &&
+      one_net_memcmp(range_test_did_array[i], ON_ENCODED_BROADCAST_DID,
+      ON_ENCODED_DID_LEN) != 0)
+    {
+        i++;
+        if(i >= arr_size)
+        {
+            return FALSE; // no room.
+        }
+    }
+    
+    *num_in_range = i;
+    one_net_memmove(*enc_dids, range_test_did_array, ((*num_in_range) *
+      sizeof(on_encoded_did_t)));
+    return TRUE;
+}
+
+
+/*!
     \brief Places a device either in range or out of range.
 
     \param did encoded did of the device
