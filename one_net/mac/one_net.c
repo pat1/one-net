@@ -1118,6 +1118,9 @@ BOOL one_net(on_txn_t ** txn)
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
                 single_msg_ptr = &single_msg;
+                
+                (*txn)->send = TRUE;
+                
                 return FALSE; // transaction is not complete
             }
 
