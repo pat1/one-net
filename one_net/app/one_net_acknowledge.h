@@ -138,6 +138,7 @@ typedef enum
 typedef enum
 {
 	ON_ACK,                //! Normal ACK with no accompanying data
+    ON_ACK_FEATURES        //! Normal ACK accompanied with four bytes of features
 	ON_ACK_DATA,           //! The ACK is accompanied by 5 bytes of data.
 	ON_ACK_VALUE,          //! The ACK is accompanied by 8 bit and 32 bit unsigned integers.
 	ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing time in milliseconds
@@ -152,6 +153,7 @@ typedef enum
 typedef enum
 {
 	ON_NACK,            //! Normal NACK with no accompanying data
+    ON_NACK_FEATURES    //! Normal NACK accompanied with four bytes of features
 	ON_NACK_DATA,       //! The NACK is accompanied by 5 bytes of data.
 	ON_NACK_VALUE,      //! The NACK is accompanied by a 32 bit unsigned integer.
 	ON_NACK_TIME_MS,    //! The NACK is accompanied by a 32 bit unsigned integer representing time in milliseconds
