@@ -54,6 +54,7 @@
 #include "one_net_timer.h"
 #include "tal.h"
 #include "one_net_encode.h"
+#include "one_net_prand.h"
 
 // debugging -- temporary
 #include "oncli.h"
@@ -544,10 +545,17 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         match_idx = max_lru_idx;
         one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
           sizeof(sending_dev_list[match_idx].sender.did));
-        sending_dev_list[match_idx].sender.expected_nonce = ON_INVALID_NONCE;
-        sending_dev_list[match_idx].sender.send_nonce = ON_INVALID_NONCE;
+        sending_dev_list[match_idx].sender.expected_nonce =
+          one_net_prand(get_tick_count(), ON_MAX_NONCE);
+        sending_dev_list[match_idx].sender.send_nonce =
+          one_net_prand(get_tick_count(), ON_MAX_NONCE);
         sending_dev_list[match_idx].sender.last_nonce = ON_INVALID_NONCE;
         sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
+        
+        #ifdef _ONE_NET_MULTI_HOP
+        sending_dev_list[match_idx].sender.hops = 0;
+        sending_dev_list[match_idx].sender.max_hops = ON_MAX_HOPS_LIMIT;
+        #endif
     } // if the device was not found in the list //
 
     if(lru)
