@@ -282,6 +282,9 @@ typedef struct
     
     //! Key to use for this transaction
     one_net_xtea_key_t* key;
+    
+    //! True if initiating / sending the transaction, false otherwise.
+    BOOL send;
 
     #ifdef _ONE_NET_MULTI_HOP
     //! Number of hops
