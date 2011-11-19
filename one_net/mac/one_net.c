@@ -982,9 +982,35 @@ BOOL one_net(on_txn_t ** txn)
                     return TRUE; // no pending transaction since we're
                                  // aborting
                 }
-  
-                // fill with 0xEE for test purposes
-                one_net_memset(single_txn.pkt, 0xEE, ON_SINGLE_ENCODED_PKT_SIZE);
+                
+                if(one_net_memcmp(&FEATURES_UNKNOWN, &(device->features),
+                  sizeof(on_features_t)) == 0)
+                {
+                    // we don't have valid features for this device, so
+                    // all of the other information in "device" is almost
+                    // certainly not valid or uninitialized.  We'll fill it
+                    // in with best guesses and have the device NACK us if we
+                    // are wrong.  We also want to send a request to the
+                    // device for its features.
+                    
+                    // since we don't have a legitimate message ID, create a
+                    // random one.
+                    device->msg_id = one_net_prand(get_tick_count(),
+                      ON_MAX_MSG_ID);
+                    
+                    // TODO -- add a features request for this device
+                }
+                else
+                {
+                    // pick a message id.  Increment the last one.  If it
+                    // rolls over, pick a random one.
+                    (device->msg_id)++;
+                    if(device->msg_id > ON_MAX_MSG_ID)
+                    {
+                        device->msg_id = one_net_prand(get_tick_count(),
+                          ON_MAX_MSG_ID - 1);
+                    }
+                }
                 
                 if(!setup_pkt_ptr(single_msg.pid, single_pkt,
                   &data_pkt_ptrs))
@@ -1029,32 +1055,6 @@ BOOL one_net(on_txn_t ** txn)
                 data_pkt_ptrs.max_hops = single_txn.max_hops;
                 #endif
 
-                // pick a message id if we don't already have one.
-                if(device->msg_id < ON_MAX_MSG_ID)
-                {
-                    // message id is valid and is not ready for a
-                    // "roll-over".  Increment it.
-                    (device->msg_id)++;
-                }
-                else
-                {
-                    // pick a random one.
-                    device->msg_id = /*one_net_prand(get_tick_count(),
-                      ON_MAX_MSG_ID)*/0x35;
-                }
-                        
-                // Check the nonces too.  See if they are valid
-                if(device->send_nonce > ON_MAX_NONCE)
-                {
-                    device->send_nonce = /*one_net_prand(
-                      get_tick_count(), ON_MAX_NONCE)*/28;
-                }
-                // Check the nonces too.  See if they are valid
-                if(device->expected_nonce > ON_MAX_NONCE)
-                {
-                    device->expected_nonce = /*one_net_prand(
-                      get_tick_count(), ON_MAX_NONCE)*/0x12;
-                }
                 
                 // now fill in the packet
                 
