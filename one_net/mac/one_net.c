@@ -1151,6 +1151,17 @@ BOOL one_net(on_txn_t ** txn)
                 #else
                 UInt32 new_timeout_ms = (*txn)->response_timeout;
                 #endif
+                
+                if(on_state == ON_SEND_PKT_WRITE_WAIT)
+                {
+                    // no timers are needed, no response is needed, we're just
+                    // doing a quick write and that's it.  There is no
+                    // follow-up, so we are done.  Reset the transaction and
+                    // return the state to ON_LISTEN_FOR_DATA.
+                    *txn = NULL;
+                    on_state = ON_LISTEN_FOR_DATA;
+                    break;
+                }
 
                 ont_set_timer((*txn)->next_txn_timer,
                   MS_TO_TICK(new_timeout_ms));
@@ -1643,24 +1654,20 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
             one_net_memmove(data_pkt_ptrs.enc_repeater_did,
               &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
               
-            // packet is all filled in.  Send it back, but first copy it to
-            // mh_txn, or at least the parts we are interested in, which
-            // is pretty much just the packet bytes.
-            one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-              &((*txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-              get_encoded_packet_len(pid, FALSE));
-              
             // the actual transaction is over, so give that transaction
             // no priority.
             (*txn)->priority = ONE_NET_NO_PRIORITY;
             ont_stop_timer((*txn)->next_txn_timer);
             
+            // copy the preamble / header just in case it isn't there already
+            one_net_memmove(mh_txn.pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
+            
             // now make the transaction the multi-hop transaction.
             *txn = &mh_txn;
-            
+
             // set the timer to send right away.
             ont_set_timer((*txn)->next_txn_timer, 0);
-            
+
             on_state = ON_SEND_PKT;
             return ONS_SUCCESS;
         }
