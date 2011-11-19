@@ -333,8 +333,7 @@ tick_t one_net_client(void)
             on_rx_data_pkt(&ON_ENCODED_BROADCAST_DID, &txn);
         }
     }
-    
-    txn = 0;
+
     one_net(&txn);
     
     return 0;
