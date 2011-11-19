@@ -554,6 +554,9 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+
+one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
+  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
   
 one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
   const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
@@ -631,12 +634,17 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 #endif
 
 
-one_net_status_t rx_single_data(on_txn_t** txn);
+one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce);
+one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce);
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t rx_block_data(on_txn_t** txn);
+one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce);
 #endif
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t rx_stream_data(on_txn_t** txn);
+one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce);
 #endif
 one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn);

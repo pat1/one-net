@@ -350,7 +350,137 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
     return ONS_SUCCESS;
 } // on_parse_hops //
 #endif // ifdef _ONE_NET_MULTI_HOP //
+
+
+one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
+  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+{
+    UInt8 status;
+    SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
+    SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
+    BOOL is_ack = packet_is_ack(*(pkt_ptrs->pid));
+    BOOL is_nack = packet_is_nack(*(pkt_ptrs->pid));
+    UInt8* ack_nack_pld_ptr = &raw_payload_bytes[ON_PLD_DATA_IDX];
     
+    UInt8 ack_nack_pld_len = raw_pld_len - 1 - ON_PLD_DATA_IDX;
+    
+    if(!is_ack && !is_nack)
+    {
+        return ONS_UNHANDLED_PKT;
+    }
+    
+    if(num_words <= 0)
+    {
+        return ONS_INTERNAL_ERR; // not a data PID
+    }
+    
+    // make the payload portion all random first for extra security
+    {
+        UInt8 i;
+        for(i = ON_PLD_DATA_IDX; i < raw_pld_len - 1; i++)
+        {
+            raw_payload_bytes[i] = one_net_prand(get_tick_count(), 255);
+        }
+    }
+    
+    // build the ack and nack
+    if(is_nack)
+    {
+        *ack_nack_pld_ptr = ack_nack->nack_reason;
+        ack_nack_pld_ptr++;
+        ack_nack_pld_len--;
+    }
+    
+    
+    // fill in the payload based on the handle
+    {
+        UInt32 val;
+        BOOL val_present = FALSE;
+        switch(ack_nack->handle)
+        {
+            case ON_ACK_FEATURES:
+              one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
+                sizeof(on_features_t));
+            case ON_ACK_STATUS:
+	        case ON_ACK_DATA:
+                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
+                  ack_nack_pld_len);
+                  break;
+	        case ON_ACK_VALUE:
+                val_present = TRUE;
+                val = ack_nack->payload->nack_value;
+                if(is_ack)
+                {
+                    *ack_nack_pld_ptr = ack_nack->payload->ack_value.uint8;
+                    ack_nack_pld_ptr++;
+                    val = ack_nack->payload->ack_value.uint32;
+                }
+                break;
+	        case ON_ACK_TIME_MS:
+                val_present = TRUE;
+                val = ack_nack->payload->ack_time_ms;
+                break;
+        }
+        
+        if(val_present)
+        {
+            one_net_int32_to_byte_stream(val, ack_nack_pld_ptr);
+        }
+    }
+
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    if(packet_is_multihop(*(pkt_ptrs->pid)))
+    {
+        // build hops
+        if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
+          pkt_ptrs->max_hops)) != ONS_SUCCESS)
+        {
+            return status;
+        }
+    }
+    #endif
+    
+    // check nonces.  If they are invalid, pick some random ones
+    if(device->expected_nonce > ON_MAX_NONCE)
+    {
+        device->expected_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+    }
+    if(device->send_nonce > ON_MAX_NONCE)
+    {
+        device->send_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+    }
+
+    // build the packet
+    raw_payload_bytes[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
+      ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
+    raw_payload_bytes[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
+      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
+    raw_payload_bytes[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
+      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
+      
+    // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
+	raw_payload_bytes[ON_PLD_RESP_HANDLE_IDX] |=
+      (ack_nack->handle & ON_RESP_HANDLE_BUILD_MASK); 
+      
+      
+    // compute the crc
+    raw_payload_bytes[0] = (UInt8)one_net_compute_crc(
+      &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
+      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+      
+    if((status = on_encrypt(txn->txn_type, raw_payload_bytes, txn->key,
+      raw_pld_len)) == ONS_SUCCESS)
+    {
+        status = on_encode(pkt_ptrs->payload, raw_payload_bytes,
+          num_words);
+    } // if encrypting was successful //
+
+    return status;
+}
+
 
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
@@ -1363,17 +1493,17 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 /*!
     \brief Finishes reception of a single data pkt
 
-    \param[in] PID The PID that was received.  Should be
-      ONE_NET_ENCODED_SINGLE_DATA, ONE_NET_ENCODED_REPEAT_SINGLE_DATA,
-      ONE_NET_ENCODED_MH_SINGLE_DATA, or ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA.
-    \param[in] SRC_DID Pointer to the did of the sender.
-    \param[in/out] txn The transaction that is being carried out.
+    \param[in/out] txn The single transaction
+    \param[in] raw_payload The decoded, decrypted payload
+    \param[in] txn_nonce The transaction nonce in the packet
+    \param[in] resp_nonce The response nonce in the packet
 
     \return ONS_READ_ERR If the hops field could not be read.
             ONS_INTERNAL_ERR If something unexpexted happened.
             See rx_payload & single_data_hdlr for more options.
 */
-one_net_status_t rx_single_data(on_txn_t ** txn)
+one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce)
 {
     // adding a little debugging
     oncli_send_msg("Rcv'd single : source=%02X%02X repeater=%02X%02X\n",
@@ -1385,8 +1515,34 @@ one_net_status_t rx_single_data(on_txn_t ** txn)
 } // rx_single_data //
 
 
+/*!
+    \brief Finishes reception of a response pkt
+
+    \param[in/out] txn The response transaction
+    \param[in] raw_payload The decoded, decrypted payload
+    \param[in] txn_nonce The transaction nonce in the packet
+    \param[in] resp_nonce The response nonce in the packet
+
+    \return ONS_READ_ERR If the hops field could not be read.
+            ONS_INTERNAL_ERR If something unexpexted happened.
+            See rx_payload & single_data_hdlr for more options.
+*/
+one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce)
+{
+    // adding a little debugging
+    oncli_send_msg("Rcv'd response : source=%02X%02X repeater=%02X%02X\n",
+      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX],
+      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX + 1],
+      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
+      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
+    return ONS_SUCCESS;
+} // rx_single_data //
+
+
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t rx_block_data(on_txn_t** txn)
+one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce)
 {
     return ONS_SUCCESS;
 }
@@ -1394,7 +1550,8 @@ one_net_status_t rx_block_data(on_txn_t** txn)
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t rx_stream_data(on_txn_t** txn)
+one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
+  UInt8 txn_nonce, UInt8 resp_nonce)
 {
     return ONS_SUCCESS;
 }
@@ -1425,7 +1582,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn)
 {
     one_net_status_t status;
-    on_message_status_t hdlr_status;
     on_encoded_did_t src_did;
     one_net_xtea_key_t* key = NULL;
     UInt8 pid;
@@ -1440,6 +1596,8 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     UInt8 pkt_hdr[ON_PLD_IDX];
     on_txn_t* this_txn = NULL;
     on_data_t type;
+    
+    UInt8 txn_nonce, resp_nonce;
 
 
     // only need to check 1 handler since it is all or nothing
@@ -1712,33 +1870,66 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // decode the message id and fill it in.
     on_decode(&(data_pkt_ptrs.msg_id), data_pkt_ptrs.enc_msg_id,
       ONE_NET_ENCODED_MSG_ID_LEN);
+      
+    // everything but invite packets will have nonces
+    #ifdef _ONE_NET_CLIENT
+    if(device_is_master || type != ON_INVITE)
+    #endif
+    {
+        // TODO -- use the constants mask.
+        txn_nonce = raw_payload_bytes[1] >> 2;
+        resp_nonce = (raw_payload_bytes[1] & 0x03) << 4 +
+          (raw_payload_bytes[2] >> 4);
+    }
+    
+    
+    // now check for a potential replay attack.  If this is a brand new
+    // message and the message ID is <= the message ID we have on
+    // record for this device, we'll disregard it as invalid.
+    if(*txn == NULL)
+    {
+        on_sending_device_t* dev = (*get_sender_info)((on_encoded_did_t*)
+          &(data_pkt_ptrs.enc_src_did));
+
+        if(one_net_memcmp(&(dev->features), &FEATURES_UNKNOWN,
+          sizeof(on_features_t)) != 0)
+        {
+            // we've seen this device before.  We'll give the device 2
+            // seconds in case we're in the middle of the current transaction.
+            // otherwise we'll call it a reply attack or if not an attack, at
+            // least something we will not accept.
+            if(data_pkt_ptrs.msg_id < dev->msg_id || (data_pkt_ptrs.msg_id ==
+              dev->msg_id && (dev->verify_time + MS_TO_TICK(2000) <
+              get_tick_count())))
+            {
+                // we've definitely seen this one before and the message id
+                // is invalid.  NACK it as an invalid message id.
+
+                // TODO -- build and send the response.
+            }
+        }
+    }
+    
+    
+    
 
     // so far, so good.
     *txn = this_txn; // pass it to the individual handlers
     switch(type)
     {
-        // note -- we'll pass NULL as the message type and let the
-        // handlers handle it further.  TODO -- we may decide to parse
-        // some of that here.
-        case ON_SINGLE: hdlr_status = (*pkt_hdlr.single_data_hdlr)(txn,
-          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        case ON_SINGLE: return rx_single_data(txn, raw_payload_bytes,
+          txn_nonce, resp_nonce);
+        case ON_RESPONSE: return rx_response_data(txn, raw_payload_bytes,
+          txn_nonce, resp_nonce);
         #ifdef _BLOCK_MESSAGES_ENABLED  
-        case ON_BLOCK: hdlr_status = (*pkt_hdlr.block_data_hdlr)(txn,
-          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        case ON_BLOCK: return rx_block_data(txn, raw_payload_bytes,
+          txn_nonce, resp_nonce); break;
         #endif
         #ifdef _STREAM_MESSAGES_ENABLED  
-        case ON_STREAM: hdlr_status = (*pkt_hdlr.stream_data_hdlr)(txn,
-          &data_pkt_ptrs, raw_payload_bytes, NULL); break;
+        case ON_STREAM: return rx_stream_data(txn, raw_payload_bytes,
+          txn_nonce, resp_nonce); break;
         #endif
     }
-    
-    // TODO -- harness the return value?  What handles aborting of the
-    // transaction, etc., when the transaction needs to be aborted,
-    // paused, re-sent, etc.?  We'll probably NOT handle much of it in the
-    // main ONE-NET state machine, but instead handle a lot of it here.
-    // The handling of block, stream, and single-SPECIFIC issues should
-    // be handled there, not here, but anything in common, should be
-    // handled here.  For now, if we got this far, just return ONS_SUCCESS.
     
     return ONS_SUCCESS;
 } // on_rx_packet //
