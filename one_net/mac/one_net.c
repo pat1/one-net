@@ -1581,11 +1581,11 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_INTERNAL_ERR;
     }
     
-    if(!one_net_read(&(this_txn->pkt[ON_PLD_IDX]), data_pkt_ptrs.payload_len)
+    if(one_net_read(&(this_txn->pkt[ON_PLD_IDX]), data_pkt_ptrs.payload_len)
       != data_pkt_ptrs.payload_len)
     {
         return ONS_READ_ERR;
-    }
+    } 
     
     #ifndef _ONE_NET_MH_CLIENT_REPEATER
     if(!verify_msg_crc(&data_pkt_ptrs))
@@ -1595,7 +1595,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     {
         return ONS_CRC_FAIL;
-    }
+    }   
     
     #ifdef _ONE_NET_MULTI_HOP
     if(packet_is_mh)
@@ -1642,8 +1642,25 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
               ON_ENCODED_HOPS_SIZE);
             one_net_memmove(data_pkt_ptrs.enc_repeater_did,
               &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
-            // packet is all filled in.  Send it back.
+              
+            // packet is all filled in.  Send it back, but first copy it to
+            // mh_txn, or at least the parts we are interested in, which
+            // is pretty much just the packet bytes.
+            one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
+              &((*txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
+              get_encoded_packet_len(pid, FALSE));
+              
+            // the actual transaction is over, so give that transaction
+            // no priority.
+            (*txn)->priority = ONE_NET_NO_PRIORITY;
+            ont_stop_timer((*txn)->next_txn_timer);
+            
+            // now make the transaction the multi-hop transaction.
             *txn = &mh_txn;
+            
+            // set the timer to send right away.
+            ont_set_timer((*txn)->next_txn_timer, 0);
+            
             on_state = ON_SEND_PKT;
             return ONS_SUCCESS;
         }
