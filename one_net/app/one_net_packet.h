@@ -921,6 +921,9 @@ BOOL packet_is_invite(UInt8 pid);
 BOOL packet_is_stream(UInt8 pid);
 pkt_group_t get_pkt_family(UInt8 pid);
 
+BOOL packet_is_ack(UInt8 pid);
+BOOL packet_is_nack(UInt8 pid);
+
     
 //! @} ONE-NET_PACKET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

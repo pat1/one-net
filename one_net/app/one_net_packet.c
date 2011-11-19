@@ -480,6 +480,52 @@ pkt_group_t get_pkt_family(UInt8 pid)
 }
 
 
+BOOL packet_is_nack(UInt8 pid)
+{
+    switch(pid)
+    {
+        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
+        #endif
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
+        #endif
+        #endif
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+
+BOOL packet_is_ack(UInt8 pid)
+{
+    switch(pid)
+    {
+        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
+        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE:
+        #endif
+        
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_ENCODED_BLOCK_DATA_ACK:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_ENCODED_MH_BLOCK_DATA_ACK:
+        #endif
+        #endif
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+
 //! @} ONE-NET_PACKET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
