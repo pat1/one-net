@@ -4,6 +4,7 @@
 #include "config_options.h"
 #include "one_net_types.h"
 #include "one_net_packet.h"
+#include "one_net_features.h"
 
 
 
@@ -185,6 +186,7 @@ typedef union
       // subtract 1 byte for the nack reason
 	UInt32 nack_value;
     tick_t nack_time_ms;
+    on_features_t features;
 } ack_nack_payload_t;
 
 
