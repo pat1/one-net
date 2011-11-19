@@ -331,7 +331,7 @@ tick_t one_net_client(void)
     {
         case ON_LISTEN_FOR_DATA:
         {
-            on_rx_data_pkt(&ON_ENCODED_BROADCAST_DID, &txn);
+            on_rx_packet(&ON_ENCODED_BROADCAST_DID, &txn);
         }
     }
 

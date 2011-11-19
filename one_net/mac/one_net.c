@@ -1421,7 +1421,7 @@ one_net_status_t rx_stream_data(on_txn_t** txn)
             ONS_INVALID_DATA If data received is not valid.
             For more return codes, see rx_pkt_addr.
 */
-one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
+one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn)
 {
     one_net_status_t status;
@@ -1741,7 +1741,7 @@ one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // handled here.  For now, if we got this far, just return ONS_SUCCESS.
     
     return ONS_SUCCESS;
-} // on_rx_data_pkt //
+} // on_rx_packet //
 
 
 #ifdef _RANGE_TESTING

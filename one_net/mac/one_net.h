@@ -638,7 +638,7 @@ one_net_status_t rx_block_data(on_txn_t** txn);
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t rx_stream_data(on_txn_t** txn);
 #endif
-one_net_status_t on_rx_data_pkt(const on_encoded_did_t * const EXPECTED_SRC_DID,
+one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
   on_txn_t ** txn);
   
 
