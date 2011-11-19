@@ -489,6 +489,17 @@ void sniff_eval(void)
     } // if SOF was not received //
 
     bytes_read = one_net_read(pkt_wo_header, bytes_read);
+    
+    #ifdef _RANGE_TESTING
+    if(!device_in_range((on_encoded_did_t*)
+      &(pkt[ONE_NET_ENCODED_RPTR_DID_IDX])))
+    {
+        // we are filtering the packets.  Ignore this one.
+        return;
+    }
+    #endif
+    
+    
     oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read +
       ONE_NET_PREAMBLE_HEADER_LEN);
       
