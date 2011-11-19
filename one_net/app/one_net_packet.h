@@ -656,7 +656,7 @@ enum
 
     //! The mask to use for the handle when
     //! building the payload field of a data packet
-    ON_RESP_HANDLE_BUILD_LOW_MASK = 0x0F,
+    ON_RESP_HANDLE_BUILD_MASK = 0x0F,
 
     //! The mask to use for the low portion of the response nonce when
     //! parsing the payload field of a data packet
