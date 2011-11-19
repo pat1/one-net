@@ -613,6 +613,9 @@ enum
     //! Index for the low portion of the response nonce
     ON_PLD_RESP_NONCE_LOW_IDX = 2,
 
+    //! Index for the ack / nack handle
+    ON_PLD_RESP_HANDLE_IDX = 2,
+
 
     //! Index for the message type
     ON_PLD_MSG_TYPE_IDX = 2,
@@ -650,6 +653,10 @@ enum
     //! The mask to use for the low portion of the response nonce when
     //! building the payload field of a data packet
     ON_RESP_NONCE_BUILD_LOW_MASK = 0xF0,
+
+    //! The mask to use for the handle when
+    //! building the payload field of a data packet
+    ON_RESP_HANDLE_BUILD_LOW_MASK = 0x0F,
 
     //! The mask to use for the low portion of the response nonce when
     //! parsing the payload field of a data packet
