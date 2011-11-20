@@ -1598,7 +1598,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     on_data_t type;
     
     UInt8 txn_nonce, resp_nonce;
-
+    
 
     // only need to check 1 handler since it is all or nothing
     if(!pkt_hdlr.single_data_hdlr)
@@ -1854,13 +1854,19 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         #endif
     }
     #endif
-    
-    if((status = on_decrypt(type, raw_payload_bytes, key,
+
+    if((status = on_decode(raw_payload_bytes, data_pkt_ptrs.payload,
       data_pkt_ptrs.payload_len)) != ONS_SUCCESS)
     {
         return status;
     }
-    
+
+    if((status = on_decrypt(type, raw_payload_bytes, key,
+      get_raw_payload_len(pid))) != ONS_SUCCESS)
+    {   
+        return status;
+    } 
+
     // check the payload CRC.
     if(!verify_payload_crc(pid, raw_payload_bytes))
     {
@@ -1870,6 +1876,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // decode the message id and fill it in.
     on_decode(&(data_pkt_ptrs.msg_id), data_pkt_ptrs.enc_msg_id,
       ONE_NET_ENCODED_MSG_ID_LEN);
+
       
     // everything but invite packets will have nonces
     #ifdef _ONE_NET_CLIENT
@@ -1906,6 +1913,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
                 // is invalid.  NACK it as an invalid message id.
 
                 // TODO -- build and send the response.
+                oncli_send_msg("Invalid message id\n");
             }
         }
     }
