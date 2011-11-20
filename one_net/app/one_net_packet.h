@@ -622,6 +622,12 @@ enum
 
     //! Index for the data portion
     ON_PLD_DATA_IDX = 3,
+    
+    //! Index for the admin type in an admin message
+    ON_PLD_ADMIN_TYPE_IDX = ON_PLD_DATA_IDX,
+    
+    //! Index of the data portion of an admin message
+    ON_PLD_ADMIN_DATA_IDX = ON_PLD_ADMIN_TYPE_IDX + 1,
 
     // If any of the shift values change, the masks where these values are used
     // will also need to change
