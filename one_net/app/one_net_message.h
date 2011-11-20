@@ -170,6 +170,46 @@ typedef UInt16 ona_msg_class_t;
 
 
 #endif // _ONA_MSG_CLASS_T
+
+
+/*!
+    \brief Raw Admin Message Type
+*/
+typedef enum
+{
+    //! Queries the fetures of the device and sends its own features
+    ON_FEATURES_QUERY = 0x00,
+
+    //! Response to a features query.  It can also be sent autonomously
+    //! without a request for features whenever a device feels that
+    //! another device needs to know its features.
+    ON_FEATURES_RESP = 0x01,
+
+    //! Sent to change a devices high priority fragment delay
+    ON_CHANGE_LOW_FRAGMENT_DELAY = 0x07,
+
+    //! Sent to change the keep alive interval
+    ON_CHANGE_KEEP_ALIVE = 0x0A,
+
+#ifdef _PEER
+    //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
+    //! can then send directly to the peer.
+    ON_ASSIGN_PEER = 0x0C,
+
+    //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
+    //! CLIENT must not send directly to that peer anymore.
+    ON_UNASSIGN_PEER = 0x0D,
+#endif
+
+    //! Sent to change a devices high priority fragment delay
+    ON_CHANGE_HIGH_FRAGMENT_DELAY = 0x1B,
+
+    //! Sent by the MASTER when it is removing the receiver from the network
+    ON_RM_DEV = 0x22
+} on_admin_msg_t;
+
+
+
   
 
 // TODO - is this the correct spot for on_single queue constants and functions?
