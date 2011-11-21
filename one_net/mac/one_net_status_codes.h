@@ -124,6 +124,7 @@ typedef enum
                                     //!<      requested t change to a very high data rate
                                     //!<      that its transceiver cannot handle.
     ONS_PKT_RCVD,                   //!< [43] A packet has been received.
+    ONS_BAD_MSG_ID,                 //!< [44] Packet has an invalid message ID.
     ONS_SNGH_INTERNAL_ERR           //!< [44] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
