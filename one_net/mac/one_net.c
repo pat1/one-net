@@ -1550,6 +1550,8 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
         {
             resp_pid = ONE_NET_ENCODED_MH_SINGLE_DATA_ACK;
         }
+        (*txn)->max_hops = (*txn)->hops;
+        (*txn)->hops = 0;
         #endif
         
         if(!setup_pkt_ptr(resp_pid, response_txn.pkt, &response_pkt_ptrs))
@@ -1557,6 +1559,11 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
             *txn = 0;
             return ONS_INTERNAL_ERR;
         }
+        
+        #ifdef _ONE_NET_MULTI_HOP
+        response_pkt_ptrs.hops = 0;
+        response_pkt_ptrs.max_hops = (*txn)->max_hops;
+        #endif
         
         response_txn.key = single_txn.key;
         
@@ -1584,7 +1591,7 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
         {
             // An error of some sort occurred.  Abort.
             return status; // no outstanding transaction                            
-        }        
+        }
     }
     
     // adding a little debugging
