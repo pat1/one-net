@@ -214,6 +214,10 @@ one_net_xtea_key_t invite_key;
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
   ONT_INVITE_SEND_TIMER, 0, 0, invite_pkt, NULL, NULL};
+  
+#ifdef _ONE_NET_CLIENT
+extern BOOL client_looking_for_invite;
+#endif
 
 
 
