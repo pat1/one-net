@@ -784,10 +784,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
     out_master_param->device.hops = 0;
 #endif
-    one_net_memmove(out_master_param->device.did,
-      &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
-
-
+    one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
+      ON_ENCODED_DID_LEN);
     one_net_memmove(out_base_param->current_key, on_base_param->current_key,
       sizeof(one_net_xtea_key_t));
     out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
