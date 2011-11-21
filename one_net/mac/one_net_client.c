@@ -326,17 +326,8 @@ tick_t one_net_client(void)
         one_net_client_init(0, 0);
         on_state = ON_LISTEN_FOR_DATA;
     }
-    
-    switch(on_state)
-    {
-        case ON_LISTEN_FOR_DATA:
-        {
-            on_rx_packet(&ON_ENCODED_BROADCAST_DID, &txn);
-        }
-    }
 
     one_net(&txn);
-    
     return 0;
 } // one_net_client //
 
