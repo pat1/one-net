@@ -1113,8 +1113,10 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         master->device.expected_nonce = ON_INVALID_NONCE;
         master->device.last_nonce = ON_INVALID_NONCE;
         master->device.send_nonce = 0;
+        one_net_memmove(master->device.did, MASTER_ENCODED_DID,
+          ON_ENCODED_DID_LEN);
     #ifdef _ONE_NET_MULTI_HOP
-        master->device.max_hops = features_max_hops(add_master_features);
+        master->device.max_hops = features_max_hops(add_master_features);       
         master->device.hops = 0;
     #endif
         one_net_memmove(on_base_param->current_key, add_key,
