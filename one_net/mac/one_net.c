@@ -1505,7 +1505,7 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     if(!txn || (*txn != &single_txn) || !raw_payload)
     {
         return ONS_BAD_PARAM;
-    } 
+    }
     
     (*txn)->device = (*get_sender_info)
       ((on_encoded_did_t*) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
@@ -1516,6 +1516,7 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     
     src_features_known = features_known((*txn)->device->features);
     msg_type = raw_payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK;
+
     
     // If the source features are not known and it is NOT an admin message
     // telling us what those features are, we'll NACK the message.
@@ -1585,7 +1586,9 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
             return status; // no outstanding transaction                            
         }
         
-        on_state = ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT;
+        // send right away
+        ont_set_timer((*txn)->next_txn_timer, 0);
+        on_state = ON_SEND_SINGLE_DATA_RESP;
         return ONS_TXN_QUEUED;
     }
     
