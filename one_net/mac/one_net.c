@@ -1286,31 +1286,22 @@ BOOL one_net(on_txn_t ** txn)
                 UInt32 new_timeout_ms = (*txn)->response_timeout;
                 #endif
                 
-                if(on_state == ON_SEND_PKT_WRITE_WAIT)
+                if(on_state == ON_SEND_PKT_WRITE_WAIT || on_state ==
+                  ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT)
                 {
                     // no timers are needed, no response is needed, we're just
                     // doing a quick write and that's it.  There is no
                     // follow-up, so we are done.  Reset the transaction and
                     // return the state to ON_LISTEN_FOR_DATA.
                     *txn = NULL;
+                    ont_stop_timer((*txn)->next_txn_timer);
                     on_state = ON_LISTEN_FOR_DATA;
-                    break;
+                    return TRUE;
                 }
 
                 ont_set_timer((*txn)->next_txn_timer,
                   MS_TO_TICK(new_timeout_ms));
-                  
-                if(on_state == ON_SEND_PKT_WRITE_WAIT || on_state ==
-                  ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT)
-                {
-                    on_state = ON_LISTEN_FOR_DATA;
-                    *txn = 0;
-                    return TRUE;
-                }
-                else
-                {
-                    on_state++;
-                }
+                on_state++;
             } // if write is complete //
             break;
         } // send single data write wait case //
@@ -1590,8 +1581,12 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
           (*txn)->device->msg_id, resp_pid)) != ONS_SUCCESS)
         {
             // An error of some sort occurred.  Abort.
+            *txn = 0;
             return status; // no outstanding transaction                            
         }
+        
+        on_state = ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT;
+        return ONS_TXN_QUEUED;
     }
     
     // adding a little debugging
