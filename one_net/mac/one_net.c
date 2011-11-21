@@ -2005,6 +2005,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
 
     // so far, so good.
     *txn = this_txn; // pass it to the individual handlers
+    (*txn)->key = key;
     switch(type)
     {
         case ON_SINGLE: return rx_single_data(txn, raw_payload_bytes,
