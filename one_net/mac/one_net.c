@@ -399,14 +399,15 @@ one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
         BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
-            case ON_ACK_FEATURES:
-              one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
-                sizeof(on_features_t));
+            case ON_ACK_FEATURES:              
+                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
+                  sizeof(on_features_t));
+                break;                 
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
-                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
+                one_net_memmove(ack_nack_pld_ptr, &(ack_nack->payload),
                   ack_nack_pld_len);
-                  break;
+                break;
 	        case ON_ACK_VALUE:
                 val_present = TRUE;
                 val = ack_nack->payload->nack_value;
@@ -1500,7 +1501,10 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     UInt8 msg_type, msg_id, resp_pid;
     BOOL src_features_known;
     on_ack_nack_t ack_nack;
+    ack_nack_payload_t ack_nack_payload;
     one_net_status_t status;
+    
+    ack_nack.payload = &ack_nack_payload;
     
     if(!txn || (*txn != &single_txn) || !raw_payload)
     {
