@@ -53,6 +53,7 @@
 #include "one_net_timer.h"
 #include "one_net_prand.h"
 #include "one_net_xtea.h"
+#include "one_net_acknowledge.h"
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
