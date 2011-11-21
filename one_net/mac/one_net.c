@@ -1505,12 +1505,94 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce)
 {
+    UInt8 msg_type, msg_id, resp_pid;
+    BOOL src_features_known;
+    on_ack_nack_t ack_nack;
+    one_net_status_t status;
+    
+    if(!txn || (*txn != &single_txn) || !raw_payload)
+    {
+        return ONS_BAD_PARAM;
+    } 
+    
+    (*txn)->device = (*get_sender_info)
+      ((on_encoded_did_t*) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
+    
+    on_decode(&msg_id, &((*txn)->pkt[ONE_NET_ENCODED_MSG_ID_IDX]),
+      ONE_NET_ENCODED_MSG_ID_LEN);
+    msg_id >>= 2;
+    
+    src_features_known = features_known((*txn)->device->features);
+    msg_type = raw_payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK;
+    
+    // If the source features are not known and it is NOT an admin message
+    // telling us what those features are, we'll NACK the message.
+    if(msg_type == ON_ADMIN_MSG && (raw_payload[ON_PLD_ADMIN_TYPE_IDX] ==
+      ON_FEATURES_RESP || raw_payload[ON_PLD_ADMIN_TYPE_IDX] ==
+      ON_FEATURES_QUERY))
+    {
+        // we don't authenticate nonces or message ids for this message type
+        *txn = &response_txn;
+        (*txn)->device = single_txn.device;
+
+        // copy in the features
+        one_net_memmove(&((*txn)->device->features),
+          &raw_payload[ON_PLD_ADMIN_DATA_IDX], sizeof(on_features_t));
+        // copy in the message id
+        (*txn)->device->msg_id = msg_id;
+        (*txn)->device->send_nonce = resp_nonce;
+        
+        resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;
+        #ifdef _ONE_NET_MULTI_HOP
+        (*txn)->device->hops = (*txn)->hops;
+        if((*txn)->hops > 0)
+        {
+            resp_pid = ONE_NET_ENCODED_MH_SINGLE_DATA_ACK;
+        }
+        #endif
+        
+        if(!setup_pkt_ptr(resp_pid, response_txn.pkt, &response_pkt_ptrs))
+        {
+            *txn = 0;
+            return ONS_INTERNAL_ERR;
+        }
+        
+        response_txn.key = single_txn.key;
+        
+        if((status = on_build_my_pkt_addresses(&response_pkt_ptrs,
+            (on_encoded_did_t*) &(single_txn.pkt[ON_ENCODED_SRC_DID_IDX]),
+            (on_encoded_did_t*) &(on_base_param->sid[ON_ENCODED_NID_LEN])))
+            != ONS_SUCCESS)
+        {
+            *txn = 0;
+            return status;
+        }
+        
+        ack_nack.handle = ON_ACK_FEATURES;
+        ack_nack.payload->features = THIS_DEVICE_FEATURES;
+
+        if((status = on_build_response_pkt(&ack_nack, &response_pkt_ptrs,
+          *txn, (*txn)->device)) != ONS_SUCCESS)
+        {
+            *txn = 0;
+            return status;
+        }
+        
+        if((status = on_complete_pkt_build(&response_pkt_ptrs,
+          (*txn)->device->msg_id, resp_pid)) != ONS_SUCCESS)
+        {
+            // An error of some sort occurred.  Abort.
+            return status; // no outstanding transaction                            
+        }        
+    }
+    
     // adding a little debugging
     oncli_send_msg("Rcv'd single : source=%02X%02X repeater=%02X%02X\n",
       (*txn)->pkt[ON_ENCODED_SRC_DID_IDX],
       (*txn)->pkt[ON_ENCODED_SRC_DID_IDX + 1],
       (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
       (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
+
     return ONS_SUCCESS;
 } // rx_single_data //
 
