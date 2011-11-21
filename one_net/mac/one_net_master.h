@@ -102,7 +102,7 @@ enum
 
 extern on_master_param_t * const master_param;
 extern on_client_t * const client_list;
-extern on_txn_t invite_txn;
+
 
 
 //! @} ONE-NET_MASTER_pub_var

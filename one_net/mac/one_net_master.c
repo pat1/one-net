@@ -106,10 +106,6 @@ on_master_param_t * const master_param =
 on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
   sizeof(on_base_param_t) + sizeof(on_master_param_t));
 
-//! The current invite transaction
-on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
-  ONT_INVITE_SEND_TIMER, 0, 0, invite_pkt, NULL, NULL};
-
 
 
 //! @} ONE-NET_MASTER_pub_var

@@ -531,6 +531,9 @@ extern UInt8 invite_pkt[];
 //! Unique key of the device being invited into the network
 extern one_net_xtea_key_t invite_key;
 
+//! The current invite transaction
+extern on_txn_t invite_txn;
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
