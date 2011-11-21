@@ -123,7 +123,8 @@ typedef enum
                                     //!<      this request (i.e. a low cost device being
                                     //!<      requested t change to a very high data rate
                                     //!<      that its transceiver cannot handle.
-    ONS_SNGH_INTERNAL_ERR           //!< [43] "Should Not Get Here" in the code internal error. 
+    ONS_PKT_RCVD,                   //!< [43] A packet has been received.
+    ONS_SNGH_INTERNAL_ERR           //!< [44] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
 
