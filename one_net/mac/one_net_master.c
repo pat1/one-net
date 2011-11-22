@@ -709,7 +709,7 @@ void one_net_master(void)
                 }
                 #endif
 
-                on_state = ON_SEND_PKT;
+                on_state = ON_SEND_INVITE_PKT;
                 break;
             }
         }

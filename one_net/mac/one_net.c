@@ -1317,6 +1317,7 @@ BOOL one_net(on_txn_t ** txn)
         } // case ON_LISTEN_FOR_DATA //
         
         case ON_SEND_PKT:
+        case ON_SEND_INVITE_PKT:
         case ON_SEND_SINGLE_DATA_PKT:
         case ON_SEND_SINGLE_DATA_RESP:
         {
@@ -1332,6 +1333,7 @@ BOOL one_net(on_txn_t ** txn)
         } // case ON_SEND_SINGLE_DATA_PKT //
         
         case ON_SEND_PKT_WRITE_WAIT:
+        case ON_SEND_INVITE_PKT_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         {
@@ -1340,6 +1342,13 @@ BOOL one_net(on_txn_t ** txn)
                 #ifdef _ONE_NET_MULTI_HOP
                 UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
                   + (1 + (*txn)->max_hops) * (*txn)->response_timeout;
+                  
+                if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
+                {
+                    // invite packets don't lengthen timeout with
+                    // multi-hop
+                    new_timeout_ms = (*txn)->response_timeout;
+                }
                 #else
                 UInt32 new_timeout_ms = (*txn)->response_timeout;
                 #endif
@@ -1360,7 +1369,15 @@ BOOL one_net(on_txn_t ** txn)
 
                 ont_set_timer((*txn)->next_txn_timer,
                   MS_TO_TICK(new_timeout_ms));
-                on_state++;
+                  
+                if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
+                {
+                    on_state = ON_LISTEN_FOR_DATA;
+                }
+                else
+                {
+                    on_state++;
+                }
             } // if write is complete //
             break;
         } // send single data write wait case //
