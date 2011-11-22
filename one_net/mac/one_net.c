@@ -2142,7 +2142,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // now check for a potential replay attack.  If this is a brand new
     // message and the message ID is <= the message ID we have on
     // record for this device, we'll disregard it as invalid.
-    if(!txn)
+    if(!txn && *this_txn != &invite_txn)
     {
         on_sending_device_t* dev = (*get_sender_info)((on_encoded_did_t*)
           &((*this_pkt_ptrs)->enc_src_did));
