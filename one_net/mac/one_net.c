@@ -1424,7 +1424,7 @@ BOOL one_net(on_txn_t ** txn)
                       single_msg_ptr->payload,
                       &(single_msg_ptr->msg_type), msg_status, &ack_nack);
                     #else
-                    ack_nack_t ack_nack;
+                    on_ack_nack_t ack_nack;
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                     (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                       single_msg_ptr->payload,
