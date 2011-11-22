@@ -69,7 +69,8 @@
     #define ONA_MSG_TYPE_MASK 0xFFF
 #endif
    
-    
+
+
 /*!
     \brief Encoded Packet Types
 */
@@ -77,137 +78,240 @@ typedef enum
 {
     //! MASTER broadcast inviting a new CLIENT to join the network.
     ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT = 0xB4,
+    
+    //! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
+    //! network.
+    ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT = 0x54,    
+
+
+    
 
     //! Acknowledgment of successful reception of a single data packet.
     ONE_NET_ENCODED_SINGLE_DATA_ACK = 0xBC,
+    
+    //! Multi-hop version of Acknowledgment of successful reception of a single
+    //! data packet.
+    ONE_NET_ENCODED_MH_SINGLE_DATA_ACK = 0x5C,    
+
 
     //! Acknowledgement of successful reception of a single data packet.  Also
     //! tells the sender of the single data packet not to go to sleep until
     //! a certain time.
-    ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE = 0xB3,
-
-    //! Acknowledges that a single data packet was received, but not 
-    //! successfully parsed.  Also tells the sender of the single data packet
-    //! not to go to sleep until a certain time.
-    ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE = 0xBA,
-
-    //! Single Data Packet.
-    ONE_NET_ENCODED_SINGLE_DATA = 0xB9,
+    ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE = 0xB3,    
     
-    //! Extended Single Data Packet
-    ONE_NET_ENCODED_LARGE_SINGLE_DATA = 0xB6,
-    
-    //! Extended Single Data Packet
-    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA = 0xC6,
-
-    //! Block Data Packet
-    ONE_NET_ENCODED_BLOCK_DATA = 0xB2,
-
-    //! Acknowledgment of successful reception of a single data packet.
-    ONE_NET_ENCODED_BLOCK_DATA_ACK = 0xCC,
-
-    //! The sender of the block data is acknowledging that the transaction is
-    //! complete (necessary acks received), and that the receiver can stop
-    //! listening
-    ONE_NET_ENCODED_BLOCK_TXN_ACK = 0xCA,
-
-    //! Stream Data Packet
-    ONE_NET_ENCODED_STREAM_DATA = 0xC5,
-
-    //! Sent by the receiver of a stream data packet to alert the sender that
-    //! it is still receiving the stream.
-    ONE_NET_ENCODED_STREAM_KEEP_ALIVE = 0xC9,
-
-    //! Acknowledgment of successful reception of a large single data packet.
-    ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK = 0xD3,
-
-    //! Acknowledgment of successful reception of an extended single data packet.
-    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK = 0xDA,
-
-    //! Acknowledgment of an unsuccessful reception of a large single data packet.
-    ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN = 0xDC,
-
-    //! Acknowledgment of an unsuccessful reception of an extended single data packet.
-    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN = 0xD5,
-
-    // Multi-hop packets
-    //! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
-    //! network.
-    ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT = 0x54,
-
-    //! Multi-hop version of Acknowledgment of successful reception of a single
-    //! data packet.
-    ONE_NET_ENCODED_MH_SINGLE_DATA_ACK = 0x5C,
-
     //! Multi-hop version of Acknowledgement of successful reception of a single
     //! data packet.  Also tells the sender of the single data packet to listen
     //! for a single data packet from the CLIENT that received the single data
     //! packet.
     ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE = 0x53,
 
+
+    //! Acknowledges that a single data packet was received, but not 
+    //! successfully parsed.  Also tells the sender of the single data packet
+    //! not to go to sleep until a certain time.
+    ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE = 0xBA,
+    
     //! Multi-hop version of Acknowledgement that a single data packet was
     //! received, but not successfully parsed.
     ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_STAY_AWAKE = 0x5A,
-
-    //! Multi-hop version of Single Data Packet.
-    ONE_NET_ENCODED_MH_SINGLE_DATA = 0x59,
-
-    //! Multi-hop version of Block Data Packet
-    ONE_NET_ENCODED_MH_BLOCK_DATA = 0x52,
-
-    //! Multi-hop version of Acknowledgment of successful reception of a single
-    //! data packet.
-    ONE_NET_ENCODED_MH_BLOCK_DATA_ACK = 0x9C,
-
-    //! Multi-hop version of The sender of the block data acknowledging that
-    //! the transaction is complete (necessary acks received), and that the
-    //! receiver can stop listening
-    ONE_NET_ENCODED_MH_BLOCK_TXN_ACK = 0x9A,
-
-    //! Multi-hop version Stream Data Packet
-    ONE_NET_ENCODED_MH_STREAM_DATA = 0x95,
-
-    //! Multi-hop version of Sent by the receiver of a stream data packet to
-    //! alert the sender that it is still receiving the stream.
-    ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE = 0x99,
-
-    //! Multi-Hop Single Data Packet which does not follow a ONE-NET convention
-    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA = 0x92,
     
-    //! Multi-Hop Extended Single Data Packet    
-    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA = 0xD4,
-    
-    //! Acknowledgment of successful reception of a multi-hop large single data packet.
-    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK = 0x35,
-
-    //! Acknowledgment of an unsuccessful reception of a multi-hop large single data packet.
-    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN = 0x39,
-    
-    //! Acknowledgment of successful reception of a multi-hop extended single data packet.
-    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK = 0x36,
-
-    //! Acknowledgment of an unsuccessful reception of a multi-hop extended single data packet.
-    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN = 0x32,
 
     //! Acknowledges that a single data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
-    ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN = 0x64,
+    ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN = 0xB5,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN
+    ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN = 0x55,
+    
+
+    //! Single Data Packet.
+    ONE_NET_ENCODED_SINGLE_DATA = 0xB9,    
+    
+    //! Multi-hop version of Single Data Packet.
+    ONE_NET_ENCODED_MH_SINGLE_DATA = 0x59,      
+    
+    
+   
+ 
+    //! Acknowledgment of successful reception of a large single data packet.
+    ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK = 0xB6,
+    
+    //! Multi-hop version of Acknowledgment of successful reception of a large single
+    //! data packet.
+    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK = 0x56,    
+
+
+    //! Acknowledgement of successful reception of a large single data packet.  Also
+    //! tells the sender of the large single data packet not to go to sleep until
+    //! a certain time.
+    ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE = 0xB2,    
+    
+    //! Multi-hop version of Acknowledgement of successful reception of a large single
+    //! data packet.  Also tells the sender of the single data packet to listen
+    //! for a single data packet from the CLIENT that received the single data
+    //! packet.
+    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE = 0x52,
+
+
+    //! Acknowledges that a large single data packet was received, but not 
+    //! successfully parsed.  Also tells the sender of the single data packet
+    //! not to go to sleep until a certain time.
+    ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE = 0xC4,
+    
+    //! Multi-hop version of Acknowledgement that a large single data packet was
+    //! received, but not successfully parsed.
+    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE = 0x94,
+    
+
+    //! Acknowledges that a large single data packet was received, but an
+    //! error was encountered. The NACK reason field on this NACK specifies
+    //! the error condition that resulted in the NACK.
+    ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN = 0xCC,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN
+    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN = 0x9C,
+
+
+    //! Large Single Data Packet
+    ONE_NET_ENCODED_LARGE_SINGLE_DATA = 0xC3,
+    
+    //! Multi-Hop Large Single Data Packet
+    ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA = 0x93,    
+
+
+
+ 
+    //! Acknowledgment of successful reception of an extended single data packet.
+    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK = 0xCA,
+    
+    //! Multi-hop version of Acknowledgment of successful reception of an extended single
+    //! data packet.
+    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK = 0x9A,    
+
+
+    //! Acknowledgement of successful reception of an extended single data packet.  Also
+    //! tells the sender of the extended single data packet not to go to sleep until
+    //! a certain time.
+    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE = 0xC5,    
+    
+    //! Multi-hop version of Acknowledgement of successful reception of an extended single
+    //! data packet.  Also tells the sender of the single data packet to listen
+    //! for a single data packet from the CLIENT that received the single data
+    //! packet.
+    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE = 0x95,
+
+
+    //! Acknowledges that an extended single data packet was received, but not 
+    //! successfully parsed.  Also tells the sender of the single data packet
+    //! not to go to sleep until a certain time.
+    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE = 0xC9,
+    
+    //! Multi-hop version of Acknowledgement that an extended single data packet was
+    //! received, but not successfully parsed.
+    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE = 0x99,
+    
+
+    //! Acknowledges that an extended single data packet was received, but an
+    //! error was encountered. The NACK reason field on this NACK specifies
+    //! the error condition that resulted in the NACK.
+    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN = 0xC6,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN
+    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN = 0x96,
+
+
+    //! Extended Single Data Packet
+    ONE_NET_ENCODED_EXTENDED_SINGLE_DATA = 0xC2,
+    
+    //! Multi-Hop Extended Single Data Packet
+    ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA = 0x92, 
+
+
+
+
+    //! Block Data Packet
+    ONE_NET_ENCODED_BLOCK_DATA = 0x34,
+    
+    //! Multi-hop version of Block Data Packet
+    ONE_NET_ENCODED_MH_BLOCK_DATA = 0x64,
+    
+
+    //! Acknowledgment of successful reception of a block data packet.
+    ONE_NET_ENCODED_BLOCK_DATA_ACK = 0x3C,
+
+    //! Acknowledgment of successful reception of a block data packet.
+    ONE_NET_ENCODED_MH_BLOCK_DATA_ACK = 0x6C,
+    
 
     //! Acknowledges that a block data packet was received, but an
     //! error was encountered. The NACK reason field on this NACK specifies
     //! the error condition that resulted in the NACK.
-    ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN = 0x6C,
+    ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN = 0x33,
 
-    //! Acknowledges that a single data packet was received, but an
-    //! error was encountered. The NACK reason field on this NACK specifies
-    //! the error condition that resulted in the NACK.
-    ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN = 0x63,
+    //! Multi-Hop version of ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN
+    ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN = 0x63,
 
-    //! Multi-hop version of Acknowledgment that a block data packet was received, but an
-    //! error was encountered. The NACK reason field on this NACK specifies
-    //! the error condition that resulted in the NACK.
-    ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN = 0x6A
+
+    //! A "chunk" of a block transaction has completed
+    ONE_NET_ENCODED_BLOCK_CHUNK_COMPLETE = 0x3A,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_BLOCK_CHUNK_ACK
+    ONE_NET_ENCODED_MH_BLOCK_CHUNK_COMPLETE = 0x6A,
+
+
+    //! A block transaction has completed
+    ONE_NET_ENCODED_BLOCK_TXN_COMPLETE = 0x35,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_BLOCK_TXN_COMPLETE
+    ONE_NET_ENCODED_MH_BLOCK_TXN_COMPLETE = 0x65,
+
+
+    //! A block transaction is being / should be aborted
+    ONE_NET_ENCODED_BLOCK_TXN_ABORT = 0x39,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_BLOCK_TXN_ABORT
+    ONE_NET_ENCODED_MH_BLOCK_TXN_ABORT = 0x69,
+    
+    
+    
+
+    //! Stream Data Packet
+    ONE_NET_ENCODED_STREAM_DATA = 0x36,
+    
+    //! Multi-Hop version of Stream Data Packet
+    ONE_NET_ENCODED_MH_STREAM_DATA = 0x66,
+    
+
+    //! Sent by the receiver of a stream data packet to alert the sender that
+    //! it is still receiving the stream.
+    ONE_NET_ENCODED_STREAM_KEEP_ALIVE = 0x32,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_STREAM_KEEP_ALIVE
+    ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE = 0x62,
+    
+
+    //! Sent by the receiver of a stream data packet to alert the sender that
+    //! there is a problem receiving the stream.  The reason is included in
+    //! the packet
+    ONE_NET_ENCODED_STREAM_NACK_RSN = 0xA4,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_STREAM_NACK_RSN
+    ONE_NET_ENCODED_MH_STREAM_NACK_RSN = 0xD4,
+
+
+    //! A stream transaction has completed
+    ONE_NET_ENCODED_STREAM_TXN_COMPLETE = 0xAC,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_STREAM_TXN_COMPLETE
+    ONE_NET_ENCODED_MH_STREAM_TXN_COMPLETE = 0xDC,
+
+
+    //! A stream transaction is being / should be aborted
+    ONE_NET_ENCODED_STREAM_TXN_ABORT = 0xA3,
+
+    //! Multi-Hop version of ONE_NET_ENCODED_STREAM_TXN_ABORT
+    ONE_NET_ENCODED_MH_STREAM_TXN_ABORT = 0xD3
 } on_pid_t;
 
 
