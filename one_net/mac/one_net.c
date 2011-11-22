@@ -1057,8 +1057,8 @@ BOOL one_net(on_txn_t ** txn)
 {
     one_net_status_t status;
     UInt8 txn_nonce, resp_nonce;
-    on_txn_t** this_txn;
-    on_pkt_t** this_pkt_ptrs; 
+    on_txn_t* this_txn;
+    on_pkt_t* this_pkt_ptrs; 
     
     
     switch(on_state)
@@ -1122,7 +1122,7 @@ BOOL one_net(on_txn_t ** txn)
                     
                     // nothing popped, so look for a packet
                     status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
-                      (const on_txn_t* const) *txn, this_txn, this_pkt_ptrs,
+                      (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
                       &txn_nonce, &resp_nonce, raw_payload_bytes);
             
                     if(status == ONS_PKT_RCVD)
@@ -1476,7 +1476,7 @@ BOOL one_net(on_txn_t ** txn)
             
             status = on_rx_packet((const on_encoded_did_t * const)
               &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
-              (const on_txn_t* const) *txn, this_txn, this_pkt_ptrs,
+              (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
               &txn_nonce, &resp_nonce, raw_payload_bytes);
             
             if(status == ONS_PKT_RCVD)
