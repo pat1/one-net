@@ -76,6 +76,291 @@
 
 
 
+
+
+
+
+/*!
+    \brief Raw Packet Types
+*/
+
+//! MASTER broadcast inviting a new CLIENT to join the network.
+#define ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT 0x00
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
+//! network.
+#define ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT 0x20
+#endif   
+
+
+
+
+//! Acknowledgment of successful reception of a single data packet.
+#define ONE_NET_RAW_SINGLE_DATA_ACK 0x01
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgment of successful reception of a single
+//! data packet.
+#define ONE_NET_RAW_MH_SINGLE_DATA_ACK 0x21
+#endif
+
+
+//! Acknowledgement of successful reception of a single data packet.  Also
+//! tells the sender of the single data packet not to go to sleep until
+//! a certain time.
+#define ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE 0x02   
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement of successful reception of a single
+//! data packet.  Also tells the sender of the single data packet to listen
+//! for a single data packet from the CLIENT that received the single data
+//! packet.
+#define ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE 0x22
+#endif
+
+
+//! Acknowledges that a single data packet was received, but not 
+//! successfully parsed.  Also tells the sender of the single data packet
+//! not to go to sleep until a certain time.
+#define ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE 0x03
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement that a single data packet was
+//! received, but not successfully parsed.
+#define ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE 0x23
+#endif
+
+
+//! Acknowledges that a single data packet was received, but an
+//! error was encountered. The NACK reason field on this NACK specifies
+//! the error condition that resulted in the NACK.
+#define ONE_NET_RAW_SINGLE_DATA_NACK_RSN 0x04
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_SINGLE_DATA_NACK_RSN
+#define ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN 0x24
+#endif
+
+
+//! Single Data Packet.
+#define ONE_NET_RAW_SINGLE_DATA 0x05
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Single Data Packet.
+#define ONE_NET_RAW_MH_SINGLE_DATA 0x25    
+#endif
+
+
+
+
+//! Acknowledgment of successful reception of a large single data packet.
+#define ONE_NET_RAW_LARGE_SINGLE_DATA_ACK 0x06
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgment of successful reception of a large single
+//! data packet.
+#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK 0x26
+#endif
+
+
+//! Acknowledgement of successful reception of a large single data packet.  Also
+//! tells the sender of the large single data packet not to go to sleep until
+//! a certain time.
+#define ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE 0x07
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement of successful reception of a large single
+//! data packet.  Also tells the sender of the single data packet to listen
+//! for a single data packet from the CLIENT that received the single data
+//! packet.
+#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE 0x27
+#endif
+
+
+//! Acknowledges that a large single data packet was received, but not 
+//! successfully parsed.  Also tells the sender of the single data packet
+//! not to go to sleep until a certain time.
+#define ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE 0x08
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement that a large single data packet was
+//! received, but not successfully parsed.
+#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE 0x28
+#endif
+
+
+//! Acknowledges that a large single data packet was received, but an
+//! error was encountered. The NACK reason field on this NACK specifies
+//! the error condition that resulted in the NACK.
+#define ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN 0x09
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN
+#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN 0x29
+#endif
+
+
+//! Large Single Data Packet
+#define ONE_NET_RAW_LARGE_SINGLE_DATA 0x0A
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop Large Single Data Packet
+#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA 0x2A
+#endif
+
+
+
+
+//! Acknowledgment of successful reception of an extended single data packet.
+#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK 0x0B
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgment of successful reception of an extended single
+//! data packet.
+#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK 0x2B
+#endif
+
+
+//! Acknowledgement of successful reception of an extended single data packet.  Also
+//! tells the sender of the extended single data packet not to go to sleep until
+//! a certain time.
+#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE 0x0C
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement of successful reception of an extended single
+//! data packet.  Also tells the sender of the single data packet to listen
+//! for a single data packet from the CLIENT that received the single data
+//! packet.
+#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE 0x2C
+#endif
+
+
+//! Acknowledges that an extended single data packet was received, but not 
+//! successfully parsed.  Also tells the sender of the single data packet
+//! not to go to sleep until a certain time.
+#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE 0x0D
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Acknowledgement that an extended single data packet was
+//! received, but not successfully parsed.
+#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE 0x2D
+#endif
+
+
+//! Acknowledges that an extended single data packet was received, but an
+//! error was encountered. The NACK reason field on this NACK specifies
+//! the error condition that resulted in the NACK.
+#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN 0x0E
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN
+#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN 0x2E
+#endif
+
+
+//! Extended Single Data Packet
+#define ONE_NET_RAW_EXTENDED_SINGLE_DATA 0x0F
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop Extended Single Data Packet
+#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA 0x2F
+#endif
+
+
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+
+//! Block Data Packet
+#define ONE_NET_RAW_BLOCK_DATA 0x10
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-hop version of Block Data Packet
+#define ONE_NET_RAW_MH_BLOCK_DATA 0x30
+#endif
+
+
+//! Acknowledgment of successful reception of a block data packet.
+#define ONE_NET_RAW_BLOCK_DATA_ACK 0x11
+#ifdef _ONE_NET_MULTI_HOP
+//! Acknowledgment of successful reception of a block data packet.
+#define ONE_NET_RAW_MH_BLOCK_DATA_ACK 0x31
+#endif
+
+
+//! Acknowledges that a block data packet was received, but an
+//! error was encountered. The NACK reason field on this NACK specifies
+//! the error condition that resulted in the NACK.
+#define ONE_NET_RAW_BLOCK_DATA_NACK_RSN 0x12
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_BLOCK_DATA_NACK_RSN
+#define ONE_NET_RAW_MH_BLOCK_DATA_NACK_RSN 0x32
+#endif
+
+
+//! A "chunk" of a block transaction has completed
+#define ONE_NET_RAW_BLOCK_CHUNK_COMPLETE 0x13
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_BLOCK_CHUNK_ACK
+#define ONE_NET_RAW_MH_BLOCK_CHUNK_COMPLETE 0x33
+#endif
+
+
+//! A block transaction has completed
+#define ONE_NET_RAW_BLOCK_TXN_COMPLETE 0x14
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_BLOCK_TXN_COMPLETE
+#define ONE_NET_RAW_MH_BLOCK_TXN_COMPLETE 0x34
+#endif
+
+
+//! A block transaction is being / should be aborted
+#define ONE_NET_RAW_BLOCK_TXN_ABORT 0x15
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_BLOCK_TXN_ABORT
+#define ONE_NET_RAW_MH_BLOCK_TXN_ABORT 0x35
+#endif
+
+#endif // if block messages are enabled //
+
+
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+
+//! Stream Data Packet
+#define ONE_NET_RAW_STREAM_DATA 0x16
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of Stream Data Packet
+#define ONE_NET_RAW_MH_STREAM_DATA 0x36
+#endif
+
+
+//! Sent by the receiver of a stream data packet to alert the sender that
+//! it is still receiving the stream.
+#define ONE_NET_RAW_STREAM_KEEP_ALIVE 0x17
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_STREAM_KEEP_ALIVE
+#define ONE_NET_RAW_MH_STREAM_KEEP_ALIVE 0x37
+#endif
+
+
+//! Sent by the receiver of a stream data packet to alert the sender that
+//! there is a problem receiving the stream.  The reason is included in
+//! the packet
+#define ONE_NET_RAW_STREAM_NACK_RSN 0x18
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_STREAM_NACK_RSN
+#define ONE_NET_RAW_MH_STREAM_NACK_RSN 0x38
+#endif
+
+
+//! A stream transaction has completed
+#define ONE_NET_RAW_STREAM_TXN_COMPLETE 0x19
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_STREAM_TXN_COMPLETE
+#define ONE_NET_RAW_MH_STREAM_TXN_COMPLETE 0x39
+#endif
+
+
+//! A stream transaction is being / should be aborted
+#define ONE_NET_RAW_STREAM_TXN_ABORT 0x1A
+#ifdef _ONE_NET_MULTI_HOP
+//! Multi-Hop version of ONE_NET_RAW_STREAM_TXN_ABORT
+#define ONE_NET_RAW_MH_STREAM_TXN_ABORT 0x3A
+#endif
+
+#endif // if stream messages enabled //
+
+
+
+
+
+
 /*!
     \brief Encoded Packet Types
 */
