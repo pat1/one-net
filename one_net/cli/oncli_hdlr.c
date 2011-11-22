@@ -50,6 +50,7 @@
 #include "one_net_data_rate.h"
 #include "tal.h"
 #include "one_net_encode.h"
+#include "one_net_application.h"
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
@@ -179,6 +180,14 @@ static const UInt8 add_stream_encrypt = ONE_NET_STREAM_ENCRYPT_XTEA8;
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_SINGLE_COMMAND
+static oncli_status_t oncli_send_single(const on_raw_did_t* const dst,
+    const UInt8* const payload, const BOOL send_to_peer_list,
+    const on_priority_t priority);
+static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -246,7 +255,23 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
+#ifdef _ENABLE_SINGLE_COMMAND
 
+#ifdef _PEER
+static const char * parse_ascii_tx_param(const char * PARAM_PTR,
+  UInt8 * const src_unit, UInt8 * const dst_unit,
+  on_encoded_did_t * const enc_dst, BOOL* send_to_peer_list);
+#else
+static const char * parse_ascii_tx_param(const char * PARAM_PTR,
+  UInt8 * const src_unit, UInt8 * const dst_unit,
+  on_encoded_did_t * const enc_dst);
+#endif
+
+static const char * parse_ascii_tx_data(const char * ASCII, UInt8 * data,
+  UInt16 * data_len);
+static const char * parse_ascii_tx_text_data(const char * ASCII, UInt8 * data,
+  UInt16 * data_len);
+#endif
 static oncli_status_t oncli_parse_channel(const char * ASCII,
   UInt8 * const channel);
   
@@ -388,6 +413,38 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the sniff command was received //
 	#endif
+    
+	#ifdef _ENABLE_SINGLE_COMMAND    
+    else if(!strnicmp(ONCLI_SINGLE_TXT_CMD_STR, CMD, strlen(ONCLI_SINGLE_TXT_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SINGLE_TXT_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SINGLE_TXT_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &single_txt_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the send single text command was received //    
+    
+    else if(!strnicmp(ONCLI_SINGLE_CMD_STR, CMD, strlen(ONCLI_SINGLE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SINGLE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SINGLE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &single_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the send single command was received //
+	#endif // _ENABLE_SINGLE_COMMAND //
 
 	#ifdef _ENABLE_SET_DATA_RATE_COMMAND
     else if(!strnicmp(ONCLI_SET_DATA_RATE_CMD_STR, CMD,
@@ -942,8 +999,183 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
+#ifdef _ENABLE_SINGLE_COMMAND
+/*!
+    \brief Handles receiving the single command and all its parameters.
+    
+    The single command has the form
+    
+    single:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:AABBCCDDEE
+    
+    where AABBCCDDEE is the packet to send in ASCII hex characters ('0' - '9',
+    'A' - 'F' (lower case is valid also)).  Only the parameters (starting with
+    SRC UNIT) are passed in.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
+      should be seperated by ':'.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
+              because the resource is full.
+            ONCLI_INVALID_DST If the destination is invalid
+            ONCLI_NOT_JOINED If the device needs to join a network before the
+              command can be carried out.
+            ONCLI_INTERNAL_ERR If something unexpected occured
+*/
+static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_encoded_did_t enc_dst;
+    UInt8 src_unit, dst_unit;
+    BOOL send_to_peer_list;
+    UInt16 data_len;
+    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+
+    
+    const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // get the send parameters
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
+      &dst_unit, &enc_dst, &send_to_peer_list)))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if failed parsing parameters //
+
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // get the data
+    data_len = sizeof(raw_pld);
+    if(!(PARAM_PTR = parse_ascii_tx_data(PARAM_PTR, raw_pld,
+      &data_len)) || (*PARAM_PTR != '\n'))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data portion failed //
+
+    
+    switch((*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+      ONE_NET_HIGH_PRIORITY, src_did, send_to_peer_list ? NULL : enc_dst
+      #ifdef _PEER
+          , send_to_peer_list,  src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , NULL
+      #endif    
+      ))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        default: return ONCLI_RSRC_UNAVAILABLE;
+    }
+} // single_cmd_hdlr //
 
 
+/*!
+    \brief Handles receiving the single text command and all it's parameters.
+    
+    The single text command has the form
+    
+    single txt:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:"abc"
+    
+    where "abc" is the text to send.  Only the parameters (starting with
+    SRC UNIT) are passed in.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
+      should be seperated by ':'.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
+              because the resource is full.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_encoded_did_t enc_dst;
+    UInt16 data_len;
+    UInt8 src_unit, dst_unit;
+    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN] = {0};
+    BOOL send_to_peer_list;
+    
+    const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // get the send parameters
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
+      &dst_unit, &enc_dst, &send_to_peer_list)))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if failed parsing parameters //
+
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+
+    // get the data
+    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX;
+    if(!(PARAM_PTR = parse_ascii_tx_text_data(PARAM_PTR, &raw_pld[ONA_MSG_DATA_IDX],
+      &data_len)) || (*PARAM_PTR != '\n'))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data portion failed //
+
+    // store the message class/message type in the payload
+    put_msg_hdr(ONA_COMMAND | ONA_SIMPLE_TEXT, raw_pld);
+
+    // store the source and destination unit numbers in the payload
+    put_dst_unit(dst_unit, raw_pld);
+    put_src_unit(src_unit, raw_pld);
+
+    switch((*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+      ONE_NET_HIGH_PRIORITY, src_did, send_to_peer_list ? NULL : enc_dst
+      #ifdef _PEER
+          , send_to_peer_list,  src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , NULL
+      #endif    
+      ))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        default: return ONCLI_RSRC_UNAVAILABLE;
+    }
+} // single_txt_cmd_hdlr //
+#endif // _ENABLE_SINGLE_COMMAND //
 
 
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
@@ -1804,6 +2036,207 @@ static oncli_status_t parse_invite_key(const char * ASCII,
     
     return ONCLI_SUCCESS;
 } // parse_invite_key //
+#endif
+
+
+#ifdef _ENABLE_SINGLE_COMMAND
+/*!
+    \brief Parses the ASCII parameter string for the parameters needed to send
+      a transaction. 
+
+    Some parameters to be parsed are optional. That is, if the pointer to an
+    ouput paramter is NULL (zero), then that paramter will not be parsed.
+    This variation was added when we found that we needed to modify the
+    syntax of the "single" command after changing from 8 bit to 4 bit
+    unit numbers. The new syntax of the "single" command no longer includes
+    the source and destination unit numbers. Rather than writing a new 
+    parse function, we decided to make the src_unit and dst_unit parameters
+    optional.
+
+    \param[in] PARAM_PTR The ASCII parameter list.
+    \param[out] src_unit The unit in the source device sending the message or NULL 
+    if there is no src_unit to be parsed.
+    \param[out] dst_unit The unit in the destination device the message i or NULL 
+    if there is no dst_unit to be parsed.
+      intended for.
+    \param[out] enc_dst The encoded destination device.
+    \param[out] send_to_peer_list True if sending to peer list, false otherwise
+    \return If successful, pointer to first characer after the last parameter
+      that was parsed, or 0 if parsing was not successful.
+*/
+#ifdef _PEER
+static const char * parse_ascii_tx_param(const char * PARAM_PTR,
+  UInt8 * const src_unit, UInt8 * const dst_unit,
+  on_encoded_did_t * const enc_dst, BOOL* send_to_peer_list)
+#else
+static const char * parse_ascii_tx_param(const char * PARAM_PTR,
+  UInt8 * const src_unit, UInt8 * const dst_unit,
+  on_encoded_did_t * const enc_dst)
+#endif
+{
+    char * end_ptr;
+    on_raw_did_t raw_did;
+
+    if(!PARAM_PTR || !enc_dst)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+
+    if (src_unit)
+    {
+        // read the src unit
+        *src_unit = one_net_strtol(PARAM_PTR, &end_ptr, 16);
+        if(!end_ptr || end_ptr == PARAM_PTR)
+        {
+            return 0;
+        } // if the parameter was not valid //
+        PARAM_PTR = end_ptr;
+
+        // check the parameter delimiter
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return 0;
+        } // if malformed parameter //
+        PARAM_PTR++;
+    }
+
+    if (dst_unit)
+    {
+        // read the dst unit
+        *dst_unit = one_net_strtol(PARAM_PTR, &end_ptr, 16);
+        if(!end_ptr || end_ptr == PARAM_PTR)
+        {
+            return 0;
+        } // if the parameter was not valid //
+        PARAM_PTR = end_ptr;
+
+        // check the parameter delimiter
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return 0;
+        } // if malformed parameter //
+        PARAM_PTR++;
+    }
+
+    // read in the raw did
+    if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+    {
+        #ifdef _PEER
+        *send_to_peer_list = FALSE;
+        #endif
+        if(ascii_hex_to_byte_stream(PARAM_PTR, raw_did, ONCLI_ASCII_RAW_DID_SIZE)
+          != ONCLI_ASCII_RAW_DID_SIZE)
+        {
+            return 0;
+        } // if converting the raw destination did failed //
+        
+        // make sure the raw did is skipped
+        PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+        
+        if(on_encode(*enc_dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+        {
+            return 0;
+        }
+    } // if the did is present //
+    else
+    {
+        #ifdef _PEER
+        *send_to_peer_list = TRUE;
+        #endif
+        return 0;
+    } // else the did is not present //
+
+    return PARAM_PTR;
+} // parse_ascii_tx_param //
+
+
+/*!
+    \brief Parses the ASCII form of data to send in a transaction.
+    
+    Converts the ASCII data to a byte stream.  ASCII must be twice as big
+    as data since it takes 2 ASCII bytes for every byte that will be sent.
+    
+    \param[in] ASCII The ASCII data to convert.
+    \param[out] data The binary version of the data in ASCII.
+    \param[in/out] On input, the size of data.  On output, the number of bytes
+      contained in data.
+
+    \return If successful, a pointer to the first byte beyond the data that was
+      converted, or 0 if failed to convert the data.
+*/
+static const char * parse_ascii_tx_data(const char * ASCII, UInt8 * data,
+  UInt16 * data_len)
+{
+    if(!ASCII || !data || !data_len || !*data_len)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+
+    if((*data_len  = ascii_hex_to_byte_stream(ASCII, data, *data_len << 1))
+      & 0x01)
+    {
+        // did not parse an even number of ASCII bytes, meaning the last byte
+        // was not complete.
+        *data_len = 0;
+        return 0;
+    } // if converted an odd number of characters //
+
+    ASCII += *data_len;
+    
+    // ascii_hex_to_byte_stream returns the number of ASCII characters that
+    // were converted, so divide the result by 2 to get the actual number
+    // of bytes in the stream.
+    *data_len >>= 1;
+
+    return ASCII;
+} // parse_ascii_tx_data //
+
+
+/*!
+    \brief Parses the ASCII text to send in the transaction.
+    
+    The ASCII string passed in must contain the '"''s delimiting the start and
+    end of the text.
+    
+    \param[in] ASCII The text to parse.
+    \param[out] data The resulting data.
+    \param[in/out] data_len On input, the size of data.  On output, the number
+      of bytes that were parsed into data.
+
+    \return If successful, a pointer to the first byte beyond the data that was
+      converted, or 0 if failed to convert the data.
+*/
+static const char * parse_ascii_tx_text_data(const char * ASCII, UInt8 * data,
+  UInt16 * data_len)
+{
+    const char TEXT_DELIMITER = '"';
+
+    UInt16 num_ch = 0;
+
+    if(!ASCII || !data || !data_len || !*data_len)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+    
+    if(*ASCII++ != TEXT_DELIMITER)
+    {
+        return FALSE;
+    } // if the string is invalid //
+    
+    while(*ASCII != TEXT_DELIMITER && num_ch < *data_len)
+    {
+        data[num_ch++] = *ASCII++;
+    } // while more text to read, and more space to store it in //
+    
+    if(*ASCII++ != TEXT_DELIMITER)
+    {
+        *data_len = 0;
+        return 0;
+    } // if the text data was invalid //
+    
+    *data_len = num_ch;
+    return ASCII;
+} // parse_ascii_tx_text_data //
 #endif
 
 

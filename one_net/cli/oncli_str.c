@@ -136,6 +136,11 @@ const char * const ONCLI_OFF_STR = "off";
 const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 #endif
 
+#ifdef _ENABLE_SINGLE_COMMAND
+const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
+const char * const ONCLI_SINGLE_CMD_STR = "single";
+#endif
+
 #ifdef _ENABLE_ERASE_COMMAND
 	//! Erase data flash command string
 	const char * const ONCLI_ERASE_CMD_STR = "erase";

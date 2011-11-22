@@ -117,6 +117,11 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 extern const char * const ONCLI_SNIFF_CMD_STR;
 #endif
 
+#ifdef _ENABLE_SINGLE_COMMAND
+extern const char * const ONCLI_SINGLE_TXT_CMD_STR;
+extern const char * const ONCLI_SINGLE_CMD_STR;
+#endif
+
 #ifdef _ENABLE_ERASE_COMMAND
 extern const char * const ONCLI_ERASE_CMD_STR;
 #endif

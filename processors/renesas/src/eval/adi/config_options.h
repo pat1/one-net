@@ -262,7 +262,7 @@
 
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
-	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" command option
+	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
 	#ifndef _ENABLE_SINGLE_COMMAND
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
@@ -275,11 +275,6 @@
 	// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
 	#ifndef _ENABLE_SET_PIN_COMMAND
 		#define _ENABLE_SET_PIN_COMMAND
-	#endif
-
-	// _ENABLE_SINGLE_TEXT_COMMAND should be defined if you are implementing the "single text" command option
-	#ifndef _ENABLE_SINGLE_TEXT_COMMAND
-		#define _ENABLE_SINGLE_TEXT_COMMAND
 	#endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
