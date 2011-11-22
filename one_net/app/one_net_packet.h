@@ -1356,6 +1356,7 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
 
 #ifdef _ONE_NET_MULTI_HOP
 BOOL packet_is_multihop(UInt8 encoded_pid);
+BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop);
 #endif
 BOOL packet_is_invite(UInt8 pid);
 BOOL packet_is_stream(UInt8 pid);

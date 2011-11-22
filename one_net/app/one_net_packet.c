@@ -303,6 +303,52 @@ BOOL packet_is_multihop(UInt8 encoded_pid)
     
     return FALSE;
 }
+
+
+/*!
+    \brief Decodes 8-bit data to 6-bit data.
+
+    Takes in a bit stream and converts every 8 bits into an decoded 6-bit value.
+    These decoded 6-bit values are returned as a bit stream.
+
+    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in] is_multihop True if the DESIRED OUTGOING PID should be multi-hop,
+               False otherwise.
+    \return True if the pid changed, false otherwise
+*/
+BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop)
+{
+    UInt8 raw_pid;
+    
+    // note that we shift by 2 since the raw bits are shifted 2.
+    const MULTI_HOP_OFFSET = ONE_NET_RAW_PID_MULTI_HOP_OFFSET << 2;
+    if(on_decode(&raw_pid, encoded_pid, 1) != ONS_SUCCESS)
+    {
+        return FALSE; // invalid incoming encoded PID
+    }
+    
+    if(is_multihop)
+    {
+        if(raw_pid >= MULTI_HOP_OFFSET)
+        {
+            return FALSE; // want multi-hop, already have multi-hop.
+        }
+        
+        raw_pid += MULTI_HOP_OFFSET;
+    }
+    else
+    {
+        if(raw_pid < MULTI_HOP_OFFSET)
+        {
+            return FALSE; // want non-multi-hop, already have non-multi-hop.
+        }
+        
+        raw_pid -= MULTI_HOP_OFFSET;
+    }
+    
+    on_encode(encoded_pid, &raw_pid, 1);
+    return TRUE; // pid has changed.
+}
 #endif
 
 
