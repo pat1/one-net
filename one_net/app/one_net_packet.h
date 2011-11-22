@@ -68,7 +68,15 @@
     //! Mask the message type bits
     #define ONA_MSG_TYPE_MASK 0xFFF
 #endif
-   
+
+
+#ifdef _ONE_NET_MULTI_HOP
+enum
+{
+    ONE_NET_RAW_PID_MULTI_HOP_OFFSET = 0x20
+};
+#endif
+
 
 
 /*!
