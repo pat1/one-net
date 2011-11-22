@@ -250,6 +250,8 @@
 
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+
 //! Block Data Packet
 #define ONE_NET_ENCODED_BLOCK_DATA 0x34
 #ifdef _ONE_NET_MULTI_HOP
@@ -299,8 +301,12 @@
 #define ONE_NET_ENCODED_MH_BLOCK_TXN_ABORT 0x69
 #endif
 
+#endif // if block messages are enabled //
 
 
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
 
 //! Stream Data Packet
 #define ONE_NET_ENCODED_STREAM_DATA 0x36
@@ -344,6 +350,7 @@
 #define ONE_NET_ENCODED_MH_STREAM_TXN_ABORT 0xD3
 #endif
 
+#endif // if stream messages enabled //
 
 
 typedef enum _ona_msg_type
