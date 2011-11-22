@@ -45,6 +45,9 @@
 */
 
 #include "config_options.h"
+
+#ifdef _ONE_NET_CLIENT
+
 #include "one_net_client.h"
 #include "one_net_client_port_const.h"
 #include "one_net.h"
@@ -705,6 +708,7 @@ static BOOL look_for_invite(void)
 } // look_for_invite //
 
 
+#endif // if _ONE_NET_CLIENT is defined //
 
 
 //! @} ONE-NET_CLIENT_pri_func
