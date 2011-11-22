@@ -332,6 +332,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
         // code here to initalize things from PARAM and PARAM_LEN
     }
     
+    #ifdef _ONE_NET_MULTI_HOP
     // check for repeater
     for(i = 0; i < master_param->client_count; i++)
     {
@@ -342,6 +343,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
             break;
         } // if a mh repeater capable CLIENT was found //
     } // loop to look for any Multi-Hop repeaters //
+    #endif
     
     if((status = init_internal()) != ONS_SUCCESS)
     {
@@ -803,10 +805,12 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     master_param->client_count++;
     master_param->next_client_did = find_lowest_vacant_did();
     
+    #ifdef _ONE_NET_MULTI_HOP
     if(features_mh_repeat_capable(features))
     {
         mh_repeater_available = TRUE;
     }
+    #endif
 
     return ONS_SUCCESS;
 } // one_net_master_add_client //
