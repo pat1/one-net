@@ -89,9 +89,8 @@ enum
     
     ONT_RESPONSE_TIMER,
     
-    #if defined(_ONE_NET_MASTER) || defined(_ENHANCED_INVITE)
     ONT_INVITE_TIMER,
-    #endif
+
     #ifdef _ONE_NET_MASTER
     ONT_INVITE_SEND_TIMER,
     #endif
