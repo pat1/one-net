@@ -330,6 +330,12 @@
 
     // Master Only Commands
     #ifdef _ONE_NET_MASTER
+    
+        // _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
+        #ifndef _ENABLE_CHANNEL_COMMAND
+            #define _ENABLE_CHANNEL_COMMAND
+        #endif
+        
 	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
 	    #ifndef _ENABLE_INVITE_COMMAND
 		    #define _ENABLE_INVITE_COMMAND
@@ -400,11 +406,6 @@
 	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
 	#ifndef _ENABLE_JOIN_COMMAND
 		#define _ENABLE_JOIN_COMMAND
-	#endif
-
-	// _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
-	#ifndef _ENABLE_CHANNEL_COMMAND
-		#define _ENABLE_CHANNEL_COMMAND
 	#endif
 
 	// _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
