@@ -324,7 +324,7 @@ tick_t one_net_client(void)
     // regardless of whether the device sleeps.
     tick_t sleep_time = 0;
     
-    if(client_joined_network && !pkt_hdlr.single_data_hdlr)
+    if(!pkt_hdlr.single_data_hdlr)
     {
         one_net_client_init(0, 0);
         on_state = ON_LISTEN_FOR_DATA;

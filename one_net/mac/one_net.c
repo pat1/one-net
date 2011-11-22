@@ -1118,7 +1118,46 @@ BOOL one_net(on_txn_t ** txn)
                     // we are either done or we never had anything to send in
                     // the first place.  Clear it and return TRUE.
                     single_msg_ptr = NULL;
-                    return TRUE;
+                    
+                    
+                    // nothing popped, so look for a packet
+                    status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
+                      (const on_txn_t* const) *txn, this_txn, this_pkt_ptrs,
+                      &txn_nonce, &resp_nonce, raw_payload_bytes);
+            
+                    if(status == ONS_PKT_RCVD)
+                    {
+                        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+                        if(*this_txn == &mh_txn)
+                        {
+                            *txn = &mh_txn;
+                            mh_txn.priority = ONE_NET_LOW_PRIORITY;
+            
+                            // copy the preamble / header just in case it isn't there already
+                            one_net_memmove(mh_txn.pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
+
+                            // set the timer to send right away.
+                            ont_set_timer(mh_txn.next_txn_timer, 0);                    
+                    
+                            on_state = ON_SEND_PKT;
+                            return FALSE;
+                        }
+                        #endif
+                
+                        // debugging
+                        {
+                            UInt8 i;
+                            oncli_send_msg("Raw payload : ");
+                            for(i = 0; i < 8; i++)
+                            {
+                                oncli_send_msg("%02X ", raw_payload_bytes[i]);
+                            }
+                            oncli_send_msg("\n");
+                        }
+                    }
+                    
+                    break;
+
                 }
 
                 // we have a message.  Let's create the packet.
@@ -1272,44 +1311,6 @@ BOOL one_net(on_txn_t ** txn)
                 (*txn)->send = TRUE;
                 
                 return FALSE; // transaction is not complete
-            }
-            
-            
-            // nothing popped, so look for a packet
-            status = on_rx_packet((const on_encoded_did_t * const)
-              &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
-              (const on_txn_t* const) *txn, this_txn, this_pkt_ptrs,
-              &txn_nonce, &resp_nonce, raw_payload_bytes);
-            
-            if(status == ONS_PKT_RCVD)
-            {
-                #ifdef _ONE_NET_MH_CLIENT_REPEATER
-                if(*this_txn == &mh_txn)
-                {
-                    *txn = &mh_txn;
-                    mh_txn.priority = ONE_NET_LOW_PRIORITY;
-            
-                    // copy the preamble / header just in case it isn't there already
-                    one_net_memmove(mh_txn.pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
-
-                    // set the timer to send right away.
-                    ont_set_timer(mh_txn.next_txn_timer, 0);                    
-                    
-                    on_state = ON_SEND_PKT;
-                    return FALSE;
-                }
-                #endif
-                
-                // debugging
-                {
-                    UInt8 i;
-                    oncli_send_msg("Raw payload : ");
-                    for(i = 0; i < 8; i++)
-                    {
-                        oncli_send_msg("%02X ", raw_payload_bytes[i]);
-                    }
-                    oncli_send_msg("\n");
-                }
             }
 
             break;
