@@ -2078,6 +2078,14 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     
     key = &(on_base_param->current_key);
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master && client_looking_for_invite)
+    {
+        key = (one_net_xtea_key_t*) one_net_client_get_invite_key();
+    }
+    #endif
+
     #ifdef _STREAM_MESSAGES_ENABLED
     if(*this_txn == &stream_txn)
     {
