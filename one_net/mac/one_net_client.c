@@ -327,6 +327,8 @@ tick_t one_net_client(void)
     if(!pkt_hdlr.single_data_hdlr)
     {
         one_net_client_init(0, 0);
+        client_joined_network = FALSE;
+        client_looking_for_invite = TRUE;
         on_state = ON_LISTEN_FOR_DATA;
     }
 
