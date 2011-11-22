@@ -202,6 +202,13 @@ typedef enum
     //! Waits for the write to end
     ON_SEND_PKT_WRITE_WAIT,
 
+    #ifdef _ONE_NET_MASTER
+    //! Sends an invite packet
+    ON_SEND_INVITE_PKT = 15,
+
+    //! Waits for the invite packet write to end
+    ON_SEND_INVITE_PKT_WRITE_WAIT,
+    #endif
 
     //! Sends a Single Data Packet
     ON_SEND_SINGLE_DATA_PKT = 20,
