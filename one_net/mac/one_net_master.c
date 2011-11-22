@@ -45,6 +45,9 @@
 
 
 #include "config_options.h"
+
+#ifdef _ONE_NET_MASTER
+
 #include "one_net_master.h"
 #include "one_net_master_port_const.h"
 #include "one_net_timer.h"
@@ -1285,3 +1288,6 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 //=============================================================================
 
 //! @} ONE-NET_MASTER
+
+
+#endif // if _ONE_NET_MASTER defined //
