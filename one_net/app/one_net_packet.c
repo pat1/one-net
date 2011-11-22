@@ -39,6 +39,8 @@
 */
 
 #include "one_net_packet.h"
+#include "one_net_encode.h"
+
 
 
 
@@ -285,53 +287,21 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
 
 
 #ifdef _ONE_NET_MULTI_HOP
-BOOL packet_is_multihop(UInt8 pid)
+BOOL packet_is_multihop(UInt8 encoded_pid)
 {
-    switch(pid)
+    UInt8 raw_pid;
+    if(on_decode(&raw_pid, &encoded_pid, 1) != ONS_SUCCESS)
     {
-        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
-       
-        
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_ACK:
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
-        #endif      
-        #ifdef _STREAM_MESSAGES_ENABLED    
-        case ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE:
-        #endif
-
-
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_MH_BLOCK_TXN_ACK:
-        #endif
-            
-
-        case ONE_NET_ENCODED_MH_SINGLE_DATA:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
-                        
-            
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_MH_BLOCK_DATA:
-        #endif
-        
-        
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_MH_STREAM_DATA:
-        #endif
-            return TRUE;
-            
-            
-        default:
-            return FALSE;
-    } 
+        return FALSE; // invalid encoded pid
+    }
+    
+    // if MSB is 1, then it's multi-hop
+    if(raw_pid & 0x80)
+    {
+        return TRUE;
+    }
+    
+    return FALSE;
 }
 #endif
 
