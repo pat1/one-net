@@ -71,6 +71,10 @@ const on_encoded_did_t ENC_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
 #endif
 
 
+#ifdef _AUTO_MODE
+//! The default keep alive for Eval Boards
+const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000;
+#endif
 
 //! The key used in the evaluation network
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
