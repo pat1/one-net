@@ -1128,7 +1128,7 @@ BOOL one_net(on_txn_t ** txn)
                     if(status == ONS_PKT_RCVD)
                     {
                         #ifdef _ONE_NET_MH_CLIENT_REPEATER
-                        if(*this_txn == &mh_txn)
+                        if(this_txn == &mh_txn)
                         {
                             *txn = &mh_txn;
                             mh_txn.priority = ONE_NET_LOW_PRIORITY;
