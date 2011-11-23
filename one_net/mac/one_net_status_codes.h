@@ -155,8 +155,9 @@ typedef enum
     ON_MSG_RESPOND, //! Message should be responded to with an ACK or a NACK.
     ON_MSG_TIMEOUT, //! Message has timed out.
     ON_MSG_IGNORE, //! Message hould be ignored.  ONE-NET should not send a response.
-               //! This doesn't man a response won't be sent.  It could be sent
+               //! This doesn't mean a response won't be sent.  It could be sent
                //! by the application code later.
+    ON_MSG_INTERNAL_ERR, //! Represents an internal error
     ON_NUM_MESSAGE_STATUS_CODES,
     
     //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to
