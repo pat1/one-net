@@ -367,16 +367,141 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
-}
+    on_raw_did_t src_did;
+    UInt8 raw_hops_field;
+    on_message_status_t status = ON_MSG_DEFAULT_BHVR;
+    on_msg_hdr_t msg_hdr;
+    
+    if(!ack_nack || !txn || !(*txn))
+    {
+        // not sure how we got here, but we can't do anything
+        return status;
+    }    
 
+    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.msg_id = pkt->msg_id;
+    msg_hdr.msg_type = *msg_type;
+
+    on_decode(src_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+    
+    #ifndef _ONE_NET_MULTI_HOP
+    status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
+      ack_nack, &src_did, NULL, &((*txn)->retry));
+    #else
+    status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
+      ack_nack, &src_did, NULL, &((*txn)->retry), pkt->hops, &(pkt->max_hops));
+    #endif    
+    
+    if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
+    {
+        (*txn)->response_timeout = ack_nack->payload->nack_time_ms;
+        
+        if((*txn)->retry >= ON_MAX_RETRY)
+        {
+            #ifdef _ONE_NET_MULTI_HOP
+            // we may be able to re-send with a higher max hops.
+            
+            if(mh_repeater_available && (*txn)->max_hops <
+              (*txn)->device->max_hops)
+            {
+                on_raw_did_t raw_did;
+                on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+                
+                if((*txn)->max_hops == 0)
+                {
+                    (*txn)->max_hops = 1;
+                }
+                else
+                {
+                    ((*txn)->max_hops) *= 2;
+                }
+                
+                if((*txn)->max_hops > (*txn)->device->max_hops)
+                {
+                    (*txn)->max_hops = (*txn)->device->max_hops;
+                }
+                
+                // give the application code a chance to override if it
+                // wants to.
+                switch(one_net_adjust_hops(&raw_did, &(*txn)->max_hops))
+                {
+                    case ON_MSG_ABORT: return ON_MSG_ABORT;
+                }             
+                
+                (*txn)->hops = 0;
+                (*txn)->retry = 0;
+                pkt->hops = (*txn)->hops;
+                pkt->max_hops = (*txn)->max_hops;
+
+                // change the pid if needed
+                if((*txn)->max_hops)
+                {
+                    switch(*(pkt->pid))
+                    {
+                        case ONE_NET_ENCODED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
+                          break;
+                    }
+                }
+                else
+                {
+                    switch(*(pkt->pid))
+                    {
+                        case ONE_NET_ENCODED_MH_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+                          break;
+                        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+                          *(pkt->pid) = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+                          break;
+                    }
+                }
+                
+                if(on_complete_pkt_build(pkt, pkt->msg_id, *(pkt->pid)) !=
+                  ONS_SUCCESS)
+                {
+                    return ON_MSG_TIMEOUT; // should never get here?
+                }
+                
+                return ON_MSG_CONTINUE;
+            }
+            #endif
+            return ON_MSG_TIMEOUT;
+        }
+    }
+
+    return status;
+}
+  
 
 // TODO -- document 
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
+    on_msg_hdr_t msg_hdr;
+    on_raw_did_t dst;
+    
+    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.msg_id = pkt->msg_id;
+    msg_hdr.msg_type = *msg_type;
+    on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+
+    #ifndef _ONE_NET_MULTI_HOP
+    one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr,
+      raw_pld, &dst, ack_nack);
+    #else
+    one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr,
+      raw_pld, &dst, ack_nack, pkt->hops);
+    #endif  
 }
 
 
