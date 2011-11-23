@@ -255,6 +255,9 @@ extern const char* const TRUE_STR;
 extern const char* const FALSE_STR;
 
 
+extern const char* const ONCLI_MSG_STATUS_STR[];
+
+
 
 //! @} oncli_str_const
 //								CONSTANTS END
