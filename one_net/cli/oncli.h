@@ -7,6 +7,7 @@
 #include "one_net_xtea.h"
 #include "one_net_constants.h"
 #include "one_net_features.h"
+#include "one_net_status_codes.h"
 
 
 
@@ -136,6 +137,8 @@ oncli_status_t oncli_print_features(on_features_t features);
 oncli_status_t oncli_print_channel(void);
 
 BOOL oncli_is_valid_unique_key_ch(const char CH);
+
+const char * oncli_msg_status_str(on_message_status_t status);
 
 
 

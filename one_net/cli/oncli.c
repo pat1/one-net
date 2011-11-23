@@ -583,6 +583,26 @@ BOOL oncli_is_valid_unique_key_ch(const char CH)
 } // oncli_is_valid_unique_key_ch //
 
 
+/*!
+    \brief Returns a pointer to the string representation of the
+      message status value.
+
+    \param[in] status The status to return the string for.
+    
+    \return The string representation of the status.  If the status is invalid,
+      the internal error string is returned.
+*/
+const char * oncli_msg_status_str(on_message_status_t status)
+{
+    if(status >= ON_NUM_MESSAGE_STATUS_CODES)
+    {
+        return ONCLI_MSG_STATUS_STR[ON_MSG_INTERNAL_ERR];
+    } // if the status is invalid //
+    
+    return ONCLI_MSG_STATUS_STR[status];
+} // oncli_msg_status_str //
+
+
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
