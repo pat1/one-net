@@ -1904,7 +1904,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         // not to us, but maybe we'll repeat it if we're not the master,
         // not in the middle of our own transaction, it's a multi-hop
         // packet, and it wasn't to us.
-        if(dst_is_me || device_is_master || *txn || !packet_is_mh)
+        if(dst_is_me || device_is_master || txn || !packet_is_mh)
         {
             return ONS_BAD_PARAM;
         }
@@ -1960,9 +1960,9 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     if(repeat_this_packet)
     {
         one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-          &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN],
+          &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);
-        this_txn = &mh_txn;
+        *this_txn = &mh_txn;
     }
     else
     #endif
