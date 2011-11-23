@@ -270,6 +270,13 @@ void one_net_client_single_txn_status(on_message_status_t status,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
 #endif
 {
+    #ifndef _ONE_NET_MULTI_HOP
+    eval_single_txn_status(status, retry_count, msg_hdr, data,
+      dst, ack_nack);
+    #else
+    eval_single_txn_status(status, retry_count, msg_hdr, data,
+      dst, ack_nack, hops);
+    #endif
 }
 
 
