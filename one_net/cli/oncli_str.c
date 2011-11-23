@@ -397,15 +397,16 @@ const char* const FALSE_STR = "False";
 //! ONE-NET Message Status string tables
 const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
 {
-    // Note -- these should correspond to on_message_t.  Any user-defined
-    // strings should be added at the end of the list.
+    // Note -- these should correspond to on_message_status_t.  Any
+    // user-defined strings should be added at the end of the list.
     "", // ON_MSG_DEFAULT_BHVR
     "", // ON_MSG_CONTINUE
     "ABORTED", // ON_MSG_ABORT
     "SUCCESS", // ON_MSG_SUCCESS
     "FAILED", // ON_MSG_FAIL
+    "",       // ON_MSG_RESPOND
     "TIMED OUT", // ON_MSG_TIMEOUT
-    ""           // ON_MSG_IGNORE
+    "",          // ON_MSG_IGNORE
     "Internal Error" // ON_MSG_INTERNAL_ERR
     
     // Add any strings for user-defined message status codes here
