@@ -289,6 +289,10 @@ const char * const ONCLI_CHANNEL_NOT_SELECTED_STR = "channel not selected";
 //! Message to output when the channel has not been set yet.
 const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
 
+//! Format output to report the results of a single transaction
+const char * const ONCLI_SINGLE_RESULT_FMT
+  = "Single transaction with %03X; return status: %s\n";
+
 
 
 

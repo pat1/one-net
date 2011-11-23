@@ -207,6 +207,7 @@ extern const char * const ONCLI_FAILED_STR;
 extern const char * const ONCLI_CLR_INPUT_STR;
 extern const char * const ONCLI_CHANNEL_NOT_SELECTED_STR;
 extern const char * const ONCLI_CHANNEL_INVALID_STR;
+extern const char * const ONCLI_SINGLE_RESULT_FMT;
 
 
 
