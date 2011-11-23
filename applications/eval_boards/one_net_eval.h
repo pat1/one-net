@@ -323,6 +323,18 @@ on_message_status_t eval_handle_ack_nack_response(
 #endif
 
 
+// TODO -- document
+#ifndef _ONE_NET_MULTI_HOP
+void eval_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
+#else
+void eval_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
+#endif
+
+
 
 #ifdef _AUTO_MODE
 one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 

@@ -518,6 +518,26 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
 #endif
 
 
+#ifndef _ONE_NET_MULTI_HOP
+void eval_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
+#else
+void eval_single_txn_status(on_message_status_t status,
+  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
+  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
+#endif
+{
+    if(!dst)
+    {
+        return;
+    } // if the parameters are invalid //
+    
+    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
+      oncli_msg_status_str(status));
+}
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
