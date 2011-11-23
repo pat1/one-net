@@ -1143,16 +1143,14 @@ BOOL one_net(on_txn_t ** txn)
                             return FALSE;
                         }
                         #endif
-                
-                        // debugging
+                        
+                        if(this_txn == &single_txn)
                         {
-                            UInt8 i;
-                            oncli_send_msg("Raw payload : ");
-                            for(i = 0; i < 8; i++)
-                            {
-                                oncli_send_msg("%02X ", raw_payload_bytes[i]);
-                            }
-                            oncli_send_msg("\n");
+                            UInt8 msg_type =
+                              get_payload_msg_type(raw_payload_bytes);
+                            (*pkt_hdlr.single_data_hdlr)(&this_txn,
+                              this_pkt_ptrs,
+                              &raw_payload_bytes[ON_PLD_DATA_IDX], &msg_type);
                         }
                     }
                     
