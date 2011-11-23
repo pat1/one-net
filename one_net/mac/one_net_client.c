@@ -620,6 +620,22 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
   #endif
   )
 {
+    if(push_queue_element(pid, msg_type, raw_data, data_len, priority, src_did,
+      enc_dst
+      #ifdef _PEER
+          , send_to_peer_list, src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , send_time_from_now
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , expire_time_from_now
+      #endif
+      ) == NULL)
+    {
+        return ONS_RSRC_FULL;
+    }
+
     return ONS_SUCCESS;
 }
 
