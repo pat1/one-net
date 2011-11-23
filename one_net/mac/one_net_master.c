@@ -830,9 +830,26 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
 
 // TODO -- document
+#include "oncli.h"
 static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
 {
+    oncli_send_msg("Rcv'd packet : Source ");
+    oncli_print_did(pkt->enc_src_did);
+    oncli_send_msg(" : Rptr ");
+    oncli_print_did(pkt->enc_repeater_did);
+    oncli_send_msg(" : Msg type = %d : PID=%02X : ", *msg_type, *(pkt->pid));
+    {
+        UInt8 i;
+        UInt8 len = get_raw_payload_len(*(pkt->pid)) -  1 - ON_PLD_DATA_IDX;
+        oncli_send_msg("Raw payload length : %d\n", len);
+        for(i = 0; i < len; i++)
+        {
+            oncli_send_msg("%02X ", raw_pld[i]);
+        }
+        
+        oncli_send_msg("\n");
+    }
     return ON_MSG_CONTINUE;
 }
 
