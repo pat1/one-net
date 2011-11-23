@@ -178,6 +178,20 @@ ONE_NET_INLINE void put_dst_unit(UInt8 data, UInt8 *payload)
         ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
 }
 
+/* get the 4-bit message type value from the payload buffer */
+ONE_NET_INLINE UInt8 get_payload_msg_type(const UInt8 *payload)
+{
+    return (payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_IDX);
+}
+
+/* store the 4-bit message type value in the raw payload buffer */
+ONE_NET_INLINE void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
+{
+    payload[ON_PLD_MSG_TYPE_IDX] = 
+        (payload[ON_PLD_MSG_TYPE_IDX]    & ~ON_PLD_MSG_TYPE_IDX) |
+        (msg_type & ON_PLD_MSG_TYPE_MASK);
+}
+
 
 //! @} ONE-NET_APP_const
 //                                  CONSTANTS END
