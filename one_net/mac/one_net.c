@@ -1822,6 +1822,10 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         *this_txn = txn;
     }
     #endif
+    else
+    {
+        *this_txn = &single_txn;
+    }
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
@@ -1982,12 +1986,14 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
               {
                   return ONS_UNHANDLED_PKT;
               }
+              break;
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_BLOCK:
               if(*this_txn != &block_txn)
               {
                   return ONS_UNHANDLED_PKT;
               }
+              break;
             #endif
             #ifdef _STREAM_MESSAGES_ENABLED
             case ON_STREAM:
@@ -1995,12 +2001,13 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
               {
                   return ONS_UNHANDLED_PKT;
               }
+              break;
             #endif
             case ON_RESPONSE:
               if(*this_txn != &response_txn)
               {
                   return ONS_UNHANDLED_PKT;
-              }            
+              }
         }
     }
 
