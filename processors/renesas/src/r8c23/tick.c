@@ -203,6 +203,8 @@ void delay_100s_us(UInt16 count)
     } // delay loop //
 } // delay_100us //
 
+// defined in one_net_timer.c
+extern UInt8 update_timers(void);
 
 void polled_tick_update(void)
 {
@@ -211,6 +213,7 @@ void polled_tick_update(void)
     if(TICK_INTERRUPT_FLAG)
     {
         tick_count++;
+		update_timers();
         TICK_INTERRUPT_FLAG = 0;
     } // if the tick interrupt had occurred //
 } // polled_tick_update //
@@ -238,7 +241,6 @@ void disable_tick_timer(void)
 //! \ingroup TICK
 //! @{
 
-
 /*!
     \brief Tick Interrupt handler.
 
@@ -250,6 +252,7 @@ void disable_tick_timer(void)
 void tick_timer_isr(void)
 {
     tick_count++;
+	update_timers();
 } // tick_timer //
 
 
