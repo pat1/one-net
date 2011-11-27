@@ -55,6 +55,9 @@
 #include "tick.h"
 #include "one_net_port_specific.h"
 #include "cb.h"
+#ifdef _HAS_LEDS
+    #include "one_net_led.h"
+#endif
 
 
 //==============================================================================
@@ -463,7 +466,10 @@ one_net_status_t tal_look_for_packet(tick_t duration)
 		    return ONS_TIME_OUT;
         } // if done looking //
     } // while no sync detect //
-
+    
+    #ifdef _HAS_LEDS
+    set_rx_led(TRUE);
+    #endif
     ENABLE_RX_BIT_INTERRUPTS();
 
     do
@@ -485,13 +491,18 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             {
                 // bad packet type
                 DISABLE_RX_BIT_INTERRUPTS();
+                #ifdef _HAS_LEDS
+                set_rx_led(FALSE);
+                #endif
                 return ONS_BAD_PKT_TYPE;
             }
         } // if PID read //
     } while(rx_rf_count < blks_to_rx);
 
     DISABLE_RX_BIT_INTERRUPTS();
-
+    #ifdef _HAS_LEDS
+    set_rx_led(FALSE);
+    #endif
     return ONS_SUCCESS;
 }
 

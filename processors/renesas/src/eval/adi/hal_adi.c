@@ -194,7 +194,6 @@ void tx_bit_isr(void)
 #pragma interrupt dataclk_isr
 void dataclk_isr(void)
 {
-    set_rx_led(TRUE);
     if(RF_DATA)
     {
         rx_rf_data[rx_rf_count] |= bit_mask;
