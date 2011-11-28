@@ -1477,12 +1477,12 @@ BOOL one_net(on_txn_t ** txn)
               (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
               &txn_nonce, &resp_nonce, raw_payload_bytes);
             
-            if(status == ONS_PKT_RCVD)
+            if(status == ONS_PKT_RCVD && this_txn == &response_txn)
             {
                 // debugging
                 {
                     UInt8 i;
-                    oncli_send_msg("Raw payload : ");
+                    oncli_send_msg("Response Raw payload : ");
                     for(i = 0; i < 8; i++)
                     {
                         oncli_send_msg("%02X ", raw_payload_bytes[i]);

@@ -58,6 +58,7 @@
 #include "tal.h"
 #include "one_net_encode.h"
 #include "one_net_prand.h"
+#include "one_net_acknowledge.h"
 
 // debugging -- temporary
 #include "oncli.h"
@@ -358,6 +359,21 @@ tick_t one_net_client(void)
 static on_message_status_t on_client_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
 {
+    on_message_status_t msg_status;
+    on_ack_nack_t ack_nack;
+    on_msg_hdr_t msg_hdr;
+    on_raw_did_t raw_src_did, raw_repeater_did;
+    
+    on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
+    on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
+    
+    msg_hdr.msg_type = *msg_type;
+    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.msg_id = pkt->msg_id;
+    ack_nack.payload = (ack_nack_payload_t*) raw_pld;
+    ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack.handle = ON_ACK;
+
     oncli_send_msg("Rcv'd packet : Source ");
     oncli_print_did(pkt->enc_src_did);
     oncli_send_msg(" : Rptr ");
@@ -374,7 +390,19 @@ static on_message_status_t on_client_single_data_hdlr(
         
         oncli_send_msg("\n");
     }
-    return ON_MSG_CONTINUE;
+    
+    oncli_send_msg("Calling one_net_client_handle_single_pkt\n");
+    
+    #ifndef _ONE_NET_MULTI_HOP
+    msg_status =  one_net_client_handle_single_pkt(raw_pld, &msg_hdr,
+      &raw_src_did, &raw_repeater_did, &ack_nack);
+    #else
+    msg_status = one_net_client_handle_single_pkt(raw_pld, &msg_hdr,
+      &raw_src_did, &raw_repeater_did, &ack_nack, (*txn)->hops,
+      &((*txn)->max_hops));
+    #endif
+
+    return msg_status;
 }
 
 
