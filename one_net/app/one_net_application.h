@@ -390,7 +390,7 @@ enum
 };
 
 
-// pin constants
+//! pin constants
 enum
 {
     INPUT = 0,                      //!< Value when setting a pin as an input
@@ -404,6 +404,13 @@ typedef enum
     ON_OUTPUT_PIN = OUTPUT,      //!< Value when setting a pin as an output
     ON_DISABLE_PIN = 2           //!< Indicates the pin is not being used
 } on_pin_state_t;
+
+
+//! On / Off / Toggle Constants
+#define ONA_OFF 0
+#define ONA_ON 1
+#define ONA_TOGGLE 2
+
 
 
 //! Send Function
