@@ -131,6 +131,35 @@ ONE_NET_INLINE void put_msg_hdr(UInt16 data, UInt8 *payload)
     payload[ONA_MSG_HDR_IDX+1] = data;
 }
 
+ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8 *payload)
+{
+    UInt16 class_and_type = get_msg_hdr(payload);
+    return class_and_type & ONA_MSG_CLASS_MASK;
+}
+
+ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
+  const UInt8 *payload)
+{
+    UInt16 class_and_type = get_msg_hdr(payload);
+    class_and_type &= ~ONA_MSG_CLASS_MASK;
+    class_and_type |= msg_class;
+    put_msg_hdr(class_and_type, payload);
+}
+
+ONE_NET_INLINE UInt16 get_msg_type(const UInt8 *payload)
+{
+    UInt16 class_and_type = get_msg_hdr(payload);
+    return class_and_type & ~ONA_MSG_CLASS_MASK;    
+}
+
+ONE_NET_INLINE void put_msg_type(ona_msg_class_t msg_type,
+  const UInt8 *payload)
+{
+    UInt16 class_and_type = get_msg_hdr(payload);
+    class_and_type &= ONA_MSG_CLASS_MASK;
+    class_and_type |= msg_type;
+    put_msg_hdr(class_and_type, payload);
+}
 
 /* get the 16-bit message data from the payload buffer */
 ONE_NET_INLINE UInt16 get_msg_data(const UInt8 *payload)
@@ -434,6 +463,11 @@ BOOL is_master_did(const on_encoded_did_t* did);
 BOOL is_my_did(const on_encoded_did_t* did);
 BOOL is_broadcast_did(const on_encoded_did_t* did);
 
+
+// parsing functions
+BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt16* const
+  msg_type, UInt16* const msg_data);
 
 
 

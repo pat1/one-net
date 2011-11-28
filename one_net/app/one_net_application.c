@@ -247,6 +247,38 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
     return on_encoded_did_equal(did, &ON_ENCODED_BROADCAST_DID);
 }
 
+/*!
+    \brief Parses a single application message
+    
+    \param[in] payload the payload of the message
+    \param[out] src_unit the source unit of the message
+    \param[out] dst_unit the destination unit of the message
+    \param[out] msg_class the message class of the message
+    \param[out] msg_type the message type of the message
+    \param[out] msg_data the message data of the message
+    
+    \return TRUE if parsed successfully
+    \return FALSE if not parsed successfully
+*/
+BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt16* const
+  msg_type, UInt16* const msg_data)
+{
+    if(!payload || !src_unit || !dst_unit || !msg_class || !msg_type ||
+      !msg_data)
+    {
+        return FALSE;
+    }
+    
+    *src_unit = get_src_unit(payload);
+    *dst_unit = get_dst_unit(payload);
+    *msg_class = get_msg_class(payload);
+    *msg_type = get_msg_type(payload);
+    *msg_data = get_msg_data(payload);
+    return TRUE;
+}
+    
+
 
 
 //! @} ONE-NET_APP_pub_func
