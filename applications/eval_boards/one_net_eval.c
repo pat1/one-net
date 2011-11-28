@@ -349,6 +349,115 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    UInt8 src_unit, dst_unit;
+    ona_msg_class_t msg_class;
+    UInt16 msg_type, msg_data;
+
+    #ifndef _ONE_NET_MULTI_HOP
+    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
+      !ack_nack->payload || ack_nack_payload != raw_pld)
+    #else
+    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack/* ||
+      !ack_nack->payload || ack_nack->payload != raw_pld || !max_hops*/)
+    #endif
+    {
+        oncli_send_msg("eval_hdl_sng: Bad parameter.\n");
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
+    
+    if(msg_hdr->msg_type != ON_APP_MSG)
+    {
+        return ON_MSG_IGNORE;
+    }
+    
+    
+    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
+      &msg_data);
+
+    oncli_send_msg("eval_hdl_sng: payload:%02X%02X%02X%02X%02X ", 
+      raw_pld[0], raw_pld[1], raw_pld[2], raw_pld[3], raw_pld[4]);
+    oncli_send_msg("Src:%02X Dst:%02X ", src_unit, dst_unit);
+    oncli_send_msg("Class:%04X Type:%04X ", msg_class, msg_type);
+    oncli_send_msg("Data:%04X\n", msg_data);
+    
+    if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
+    {
+        oncli_send_msg("Invalid dest. unit\n");
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_UNIT_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+    
+    if(msg_type != ONA_SWITCH)
+    {
+        oncli_send_msg("Msg type must be a switch.\n");
+        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+    
+    if(msg_data != ONA_ON && msg_data != ONA_OFF && msg_data != ONA_TOGGLE)
+    {
+        oncli_send_msg("Invalid message data.\n");
+        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+    
+    if(msg_class == ONA_COMMAND)
+    {
+        if(dst_unit == ONE_NET_DEV_UNIT)
+        {
+            oncli_send_msg("Invalid dest. unit for COMMAND\n");
+            ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+            ack_nack->handle = ON_NACK;
+            return ON_MSG_CONTINUE;
+        }
+        
+        if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
+        {
+            oncli_send_msg("Pin %d is not an output.\n", dst_unit);
+            // we'll use a user-defined fatal error for the reason            
+            ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
+            ack_nack->handle = ON_NACK;
+            return ON_MSG_CONTINUE;
+        }
+        
+		switch(dst_unit)
+		{
+			case 0: USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN0; break;
+			case 1: USER_PIN1 = (msg_data == ONA_TOGGLE) ? !USER_PIN1 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN1; break;
+			case 2: USER_PIN2 = (msg_data == ONA_TOGGLE) ? !USER_PIN2 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN2; break;
+			case 3: USER_PIN3 = (msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN3; break;
+            default:
+                oncli_send_msg("Invalid dest. unit for COMMAND\n");
+                ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+                ack_nack->handle = ON_NACK;
+                return ON_MSG_CONTINUE;
+		}
+        
+        ack_nack->handle = ON_ACK_STATUS;
+        
+        // source and destination are reversed in the response.
+        put_src_unit(dst_unit, ack_nack->payload->status_resp);
+        put_dst_unit(src_unit, ack_nack->payload->status_resp);
+        put_msg_class(ONA_STATUS_COMMAND_RESP, ack_nack->payload->status_resp);
+        
+        // we don't need to fill in the type.  It's already there since this is the same
+        // memory as the raw payload!
+        
+        put_msg_data(msg_data, ack_nack->payload->status_resp);
+        return ON_MSG_CONTINUE;
+    }
+    
+    // fill in poll and query and status later.  For now, NACK it.
+    oncli_send_msg("Currently only handling commands.\n", dst_unit);
+    // we'll use a user-defined fatal error for the reason            
+    ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+    ack_nack->handle = ON_NACK;
     return ON_MSG_CONTINUE;
 }
 
