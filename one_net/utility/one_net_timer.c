@@ -45,6 +45,12 @@
       updated.
 */
 
+
+// Nov. 28, 2011 -- temporarily reverting JMR's timer changes.  Will
+// re-implement them again when I get more of a chance to look at them
+// and everything else is working.
+
+
 #include "one_net_timer.h"
 #include "one_net_timer_port_const.h"
 #include "one_net_port_specific.h"
@@ -108,6 +114,8 @@ static ont_timer_t timer[ONT_NUM_TIMERS] = {0};
 //! \ingroup ONE-NET_TIMER
 //! @{
 
+static void update_timers(void);
+
 //! @} ONE-NET_TIMER_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
 //==============================================================================
@@ -133,7 +141,9 @@ BOOL ont_set_timer(const UInt8 TIMER, const tick_t DURATION)
     {
         return FALSE;
     } // if the timer is invalid //
- 
+
+    update_timers();
+    
     timer[TIMER].active = TRUE;
     timer[TIMER].tick = DURATION;
     
@@ -155,6 +165,8 @@ tick_t ont_get_timer(const UInt8 TIMER)
     {
         return 0;
     } // if the timer is invalid //
+    
+    update_timers();
 
     return timer[TIMER].tick;
 } // ont_get_timer //
@@ -218,7 +230,14 @@ BOOL ont_expired(const UInt8 TIMER)
     {
         return FALSE;
     } // if the timer is invalid //
-       
+    
+    update_timers();
+    
+    if(timer[TIMER].tick == 0)
+    {
+        timer[TIMER].active = FALSE;
+    } // if the timer has expired //
+    
     return timer[TIMER].tick == 0;
 } // ont_expired //
 
@@ -239,6 +258,13 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
         return FALSE;
     } // if the timer is invalid //
     
+    update_timers();
+    
+    if(timer[TIMER].tick == 0)
+    {
+        timer[TIMER].active = FALSE;
+    } // if the timer has expired //
+
     // If the timer expired, it was deactivated so the timer's active flag
     // will be FALSE if it was inactive or the timer expired
     return !timer[TIMER].active;
@@ -262,24 +288,45 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
     
     \return void
 */
-UInt8 update_timers(void)
+static void update_timers(void)
 {
+    tick_t tick_diff, tick_now;
+
     UInt8 i;
-    UInt8 rv = FALSE;    
+    
+    tick_now = get_tick_count();
+    
+    if(tick_now < last_tick)
+    {
+        // Subtract from 0 since going from all 1s to 0 takes a tick
+        tick_diff = ((tick_t)0 - last_tick) + tick_now;
+    } // if rollover has occurred //
+    else
+    {
+        tick_diff = tick_now - last_tick;
+    } // else rollover has not occured //
+    
+    if(!tick_diff)
+    {
+        return;
+    } // if the time hasn't changed //
+    
+    last_tick = tick_now;
+    
     for(i = 0; i < ONT_NUM_TIMERS; i++)
     {
         if(timer[i].active)
         {
-			timer[i].tick -= 1;
-			
-            if(timer[i].tick == 0)
+            if(timer[i].tick > tick_diff)
             {
-                timer[i].active = FALSE;
-				rv = TRUE;
-            } // if the timer has expired //
+                timer[i].tick -= tick_diff;
+            } // if more time remains //
+            else
+            {
+                timer[i].tick = 0;
+            } // else the timer has expired //
         } // if the timer is active //
     } // loop to adjust the timers //
-	return rv;
 } // update_timers //
 
 
