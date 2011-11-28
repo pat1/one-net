@@ -302,7 +302,7 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
         #ifdef _ONE_NET_CLIENT
         if(!device_is_master && is_master_did(dst_did))
         {
-            master_added = FALSE;
+            master_added = TRUE;
         }
         #endif
     }
