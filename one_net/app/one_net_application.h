@@ -221,6 +221,46 @@ ONE_NET_INLINE void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
         (msg_type & ON_PLD_MSG_TYPE_MASK);
 }
 
+// TODO -- Look at the naming conventions and try to follow them a little
+// better.  The shifts and masks are a bit confusing and don't follow a nice
+// pattern (i.e. sometimes we are shifting, then masking, sometimes vice-
+// versa.  I THINK these are right, but more testing needs to be done.
+
+/* get the 6-bit transaction nonce from the payload buffer */
+ONE_NET_INLINE UInt8 get_payload_txn_nonce(const UInt8 *payload)
+{
+    return (payload[ON_PLD_TXN_NONCE_IDX] >> ON_TXN_NONCE_SHIFT);
+}
+
+/* store the 6-bit transaction nonce in the raw payload buffer */
+ONE_NET_INLINE void put_payload_txn_nonce(UInt8 txn_nonce, UInt8 *payload)
+{
+    payload[ON_PLD_TXN_NONCE_IDX] = (payload[ON_PLD_TXN_NONCE_IDX] &
+      ~ON_TXN_NONCE_BUILD_MASK) | (txn_nonce & ON_TXN_NONCE_BUILD_MASK);
+}
+
+
+/* get the 6-bit response nonce from the payload buffer */
+ONE_NET_INLINE UInt8 get_payload_resp_nonce(const UInt8 *payload)
+{
+    return ((payload[ON_PLD_RESP_NONCE_HIGH_IDX] &
+      ON_RESP_NONCE_BUILD_HIGH_MASK) << ON_RESP_NONCE_HIGH_SHIFT +
+      (payload[ON_PLD_RESP_NONCE_LOW_IDX] >>
+      ON_RESP_NONCE_LOW_SHIFT));
+}
+
+/* store the 6-bit response nonce in the raw payload buffer */
+ONE_NET_INLINE void put_payload_resp_nonce(UInt8 resp_nonce, UInt8 *payload)
+{
+    payload[ON_PLD_RESP_NONCE_HIGH_IDX] = (payload[ON_PLD_RESP_NONCE_HIGH_IDX]
+      & ~ON_RESP_NONCE_BUILD_HIGH_MASK) | (resp_nonce &
+      ON_RESP_NONCE_BUILD_HIGH_MASK);
+    payload[ON_PLD_RESP_NONCE_LOW_IDX] = (payload[ON_PLD_RESP_NONCE_LOW_IDX]
+      & ~ON_RESP_NONCE_BUILD_LOW_MASK) | ((resp_nonce <<
+      ON_RESP_NONCE_LOW_SHIFT)& ON_RESP_NONCE_BUILD_LOW_MASK);
+}
+
+
 
 //! @} ONE-NET_APP_const
 //                                  CONSTANTS END
