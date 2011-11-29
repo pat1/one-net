@@ -336,7 +336,7 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
 	
 	Any unsent packets that have expired will be deleted.
 	
-	\param[out] next_sleep_time The earliest time the queue could might have something to pop.
+	\param[out] next_sleep_time The earliest time the queue might have something to pop.
                 If the value is 0 and the function returns -1, then the queue is empty and
                 next_pop_time should be disregarded.  If the function returns a non-negative
                 value, next_pop_time should be disregarded.
