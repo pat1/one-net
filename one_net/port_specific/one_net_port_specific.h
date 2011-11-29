@@ -116,7 +116,7 @@ void * one_net_memmove(void * dst, const void * SRC, size_t len);
     more clear that the function expects an unsigned character / byte and
     to avoid having to typecast.  I'm not sure why the real memset from
     string.h takes an int instead of an unsigned char, but since this is
-    "one_net_memset", not "memset", I'll change it to a UInt8 exxplicitly.
+    "one_net_memset", not "memset", I'll change it to a UInt8 explicitly.
     It won't hurt my feelings if people decide to change it back.
 
     \param[out] dst The mem location to receive the bytes
