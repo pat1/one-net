@@ -136,6 +136,8 @@ one_net_status_t one_net_client_erase_settings(void)
 
 void one_net_client_client_remove_device(void)
 {
+    oncli_send_msg("Removed from network by master.  No longer joined.\n");
+    oncli_send_msg("Now resetting the device and looking for an invite.\n");
 } // one_net_client_client_remove_device //
 
 
