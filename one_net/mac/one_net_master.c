@@ -834,11 +834,82 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
 {
+    // TODO -- 11/28/2011
+    // Look at the rx_single_data function in one_net.c.  It has
+    // a lot of what is in here, but it appears is never called.
+    // Figure out what code shoul go where and if we aren't going to
+    // call rx_single_data from anywhere, delete it.
+    
     on_message_status_t msg_status;
+    one_net_status_t response_status;
     on_ack_nack_t ack_nack;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
+    UInt8 response_pid;
+    UInt8* resp_pid_grp;
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    UInt8 pid_type_idx;
+    #endif
+    on_sending_device_t* device;
     
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    enum
+    {
+        NUM_SINGLE_PIDS = 3
+    };
+    
+    static const UInt8 single_pids[NUM_SINGLE_PIDS] =
+    {
+        ONE_NET_ENCODED_SINGLE_DATA,
+        ONE_NET_ENCODED_LARGE_SINGLE_DATA,
+        ONE_NET_ENCODED_EXTENDED_SINGLE_DATA
+    };
+    
+    static const UInt8 response_pids[NUM_SINGLE_PIDS][2] =
+    {
+        {ONE_NET_ENCODED_SINGLE_DATA_ACK,
+           ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN},
+        {ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK,
+           ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN},
+        {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK,
+           ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN}
+    };
+    #else
+    static const UInt response_pids[2] =
+    {
+        {ONE_NET_ENCODED_SINGLE_DATA_ACK,
+           ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN}
+    };
+    #endif
+
+    switch(*(pkt->pid))
+    {
+        case ONE_NET_ENCODED_SINGLE_DATA:
+            #ifndef _ONE_NET_SIMPLE_CLIENT
+            pid_type_idx = 0;
+            #endif
+            break;
+        #ifndef _ONE_NET_SIMPLE_CLIENT
+        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+            pid_type_idx = 1;
+            break;
+        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+            pid_type_idx = 2;
+            break;        
+        #endif
+        default:
+            // invalid PID -- abort
+            *txn = 0;
+            return ON_MSG_ABORT;
+    }
+    
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    resp_pid_grp = (UInt8*) response_pids[pid_type_idx];
+    #else
+    resp_pid_grp = (UInt8*) response_pids;
+    #endif
+    
+
     on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
     
@@ -912,7 +983,46 @@ static on_message_status_t on_master_single_data_hdlr(
         }
     }
 
-    return msg_status;
+    if(msg_status != ON_MSG_CONTINUE)
+    {
+        *txn = 0;
+        return msg_status;
+    }
+    
+    // we'll be sending it back to the souerce.
+    if(!(device = sender_info(pkt->enc_src_did)))
+    {
+        // I think we should have solved this problem before now, but abort if
+        // we have not.
+        
+        // TODO -- solve this better or confirm it is in fact solved earlier.
+        *txn = 0;
+        return ON_MSG_ABORT;
+    }
+    
+    response_pid = ack_nack.nack_reason == ON_NACK_RSN_NO_ERROR ?
+      resp_pid_grp[0] : resp_pid_grp[1];
+
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt))
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    // the response destination will be the transaction's source
+    on_build_my_pkt_addresses(pkt, (const on_encoded_did_t* const)
+      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL);
+
+    response_txn.key = (*txn)->key;
+    *txn = &response_txn;
+
+    // TODO -- what about the hops?  We allowed the application code to
+    // change them.  We need to pass that along.  Should we change "device"?
+    
+    // TODO -- harness the return value
+    response_status = on_build_response_pkt(&ack_nack, pkt, *txn, device);
+    response_status = on_complete_pkt_build(pkt, msg_hdr.msg_id, response_pid);
+    return ON_MSG_CONTINUE;
 }
 
   

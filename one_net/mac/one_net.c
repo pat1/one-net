@@ -1151,11 +1151,25 @@ BOOL one_net(on_txn_t ** txn)
                             (*pkt_hdlr.single_data_hdlr)(&this_txn,
                               this_pkt_ptrs,
                               &raw_payload_bytes[ON_PLD_DATA_IDX], &msg_type);
+                              
+                            if(this_txn == &response_txn)
+                            {
+                                // we'll send back a reply.
+                                *txn = &response_txn;
+                                on_state = ON_SEND_SINGLE_DATA_RESP;
+                                response_txn.priority = ONE_NET_HIGH_PRIORITY;
+                                
+                                // send the response immediately.
+                                ont_set_timer((*txn)->next_txn_timer, 0);
+                            }
+                            else
+                            {
+                                *txn = 0;
+                            }
                         }
                     }
                     
                     break;
-
                 }
 
                 // we have a message.  Let's create the packet.
