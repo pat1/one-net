@@ -368,7 +368,43 @@ tick_t one_net_client(void)
     }
 
     one_net(&txn);
-    return 0;
+
+    // calculate the allowable sleep time for devices that sleep
+    #ifndef _DEVICE_SLEEPS
+    sleep_time = 0; // the easy case
+    #else
+    
+    // first some cases where we cannot sleep at all.
+    if(*txn || ont_active(ONT_STAY_AWAKE_TIMER))
+    {
+        sleep_time = 0;
+    }
+    else
+    {
+        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        tick_t queue_sleep_time;
+        #endif
+        
+        // this will be the absolute maximum -- this may be overridden.
+        sleep_time = ont_get_timer(ONT_KEEP_ALIVE_TIMER);
+    
+        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        if(single_data_queue_ready_to_send(&queue_sleep_time) == -1)
+        {
+            if(queue_sleep_time > 0 && queue_sleep_time < sleep_time)
+            {
+                sleep_time = queue_sleep_time;
+            }
+        }
+        else
+        {
+            sleep_time = 0;
+        }
+        #endif
+    }
+    #endif // if device sleeps
+
+    return sleep_time;
 } // one_net_client //
 
 
