@@ -365,7 +365,7 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
 #endif // ifdef _ONE_NET_MULTI_HOP //
 
 
-one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
+one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 {
     UInt8 status;
@@ -382,6 +382,15 @@ one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
         return ONS_UNHANDLED_PKT;
     }
     
+    // for all we know, ack_nack->payload is located at the same address
+    // as the raw_payload_bytes[] array.  We don't want to overwrite without
+    // knowing, so we'll copy the payload to a buffer that is going to be
+    // overwritten anyway to make sure.
+    one_net_memmove(pkt_ptrs->payload, ack_nack->payload, ack_nack_pld_len);
+    
+    // now move the pointer.
+    ack_nack->payload = pkt_ptrs->payload;
+
     if(num_words <= 0)
     {
         return ONS_INTERNAL_ERR; // not a data PID
@@ -417,7 +426,7 @@ one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
                 break;                 
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
-                one_net_memmove(ack_nack_pld_ptr, &(ack_nack->payload),
+                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
                   ack_nack_pld_len);
                 break;
 	        case ON_ACK_VALUE:

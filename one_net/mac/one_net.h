@@ -565,7 +565,7 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
 
-one_net_status_t on_build_response_pkt(const on_ack_nack_t* ack_nack,
+one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
   
 one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
