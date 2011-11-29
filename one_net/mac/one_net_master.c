@@ -1000,8 +1000,8 @@ static on_message_status_t on_master_single_data_hdlr(
         return ON_MSG_ABORT;
     }
     
-    response_pid = ack_nack.nack_reason == ON_NACK_RSN_NO_ERROR ?
-      resp_pid_grp[0] : resp_pid_grp[1];
+    response_pid = (ack_nack.nack_reason == ON_NACK_RSN_NO_ERROR ?
+      resp_pid_grp[0] : resp_pid_grp[1]);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt))
     {
