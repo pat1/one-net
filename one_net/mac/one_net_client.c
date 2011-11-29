@@ -59,6 +59,7 @@
 #include "one_net_encode.h"
 #include "one_net_prand.h"
 #include "one_net_acknowledge.h"
+#include "one_net_timer.h"
 
 // debugging -- temporary
 #include "oncli.h"
@@ -325,6 +326,7 @@ tick_t one_net_client(void)
     // regardless of whether the device sleeps.
     tick_t sleep_time = 0;
     
+    
     if(!pkt_hdlr.single_data_hdlr)
     {
         if(one_net_client_init(0, 0) != ONS_SUCCESS)
@@ -335,6 +337,34 @@ tick_t one_net_client(void)
         }
 
         on_state = ON_LISTEN_FOR_DATA;
+    }
+    
+    
+    
+    switch(on_state)
+    {
+        case ON_IDLE:
+            break;
+            
+        case ON_LISTEN_FOR_DATA:
+        {
+            //
+            // Listen for a new transaction.
+            // Also check to see if there are any events
+            // associated with timers that need attention
+            //
+            break;
+        }
+        
+        case ON_JOIN_NETWORK:
+        {
+            break;
+        }
+        
+        default:
+        {
+            break;
+        }
     }
 
     one_net(&txn);
