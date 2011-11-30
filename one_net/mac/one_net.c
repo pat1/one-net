@@ -477,12 +477,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     }
 
     // build the packet
-    raw_payload_bytes[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
-      ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
-    raw_payload_bytes[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
-      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    raw_payload_bytes[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
-      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
+    put_payload_txn_nonce(device->expected_nonce, raw_payload_bytes);
+    put_payload_resp_nonce(device->send_nonce, raw_payload_bytes);
       
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
 	raw_payload_bytes[ON_PLD_RESP_HANDLE_IDX] |=
@@ -543,13 +539,10 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     }
 
     // build the packet
-    raw_payload_bytes[ON_PLD_TXN_NONCE_IDX] = (device->expected_nonce <<
-      ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK;
-    raw_payload_bytes[ON_PLD_RESP_NONCE_HIGH_IDX] |= (device->send_nonce
-      >> ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK;
-    raw_payload_bytes[ON_PLD_RESP_NONCE_LOW_IDX] = (device->send_nonce <<
-      ON_RESP_NONCE_LOW_SHIFT) & ON_RESP_NONCE_BUILD_LOW_MASK;
-    raw_payload_bytes[ON_PLD_MSG_TYPE_IDX] |= msg_type;
+    put_payload_txn_nonce(device->expected_nonce, raw_payload_bytes);
+    put_payload_resp_nonce(device->send_nonce, raw_payload_bytes);      
+    put_payload_msg_type(msg_type, raw_payload_bytes);
+
     one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
       (raw_pld_len - 1) - ON_PLD_DATA_IDX);
       
