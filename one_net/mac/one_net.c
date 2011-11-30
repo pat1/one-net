@@ -284,7 +284,7 @@ static BOOL range_testing_on = FALSE;
 
 static BOOL check_for_clr_channel(void);
 static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
-  on_txn_t* this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes);
+  on_txn_t** this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes);
 
 
 
@@ -1500,7 +1500,7 @@ BOOL one_net(on_txn_t ** txn)
             
             if(status == ONS_PKT_RCVD && this_txn == &response_txn)
             {
-                rx_single_resp_pkt(txn, this_txn, this_pkt_ptrs,
+                rx_single_resp_pkt(txn, &this_txn, this_pkt_ptrs,
                   raw_payload_bytes);
 
                 if(this_txn == 0)
@@ -1609,17 +1609,34 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 
 // TODO -- document
 static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
-  on_txn_t* this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes)
+  on_txn_t** this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes)
 {
     UInt8 i;
-    oncli_send_msg("Response Raw payload : ");
+    BOOL ack_rcvd = packet_is_ack(*(pkt->pid));
+    oncli_send_msg("Rcv'd %s: Response Raw payload : ", ack_rcvd ?
+      "ACK" : "NACK");
     for(i = 0; i < 8; i++)
     {
         oncli_send_msg("%02X ", raw_payload_bytes[i]);
     }
     oncli_send_msg("\n");
     
-    ((*txn)->retry)++;
+    if(!ack_rcvd)
+    {
+        ((*txn)->retry)++;
+    }
+    else
+    {
+        *this_txn = 0;
+        return ON_MSG_SUCCESS;
+    }
+    
+    if((*txn)->retry >= ON_MAX_RETRY)
+    {
+        *this_txn = 0;
+        return ON_MSG_FAIL;
+    }
+
     return ON_MSG_DEFAULT_BHVR;
 }
 
