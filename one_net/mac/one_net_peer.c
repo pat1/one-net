@@ -56,6 +56,7 @@
 #include "one_net_message.h"
 
 
+
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup ONE-NET_PEER_const
@@ -106,6 +107,7 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 #ifdef _ONE_NET_CLIENT
 #include "one_net.h"
 extern on_master_t * const master;
+extern BOOL client_joined_network;
 #endif
 
 
@@ -149,8 +151,14 @@ on_peer_send_list_t* peer_send_list_ptr = NULL;
 on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
   const on_peer_unit_t* peer_list, on_peer_send_list_t* send_list)
 {
+    #ifdef _ONE_NET_CLIENT
+    // only send status-type messages to the master if only
+    // sending due to the ON_SEND_TO_MASTER flag
+    BOOL send_to_master;
+    #endif    
+
     peer_send_list_ptr = NULL;
-    
+
     if(msg_ptr == NULL)
     {
         return NULL;
@@ -160,6 +168,13 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
     {
         send_list = &peer_send_list;
     }
+    
+    #ifdef _ONE_NET_CLIENT
+    send_to_master = !device_is_master && client_joined_network
+      && (master->flags & ON_SEND_TO_MASTER)
+      && msg_ptr->msg_type == ON_APP_MSG && 
+      ONA_IS_STATUS_MESSAGE(get_msg_class(msg_ptr->payload));
+    #endif
     
     peer_send_list_ptr = send_list;
     
@@ -172,8 +187,7 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
       msg_ptr->payload), peer_send_list_ptr,
       msg_ptr->send_to_peer_list ? peer_list : NULL,
       #ifdef _ONE_NET_CLIENT
-      &(msg_ptr->src_did), msg_ptr->src_unit, msg_ptr->msg_type == ON_APP_MSG
-        ? master->flags & ON_SEND_TO_MASTER : FALSE);
+      &(msg_ptr->src_did), msg_ptr->src_unit, send_to_master);
       #else
       &(msg_ptr->src_did), msg_ptr->src_unit);
       #endif
