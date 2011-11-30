@@ -1129,7 +1129,11 @@ BOOL one_net(on_txn_t ** txn)
                     single_msg_ptr = NULL;
                     
                     
-                    // nothing popped, so look for a packet
+                    // nothing popped, so look for a packet.  Any packet we
+                    // get should be a single packet or possibly, if we are
+                    // a repeater and the packet wasn't for us, a repeat
+                    // packet.  What we should NOT get is a response, block,
+                    // or stream packet.
                     status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
                       (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
                       &txn_nonce, &resp_nonce, raw_payload_bytes);
@@ -1146,7 +1150,7 @@ BOOL one_net(on_txn_t ** txn)
                             one_net_memmove(mh_txn.pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
 
                             // set the timer to send right away.
-                            ont_set_timer(mh_txn.next_txn_timer, 0);                    
+                            ont_set_timer(mh_txn.next_txn_timer, 0);
                     
                             on_state = ON_SEND_PKT;
                             return FALSE;
@@ -1157,6 +1161,7 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             UInt8 msg_type =
                               get_payload_msg_type(raw_payload_bytes);
+
                             (*pkt_hdlr.single_data_hdlr)(&this_txn,
                               this_pkt_ptrs,
                               &raw_payload_bytes[ON_PLD_DATA_IDX], &msg_type);
@@ -2160,11 +2165,13 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     if(device_is_master || type != ON_INVITE)
     #endif
     {
-        // TODO -- use the constants mask.
-        *txn_nonce = raw_payload_bytes[1] >> 2;
-        *resp_nonce = (raw_payload_bytes[1] & 0x03) << 4 +
-          (raw_payload_bytes[2] >> 4);
+        *txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
+        *resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     }
+    
+
+    #if 0
+    // TODO -- handle replay attacks elsewhere
     
     
     // now check for a potential replay attack.  If this is a brand new
@@ -2194,6 +2201,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
             }
         }
     }
+    #endif
 
     // set the key
     (*this_txn)->key = key;
