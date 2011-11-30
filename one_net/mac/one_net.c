@@ -1415,6 +1415,11 @@ BOOL one_net(on_txn_t ** txn)
             BOOL response_msg_or_timeout = FALSE; // will be set to true if
                  // the response timer timed out or there was a response
             
+            #ifndef _ONE_NET_SIMPLE_CLIENT
+            // send right away unless overruled later.
+            UInt32 next_send_pause_time = 0;
+            #endif
+            
             if(ont_inactive_or_expired(ONT_RESPONSE_TIMER))
             {
                 #ifndef _ONE_NET_SIMPLE_DEVICE
@@ -1423,7 +1428,7 @@ BOOL one_net(on_txn_t ** txn)
                 // out, but they might.
 
                 ack_nack_payload.nack_time_ms = (*txn)->response_timeout;
-                ack_nack.handle = ON_NACK_TIME_MS;
+                ack_nack.handle = ON_NACK_TIMEOUT_MS;
                 ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE;
                 #endif
                 
@@ -1434,6 +1439,15 @@ BOOL one_net(on_txn_t ** txn)
                 msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(txn,
                   &data_pkt_ptrs, single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), &ack_nack);
+                  
+                // we may have been given a pause by the application code,
+                // so check if it has changed the nack handle to
+                // ON_NACK_PAUSE_TIME_MS.  If so, we'll adjust the
+                // next_send_pause_time variable.
+                if(ack_nack.handle == ON_NACK_PAUSE_TIME_MS)
+                {
+                    next_send_pause_time = ack_nack_payload.nack_time_ms;
+                }
                   
                 // things may or may not have been changed.  One thing
                 // that would change would be if the message was terminated
@@ -1511,15 +1525,14 @@ BOOL one_net(on_txn_t ** txn)
             }
             else if(response_msg_or_timeout)
             {
-                #ifdef _ONE_NET_MULTI_HOP
-                UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY +
-                  (1 + (*txn)->max_hops) * (*txn)->response_timeout;
+                #ifndef _ONE_NET_SIMPLE_CLIENT
+                ont_set_timer((*txn)->next_txn_timer,
+                  MS_TO_TICK(next_send_pause_time));
                 #else
-                UInt32 new_timeout_ms = (*txn)->response_timeout;
-                #endif
-
                 // send right away.
                 ont_set_timer((*txn)->next_txn_timer, 0);
+                #endif
+                
                 on_state -= 2;
             }            
 

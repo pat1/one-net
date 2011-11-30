@@ -462,6 +462,8 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 }
 
 
+#include "one_net_prand.h"
+#include "tick.h"
 #ifndef _ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
@@ -479,8 +481,22 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
-    resp_ack_nack->handle = ON_NACK_TIME_MS;
-    resp_ack_nack->payload->nack_time_ms = 300;
+    // just to prove we can pause and change the response timeout.
+    if(resp_ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE)
+    {
+        if(one_net_prand(get_tick_count(), 2))
+        {
+            resp_ack_nack->handle = ON_NACK_PAUSE_TIME_MS;
+            resp_ack_nack->payload->nack_time_ms =
+              one_net_prand(get_tick_count(), 250);
+        }
+        else
+        {
+            resp_ack_nack->handle = ON_NACK_SLOW_DOWN_TIME_MS;
+            resp_ack_nack->payload->nack_time_ms =
+              one_net_prand(get_tick_count(), 250);
+        }
+    }
     return ON_MSG_CONTINUE;
 }
 
