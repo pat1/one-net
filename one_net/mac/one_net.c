@@ -1061,7 +1061,11 @@ BOOL one_net(on_txn_t ** txn)
 {
     one_net_status_t status;
     on_txn_t* this_txn;
-    on_pkt_t* this_pkt_ptrs; 
+    on_pkt_t* this_pkt_ptrs;
+    
+    on_ack_nack_t ack_nack;
+    ack_nack_payload_t ack_nack_payload;
+    ack_nack.payload = &ack_nack_payload;
     
     
     switch(on_state)
@@ -1413,10 +1417,7 @@ BOOL one_net(on_txn_t ** txn)
                 // out, but they might.
                 
                 on_message_status_t msg_status;
-                ack_nack_payload_t nack_payload;
-                on_ack_nack_t ack_nack;
-                ack_nack.payload = &nack_payload;
-                nack_payload.nack_time_ms = ONE_NET_RESPONSE_TIME_OUT;
+                ack_nack_payload.nack_time_ms = ONE_NET_RESPONSE_TIME_OUT;
                 ack_nack.handle = ON_NACK_TIME_MS;
                 ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE;
                 #endif
@@ -1461,7 +1462,6 @@ BOOL one_net(on_txn_t ** txn)
                       single_msg_ptr->payload,
                       &(single_msg_ptr->msg_type), msg_status, &ack_nack);
                     #else
-                    on_ack_nack_t ack_nack;
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                     (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                       single_msg_ptr->payload,
