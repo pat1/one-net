@@ -143,7 +143,12 @@ typedef enum
     ON_ACK_FEATURES,       //! Normal ACK accompanied with four bytes of features
 	ON_ACK_DATA,           //! The ACK is accompanied by 5 bytes of data.
 	ON_ACK_VALUE,          //! The ACK is accompanied by 8 bit and 32 bit unsigned integers.
-	ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing time in milliseconds
+	ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing generic time in milliseconds
+	ON_ACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
+	ON_ACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
+                              //! the time specified.
+	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
+                              //! the time specified.
 	ON_ACK_STATUS          //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
 } on_ack_handle_t;
 
@@ -159,6 +164,11 @@ typedef enum
 	ON_NACK_DATA,       //! The NACK is accompanied by 5 bytes of data.
 	ON_NACK_VALUE,      //! The NACK is accompanied by a 32 bit unsigned integer.
 	ON_NACK_TIME_MS,    //! The NACK is accompanied by a 32 bit unsigned integer representing time in milliseconds
+	ON_NACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
+	ON_NACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
+                              //! the time specified.
+	ON_NACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
+                              //! the time specified.
 } on_nack_handle_t;
 
 
