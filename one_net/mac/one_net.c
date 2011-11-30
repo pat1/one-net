@@ -1407,21 +1407,24 @@ BOOL one_net(on_txn_t ** txn)
         
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
+            on_message_status_t msg_status;
+            BOOL terminate_txn = FALSE;
+            BOOL response_msg_or_timeout = FALSE; // will be set to true if
+                 // the response timer timed out or there was a response
+            
             if(ont_inactive_or_expired(ONT_RESPONSE_TIMER))
             {
-                BOOL terminate_txn = FALSE;
-                
                 #ifndef _ONE_NET_SIMPLE_DEVICE
                 // we timed out without a response.  Notify application code
                 // it's unlikely they'll decide to change the response time-
                 // out, but they might.
-                
-                on_message_status_t msg_status;
-                ack_nack_payload.nack_time_ms = ONE_NET_RESPONSE_TIME_OUT;
+
+                ack_nack_payload.nack_time_ms = (*txn)->response_timeout;
                 ack_nack.handle = ON_NACK_TIME_MS;
                 ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE;
                 #endif
                 
+                response_msg_or_timeout = TRUE;
                 (*txn)->retry++;
                 
                 #ifndef _ONE_NET_SIMPLE_DEVICE
@@ -1440,87 +1443,83 @@ BOOL one_net(on_txn_t ** txn)
                     {
                         // we continue.  The response timeout may or may not
                         // have been changed.  We don't care here.
+                        msg_status = ON_MSG_TIMEOUT;
+                        terminate_txn = ((*txn)->retry >= ON_MAX_RETRY);
                         break;
                     }
                     default:
                     {
-                        // transaction has been terminated either by ONE_NET
-                        // or by the application code.
+                        // transaction has been terminated either by ONE-NET
+                        // or by the application code.  Turn it into a
+                        // tiemout?
+                        msg_status = ON_MSG_TIMEOUT;
                         terminate_txn = TRUE;
                     }
                 }
                 #else
+                msg_status = ON_MSG_TIMEOUT;
                 terminate_txn = ((*txn)->retry >= ON_MAX_RETRY);
                 #endif
-
-                if(terminate_txn)
-                {
-                    #ifndef _ONE_NET_SIMPLE_DEVICE
-                    // transaction has been terminated either by ONE_NET
-                    // or by the application code.
-                    (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
-                      single_msg_ptr->payload,
-                      &(single_msg_ptr->msg_type), msg_status, &ack_nack);
-                    #else
-                    ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
-                    (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
-                      single_msg_ptr->payload,
-                      &(single_msg_ptr->msg_type), ON_MSG_TIMEOUT,
-                      &ack_nack);                    
-                    #endif
-                      
-                    // clear the transaction.
-                    (*txn)->priority = ONE_NET_NO_PRIORITY;
-                    *txn = 0;
-                    single_msg_ptr = 0;
-                    on_state = ON_LISTEN_FOR_DATA;
-                    return TRUE;
-                }
-                else
-                {
-                    #ifdef _ONE_NET_MULTI_HOP
-                    UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY +
-                      (1 + (*txn)->max_hops) * (*txn)->response_timeout;
-                    #else
-                    UInt32 new_timeout_ms = (*txn)->response_timeout;
-                    #endif
-
-                    // send right away.
-                    ont_set_timer((*txn)->next_txn_timer, 0);
-                    on_state -= 2;
-                      
-                    break;
-                }
             }
-            
-            status = on_rx_packet((const on_encoded_did_t * const)
-              &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
-              (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-              raw_payload_bytes);
-            
-            if(status == ONS_PKT_RCVD && this_txn == &response_txn)
+            else
             {
-                rx_single_resp_pkt(txn, &this_txn, this_pkt_ptrs,
+                status = on_rx_packet((const on_encoded_did_t * const)
+                  &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
+                  (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
-
-                if(this_txn == 0)
-                { 
-                    // we've finished with this transaction
-                    // one way or the other.  Clear it.
-                    oncli_send_msg("one_net().  Single terminated.\n");
-                    (*txn)->priority = ONE_NET_NO_PRIORITY;
-                    *txn = 0;
-                    single_msg_ptr = 0;
-                    on_state = ON_LISTEN_FOR_DATA;
-                }
-                else
+            
+                if(status == ONS_PKT_RCVD && this_txn == &response_txn)
                 {
-                    // just increment the retries and reset for now.
-                    on_state -= 2;
-                    ont_set_timer((*txn)->next_txn_timer, 0);
+                    response_msg_or_timeout = TRUE;
+                    msg_status = rx_single_resp_pkt(txn, &this_txn,
+                      this_pkt_ptrs, raw_payload_bytes);
+
+                    switch(msg_status)
+                    {
+                        case ON_MSG_IGNORE:
+                            break;
+                        default:
+                            terminate_txn = (this_txn == 0);
+                    }
                 }
             }
             
+            if(terminate_txn)
+            {
+                #ifndef _ONE_NET_SIMPLE_DEVICE
+                // transaction has been terminated either by ONE_NET
+                // or by the application code.
+                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
+                  single_msg_ptr->payload,
+                  &(single_msg_ptr->msg_type), msg_status, &ack_nack);
+                #else
+                ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
+                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
+                  single_msg_ptr->payload, &(single_msg_ptr->msg_type),
+                  msg_status, &ack_nack);                    
+                #endif
+                  
+                // clear the transaction.
+                (*txn)->priority = ONE_NET_NO_PRIORITY;
+                *txn = 0;
+                single_msg_ptr = 0;
+                on_state = ON_LISTEN_FOR_DATA;
+                return TRUE;
+            }
+            else if(response_msg_or_timeout)
+            {
+                #ifdef _ONE_NET_MULTI_HOP
+                UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY +
+                  (1 + (*txn)->max_hops) * (*txn)->response_timeout;
+                #else
+                UInt32 new_timeout_ms = (*txn)->response_timeout;
+                #endif
+
+                // send right away.
+                ont_set_timer((*txn)->next_txn_timer, 0);
+                on_state -= 2;
+            }            
+
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
     }
