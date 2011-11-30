@@ -149,7 +149,16 @@ typedef enum
                               //! the time specified.
 	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
                               //! the time specified.
-	ON_ACK_STATUS          //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
+	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.                              
+	ON_ACK_STATUS,        //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
+    ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
+                                  //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
+                                  //! but their meanings are to be interpreted by the application code.
+                                  
+    // TODO -- handle is 4 bits.  We need a constant for this, not 15.
+    ON_ACK_MAX_APPLICATION_HANDLE = 15 //! Application-specific handles are allowable and will be treated by ONE-NET
+                                  //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
+                                  //! but their meanings are to be interpreted by the application code.
 } on_ack_handle_t;
 
 
@@ -165,6 +174,9 @@ typedef enum
 #define ON_NACK_TIMEOUT_MS ON_ACK_TIMEOUT_MS
 #define ON_NACK_SLOW_DOWN_TIME_MS ON_ACK_SLOW_DOWN_TIME_MS
 #define ON_NACK_SPEED_UP_TIME_MS ON_ACK_SPEED_UP_TIME_MS
+#define ON_NACK_PAUSE_TIME_MS ON_ACK_PAUSE_TIME_MS
+#define ON_NACK_MIN_APPLICATION_HANDLE ON_ACK_MIN_APPLICATION_HANDLE
+#define ON_NACK_MAX_APPLICATION_HANDLE ON_ACK_MAX_APPLICATION_HANDLE
 
 typedef on_ack_handle_t on_ack_nack_handle_t; // it's all ints anyway
 typedef on_ack_handle_t on_nack_handle_t; // it's all ints anyway
