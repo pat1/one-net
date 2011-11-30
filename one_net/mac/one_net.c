@@ -283,6 +283,8 @@ static BOOL range_testing_on = FALSE;
 
 
 static BOOL check_for_clr_channel(void);
+static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
+  on_txn_t* this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes);
 
 
 
@@ -1499,21 +1501,25 @@ BOOL one_net(on_txn_t ** txn)
             
             if(status == ONS_PKT_RCVD && this_txn == &response_txn)
             {
-                // debugging
-                {
-                    UInt8 i;
-                    oncli_send_msg("Response Raw payload : ");
-                    for(i = 0; i < 8; i++)
-                    {
-                        oncli_send_msg("%02X ", raw_payload_bytes[i]);
-                    }
-                    oncli_send_msg("\n");
+                rx_single_resp_pkt(txn, this_txn, this_pkt_ptrs,
+                  raw_payload_bytes);
+
+                if(this_txn == 0)
+                { 
+                    // we've finished with this transaction
+                    // one way or the other.  Clear it.
+                    oncli_send_msg("one_net().  Single terminated.\n");
+                    (*txn)->priority = ONE_NET_NO_PRIORITY;
+                    *txn = 0;
+                    single_msg_ptr = 0;
+                    on_state = ON_LISTEN_FOR_DATA;
                 }
-                
-                // just increment the retries and reset for now.
-                ((*txn)->retry)++;
-                on_state -= 2;
-                ont_set_timer((*txn)->next_txn_timer, 0);
+                else
+                {
+                    // just increment the retries and reset for now.
+                    on_state -= 2;
+                    ont_set_timer((*txn)->next_txn_timer, 0);
+                }
             }
             
             break;
@@ -1601,6 +1607,22 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 } // one_net_set_max_hops //
 #endif
 
+
+// TODO -- document
+static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
+  on_txn_t* this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes)
+{
+    UInt8 i;
+    oncli_send_msg("Response Raw payload : ");
+    for(i = 0; i < 8; i++)
+    {
+        oncli_send_msg("%02X ", raw_payload_bytes[i]);
+    }
+    oncli_send_msg("\n");
+    
+    ((*txn)->retry)++;
+    return ON_MSG_DEFAULT_BHVR;
+}
 
 
 /*!
