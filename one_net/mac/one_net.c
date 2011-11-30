@@ -1072,7 +1072,7 @@ BOOL one_net(on_txn_t ** txn)
             on_raw_did_t raw_did;
             #endif
             
-            // we are listinging for data.  Make sure we have nothing
+            // we are listening for data.  Make sure we have nothing
             // pending
             #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
