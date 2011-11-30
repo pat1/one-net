@@ -157,22 +157,17 @@ typedef enum
     Specifies what a NACK means and whether there is any data accompanying it.  Same as ACK values.
 	Just defined here so you can use whichever you like.  These MUST correspond to the on_ack_handle_t values.
 */
-typedef enum
-{
-	ON_NACK,            //! Normal NACK with no accompanying data
-    ON_NACK_FEATURES,   //! Normal NACK accompanied with four bytes of features
-	ON_NACK_DATA,       //! The NACK is accompanied by 5 bytes of data.
-	ON_NACK_VALUE,      //! The NACK is accompanied by a 32 bit unsigned integer.
-	ON_NACK_TIME_MS,    //! The NACK is accompanied by a 32 bit unsigned integer representing time in milliseconds
-	ON_NACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
-	ON_NACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
-                              //! the time specified.
-	ON_NACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
-                              //! the time specified.
-} on_nack_handle_t;
-
+#define ON_NACK ON_ACK
+#define ON_NACK_FEATURES ON_ACK_FEATURES
+#define ON_NACK_DATA ON_ACK_DATA
+#define ON_NACK_VALUE ON_ACK_VALUE
+#define ON_NACK_TIME_MS ON_ACK_TIME_MS
+#define ON_NACK_TIMEOUT_MS ON_ACK_TIMEOUT_MS
+#define ON_NACK_SLOW_DOWN_TIME_MS ON_ACK_SLOW_DOWN_TIME_MS
+#define ON_NACK_SPEED_UP_TIME_MS ON_ACK_SPEED_UP_TIME_MS
 
 typedef on_ack_handle_t on_ack_nack_handle_t; // it's all ints anyway
+typedef on_ack_handle_t on_nack_handle_t; // it's all ints anyway
 
 
 typedef struct
