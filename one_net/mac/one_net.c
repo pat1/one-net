@@ -1387,8 +1387,7 @@ BOOL one_net(on_txn_t ** txn)
                     return TRUE;
                 }
 
-                ont_set_timer((*txn)->next_txn_timer,
-                  MS_TO_TICK(new_timeout_ms));
+                ont_set_timer(ONT_RESPONSE_TIMER, MS_TO_TICK(new_timeout_ms));
                   
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
@@ -1486,9 +1485,9 @@ BOOL one_net(on_txn_t ** txn)
                     UInt32 new_timeout_ms = (*txn)->response_timeout;
                     #endif
 
-                    ont_set_timer((*txn)->next_txn_timer,
-                      MS_TO_TICK(new_timeout_ms));
-                      on_state -= 2;
+                    // send right away.
+                    ont_set_timer((*txn)->next_txn_timer, 0);
+                    on_state -= 2;
                       
                     break;
                 }
