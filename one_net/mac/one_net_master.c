@@ -916,7 +916,7 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_type = *msg_type;
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
-    ack_nack.payload = (ack_nack_payload_t*) raw_pld;
+    ack_nack.payload = (ack_nack_payload_t*) &raw_pld[ON_PLD_DATA_IDX];
     ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack.handle = ON_ACK;
 
@@ -931,7 +931,7 @@ static on_message_status_t on_master_single_data_hdlr(
         oncli_send_msg("Raw payload length : %d\n", len);
         for(i = 0; i < len; i++)
         {
-            oncli_send_msg("%02X ", raw_pld[i]);
+            oncli_send_msg("%02X ", raw_pld[i + ON_PLD_DATA_IDX]);
         }
         
         oncli_send_msg("\n");
@@ -940,11 +940,11 @@ static on_message_status_t on_master_single_data_hdlr(
     oncli_send_msg("Calling one_net_master_handle_single_pkt\n");
     
     #ifndef _ONE_NET_MULTI_HOP
-    msg_status =  one_net_master_handle_single_pkt(raw_pld, &msg_hdr,
-      &raw_src_did, &raw_repeater_did, &ack_nack);
+    msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+      &msg_hdr, &raw_src_did, &raw_repeater_did, &ack_nack);
     #else
-    msg_status = one_net_master_handle_single_pkt(raw_pld, &msg_hdr,
-      &raw_src_did, &raw_repeater_did, &ack_nack, (*txn)->hops,
+    msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+      &msg_hdr, &raw_src_did, &raw_repeater_did, &ack_nack, (*txn)->hops,
       &((*txn)->max_hops));
     #endif
     

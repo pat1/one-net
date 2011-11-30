@@ -1164,7 +1164,7 @@ BOOL one_net(on_txn_t ** txn)
 
                             (*pkt_hdlr.single_data_hdlr)(&this_txn,
                               this_pkt_ptrs,
-                              &raw_payload_bytes[ON_PLD_DATA_IDX], &msg_type);
+                              raw_payload_bytes, &msg_type);
                               
                             if(this_txn == &response_txn)
                             {
