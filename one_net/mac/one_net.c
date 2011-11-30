@@ -1065,7 +1065,6 @@ void one_net_init(void)
 BOOL one_net(on_txn_t ** txn)
 {
     one_net_status_t status;
-    UInt8 txn_nonce, resp_nonce;
     on_txn_t* this_txn;
     on_pkt_t* this_pkt_ptrs; 
     
@@ -1136,7 +1135,7 @@ BOOL one_net(on_txn_t ** txn)
                     // or stream packet.
                     status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
                       (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-                      &txn_nonce, &resp_nonce, raw_payload_bytes);
+                      raw_payload_bytes);
             
                     if(status == ONS_PKT_RCVD)
                     {
@@ -1503,7 +1502,7 @@ BOOL one_net(on_txn_t ** txn)
             status = on_rx_packet((const on_encoded_did_t * const)
               &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
               (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-              &txn_nonce, &resp_nonce, raw_payload_bytes);
+              raw_payload_bytes);
             
             if(status == ONS_PKT_RCVD && this_txn == &response_txn)
             {
@@ -1789,8 +1788,6 @@ one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
     \param[in] The current transaction being carried out.
     \param[out] this_txn The packet received
     \param[out] this_pkt_ptrs Filled in pointers to the packet received
-    \param[out] txn_nonce The transaction nonce received
-    \param[out] resp_nonce The response nonce received
     \param[out] raw_payload_bytes The decoded / decrypted bytes of this packet
 
     \return ONS_PKT_RCVD if a valid packet was received
@@ -1798,7 +1795,7 @@ one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
 */
 one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
   const on_txn_t* const txn, on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
-  UInt8* txn_nonce, UInt8* resp_nonce, UInt8* raw_payload_bytes)
+  UInt8* raw_payload_bytes)
 {
     one_net_status_t status;
     on_encoded_did_t src_did;
@@ -1822,8 +1819,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_NOT_INIT;
     } // if this device was not initialized //
 
-    if(!EXPECTED_SRC_DID || !this_txn || !this_pkt_ptrs || !txn_nonce
-      || !resp_nonce)
+    if(!EXPECTED_SRC_DID || !this_txn || !this_pkt_ptrs)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
@@ -2158,17 +2154,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // decode the message id and fill it in.
     on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
       ONE_NET_ENCODED_MSG_ID_LEN);
-
-      
-    // everything but invite packets will have nonces
-    #ifdef _ONE_NET_CLIENT
-    if(device_is_master || type != ON_INVITE)
-    #endif
-    {
-        *txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
-        *resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
-    }
-    
 
     #if 0
     // TODO -- handle replay attacks elsewhere
