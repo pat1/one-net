@@ -1,20 +1,20 @@
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\applications\eval_boards"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\src\r8c23"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\src\eval\adi"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\src\eval"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\src\common"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\port_specific"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\mac"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\common"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\common\string"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers\adi"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\app"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\utility"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\cli"
--I"C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\applications\eval_boards"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\src\r8c23"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\src\eval\adi"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\src\eval"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\src\common"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\port_specific"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\mac"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\common"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\common\string"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers\adi"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\app"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\utility"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\cli"
+-I"C:\HEWProj\d1\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers"
 -c
 -finfo
--dir "C:\HEWProj\dum2\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"
+-dir "C:\HEWProj\d1\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"
 -O5
 -OR
 -O5OA
@@ -27,4 +27,4 @@
 -fSA
 -fUD
 -R8CE
-"C:\HEWProj\dum2\applications\eval_boards\one_net_eval.c"
+"C:\HEWProj\d1\applications\eval_boards\one_net_eval.c"
