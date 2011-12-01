@@ -57,6 +57,9 @@
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client_port_specific.h"
+#endif
 
 
 
