@@ -644,8 +644,10 @@ UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
           return 0; // bad pid
     }
     
+    #ifdef _ONE_NET_MULTI_HOP
     // turn it back into multi-hop if it was before
     set_multihop_pid(&resp_pid, pid_is_multi);
+    #endif
     
     // now set stay-awake
     set_stay_awake_pid(&resp_pid, stay_awake);
