@@ -921,11 +921,16 @@ static oncli_status_t list_cmd_hdlr(void)
 static oncli_status_t erase_cmd_hdlr(void)
 {
     #ifdef _ONE_NET_MASTER
+    #ifdef _ONE_NET_CLIENT
     if(device_is_master)
     {
         return ((one_net_master_erase_settings() == ONS_SUCCESS) ?
           ONCLI_SUCCESS : ONCLI_CMD_FAIL);
     }
+    #else
+    return ((one_net_master_erase_settings() == ONS_SUCCESS) ?
+      ONCLI_SUCCESS : ONCLI_CMD_FAIL);
+    #endif
     #endif
     
     #ifdef _ONE_NET_CLIENT
@@ -948,11 +953,16 @@ static oncli_status_t erase_cmd_hdlr(void)
 static oncli_status_t save_cmd_hdlr(void)
 {
     #ifdef _ONE_NET_MASTER
+    #ifdef _ONE_NET_CLIENT
     if(device_is_master)
     {
         return ((one_net_master_save_settings() == ONS_SUCCESS) ?
           ONCLI_SUCCESS : ONCLI_CMD_FAIL);
     }
+    #else
+    return ((one_net_master_save_settings() == ONS_SUCCESS) ?
+      ONCLI_SUCCESS : ONCLI_CMD_FAIL);
+    #endif
     #endif
     
     #ifdef _ONE_NET_CLIENT
