@@ -391,7 +391,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     one_net_memmove(pkt_ptrs->payload, ack_nack->payload, ack_nack_pld_len);
     
     // now move the pointer.
-    ack_nack->payload = pkt_ptrs->payload;
+    ack_nack->payload = (ack_nack_payload_t*) pkt_ptrs->payload;
 
     if(num_words <= 0)
     {
