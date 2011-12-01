@@ -221,6 +221,14 @@ ONE_NET_INLINE void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
         (msg_type & ON_PLD_MSG_TYPE_MASK);
 }
 
+
+// for responses, the ack / nack handle is precisely where the messge
+// type is for data packets, so we'll define some macros.
+#define get_ack_nack_handle(X) get_payload_msg_type(X)
+#define put_ack_nack_handle(X, Y) put_payload_msg_type(X, Y)
+
+
+
 // TODO -- Look at the naming conventions and try to follow them a little
 // better.  The shifts and masks are a bit confusing and don't follow a nice
 // pattern (i.e. sometimes we are shifting, then masking, sometimes vice-
