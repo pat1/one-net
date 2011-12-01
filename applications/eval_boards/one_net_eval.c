@@ -355,10 +355,12 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 
     #ifndef _ONE_NET_MULTI_HOP
     if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
-      !ack_nack->payload || ack_nack->payload != raw_pld)
+      !ack_nack->payload || ack_nack->payload !=
+      (ack_nack_payload_t*) raw_pld)
     #else
     if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack
-      !ack_nack->payload || ack_nack->payload != raw_pld || !max_hops)
+      !ack_nack->payload || ack_nack->payload !=
+      (ack_nack_payload_t*) raw_pld || !max_hops)
     #endif
     {
         oncli_send_msg("eval_hdl_sng: Bad parameter.\n");
