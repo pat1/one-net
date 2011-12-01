@@ -146,7 +146,8 @@ static tick_t new_channel_clear_time_out = 0;
 
 // packet handlers
 static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_handle_single_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
@@ -156,7 +157,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 static on_message_status_t on_master_block_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_handle_block_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
@@ -167,7 +169,8 @@ static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
 
 #ifdef _STREAM_MESSAGES_ENABLED
 static on_message_status_t on_master_stream_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type);
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_handle_stream_ack_nack_response(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
@@ -832,7 +835,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 // TODO -- document
 #include "oncli.h"
 static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
 {
     // TODO -- 11/28/2011
     // Look at the rx_single_data function in one_net.c.  It has
@@ -842,7 +846,6 @@ static on_message_status_t on_master_single_data_hdlr(
     
     on_message_status_t msg_status;
     one_net_status_t response_status;
-    on_ack_nack_t ack_nack;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
     UInt8 response_pid;
@@ -916,9 +919,8 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_type = *msg_type;
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
-    ack_nack.payload = (ack_nack_payload_t*) &raw_pld[ON_PLD_DATA_IDX];
-    ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack.handle = ON_ACK;
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
 
     oncli_send_msg("Rcv'd packet : Source ");
     oncli_print_did(pkt->enc_src_did);
@@ -941,10 +943,10 @@ static on_message_status_t on_master_single_data_hdlr(
     
     #ifndef _ONE_NET_MULTI_HOP
     msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, &ack_nack);
+      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
     #else
     msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, &ack_nack, (*txn)->hops,
+      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
       &((*txn)->max_hops));
     #endif
     
@@ -953,23 +955,23 @@ static on_message_status_t on_master_single_data_hdlr(
     oncli_send_msg("msg_status=%d\n", msg_status);
     if(msg_status == ON_MSG_CONTINUE)
     {
-        if(ack_nack.nack_reason == ON_NACK_RSN_NO_ERROR)
+        if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
         {
             oncli_send_msg("Message ACK'd\n");
         }
         else
         {
             oncli_send_msg("Message NACK'd with reason %02X\n",
-              ack_nack.nack_reason);
+              ack_nack->nack_reason);
         }
         
-        oncli_send_msg("Handle = %d\n", ack_nack.handle);
-        if(ack_nack.handle == ON_ACK_STATUS)
+        oncli_send_msg("Handle = %d\n", ack_nack->handle);
+        if(ack_nack->handle == ON_ACK_STATUS)
         {
             UInt8 src_unit, dst_unit;
             ona_msg_class_t msg_class;
             UInt16 msg_type, msg_data;
-            UInt8* pld = ack_nack.payload->status_resp;
+            UInt8* pld = ack_nack->payload->status_resp;
             
             on_parse_app_pld(pld, &src_unit,
               &dst_unit, &msg_class, &msg_type, &msg_data);
@@ -1000,7 +1002,7 @@ static on_message_status_t on_master_single_data_hdlr(
         return ON_MSG_ABORT;
     }
     
-    response_pid = (ack_nack.nack_reason == ON_NACK_RSN_NO_ERROR ?
+    response_pid = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR ?
       resp_pid_grp[0] : resp_pid_grp[1]);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt))
@@ -1020,7 +1022,7 @@ static on_message_status_t on_master_single_data_hdlr(
     // change them.  We need to pass that along.  Should we change "device"?
     
     // TODO -- harness the return value
-    response_status = on_build_response_pkt(&ack_nack, pkt, *txn, device);
+    response_status = on_build_response_pkt(ack_nack, pkt, *txn, device);
     response_status = on_complete_pkt_build(pkt, msg_hdr.msg_id, response_pid);
     return ON_MSG_CONTINUE;
 }
@@ -1174,7 +1176,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 #ifdef _BLOCK_MESSAGES_ENABLED
 // TODO -- document
 static on_message_status_t on_master_block_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;
 }
@@ -1204,7 +1207,8 @@ static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
 #ifdef _STREAM_MESSAGES_ENABLED
 // TODO -- document
 static on_message_status_t on_master_stream_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type)
+  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;
 }

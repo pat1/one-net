@@ -1165,10 +1165,13 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             UInt8 msg_type =
                               get_payload_msg_type(raw_payload_bytes);
+                              
+                            ack_nack.payload = (ack_nack_payload_t*)
+                              &raw_payload_bytes[ON_PLD_IDX];
 
                             (*pkt_hdlr.single_data_hdlr)(&this_txn,
-                              this_pkt_ptrs,
-                              raw_payload_bytes, &msg_type);
+                              this_pkt_ptrs, raw_payload_bytes, &msg_type,
+                              &ack_nack);
                               
                             if(this_txn == &response_txn)
                             {
