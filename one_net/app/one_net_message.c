@@ -56,7 +56,7 @@
 //! @{
 
 
-const on_encoded_did_t NO_DESTINALTION = {0xFF, 0xFF};
+const on_encoded_did_t NO_DESTINATION = {0xFF, 0xFF};
 
 
 //! @} ONE-NET_MESSAGE_const
@@ -227,7 +227,7 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     }
     else
     {
-        one_net_memmove(element->dst_did, NO_DESTINALTION, ON_ENCODED_DID_LEN);
+        one_net_memmove(element->dst_did, NO_DESTINATION, ON_ENCODED_DID_LEN);
     }
     
     #ifdef _PEER
