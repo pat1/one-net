@@ -1199,6 +1199,10 @@ BOOL one_net(on_txn_t ** txn)
                                  // aborting
                 }
                 
+                // signifies the time we verified this message with this
+                // client to prevent replay attacks.
+                device->verify_time = 0;
+                
                 if(one_net_memcmp(&FEATURES_UNKNOWN, &(device->features),
                   sizeof(on_features_t)) == 0)
                 {
@@ -1627,16 +1631,109 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
   on_txn_t** this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes)
 {
     UInt8 i;
+    on_ack_nack_t ack_nack;
     BOOL ack_rcvd = packet_is_ack(*(pkt->pid));
-    oncli_send_msg("Rcv'd %s: Response Raw payload : ", ack_rcvd ?
-      "ACK" : "NACK");
-    for(i = 0; i < 8; i++)
-    {
-        oncli_send_msg("%02X ", raw_payload_bytes[i]);
-    }
-    oncli_send_msg("\n");
+    UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
+    UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
+    BOOL verify_needed = FALSE;
+    BOOL message_id_match = FALSE;
+    BOOL message_ignore = FALSE;
+    tick_t time_now = get_tick_count();
+    ack_nack.payload = (ack_nack_payload_t*) &raw_payload_bytes[ON_PLD_IDX];
     
-    if(!ack_rcvd)
+    if(ack_rcvd)
+    {
+        ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+    }
+    else
+    {
+        ack_nack.nack_reason = raw_payload_bytes[ON_PLD_IDX];
+    }
+    
+    ack_nack.handle = get_ack_nack_handle(raw_payload_bytes);
+
+
+    // Replay attacks are FAR more worriesome on the receiving side.
+    // We are the sender, but both sides should always check
+
+    // first check the nonces and the message ID
+    // against the sending device info.  We may or may not need to
+    // verify anything.
+    if((*txn)->device->verify_time == 0)
+    {
+        verify_needed = TRUE;
+    }
+    else if(time_now < (*txn)->device->verify_time)
+    {
+        // should never get here, but verify
+        (*txn)->device->verify_time = 0;
+        verify_needed = TRUE;
+    }
+    else if(MS_TO_TICK(time_now - (*txn)->device->verify_time) < 2000)
+    {
+        // TODO -- don't hard-code 2000
+        // if the last verification happened over 2 seconds ago, time to
+        // re-verify.
+        verify_needed = TRUE;
+    }
+
+
+    // now check the message IDs.  We should be getting a response to the one
+    // we sent.  If we don't get a response to the one we sent, if we
+    // have gotten back a NACK saying that the receiver did not like OUR
+    // message ID and giving us one to use, we'll use it.  Otherwise, we'll
+    // just call it a bad packet and otherwise ignore it.
+    
+    // TODO -- The protocol for avoiding replay attacks with message ids was
+    // originally to always INCREASE the message id.  If we were given a lower
+    // message id than we expected, we should not accept it.  However, we only
+    // have 6 bits to play with, so rollover is going to happen.  Until we
+    // find a good way to handle rollover, we'll just simply accept the
+    // message id given to us, but this will have to improve.    
+    
+    if(pkt->msg_id == (*txn)->device->msg_id)
+    {
+        message_id_match = TRUE;
+    }
+    else if(ack_nack.nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
+    {
+        // they've given us a new message ID.  We'll use it.
+        (*txn)->device->msg_id = pkt->msg_id;
+        (*txn)->device->verify_time == 0;
+    }
+    else
+    {
+        // the other device didn't seem to complain about our message id.
+        // This may be a lost acknowledgemnt to a PREVIOUS message, which
+        // we no longer care about or it may be a replay attack or it may
+        // something else.  Just ignore this packet.  But we'll increment
+        // the retries.  We'll want to reverify next time though.
+        message_ignore = TRUE;
+        ack_nack.nack_reason == ON_NACK_RSN_INVALID_MSG_ID;
+        (*txn)->device->verify_time == 0;
+    }
+
+    if(!message_ignore)
+    {
+        // regardless of whether the other side liked our nonces or we like
+        // theirs, we'll take the one they gave us to give back to them as OK
+        (*txn)->device->send_nonce = resp_nonce;
+    
+
+        if(message_id_match && verify_needed)
+        {
+            // we'll verify if the transaction nonce matches either the
+            // expected nonce or the last nonce.
+            if(txn_nonce == (*txn)->device->expected_nonce ||
+              txn_nonce == (*txn)->device->last_nonce)
+            {
+                // If they liked OUR nonces and the message 
+                (*txn)->device->verify_time = time_now;
+            }
+        }
+    }
+
+    if(ack_nack.nack_reason != ON_NACK_RSN_NO_ERROR)
     {
         ((*txn)->retry)++;
     }
@@ -1645,11 +1742,15 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
         *this_txn = 0;
         return ON_MSG_SUCCESS;
     }
-    
+
     if((*txn)->retry >= ON_MAX_RETRY)
     {
         *this_txn = 0;
         return ON_MSG_FAIL;
+    }
+    else if(message_ignore)
+    {
+        return ON_MSG_IGNORE;
     }
 
     return ON_MSG_DEFAULT_BHVR;
