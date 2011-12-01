@@ -1163,6 +1163,7 @@ BOOL one_net(on_txn_t ** txn)
                         
                         if(this_txn == &single_txn)
                         {
+                            on_message_status_t msg_status;
                             UInt8 msg_type =
                               get_payload_msg_type(raw_payload_bytes);
                               
@@ -1791,58 +1792,122 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
 
     \param[in/out] txn The single transaction
     \param[in] raw_payload The decoded, decrypted payload
-    \param[in] txn_nonce The transaction nonce in the packet
-    \param[in] resp_nonce The response nonce in the packet
+    \param[out] ack_nack The ACK or NACK reason, handle, and payload
 
-    \return ONS_READ_ERR If the hops field could not be read.
-            ONS_INTERNAL_ERR If something unexpexted happened.
-            See rx_payload & single_data_hdlr for more options.
+    \return ON_MSG_CONTINUE If the packet should be processed further
+            ON_MSG_RESPONSE If the packet does not need further processing
+                            and should be responded to.
+            ON_MSG_IGNORE If the packet should be not be ignored
+            See on_message_status_t & single_data_hdlr for more options.
 */
-one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
-  UInt8 txn_nonce, UInt8 resp_nonce)
+on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
+  on_ack_nack_t* ack_nack)
 {
-    UInt8 msg_type, msg_id, resp_pid;
+    BOOL ack_msg = FALSE;
+    UInt8 msg_type, resp_pid;
+    UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
+    UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL src_features_known;
-    on_ack_nack_t ack_nack;
-    ack_nack_payload_t ack_nack_payload;
-    one_net_status_t status;
+    BOOL verify_needed = FALSE;
+    BOOL message_id_match = FALSE;
+    BOOL message_ignore = FALSE;
+    tick_t time_now = get_tick_count();
+    on_message_status_t msg_status = ON_MSG_CONTINUE;
     
-    ack_nack.payload = &ack_nack_payload;
     
-    if(!txn || (*txn != &single_txn) || !raw_payload)
+    // we'll do a little prep work here before actually sending the message
+    // to the single data handler.  Anything we can handle here where the
+    // application code does not need to be alerted will be handled here.
+    // Possibilities include...
+    //
+    // 1) Making sure that both ends hanve each others' features.
+    // 2) Verifying message ids and nonces.
+    // 3) Figuring out what messages can definitely be aborted.
+    
+    
+    // Message ids and nonces serve three purposes...
+    // 1) Protecting against replay attacks.
+    // 2) Making sure devices are in sync.
+    // 3) Making sure that single messages which have been completed are
+    //    not acted upon again.  We sent and earlier ACK that must have been
+    //    lost.  We will ACK again.
+    //
+    //    Note : The protocol is not complete on this.  Simply ACKing won't
+    //           do the job because very often the message will require the
+    //           current status and only the application code can provide
+    //           that.  Some messages should never be acted upon twice
+    //           (i.e. changing a key fragment) and some don't matter.  For
+    //           now if we've ACK'd before, we will skip the verification.
+    //           Acting upon a message twice, however, opens up the
+    //           possibility of replay attacks, so this needs to be worked
+    //           out much more thoroughly in the protocol.  Ideally we would
+    //           like to ACKNOWLEDGE a valid message that has already been
+    //           ACK'd, but not ACT UPON it, particularly if it is a command
+    //           to turn a relay on or off or a command to set some other
+    //           setting to a certain setting.
+    //
+    //           For now we will risk the replay attack in order to reduce
+    //           lost messages, but we will require the nonce to be correct.
+    //           Upon verification, we will CHANGE the nonce ONCE, then not
+    //           again.  Verification will only occur if the message matches
+    //           the EXPECTED nonce, not the expected or the last nonce, again
+    //           to help prevent replay attacks.
+    //                   
+    
+    
+
+    
+    if(!txn || !(*txn) || !raw_payload)
     {
         return ONS_BAD_PARAM;
     }
     
     (*txn)->device = (*get_sender_info)
       ((on_encoded_did_t*) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
-    
-    on_decode(&msg_id, &((*txn)->pkt[ONE_NET_ENCODED_MSG_ID_IDX]),
-      ONE_NET_ENCODED_MSG_ID_LEN);
-    msg_id >>= 2;
-    
+
+    if((*txn)->device == NULL)
+    {
+        // how the heck did this happen?
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+
     src_features_known = features_known((*txn)->device->features);
     msg_type = raw_payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK;
-
     
     // If the source features are not known and it is NOT an admin message
-    // telling us what those features are, we'll NACK the message.
-    if(msg_type == ON_ADMIN_MSG && (raw_payload[ON_PLD_ADMIN_TYPE_IDX] ==
-      ON_FEATURES_RESP || raw_payload[ON_PLD_ADMIN_TYPE_IDX] ==
-      ON_FEATURES_QUERY))
+    // telling us what those features are, we'll NACK the message.  We'll
+    // also NACK the message if the message type is ON_FEATURE_MSG.  This
+    // generally means that the device wants to send something to us, but
+    // doesn't have features.  It is giving us its features and wants ours
+    // in return.  It also wants to be NACK'd, not ACK'd for easier handling
+    // the other end.  If it wanted an ACK, it would have sent a features
+    // request admin message.
+    
+    if(msg_type == ON_FEATURE_MSG)
     {
-        // we don't authenticate nonces or message ids for this message type
-        *txn = &response_txn;
-        (*txn)->device = single_txn.device;
-
-        // copy in the features
-        one_net_memmove(&((*txn)->device->features),
-          &raw_payload[ON_PLD_ADMIN_DATA_IDX], sizeof(on_features_t));
-        // copy in the message id
-        (*txn)->device->msg_id = msg_id;
+        if(!src_features_known)
+        {
+            // we don't have this device in our table yet.  Fill in the
+            // features.
+            one_net_memmove(&((*txn)->device->features),
+              &raw_payload[ON_PLD_DATA_IDX], sizeof(on_features_t));
+        }
+        
         (*txn)->device->send_nonce = resp_nonce;
         
-        resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;
+        // we'll NACK it and give the nack reason as ON_NACK_RSN_GENERAL_ERR,
+        // but the NACK handle will be ON_NACK_FEATURES.
+        
+        ack_nack->nack_reason = ON_NACK_RSN_GENERAL_ERR;
+        ack_nack->handle = ON_NACK_FEATURES;
+        ack_nack->payload->features = THIS_DEVICE_FEATURES;
+
+        // we don't authenticate nonces or message ids for this message type
+        response_txn.device = (*txn)->device;
+        *txn = &response_txn;
+
+        resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
         #ifdef _ONE_NET_MULTI_HOP
         (*txn)->device->hops = (*txn)->hops;
         if((*txn)->hops > 0)
@@ -1865,48 +1930,45 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
         #endif
         
         response_txn.key = single_txn.key;
-        
-        if((status = on_build_my_pkt_addresses(&response_pkt_ptrs,
-            (on_encoded_did_t*) &(single_txn.pkt[ON_ENCODED_SRC_DID_IDX]),
-            (on_encoded_did_t*) &(on_base_param->sid[ON_ENCODED_NID_LEN])))
-            != ONS_SUCCESS)
-        {
-            *txn = 0;
-            return status;
-        }
-        
-        ack_nack.handle = ON_ACK_FEATURES;
-        ack_nack.payload->features = THIS_DEVICE_FEATURES;
-
-        if((status = on_build_response_pkt(&ack_nack, &response_pkt_ptrs,
-          *txn, (*txn)->device)) != ONS_SUCCESS)
-        {
-            *txn = 0;
-            return status;
-        }
-        
-        if((status = on_complete_pkt_build(&response_pkt_ptrs,
-          (*txn)->device->msg_id, resp_pid)) != ONS_SUCCESS)
-        {
-            // An error of some sort occurred.  Abort.
-            *txn = 0;
-            return status; // no outstanding transaction                            
-        }
-        
-        // send right away
-        ont_set_timer((*txn)->next_txn_timer, 0);
-        on_state = ON_SEND_SINGLE_DATA_RESP;
-        return ONS_TXN_QUEUED;
+        msg_status = ON_MSG_RESPOND;
     }
-    
-    // adding a little debugging
-    oncli_send_msg("Rcv'd single : source=%02X%02X repeater=%02X%02X\n",
-      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX],
-      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX + 1],
-      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
-      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
 
-    return ONS_SUCCESS;
+    if(msg_status == ON_MSG_RESPOND)
+    {
+        on_pkt_t pkt;
+        on_msg_hdr_t msg_hdr;
+        msg_hdr.pid = *(pkt.pid);
+        msg_hdr.msg_id = pkt.msg_id;
+        msg_hdr.msg_type = msg_type;
+        
+        if(!setup_pkt_ptr(resp_pid, response_txn.pkt, &pkt))
+        {
+            *txn = 0;
+            return ON_MSG_INTERNAL_ERR;
+        }
+    
+        // the response destination will be the transaction's source
+        on_build_my_pkt_addresses(&pkt, (const on_encoded_did_t* const)
+          &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL);
+
+        response_txn.key = (*txn)->key;
+        *txn = &response_txn;
+
+        if(on_build_response_pkt(ack_nack, &pkt, *txn, (*txn)->device) !=
+          ONS_SUCCESS)
+        {
+            *txn = 0;
+            return ON_MSG_INTERNAL_ERR;
+        }
+        if(on_complete_pkt_build(&pkt, msg_hdr.msg_id, resp_pid) !=
+          ONS_SUCCESS)
+        {
+            *txn = 0;
+            return ON_MSG_INTERNAL_ERR;
+        }
+    }
+
+    return msg_status;
 } // rx_single_data //
 
 
@@ -1920,7 +1982,7 @@ one_net_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
 
     \return ONS_READ_ERR If the hops field could not be read.
             ONS_INTERNAL_ERR If something unexpexted happened.
-            See rx_payload & single_data_hdlr for more options.
+            See one_net_status_codes.h and single_data_hdlr for more options.
 */
 one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce)
@@ -1932,7 +1994,7 @@ one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
       (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
       (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
     return ONS_SUCCESS;
-} // rx_single_data //
+} // rx_response_data //
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
