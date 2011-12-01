@@ -40,6 +40,7 @@
 
 #include "one_net_packet.h"
 #include "one_net_encode.h"
+#include "config_options.h"
 
 
 
@@ -50,6 +51,42 @@
 //! \defgroup ONE-NET_PACKET_const
 //! \ingroup ONE-NET_PACKET
 //! @{
+
+
+static enum
+{
+    #ifdef _ONE_NET_SIMPLE_CLIENT
+    NUM_STAY_AWAKE_PAIRS = 2
+    #elif defined(_ONE_NET_MULTI_HOP)
+    NUM_STAY_AWAKE_PAIRS = 12
+    #else
+    NUM_STAY_AWAKE_PAIRS = 6
+    #endif
+};
+
+
+static const UInt8 stay_awake_packet_pairs[NUM_STAY_AWAKE_PAIRS][2] =
+{
+    {ONE_NET_ENCODED_SINGLE_DATA_ACK, ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE},
+    
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    {ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK, ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK, ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
+    #ifdef _ONE_NET_MULTI_HOP
+    {ONE_NET_ENCODED_MH_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
+    #endif
+    #endif
+};
+
+
 
 //! @} ONE-NET_PACKET_const
 //                                  CONSTANTS END
@@ -284,6 +321,45 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
     return pkt_bytes - header_offset;
     #endif
 } // get_encoded_packet_len //
+
+
+BOOL packet_is_stay_awake(UInt8 encoded_pid)
+{
+    UInt8 i;
+    for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
+    {
+        if(encoded_pid == stay_awake_packet_pairs[i][1])
+        {
+            return TRUE;
+        }
+    }
+    
+    return FALSE;
+}
+
+
+BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
+{
+    UInt8 i;
+    BOOL pid_is_stay_awake = packet_is_stay_awake(*encoded_pid);
+    
+    if(pid_is_stay_awake == stay_awake)
+    {
+        return FALSE; // no change
+    }
+    
+    for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
+    {
+        if(*encoded_pid == stay_awake_packet_pairs[i][pid_is_stay_awake])
+        {
+            *encoded_pid = stay_awake_packet_pairs[i][!pid_is_stay_awake];
+            return TRUE;
+        }
+    }
+    
+    return FALSE; // not an ACK or NACK
+}
+
 
 
 #ifdef _ONE_NET_MULTI_HOP
@@ -540,6 +616,43 @@ BOOL packet_is_ack(UInt8 pid)
             return FALSE;
     }
 }
+
+
+// return 0 if the packet type does not exist
+UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
+{
+    UInt8 resp_pid;
+    #ifdef _ONE_NET_MULTI_HOP
+    BOOL pid_is_multi = packet_is_multihop(single_pid);
+    if(!set_multihop_pid(&single_pid, FALSE))
+    {
+        return 0; // invalid PID
+    }
+    #endif
+    
+    switch(single_pid)
+    {
+        case ONE_NET_ENCODED_SINGLE_DATA:
+          resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK; break;
+        #ifndef _ONE_NET_SIMPLE_CLIENT
+        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+          resp_pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK; break;        
+        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+          resp_pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK; break;
+        #endif
+        default:
+          return 0; // bad pid
+    }
+    
+    // turn it back into multi-hop if it was before
+    set_multihop_pid(&resp_pid, pid_is_multi);
+    
+    // now set stay-awake
+    set_stay_awake_pid(&resp_pid, stay_awake);
+
+    return resp_pid;
+}
+
 
 
 //! @} ONE-NET_PACKET_pub_func

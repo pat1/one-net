@@ -1353,6 +1353,8 @@ SInt8 get_encoded_payload_len(UInt8 pid);
 SInt8 get_raw_payload_len(UInt8 pid);
 SInt8 get_num_payload_blocks(UInt8 pid);
 UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
+BOOL packet_is_stay_awake(UInt8 encoded_pid);
+BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP
 BOOL packet_is_multihop(UInt8 encoded_pid);
@@ -1364,6 +1366,9 @@ pkt_group_t get_pkt_family(UInt8 pid);
 
 BOOL packet_is_ack(UInt8 pid);
 BOOL packet_is_nack(UInt8 pid);
+
+UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake);
+
 
     
 //! @} ONE-NET_PACKET_pub_func
