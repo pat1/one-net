@@ -1510,25 +1510,11 @@ BOOL one_net(on_txn_t ** txn)
             {
                 // rebuild the packet
                 if(!setup_pkt_ptr(single_msg.pid, single_pkt,
-                  &data_pkt_ptrs))
-                {
-                    // an error of some sort occurred.  Abort.
-                    terminate_txn = TRUE;
-                    msg_status = ON_MSG_INTERNAL_ERR;
-                }
-
-                if(!terminate_txn && on_build_data_pkt(single_msg.payload,
+                  &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  (*txn)->device)!= ONS_SUCCESS)
-                {
-                    // an error of some sort occurred.  Abort.
-                    terminate_txn = TRUE;
-                    msg_status = ON_MSG_INTERNAL_ERR;
-                }
-
-                // now finish building the packet.
-                if(!terminate_txn && on_complete_pkt_build(&data_pkt_ptrs,
-                  (*txn)->device->msg_id, single_msg.pid) != ONS_SUCCESS)
+                  (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
+                  &data_pkt_ptrs, (*txn)->device->msg_id, single_msg.pid) ==
+                  ONS_SUCCESS)
                 {
                     // an error of some sort occurred.  Abort.
                     terminate_txn = TRUE;
@@ -1547,7 +1533,7 @@ BOOL one_net(on_txn_t ** txn)
 
                     on_state -= 2;
                 }
-            } 
+            }
             
             if(terminate_txn)
             {
