@@ -1112,13 +1112,17 @@ BOOL one_net(on_txn_t ** txn)
                     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
                     int index = single_data_queue_ready_to_send(
                         &next_pop_time);
-                    #elif _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
+                    #else
                     int index = single_data_queue_ready_to_send();
                     #endif
                     if(index >=  0)
                     {
+                        #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
                         if(pop_queue_element(&single_msg, single_data_raw_pld,
                           (UInt8) index))
+                        #else
+                        if(pop_queue_element())
+                        #endif
                         {
                             // we have just popped a message.  Set things up
                             // with the peer list, then next time the

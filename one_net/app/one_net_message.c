@@ -99,9 +99,10 @@ static void delete_expired_queue_elements(void);
 #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 static UInt8 payload_buffer[SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE];
 static on_single_data_queue_t single_data_queue[SINGLE_DATA_QUEUE_SIZE];
-static UInt8 single_data_queue_size = 0;
 static UInt16 pld_buffer_tail_idx = 0;
 #endif
+
+static UInt8 single_data_queue_size = 0;
 
 //! @} ONE-NET_MESSAGE_pri_var
 //                              PRIVATE VARIABLES END
@@ -116,7 +117,6 @@ static UInt16 pld_buffer_tail_idx = 0;
 
 
 
-#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 /*
     \brief Remove all messages from the queue
     
@@ -125,9 +125,10 @@ static UInt16 pld_buffer_tail_idx = 0;
 void empty_queue(void)
 {
     single_data_queue_size = 0;
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     pld_buffer_tail_idx = 0;
+    #endif
 }
-#endif
 
 
 /*!
@@ -261,7 +262,11 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
 // return true if an element was popped, false otherwise.
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, UInt8 index)
+#else
+BOOL pop_queue_element(void)
+#endif
 {
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     UInt8 i;
 
     if(index >= single_data_queue_size)
@@ -317,8 +322,17 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
     // finally adjust the queue size
     single_data_queue_size--;
     return TRUE;
+    
+    #else
+    {
+        // there's nothing to copy since everything is already loaded if
+        // it exists.
+        BOOL ret_value = (single_data_queue_size == 0);
+        single_data_queue_size == 0;
+        return ret_value;
+    }
+    #endif
 }
-#endif
 
 
 /*!
@@ -390,7 +404,7 @@ int single_data_queue_ready_to_send(tick_t* const next_pop_time)
 	
 	return -1; // nothing ready to pop.
 }
-#elif _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
+#else
 int single_data_queue_ready_to_send(void)
 {
     if(single_data_queue_size == 0)
@@ -398,6 +412,7 @@ int single_data_queue_ready_to_send(void)
         return -1;
     }
     
+    #if _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
     if(single_data_queue[0].priority != ONE_NET_HIGH_PRIORITY)
     {
         UInt8 i;
@@ -411,6 +426,7 @@ int single_data_queue_ready_to_send(void)
             }
         }
     }
+    #endif
     
     return 0;
 }
