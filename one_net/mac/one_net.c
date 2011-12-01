@@ -1346,7 +1346,9 @@ BOOL one_net(on_txn_t ** txn)
         } // case ON_LISTEN_FOR_DATA //
         
         case ON_SEND_PKT:
+        #ifdef _ONE_NET_MASTER
         case ON_SEND_INVITE_PKT:
+        #endif
         case ON_SEND_SINGLE_DATA_PKT:
         case ON_SEND_SINGLE_DATA_RESP:
         {
@@ -1362,7 +1364,9 @@ BOOL one_net(on_txn_t ** txn)
         } // case ON_SEND_SINGLE_DATA_PKT //
         
         case ON_SEND_PKT_WRITE_WAIT:
+        #ifdef _ONE_NET_MASTER
         case ON_SEND_INVITE_PKT_WRITE_WAIT:
+        #endif
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         {
@@ -1397,7 +1401,8 @@ BOOL one_net(on_txn_t ** txn)
                 }
 
                 ont_set_timer(ONT_RESPONSE_TIMER, MS_TO_TICK(new_timeout_ms));
-                  
+                
+                #ifdef _ONE_NET_MASTER  
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
                     on_state = ON_LISTEN_FOR_DATA;
@@ -1406,6 +1411,9 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     on_state++;
                 }
+                #else
+                on_state++;
+                #endif
             } // if write is complete //
             break;
         } // send single data write wait case //

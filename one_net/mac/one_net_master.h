@@ -2,6 +2,9 @@
 #define _ONE_NET_MASTER_H
 
 #include "config_options.h"
+
+#ifdef _ONE_NET_MASTER
+
 #include "one_net.h"
 
 
@@ -162,5 +165,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 //==============================================================================
 
 //! @} ONE-NET_MASTER
+
+#endif // if master is defined
 
 #endif // _ONE_NET_MASTER_H //
