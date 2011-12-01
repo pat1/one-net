@@ -371,22 +371,21 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
 
 
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
-  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  BOOL stay_awake)
 {
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
     SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
-    BOOL is_ack = packet_is_ack(*(pkt_ptrs->pid));
-    BOOL is_nack = packet_is_nack(*(pkt_ptrs->pid));
+    BOOL is_ack = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR);
     UInt8* ack_nack_pld_ptr = &raw_payload_bytes[ON_PLD_DATA_IDX];
-    
     UInt8 ack_nack_pld_len = raw_pld_len - 1 - ON_PLD_DATA_IDX;
     
-    if(!is_ack && !is_nack)
-    {
-        return ONS_UNHANDLED_PKT;
-    }
+    // change pid if necessary
+    *(pkt_ptrs->pid) = get_single_response_pid(*(pkt_ptrs->pid), is_ack,
+      stay_awake);   
     
+
     // for all we know, ack_nack->payload is located at the same address
     // as the raw_payload_bytes[] array.  We don't want to overwrite without
     // knowing, so we'll copy the payload to a buffer that is going to be
@@ -411,7 +410,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     }
     
     // build the ack and nack
-    if(is_nack)
+    if(!is_ack)
     {
         *ack_nack_pld_ptr = ack_nack->nack_reason;
         ack_nack_pld_ptr++;
@@ -459,9 +458,12 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         }
     }
 
-    
     #ifdef _ONE_NET_MULTI_HOP
-    if(packet_is_multihop(*(pkt_ptrs->pid)))
+    // change between multi-hop and non-multi-hop depending on whether 
+    // max_hops is positive.
+    set_multihop_pid(pkt_ptrs->pid, pkt_ptrs->max_hops > 0);    
+    
+    if(pkt_ptrs->max_hops > 0)
     {
         // build hops
         if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
@@ -1939,7 +1941,8 @@ on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
         response_txn.key = (*txn)->key;
         *txn = &response_txn;
 
-        if(on_build_response_pkt(ack_nack, &pkt, *txn, (*txn)->device) !=
+        if(on_build_response_pkt(ack_nack, &pkt, *txn, (*txn)->device,
+          FALSE) !=
           ONS_SUCCESS)
         {
             *txn = 0;

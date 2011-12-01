@@ -959,7 +959,8 @@ static on_message_status_t on_master_single_data_hdlr(
     // change them.  We need to pass that along.  Should we change "device"?
     
 
-    if(on_build_response_pkt(ack_nack, pkt, *txn, device) != ONS_SUCCESS)
+    if(on_build_response_pkt(ack_nack, pkt, *txn, device, FALSE) !=
+      ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
