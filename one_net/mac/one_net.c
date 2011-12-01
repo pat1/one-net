@@ -1263,25 +1263,6 @@ BOOL one_net(on_txn_t ** txn)
                     case ON_MSG_ABORT: return TRUE; // aborting
                 }
                 
-                // change the pid if needed
-                if(single_txn.max_hops)
-                {
-                    switch(single_msg.pid)
-                    {
-                        case ONE_NET_ENCODED_SINGLE_DATA:
-                          *(data_pkt_ptrs.pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-                          *(data_pkt_ptrs.pid) =
-                            ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
-                          *(data_pkt_ptrs.pid) =
-                            ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
-                          break;
-                    }
-                }
-                
                 data_pkt_ptrs.hops = single_txn.hops;
                 data_pkt_ptrs.max_hops = single_txn.max_hops;
                 #endif
