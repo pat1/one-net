@@ -523,7 +523,11 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 
     
     #ifdef _ONE_NET_MULTI_HOP
-    if(packet_is_multihop(*(pkt_ptrs->pid)))
+    // change between multi-hop and non-multi-hop depending on whether 
+    // max_hops is positive.
+    set_multihop_pid(pkt_ptrs->pid, pkt_ptrs->max_hops > 0);    
+    
+    if(pkt_ptrs->max_hops > 0)
     {
         // build hops
         if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
