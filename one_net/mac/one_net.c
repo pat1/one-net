@@ -1498,12 +1498,56 @@ BOOL one_net(on_txn_t ** txn)
                     switch(msg_status)
                     {
                         case ON_MSG_IGNORE:
+                            response_msg_or_timeout = FALSE;
                             break;
                         default:
                             terminate_txn = (this_txn == 0);
                     }
                 }
             }
+
+            if(!terminate_txn && response_msg_or_timeout)
+            {
+                // rebuild the packet
+                if(!setup_pkt_ptr(single_msg.pid, single_pkt,
+                  &data_pkt_ptrs))
+                {
+                    // an error of some sort occurred.  Abort.
+                    terminate_txn = TRUE;
+                    msg_status = ON_MSG_INTERNAL_ERR;
+                }
+
+                if(!terminate_txn && on_build_data_pkt(single_msg.payload,
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
+                  (*txn)->device)!= ONS_SUCCESS)
+                {
+                    // an error of some sort occurred.  Abort.
+                    terminate_txn = TRUE;
+                    msg_status = ON_MSG_INTERNAL_ERR;
+                }
+
+                // now finish building the packet.
+                if(!terminate_txn && on_complete_pkt_build(&data_pkt_ptrs,
+                  (*txn)->device->msg_id, single_msg.pid) != ONS_SUCCESS)
+                {
+                    // an error of some sort occurred.  Abort.
+                    terminate_txn = TRUE;
+                    msg_status = ON_MSG_INTERNAL_ERR;                           
+                }
+                
+                if(!terminate_txn)
+                {
+                    #ifndef _ONE_NET_SIMPLE_CLIENT
+                    ont_set_timer((*txn)->next_txn_timer,
+                      MS_TO_TICK(next_send_pause_time));
+                    #else
+                    // send right away.
+                    ont_set_timer((*txn)->next_txn_timer, 0);
+                    #endif
+
+                    on_state -= 2;
+                }
+            } 
             
             if(terminate_txn)
             {
@@ -1527,19 +1571,7 @@ BOOL one_net(on_txn_t ** txn)
                 on_state = ON_LISTEN_FOR_DATA;
                 return TRUE;
             }
-            else if(response_msg_or_timeout)
-            {
-                #ifndef _ONE_NET_SIMPLE_CLIENT
-                ont_set_timer((*txn)->next_txn_timer,
-                  MS_TO_TICK(next_send_pause_time));
-                #else
-                // send right away.
-                ont_set_timer((*txn)->next_txn_timer, 0);
-                #endif
-                
-                on_state -= 2;
-            }            
-
+            
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
     }
@@ -1752,6 +1784,11 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
     {
         return ON_MSG_IGNORE;
     }
+    
+
+    // pick a new nonce
+    (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
+    (*txn)->device->expected_nonce = one_net_prand(time_now, ON_MAX_NONCE);
 
     return ON_MSG_DEFAULT_BHVR;
 }
