@@ -284,7 +284,7 @@ void empty_queue(void);
 
 #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 BOOL pop_queue_element(on_single_data_queue_t* const element,
-    UInt8* const buffer, int index);
+    UInt8* const buffer, UInt8 index);
 #endif
 
 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL

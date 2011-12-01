@@ -260,17 +260,10 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
 #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 // return true if an element was popped, false otherwise.
 BOOL pop_queue_element(on_single_data_queue_t* const element,
-    UInt8* const buffer, int index)
+    UInt8* const buffer, UInt8 index)
 {
     UInt8 i;
-    
-    if(index < 0)
-    {
-        // delete everything
-        single_data_queue_size = 0;
-        pld_buffer_tail_idx = 0;
-        return FALSE;
-    }
+
     if(index >= single_data_queue_size)
     {
         // index out of range.

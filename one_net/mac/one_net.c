@@ -1118,7 +1118,7 @@ BOOL one_net(on_txn_t ** txn)
                     if(index >=  0)
                     {
                         if(pop_queue_element(&single_msg, single_data_raw_pld,
-                          index))
+                          (UInt8) index))
                         {
                             // we have just popped a message.  Set things up
                             // with the peer list, then next time the
