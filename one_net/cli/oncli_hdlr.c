@@ -1328,6 +1328,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
+    #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
         if(one_net_master_add_client(features, &out_base_param,
@@ -1336,7 +1337,9 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
             return ONCLI_CMD_FAIL;
         }
     }
-    else
+    #endif
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
     {
         on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]), did,
           ON_ENCODED_DID_LEN);
@@ -1370,6 +1373,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         client_joined_network = TRUE;
         client_looking_for_invite = FALSE;
     }
+    #endif
 
     return ONCLI_SUCCESS;
 }
