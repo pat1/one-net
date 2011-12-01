@@ -845,73 +845,10 @@ static on_message_status_t on_master_single_data_hdlr(
     // call rx_single_data from anywhere, delete it.
     
     on_message_status_t msg_status;
-    one_net_status_t response_status;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
     UInt8 response_pid;
-    UInt8* resp_pid_grp;
-    #ifndef _ONE_NET_SIMPLE_CLIENT
-    UInt8 pid_type_idx;
-    #endif
     on_sending_device_t* device;
-    
-    #ifndef _ONE_NET_SIMPLE_CLIENT
-    enum
-    {
-        NUM_SINGLE_PIDS = 3
-    };
-    
-    static const UInt8 single_pids[NUM_SINGLE_PIDS] =
-    {
-        ONE_NET_ENCODED_SINGLE_DATA,
-        ONE_NET_ENCODED_LARGE_SINGLE_DATA,
-        ONE_NET_ENCODED_EXTENDED_SINGLE_DATA
-    };
-    
-    static const UInt8 response_pids[NUM_SINGLE_PIDS][2] =
-    {
-        {ONE_NET_ENCODED_SINGLE_DATA_ACK,
-           ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN},
-        {ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK,
-           ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN},
-        {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK,
-           ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN}
-    };
-    #else
-    static const UInt response_pids[2] =
-    {
-        {ONE_NET_ENCODED_SINGLE_DATA_ACK,
-           ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN}
-    };
-    #endif
-
-    switch(*(pkt->pid))
-    {
-        case ONE_NET_ENCODED_SINGLE_DATA:
-            #ifndef _ONE_NET_SIMPLE_CLIENT
-            pid_type_idx = 0;
-            #endif
-            break;
-        #ifndef _ONE_NET_SIMPLE_CLIENT
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-            pid_type_idx = 1;
-            break;
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-            pid_type_idx = 2;
-            break;        
-        #endif
-        default:
-            // invalid PID -- abort
-            *txn = 0;
-            return ON_MSG_ABORT;
-    }
-    
-    #ifndef _ONE_NET_SIMPLE_CLIENT
-    resp_pid_grp = (UInt8*) response_pids[pid_type_idx];
-    #else
-    resp_pid_grp = (UInt8*) response_pids;
-    #endif
-    
 
     on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
@@ -1002,8 +939,8 @@ static on_message_status_t on_master_single_data_hdlr(
         return ON_MSG_ABORT;
     }
     
-    response_pid = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR ?
-      resp_pid_grp[0] : resp_pid_grp[1]);
+    response_pid = get_single_response_pid(*(pkt->pid),
+      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt))
     {
@@ -1021,10 +958,20 @@ static on_message_status_t on_master_single_data_hdlr(
     // TODO -- what about the hops?  We allowed the application code to
     // change them.  We need to pass that along.  Should we change "device"?
     
-    // TODO -- harness the return value
-    response_status = on_build_response_pkt(ack_nack, pkt, *txn, device);
-    response_status = on_complete_pkt_build(pkt, msg_hdr.msg_id, response_pid);
-    return ON_MSG_CONTINUE;
+
+    if(on_build_response_pkt(ack_nack, pkt, *txn, device) != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+    if(on_complete_pkt_build(pkt, msg_hdr.msg_id, response_pid) !=
+      ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+
+    return ON_MSG_RESPOND;
 }
 
   
