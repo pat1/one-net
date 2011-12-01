@@ -848,6 +848,8 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
           one_net_prand(get_tick_count(), ON_MAX_NONCE);
         sending_dev_list[match_idx].sender.last_nonce = ON_INVALID_NONCE;
         sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
+        sending_dev_list[match_idx].sender.msg_id =
+          one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
         
         #ifdef _ONE_NET_MULTI_HOP
         sending_dev_list[match_idx].sender.hops = 0;
