@@ -56,10 +56,10 @@ enum
     #ifdef _AUTO_MODE
     //! The number of clients in AUTO mode.
     NUM_AUTO_CLIENTS = 3,
+    #endif
     
     //! The channel for Auto Mode
     DEFAULT_EVAL_CHANNEL = 1,
-    #endif
 };    
 
 
