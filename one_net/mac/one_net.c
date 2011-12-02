@@ -1074,11 +1074,14 @@ BOOL one_net(on_txn_t ** txn)
     one_net_status_t status;
     on_txn_t* this_txn;
     on_pkt_t* this_pkt_ptrs;
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    static BOOL at_least_one_response = FALSE;
+    #endif
     
     on_ack_nack_t ack_nack;
     ack_nack_payload_t ack_nack_payload;
     ack_nack.payload = &ack_nack_payload;
-    
+
     
     switch(on_state)
     {
@@ -1129,6 +1132,8 @@ BOOL one_net(on_txn_t ** txn)
                             // load_next_peer will take it from there.
                             if(setup_send_list(&single_msg, NULL, NULL))
                             {
+                                at_least_one_response = FALSE;
+
                                 // we have a message.  We'll take it further
                                 // the next trip through.
                                 return FALSE; // we have no transaction, but
@@ -1330,7 +1335,6 @@ BOOL one_net(on_txn_t ** txn)
                   get_encoded_packet_len(single_msg.pid, TRUE);
                 *txn = &single_txn;
                 (*txn)->retry = 0;
-                (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
                 (*txn)->device = device;
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
@@ -1477,9 +1481,7 @@ BOOL one_net(on_txn_t ** txn)
                     default:
                     {
                         // transaction has been terminated either by ONE-NET
-                        // or by the application code.  Turn it into a
-                        // tiemout?
-                        msg_status = ON_MSG_TIMEOUT;
+                        // or by the application code.
                         terminate_txn = TRUE;
                     }
                 }
@@ -1508,6 +1510,7 @@ BOOL one_net(on_txn_t ** txn)
                             break;
                         default:
                             terminate_txn = (this_txn == 0);
+                            at_least_one_response = TRUE;
                     }
                 }
             }
@@ -1550,7 +1553,16 @@ BOOL one_net(on_txn_t ** txn)
                   single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), msg_status, &ack_nack);
                 #else
-                ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
+                // if we get no reponse this last try and we NEVER got any
+                // reponse, we'll make the nack reason
+                // ON_NACK_RSN_NO_RESPONSE_TXN.
+                if(ack_nack.nack_reason == ON_NACK_RSN_NO_RESPONSE &&
+                  !at_least_one_response)
+                {
+                    // if we got no response ever from the other device.
+                    ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
+                }
+                
                 (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                   single_msg_ptr->payload, &(single_msg_ptr->msg_type),
                   msg_status, &ack_nack);                    
