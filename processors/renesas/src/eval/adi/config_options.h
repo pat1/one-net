@@ -131,30 +131,29 @@
 
 
 
-// ONE_NET_SIMPLE_DEVICE - a device is a simple device if it is does not
-// implement any of the following: Multi-Hop, Stream, Block
-#if defined(_STREAM_MESSAGES_ENABLED) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MULTI_HOP)
-    #ifdef _ONE_NET_SIMPLE_DEVICE
-        #undef _ONE_NET_SIMPLE_DEVICE
-	#endif
-#else
-    #ifndef _ONE_NET_SIMPLE_DEVICE
-        #define _ONE_NET_SIMPLE_DEVICE
-	#endif
+// ONE_NET_SIMPLE_DEVICE, _ONE_NET_SIMPLE_MASTER, and _ONE_NET_SIMPLE_CLIENT
+// are now defined explicitly
+#ifndef _ONE_NET_SIMPLE_DEVICE
+//    #define _ONE_NET_SIMPLE_DEVICE
 #endif
 
 #ifdef _ONE_NET_SIMPLE_DEVICE
-	#ifdef _ONE_NET_CLIENT
-		#ifndef _ONE_NET_SIMPLE_CLIENT
-			#define _ONE_NET_SIMPLE_CLIENT
-		#endif	
-	#endif
-	#ifdef _ONE_NET_MASTER
-		#ifndef _ONE_NET_SIMPLE_MASTER
-			#define _ONE_NET_SIMPLE_MASTER
-		#endif	
-	#endif
+    #ifdef _ONE_NET_MASTER
+        #ifndef _ONE_NET_SIMPLE_MASTER
+            // comment in or out as needed
+            #define _ONE_NET_SIMPLE_MASTER
+        #endif
+    #endif
+    #ifdef _ONE_NET_CLIENT
+        #ifndef _ONE_NET_SIMPLE_CLIENT
+            // comment in or out as needed
+            #define _ONE_NET_SIMPLE_CLIENT
+        #endif
+    #endif
 #endif
+
+
+
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
