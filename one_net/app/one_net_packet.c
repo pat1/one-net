@@ -698,7 +698,7 @@ BOOL packet_is_ack(UInt8 pid)
     ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE.
     
 
-    \param[in] single_pid The pid we are responding to
+    \param[in] single_pid The pid we are responding to or an ACK or a NACK
     \param[in] isACK If true, we should ACK.  If false, we should NACK.
     \param[in] stay_awake True if we want the other device to stay awake,
                false otherwise.
@@ -719,19 +719,22 @@ UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
     switch(single_pid)
     {
         case ONE_NET_ENCODED_SINGLE_DATA:
-          resp_pid = isACK ? ONE_NET_ENCODED_SINGLE_DATA_ACK :
-            ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN; break;
+          resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;break;
         #ifdef _EXTENDED_SINGLE
         case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-          resp_pid = isACK ? ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK :
-            ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN; break;             
+          resp_pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK; break;             
         case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-          resp_pid = isACK ? ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK :
-            ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN; break; 
+          resp_pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK; break; 
         #endif
         default:
-          return 0; // bad pid
+          if(!packet_is_ack(single_pid) && !packet_is_nack(single_pid))
+          {
+              return 0;  // bad pid
+          }
+          resp_pid = single_pid;
     }
+    
+    set_ack_or_nack_pid(&resp_pid, isACK);
     
     #ifdef _ONE_NET_MULTI_HOP
     // turn it back into multi-hop if it was before
