@@ -1376,6 +1376,7 @@ SInt8 get_raw_payload_len(UInt8 pid);
 SInt8 get_num_payload_blocks(UInt8 pid);
 UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
 BOOL packet_is_stay_awake(UInt8 encoded_pid);
+BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack);
 BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP

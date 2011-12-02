@@ -355,6 +355,49 @@ BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
 }
 
 
+/*!
+    \brief Converts a response PID into its ACK or NACK
+      equivalent.
+
+    Converts a response PID into its AK or NACK
+      equivalent.  If an ACK PID is given and is_ack is true,
+      no change is made.  Similarly if a NACK PID is given and
+      is_ack is false, no change is made.
+
+    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in] is_ack True if the DESIRED OUTGOING PID should be
+      an ACK, False otherwise.
+      
+    \return True if the pid changed, false otherwise
+*/
+BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack)
+{
+    UInt8 i, j;
+    BOOL pid_is_nack = packet_is_nack(*encoded_pid);
+    if(pid_is_nack == !is_ack)
+    {
+        return FALSE;
+    }
+    
+    for(i = 0; i < 2; i++)
+    {
+        // NACKs are odd, ACKs are even
+        for(j = pid_is_nack; j < NUM_STAY_AWAKE_PAIRS; j += 2)
+        {
+            if(*encoded_pid == stay_awake_packet_pairs[j][i])
+            {
+                // found it.  We subtract 1 if we're going from a NACK
+                // to an ACK.  Add 1 if going from an ACK to a NACK.
+                *encoded_pid = pid_is_nack ? stay_awake_packet_pairs[j-1][i] :
+                  stay_awake_packet_pairs[j+1][i];
+                return TRUE;
+            }
+        }
+    }
+    
+    return FALSE; // invalid PID
+}
+
 
 #ifdef _ONE_NET_MULTI_HOP
 /*!
