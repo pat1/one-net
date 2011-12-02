@@ -132,9 +132,12 @@
 
 
 // ONE_NET_SIMPLE_DEVICE, _ONE_NET_SIMPLE_MASTER, and _ONE_NET_SIMPLE_CLIENT
-// are now defined explicitly
-#ifndef _ONE_NET_SIMPLE_DEVICE
-//    #define _ONE_NET_SIMPLE_DEVICE
+// are now defined explicitly.
+#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        // comment in or out as needed
+        #define _ONE_NET_SIMPLE_DEVICE
+    #endif
 #endif
 
 #ifdef _ONE_NET_SIMPLE_DEVICE
