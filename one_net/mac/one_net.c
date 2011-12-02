@@ -1132,7 +1132,9 @@ BOOL one_net(on_txn_t ** txn)
                             // load_next_peer will take it from there.
                             if(setup_send_list(&single_msg, NULL, NULL))
                             {
+                                #ifndef _ONE_NET_SIMPLE_DEVICE
                                 at_least_one_response = FALSE;
+                                #endif
 
                                 // we have a message.  We'll take it further
                                 // the next trip through.
@@ -1510,7 +1512,9 @@ BOOL one_net(on_txn_t ** txn)
                             break;
                         default:
                             terminate_txn = (this_txn == 0);
+                            #ifndef _ONE_NET_SIMPLE_DEVICE
                             at_least_one_response = TRUE;
+                            #endif
                     }
                 }
             }
@@ -1546,13 +1550,10 @@ BOOL one_net(on_txn_t ** txn)
             
             if(terminate_txn)
             {
-                #ifndef _ONE_NET_SIMPLE_DEVICE
                 // transaction has been terminated either by ONE_NET
                 // or by the application code.
-                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
-                  single_msg_ptr->payload,
-                  &(single_msg_ptr->msg_type), msg_status, &ack_nack);
-                #else
+
+                #ifndef _ONE_NET_SIMPLE_DEVICE
                 // if we get no reponse this last try and we NEVER got any
                 // reponse, we'll make the nack reason
                 // ON_NACK_RSN_NO_RESPONSE_TXN.
@@ -1563,6 +1564,10 @@ BOOL one_net(on_txn_t ** txn)
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                 }
                 
+                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
+                  single_msg_ptr->payload,
+                  &(single_msg_ptr->msg_type), msg_status, &ack_nack);
+                #else
                 (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                   single_msg_ptr->payload, &(single_msg_ptr->msg_type),
                   msg_status, &ack_nack);                    
