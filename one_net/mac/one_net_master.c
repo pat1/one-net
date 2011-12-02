@@ -942,36 +942,41 @@ static on_message_status_t on_master_single_data_hdlr(
     response_pid = get_single_response_pid(*(pkt->pid),
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
 
-    if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt))
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
     
     // the response destination will be the transaction's source
-    on_build_my_pkt_addresses(pkt, (const on_encoded_did_t* const)
-      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL);
+    if(on_build_my_pkt_addresses(&response_pkt_ptrs,
+      (const on_encoded_did_t* const)
+      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL) != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
 
     response_txn.key = (*txn)->key;
     *txn = &response_txn;
 
     // TODO -- what about the hops?  We allowed the application code to
     // change them.  We need to pass that along.  Should we change "device"?
+
+    if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
+      FALSE) != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
     
-
-    if(on_build_response_pkt(ack_nack, pkt, *txn, device, FALSE) !=
-      ONS_SUCCESS)
+    if(on_complete_pkt_build(&response_pkt_ptrs, msg_hdr.msg_id, response_pid)
+      != ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
-    if(on_complete_pkt_build(pkt, msg_hdr.msg_id, response_pid) !=
-      ONS_SUCCESS)
-    {
-        *txn = 0;
-        return ON_MSG_INTERNAL_ERR;
-    }
-
+    
     return ON_MSG_RESPOND;
 }
 
