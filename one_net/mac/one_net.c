@@ -1518,6 +1518,15 @@ BOOL one_net(on_txn_t ** txn)
                     }
                 }
             }
+            
+            if(nack_reason_is_fatal(ack_nack.nack_reason))
+            {
+                // if nothing else set this terminate flag, something
+                // somewhere set a fatal NACK, which means this transaction
+                // will never work, so we'll terminate.  Why bother going
+                // through a bunch of retries that will never work?
+                terminate_txn = TRUE;
+            }
 
             if(!terminate_txn && response_msg_or_timeout)
             {
