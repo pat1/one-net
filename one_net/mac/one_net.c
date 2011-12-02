@@ -1074,7 +1074,7 @@ BOOL one_net(on_txn_t ** txn)
     one_net_status_t status;
     on_txn_t* this_txn;
     on_pkt_t* this_pkt_ptrs;
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_SIMPLE_DEVICE
     static BOOL at_least_one_response = FALSE;
     #endif
     
@@ -1429,7 +1429,7 @@ BOOL one_net(on_txn_t ** txn)
             BOOL response_msg_or_timeout = FALSE; // will be set to true if
                  // the response timer timed out or there was a response
             
-            #ifndef _ONE_NET_SIMPLE_CLIENT
+            #ifndef _ONE_NET_SIMPLE_DEVICE
             // send right away unless overruled later.
             UInt32 next_send_pause_time = 0;
             #endif
@@ -1532,7 +1532,7 @@ BOOL one_net(on_txn_t ** txn)
                 
                 if(!terminate_txn)
                 {
-                    #ifndef _ONE_NET_SIMPLE_CLIENT
+                    #ifndef _ONE_NET_SIMPLE_DEVICE
                     ont_set_timer((*txn)->next_txn_timer,
                       MS_TO_TICK(next_send_pause_time));
                     #else
