@@ -374,17 +374,11 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     {
         return ON_MSG_IGNORE;
     }
-    
-    
-    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
-      &msg_data);
 
-    oncli_send_msg("eval_hdl_sng: payload:%02X%02X%02X%02X%02X ", 
-      raw_pld[0], raw_pld[1], raw_pld[2], raw_pld[3], raw_pld[4]);
-    oncli_send_msg("Src:%02X Dst:%02X ", src_unit, dst_unit);
-    oncli_send_msg("Class:%04X Type:%04X ", msg_class, msg_type);
-    oncli_send_msg("Data:%04X\n", msg_data);
-    
+    oncli_send_msg("eval_hdl_sng: ");
+    print_app_payload(raw_pld, 5);
+    oncli_send_msg("\n");
+
     if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
     {
         oncli_send_msg("Invalid dest. unit\n");
