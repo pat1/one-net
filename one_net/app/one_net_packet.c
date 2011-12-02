@@ -56,7 +56,7 @@
 //! The number of pairs of stay-awake / non-stay-awake response PIDs.
 static enum
 {
-    #ifdef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _EXTENDED_SINGLE
     NUM_STAY_AWAKE_PAIRS = 2
     #elif defined(_ONE_NET_MULTI_HOP)
     NUM_STAY_AWAKE_PAIRS = 12
@@ -72,7 +72,7 @@ static const UInt8 stay_awake_packet_pairs[NUM_STAY_AWAKE_PAIRS][2] =
     {ONE_NET_ENCODED_SINGLE_DATA_ACK, ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE},
     {ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE},
     
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifdef _EXTENDED_SINGLE
     {ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK, ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
     {ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
     {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK, ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
@@ -260,7 +260,6 @@ SInt8 get_num_payload_blocks(UInt8 pid)
 } // get_num_payload_blocks //
 
 
-
 /*!
     \brief Returns the packet length for a PID
 
@@ -273,54 +272,23 @@ SInt8 get_num_payload_blocks(UInt8 pid)
 */
 UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
 {
-    UInt8 pkt_len, pkt_bytes;
+    UInt8 pld_len = get_encoded_payload_len(pid);
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 mh_bytes = packet_is_multihop(pid) ? ON_ENCODED_HOPS_SIZE : 0;
     #endif
     UInt8 header_offset = include_header ? 0 : ONE_NET_ENCODED_RPTR_DID_IDX;
-    pkt_group_t pkt_grp = get_pkt_family(pid);
     
-    switch(pkt_grp)
+    if(pld_len == 0)
     {
-        case TXN_ACK_PKT_GRP: pkt_bytes = ON_TXN_ACK_ENCODED_PKT_LEN; break;
-        case ACK_NACK_PKT_GRP:
-            switch(pid)
-            {
-                case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
-                case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
-                    pkt_bytes = ON_EXTENDED_ACK_NACK_ENCODED_PKT_LEN;
-                    break;
-                default:
-                    pkt_bytes = ON_ACK_NACK_ENCODED_PKT_LEN;
-                    break;
-            }
-            
-            if(pid == ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK)
-            {
-                pkt_bytes = ON_EXTENDED_SINGLE_ENCODED_PKT_LEN;
-            }            
-        case SINGLE_PKT_GRP:
-            pkt_bytes = ON_SINGLE_ENCODED_PKT_LEN;
-            if(pid == ONE_NET_ENCODED_EXTENDED_SINGLE_DATA)
-            {
-                pkt_bytes = ON_EXTENDED_SINGLE_ENCODED_PKT_LEN;
-            }
-            break;
-        case INVITE_PKT_GRP: pkt_bytes = ON_INVITE_ENCODED_PKT_LEN; break;
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case BLOCK_PKT_GRP: pkt_bytes = ON_BLOCK_ENCODED_PKT_LEN; break;
-        #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case STREAM_PKT_GRP: pkt_bytes = ON_STREAM_ENCODED_PKT_LEN; break;
-        #endif
-        default: return 0; // invalid PID
+        // invalid PID
+        return 0;
     }
-    
+
     #ifdef _ONE_NET_MULTI_HOP
-    return pkt_bytes + mh_bytes - header_offset;
+    return ON_PLD_IDX + pld_len + mh_bytes - header_offset;
     #else
-    return pkt_bytes - header_offset;
+    return ON_PLD_IDX + pld_len - header_offset;
     #endif
 } // get_encoded_packet_len //
 
@@ -710,7 +678,7 @@ UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
         case ONE_NET_ENCODED_SINGLE_DATA:
           resp_pid = isACK ? ONE_NET_ENCODED_SINGLE_DATA_ACK :
             ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN; break;
-        #ifndef _ONE_NET_SIMPLE_CLIENT
+        #ifdef _EXTENDED_SINGLE
         case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
           resp_pid = isACK ? ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK :
             ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN; break;             
