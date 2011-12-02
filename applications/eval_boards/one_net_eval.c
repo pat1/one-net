@@ -374,6 +374,9 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     {
         return ON_MSG_IGNORE;
     }
+    
+    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
+      &msg_data);
 
     oncli_send_msg("eval_hdl_sng: ");
     print_app_payload(raw_pld, 5);
