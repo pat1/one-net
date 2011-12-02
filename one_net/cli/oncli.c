@@ -603,6 +603,63 @@ const char * oncli_msg_status_str(on_message_status_t status)
 } // oncli_msg_status_str //
 
 
+#ifdef _VERBOSE
+/*!
+    \brief Displays the contents of an ack_nack_t is string form.
+
+    \param[in] ack_nack The object to display
+    \param[in] ack_nack The lenght of the payload.  This will be 5, 13, or 21
+       depending on the pid.
+*/
+void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
+{
+    BOOL is_ack;
+    
+    if(!ack_nack || !ack_nack->payload)
+    {
+        return;
+    }
+    
+    is_ack = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR);
+    if(!is_ack)
+    {
+        pld_len--;
+    }
+    
+    
+    oncli_send_msg(ACK_NACK_DISPLAY_FMT, is_ack ? ONCLI_ACK_STR :
+      ONCLI_NACK_STR, ack_nack->nack_reason,
+      ack_nack->nack_reason <= ON_NACK_RSN_NO_RESPONSE_TXN ?
+      NACK_REASON_STR_ARRAY[ack_nack->nack_reason] : "", ack_nack->handle,
+      
+      ack_nack->handle < ON_ACK_MIN_APPLICATION_HANDLE ?
+      ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle] : "");
+      
+    oncli_send_msg(" : Payload : ");
+      
+    if(ack_nack->handle == ON_ACK)
+    {
+        oncli_send_msg("N/A\n");
+        return;
+    }
+    
+    switch(ack_nack->handle)
+    {
+        case ON_ACK_FEATURES:
+        {
+            uart_write_int8_hex_array((UInt8*) &(ack_nack->payload->features),
+              FALSE, sizeof(on_features_t));
+            break;
+        }
+        
+        // TODO -- more cases
+    }
+    
+    oncli_send_msg("\n");
+}
+#endif
+
+
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END

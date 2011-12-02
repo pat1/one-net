@@ -8,6 +8,9 @@
 #include "one_net_constants.h"
 #include "one_net_features.h"
 #include "one_net_status_codes.h"
+#ifdef _VERBOSE
+#include "one_net_acknowledge.h"
+#endif
 
 
 
@@ -139,6 +142,10 @@ oncli_status_t oncli_print_channel(void);
 BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 const char * oncli_msg_status_str(on_message_status_t status);
+
+#ifdef _VERBOSE
+void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
+#endif
 
 
 

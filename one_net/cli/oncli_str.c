@@ -46,6 +46,11 @@
 #include "one_net_data_rate.h"
 
 
+#ifdef _VERBOSE
+#include "one_net_acknowledge.h"
+#endif
+
+
 //==============================================================================
 //								CONSTANTS
 //! \defgroup oncli_str_const
@@ -411,6 +416,83 @@ const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
     
     // Add any strings for user-defined message status codes here
 };
+
+
+#ifdef _VERBOSE
+const char* const ONCLI_ACK_STR = "ACK";
+const char* const ONCLI_NACK_STR = "NACK";
+
+
+const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
+{
+    "",
+    "FEATURES",
+    "DATA",
+    "VALUE",
+    "TIME MS",
+    "TIMEOUT MS",
+    "SLOW DOWN TIME MS",
+    "SPEED UP TIME MS",
+    "PAUSE TIME MS",
+    "STATUS" // note : this one isn't valid for NACKs but is included
+                     // for ease of programming.
+};
+
+
+// ON_NACK_RSN_NO_RESPONSE_TXN is the largest nack reason with a name.  To add
+// strings, change the size of the array and add them here.  Make sure to
+// also change any other code that might use this array in order to avoid
+// segmentation faults and other problems.
+const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_NO_RESPONSE_TXN + 1] =
+{
+    "No Err",
+    "Nonce Err",
+    "Rsrc Unav",
+    "Intern Err",
+    "Busy TA",
+    "Busy TA Time",
+    "Bad Pos",
+    "Bad Size",
+    "Bad Add",
+    "Inv Max Hop",
+    "Inv Hop",
+    "Inv Peer",
+    "Out of Range",
+    "Route Err",
+    "Inv Data Rate",
+    "No Resp",
+    "Inv Msg ID",
+    "Need Feat",
+    "",
+    "",
+    "",
+    "",
+    "Unset",
+    "Gen Err",
+    "Inv Len",
+    "Dev Func Err",
+    "Unit Func Err",
+    "Inv Unit",
+    "Mismatch Unit",
+    "Bad Data",
+    "Txn Err",
+    "Max Fail Rch'd",
+    "Busy",
+    "Txn No Resp",
+    
+    
+};
+
+
+const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
+  "Handle-->0x%02X(%s)";
+
+
+#endif
+
+
+
+
 
   
 

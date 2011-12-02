@@ -211,6 +211,11 @@
     #endif
 #endif
 
+// _VERBOSE mode should be defined if you want detailed printouts
+#ifndef _VERBOSE
+//    #define _VERBOSE
+#endif
+
 
 // Other Options
 

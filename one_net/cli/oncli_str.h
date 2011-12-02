@@ -259,6 +259,20 @@ extern const char* const FALSE_STR;
 extern const char* const ONCLI_MSG_STATUS_STR[];
 
 
+#ifdef _VERBOSE
+
+// strings and formats dealing with ACKs and NACKS
+extern const char* const ONCLI_ACK_STR;
+extern const char* const ONCLI_NACK_STR;
+extern const char* const ACK_NACK_HANDLE_STR_ARRAY[];
+extern const char* const NACK_REASON_STR_ARRAY[];
+
+extern const char* const ACK_NACK_DISPLAY_FMT;
+
+#endif
+
+
+
 
 //! @} oncli_str_const
 //								CONSTANTS END
