@@ -53,6 +53,7 @@
 //! @{
 
 
+//! The number of pairs of stay-awake / non-stay-awake response PIDs.
 static enum
 {
     #ifdef _ONE_NET_SIMPLE_CLIENT
@@ -65,6 +66,7 @@ static enum
 };
 
 
+//! The PID pairs of stay-awake / non-stay-awake response PIDs.
 static const UInt8 stay_awake_packet_pairs[NUM_STAY_AWAKE_PAIRS][2] =
 {
     {ONE_NET_ENCODED_SINGLE_DATA_ACK, ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE},
@@ -323,6 +325,15 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
 } // get_encoded_packet_len //
 
 
+/*!
+    \brief Determines whether a given PID represents a stay-awake packet.
+
+    Determines whether a given PID represents a stay-awake packet.
+
+    \param[in] encoded_pid The pid to check
+
+    \return True if encoded_pid is a stay-awake packet, false otherwise.
+*/
 BOOL packet_is_stay_awake(UInt8 encoded_pid)
 {
     UInt8 i;
@@ -338,6 +349,21 @@ BOOL packet_is_stay_awake(UInt8 encoded_pid)
 }
 
 
+/*!
+    \brief Converts a response PID into its non-stay-awake or stay-awake
+      equivalent.
+
+    Converts a response PID into its non-stay-awake or stay-awake
+      equivalent.  If a stay-awake PID is given and stay_awake is true,
+      no change is made.  Similarly if a non-stay-awake PID is given and
+      stay_awake is false, no change is made.
+
+    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in] stay_awake True if the DESIRED OUTGOING PID should be
+      a stay_awake PID, False otherwise.
+      
+    \return True if the pid changed, false otherwise
+*/
 BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
 {
     UInt8 i;
@@ -363,6 +389,15 @@ BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
 
 
 #ifdef _ONE_NET_MULTI_HOP
+/*!
+    \brief Determines whether a given PID represents a multi-hop packet.
+
+    Determines whether a given PID represents a multi-hop packet.
+
+    \param[in] encoded_pid The pid to check
+
+    \return True if encoded_pid is a multi-hop packet, false otherwise.
+*/
 BOOL packet_is_multihop(UInt8 encoded_pid)
 {
     UInt8 raw_pid;
@@ -382,10 +417,12 @@ BOOL packet_is_multihop(UInt8 encoded_pid)
 
 
 /*!
-    \brief Decodes 8-bit data to 6-bit data.
+    \brief Converts a PID into its non-multi-hop or multi-hop equivalent.
 
-    Takes in a bit stream and converts every 8 bits into an decoded 6-bit value.
-    These decoded 6-bit values are returned as a bit stream.
+    Converts a PID into its non-multi-hop or multi-hop equivalent.  If a multi-
+      hop PID is given and is_multihop is true, no change is made.  Similarly
+      if a non-multi-hop PID is given and is_multihop is false, no change is
+      made.
 
     \param[in/out] encoded_pid The pid to (possibly) be converted.
     \param[in] is_multihop True if the DESIRED OUTGOING PID should be multi-hop,
@@ -453,6 +490,15 @@ BOOL packet_has_reason_field(UInt8 pid)
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Determines whether a given PID represents a stream packet.
+
+    Determines whether a given PID represents a stream packet.
+
+    \param[in] pid The pid to check
+
+    \return True if pid is a stream packet, false otherwise.
+*/
 BOOL packet_is_stream(UInt8 pid)
 {
     switch(pid)
@@ -472,6 +518,15 @@ BOOL packet_is_stream(UInt8 pid)
 #endif
 
 
+/*!
+    \brief Determines whether a given PID represents an invite packet.
+
+    Determines whether a given PID represents an invite packet.
+
+    \param[in] pid The pid to check
+
+    \return True if pid is an invite packet, false otherwise.
+*/
 BOOL packet_is_invite(UInt8 pid)
 {
     switch(pid)
@@ -488,6 +543,16 @@ BOOL packet_is_invite(UInt8 pid)
 }
 
 
+/*!
+    \brief Determines the "family" type of a packet
+
+    Determines the "family" type of a packet(i.e. single packet, block
+      backet, stream packet, etc.
+
+    \param[in] pid The pid to check
+
+    \return the "family" type of the packet.
+*/
 pkt_group_t get_pkt_family(UInt8 pid)
 {
     switch(pid)
@@ -572,6 +637,15 @@ pkt_group_t get_pkt_family(UInt8 pid)
 }
 
 
+/*!
+    \brief Determines whether a given PID represents a NACK packet.
+
+    Determines whether a given PID represents a NACK packet.
+
+    \param[in] pid The pid to check
+
+    \return True if pid is a NACK packet, false otherwise.
+*/
 BOOL packet_is_nack(UInt8 pid)
 {
     switch(pid)
@@ -594,6 +668,15 @@ BOOL packet_is_nack(UInt8 pid)
 }
 
 
+/*!
+    \brief Determines whether a given PID represents an AACK packet.
+
+    Determines whether a given PID represents an ACK packet.
+
+    \param[in] pid The pid to check
+
+    \return True if pid is an ACK packet, false otherwise.
+*/
 BOOL packet_is_ack(UInt8 pid)
 {
     switch(pid)
@@ -618,7 +701,23 @@ BOOL packet_is_ack(UInt8 pid)
 }
 
 
-// return 0 if the packet type does not exist
+/*!
+    \brief Determines the appropriate acknowledgement PID for responding to a
+      single data packet with certain criteria.
+
+    For a given PID and given criteria, the response PID that should be
+    given.  For example, a pid of ONE_NET_ENCODED_SINGLE_DATA that should
+    ACK and tell the original device to stay awake would return
+    ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE.
+    
+
+    \param[in] single_pid The pid we are responding to
+    \param[in] isACK If true, we should ACK.  If false, we should NACK.
+    \param[in] stay_awake True if we want the other device to stay awake,
+               false otherwise.
+
+    \return the PID we should use to respond.
+*/
 UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
 {
     UInt8 resp_pid;
