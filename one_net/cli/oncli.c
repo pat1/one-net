@@ -636,23 +636,50 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
       ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle] : "");
       
     oncli_send_msg(" : Payload : ");
-      
-    if(ack_nack->handle == ON_ACK)
-    {
-        oncli_send_msg("N/A\n");
-        return;
-    }
+
     
     switch(ack_nack->handle)
     {
-        case ON_ACK_FEATURES:
+        case ON_ACK:
+          oncli_send_msg("n/A\n");
+        
+        case ON_ACK_VALUE:
         {
-            uart_write_int8_hex_array((UInt8*) &(ack_nack->payload->features),
-              FALSE, sizeof(on_features_t));
+            if(is_ack)
+            {
+                oncli_send_msg("UInt32-->%ld : UInt8-->%d\n",
+                  ack_nack->payload->ack_value.uint32,
+                  ack_nack->payload->ack_value.uint8);
+            }
+            else
+            {
+                oncli_send_msg("%ld \n", ack_nack->payload->nack_value);
+            }
             break;
         }
         
-        // TODO -- more cases
+        case ON_ACK_TIME_MS:
+        case ON_ACK_TIMEOUT_MS:
+        case ON_ACK_SLOW_DOWN_TIME_MS:
+        case ON_ACK_SPEED_UP_TIME_MS:
+        case ON_ACK_PAUSE_TIME_MS:
+        {
+            oncli_send_msg("%ld ms\n", ack_nack->payload->ack_time_ms);
+            break;
+        }
+        
+        case ON_ACK_FEATURES: // intentional fall-through to the default case.
+            pld_len = sizeof(on_features_t);
+        
+        default:
+        {
+          // "data" case plus any other handles are all assumed to be "data".
+          // We'll print the "ack_payload" since the "nack_payload" is at the
+          // same spot.  We'll also print the features here.  It too is an
+          // array located exactly where "ack_payload" is located.
+          uart_write_int8_hex_array(ack_nack->payload->ack_payload, FALSE,
+            pld_len);
+        }
     }
     
     oncli_send_msg("\n");
