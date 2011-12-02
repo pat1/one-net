@@ -286,8 +286,9 @@ static BOOL range_testing_on = FALSE;
 
 
 static BOOL check_for_clr_channel(void);
-static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
-  on_txn_t** this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes);
+static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
+  on_txn_t** const this_txn, on_pkt_t* const pkt,
+  UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack);
 
 
 
@@ -1503,7 +1504,7 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     response_msg_or_timeout = TRUE;
                     msg_status = rx_single_resp_pkt(txn, &this_txn,
-                      this_pkt_ptrs, raw_payload_bytes);
+                      this_pkt_ptrs, raw_payload_bytes, &ack_nack);
 
                     switch(msg_status)
                     {
@@ -1677,11 +1678,11 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 
 
 // TODO -- document
-static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
-  on_txn_t** this_txn, on_pkt_t* pkt, UInt8* raw_payload_bytes)
+static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
+  on_txn_t** const this_txn, on_pkt_t* const pkt,
+  UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     UInt8 i;
-    on_ack_nack_t ack_nack;
     BOOL ack_rcvd = packet_is_ack(*(pkt->pid));
     UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
@@ -1689,18 +1690,17 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
     BOOL message_id_match = FALSE;
     BOOL message_ignore = FALSE;
     tick_t time_now = get_tick_count();
-    ack_nack.payload = (ack_nack_payload_t*) &raw_payload_bytes[ON_PLD_IDX];
     
     if(ack_rcvd)
     {
-        ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+        ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     }
     else
     {
-        ack_nack.nack_reason = raw_payload_bytes[ON_PLD_IDX];
+        ack_nack->nack_reason = raw_payload_bytes[ON_PLD_IDX];
     }
     
-    ack_nack.handle = get_ack_nack_handle(raw_payload_bytes);
+    ack_nack->handle = get_ack_nack_handle(raw_payload_bytes);
 
 
     // Replay attacks are FAR more worriesome on the receiving side.
@@ -1745,7 +1745,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
     {
         message_id_match = TRUE;
     }
-    else if(ack_nack.nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
+    else if(ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
     {
         // they've given us a new message ID.  We'll use it.
         (*txn)->device->msg_id = pkt->msg_id;
@@ -1759,7 +1759,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
         // something else.  Just ignore this packet.  But we'll increment
         // the retries.  We'll want to reverify next time though.
         message_ignore = TRUE;
-        ack_nack.nack_reason == ON_NACK_RSN_INVALID_MSG_ID;
+        ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID;
         (*txn)->device->verify_time == 0;
     }
 
@@ -1783,7 +1783,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** txn,
         }
     }
 
-    if(ack_nack.nack_reason != ON_NACK_RSN_NO_ERROR)
+    if(ack_nack->nack_reason != ON_NACK_RSN_NO_ERROR)
     {
         ((*txn)->retry)++;
     }
