@@ -1178,7 +1178,7 @@ BOOL one_net(on_txn_t ** txn)
                               get_payload_msg_type(raw_payload_bytes);
                               
                             ack_nack.payload = (ack_nack_payload_t*)
-                              &raw_payload_bytes[ON_PLD_IDX];
+                              &raw_payload_bytes[ON_PLD_DATA_IDX];
 
                             (*pkt_hdlr.single_data_hdlr)(&this_txn,
                               this_pkt_ptrs, raw_payload_bytes, &msg_type,
