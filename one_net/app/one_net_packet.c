@@ -465,30 +465,6 @@ BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop)
 #endif
 
 
-BOOL packet_has_reason_field(UInt8 pid)
-{
-    switch(pid)
-    {
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
-        #endif         
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
-        #endif         
-        #endif
-            return TRUE;
-        
-        default:
-            return FALSE;
-    }
-}
-
-
 #ifdef _STREAM_MESSAGES_ENABLED
 /*!
     \brief Determines whether a given PID represents a stream packet.
