@@ -668,6 +668,13 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
             break;
         }
         
+        case ON_ACK_STATUS:
+        {
+            oncli_send_msg("\n");
+            print_app_payload(ack_nack->payload->status_resp, pld_len);
+            break;
+        }
+        
         case ON_ACK_FEATURES: // intentional fall-through to the default case.
             pld_len = sizeof(on_features_t);
         
@@ -683,6 +690,31 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
     }
     
     oncli_send_msg("\n");
+}
+
+
+/*!
+    \brief Parses and displays the contents of a Single message payload
+
+    \param[in] pld The 5, 13, or 21 byte payload
+    \param[in] pld_len The length of the payload (5, 13, or 21 bytes)
+*/
+void print_app_payload(const UInt8* const pld, UInt8 pld_len)
+{
+    UInt8 src_unit, dst_unit;
+    ona_msg_class_t msg_class;
+    UInt16 msg_type, msg_data;
+
+    on_parse_app_pld(pld, &src_unit, &dst_unit, &msg_class, &msg_type,
+      &msg_data);
+
+    oncli_send_msg("App payload : 0x");
+    uart_write_int8_hex_array(pld, FALSE, pld_len);
+
+    oncli_send_msg(" : Src Unit-->0x%02X : Dst Unit-->0x%02X : ", src_unit,
+      dst_unit);
+    oncli_send_msg("Class-->0x%04X : Type-->0x%04X : ", msg_class, msg_type);
+    oncli_send_msg("Data:0x%04X\n", msg_data);
 }
 #endif
 
