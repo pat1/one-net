@@ -708,12 +708,15 @@ UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
     switch(single_pid)
     {
         case ONE_NET_ENCODED_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK; break;
+          resp_pid = isACK ? ONE_NET_ENCODED_SINGLE_DATA_ACK :
+            ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN; break;
         #ifndef _ONE_NET_SIMPLE_CLIENT
         case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK; break;        
+          resp_pid = isACK ? ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK :
+            ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN; break;             
         case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK; break;
+          resp_pid = isACK ? ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK :
+            ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN; break; 
         #endif
         default:
           return 0; // bad pid
