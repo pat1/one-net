@@ -662,6 +662,10 @@ void eval_single_txn_status(on_message_status_t status,
     
     oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
       oncli_msg_status_str(status));
+    #ifdef _VERBOSE
+    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.pid) -  1 -
+      ON_PLD_DATA_IDX);
+    #endif
 }
 
 
