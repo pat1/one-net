@@ -406,7 +406,7 @@ typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
   on_ack_nack_t* ack_nack);
 
 //! Packet Handling Function for responses
-typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t** txn,
+typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t* txn,
   on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
 

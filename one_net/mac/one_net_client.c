@@ -167,14 +167,20 @@ static on_message_status_t on_client_single_data_hdlr(
 static on_message_status_t on_client_block_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
+static on_message_status_t on_client_handle_block_ack_nack_response(
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 #endif
 #ifdef _STREAM_MESSAGES_ENABLED
 static on_message_status_t on_client_stream_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
+static on_message_status_t on_client_handle_stream_ack_nack_response(
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_ack_nack_t* ack_nack);
 #endif
 static on_message_status_t on_client_handle_single_ack_nack_response(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
@@ -510,7 +516,7 @@ static on_message_status_t on_client_single_data_hdlr(
 
 // TODO -- document  
 static on_message_status_t on_client_handle_single_ack_nack_response(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
     on_raw_did_t src_did;
@@ -519,7 +525,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     on_msg_hdr_t msg_hdr;
     BOOL no_response;
     
-    if(!ack_nack || !txn || !(*txn))
+    if(!ack_nack || !txn)
     {
         // not sure how we got here, but we can't do anything
         return status;
@@ -540,10 +546,10 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
    
     #ifndef _ONE_NET_MULTI_HOP
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &((*txn)->retry));
+      ack_nack, &src_did, NULL, &(txn->retry));
     #else
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &((*txn)->retry), pkt->hops, &(pkt->max_hops));
+      ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
     #endif
     
 
@@ -556,52 +562,52 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         switch(ack_nack->handle)
         {
             case ON_ACK_SLOW_DOWN_TIME_MS:
-              (*txn)->response_timeout += ack_nack->payload->nack_time_ms;
+              txn->response_timeout += ack_nack->payload->nack_time_ms;
               break;
             case ON_ACK_SPEED_UP_TIME_MS:
-              (*txn)->response_timeout -= ack_nack->payload->nack_time_ms;
+              txn->response_timeout -= ack_nack->payload->nack_time_ms;
               break;
         }
     }
 
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
-        if((*txn)->retry >= ON_MAX_RETRY)
+        if(txn->retry >= ON_MAX_RETRY)
         {
             #ifdef _ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops.
             
-            if(mh_repeater_available && (*txn)->max_hops <
-              (*txn)->device->max_hops)
+            if(mh_repeater_available && txn->max_hops <
+              txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
                 
-                if((*txn)->max_hops == 0)
+                if(txn->max_hops == 0)
                 {
-                    (*txn)->max_hops = 1;
+                    txn->max_hops = 1;
                 }
                 else
                 {
-                    ((*txn)->max_hops) *= 2;
+                    (txn->max_hops) *= 2;
                 }
                 
-                if((*txn)->max_hops > (*txn)->device->max_hops)
+                if(txn->max_hops > txn->device->max_hops)
                 {
-                    (*txn)->max_hops = (*txn)->device->max_hops;
+                    txn->max_hops = txn->device->max_hops;
                 }
                 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &(*txn)->max_hops))
+                switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
                 }             
                 
-                (*txn)->hops = 0;
-                (*txn)->retry = 0;
-                pkt->hops = (*txn)->hops;
-                pkt->max_hops = (*txn)->max_hops;
+                txn->hops = 0;
+                txn->retry = 0;
+                pkt->hops = txn->hops;
+                pkt->max_hops = txn->max_hops;
 
                 return ON_MSG_CONTINUE;
             }
@@ -651,7 +657,7 @@ static on_message_status_t on_client_block_data_hdlr(
 
 // TODO -- document  
 static on_message_status_t on_client_handle_block_ack_nack_response(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;
@@ -682,7 +688,7 @@ static on_message_status_t on_client_stream_data_hdlr(
 
 // TODO -- document  
 static on_message_status_t on_client_handle_stream_ack_nack_response(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
+  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
     return ON_MSG_CONTINUE;

@@ -1463,7 +1463,7 @@ BOOL one_net(on_txn_t ** txn)
                 (*txn)->retry++;
                 
                 #ifndef _ONE_NET_SIMPLE_DEVICE
-                msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(txn,
+                msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(&single_txn,
                   &data_pkt_ptrs, single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), &ack_nack);
                   
