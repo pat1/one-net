@@ -176,15 +176,6 @@ SInt8 get_num_payload_blocks(UInt8 pid)
 {
     switch(pid)
     {
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_TXN_ACK:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_TXN_ACK:
-        #endif
-            return 0;
-        #endif
-        
-
         case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
         #ifdef _ONE_NET_MULTI_HOP
         case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
@@ -574,15 +565,6 @@ pkt_group_t get_pkt_family(UInt8 pid)
         #endif
         #endif
             return ACK_NACK_PKT_GRP;
-      
-      
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_TXN_ACK:
-        #ifdef _ONE_NET_MULTI_HOP      
-        case ONE_NET_ENCODED_MH_BLOCK_TXN_ACK:
-        #endif
-        #endif
-            return TXN_ACK_PKT_GRP;
             
        
         case ONE_NET_ENCODED_SINGLE_DATA:
