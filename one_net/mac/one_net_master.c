@@ -856,8 +856,6 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_type = *msg_type;
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK;
 
     oncli_send_msg("Rcv'd packet : Source ");
     oncli_print_did(pkt->enc_src_did);

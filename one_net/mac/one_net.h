@@ -646,8 +646,8 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 #endif
 
 
-on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
-  on_ack_nack_t* ack_nack);
+on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
+  UInt8* raw_payload, on_ack_nack_t* ack_nack);
 one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce);
 #ifdef _BLOCK_MESSAGES_ENABLED

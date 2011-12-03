@@ -1181,17 +1181,27 @@ BOOL one_net(on_txn_t ** txn)
                         
                         if(this_txn == &single_txn)
                         {
-                            on_message_status_t msg_status;
                             UInt8 msg_type =
                               get_payload_msg_type(raw_payload_bytes);
                               
                             ack_nack.payload = (ack_nack_payload_t*)
                               &raw_payload_bytes[ON_PLD_DATA_IDX];
-
-                            (*pkt_hdlr.single_data_hdlr)(&this_txn,
-                              this_pkt_ptrs, raw_payload_bytes, &msg_type,
-                              &ack_nack);
                               
+                            // first check for nonces, message ids, features,
+                            // etc.  We'll take care of that level of
+                            // processing in rx_single_data().  Anything
+                            // beyond that will take place in the single data
+                            // handler function.
+                            rx_single_data(&this_txn, this_pkt_ptrs,
+                              raw_payload_bytes, &ack_nack);
+
+                            if(this_txn == &single_txn)
+                            {
+                                (*pkt_hdlr.single_data_hdlr)(&this_txn,
+                                  this_pkt_ptrs, raw_payload_bytes, &msg_type,
+                                  &ack_nack);
+                            }
+
                             if(this_txn == &response_txn)
                             {
                                 // we'll send back a reply.
@@ -1845,6 +1855,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     \brief Finishes reception of a single data pkt
 
     \param[in/out] txn The single transaction
+    \param[in] sing_pkt_ptr A pointer to elemens of the parsed packet
     \param[in] raw_payload The decoded, decrypted payload
     \param[out] ack_nack The ACK or NACK reason, handle, and payload
 
@@ -1854,8 +1865,8 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
             ON_MSG_IGNORE If the packet should be not be ignored
             See on_message_status_t & single_data_hdlr for more options.
 */
-on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
-  on_ack_nack_t* ack_nack)
+on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
+  UInt8* raw_payload, on_ack_nack_t* ack_nack)
 {
     BOOL ack_msg = FALSE;
     UInt8 msg_type, resp_pid;
@@ -1868,13 +1879,23 @@ on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     tick_t time_now = get_tick_count();
     on_message_status_t msg_status = ON_MSG_CONTINUE;
     
+    if(!txn || !(*txn) || !raw_payload || !ack_nack)
+    {
+        return ONS_BAD_PARAM;
+    }
+
+    ack_nack->payload = (ack_nack_payload_t*) &raw_payload[ON_PLD_DATA_IDX];
+    
     
     // we'll do a little prep work here before actually sending the message
     // to the single data handler.  Anything we can handle here where the
     // application code does not need to be alerted will be handled here.
+    // We'll set some flags and nack reasons that will signal follow-up
+    // functions that we've already processed the message.
+    
     // Possibilities include...
     //
-    // 1) Making sure that both ends hanve each others' features.
+    // 1) Making sure that both ends have each others' features.
     // 2) Verifying message ids and nonces.
     // 3) Figuring out what messages can definitely be aborted.
     
@@ -1910,12 +1931,6 @@ on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     
     
 
-    
-    if(!txn || !(*txn) || !raw_payload)
-    {
-        return ONS_BAD_PARAM;
-    }
-    
     (*txn)->device = (*get_sender_info)
       ((on_encoded_did_t*) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
 
@@ -1927,7 +1942,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     }
 
     src_features_known = features_known((*txn)->device->features);
-    msg_type = raw_payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK;
+    msg_type = get_payload_msg_type(raw_payload);
     
     // If the source features are not known and it is NOT an admin message
     // telling us what those features are, we'll NACK the message.  We'll
@@ -1938,92 +1953,122 @@ on_message_status_t rx_single_data(on_txn_t** txn, UInt8* raw_payload,
     // the other end.  If it wanted an ACK, it would have sent a features
     // request admin message.
     
+    
+    // first we'll check the features and set the handle and payload as
+    // such.  If this level passes, we'll reset them to something else.
+    ack_nack->handle = ON_NACK_FEATURES;
+    ack_nack->payload->features = THIS_DEVICE_FEATURES;
+
+    
     if(msg_type == ON_FEATURE_MSG)
     {
-        if(!src_features_known)
-        {
-            // we don't have this device in our table yet.  Fill in the
-            // features.
-            one_net_memmove(&((*txn)->device->features),
-              &raw_payload[ON_PLD_DATA_IDX], sizeof(on_features_t));
-        }
-        
-        (*txn)->device->send_nonce = resp_nonce;
-        
+        one_net_memmove(&((*txn)->device->features),
+          &raw_payload[ON_PLD_DATA_IDX], sizeof(on_features_t));
+
         // we'll NACK it and give the nack reason as ON_NACK_RSN_GENERAL_ERR,
-        // but the NACK handle will be ON_NACK_FEATURES.
-        
+        // but the NACK handle will be ON_NACK_FEATURES.  We are making the
+        // nack reason ON_NACK_RSN_GENERAL_ERR rather than
+        // ON_NACK_RSN_NEED_FEATURES because if we made the nack reason that,
+        // the sending device would think that the problem was that WE didn't
+        // have ITS features when in fact the opposite is true.
         ack_nack->nack_reason = ON_NACK_RSN_GENERAL_ERR;
-        ack_nack->handle = ON_NACK_FEATURES;
-        ack_nack->payload->features = THIS_DEVICE_FEATURES;
-
-        // we don't authenticate nonces or message ids for this message type
-        response_txn.device = (*txn)->device;
-        *txn = &response_txn;
-
-        resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
-        #ifdef _ONE_NET_MULTI_HOP
-        (*txn)->device->hops = (*txn)->hops;
-        if((*txn)->hops > 0)
-        {
-            resp_pid = ONE_NET_ENCODED_MH_SINGLE_DATA_ACK;
-        }
-        (*txn)->max_hops = (*txn)->hops;
-        (*txn)->hops = 0;
-        #endif
-        
-        if(!setup_pkt_ptr(resp_pid, response_txn.pkt, &response_pkt_ptrs))
-        {
-            *txn = 0;
-            return ONS_INTERNAL_ERR;
-        }
-        
-        #ifdef _ONE_NET_MULTI_HOP
-        response_pkt_ptrs.hops = 0;
-        response_pkt_ptrs.max_hops = (*txn)->max_hops;
-        #endif
-        
-        response_txn.key = single_txn.key;
-        msg_status = ON_MSG_RESPOND;
+        (*txn)->device->verify_time = 0;
+        return ON_MSG_CONTINUE;
     }
-
-    if(msg_status == ON_MSG_RESPOND)
-    {
-        on_pkt_t pkt;
-        on_msg_hdr_t msg_hdr;
-        msg_hdr.pid = *(pkt.pid);
-        msg_hdr.msg_id = pkt.msg_id;
-        msg_hdr.msg_type = msg_type;
-        
-        if(!setup_pkt_ptr(resp_pid, response_txn.pkt, &pkt))
-        {
-            *txn = 0;
-            return ON_MSG_INTERNAL_ERR;
-        }
     
-        // the response destination will be the transaction's source
-        on_build_my_pkt_addresses(&pkt, (const on_encoded_did_t* const)
-          &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL);
+    if(!src_features_known)
+    {
+        // this time WE need the other device's features, so we'll set
+        // the nack reason to ON_NACK_FEATURES.
+        ack_nack->nack_reason = ON_NACK_RSN_NEED_FEATURES;
+        (*txn)->device->verify_time = 0;
+        return ON_MSG_CONTINUE;
+    }
+    
+    
+    // we've gotten this far, so we have each other's features.  Now we
+    // need to check the message id.  If THAT test passes, we'll process
+    // the nonces
+    
+    // If the message ID is the same as the one we have on file, we'll
+    // assume this is a repeat packet.  If we have not ACK'd it yet,
+    // everything is good.  If we HAVE ACK'd it, we'll have a verify time.
+    // If that verify time is close to the current time, we'll assume that
+    // the other side simply missed our ACK and count it as good.  If the
+    // verify time is NOT close to the current time, we'll assume this is
+    // possibly a replay attack or that something is out of sync.  We will
+    // NACK it and send back the NACK along with a message id that we WILL
+    // accept.
+    
+    // If the message is LESS THAN the message we have on file, there is
+    // possibly a rollover.  We only have six bits after all.  If the one we
+    // have on file is the maximum message id and the one we got is 0, we'll
+    // accept that as a new message.  Otherwise, we'll NACK it and tell the
+    // sender to use a message id of one greater than what we have on file.
+    
+    // If the message ID is GREATER than the one we have on file, we will
+    // assume that this is a new message and accept it.
+    {
+        tick_t time_now = get_tick_count();
+        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
+        UInt8 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
+          0 : 1 + (*txn)->device->msg_id);
+          
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_MSG_ID;
 
-        response_txn.key = (*txn)->key;
-        *txn = &response_txn;
 
-        if(on_build_response_pkt(ack_nack, &pkt, *txn, (*txn)->device,
-          FALSE) !=
-          ONS_SUCCESS)
+        if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id ||
+          sing_pkt_ptr->msg_id == one_greater)
         {
-            *txn = 0;
-            return ON_MSG_INTERNAL_ERR;
+            // valid new message id for a new message we haven't seen before.
+            (*txn)->device->msg_id = sing_pkt_ptr->msg_id;
+            (*txn)->device->verify_time = 0;
+            ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
         }
-        if(on_complete_pkt_build(&pkt, msg_hdr.msg_id, resp_pid) !=
-          ONS_SUCCESS)
+        else if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
         {
-            *txn = 0;
-            return ON_MSG_INTERNAL_ERR;
+            if((*txn)->device->verify_time == 0)
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+            }
+            else if(time_now >= (*txn)->device->verify_time &&
+              time_now - (*txn)->device->verify_time < VERIFY_TIMEOUT)
+            {
+                // verified and ACK'd recently.  The ACK may have been missed.
+                ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+            }
+        }
+
+        if(ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
+        {
+            ack_nack->handle = ON_NACK_VALUE;
+            // this is a message id we will accept. 
+            ack_nack->payload->nack_value = one_greater;
+            (*txn)->device->verify_time = 0; 
+            return ON_MSG_CONTINUE;        
         }
     }
+    
+    
+    ack_nack->handle = ON_ACK;
+    
+    // The message ID check passed.  Now let's check the nonces.  First, we're
+    // far enough along in the process that we will accept the nonce that was
+    // given to us regardles of whether the other device gave US the right
+    // nonce.
+    (*txn)->device->send_nonce = resp_nonce;
+    
+    // now let's see if the other device gave US the correct nonce.
+    if((*txn)->device->expected_nonce != txn_nonce)
+    {
+        // they gave us the wrong nonce.
+        ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
+    }
 
-    return msg_status;
+    // TODO -- the subsequent code needs to look to see if a nack reason
+    // is set.  If so, it won't process it, but rather send an
+    // immediate response.
+    return ON_MSG_CONTINUE;
 } // rx_single_data //
 
 
