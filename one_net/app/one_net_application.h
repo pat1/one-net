@@ -210,7 +210,7 @@ ONE_NET_INLINE void put_dst_unit(UInt8 data, UInt8 *payload)
 /* get the 4-bit message type value from the payload buffer */
 ONE_NET_INLINE UInt8 get_payload_msg_type(const UInt8 *payload)
 {
-    return (payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_IDX);
+    return (payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK);
 }
 
 /* store the 4-bit message type value in the raw payload buffer */
