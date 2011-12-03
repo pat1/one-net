@@ -641,7 +641,8 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
     switch(ack_nack->handle)
     {
         case ON_ACK:
-          oncli_send_msg("n/A\n");
+          oncli_send_msg("N/A\n");
+          break;
         
         case ON_ACK_VALUE:
         {
