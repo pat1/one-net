@@ -603,44 +603,6 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
                 pkt->hops = (*txn)->hops;
                 pkt->max_hops = (*txn)->max_hops;
 
-                // change the pid if needed
-                if((*txn)->max_hops)
-                {
-                    switch(*(pkt->pid))
-                    {
-                        case ONE_NET_ENCODED_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_MH_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA;
-                          break;
-                    }
-                }
-                else
-                {
-                    switch(*(pkt->pid))
-                    {
-                        case ONE_NET_ENCODED_MH_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
-                          break;
-                        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
-                          *(pkt->pid) = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
-                          break;
-                    }
-                }
-                
-                if(on_complete_pkt_build(pkt, pkt->msg_id, *(pkt->pid)) !=
-                  ONS_SUCCESS)
-                {
-                    return ON_MSG_TIMEOUT; // should never get here?
-                }
-                
                 return ON_MSG_CONTINUE;
             }
             #endif
