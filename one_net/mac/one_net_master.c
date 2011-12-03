@@ -856,6 +856,26 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_type = *msg_type;
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
+    
+    // we'll be sending it back to the souerce.
+    if(!(device = sender_info(pkt->enc_src_did)))
+    {
+        // I think we should have solved this problem before now, but abort if
+        // we have not.
+        
+        // TODO -- solve this better or confirm it is in fact solved earlier.
+        *txn = 0;
+        return ON_MSG_ABORT;
+    }
+    
+    if(ack_nack->nack_reason)
+    {
+        // an error has already been set.  That means we don't need to do
+        // anything but build the proper response packet.
+        goto omsdh_build_resp;
+    }
+    
+    
 
     oncli_send_msg("Rcv'd packet : Source ");
     oncli_print_did(pkt->enc_src_did);
@@ -899,17 +919,15 @@ static on_message_status_t on_master_single_data_hdlr(
         return msg_status;
     }
     
-    // we'll be sending it back to the souerce.
-    if(!(device = sender_info(pkt->enc_src_did)))
-    {
-        // I think we should have solved this problem before now, but abort if
-        // we have not.
-        
-        // TODO -- solve this better or confirm it is in fact solved earlier.
-        *txn = 0;
-        return ON_MSG_ABORT;
-    }
     
+    // change the nonce we want.
+    device->last_nonce = device->expected_nonce;
+    device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
+    
+
+// normally we try not to use goto statements but this is embedded programming
+// and it may save us a few bytes?
+omsdh_build_resp:
     response_pid = get_single_response_pid(*(pkt->pid),
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
 
@@ -947,10 +965,6 @@ static on_message_status_t on_master_single_data_hdlr(
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
-    
-    // 12 / 2 / 2011 -- delay to prevent garbling?
-    // TODO -- there is clearly still a problem in the uart output.
-    delay_ms(25);
     
     return ON_MSG_RESPOND;
 }
