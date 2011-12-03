@@ -2513,39 +2513,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
       ONE_NET_ENCODED_MSG_ID_LEN);
 
-    #if 0
-    // TODO -- handle replay attacks elsewhere
-    
-    
-    // now check for a potential replay attack.  If this is a brand new
-    // message and the message ID is <= the message ID we have on
-    // record for this device, we'll disregard it as invalid.
-    if(!txn && *this_txn != &invite_txn)
-    {
-        on_sending_device_t* dev = (*get_sender_info)((on_encoded_did_t*)
-          &((*this_pkt_ptrs)->enc_src_did));
-
-        if(features_known(dev->features))
-        {
-            // we've seen this device before.  We'll give the device 2
-            // seconds in case we're in the middle of the current transaction.
-            // otherwise we'll call it a reply attack or if not an attack, at
-            // least something we will not accept.
-            if((*this_pkt_ptrs)->msg_id < dev->msg_id ||
-              ((*this_pkt_ptrs)->msg_id == dev->msg_id &&
-              (dev->verify_time + MS_TO_TICK(2000) < get_tick_count())))
-            {
-                // we've definitely seen this one before and the message id
-                // is invalid.  NACK it as an invalid message id.
-
-                // TODO -- build and send the response.
-                oncli_send_msg("Invalid message id\n");
-                return ONS_BAD_MSG_ID;
-            }
-        }
-    }
-    #endif
-
     // set the key
     (*this_txn)->key = key;
 
