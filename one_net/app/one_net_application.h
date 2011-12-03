@@ -217,7 +217,7 @@ ONE_NET_INLINE UInt8 get_payload_msg_type(const UInt8 *payload)
 ONE_NET_INLINE void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
 {
     payload[ON_PLD_MSG_TYPE_IDX] = 
-        (payload[ON_PLD_MSG_TYPE_IDX]    & ~ON_PLD_MSG_TYPE_IDX) |
+        (payload[ON_PLD_MSG_TYPE_IDX]    & ~ON_PLD_MSG_TYPE_MASK) |
         (msg_type & ON_PLD_MSG_TYPE_MASK);
 }
 
