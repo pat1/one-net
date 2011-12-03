@@ -1348,6 +1348,7 @@ BOOL one_net(on_txn_t ** txn)
                   get_encoded_packet_len(single_msg.pid, TRUE);
                 *txn = &single_txn;
                 (*txn)->retry = 0;
+                (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
                 (*txn)->device = device;
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
