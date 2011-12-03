@@ -1693,6 +1693,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     UInt8 i;
+    on_message_status_t msg_status;
     BOOL ack_rcvd = packet_is_ack(*(pkt->pid));
     UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
@@ -1813,24 +1814,42 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
             }
         }
     }
-    
 
-    // TODO -- somewhere along here we need to alert the ACK / NACK handler.
-    
+
+	// now we'll give the application code a chance to do whatever it wants to do
+	// with the ACK/NACK, including handle it itself.  If it wants to handle everything
+	// itself and cancel this transaction, it should return false.  It may decide
+    // it wants to abort, in which case it should return ON_MSG_ABORT.  If
+    // there was a problem with the message ID or the nonces, we're simply
+    // calling the application code to notify it.  It should NOT change
+    // anything, but it may want to be aware of failures for its own needs.
+    msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(&single_txn,
+      &data_pkt_ptrs, single_msg_ptr->payload,
+      &(single_msg_ptr->msg_type), ack_nack);
+
+
     if(message_ignore)
     {
         return ON_MSG_IGNORE;
     }
+    
+    if(msg_status == ON_MSG_ABORT)
+    {
+        return msg_status;
+    }
 
-    if(change_nonce && !message_ignore)
+    if(change_nonce)
     {
         // pick a new nonce
         (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
         (*txn)->device->expected_nonce = one_net_prand(time_now,
           ON_MAX_NONCE);
     }
-    
 
+    // the applciation code may or may not have changed this from an ACK to a
+    // NACK or vice versa, changed the number of retries, added a delay,
+    // changed the response timeout, or whateer else.  We don't particularly
+    // care here.
     if(ack_nack->nack_reason != ON_NACK_RSN_NO_ERROR)
     {
         ((*txn)->retry)++;
@@ -1847,7 +1866,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         return ON_MSG_FAIL;
     }
 
-    return ON_MSG_DEFAULT_BHVR;
+    return ON_MSG_CONTINUE;
 }
 
 
