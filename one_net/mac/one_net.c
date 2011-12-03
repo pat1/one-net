@@ -1689,8 +1689,11 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     BOOL verify_needed = FALSE;
     BOOL message_id_match = FALSE;
     BOOL message_ignore = FALSE;
+    BOOL change_nonce = TRUE;
     tick_t time_now = get_tick_count();
-    
+    ack_nack->payload = (ack_nack_payload_t*)
+      &raw_payload_bytes[ON_PLD_DATA_IDX];
+
     if(ack_rcvd)
     {
         ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
@@ -1749,7 +1752,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     {
         // they've given us a new message ID.  We'll use it.
         (*txn)->device->msg_id = pkt->msg_id;
-        (*txn)->device->verify_time == 0;
+        (*txn)->device->verify_time = 0;
     }
     else
     {
@@ -1758,9 +1761,19 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         // we no longer care about or it may be a replay attack or it may
         // something else.  Just ignore this packet.  But we'll increment
         // the retries.  We'll want to reverify next time though.
+        
+        
+        // Dec. 2, 2011 -- temporarily overriding this test
+        #if 0
         message_ignore = TRUE;
         ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID;
-        (*txn)->device->verify_time == 0;
+        (*txn)->device->verify_time = 0;
+        #else
+        message_id_match = TRUE; // temporarily pretending that the message
+                                 // ids match
+                                 // TODO -- actually solve this!
+        #endif
+        
     }
 
     if(!message_ignore)
@@ -1780,8 +1793,33 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
                 // If they liked OUR nonces and the message 
                 (*txn)->device->verify_time = time_now;
             }
+            else
+            {
+                // they gave us a bad nonce.  We accepted theirs.  We won't
+                // change ours and we'll hope that we'll sync up the next
+                // time we send.  Set the NACK reason to a bad nonce.
+                ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
+                change_nonce = FALSE;
+            }
         }
     }
+    
+
+    // TODO -- somewhere along here we need to alert the ACK / NACK handler.
+    
+    if(message_ignore)
+    {
+        return ON_MSG_IGNORE;
+    }
+
+    if(change_nonce && !message_ignore)
+    {
+        // pick a new nonce
+        (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
+        (*txn)->device->expected_nonce = one_net_prand(time_now,
+          ON_MAX_NONCE);
+    }
+    
 
     if(ack_nack->nack_reason != ON_NACK_RSN_NO_ERROR)
     {
@@ -1798,15 +1836,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         *this_txn = 0;
         return ON_MSG_FAIL;
     }
-    else if(message_ignore)
-    {
-        return ON_MSG_IGNORE;
-    }
-    
-
-    // pick a new nonce
-    (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
-    (*txn)->device->expected_nonce = one_net_prand(time_now, ON_MAX_NONCE);
 
     return ON_MSG_DEFAULT_BHVR;
 }
