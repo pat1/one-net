@@ -692,10 +692,7 @@ UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
     UInt8 resp_pid;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL pid_is_multi = packet_is_multihop(single_pid);
-    if(!set_multihop_pid(&single_pid, FALSE))
-    {
-        return 0; // invalid PID
-    }
+    set_multihop_pid(&single_pid, FALSE);
     #endif
     
     switch(single_pid)
