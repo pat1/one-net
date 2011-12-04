@@ -763,10 +763,15 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     //
     // initialize the fields in the client_t structure for this new client
-    //
-    client->device_send_info.expected_nonce = ON_INVALID_NONCE;
-    client->device_send_info.last_nonce = ON_INVALID_NONCE;
-    client->device_send_info.send_nonce = 0;
+    //    
+    client->device_send_info.msg_id = one_net_prand(get_tick_count(),
+      ON_MAX_MSG_ID);
+    client->device_send_info.expected_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
+    client->device_send_info.last_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
+    client->device_send_info.send_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
     client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device_send_info.features = features;
     client->use_current_key = TRUE;
@@ -781,9 +786,14 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
       client->device_send_info.did, ON_ENCODED_DID_LEN);
     one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
     out_master_param->device.features = THIS_DEVICE_FEATURES;
-    out_master_param->device.expected_nonce = ON_INVALID_NONCE;
-    out_master_param->device.last_nonce = ON_INVALID_NONCE;
-    out_master_param->device.send_nonce = 0;
+    out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
+    out_master_param->device.last_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
+    out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
+      ON_MAX_NONCE);
+    out_master_param->device.msg_id = one_net_prand(get_tick_count(),
+      ON_MAX_MSG_ID);
 #ifdef _ONE_NET_MULTI_HOP
     out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
     out_master_param->device.hops = 0;
