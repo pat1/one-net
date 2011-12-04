@@ -371,6 +371,65 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
 #endif // ifdef _ONE_NET_MULTI_HOP //
 
 
+// TODO -- document
+one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
+  on_ack_nack_t* const ack_nack)
+{
+    BOOL is_ack = packet_is_ack(pid);
+    if(!is_ack && !packet_is_nack(pid))
+    {
+        return ONS_BAD_PKT_TYPE;
+    }
+    
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = get_ack_nack_handle(raw_bytes);
+    raw_bytes += ON_PLD_DATA_IDX;
+    
+    if(!is_ack)
+    {
+        ack_nack->nack_reason = *raw_bytes;
+        raw_bytes++;
+    }
+    
+
+    ack_nack->payload = (ack_nack_payload_t*) raw_bytes;
+    
+    // fill in the payload based on the handle
+    {
+        BOOL val_present = FALSE;
+        switch(ack_nack->handle)
+        {
+            case ON_ACK_FEATURES:              
+            case ON_ACK_STATUS:
+	        case ON_ACK_DATA:
+                // nothing to do with these.
+                break;
+	        case ON_ACK_VALUE:
+                val_present = TRUE;
+                if(is_ack)
+                {
+                    raw_bytes++;  // first byte is UInt8, no endian conversion
+                }
+                break;
+	        case ON_ACK_TIME_MS:
+            case ON_ACK_TIMEOUT_MS:
+            case ON_ACK_SLOW_DOWN_TIME_MS:
+            case ON_ACK_SPEED_UP_TIME_MS:
+                val_present = TRUE;
+                break;
+        }
+        
+        if(val_present)
+        {
+            // reverse the bytes if necessary
+            *raw_bytes = one_net_byte_stream_to_int32(raw_bytes);
+        }
+    }
+    
+    return ONS_SUCCESS;
+}
+
+
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
   BOOL stay_awake)

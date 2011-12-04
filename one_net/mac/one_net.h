@@ -555,6 +555,9 @@ extern on_txn_t invite_txn;
 
 
 
+one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
+  on_ack_nack_t* const ack_nack);
+
 #ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
   UInt8 max_hops);
