@@ -2049,7 +2049,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
             (*txn)->device->verify_time = 0;
             ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
         }
-        else if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
+        else if(sing_pkt_ptr->msg_id == (*txn)->device->msg_id)
         {
             if((*txn)->device->verify_time == 0)
             {
