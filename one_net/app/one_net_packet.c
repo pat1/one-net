@@ -544,11 +544,11 @@ pkt_group_t get_pkt_family(UInt8 pid)
             
         case ONE_NET_ENCODED_SINGLE_DATA_ACK:
         case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
         #ifdef _ONE_NET_MULTI_HOP
         case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
         case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE:
         case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
         #endif
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ONE_NET_ENCODED_BLOCK_DATA_ACK:
