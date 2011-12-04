@@ -1511,13 +1511,16 @@ BOOL one_net(on_txn_t ** txn)
             }
             else
             {
+                this_txn = &response_txn;
+                this_pkt_ptrs = &response_pkt_ptrs;
                 status = on_rx_packet((const on_encoded_did_t * const)
                   &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
-                  (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
+                  &single_txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
             
-                if(status == ONS_PKT_RCVD && this_txn == &response_txn)
+                if(status == ONS_PKT_RCVD)
                 {
+
                     response_msg_or_timeout = TRUE;
                     msg_status = rx_single_resp_pkt(txn, &this_txn,
                       this_pkt_ptrs, raw_payload_bytes, &ack_nack);
@@ -2093,6 +2096,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // TODO -- the subsequent code needs to look to see if a nack reason
     // is set.  If so, it won't process it, but rather send an
     // immediate response.
+
     return ON_MSG_CONTINUE;
 } // rx_single_data //
 
@@ -2214,7 +2218,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_NID_FAILED; // not our network
     }
-    #endif
+    #endif    
     
     #ifdef _ONE_NET_MULTI_HOP
     // first check the source.  If it was us originally, then we probably
@@ -2224,7 +2228,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_DID_FAILED; // We SENT this packet, so no sense RECEIVING
                                // it.
     }
-    #endif    
+    #endif
 
     #ifdef _RANGE_TESTING
     if(!device_in_range((on_encoded_did_t*)
@@ -2314,6 +2318,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
             return ONS_BAD_PKT_TYPE;
         }
     }
+
     
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
@@ -2374,12 +2379,12 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_INTERNAL_ERR;
     }
-    
+
     if(one_net_read(&((*this_txn)->pkt[ON_PLD_IDX]), (*this_pkt_ptrs)->payload_len)
       != (*this_pkt_ptrs)->payload_len)
     {
         return ONS_READ_ERR;
-    } 
+    }
     
     #ifndef _ONE_NET_MH_CLIENT_REPEATER
     if(!verify_msg_crc(*this_pkt_ptrs))
@@ -2458,6 +2463,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         key = &(on_base_param->stream_key);
     }
     #endif
+
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
@@ -2480,13 +2486,14 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
       get_raw_payload_len(pid))) != ONS_SUCCESS)
     {   
         return status;
-    } 
+    }
 
     // check the payload CRC.
     if(!verify_payload_crc(pid, raw_payload_bytes))
     {
         return ONS_CRC_FAIL;
     }
+
     
     // decode the message id and fill it in.
     if(on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
@@ -2494,7 +2501,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_BAD_ENCODING;
     }
-    
+
     (*this_pkt_ptrs)->msg_id >>= 2;
 
     // set the key
