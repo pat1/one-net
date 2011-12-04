@@ -818,20 +818,6 @@ BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-   
-    
-
 /*!
     \brief Sets the pointers of an on_pkt_t structure.
 
@@ -873,8 +859,6 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     
     return TRUE;
 }
-
-
 
 
 /*!
@@ -1078,10 +1062,6 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
     return ONS_SUCCESS;
 } // on_decrypt //
 
-
-
-
-    
 
 /*!
     \brief Initializes ONE-NET.
@@ -1293,33 +1273,13 @@ BOOL one_net(on_txn_t ** txn)
                 // client to prevent replay attacks.
                 device->verify_time = 0;
                 
-                if(one_net_memcmp(&FEATURES_UNKNOWN, &(device->features),
-                  sizeof(on_features_t)) == 0)
+
+                // pick a message id.  Increment the last one.  If it
+                // rolls over, make it 0.
+                (device->msg_id)++;
+                if(device->msg_id > ON_MAX_MSG_ID)
                 {
-                    // we don't have valid features for this device, so
-                    // all of the other information in "device" is almost
-                    // certainly not valid or uninitialized.  We'll fill it
-                    // in with best guesses and have the device NACK us if we
-                    // are wrong.  We also want to send a request to the
-                    // device for its features.
-                    
-                    // since we don't have a legitimate message ID, create a
-                    // random one.
-                    device->msg_id = one_net_prand(get_tick_count(),
-                      ON_MAX_MSG_ID);
-                    
-                    // TODO -- add a features request for this device
-                }
-                else
-                {
-                    // pick a message id.  Increment the last one.  If it
-                    // rolls over, pick a random one.
-                    (device->msg_id)++;
-                    if(device->msg_id > ON_MAX_MSG_ID)
-                    {
-                        device->msg_id = one_net_prand(get_tick_count(),
-                          ON_MAX_MSG_ID - 1);
-                    }
+                    device->msg_id = 0;
                 }
                 
                 if(!setup_pkt_ptr(single_msg.pid, single_pkt,
