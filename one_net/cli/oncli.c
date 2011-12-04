@@ -654,7 +654,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
             }
             else
             {
-                oncli_send_msg("%ld \n", ack_nack->payload->nack_value);
+                oncli_send_msg("%lu \n", ack_nack->payload->nack_value);
             }
             break;
         }
