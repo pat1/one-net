@@ -480,6 +480,7 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    #if 0
     // just to prove we can pause and change the response timeout.
     if(resp_ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE)
     {
@@ -496,6 +497,7 @@ on_message_status_t eval_handle_ack_nack_response(
               one_net_prand(get_tick_count(), 250);
         }
     }
+    #endif
     return ON_MSG_CONTINUE;
 }
 
