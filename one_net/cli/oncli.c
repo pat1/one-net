@@ -648,7 +648,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
         {
             if(is_ack)
             {
-                oncli_send_msg("UInt32-->%ld : UInt8-->%d\n",
+                oncli_send_msg("UInt32-->%lu : UInt8-->%u\n",
                   ack_nack->payload->ack_value.uint32,
                   ack_nack->payload->ack_value.uint8);
             }
