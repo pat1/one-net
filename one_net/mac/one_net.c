@@ -391,9 +391,8 @@ one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
         raw_bytes++;
     }
     
-
     ack_nack->payload = (ack_nack_payload_t*) raw_bytes;
-    
+
     // fill in the payload based on the handle
     {
         BOOL val_present = FALSE;
@@ -410,6 +409,7 @@ one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
                 {
                     raw_bytes++;  // first byte is UInt8, no endian conversion
                 }
+                
                 break;
 	        case ON_ACK_TIME_MS:
             case ON_ACK_TIMEOUT_MS:
@@ -420,11 +420,14 @@ one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
         }
         
         if(val_present)
-        {
+        {              
             // reverse the bytes if necessary
-            *raw_bytes = one_net_byte_stream_to_int32(raw_bytes);
+            // assign it to nack_value.  Doesn't matter.  They all point
+            // to the same place
+            ack_nack->payload->nack_value = one_net_byte_stream_to_int32(
+              raw_bytes);
         }
-    }
+    } 
     
     return ONS_SUCCESS;
 }
@@ -1767,20 +1770,13 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     BOOL message_ignore = TRUE;
     const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
     tick_t time_now = get_tick_count();
-    ack_nack->payload = (ack_nack_payload_t*)
-      &raw_payload_bytes[ON_PLD_DATA_IDX];
-
-    if(ack_rcvd)
+    
+    if(on_parse_response_pkt(*(pkt->pid), raw_payload_bytes, ack_nack) !=
+      ONS_SUCCESS)
     {
-        ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    }
-    else
-    {
-        ack_nack->nack_reason = raw_payload_bytes[ON_PLD_IDX];
+        return ON_MSG_IGNORE; // undecipherable
     }
     
-    ack_nack->handle = get_ack_nack_handle(raw_payload_bytes);
-
 
     // Replay attacks are FAR more worriesome on the receiving side.
     // We are the sender, but both sides should always check
