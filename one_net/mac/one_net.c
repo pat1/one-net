@@ -1559,17 +1559,21 @@ BOOL one_net(on_txn_t ** txn)
 
             if(!terminate_txn && response_msg_or_timeout)
             {
-                // rebuild the packet
-                if(!setup_pkt_ptr(single_msg.pid, single_pkt,
+                // rebuild the packet                
+                if(setup_pkt_ptr(single_msg.pid, single_pkt,
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
                   &data_pkt_ptrs, (*txn)->device->msg_id, single_msg.pid) ==
                   ONS_SUCCESS)
                 {
+                    // do nothing. everything worked.
+                }
+                else
+                {
                     // an error of some sort occurred.  Abort.
                     terminate_txn = TRUE;
-                    msg_status = ON_MSG_INTERNAL_ERR;                           
+                    msg_status = ON_MSG_INTERNAL_ERR;
                 }
                 
                 if(!terminate_txn)
