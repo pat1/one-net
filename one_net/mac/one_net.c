@@ -1156,6 +1156,9 @@ BOOL one_net(on_txn_t ** txn)
                     // a repeater and the packet wasn't for us, a repeat
                     // packet.  What we should NOT get is a response, block,
                     // or stream packet.
+                    this_txn = &single_txn;
+                    *txn = NULL;
+                    this_pkt_ptrs = &data_pkt_ptrs;
                     status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
                       (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
                       raw_payload_bytes);
@@ -1181,6 +1184,8 @@ BOOL one_net(on_txn_t ** txn)
                         
                         if(this_txn == &single_txn)
                         {
+                            on_message_status_t msg_status;
+                            
                             UInt8 msg_type =
                               get_payload_msg_type(raw_payload_bytes);
                               
@@ -1192,10 +1197,10 @@ BOOL one_net(on_txn_t ** txn)
                             // processing in rx_single_data().  Anything
                             // beyond that will take place in the single data
                             // handler function.
-                            rx_single_data(&this_txn, this_pkt_ptrs,
-                              raw_payload_bytes, &ack_nack);
+                            msg_status = rx_single_data(&this_txn,
+                              this_pkt_ptrs, raw_payload_bytes, &ack_nack);
 
-                            if(this_txn == &single_txn)
+                            if(msg_status == ON_MSG_CONTINUE)
                             {
                                 (*pkt_hdlr.single_data_hdlr)(&this_txn,
                                   this_pkt_ptrs, raw_payload_bytes, &msg_type,
@@ -2181,31 +2186,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
-    
-    *this_txn = &single_txn;
-    *this_pkt_ptrs = &data_pkt_ptrs;
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && client_looking_for_invite)
-    {
-        *this_txn = &invite_txn;
-    }
-    else 
-    #endif
-    if(txn && txn->send)
-    {
-        *this_txn = &response_txn;
-        *this_pkt_ptrs = &response_pkt_ptrs;
-    }
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    else if(txn)
-    {
-        *this_txn = txn;
-    }
-    #endif
-    else
-    {
-        *this_txn = &single_txn;
-    }
+
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
@@ -2228,12 +2209,10 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_NID_FAILED; // not our network
     }
     #else
-    if(device_is_master || !client_looking_for_invite)
+    if(*this_txn != &invite_txn && !is_my_nid((on_encoded_nid_t*)
+      (&pkt_bytes[ON_ENCODED_NID_IDX])))
     {
-        if(!is_my_nid((on_encoded_nid_t*) (&pkt_bytes[ON_ENCODED_NID_IDX])))
-        {
-            return ONS_NID_FAILED; // not our network
-        }
+        return ONS_NID_FAILED; // not our network
     }
     #endif
     
@@ -2467,7 +2446,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     key = &(on_base_param->current_key);
     
     #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && client_looking_for_invite)
+    if(*this_txn == &invite_txn)
     {
         key = (one_net_xtea_key_t*) one_net_client_get_invite_key();
     }
@@ -2510,8 +2489,13 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     }
     
     // decode the message id and fill it in.
-    on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
-      ONE_NET_ENCODED_MSG_ID_LEN);
+    if(on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
+      ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+    {
+        return ONS_BAD_ENCODING;
+    }
+    
+    (*this_pkt_ptrs)->msg_id >>= 2;
 
     // set the key
     (*this_txn)->key = key;
