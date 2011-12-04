@@ -1584,7 +1584,7 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     response_msg_or_timeout = TRUE;
                     msg_status = rx_single_resp_pkt(txn, &this_txn,
-                      this_pkt_ptrs, raw_payload_bytes, &ack_nack);
+                      this_pkt_ptrs, raw_payload_bytes, &ack_nack);                    
 
                     switch(msg_status)
                     {
@@ -1811,31 +1811,32 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     // message id than we expected, we should not accept it.  This needs to be
     // revisited.  
     
-    // The message_ignore flag is set to true.  Two cases will set it to false
-    // and allow us to proceed. 
+    // The message_ignore flag is set to true.  If the message ID matches
+    // what we gave the other device, we may set it false.  If they didn't
+    // like our message ID and gave us one to use back, we'll use it if it's
+    // not "less than" the one we gave them.  IF our current message ID is
+    // within 2 of the maximum, we'll accept a 0 or 1 as well.
     if(pkt->msg_id == (*txn)->device->msg_id)
     {
-        message_ignore = FALSE;
-    }
-    else if(ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
-    {
-        // they've given us a new message ID.  We'll use it if it matches
-        // the one they sent in the nack payload and is "greater" than the
-        // one we are already using ("greater" is anything greater than what
-        // we are using "0" is "greater than" "63" because of rollover
-        if(pkt->msg_id == ack_nack->payload->nack_value)
+        if(ack_nack->nack_reason == ON_NACK_RSN_INVALID_MSG_ID)
         {
-            if(pkt->msg_id > (*txn)->device->msg_id || (pkt->msg_id == 0 &&
-              (*txn)->device->msg_id == ON_MAX_MSG_ID))
+            if(ack_nack->payload->nack_value >= (*txn)->device->msg_id ||
+              ((*txn)->device->msg_id + 2 >= ON_MAX_MSG_ID &&
+              ack_nack->payload->nack_value < 2))
             {
-                (*txn)->device->msg_id = pkt->msg_id;
+                // they gave us back a valid message id to use instead of the
+                // one we were using.
+                (*txn)->device->msg_id = ack_nack->payload->nack_value;
+                pkt->msg_id = ack_nack->payload->nack_value;
                 (*txn)->device->verify_time = 0;
-                message_ignore = FALSE;
                 return ON_MSG_CONTINUE;
             }
         }
+        else
+        {
+            message_ignore = FALSE;
+        }
     }
-
 
     if(message_ignore)
     {
