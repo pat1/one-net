@@ -318,6 +318,7 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
 
 
 #ifdef _DEBUGGING_TOOLS
+#include "oncli.h"
 void print_intervals(void)
 {
     UInt8 i;
