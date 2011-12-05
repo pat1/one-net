@@ -58,6 +58,10 @@
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
 #endif
+#ifdef _DEBUGGING_TOOLS
+    #include "one_net_timer.h"
+    #include "oncli.h"
+#endif
 
 
 //==============================================================================
@@ -385,6 +389,32 @@ BOOL tal_channel_is_clear(void)
 UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
 {
     BOOL uart_pause_needed = FALSE;
+    
+    #ifdef _DEBUGGING_TOOLS
+    if(pause || ratchet)
+    {
+        proceed = FALSE;
+        synchronize_last_tick();
+        oncli_send_msg("Pausing : About to write...\n");
+        xdump(data, len);
+    }
+    
+    while(pausing = (pause || (ratchet && !proceed)))
+    {
+        synchronize_last_tick();
+        oncli();
+    }
+    proceed = FALSE;
+    
+    if(write_pause > 0)
+    {
+        oncli_send_msg("one_net_write : ");
+        xdump(data, len);
+        delay_ms(write_pause);
+    }
+    #endif    
+    
+    
     tx_rf_idx = 0;
     tx_rf_data = data;
     tx_rf_len = len;
