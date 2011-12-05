@@ -1853,13 +1853,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         return ON_MSG_SUCCESS;
     }
 
-    if(nack_reason_is_fatal(ack_nack->nack_reason) ||
-      (*txn)->retry >= ON_MAX_RETRY)
-    {
-        *this_txn = 0;
-        return ON_MSG_FAIL;
-    }
-
     return ON_MSG_CONTINUE;
 }
 
