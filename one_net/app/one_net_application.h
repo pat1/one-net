@@ -244,7 +244,8 @@ ONE_NET_INLINE UInt8 get_payload_txn_nonce(const UInt8 *payload)
 ONE_NET_INLINE void put_payload_txn_nonce(UInt8 txn_nonce, UInt8 *payload)
 {
     payload[ON_PLD_TXN_NONCE_IDX] = (payload[ON_PLD_TXN_NONCE_IDX] &
-      ~ON_TXN_NONCE_BUILD_MASK) | (txn_nonce & ON_TXN_NONCE_BUILD_MASK);
+      ~ON_TXN_NONCE_BUILD_MASK) | 
+      ((txn_nonce << ON_TXN_NONCE_SHIFT) & ON_TXN_NONCE_BUILD_MASK);
 }
 
 
@@ -261,8 +262,8 @@ ONE_NET_INLINE UInt8 get_payload_resp_nonce(const UInt8 *payload)
 ONE_NET_INLINE void put_payload_resp_nonce(UInt8 resp_nonce, UInt8 *payload)
 {
     payload[ON_PLD_RESP_NONCE_HIGH_IDX] = (payload[ON_PLD_RESP_NONCE_HIGH_IDX]
-      & ~ON_RESP_NONCE_BUILD_HIGH_MASK) | (resp_nonce &
-      ON_RESP_NONCE_BUILD_HIGH_MASK);
+      & ~ON_RESP_NONCE_BUILD_HIGH_MASK) | ((resp_nonce >>
+      ON_RESP_NONCE_HIGH_SHIFT) & ON_RESP_NONCE_BUILD_HIGH_MASK);
     payload[ON_PLD_RESP_NONCE_LOW_IDX] = (payload[ON_PLD_RESP_NONCE_LOW_IDX]
       & ~ON_RESP_NONCE_BUILD_LOW_MASK) | ((resp_nonce <<
       ON_RESP_NONCE_LOW_SHIFT)& ON_RESP_NONCE_BUILD_LOW_MASK);
