@@ -651,11 +651,29 @@ void eval_single_txn_status(on_message_status_t status,
         return;
     } // if the parameters are invalid //
     
-    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
-      oncli_msg_status_str(status));
     #ifdef _VERBOSE
+    oncli_send_msg("ests start:");
+    oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
+      data[0], data[1], data[2], data[3], data[4]);
+    oncli_send_msg("Hdr-->");
+    print_msg_hdr(&msg_hdr);
+    #ifndef _ONE_NET_MULTI_HOP
+    oncli_send_msg("retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
+      (*dst)[0], (*dst)[1]);
+    #else
+    oncli_send_msg("retry=%d,hops=%d,dst=%02X%02X\nack_nack-->", retry_count,
+      hops, (*dst)[0], (*dst)[1]);
+    #endif
+
     print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.pid) -  1 -
       ON_PLD_DATA_IDX);
+    #endif
+
+    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
+      oncli_msg_status_str(status));
+
+    #ifdef _VERBOSE
+    oncli_send_msg("ests end\n");
     #endif
 }
 
