@@ -67,6 +67,12 @@
 
 
 
+#ifdef _DEBUGGING_TOOLS
+#include "one_net_timer.h"
+#endif
+
+
+
 
 //==============================================================================
 //								CONSTANTS
@@ -278,6 +284,14 @@ static oncli_status_t oncli_parse_channel(const char * ASCII,
 #ifdef _ENABLE_INVITE_COMMAND
 static oncli_status_t parse_invite_key(const char * ASCII,
   char** end_ptr, one_net_xtea_key_t * const key);
+#endif
+
+
+// debugging tools
+#ifdef _DEBUGGING_TOOLS
+static oncli_status_t pause_cmd_hdlr(void);
+static oncli_status_t proceed_cmd_hdlr(void);
+static oncli_status_t ratchet_cmd_hdlr(void);
 #endif
 
 
@@ -1822,6 +1836,30 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     mh_repeater_available = repeater_present;
     
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+
+#ifdef _DEBUGGING_TOOLS
+static oncli_status_t pause_cmd_hdlr(void)
+{
+    pause = !pause;
+    return ONCLI_SUCCESS;
+}
+
+
+static oncli_status_t proceed_cmd_hdlr(void)
+{
+    proceed = TRUE;
+    return ONCLI_SUCCESS;
+}
+
+
+static oncli_status_t ratchet_cmd_hdlr(void)
+{
+    ratchet = !ratchet;
     return ONCLI_SUCCESS;
 }
 #endif
