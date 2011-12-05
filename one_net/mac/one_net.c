@@ -539,8 +539,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 
 
     // build the packet
-    put_payload_txn_nonce(device->expected_nonce, raw_payload_bytes);
-    put_payload_resp_nonce(device->send_nonce, raw_payload_bytes);
+    put_payload_txn_nonce(device->send_nonce, raw_payload_bytes);
+    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);
       
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
 	raw_payload_bytes[ON_PLD_RESP_HANDLE_IDX] |=
@@ -593,8 +593,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #endif
 
     // build the packet
-    put_payload_txn_nonce(device->expected_nonce, raw_payload_bytes);
-    put_payload_resp_nonce(device->send_nonce, raw_payload_bytes);      
+    put_payload_txn_nonce(device->send_nonce, raw_payload_bytes);
+    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);      
     put_payload_msg_type(msg_type, raw_payload_bytes);
 
     one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
@@ -1352,7 +1352,7 @@ BOOL one_net(on_txn_t ** txn)
                   get_encoded_packet_len(single_msg.pid, TRUE);
                 *txn = &single_txn;
                 (*txn)->retry = 0;
-                (*txn)->response_timeout = ONE_NET_RESPONSE_TIME_OUT;
+                (*txn)->response_timeout = /*ONE_NET_RESPONSE_TIME_OUT*/12000;
                 (*txn)->device = device;
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
@@ -1709,7 +1709,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL verify_needed;
     BOOL message_ignore = TRUE;
-    const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
+    const tick_t VERIFY_TIMEOUT = MS_TO_TICK(/*2000*/60000); // 2 seconds
     tick_t time_now = get_tick_count();
     
     if(on_parse_response_pkt(*(pkt->pid), raw_payload_bytes, ack_nack) !=
@@ -2023,7 +2023,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // assume that this is a new message and accept it.
     {
         tick_t time_now = get_tick_count();
-        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
+        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(/*2000*/60000); // 2 seconds         
         UInt8 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
           0 : 1 + (*txn)->device->msg_id);
           
