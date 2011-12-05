@@ -217,6 +217,13 @@ BOOL ont_expired(const UInt8 TIMER);
 BOOL ont_inactive_or_expired(const UInt8 TIMER);
 
 
+#ifdef _DEBUGGING_TOOLS
+void print_timers(void);
+void print_intervals(void);
+void synchronize_last_tick(void);
+#endif
+
+
 //! @} ONE-NET_TIMER_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

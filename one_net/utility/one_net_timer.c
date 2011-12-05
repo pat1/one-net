@@ -317,6 +317,40 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
 } // ont_inactive_or_expired //
 
 
+#ifdef _DEBUGGING_TOOLS
+void print_intervals(void)
+{
+    UInt8 i;
+    for(i = 0; i < NUM_DEBUG_INTERVALS; i++)
+    {
+        oncli_send_msg("Interval %d:\t%ld\n", i, *(debug_intervals[i]));
+        delay_ms(10);
+    }
+}
+
+
+void print_timers(void)
+{
+    UInt8 i;
+    const char* const active_state_str = "active";
+    const char* const inactive_state_str = "inactive";
+    for(i = 0; i < ONT_NUM_TIMERS; i++)
+    {
+        const char* const state_str = timer[i].active ? active_state_str :
+            inactive_state_str;
+        oncli_send_msg("Timer %d:\t%s\t%ld\n", i, state_str, timer[i].tick);
+        delay_ms(10);
+    }
+}
+
+
+void synchronize_last_tick(void)
+{
+    last_tick = get_tick_count();
+}
+#endif
+
+
 //! @} ONE-NET_TIMER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
