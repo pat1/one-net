@@ -69,7 +69,7 @@ static UInt8 sniff_channel;
 //! Buffer to hold the string representation of the channel being sniffed
 static char channel_format_buffer[MAX_CHANNEL_STRING_FORMAT_LENGTH];
 
-#if _SNIFFER_VERBOSE_LEVEL > 1
+#if _DEBUG_VERBOSE_LEVEL > 1
 enum
 {
     //! number of known invite keys to try for decryption.
@@ -97,7 +97,7 @@ enum
 //! \ingroup ONE-NET_eval
 //! @{
 
-#if _SNIFFER_VERBOSE_LEVEL > 1
+#if _DEBUG_VERBOSE_LEVEL > 1
 //! Place any known invite keys in the array below
 static const one_net_xtea_key_t sniff_invite_keys[NUM_SNIFF_INVITE_KEYS] =
 {
@@ -123,10 +123,10 @@ static const one_net_xtea_key_t
 #endif
 #endif
 
-#if _SNIFFER_VERBOSE_LEVEL > 0
-static void sniff_display_did(const char* const description,
+#if _DEBUG_VERBOSE_LEVEL > 0
+static void debug_display_did(const char* const description,
   on_encoded_did_t* enc_did);
-static void sniff_display_nid(const char* const description,
+static void debug_display_nid(const char* const description,
   on_encoded_nid_t* enc_nid);
 #endif
 
@@ -162,18 +162,18 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 } // oncli_reset_sniff //
 
 
-#if _SNIFFER_VERBOSE_LEVEL > 0
-static void sniff_display_did(const char* const description,
+#if _DEBUG_VERBOSE_LEVEL > 0
+static void debug_display_did(const char* const description,
   on_encoded_did_t* enc_did)
 {
-    #if _SNIFFER_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 1
     on_raw_did_t raw_did;
     BOOL valid = (on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) ==
       ONS_SUCCESS);
     #endif
     
     oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
-    #if _SNIFFER_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 1
     if(valid)
     {
         oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
@@ -188,11 +188,11 @@ static void sniff_display_did(const char* const description,
 #endif
 
 
-#if _SNIFFER_VERBOSE_LEVEL > 0
-static void sniff_display_nid(const char* const description,
+#if _DEBUG_VERBOSE_LEVEL > 0
+static void debug_display_nid(const char* const description,
   on_encoded_nid_t* enc_nid)
 {
-    #if _SNIFFER_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 1
     on_raw_nid_t raw_nid;
     BOOL valid = (on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) ==
       ONS_SUCCESS);
@@ -200,7 +200,7 @@ static void sniff_display_nid(const char* const description,
     
     oncli_send_msg("%s : 0x", description);
     uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
-    #if _SNIFFER_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 1
     if(valid)
     {
         oncli_send_msg(" -- Decoded : 0x");
@@ -218,6 +218,15 @@ static void sniff_display_nid(const char* const description,
 #endif
 
 
+
+/*!
+    \brief Parses and displays a packet
+
+    \param[in] packet_bytes The bytes that make up the packet.
+    \param[in] num_bytes The number of bytes in the packet.
+
+    \return void
+*/
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
 {
     UInt8 i;
@@ -232,13 +241,13 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
     } // loop to output the bytes that were read //
     oncli_send_msg("\n\n");   
 
-    #if _SNIFFER_VERBOSE_LEVEL > 0
+    #if _DEBUG_VERBOSE_LEVEL > 0
     {
         UInt8 pid = packet_bytes[ONE_NET_ENCODED_PID_IDX];
-        on_pkt_t sniff_pkt_ptrs;
+        on_pkt_t debug_pkt_ptrs;
         oncli_send_msg("pid=%02X", pid);
 
-        if(!setup_pkt_ptr(pid, packet_bytes, &sniff_pkt_ptrs))
+        if(!setup_pkt_ptr(pid, packet_bytes, &debug_pkt_ptrs))
         {
             oncli_send_msg(" is invalid\n");
         }
@@ -253,18 +262,18 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
             }
             
             oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg ID : 0x%02X", *(sniff_pkt_ptrs.enc_msg_id));
-            #if _SNIFFER_VERBOSE_LEVEL > 1
+            oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
+            #if _DEBUG_VERBOSE_LEVEL > 1
             {
                 oncli_send_msg(" -- Decoded : ");
-                if(on_decode(&sniff_pkt_ptrs.msg_id, sniff_pkt_ptrs.enc_msg_id,
+                if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
                   ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable");
                 }
                 else
                 {
-                    oncli_send_msg("0x%02X", sniff_pkt_ptrs.msg_id >> 2);
+                    oncli_send_msg("0x%02X", debug_pkt_ptrs.msg_id >> 2);
                 }
             }
             #else
@@ -272,26 +281,26 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
             #endif
             
             oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg CRC : 0x%02X", *(sniff_pkt_ptrs.enc_msg_crc));
-            #if _SNIFFER_VERBOSE_LEVEL > 1
+            oncli_send_msg("Enc. Msg CRC : 0x%02X", *(debug_pkt_ptrs.enc_msg_crc));
+            #if _DEBUG_VERBOSE_LEVEL > 1
             {
                 UInt8 calculated_msg_crc;
 
                 oncli_send_msg(" -- Decoded Msg. CRC : ");
-                if(on_decode(&sniff_pkt_ptrs.msg_crc, sniff_pkt_ptrs.enc_msg_crc,
+                if(on_decode(&debug_pkt_ptrs.msg_crc, debug_pkt_ptrs.enc_msg_crc,
                   ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable\n");
                 }
                 else
                 {
-                    oncli_send_msg("0x%02X\n", sniff_pkt_ptrs.msg_crc);
+                    oncli_send_msg("0x%02X\n", debug_pkt_ptrs.msg_crc);
                 }
                 
-                calculated_msg_crc = calculate_msg_crc(&sniff_pkt_ptrs);
+                calculated_msg_crc = calculate_msg_crc(&debug_pkt_ptrs);
                 oncli_send_msg("Calculated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
                 
-                if(calculated_msg_crc != sniff_pkt_ptrs.msg_crc)
+                if(calculated_msg_crc != debug_pkt_ptrs.msg_crc)
                 {
                     oncli_send_msg("Calc. msg. CRC does not match packet "
                       "CRC!\n");
@@ -301,20 +310,20 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
             oncli_send_msg("\n");
             #endif
             
-            sniff_display_did("Repeater DID",
-              sniff_pkt_ptrs.enc_repeater_did);
-            sniff_display_did("Dest. DID",
-              sniff_pkt_ptrs.enc_dst_did);
-            sniff_display_nid("NID",
-              sniff_pkt_ptrs.enc_nid);
-            sniff_display_did("Source DID",
-              sniff_pkt_ptrs.enc_src_did);
+            debug_display_did("Repeater DID",
+              debug_pkt_ptrs.enc_repeater_did);
+            debug_display_did("Dest. DID",
+              debug_pkt_ptrs.enc_dst_did);
+            debug_display_nid("NID",
+              debug_pkt_ptrs.enc_nid);
+            debug_display_did("Source DID",
+              debug_pkt_ptrs.enc_src_did);
               
             oncli_send_msg("Encoded Payload Length : %d\n",
-              sniff_pkt_ptrs.payload_len);
-            for(i = 0; i < sniff_pkt_ptrs.payload_len; i++)
+              debug_pkt_ptrs.payload_len);
+            for(i = 0; i < debug_pkt_ptrs.payload_len; i++)
             {
-                oncli_send_msg("%02X ", sniff_pkt_ptrs.payload[i]);
+                oncli_send_msg("%02X ", debug_pkt_ptrs.payload[i]);
     
                 if((i % 16) == 15)
                 {
@@ -322,13 +331,13 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                 } // if need to output a new line //
             } // loop to output the bytes that were read //
             
-            #if _SNIFFER_VERBOSE_LEVEL > 1
+            #if _DEBUG_VERBOSE_LEVEL > 1
             {
                 UInt8 raw_pld_len = get_raw_payload_len(pid);
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
                   raw_pld_len);
-                if(on_decode(raw_payload_bytes, sniff_pkt_ptrs.payload,
-                  sniff_pkt_ptrs.payload_len) != ONS_SUCCESS)
+                if(on_decode(raw_payload_bytes, debug_pkt_ptrs.payload,
+                  debug_pkt_ptrs.payload_len) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not Decodable\n\n");
                     return;
@@ -413,19 +422,19 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                             if(packet_is_multihop(pid))
                             {
                                 oncli_send_msg("Encoded Hops Field : %02X  ",
-                                  *(sniff_pkt_ptrs.enc_hops_field));
+                                  *(debug_pkt_ptrs.enc_hops_field));
                                 if(on_parse_hops(
-                                  *(sniff_pkt_ptrs.enc_hops_field),
-                                  &(sniff_pkt_ptrs.hops),
-                                  &(sniff_pkt_ptrs.max_hops)) != ONS_SUCCESS)
+                                  *(debug_pkt_ptrs.enc_hops_field),
+                                  &(debug_pkt_ptrs.hops),
+                                  &(debug_pkt_ptrs.max_hops)) != ONS_SUCCESS)
                                 {
                                     oncli_send_msg("Not Decodable\n");
                                 }
                                 else
                                 {
                                     oncli_send_msg("Hops : %d Max Hops : %d\n",
-                                      sniff_pkt_ptrs.hops,
-                                      sniff_pkt_ptrs.max_hops);
+                                      debug_pkt_ptrs.hops,
+                                      debug_pkt_ptrs.max_hops);
                                 }
                             }
                         }

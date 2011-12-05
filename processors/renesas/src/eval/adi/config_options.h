@@ -205,13 +205,15 @@
 	#ifndef _SNIFFER_MODE
 		#define _SNIFFER_MODE
 	#endif
-    
-    #ifdef _SNIFFER_MODE
-        // Enter 0 for minimal sniff, 1 for semi-detailed sniff,
-        // 2 for detailed sniff
-        #define _SNIFFER_VERBOSE_LEVEL 2
-    #endif
 #endif
+
+
+// Enter 0 for minimal printouts, 1 for semi-detailed printouts,
+// 2 for more detailed printouts, etc.  The higher the number, the
+// more detailed the display will be.  This value must be set
+// if using the sniffer, using the debugging tools, and can also be
+// set if adding any of your own debugging statements.
+#define _DEBUG_VERBOSE_LEVEL 2
 
 // _VERBOSE mode should be defined if you want detailed printouts
 #ifndef _VERBOSE
