@@ -61,6 +61,9 @@
 #include "one_net_client_port_specific.h"
 #endif
 
+// debugging -- temporary
+#include "oncli.h"
+
 
 
 //==============================================================================

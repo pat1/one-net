@@ -1297,6 +1297,7 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 // temporary -- debugging
 #include "one_net_master.h"
+#include "one_net_prand.h"
 static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
