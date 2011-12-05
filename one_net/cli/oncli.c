@@ -154,6 +154,31 @@ static void print_cmd_result(const char * const CMD,
 //! \defgroup oncli_pub_func
 //! \ingroup oncli
 //! @{
+    
+    
+
+#ifdef _DEBUGGING_TOOLS
+/*!
+    \brief Displays memory contents in hex format for debugging purposes
+    
+    \param ptr[in] Address of the memory to display
+    \param len[in] Number of bytes to display
+*/
+void xdump(const UInt8* const ptr, UInt16 len)
+{
+    int i;
+    for (i = 0; i < len; i++)
+    {
+        if ((i % 16) == 0)
+        {
+            oncli_send_msg("\n%p: ", ptr+i);
+            delay_ms(20);
+        }
+        oncli_send_msg("%02x ", ptr[i]);
+    }
+    oncli_send_msg("\n");
+}
+#endif
 
 
 

@@ -121,6 +121,12 @@ extern BOOL echo_on;
 //! @{
 
 
+
+#ifdef _DEBUGGING_TOOLS
+void xdump(const UInt8* const ptr, UInt16 len);
+#endif
+
+
 BOOL oncli_user_input(void);
 void oncli_send_msg(const char * const FMT, ...);
 void oncli(void);
