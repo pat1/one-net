@@ -104,7 +104,7 @@ typedef enum
 	ON_NACK_RSN_BUSY,                //! Application level code specifying that the device cannot service the request at this time.  No specification of when to try again.  Considered "fatal" by ONE-NET.
     ON_NACK_RSN_NO_RESPONSE_TXN,     //! The transaction has timed out with no response.
     
-    // 0x23 through 0x26 are currently unused and are available for assignment as fatal ONE-NET NACKs 
+    // 0x22 through 0x26 are currently unused and are available for assignment as fatal ONE-NET NACKs 
     
     ON_NACK_RSN_FATAL_ERR = 0x27,    //! Some unspecified fatal error occurred.  Don't try to resend.
     ON_NACK_RSN_MAX_ONE_NET_FATAL = 0x27,   
