@@ -180,6 +180,13 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
     "stream_txn",
     #endif
 };
+
+
+//! The memory currently being pointed to.
+static UInt8* memory_ptr = NULL;
+
+//! The relevant length of the memory currently being pointed to.
+int memory_len = 0;
 #endif
 
 
@@ -342,6 +349,8 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
   int index, int offset);
 static int parse_memory_str(UInt8** mem_ptr,
+  const char * const ASCII_PARAM_LIST);
+static oncli_status_t memory_cmd_hdlr(
   const char * const ASCII_PARAM_LIST);
 static oncli_status_t pause_cmd_hdlr(void);
 static oncli_status_t proceed_cmd_hdlr(void);
@@ -777,6 +786,23 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the range test command was received //
+    #endif
+    
+    #ifdef _DEBUGGING_TOOLS
+    if(!strnicmp(ONCLI_MEMORY_CMD_STR, CMD, strlen(ONCLI_MEMORY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMORY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMORY_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &memory_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the memory command was received //
     #endif
     
     else
@@ -2014,7 +2040,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
 
 
     \param[out] mem_ptr The address of the memory requested.
-    \param[ASCII_PARAM_LIST] The string to parse for parameters.
+    \param[in] ASCII_PARAM_LIST The string to parse for parameters.
 
 
     \return the number of bytes of relevant memory.  -1 upon error
@@ -2094,6 +2120,33 @@ static int parse_memory_str(UInt8** mem_ptr,
     }
 
     return get_memory_loc(mem_ptr, memory_type, index, offset);
+}
+
+
+/*!
+    \brief Parses a string and sets the location and length of the memory
+      pointed to it in global variables
+
+
+    \param[in] ASCII_PARAM_LIST The string to parse for parameters.
+
+
+    \return ONCLI_SUCCESS if the memory string is valid, ONCLI_PARSE_ERR
+      otherwise.
+*/
+static oncli_status_t memory_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    UInt8* mem_ptr;
+    int len = parse_memory_str(&mem_ptr, ASCII_PARAM_LIST);
+    if(len < 1)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    oncli_send_msg("Address = (%p) : Length = %d\n", mem_ptr, len); 
+    memory_ptr = mem_ptr;
+    memory_len = len;
+    return ONCLI_SUCCESS;
 }
 
 
