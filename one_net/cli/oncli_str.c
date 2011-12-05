@@ -443,7 +443,7 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
 // strings, change the size of the array and add them here.  Make sure to
 // also change any other code that might use this array in order to avoid
 // segmentation faults and other problems.
-const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_NO_RESPONSE_TXN + 1] =
+const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_NO_RESPONSE_TXN*/+ 1] =
 {
     "No Err",
     "Nonce Err",
@@ -479,8 +479,16 @@ const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_NO_RESPONSE_TXN + 1] =
     "Max Fail Rch'd",
     "Busy",
     "Txn No Resp",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Not an output" // Eval Board application-specific 
     
-    
+    // TODO -- this is the main ONE-NET code. We need to make some
+    // application-specific place to store these strings
 };
 
 
