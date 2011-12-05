@@ -435,15 +435,33 @@ static on_message_status_t on_client_single_data_hdlr(
     on_message_status_t msg_status;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
-    
+    UInt8 response_pid;
+    on_sending_device_t* device;
+
     on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
     
     msg_hdr.msg_type = *msg_type;
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK;
+    
+    // we'll be sending it back to the souerce.
+    if(!(device = sender_info(pkt->enc_src_did)))
+    {
+        // I think we should have solved this problem before now, but abort if
+        // we have not.
+        
+        // TODO -- solve this better or confirm it is in fact solved earlier.
+        *txn = 0;
+        return ON_MSG_ABORT;
+    }
+    
+    if(ack_nack->nack_reason)
+    {
+        // an error has already been set.  That means we don't need to do
+        // anything but build the proper response packet.
+        goto ocsdh_build_resp;
+    }
     
     #ifndef _ONE_NET_MULTI_HOP
     msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
@@ -454,7 +472,61 @@ static on_message_status_t on_client_single_data_hdlr(
       &((*txn)->max_hops));
     #endif
 
-    return msg_status;
+
+    if(msg_status != ON_MSG_CONTINUE)
+    {
+        *txn = 0;
+        return msg_status;
+    }
+    
+    
+    // change the nonce we want.
+    device->last_nonce = device->expected_nonce;
+    device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
+    
+
+// normally we try not to use goto statements but this is embedded programming
+// and it may save us a few bytes?
+ocsdh_build_resp:
+    response_pid = get_single_response_pid(*(pkt->pid),
+      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
+
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    // the response destination will be the transaction's source
+    if(on_build_my_pkt_addresses(&response_pkt_ptrs,
+      (const on_encoded_did_t* const)
+      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL) != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+
+    response_txn.key = (*txn)->key;
+    *txn = &response_txn;
+
+    // TODO -- what about the hops?  We allowed the application code to
+    // change them.  We need to pass that along.  Should we change "device"?
+
+    if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
+      FALSE) != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    if(on_complete_pkt_build(&response_pkt_ptrs, msg_hdr.msg_id, response_pid)
+      != ONS_SUCCESS)
+    {
+        *txn = 0;
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    return ON_MSG_RESPOND;
 }
 
 
