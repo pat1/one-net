@@ -679,6 +679,338 @@ void eval_single_txn_status(on_message_status_t status,
 
 
 
+
+// Packet Display Funcitonality
+// TODO -- Should these functions be in oncli.c instead of here?
+
+#if _DEBUG_VERBOSE_LEVEL > 0
+/*!
+    \brief Displays a DID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the DID
+    \param[in] enc_did The encioded DID to display.
+    
+    \return void
+*/
+void debug_display_did(const char* const description,
+  const on_encoded_did_t* const enc_did)
+{
+    #if _DEBUG_VERBOSE_LEVEL > 1
+    on_raw_did_t raw_did;
+    BOOL valid = (on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) ==
+      ONS_SUCCESS);
+    #endif
+    
+    oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
+    #if _DEBUG_VERBOSE_LEVEL > 1
+    if(valid)
+    {
+        oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
+    }
+    else
+    {
+        oncli_send_msg(" -- Invalid");
+    }
+    #endif
+    oncli_send_msg("\n");
+}
+
+
+/*!
+    \brief Displays an NID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the NID
+    \param[in] enc_nid The encioded NID to display.
+    
+    \return void
+*/
+void debug_display_nid(const char* const description,
+  const on_encoded_nid_t* const enc_nid)
+{
+    #if _DEBUG_VERBOSE_LEVEL > 1
+    on_raw_nid_t raw_nid;
+    BOOL valid = (on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) ==
+      ONS_SUCCESS);
+    #endif
+    
+    oncli_send_msg("%s : 0x", description);
+    uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
+    #if _DEBUG_VERBOSE_LEVEL > 1
+    if(valid)
+    {
+        oncli_send_msg(" -- Decoded : 0x");
+        uart_write_int8_hex_array(raw_nid, FALSE, ON_RAW_NID_LEN-1);
+        oncli_send_msg("%c", HEX_DIGIT[(raw_nid[ON_RAW_NID_LEN-1] >> 4)
+          & 0x0F]);
+    }
+    else
+    {
+        oncli_send_msg(" -- Invalid");
+    }
+    #endif
+    oncli_send_msg("\n");
+}
+#endif
+
+
+/*!
+    \brief Parses and displays a packet
+
+    \param[in] packet_bytes The bytes that make up the packet.
+    \param[in] num_bytes The number of bytes in the packet.
+    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
+                 NULL and set num_keys to 0.
+    \param[in] num_enc_keys the number of block / single keys to check.
+    \param[in] invite_keys the invite keys to check.  If not relevant, set to
+                 NULL and set num_invite_keys to 0.
+    \param[in] num_invite_keys the number of invite keys to check.
+    \param[in] stream_keys the stream keys to check.  If not relevant, set to
+                 NULL and set num_stream_keys to 0.
+    \param[in] num_stream_keys the number of stream keys to check.
+    
+    \return void
+*/
+#if _DEBUG_VERBOSE_LEVEL < 2
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
+#else
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
+  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
+  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys,
+  const one_net_xtea_key_t* const stream_keys, UInt8 num_stream_keys)
+#endif
+{
+    UInt8 i;
+    for(i = 0; i < num_bytes; i++)
+    {
+        oncli_send_msg("%02X ", packet_bytes[i]);
+    
+        if((i % 16) == 15)
+        {
+            oncli_send_msg("\n");
+        } // if need to output a new line //
+    } // loop to output the bytes that were read //
+    oncli_send_msg("\n\n");   
+
+    #if _DEBUG_VERBOSE_LEVEL > 0
+    {
+        UInt8 pid = packet_bytes[ONE_NET_ENCODED_PID_IDX];
+        on_pkt_t debug_pkt_ptrs;
+        oncli_send_msg("pid=%02X", pid);
+
+        if(!setup_pkt_ptr(pid, packet_bytes, &debug_pkt_ptrs))
+        {
+            oncli_send_msg(" is invalid\n");
+        }
+        else
+        {
+            if(get_encoded_packet_len(pid, TRUE) != num_bytes)
+            {
+                oncli_send_msg(" -- Invalid number of bytes for pid %02X, "
+                  "Expected=%d, Actual=%d\n\n", pid,
+                  get_encoded_packet_len(pid, TRUE), num_bytes);
+                return;
+            }
+            
+            oncli_send_msg("\n");
+            oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
+            #if _DEBUG_VERBOSE_LEVEL > 1
+            {
+                oncli_send_msg(" -- Decoded : ");
+                if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
+                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not decodable");
+                }
+                else
+                {
+                    oncli_send_msg("0x%02X", debug_pkt_ptrs.msg_id >> 2);
+                }
+            }
+            #else
+            oncli_send_msg("\n");
+            #endif
+            
+            oncli_send_msg("\n");
+            oncli_send_msg("Enc. Msg CRC : 0x%02X", *(debug_pkt_ptrs.enc_msg_crc));
+            #if _DEBUG_VERBOSE_LEVEL > 1
+            {
+                UInt8 calculated_msg_crc;
+
+                oncli_send_msg(" -- Decoded Msg. CRC : ");
+                if(on_decode(&debug_pkt_ptrs.msg_crc, debug_pkt_ptrs.enc_msg_crc,
+                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not decodable\n");
+                }
+                else
+                {
+                    oncli_send_msg("0x%02X\n", debug_pkt_ptrs.msg_crc);
+                }
+                
+                calculated_msg_crc = calculate_msg_crc(&debug_pkt_ptrs);
+                oncli_send_msg("Calculated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
+                
+                if(calculated_msg_crc != debug_pkt_ptrs.msg_crc)
+                {
+                    oncli_send_msg("Calc. msg. CRC does not match packet "
+                      "CRC!\n");
+                } 
+            }
+            #else
+            oncli_send_msg("\n");
+            #endif
+            
+            debug_display_did("Repeater DID",
+              debug_pkt_ptrs.enc_repeater_did);
+            debug_display_did("Dest. DID",
+              debug_pkt_ptrs.enc_dst_did);
+            debug_display_nid("NID",
+              debug_pkt_ptrs.enc_nid);
+            debug_display_did("Source DID",
+              debug_pkt_ptrs.enc_src_did);
+              
+            oncli_send_msg("Encoded Payload Length : %d\n",
+              debug_pkt_ptrs.payload_len);
+            for(i = 0; i < debug_pkt_ptrs.payload_len; i++)
+            {
+                oncli_send_msg("%02X ", debug_pkt_ptrs.payload[i]);
+    
+                if((i % 16) == 15)
+                {
+                    oncli_send_msg("\n");
+                } // if need to output a new line //
+            } // loop to output the bytes that were read //
+            
+            #if _DEBUG_VERBOSE_LEVEL > 1
+            {
+                UInt8 raw_pld_len = get_raw_payload_len(pid);
+                oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
+                  raw_pld_len);
+                if(on_decode(raw_payload_bytes, debug_pkt_ptrs.payload,
+                  debug_pkt_ptrs.payload_len) != ONS_SUCCESS)
+                {
+                    oncli_send_msg("Not Decodable\n\n");
+                    return;
+                }
+                
+                for(i = 0; i < raw_pld_len; i++)
+                {
+                    oncli_send_msg("%02X ", raw_payload_bytes[i]);
+    
+                    if((i % 16) == 15)
+                    {
+                        oncli_send_msg("\n");
+                    } // if need to output a new line //
+                } // loop to output the raw payload //
+                oncli_send_msg("\n");
+                
+                {
+                    UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
+                    UInt8 j;
+                    UInt8* encrypted = (UInt8*) raw_payload_bytes;
+                    on_data_t data_type;
+                    
+                    UInt8 num_keys;
+                    const one_net_xtea_key_t* keys;
+                    
+                    if(packet_is_invite(pid) && num_invite_keys > 0)
+                    {
+                        num_keys = num_invite_keys;
+                        keys = (const one_net_xtea_key_t*) &invite_keys[0];
+                        data_type = ON_INVITE;
+                    }
+                    #ifdef _STREAM_MESSAGES_ENABLED
+                    else if(packet_is_stream(pid) && num_stream_keys > 0)
+                    {
+                        num_keys = num_stream_keys;
+                        keys = (const one_net_xtea_key_t*)
+                          &stream_keys[0];
+                        data_type = ON_STREAM;
+                    }
+                    #endif
+                    else if(num_enc_keys > 0)
+                    {
+                        num_keys = num_enc_keys;
+                        keys = (const one_net_xtea_key_t*)
+                          &enc_keys[0];
+                        data_type = ON_SINGLE;                        
+                    }
+                    else
+                    {
+                        num_keys = 0;
+                    }
+                    
+                    for(j = 0; j < num_keys; j++)
+                    {
+                        UInt8 calc_payload_crc;
+                        BOOL crc_match;
+                        oncli_send_msg("Decrypted using key ");
+                        oncli_print_xtea_key(&keys[j]);
+                        oncli_send_msg("\n");
+                        one_net_memmove(decrypted, encrypted, raw_pld_len);
+                        
+                        if(on_decrypt(data_type, decrypted,
+                          (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
+                          ONS_SUCCESS)
+                        {
+                            oncli_send_msg("Not decryptable\n");
+                            break;
+                        }
+                        
+                        for(i = 0; i < raw_pld_len -  1; i++)
+                        {
+                            oncli_send_msg("%02X ", decrypted[i]);
+    
+                            if((i % 16) == 15)
+                            {
+                                oncli_send_msg("\n");
+                            } // if need to output a new line //
+                        } // loop to output the raw payload //
+                        oncli_send_msg("\n");
+
+                        calc_payload_crc = (UInt8)one_net_compute_crc(
+                          &decrypted[ON_PLD_CRC_SIZE], raw_pld_len - 1 -
+                          ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+
+                        crc_match = (calc_payload_crc == decrypted[0]);
+                        oncli_send_msg("Payload CRC = 0x%02X, Calculated "
+                          "Payload CRC = 0x%02X, CRCs%s match.\n",
+                          decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
+                        #ifdef _ONE_NET_MULTI_HOP
+                        {
+                            if(packet_is_multihop(pid))
+                            {
+                                oncli_send_msg("Encoded Hops Field : %02X  ",
+                                  *(debug_pkt_ptrs.enc_hops_field));
+                                if(on_parse_hops(
+                                  *(debug_pkt_ptrs.enc_hops_field),
+                                  &(debug_pkt_ptrs.hops),
+                                  &(debug_pkt_ptrs.max_hops)) != ONS_SUCCESS)
+                                {
+                                    oncli_send_msg("Not Decodable\n");
+                                }
+                                else
+                                {
+                                    oncli_send_msg("Hops : %d Max Hops : %d\n",
+                                      debug_pkt_ptrs.hops,
+                                      debug_pkt_ptrs.max_hops);
+                                }
+                            }
+                        }
+                        #endif
+                    }
+                }
+            }
+            #endif
+        }
+    }
+    #endif
+}
+
+
+
+
+
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //=============================================================================
