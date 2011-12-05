@@ -187,6 +187,32 @@ oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
 void oncli_print_user_pin_cfg(void);
 
 
+#if _DEBUG_VERBOSE_LEVEL > 0
+/*!
+    \brief Displays a DID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the DID
+    \param[in] enc_did The encioded DID to display.
+    
+    \return void
+*/
+void debug_display_did(const char* const description,
+  const on_encoded_did_t* const enc_did);
+
+
+/*!
+    \brief Displays an NID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the NID
+    \param[in] enc_nid The encioded NID to display.
+    
+    \return void
+*/
+void debug_display_nid(const char* const description,
+  const on_encoded_nid_t* const enc_nid);
+#endif
+
+
 /*!
     \brief Parses and displays a packet
 

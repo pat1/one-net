@@ -163,8 +163,16 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 
 
 #if _DEBUG_VERBOSE_LEVEL > 0
-static void debug_display_did(const char* const description,
-  on_encoded_did_t* enc_did)
+/*!
+    \brief Displays a DID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the DID
+    \param[in] enc_did The encioded DID to display.
+    
+    \return void
+*/
+void debug_display_did(const char* const description,
+  const on_encoded_did_t* const enc_did)
 {
     #if _DEBUG_VERBOSE_LEVEL > 1
     on_raw_did_t raw_did;
@@ -185,12 +193,18 @@ static void debug_display_did(const char* const description,
     #endif
     oncli_send_msg("\n");
 }
-#endif
 
 
-#if _DEBUG_VERBOSE_LEVEL > 0
-static void debug_display_nid(const char* const description,
-  on_encoded_nid_t* enc_nid)
+/*!
+    \brief Displays an NID in verbose fashion.
+
+    \param[in] description The description to prepend in front of the NID
+    \param[in] enc_nid The encioded NID to display.
+    
+    \return void
+*/
+void debug_display_nid(const char* const description,
+  const on_encoded_nid_t* const enc_nid)
 {
     #if _DEBUG_VERBOSE_LEVEL > 1
     on_raw_nid_t raw_nid;
