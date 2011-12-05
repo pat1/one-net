@@ -1970,14 +1970,13 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // first we'll check the features and set the handle and payload as
     // such.  If this level passes, we'll reset them to something else.
     ack_nack->handle = ON_NACK_FEATURES;
-    ack_nack->payload->features = THIS_DEVICE_FEATURES;
-
     
+
     if(msg_type == ON_FEATURE_MSG)
     {
         one_net_memmove(&((*txn)->device->features),
           &raw_payload[ON_PLD_DATA_IDX], sizeof(on_features_t));
-
+        ack_nack->payload->features = THIS_DEVICE_FEATURES;
         // we'll NACK it and give the nack reason as ON_NACK_RSN_GENERAL_ERR,
         // but the NACK handle will be ON_NACK_FEATURES.  We are making the
         // nack reason ON_NACK_RSN_GENERAL_ERR rather than
@@ -1994,6 +1993,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         // this time WE need the other device's features, so we'll set
         // the nack reason to ON_NACK_FEATURES.
         ack_nack->nack_reason = ON_NACK_RSN_NEED_FEATURES;
+        ack_nack->payload->features = THIS_DEVICE_FEATURES;
         (*txn)->device->verify_time = 0;
         return ON_MSG_CONTINUE;
     }
