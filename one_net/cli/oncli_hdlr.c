@@ -137,6 +137,56 @@ static const UInt8 add_stream_encrypt = ONE_NET_STREAM_ENCRYPT_XTEA8;
 #endif
 
 
+
+
+#ifdef _DEBUGGING_TOOLS
+// Debug memory
+typedef enum
+{
+    DEBUG_MEMORY_ON_STATE,
+    DEBUG_MEMORY_TIMER,
+    #ifdef _PEER
+    DEBUG_MEMORY_PEER,
+    #endif
+    DEBUG_MEMORY_BASE_PARAM,
+    DEBUG_MEMORY_INVITE_TXN,
+    DEBUG_MEMORY_RESPONSE_TXN,
+    DEBUG_MEMORY_SINGLE_TXN,
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    DEBUG_MEMORY_BLOCK_TXN,
+    #endif
+    #ifdef _STREAM_MESSAGES_ENABLED
+    DEBUG_MEMORY_STREAM_TXN,
+    #endif
+    DEBUG_MEMORY_COUNT
+} debug_memory_t;
+
+
+static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
+{
+    "on_state",
+    "timer",
+    #ifdef _PEER
+    "peer",
+    #endif    
+    "base_param",
+    "invite_txn",
+    "response_txn",
+    "single_txn",
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    "block_txn",
+    #endif
+    #ifdef _STREAM_MESSAGES_ENABLED
+    "stream_txn",
+    #endif
+};
+#endif
+
+
+
+
+
+
 //! @} oncli_hdlr_pri_var
 //							PRIVATE VARIABLES END
 //==============================================================================
