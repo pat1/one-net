@@ -191,6 +191,16 @@
 	#define _ONE_NET_EVAL
 #endif
 
+
+
+// Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
+// 3 for more detailed printouts, etc.  The higher the number, the
+// more detailed the display will be.  This value must be set
+// if using the sniffer, using the debugging tools, and can also be
+// set if adding any of your own debugging statements.
+#define _DEBUG_VERBOSE_LEVEL 4
+
+
 #ifdef _ONE_NET_EVAL
 	#ifndef _SERIAL_ASSIGN_DEMO_PINS
 		#define _SERIAL_ASSIGN_DEMO_PINS
@@ -202,23 +212,13 @@
 	#endif
 
 	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
-	#ifndef _SNIFFER_MODE
-		#define _SNIFFER_MODE
-	#endif
+    #if _DEBUG_VERBOSE_LEVEL > 0
+	    #ifndef _SNIFFER_MODE
+		    #define _SNIFFER_MODE
+	    #endif
+    #endif
 #endif
 
-
-// Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
-// 3 for more detailed printouts, etc.  The higher the number, the
-// more detailed the display will be.  This value must be set
-// if using the sniffer, using the debugging tools, and can also be
-// set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 3
-
-// _VERBOSE mode should be defined if you want detailed printouts
-#ifndef _VERBOSE
-    #define _VERBOSE
-#endif
 
 
 // Other Options

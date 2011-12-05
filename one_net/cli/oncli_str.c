@@ -46,7 +46,7 @@
 #include "one_net_data_rate.h"
 
 
-#ifdef _VERBOSE
+#if  _DEBUG_VERBOSE_LEVEL > 3
 #include "one_net_acknowledge.h"
 #endif
 
@@ -418,7 +418,7 @@ const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
 };
 
 
-#ifdef _VERBOSE
+#if _DEBUG_VERBOSE_LEVEL > 3
 const char* const ONCLI_ACK_STR = "ACK";
 const char* const ONCLI_NACK_STR = "NACK";
 

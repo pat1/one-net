@@ -628,7 +628,7 @@ const char * oncli_msg_status_str(on_message_status_t status)
 } // oncli_msg_status_str //
 
 
-#ifdef _VERBOSE
+#if _DEBUG_VERBOSE_LEVEL > 3
 /*!
     \brief Displays the contents of an ack_nack_t is string form.
 

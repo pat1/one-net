@@ -259,7 +259,7 @@ extern const char* const FALSE_STR;
 extern const char* const ONCLI_MSG_STATUS_STR[];
 
 
-#ifdef _VERBOSE
+#if _DEBUG_VERBOSE_LEVEL > 3
 
 // strings and formats dealing with ACKs and NACKS
 extern const char* const ONCLI_ACK_STR;

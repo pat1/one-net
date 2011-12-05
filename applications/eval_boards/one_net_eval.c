@@ -384,9 +384,11 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);
 
+    #if _DEBUG_VERBOSE_LEVEL > 3
     oncli_send_msg("eval_hdl_sng: ");
     print_app_payload(raw_pld, 5);
     oncli_send_msg("\n");
+    #endif
 
     if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
     {
@@ -658,7 +660,7 @@ void eval_single_txn_status(on_message_status_t status,
         return;
     } // if the parameters are invalid //
     
-    #ifdef _VERBOSE
+    #if _DEBUG_VERBOSE_LEVEL > 3
     oncli_send_msg("ests start:");
     oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
       data[0], data[1], data[2], data[3], data[4]);
@@ -679,7 +681,7 @@ void eval_single_txn_status(on_message_status_t status,
     oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
       oncli_msg_status_str(status));
 
-    #ifdef _VERBOSE
+    #if _DEBUG_VERBOSE_LEVEL > 3
     oncli_send_msg("ests end\n");
     #endif
 }

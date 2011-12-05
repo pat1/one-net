@@ -8,7 +8,7 @@
 #include "one_net_constants.h"
 #include "one_net_features.h"
 #include "one_net_status_codes.h"
-#ifdef _VERBOSE
+#if _DEBUG_VERBOSE_LEVEL > 3
 #include "one_net_acknowledge.h"
 #endif
 
@@ -149,7 +149,7 @@ BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 const char * oncli_msg_status_str(on_message_status_t status);
 
-#ifdef _VERBOSE
+#if _DEBUG_VERBOSE_LEVEL > 3
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
