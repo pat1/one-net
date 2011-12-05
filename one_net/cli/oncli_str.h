@@ -272,6 +272,18 @@ extern const char* const ACK_NACK_DISPLAY_FMT;
 #endif
 
 
+#ifdef _DEBUGGING_TOOLS
+extern const char* const ONCLI_MEMDUMP_CMD_STR;
+extern const char* const ONCLI_MEMLOAD_CMD_STR;
+extern const char* const ONCLI_MEMSET_CMD_STR;
+extern const char* const ONCLI_MEMORY_CMD_STR;
+extern const char* const ONCLI_PAUSE_CMD_STR;
+extern const char* const ONCLI_PROCEED_CMD_STR;
+extern const char* const ONCLI_RATCHET_CMD_STR;
+extern const char* const ONCLI_INTERVAL_CMD_STR;
+#endif
+
+
 
 
 //! @} oncli_str_const

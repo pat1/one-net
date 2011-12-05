@@ -499,6 +499,18 @@ const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
 #endif
 
 
+#ifdef _DEBUGGING_TOOLS
+const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
+const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
+const char* const ONCLI_MEMSET_CMD_STR = "memset";
+const char* const ONCLI_MEMORY_CMD_STR = "memory";
+const char* const ONCLI_PAUSE_CMD_STR = "pause";
+const char* const ONCLI_PROCEED_CMD_STR = "proceed";
+const char* const ONCLI_RATCHET_CMD_STR = "ratchet";
+const char* const ONCLI_INTERVAL_CMD_STR = "interval";
+#endif
+
+
 
 
 
