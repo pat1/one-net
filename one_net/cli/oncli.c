@@ -717,6 +717,22 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
     oncli_send_msg("Class-->0x%04X : Type-->0x%04X : ", msg_class, msg_type);
     oncli_send_msg("Data:0x%04X\n", msg_data);
 }
+
+
+void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
+{
+    // change for any custom message header printouts you want
+    static const char* const MSG_TYPE_STR[3] =
+    {
+        "App",
+        "Admin",
+        "Features"
+    };
+    
+    oncli_send_msg("PID=0x%02X,Msg ID=0x%02X,Msg Type=0x%01X(%s)\n",
+      msg_hdr->pid, msg_hdr->msg_id, msg_hdr->msg_type,
+      msg_hdr->msg_type < 3 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
+}
 #endif
 
 
