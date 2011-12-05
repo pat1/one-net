@@ -253,9 +253,8 @@ ONE_NET_INLINE void put_payload_txn_nonce(UInt8 txn_nonce, UInt8 *payload)
 ONE_NET_INLINE UInt8 get_payload_resp_nonce(const UInt8 *payload)
 {
     return ((payload[ON_PLD_RESP_NONCE_HIGH_IDX] &
-      ON_RESP_NONCE_BUILD_HIGH_MASK) << ON_RESP_NONCE_HIGH_SHIFT +
-      (payload[ON_PLD_RESP_NONCE_LOW_IDX] >>
-      ON_RESP_NONCE_LOW_SHIFT));
+      ON_RESP_NONCE_BUILD_HIGH_MASK) << ON_RESP_NONCE_HIGH_SHIFT) +
+      (payload[ON_PLD_RESP_NONCE_LOW_IDX] >> ON_RESP_NONCE_LOW_SHIFT);
 }
 
 /* store the 6-bit response nonce in the raw payload buffer */
