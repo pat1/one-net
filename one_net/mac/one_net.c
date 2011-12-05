@@ -536,18 +536,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         }
     }
     #endif
-    
-    // check nonces.  If they are invalid, pick some random ones
-    if(device->expected_nonce > ON_MAX_NONCE)
-    {
-        device->expected_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-    }
-    if(device->send_nonce > ON_MAX_NONCE)
-    {
-        device->send_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-    }
+
 
     // build the packet
     put_payload_txn_nonce(device->expected_nonce, raw_payload_bytes);
