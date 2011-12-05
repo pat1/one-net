@@ -61,9 +61,6 @@
 #include "one_net_acknowledge.h"
 #include "one_net_timer.h"
 
-// debugging -- temporary
-#include "oncli.h"
-
 
 
 //==============================================================================
@@ -447,25 +444,6 @@ static on_message_status_t on_client_single_data_hdlr(
     msg_hdr.msg_id = pkt->msg_id;
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
-
-    oncli_send_msg("Rcv'd packet : Source ");
-    oncli_print_did(pkt->enc_src_did);
-    oncli_send_msg(" : Rptr ");
-    oncli_print_did(pkt->enc_repeater_did);
-    oncli_send_msg(" : Msg type = %d : PID=%02X : ", *msg_type, *(pkt->pid));
-    {
-        UInt8 i;
-        UInt8 len = get_raw_payload_len(*(pkt->pid)) -  1 - ON_PLD_DATA_IDX;
-        oncli_send_msg("Raw payload length : %d\n", len);
-        for(i = 0; i < len; i++)
-        {
-            oncli_send_msg("%02X ", raw_pld[i + ON_PLD_DATA_IDX]);
-        }
-        
-        oncli_send_msg("\n");
-    }
-    
-    oncli_send_msg("Calling one_net_client_handle_single_pkt\n");
     
     #ifndef _ONE_NET_MULTI_HOP
     msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
@@ -475,40 +453,6 @@ static on_message_status_t on_client_single_data_hdlr(
       &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
       &((*txn)->max_hops));
     #endif
-    
-    oncli_send_msg("Return from one_net_client_handle_single_pkt\n");
-    oncli_send_msg("msg_status=%d\n", msg_status);
-    if(msg_status == ON_MSG_CONTINUE)
-    {
-        if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-        {
-            oncli_send_msg("Message ACK'd\n");
-        }
-        else
-        {
-            oncli_send_msg("Message NACK'd with reason %02X\n",
-              ack_nack->nack_reason);
-        }
-        
-        oncli_send_msg("Handle = %d\n", ack_nack->handle);
-        if(ack_nack->handle == ON_ACK_STATUS)
-        {
-            UInt8 src_unit, dst_unit;
-            ona_msg_class_t msg_class;
-            UInt16 msg_type, msg_data;
-            UInt8* pld = ack_nack->payload->status_resp;
-            
-            on_parse_app_pld(pld, &src_unit,
-              &dst_unit, &msg_class, &msg_type, &msg_data);
-
-            oncli_send_msg("ocsdh: payload:%02X%02X%02X%02X%02X ", pld[0],
-              pld[1], pld[2], pld[3], pld[4]);
-
-            oncli_send_msg("Src:%02X Dst:%02X ", src_unit, dst_unit);
-            oncli_send_msg("Class:%04X Type:%04X ", msg_class, msg_type);
-            oncli_send_msg("Data:%04X\n", msg_data);
-        }
-    }
 
     return msg_status;
 }
@@ -966,7 +910,6 @@ static BOOL look_for_invite(void)
                       ON_RAW_INVITE_SIZE) == ONS_SUCCESS &&
                       verify_payload_crc(*(data_pkt_ptrs.pid), raw_invite))
                     {
-                        oncli_send_msg("Received an invite packet!!\n\n");
                         // TODO parse the invite packet and respond
                     }
                 }

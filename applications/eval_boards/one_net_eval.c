@@ -363,7 +363,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
       (ack_nack_payload_t*) raw_pld || !max_hops)
     #endif
     {
-        oncli_send_msg("eval_hdl_sng: Bad parameter.\n");
         return ON_MSG_INTERNAL_ERR;
     }
     
@@ -384,7 +383,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 
     if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
     {
-        oncli_send_msg("Invalid dest. unit\n");
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_UNIT_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
@@ -392,7 +390,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     
     if(msg_type != ONA_SWITCH)
     {
-        oncli_send_msg("Msg type must be a switch.\n");
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
@@ -400,7 +397,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     
     if(msg_data != ONA_ON && msg_data != ONA_OFF && msg_data != ONA_TOGGLE)
     {
-        oncli_send_msg("Invalid message data.\n");
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
@@ -410,7 +406,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     {
         if(dst_unit == ONE_NET_DEV_UNIT)
         {
-            oncli_send_msg("Invalid dest. unit for COMMAND\n");
             ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
@@ -418,7 +413,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         
         if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
         {
-            oncli_send_msg("Pin %d is not an output.\n", dst_unit);
             // we'll use a user-defined fatal error for the reason            
             ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
             ack_nack->handle = ON_NACK;
@@ -461,8 +455,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 }
 
 
-#include "one_net_prand.h"
-#include "tick.h"
 #ifndef _ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,

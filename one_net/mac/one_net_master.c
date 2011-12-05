@@ -843,17 +843,10 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
 
 // TODO -- document
-#include "oncli.h"
 static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- 11/28/2011
-    // Look at the rx_single_data function in one_net.c.  It has
-    // a lot of what is in here, but it appears is never called.
-    // Figure out what code shoul go where and if we aren't going to
-    // call rx_single_data from anywhere, delete it.
-    
     on_message_status_t msg_status;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
@@ -885,27 +878,6 @@ static on_message_status_t on_master_single_data_hdlr(
         goto omsdh_build_resp;
     }
     
-    
-
-    oncli_send_msg("Rcv'd packet : Source ");
-    oncli_print_did(pkt->enc_src_did);
-    oncli_send_msg(" : Rptr ");
-    oncli_print_did(pkt->enc_repeater_did);
-    oncli_send_msg(" : Msg type = %d : PID=%02X : ", *msg_type, *(pkt->pid));
-    {
-        UInt8 i;
-        UInt8 len = get_raw_payload_len(*(pkt->pid)) -  1 - ON_PLD_DATA_IDX;
-        oncli_send_msg("Raw payload length : %d\n", len);
-        for(i = 0; i < len; i++)
-        {
-            oncli_send_msg("%02X ", raw_pld[i + ON_PLD_DATA_IDX]);
-        }
-        
-        oncli_send_msg("\n");
-    }
-    
-    oncli_send_msg("Calling one_net_master_handle_single_pkt\n");
-    
     #ifndef _ONE_NET_MULTI_HOP
     msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
       &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
@@ -913,13 +885,6 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
       &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
       &((*txn)->max_hops));
-    #endif
-
-    oncli_send_msg("Return from one_net_master_handle_single_pkt\n");
-    oncli_send_msg("msg_status=%d\n", msg_status);
-    #ifdef _VERBOSE
-    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.pid) -  1 -
-      ON_PLD_DATA_IDX);
     #endif
 
 
