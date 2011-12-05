@@ -339,6 +339,10 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 
 // debugging tools
 #ifdef _DEBUGGING_TOOLS
+static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
+  int index, int offset);
+static int parse_memory_str(UInt8** mem_ptr,
+  const char * const ASCII_PARAM_LIST);
 static oncli_status_t pause_cmd_hdlr(void);
 static oncli_status_t proceed_cmd_hdlr(void);
 static oncli_status_t ratchet_cmd_hdlr(void);
@@ -1892,7 +1896,209 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 
+
+
 #ifdef _DEBUGGING_TOOLS
+/*!
+    \brief Returns a certain segment of memory given parameeters.
+
+
+    \param[out] mem_ptr The address of the memory requested.
+    \param[in] memory_type The type of mempory requested.
+    \param[in] index If the memory type is an array, the element requested
+    \param[in] offset The offset(in bytes) requested from the start of the
+                 memory of element in question.  Must be non-negative.
+
+    \return the number of bytes of relevant memory.  -1 upon error
+*/
+static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
+  int index, int offset)
+{
+    int len = 0;
+    
+    if(!mem_ptr)
+    {
+        return 0;
+    }
+    
+    *mem_ptr = NULL;
+    
+    switch(memory_type)
+    {
+        case DEBUG_MEMORY_ON_STATE:
+            *mem_ptr = (UInt8*) &on_state;
+            len = sizeof(on_state_t);
+            break;
+        case DEBUG_MEMORY_TIMER:
+            *mem_ptr = (UInt8*) &timer[0];
+            if(index < 0)
+            {
+                len = ONT_NUM_TIMERS * sizeof(ont_timer_t);
+            }
+            else if(index < ONT_NUM_TIMERS)
+            {
+                len = sizeof(ont_timer_t);
+                *mem_ptr = (UInt8*) &timer[index];
+            }
+            else
+            {
+                return -1; // error
+            }
+            
+            break;
+        #ifdef _PEER
+        case DEBUG_MEMORY_PEER:
+            *mem_ptr = (UInt8*) &peer[0];
+            if(index < 0)
+            {
+                len = ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_unit_t);
+            }
+            else if(index < ONE_NET_MAX_PEER_UNIT)
+            {
+                len = sizeof(on_peer_unit_t);
+                *mem_ptr = (UInt8*) &peer[index];
+            }
+            else
+            {
+                return -1; // error
+            }
+            
+            break;
+        #endif
+        case DEBUG_MEMORY_BASE_PARAM:
+            *mem_ptr = (UInt8*) &on_base_param;
+            len = sizeof(on_base_param_t);
+            break;
+        case DEBUG_MEMORY_INVITE_TXN:
+            *mem_ptr = (UInt8*) &invite_txn;
+            len = sizeof(on_txn_t);
+            break;        
+        case DEBUG_MEMORY_RESPONSE_TXN:
+            *mem_ptr = (UInt8*) &response_txn;
+            len = sizeof(on_txn_t);
+            break; 
+        case DEBUG_MEMORY_SINGLE_TXN:
+            *mem_ptr = (UInt8*) &single_txn;
+            len = sizeof(on_txn_t);
+            break; 
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case DEBUG_MEMORY_BLOCK_TXN:
+            *mem_ptr = (UInt8*) &block_txn;
+            len = sizeof(on_txn_t);
+            break; 
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case DEBUG_MEMORY_STREAM_TXN:
+            *mem_ptr = (UInt8*) &stream_txn;
+            len = sizeof(on_txn_t);
+            break; 
+        #endif
+        default:
+            return -1; // error
+    }
+
+
+    if(offset < 0 || offset >= len)
+    {
+        return -1; // error
+    }
+    
+    (*mem_ptr) += offset;
+    return len - offset;
+}
+
+
+/*!
+    \brief Parses a string and returns a certain segment of memory
+      given the string parameeters.
+
+
+    \param[out] mem_ptr The address of the memory requested.
+    \param[ASCII_PARAM_LIST] The string to parse for parameters.
+
+
+    \return the number of bytes of relevant memory.  -1 upon error
+*/
+static int parse_memory_str(UInt8** mem_ptr,
+  const char * const ASCII_PARAM_LIST)
+{
+    int i, offset;
+    debug_memory_t memory_type;
+    const char* ptr = ASCII_PARAM_LIST;
+    char* end_ptr;
+    BOOL found = FALSE;
+    BOOL has_index; // true for memory that is an array, false otherwise
+    int index = 0; // relevant only if has_index is true
+    
+    if(!mem_ptr || !ASCII_PARAM_LIST)
+    {
+        return 0; // error
+    }
+    
+    offset = 0;
+    
+    for(i = 0; !found && i < DEBUG_MEMORY_COUNT; i++)
+    {
+        if(!strnicmp(debug_memory_str[i], ptr, strlen(debug_memory_str[i])))
+        {
+            memory_type = i;
+            found = TRUE;
+            ptr += strlen(debug_memory_str[i]);
+        }
+    }
+    
+    if(!found)
+    {
+        return -1;  // invalid string.
+    }
+    
+    switch(memory_type)
+    {
+        case DEBUG_MEMORY_TIMER:
+        #ifdef _PEER
+        case DEBUG_MEMORY_PEER:
+        #endif
+            has_index = TRUE; // these are arrays.
+            break;
+        default:
+            has_index = FALSE; // not an array.
+    }
+    
+    // look for an index, if relevant
+    if(has_index && ((*ptr) == ':'))
+    {
+        ptr++;
+        index = one_net_strtol(ptr, &end_ptr, 0);
+        if(!end_ptr || end_ptr == ptr)
+        {
+            return 0; // error
+        } // if parsing the data failed //
+        ptr = end_ptr;
+    }
+    
+    // now look for an offset, if any.
+    if((*ptr) == ':')
+    {
+        ptr++;
+        offset = one_net_strtol(ptr, &end_ptr, 0);
+        if(!end_ptr || end_ptr == ptr)
+        {
+            return 0; // error
+        } // if parsing the data failed //
+        ptr = end_ptr;
+    }
+    
+    if((*ptr) != '\n')
+    {
+        return 0; // error
+    }
+
+    return get_memory_loc(mem_ptr, memory_type, index, offset);
+}
+
+
+
+
 static oncli_status_t pause_cmd_hdlr(void)
 {
     pause = !pause;
