@@ -224,10 +224,26 @@ static void debug_display_nid(const char* const description,
 
     \param[in] packet_bytes The bytes that make up the packet.
     \param[in] num_bytes The number of bytes in the packet.
-
+    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
+                 NULL and set num_keys to 0.
+    \param[in] num_enc_keys the number of block / single keys to check.
+    \param[in] invite_keys the invite keys to check.  If not relevant, set to
+                 NULL and set num_invite_keys to 0.
+    \param[in] num_invite_keys the number of invite keys to check.
+    \param[in] stream_keys the stream keys to check.  If not relevant, set to
+                 NULL and set num_stream_keys to 0.
+    \param[in] num_stream_keys the number of stream keys to check.
+    
     \return void
 */
+#if _DEBUG_VERBOSE_LEVEL < 2
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
+#else
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
+  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
+  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys,
+  const one_net_xtea_key_t* const stream_keys, UInt8 num_stream_keys)
+#endif
 {
     UInt8 i;
     for(i = 0; i < num_bytes; i++)
@@ -358,28 +374,37 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
                     UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
                     UInt8 j;
                     UInt8* encrypted = (UInt8*) raw_payload_bytes;
-                    on_data_t data_type = ON_SINGLE;
+                    on_data_t data_type;
                     
-                    UInt8 num_keys = NUM_SNIFF_ENCRYPT_KEYS;
-                    const one_net_xtea_key_t* keys =
-                      (const one_net_xtea_key_t*) &sniff_enc_keys[0];
-                      
-                    if(packet_is_invite(pid))
+                    UInt8 num_keys;
+                    const one_net_xtea_key_t* keys;
+                    
+                    if(packet_is_invite(pid) && num_invite_keys > 0)
                     {
-                        num_keys = NUM_SNIFF_INVITE_KEYS;
-                        keys = (const one_net_xtea_key_t*)
-                          &sniff_invite_keys[0];
+                        num_keys = num_invite_keys;
+                        keys = (const one_net_xtea_key_t*) &invite_keys[0];
                         data_type = ON_INVITE;
                     }
                     #ifdef _STREAM_MESSAGES_ENABLED
-                    else if(packet_is_stream(pid))
+                    else if(packet_is_stream(pid) && num_stream_keys > 0)
                     {
-                        num_keys = NUM_SNIFF_STREAM_ENCRYPT_KEYS;
+                        num_keys = num_stream_keys;
                         keys = (const one_net_xtea_key_t*)
-                          &sniff_stream_enc_keys[0];
+                          &stream_keys[0];
                         data_type = ON_STREAM;
                     }
                     #endif
+                    else if(num_enc_keys > 0)
+                    {
+                        num_keys = num_enc_keys;
+                        keys = (const one_net_xtea_key_t*)
+                          &enc_keys[0];
+                        data_type = ON_SINGLE;                        
+                    }
+                    else
+                    {
+                        num_keys = 0;
+                    }
                     
                     for(j = 0; j < num_keys; j++)
                     {
@@ -511,8 +536,20 @@ void sniff_eval(void)
     
     oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read +
       ONE_NET_PREAMBLE_HEADER_LEN);
-      
+    
+    #if _DEBUG_VERBOSE_LEVEL > 1
+    display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN
+      , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
+      , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS
+      #ifdef _STREAM_MESSAGES_ENABLED
+      , sniff_stream_keys, NUM_SNIFF_STREM_ENCRYPT_KEYS);
+      #else
+      , NULL, 0);
+      #endif
+    #else
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
+    #endif
+
     oncli_send_msg("\n\n\n");
 
     // update the time to display the prompt

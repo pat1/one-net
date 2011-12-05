@@ -188,15 +188,30 @@ void oncli_print_user_pin_cfg(void);
 
 
 /*!
-      \brief Print a packet.
-      
-      \param[in] packet_bytes The encoded packet bytes, including the header
-      \param[in] num_bytes The number of bytes in the packat, including the
-                 header
+    \brief Parses and displays a packet
 
-      \return void
+    \param[in] packet_bytes The bytes that make up the packet.
+    \param[in] num_bytes The number of bytes in the packet.
+    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
+                 NULL and set num_keys to 0.
+    \param[in] num_enc_keys the number of block / single keys to check.
+    \param[in] invite_keys the invite keys to check.  If not relevant, set to
+                 NULL and set num_invite_keys to 0.
+    \param[in] num_invite_keys the number of invite keys to check.
+    \param[in] stream_keys the stream keys to check.  If not relevant, set to
+                 NULL and set num_stream_keys to 0.
+    \param[in] num_stream_keys the number of stream keys to check.
+    
+    \return void
 */
+#if _DEBUG_VERBOSE_LEVEL < 2
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
+#else
+void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
+  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
+  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys,
+  const one_net_xtea_key_t* const stream_keys, UInt8 num_stream_keys);
+#endif
 
 
 
