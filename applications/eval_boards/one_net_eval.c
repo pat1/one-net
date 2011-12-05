@@ -24,13 +24,16 @@
 #include "oncli.h"
 #include "one_net_constants.h"
 #include "one_net_xtea.h"
-#include "io_port_mapping.h"
 #include "oncli_str.h"
 #include "one_net.h"
 #include "one_net_eval.h"
 #include "one_net_prand.h"
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
+#endif
+
+#if _DEBUG_VERBOSE_LEVEL > 0
+    #include "one_net_crc.h" // for displaying packets
 #endif
 
 
@@ -118,6 +121,10 @@ static const char* const auto_client_prompts[] = {"-c1", "-c2", "-c3"};
 static const char* const sniffer_prompt = "-s";
 #endif
 
+
+#if _DEBUG_VERBOSE_LEVEL > 0
+extern const char HEX_DIGIT[]; // for displaying packets
+#endif
 
 
 //! @} ONE-NET_eval_const
@@ -682,8 +689,9 @@ void eval_single_txn_status(on_message_status_t status,
 
 // Packet Display Funcitonality
 // TODO -- Should these functions be in oncli.c instead of here?
-
 #if _DEBUG_VERBOSE_LEVEL > 0
+
+#if _DEBUG_VERBOSE_LEVEL > 1
 /*!
     \brief Displays a DID in verbose fashion.
 
@@ -695,14 +703,14 @@ void eval_single_txn_status(on_message_status_t status,
 void debug_display_did(const char* const description,
   const on_encoded_did_t* const enc_did)
 {
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 2
     on_raw_did_t raw_did;
     BOOL valid = (on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) ==
       ONS_SUCCESS);
     #endif
     
     oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 2
     if(valid)
     {
         oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
@@ -727,7 +735,7 @@ void debug_display_did(const char* const description,
 void debug_display_nid(const char* const description,
   const on_encoded_nid_t* const enc_nid)
 {
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 2
     on_raw_nid_t raw_nid;
     BOOL valid = (on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) ==
       ONS_SUCCESS);
@@ -735,7 +743,7 @@ void debug_display_nid(const char* const description,
     
     oncli_send_msg("%s : 0x", description);
     uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 2
     if(valid)
     {
         oncli_send_msg(" -- Decoded : 0x");
@@ -770,7 +778,7 @@ void debug_display_nid(const char* const description,
     
     \return void
 */
-#if _DEBUG_VERBOSE_LEVEL < 2
+#if _DEBUG_VERBOSE_LEVEL < 3
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
 #else
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
@@ -791,7 +799,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
     } // loop to output the bytes that were read //
     oncli_send_msg("\n\n");   
 
-    #if _DEBUG_VERBOSE_LEVEL > 0
+    #if _DEBUG_VERBOSE_LEVEL > 1
     {
         UInt8 pid = packet_bytes[ONE_NET_ENCODED_PID_IDX];
         on_pkt_t debug_pkt_ptrs;
@@ -813,7 +821,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             oncli_send_msg("\n");
             oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
-            #if _DEBUG_VERBOSE_LEVEL > 1
+            #if _DEBUG_VERBOSE_LEVEL > 2
             {
                 oncli_send_msg(" -- Decoded : ");
                 if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
@@ -832,7 +840,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             oncli_send_msg("\n");
             oncli_send_msg("Enc. Msg CRC : 0x%02X", *(debug_pkt_ptrs.enc_msg_crc));
-            #if _DEBUG_VERBOSE_LEVEL > 1
+            #if _DEBUG_VERBOSE_LEVEL > 2
             {
                 UInt8 calculated_msg_crc;
 
@@ -881,7 +889,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 } // if need to output a new line //
             } // loop to output the bytes that were read //
             
-            #if _DEBUG_VERBOSE_LEVEL > 1
+            #if _DEBUG_VERBOSE_LEVEL > 2
             {
                 UInt8 raw_pld_len = get_raw_payload_len(pid);
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
@@ -1006,6 +1014,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
     }
     #endif
 }
+#endif
 
 
 

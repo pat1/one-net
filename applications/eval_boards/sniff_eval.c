@@ -11,6 +11,10 @@
 
 #ifdef _SNIFFER_MODE
 
+#if _DEBUG_VERBOSE_LEVEL == 0
+    #error "_DEBUG_VERBOSE_LEVEL must be greater than 0 if _SNIFFER_MODE is enabled"
+#endif
+
 
 
 #include "oncli.h"
@@ -70,7 +74,7 @@ static UInt8 sniff_channel;
 //! Buffer to hold the string representation of the channel being sniffed
 static char channel_format_buffer[MAX_CHANNEL_STRING_FORMAT_LENGTH];
 
-#if _DEBUG_VERBOSE_LEVEL > 1
+#if _DEBUG_VERBOSE_LEVEL > 2
 enum
 {
     //! number of known invite keys to try for decryption.
@@ -98,7 +102,7 @@ enum
 //! \ingroup ONE-NET_eval
 //! @{
 
-#if _DEBUG_VERBOSE_LEVEL > 1
+#if _DEBUG_VERBOSE_LEVEL > 2
 //! Place any known invite keys in the array below
 static const one_net_xtea_key_t sniff_invite_keys[NUM_SNIFF_INVITE_KEYS] =
 {
@@ -124,12 +128,6 @@ static const one_net_xtea_key_t
 #endif
 #endif
 
-#if _DEBUG_VERBOSE_LEVEL > 0
-static void debug_display_did(const char* const description,
-  on_encoded_did_t* enc_did);
-static void debug_display_nid(const char* const description,
-  on_encoded_nid_t* enc_nid);
-#endif
 
 
 //! @} ONE-NET_sniff_eval_pri_func
@@ -226,7 +224,7 @@ void sniff_eval(void)
     oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read +
       ONE_NET_PREAMBLE_HEADER_LEN);
     
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if _DEBUG_VERBOSE_LEVEL > 2
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN
       , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
       , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS

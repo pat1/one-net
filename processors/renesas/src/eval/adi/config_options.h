@@ -208,16 +208,16 @@
 #endif
 
 
-// Enter 0 for minimal printouts, 1 for semi-detailed printouts,
-// 2 for more detailed printouts, etc.  The higher the number, the
+// Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
+// 3 for more detailed printouts, etc.  The higher the number, the
 // more detailed the display will be.  This value must be set
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 2
+#define _DEBUG_VERBOSE_LEVEL 3
 
 // _VERBOSE mode should be defined if you want detailed printouts
 #ifndef _VERBOSE
-//    #define _VERBOSE
+    #define _VERBOSE
 #endif
 
 
