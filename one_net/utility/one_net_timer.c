@@ -73,6 +73,17 @@
 //! @{
 
 
+#ifdef _DEBUGGING_TOOLS
+// Note : this will increase!
+#ifdef _ONE_NET_MASTER
+#define NUM_DEBUG_INTERVALS 4
+#else
+#define NUM_DEBUG_INTERVALS 2
+#endif
+
+#endif
+
+
 //! @} ONE-NET_TIMER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -83,6 +94,41 @@
 //! \defgroup ONE-NET_TIMER_pub_var
 //! \ingroup ONE-NET_TIMER
 //! @{
+
+
+
+#ifdef _DEBUGGING_TOOLS
+#include "one_net_port_const.h"
+#include "one_net_master_port_const.h"
+
+
+UInt32 one_net_response_time_out = ONE_NET_RESPONSE_TIME_OUT;
+UInt32 write_pause = 0;
+UInt32 one_net_master_invite_send_time = ONE_NET_MASTER_INVITE_SEND_TIME;
+tick_t one_net_master_channel_scan_time = ONE_NET_MASTER_CHANNEL_SCAN_TIME;
+
+
+
+UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
+{
+    &one_net_response_time_out, // 0
+    &write_pause, // 1
+    #ifdef _ONE_NET_MASTER
+    &one_net_master_invite_send_time, // 2
+    &one_net_master_channel_scan_time, // 3
+    #endif
+};
+
+
+
+
+
+BOOL pause = FALSE;
+BOOL proceed = FALSE;
+BOOL ratchet = FALSE;
+BOOL pausing = FALSE;
+#endif
+
 
 
 //! @} ONE-NET_TIMER_pub_var

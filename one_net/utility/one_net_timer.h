@@ -163,30 +163,36 @@ typedef struct
 //! @{
 
 
+// debugging tools for timers -- revert to #defines for chips NOT using these
+// debugging tools.  If the debugging tool are used, these are adjustable
+// variables that can be changed during run-time from a user interface.
 #ifdef _DEBUGGING_TOOLS
+extern UInt32* debug_intervals[];
+extern UInt32 one_net_response_time_out; // 0
+extern UInt32 write_pause; // 1
+extern UInt32 one_net_master_invite_send_time; // 2
+extern UInt32 one_net_master_channel_scan_time; // 3
 
 
-// TODO -- add debugging tools.
-#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
-#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT
-#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME
-#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL
-#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
 
+// global variables used to pause and step-through code, adjustable via
+// CLI
+extern BOOL pause;
+extern BOOL proceed;
+extern BOOL ratchet;
+extern BOOL pausing;
 
 #else
-
 
 // not using the debugging tools, but we've replaced the "constants" in the
 // code so we could use them for the debugging tools.  Define those variables
 // as constants with #define statements so things work like they are supposed
 // to.
-#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
-#define one_net_master_change_key_timeout ONE_NET_MASTER_CHANGE_KEY_TIMEOUT
-#define one_net_master_channel_scan_time ONE_NET_MASTER_CHANNEL_SCAN_TIME
-#define one_net_stream_key_query_interval ONE_NET_STREAM_KEY_QUERY_INTERVAL
 #define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
-
+#ifdef _ONE_NET_MASTER
+#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
+#define one_net_master_channel_scan_time ONE_NET_MASTER_INVITE_SEND_TIME
+#endif
 
 #endif
 
