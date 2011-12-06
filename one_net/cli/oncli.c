@@ -1044,6 +1044,21 @@ static void print_cmd_result(const char * const CMD,
             oncli_send_msg(ONCLI_CMD_FAIL_FMT, CMD, ONCLI_ONS_NOT_INIT_ERR_STR);
             break;
         } // parse error case //
+        
+        case ONCLI_INVALID_CMD_FOR_NODE:
+        {
+            #if !defined(_ONE_NET_CLIENT)
+            oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
+              ONCLI_MASTER_STR);            
+            #elif !defined(_ONE_NET_MASTER)
+            oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
+              ONCLI_CLIENT_STR);            
+            #else
+            oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
+              device_is_master ? ONCLI_MASTER_STR : ONCLI_CLIENT_STR);
+            #endif
+            break;            
+        }
 
         default:
         {
