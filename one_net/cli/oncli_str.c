@@ -308,7 +308,9 @@ const char * const ONCLI_INVALID_CMD_FMT = "Invalid command \"%s\"\n";
 //! Indicates why the command was invalid.
 const char * const ONCLI_CMD_FAIL_FMT = "The \"%s\" command failed - %s\n";
 
-//! String that is output when a command
+//! String that is output when a command is not valid for a certain device
+//! (i.e. a client attempts to invoke a command reserved for masters or vice
+//! versa.
 const char * const ONCLI_INVALID_CMD_FOR_DEVICE_FMT
   = "Invalid command for %s\n";
 
