@@ -182,13 +182,30 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
   
 void one_net_reset_master_with_channel(UInt8 channel);
 
-one_net_status_t one_net_master_change_key(
-  const one_net_xtea_key_fragment_t KEY_FRAGMENT);
-  
-#ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t one_net_master_change_stream_key(
-  const one_net_xtea_key_t * const NEW_STREAM_KEY);
+
+
+/*!
+    \brief Changes the key.
+
+    The key is changed by removing the most significant 32 bits of the key and
+    appending the 32 bits passed in.
+
+    \param[in] stream_key If true, te stream key is being changed.  If false,
+                 the block / single key is being changed.
+    \param[in] key_fragment The new key fragment.
+
+    \return ONS_SUCCESS If the key was accepted
+            ONS_ALREADY_IN_PROGRESS If still changing the key from the last
+              time it was updated.
+*/
+#ifndef _STREAM_MESSAGES_ENABLED
+one_net_status_t one_net_master_change_key_fragment(
+  const one_net_xtea_key_fragment_t key_fragment);
+#else
+one_net_status_t one_net_master_change_key_fragment(BOOL stream_key,
+  const one_net_xtea_key_fragment_t key_fragment);
 #endif
+
 
 one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
   UInt32 timeout);
