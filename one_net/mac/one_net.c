@@ -1586,6 +1586,13 @@ BOOL one_net(on_txn_t ** txn)
             {
                 // transaction has been terminated either by ONE_NET
                 // or by the application code.
+                
+                if((msg_status == ON_MSG_DEFAULT_BHVR || msg_status ==
+                  ON_MSG_CONTINUE) && ack_nack.nack_reason !=
+                    ON_NACK_RSN_NO_ERROR)
+                {
+                      msg_status = ON_MSG_FAIL;
+                }
 
                 #ifndef _ONE_NET_SIMPLE_DEVICE
                 // if we get no reponse this last try and we NEVER got any
@@ -1597,11 +1604,12 @@ BOOL one_net(on_txn_t ** txn)
                     // if we got no response ever from the other device.
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                 }
-                
+
                 (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                   single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), msg_status, &ack_nack);
                 #else
+                
                 (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                   single_msg_ptr->payload, &(single_msg_ptr->msg_type),
                   msg_status, &ack_nack);                    
