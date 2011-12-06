@@ -353,6 +353,10 @@ static int parse_memory_str(UInt8** mem_ptr,
 static oncli_status_t memory_cmd_hdlr(
   const char * const ASCII_PARAM_LIST);
 static oncli_status_t memdump_cmd_hdlr(void);
+static oncli_status_t memset_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST);
+static oncli_status_t memload_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST);
 static oncli_status_t pause_cmd_hdlr(void);
 static oncli_status_t proceed_cmd_hdlr(void);
 static oncli_status_t ratchet_cmd_hdlr(void);
@@ -804,6 +808,36 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the memory command was received //
+
+    if(!strnicmp(ONCLI_MEMLOAD_CMD_STR, CMD, strlen(ONCLI_MEMLOAD_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMLOAD_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMLOAD_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &memload_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the memload command was received //
+
+    if(!strnicmp(ONCLI_MEMSET_CMD_STR, CMD, strlen(ONCLI_MEMSET_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMSET_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMSET_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &memset_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the memset command was received //
 
     if(!strnicmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
     {
@@ -1938,6 +1972,116 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _DEBUGGING_TOOLS
+/*!
+    \brief Loads memory into the stored memory location.
+    
+    This function takes a hex string representing bytes, converts it to a
+    byte stream, then copies it into the stored memory location.
+
+    \param[in] ASCII_PARAM_LIST String containing the memory to load
+
+    \return ONCLI_SUCCESS if the parsing and copying of the string succeeded.
+            ONCLI_CDM_FAIL otherwise
+*/
+static oncli_status_t memload_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    enum
+    {
+        MAX_LOAD_LEN = 50,
+        MAX_ASCII_CHAR = MAX_LOAD_LEN * 2
+    };
+    
+    UInt8 byte_stream[MAX_LOAD_LEN];
+    UInt16 num_ascii_char = 0;
+    UInt16 actual_len = 0;
+    UInt16 num_convert;
+    UInt16 max_len = MAX_LOAD_LEN > memory_len ? memory_len : MAX_LOAD_LEN;
+
+    const char* ptr = ASCII_PARAM_LIST;
+    while(num_ascii_char < MAX_ASCII_CHAR && *ptr != '\n')
+    {
+        num_ascii_char++;
+        ptr++;
+    }
+
+    num_convert = ascii_hex_to_byte_stream(ASCII_PARAM_LIST, byte_stream,
+        num_ascii_char);
+        
+    actual_len = max_len >= (num_convert / 2) ? (num_convert / 2) : max_len;
+        
+    if(actual_len == 0)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+        
+    one_net_memmove(memory_ptr, byte_stream, actual_len);
+    oncli_send_msg("Copied %d bytes.\n", actual_len);
+    return ONCLI_SUCCESS;
+} // memload_cmd_hdlr //
+
+
+/*!
+    \brief Similar to memset in the C specification
+    
+    memset:18:A6 will store 0xA6 into the stored memory location.  For
+         example, if the stored memory location was 0x5670, after this
+         command, addresses 0x5670 through 0x5681 would contain the value
+         0xA6.
+
+    \param[in] ASCII_PARAM_LIST String containing the number of bytes to
+         set and the value to set them to.
+
+    \return ONCLI_SUCCESS if the parsing and setting of the value succeeded.
+            ONCLI_CDM_FAIL otherwise
+*/
+static oncli_status_t memset_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    char* ptr = (char*) ASCII_PARAM_LIST;
+    char* end_ptr;
+    int num_bytes = 0;
+    UInt8 fill_byte_digit, fill_byte;
+    UInt16 i;
+    
+    num_bytes = one_net_strtol(ptr, &end_ptr, 0);
+    if(memory_ptr == NULL || !end_ptr || end_ptr == ptr || num_bytes == 0)
+    {
+        return ONCLI_PARSE_ERR; // error
+    } // if parsing the data failed //
+    ptr = end_ptr;
+    
+    if(*ptr != ':')
+    {
+        return ONCLI_PARSE_ERR; // error
+    }
+    ptr++;
+
+    fill_byte_digit = ascii_hex_to_nibble(*ptr);
+    if(fill_byte_digit > 0x0F)
+    {
+       return ONCLI_PARSE_ERR;
+    } // if the conversion failed //
+    ptr++;
+    fill_byte = fill_byte_digit << 4;
+    
+    fill_byte_digit = ascii_hex_to_nibble(*ptr);
+    if(fill_byte_digit > 0x0F)
+    {
+       return ONCLI_PARSE_ERR;
+    } // if the conversion failed //
+    
+    fill_byte |= fill_byte_digit;
+    
+    ptr = memory_ptr;
+    for(i = 0; i < num_bytes; i++)
+    {
+        *ptr = fill_byte;
+        ptr++;
+    }
+    
+    return ONCLI_SUCCESS;
+} // memset_cmd_hdlr //
+
+
 /*!
     \brief Displays the contents of the stored memory location in hex.
 
