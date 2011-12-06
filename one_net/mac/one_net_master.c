@@ -441,7 +441,7 @@ one_net_status_t one_net_master_change_key_fragment(BOOL stream_key,
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
     one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    one_net_memmove(&((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), key_fragment,
+    one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), key_fragment,
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
       
     return ONS_SUCCESS;
