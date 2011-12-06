@@ -89,7 +89,10 @@ typedef enum
     ONCLI_NOT_JOINED,               //!< The device needs to join a network.
     ONCLI_PARSE_ERR,                //!< The cli data is not formatted properly
     ONCLI_SNGH_INTERNAL_ERR,        //!< Encountered a "Should Not Get Here" error.
-    ONCLI_ONS_NOT_INIT_ERR          //!< Encountered a ONS_NOT_INIT return code from ONE-NET.
+    ONCLI_ONS_NOT_INIT_ERR,         //!< Encountered a ONS_NOT_INIT return code from ONE-NET.
+    ONCLI_INVALID_CMD_FOR_MODE,     //!< Command is not allowed in the current mode of operation
+    ONCLI_INVALID_CMD_FOR_NODE,     //!< Command is invalid for this device type.  Generally
+                                    //!< this is a master versus client type of thing.
 } oncli_status_t;
 
 
