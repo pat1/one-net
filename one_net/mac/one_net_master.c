@@ -59,6 +59,7 @@
 #include "one_net_status_codes.h"
 #include "one_net_prand.h"
 #include "one_net_crc.h"
+#include "one_net.h"
 
 
 //==============================================================================
@@ -130,6 +131,12 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
     determining that the channel is ok for the network to operate on.
 */
 static tick_t new_channel_clear_time_out = 0;
+
+//! Flag to denote that a key update is in progress.
+static BOOL key_update_in_progress = FALSE;
+
+//! Flag to denote that a stream key update is in progress.
+static BOOL stream_key_update_in_progress = FALSE;
 
 
 //! @} ONE-NET_MASTER_pri_var
@@ -204,6 +211,15 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
   
   
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
+
+#ifdef _STREAM_MESSAGES_ENABLED
+static BOOL check_key_update(BOOL stream_key);
+#else
+static BOOL check_key_update(void);
+#endif
+
+static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
+  const on_encoded_did_t* const did, const UInt8* const pld);
 
 
 
@@ -1356,6 +1372,185 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
     
     return &(client->device_send_info);
 }
+
+
+/*!
+    \brief Checks to see if a key update needs to be sent.
+    
+    param[in] stream_key If true, the stream key update should be checked
+              If false, the regular key should be checked.
+
+    \return TRUE if an update request was sent, FALSE otherwise
+*/
+#ifdef _STREAM_MESSAGES_ENABLED
+static BOOL check_key_update(BOOL stream_key)
+#else
+static BOOL check_key_update(void)
+#endif
+{
+    UInt16 i;
+    one_net_status_t status;
+    on_client_t* client = NULL;
+    UInt16 index = one_net_prand(get_tick_count(), master_param->client_count - 1);
+    UInt8 raw_admin_msg[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+    
+    const UInt8* key_frag_address = (UInt8*)
+      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(stream_key)
+    {
+        key_frag_address = (UInt8*)
+          &(on_base_param->stream_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+    }
+    #endif
+    
+    for(i = 0; !client && i < master_param->client_count; i++)
+    {
+        client = &client_list[index];
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if(stream_key)
+        {
+            if(client->use_current_stream_key)
+            {
+                client = NULL;
+                index++;
+                index %= master_param->client_count; // rollover if overflow
+            }
+            continue;
+        }
+        #endif
+        
+        if(client->use_current_key)
+        {
+            client = NULL;
+            index++;
+            index %= master_param->client_count; // rollover if overflow
+        }
+        else
+        {
+        }
+    }
+
+    if(!client)
+    {
+        // everything is updated.
+        on_ack_nack_t ack;
+        ack.handle = ON_ACK;
+        ack.nack_reason = ON_NACK_RSN_NO_ERROR;
+        
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if(stream_key)
+        {
+            stream_key_update_in_progress = FALSE;
+            one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY, NULL,
+              &ack);
+            return FALSE;
+        }
+        #endif
+        
+        key_update_in_progress = FALSE;
+        one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
+        return FALSE;
+    }
+
+    
+    // send the key fragment
+    #ifdef _STREAM_MESSAGES_ENABLED
+    status = send_admin_pkt(stream_key ? ON_NEW_STREAM_KEY_FRAGMENT :
+      ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
+      client->device_send_info.did, key_frag_address);
+    #else
+    status = send_admin_pkt(ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
+      client->device_send_info.did, key_frag_address);
+    #endif
+    
+    return (status == ONS_SUCCESS);
+} // check_key_update //
+
+
+/*!
+    \brief Sends an admin packet (single transaction).
+
+    Sets up an admin packet and queues the transaction to send it.
+
+    \param[in] admin_msg_id the type of admin message being sent.
+    \param[in] did The device to send to.  NULL means broadcast.
+    \param[in] pld The  admin data to be sent.
+
+    \return ONS_SUCCESS If the packet was built and queued successfully
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_RSRC_FULL If there are no resources available
+*/
+static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
+  const on_encoded_did_t* const did, const UInt8* const pld)
+{
+    #ifndef _EXTENDED_SINGLE
+    UInt8 admin_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+    #else
+    UInt8 admin_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
+    UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
+    UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
+    
+
+    switch(admin_msg_id)
+    {
+        case ON_NEW_KEY:
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_NEW_STREAM_KEY:
+        #endif
+             admin_pld_data_len = ONE_NET_XTEA_KEY_LEN;
+             pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+             break;
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_CHANGE_FRAGMENT_DELAY:
+             admin_pld_data_len = 2 * sizeof(UInt32);
+             pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+        #endif
+    }
+    #endif
+    
+    // TODO -- use named constants
+    admin_pld[0] = admin_msg_id;
+    
+    #ifndef _EXTENDED_SINGLE
+    one_net_memmove(&admin_pld[1], pld, ONA_SINGLE_PACKET_PAYLOAD_LEN - 1);
+    #else
+    one_net_memmove(&admin_pld[1], pld, admin_pld_data_len);
+    #endif
+    
+    #ifndef _EXTENDED_SINGLE
+    return one_net_master_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_ADMIN_MSG,
+      admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
+      NULL, did
+      #ifdef _PEER
+      , FALSE,
+      ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , NULL
+      #endif
+      );
+    #else
+    return one_net_master_send_single(pid, ON_ADMIN_MSG,
+      admin_pld, admin_pld_data_len + 1, ONE_NET_LOW_PRIORITY,
+      NULL, did
+      #ifdef _PEER
+      , FALSE,
+      ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , NULL
+      #endif
+      );
+    #endif
+} // send_admin_pkt //
 
 
 
