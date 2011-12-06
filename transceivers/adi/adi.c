@@ -410,7 +410,13 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     {
         oncli_send_msg("one_net_write : ");
         xdump(data, len);
-        delay_ms(write_pause);
+        
+        ont_set_timer(WRITE_PAUSE_TIMER, write_pause);
+        
+        while(!ont_inactive_or_expired(WRITE_PAUSE_TIMER))
+        {
+            oncli();  // alow the user to enter commands while pausing
+        }
     }
     #endif    
     
