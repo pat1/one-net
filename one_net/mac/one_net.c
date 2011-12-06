@@ -274,6 +274,11 @@ static BOOL range_testing_on = FALSE;
 #endif
 
 
+#ifdef _ONE_NET_CLIENT
+//! If true and sending a single response, wthis flag signifies that we
+// should instead send our features.
+static BOOL features_override = FALSE;
+#endif
 
 
 //! @} ONE-NET_pri_var
@@ -597,11 +602,29 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 
     // build the packet
     put_payload_txn_nonce(device->send_nonce, raw_payload_bytes);
-    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);      
-    put_payload_msg_type(msg_type, raw_payload_bytes);
-
-    one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
-      (raw_pld_len - 1) - ON_PLD_DATA_IDX);
+    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);
+    
+    #ifdef _ONE_NET_CLIENT
+    // If features_override is true, the other device needs our features or we
+    // need theirs, so we'll send ours, which will cause them to send theirs
+    // back, then the next time around, we'll send the real message.
+    if(features_override)
+    {
+        // sending features
+        put_payload_msg_type(ON_FEATURE_MSG, raw_payload_bytes);
+        one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX],
+          &THIS_DEVICE_FEATURES, sizeof(on_features_t));
+        features_override = FALSE; // set false.  It will be set again next
+                                   // time if it needs to be.
+    }
+    else
+    #endif
+    {
+        // sending the real message
+        put_payload_msg_type(msg_type, raw_payload_bytes);
+        one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
+          (raw_pld_len - 1) - ON_PLD_DATA_IDX);
+    }
       
     // compute the crc
     raw_payload_bytes[0] = (UInt8)one_net_compute_crc(
@@ -1330,8 +1353,12 @@ BOOL one_net(on_txn_t ** txn)
                     #endif
                 }
                 #endif
-                        
+                
                 // It's a data packet.  Fill in the data portion
+                #ifdef _ONE_NET_CLIENT
+                features_override = features_override ||
+                  !features_known(device->features);
+                #endif
                 if(on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   device)!= ONS_SUCCESS)
@@ -1729,7 +1756,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         return ON_MSG_IGNORE; // undecipherable
     }
     
-
     // Replay attacks are FAR more worriesome on the receiving side.
     // We are the sender, but both sides should always check
 
@@ -1750,6 +1776,43 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         // want to re-sync / re-verify after getting this problem message.
         (*txn)->device->verify_time = 0;
     }
+
+    #ifdef _ONE_NET_CLIENT
+    features_override = FALSE; // if this flag's been set, clear it.  If we
+                              // need to reset it, we'll do that below.
+    
+    // first check to make sure we have the other device's features and they
+    // have ours
+    if(ack_nack->nack_reason == ON_NACK_RSN_NEED_FEATURES)
+    {
+        // they need our features and have given us theirs.
+        (*txn)->device->features = ack_nack->payload->features;
+        features_override = TRUE; // we have theirs, but they need ours.
+        return ON_MSG_CONTINUE;
+    }
+    else if(!features_known((*txn)->device->features))
+    {
+        // we need their features.  They may or may not have given them
+        // to us.
+        // TODO -- get a better error than general error
+        if(ack_nack->nack_reason == ON_NACK_RSN_GENERAL_ERR)
+        {
+            // they gave it to us.
+            (*txn)->device->features = ack_nack->payload->features;
+            // OK, we both have each otehrs' features.  Next time we'll
+            // send the real message.
+            return ON_MSG_CONTINUE;
+        }
+        else
+        {
+            // can't do anything without the features and they didn't give
+            // it to us, so ignore.  We need their features, so set the
+            // features_override flag again.
+            features_override = TRUE;
+            return ON_MSG_CONTINUE;
+        }
+    }
+    #endif
 
 
     // Now check the message IDs.  We should be getting a response to the one
