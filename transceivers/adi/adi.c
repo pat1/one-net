@@ -396,7 +396,11 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
         proceed = FALSE;
         synchronize_last_tick();
         oncli_send_msg("\n\nPausing : About to write...\n");
+        #if _DEBUG_VERBOSE_LEVEL > 5
+        display_pkt(data, len, NULL, 0, NULL, 0, NULL, 0);
+        #else
         xdump(data, len);
+        #endif
     }
     
     while(pausing = (pause || (ratchet && !proceed)))
