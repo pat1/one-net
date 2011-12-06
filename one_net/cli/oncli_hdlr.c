@@ -360,6 +360,8 @@ static oncli_status_t memload_cmd_hdlr(
 static oncli_status_t pause_cmd_hdlr(void);
 static oncli_status_t proceed_cmd_hdlr(void);
 static oncli_status_t ratchet_cmd_hdlr(void);
+static oncli_status_t interval_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST);
 #endif
 
 
@@ -850,6 +852,21 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return memdump_cmd_hdlr();
     } // else if the memdump command was received //
+
+    if(!strnicmp(ONCLI_INTERVAL_CMD_STR, CMD, strlen(ONCLI_INTERVAL_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_INTERVAL_CMD_STR;
+
+        if(CMD[strlen(ONCLI_INTERVAL_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &interval_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the interval command was received //
     #endif
     
     else
@@ -2356,6 +2373,52 @@ static oncli_status_t proceed_cmd_hdlr(void)
 static oncli_status_t ratchet_cmd_hdlr(void)
 {
     ratchet = !ratchet;
+    return ONCLI_SUCCESS;
+}
+
+
+/*!
+    \brief Sets an interval.  See the debug_intervals[] array
+           for a list of settable intervals.
+           
+    interval:1:25000 would set interval 1 to 25,000 ms(again, see the
+             debug_intevals[] array for a list of intervals and their indexes.
+
+    \param[in] ASCII_PARAM_LIST The string to parse for parameters.
+
+    \return ONCLI_SUCCESS if the interval was set.
+            ONCLI_PARSE_ERR otherwise.
+*/
+static oncli_status_t interval_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    UInt8 interval_index;
+    tick_t new_interval;
+    const char* ptr = ASCII_PARAM_LIST;
+    const char* end_ptr = ptr;
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    interval_index = one_net_strtol(ptr, (char **)&end_ptr, 0);
+    
+    if(!end_ptr || end_ptr == ptr || *end_ptr != ':' ||
+        interval_index >= NUM_DEBUG_INTERVALS)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+    
+    ptr = end_ptr;
+    ptr++;
+    
+    new_interval = one_net_strtol(ptr, (char **)&end_ptr, 0);
+
+    if(!end_ptr || end_ptr == ptr || *end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+    
+    *(debug_intervals[interval_index]) = new_interval;
     return ONCLI_SUCCESS;
 }
 #endif
