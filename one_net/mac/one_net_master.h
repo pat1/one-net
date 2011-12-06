@@ -64,6 +64,51 @@
 //! @{
 
 
+//! The various MAC settings that can be updated.  These are used to report the
+//! results of changing a devices parameters.
+typedef enum
+{
+    //! Update a device's data rate
+    ONE_NET_UPDATE_DATA_RATE = 0x00,
+    
+    //! Updating the network key is complete
+    ONE_NET_UPDATE_NETWORK_KEY = 0x01,
+
+    #ifdef _PEER
+    //! Assigning a peer
+    ONE_NET_UPDATE_ASSIGN_PEER = 0x02,
+
+    //! Unassigning a peer
+    ONE_NET_UPDATE_UNASSIGN_PEER = 0x03,
+    #endif
+
+    //! Updating reporting status changes to the MASTER
+    ONE_NET_UPDATE_REPORT_TO_MASTER = 0x04,
+
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Low Priority Fragment delay update
+    ONE_NET_UPDATE_LOW_FRAGMENT_DELAY = 0x05,
+
+    //! High Priority Fragment delay update
+    ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY = 0x06,
+    #endif
+
+    //! Updates the keep alive interval for a device
+    ONE_NET_UPDATE_KEEP_ALIVE = 0x07,
+
+    //! Indicates an attempt to remove a device from the network
+    ONE_NET_UPDATE_REMOVE_DEVICE = 0x08,
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    //! Updating the stream key is complete
+    ONE_NET_UPDATE_STREAM_KEY = 0x09,
+    #endif
+
+    //! This is to mark nothing was updated.  This item should ALWAYS be
+    //! LAST IN THE LIST
+    ONE_NET_UPDATE_NOTHING = 0x0A
+} one_net_mac_update_t;
+
 
 enum
 {
