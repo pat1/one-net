@@ -418,6 +418,42 @@ const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
 };
 
 
+#ifdef _ONE_NET_MASTER
+
+//! Format output to report the results of updating a device's parameters.
+const char * const ONCLI_UPDATE_RESULT_FMT = "Updating %s on %03X %s.\n";
+
+//! Format output to report the results of updating a device's parameters
+//! without displaying a device id.
+const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT = "Updating %s %s.\n";
+
+//! Format output to report results of updating a device's parameters where
+//! there is no string for the parameter
+const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT
+  = "Updating %02X on %032X %s.\n";
+  
+  
+const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR = "DATA RATE";
+const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
+#ifdef _STREAM_MESSAGES_ENABLED
+const char* const ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR = "NETWORK STREAM KEY";
+#endif
+#ifdef _PEER
+const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
+const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
+#endif
+const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR = "REPORT TO MASTER";
+#ifdef _BLOCK_MESSAGES_ENABLED
+const char* const ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR = "LOW PRIORITY FRAGMENT DELAY";
+const char* const ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR = "HIGH PRIORITY FRAGMENT DELAY";
+#endif
+const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR = "KEEP-ALIVE INTERVAL";
+const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR = "REMOVE DEVICE";
+
+#endif
+
+
+
 #if _DEBUG_VERBOSE_LEVEL > 3
 const char* const ONCLI_ACK_STR = "ACK";
 const char* const ONCLI_NACK_STR = "NACK";
@@ -490,41 +526,6 @@ const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_N
     // TODO -- this is the main ONE-NET code. We need to make some
     // application-specific place to store these strings
 };
-
-
-#ifdef _ONE_NET_MASTER
-
-//! Format output to report the results of updating a device's parameters.
-const char * const ONCLI_UPDATE_RESULT_FMT = "Updating %s on %03X %s.\n";
-
-//! Format output to report the results of updating a device's parameters
-//! without displaying a device id.
-const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT = "Updating %s %s.\n";
-
-//! Format output to report results of updating a device's parameters where
-//! there is no string for the parameter
-const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT
-  = "Updating %02X on %032X %s.\n";
-  
-  
-const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR = "DATA RATE";
-const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
-#ifdef _STREAM_MESSAGES_ENABLED
-const char* const ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR = "NETWORK STREAM KEY";
-#endif
-#ifdef _PEER
-const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
-const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
-#endif
-const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR = "REPORT TO MASTER";
-#ifdef _BLOCK_MESSAGES_ENABLED
-const char* const ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR = "LOW PRIORITY FRAGMENT DELAY";
-const char* const ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR = "HIGH PRIORITY FRAGMENT DELAY";
-#endif
-const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR = "KEEP-ALIVE INTERVAL";
-const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR = "REMOVE DEVICE";
-
-#endif
 
 
 const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
