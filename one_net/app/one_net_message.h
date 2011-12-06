@@ -184,14 +184,44 @@ typedef enum
     //! without a request for features whenever a device feels that
     //! another device needs to know its features.
     ON_FEATURES_RESP = 0x01,
+    
+    //! Replacing the first four bytes of the key and adding these four
+    //! bytes at the end
+    ON_NEW_KEY_FRAGMENT = 0x02,
+    
+    #ifdef _EXTENDED_SINGLE
+    //! Replacing all 16 bytes of the key
+    ON_NEW_KEY = 0x03,
+    #endif
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    //! Replacing the first four bytes of the stream key and adding these four
+    //! bytes at the end
+    ON_NEW_STREAM_KEY_FRAGMENT = 0x04,
+    
+    #ifdef _EXTENDED_SINGLE
+    //! Replacing all 16 bytes of the stream key
+    ON_NEW_STREAM_KEY = 0x05,
+    #endif
+    #endif
 
-    //! Sent to change a devices high priority fragment delay
-    ON_CHANGE_LOW_FRAGMENT_DELAY = 0x07,
-
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Sent to change a device's low priority fragment delay
+    ON_CHANGE_LOW_FRAGMENT_DELAY = 0x06,
+    
+    //! Sent to change a device's high priority fragment delay
+    ON_CHANGE_HIGH_FRAGMENT_DELAY = 0x07,
+    
+    #ifdef _EXTENDED_SINGLE
+    //! Change both high and low fragment delays in one message
+    ON_CHANGE_FRAGMENT_DELAY = 0x08,
+    #endif
+    #endif
+    
     //! Sent to change the keep alive interval
     ON_CHANGE_KEEP_ALIVE = 0x0A,
 
-#ifdef _PEER
+    #ifdef _PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
     ON_ASSIGN_PEER = 0x0C,
@@ -199,10 +229,7 @@ typedef enum
     //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
     //! CLIENT must not send directly to that peer anymore.
     ON_UNASSIGN_PEER = 0x0D,
-#endif
-
-    //! Sent to change a devices high priority fragment delay
-    ON_CHANGE_HIGH_FRAGMENT_DELAY = 0x1B,
+    #endif
 
     //! Sent by the MASTER when it is removing the receiver from the network
     ON_RM_DEV = 0x22
