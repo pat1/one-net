@@ -867,6 +867,40 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the interval command was received //
+
+    if(!strnicmp(ONCLI_PAUSE_CMD_STR, CMD, strlen(ONCLI_PAUSE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_PAUSE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_PAUSE_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return pause_cmd_hdlr();
+    } // else if the pause command was received //
+    if(!strnicmp(ONCLI_RATCHET_CMD_STR, CMD, strlen(ONCLI_RATCHET_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_RATCHET_CMD_STR;
+
+        if(CMD[strlen(ONCLI_RATCHET_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return ratchet_cmd_hdlr();
+    } // else if the ratchet command was received //
+    if(!strnicmp(ONCLI_PROCEED_CMD_STR, CMD, strlen(ONCLI_PROCEED_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_PROCEED_CMD_STR;
+
+        if(CMD[strlen(ONCLI_PROCEED_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return proceed_cmd_hdlr();
+    } // else if the proceed command was received //
     #endif
     
     else
