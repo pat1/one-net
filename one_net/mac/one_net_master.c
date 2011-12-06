@@ -48,6 +48,12 @@
 
 #ifdef _ONE_NET_MASTER
 
+#if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+    #error "_SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if _ONE_NET_MASTER is defined"
+#endif
+
+
+
 #include "one_net_master.h"
 #include "one_net_master_port_const.h"
 #include "one_net_timer.h"
@@ -201,9 +207,7 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
-  #endif
+  , tick_t* send_time_from_now
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , tick_t* expire_time_from_now
   #endif
@@ -633,6 +637,8 @@ void one_net_master(void)
 {
     // The current transaction
     static on_txn_t * txn = 0;
+    tick_t queue_sleep_time;
+    
 
     // Do the appropriate action for the state the device is in.
     switch(on_state)
@@ -739,6 +745,31 @@ void one_net_master(void)
             break;
         } // default case //
     } // switch(on_state) //
+    
+    // one_net() has had a chance to load any messages it wanted from the
+    // queue.  If we are in state ON_LISTEN_FOR_DATA and there are no messages
+    // ready to send within a second and there is no active message,
+    // we'll try doing some admin stuff like checking for any key changes.
+    if(on_state == ON_LISTEN_FOR_DATA && single_msg_ptr == NULL &&
+      single_data_queue_ready_to_send(&queue_sleep_time) == -1 &&
+      queue_sleep_time < MS_TO_TICK(500))
+    {
+        #ifndef _STREAM_MESSAGES_ENABLED
+        check_key_update();
+        #else
+        // randomly select so both types of key updates will have a chance to
+        // proceed if they are both happening at once.
+        UInt8 rand_value = one_net_prand(get_tick_count(), 1);
+        if(!check_key_update(rand_value))
+        {
+            // there was no update to do for this type, so try the other type
+            check_key_update(!rand_value);
+        }
+        #endif
+        
+        // TODO -- any other type of admin checks?
+    }
+    
 } // one_net_master //
 
 
@@ -1320,9 +1351,7 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
-  #endif
+  , tick_t* send_time_from_now
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , tick_t* expire_time_from_now
   #endif
@@ -1400,10 +1429,23 @@ static BOOL check_key_update(void)
     #ifdef _STREAM_MESSAGES_ENABLED
     if(stream_key)
     {
+        if(!stream_key_update_in_progress)
+        {
+            return FALSE;
+        }
+        
         key_frag_address = (UInt8*)
           &(on_base_param->stream_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
     }
+    else
     #endif
+    {
+        if(!key_update_in_progress)
+        {
+            return FALSE;
+        }
+    }
+    
     
     for(i = 0; !client && i < master_param->client_count; i++)
     {
@@ -1527,9 +1569,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , NULL
-      #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
@@ -1542,9 +1582,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , NULL
-      #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
