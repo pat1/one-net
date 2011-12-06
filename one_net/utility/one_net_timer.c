@@ -117,8 +117,10 @@ const char* const debug_interval_strs[NUM_DEBUG_INTERVALS] =
 {
     "Resp. Timeout",
     "Write Pause",
+    #ifdef _ONE_NET_MASTER
     "Invite Send Time",
     "Channel Scan Time",
+    #endif
 };
 
 
