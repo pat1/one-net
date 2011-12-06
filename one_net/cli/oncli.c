@@ -1054,7 +1054,7 @@ static void print_cmd_result(const char * const CMD,
             oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
               ONCLI_CLIENT_STR);            
             #else
-            oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
+            oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT,
               device_is_master ? ONCLI_MASTER_STR : ONCLI_CLIENT_STR);
             #endif
             break;            
