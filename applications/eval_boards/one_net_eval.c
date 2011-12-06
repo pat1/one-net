@@ -239,7 +239,7 @@ int main(void)
     INIT_TICK();
     FLASH_ERASE_CHECK();
 
-    uart_init(/*BAUD_38400*/BAUD_115200, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+    uart_init(BAUD_38400/*BAUD_115200*/, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     disable_user_pins();
     ENABLE_GLOBAL_INTERRUPTS();
     
