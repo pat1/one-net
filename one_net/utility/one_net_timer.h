@@ -137,6 +137,10 @@ enum
     ONT_STAY_AWAKE_TIMER,
     #endif // ifdef _DEVICE_SLEEPS //
     #endif // ifdef _ONE_NET_CLIENT //
+    
+    #ifdef _DEBUGGING_TOOLS
+    WRITE_PAUSE_TIMER,
+    #endif
 
     //! The total number of timers in use
     ONT_NUM_TIMERS
