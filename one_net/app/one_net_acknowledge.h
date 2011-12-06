@@ -84,8 +84,9 @@ typedef enum
     ON_NACK_RSN_NO_RESPONSE,         //! A single message within the transaction has timed out with no response.
     ON_NACK_RSN_INVALID_MSG_ID,      //! Invalid message id
     ON_NACK_RSN_NEED_FEATURES,       //! Do not have the device's features
+    ON_NACK_RSN_FEATURES,            //! A general error involving features / capabilities other than not having them.
 
-    // 0x10 through 0x15 are currently unused and are available for assignment as non-fatal ONE-NET NACKs
+    // 0x12 through 0x15 are currently unused and are available for assignment as non-fatal ONE-NET NACKs
     ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
     ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
 

@@ -1794,8 +1794,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     {
         // we need their features.  They may or may not have given them
         // to us.
-        // TODO -- get a better error than general error
-        if(ack_nack->nack_reason == ON_NACK_RSN_GENERAL_ERR)
+        if(ack_nack->nack_reason == ON_NACK_RSN_FEATURES)
         {
             // they gave it to us.
             (*txn)->device->features = ack_nack->payload->features;
@@ -2044,13 +2043,13 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         one_net_memmove(&((*txn)->device->features),
           &raw_payload[ON_PLD_DATA_IDX], sizeof(on_features_t));
         ack_nack->payload->features = THIS_DEVICE_FEATURES;
-        // we'll NACK it and give the nack reason as ON_NACK_RSN_GENERAL_ERR,
+        // we'll NACK it and give the nack reason as ON_NACK_RSN_FEATURES,
         // but the NACK handle will be ON_NACK_FEATURES.  We are making the
-        // nack reason ON_NACK_RSN_GENERAL_ERR rather than
+        // nack reason ON_NACK_RSN_FEATURES rather than
         // ON_NACK_RSN_NEED_FEATURES because if we made the nack reason that,
         // the sending device would think that the problem was that WE didn't
         // have ITS features when in fact the opposite is true.
-        ack_nack->nack_reason = ON_NACK_RSN_GENERAL_ERR;
+        ack_nack->nack_reason = ON_NACK_RSN_FEATURES;
         (*txn)->device->verify_time = 0;
         return ON_MSG_CONTINUE;
     }
