@@ -1459,6 +1459,16 @@ static BOOL check_key_update(void)
     
     const UInt8* key_frag_address = (UInt8*)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+      
+    if(master_param->client_count == 0)
+    {
+        // nothing to update
+        #ifdef _STREAM_MESSAGES_ENABLED
+        stream_key_update_in_progress = FALSE;
+        #endif
+        key_update_in_progress = FALSE;
+        return FALSE;
+    }
 
     #ifdef _STREAM_MESSAGES_ENABLED
     if(stream_key)
