@@ -1503,6 +1503,7 @@ static BOOL check_key_update(void)
                 index++;
                 index %= master_param->client_count; // rollover if overflow
             }
+            
             continue;
         }
         #endif
@@ -1512,9 +1513,6 @@ static BOOL check_key_update(void)
             client = NULL;
             index++;
             index %= master_param->client_count; // rollover if overflow
-        }
-        else
-        {
         }
     }
 
