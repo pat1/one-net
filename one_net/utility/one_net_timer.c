@@ -335,7 +335,7 @@ void print_intervals(void)
 void print_timers(void)
 {
     UInt8 i;
-    const char* const active_state_str = "active";
+    const char* const active_state_str = "active\t";
     const char* const inactive_state_str = "inactive";
     for(i = 0; i < ONT_NUM_TIMERS; i++)
     {
