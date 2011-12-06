@@ -32,8 +32,15 @@
     #include "one_net_led.h"
 #endif
 
-#if _DEBUG_VERBOSE_LEVEL > 0
-    #include "one_net_crc.h" // for displaying packets
+
+#include "one_net_crc.h" // for displaying packets
+#ifdef _ONE_NET_MASTER
+#include "one_net_master.h" // for keys
+#endif
+
+
+#ifdef _ONE_NET_CLIENT
+    #include "one_net_client_port_specific.h"
 #endif
 
 
@@ -920,34 +927,97 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     UInt8* encrypted = (UInt8*) raw_payload_bytes;
                     on_data_t data_type;
                     
+                    #ifndef _ONE_NET_MASTER
+                    one_net_xtea_key_t alternate_keys[1];
+                    #else
+                    one_net_xtea_key_t alternate_keys[2];
+                    #endif
+
                     UInt8 num_keys;
-                    const one_net_xtea_key_t* keys;
-                    
-                    if(packet_is_invite(pid) && num_invite_keys > 0)
+                    const one_net_xtea_key_t* keys =
+                      (const one_net_xtea_key_t*) &alternate_keys[0];
+
+                    if(packet_is_invite(pid))
                     {
-                        num_keys = num_invite_keys;
-                        keys = (const one_net_xtea_key_t*) &invite_keys[0];
+                        if(num_invite_keys > 0)
+                        {
+                            num_keys = num_invite_keys;
+                            keys = (const one_net_xtea_key_t*) &invite_keys[0];
+                        }
+                        else
+                        {
+                            #ifdef _ONE_NET_CLIENT
+                            if(!device_is_master)
+                            {
+                                one_net_memmove(alternate_keys[0],
+                                  one_net_client_get_invite_key(),
+                                  sizeof(one_net_xtea_key_t));
+                                num_keys = 1;
+                            }
+                            else
+                            {
+                                num_keys = 0;
+                            }
+                            #else
+                            num_keys = 0;
+                            #endif
+                        }
+
                         data_type = ON_INVITE;
                     }
                     #ifdef _STREAM_MESSAGES_ENABLED
-                    else if(packet_is_stream(pid) && num_stream_keys > 0)
+                    else if(packet_is_stream(pid))
                     {
-                        num_keys = num_stream_keys;
-                        keys = (const one_net_xtea_key_t*)
-                          &stream_keys[0];
+                        if(num_stream_keys > 0)
+                        {
+                            num_keys = num_stream_keys;
+                            keys = (const one_net_xtea_key_t*)
+                              &stream_keys[0];
+                        }
+                        else
+                        {
+                            one_net_memmove(alternate_keys[0],
+                              on_base_param->stream_key,
+                              sizeof(one_net_xtea_key_t));
+                            num_keys = 1;
+                            #ifdef _ONE_NET_MASTER
+                            if(device_is_master)
+                            {
+                                one_net_memmove(alternate_keys[1],
+                                  master_param->old_stream_key,
+                                  sizeof(one_net_xtea_key_t));
+                                num_keys = 2;
+                            }
+                            #endif
+                        }
                         data_type = ON_STREAM;
                     }
                     #endif
-                    else if(num_enc_keys > 0)
-                    {
-                        num_keys = num_enc_keys;
-                        keys = (const one_net_xtea_key_t*)
-                          &enc_keys[0];
-                        data_type = ON_SINGLE;                        
-                    }
                     else
                     {
-                        num_keys = 0;
+                        if(num_enc_keys > 0)
+                        {
+                            num_keys = num_enc_keys;
+                            keys = (const one_net_xtea_key_t*)
+                              &enc_keys[0];
+                        }
+                        else
+                        {
+                            one_net_memmove(alternate_keys[0],
+                              on_base_param->current_key,
+                              sizeof(one_net_xtea_key_t));
+                            num_keys = 1;
+                            #ifdef _ONE_NET_MASTER
+                            if(device_is_master)
+                            {
+                                one_net_memmove(alternate_keys[1],
+                                  master_param->old_key,
+                                  sizeof(one_net_xtea_key_t));
+                                num_keys = 2;
+                            }
+                            #endif
+                        }
+                        data_type = ON_SINGLE;                        
                     }
                     
                     for(j = 0; j < num_keys; j++)
