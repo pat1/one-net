@@ -441,7 +441,12 @@ void one_net_master_update_result(one_net_mac_update_t update,
     
     if(!did)
     {
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if(update == ONE_NET_UPDATE_NETWORK_KEY || update ==
+          ONE_NET_UPDATE_STREAM_KEY)
+        #else
         if(update == ONE_NET_UPDATE_NETWORK_KEY)
+        #endif
         {
             result_fmt = ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
         } // if the update network key //
