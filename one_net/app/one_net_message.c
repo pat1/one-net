@@ -349,7 +349,6 @@ BOOL pop_queue_element(void)
                 value, next_pop_time should be disregarded.
 	
 	\return index of an element ready to be popped.  If none, -1 is returned.
-	       FALSE otherwise
 */
 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(tick_t* const next_pop_time)
