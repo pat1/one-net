@@ -1533,6 +1533,9 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     UInt8 admin_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
     UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
     UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
+    #endif
+    
+    tick_t send_time_from_now = 0;
     
 
     switch(admin_msg_id)
@@ -1543,14 +1546,17 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
         #endif
              admin_pld_data_len = ONE_NET_XTEA_KEY_LEN;
              pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+             // send a little bit in the future so we don't hog all the
+             // resouces.
+             send_time_from_now = MS_TO_TICK(250);
              break;
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_EXTENDED_SINGLE)
         case ON_CHANGE_FRAGMENT_DELAY:
              admin_pld_data_len = 2 * sizeof(UInt32);
              pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
         #endif
     }
-    #endif
+
     
     // TODO -- use named constants
     admin_pld[0] = admin_msg_id;
@@ -1569,7 +1575,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , NULL
+      , &send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
@@ -1582,7 +1588,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , NULL
+      , &send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
