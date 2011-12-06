@@ -1801,7 +1801,79 @@ static oncli_status_t change_key_cmd_hdlr(BOOL stream_key,
 static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 {
-    return ONCLI_SUCCESS;
+    enum
+    {
+        // number of characters in the key that are grouped together.
+        KEY_CH_GROUP_SIZE = 2,
+
+        // The position where the group delimiter character occurs (every nth).
+        // This is 1 more than the size of the grouping.
+        KEY_DELIMITER_POS,
+
+        // number of ascii characters to convert to a binary stream
+        NUM_CH_TO_CONVERT = 2
+    };
+    
+    one_net_status_t status;
+
+    // delimits the unique key into 4 sets of 4 values.
+    const char GROUP_DELIMITER = '-';
+
+    one_net_xtea_key_fragment_t key_fragment;
+
+    UInt8 param_idx, key_idx;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE; // master-only command
+    }
+    #endif
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // parse the key parameter
+    param_idx = 0;
+    key_idx = 0;
+    while(param_idx < 11)
+    {
+        if((param_idx % KEY_DELIMITER_POS) == KEY_CH_GROUP_SIZE)
+        {
+            if(ASCII_PARAM_LIST[param_idx] != GROUP_DELIMITER)
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the character is not the delimiter //
+            
+            param_idx++;
+        } // if the character should be the delimiter //
+        else
+        {
+            if(ascii_hex_to_byte_stream(&(ASCII_PARAM_LIST[param_idx]),
+              &(key_fragment[key_idx++]), NUM_CH_TO_CONVERT)
+              != NUM_CH_TO_CONVERT)
+            {
+                return ONCLI_PARSE_ERR;
+            } // if the character is invalid //
+            
+             param_idx += NUM_CH_TO_CONVERT;
+        } // else it should be a key character //
+    } // loop to read in the unique key //
+
+    #ifndef _STREAM_MESSAGES_ENABLED
+    status = one_net_master_change_key_fragment(key_fragment);
+    #else
+    status = one_net_master_change_key_fragment(stream_key, key_fragment);
+    #endif
+    
+    switch(status)
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
+        default: return ONCLI_CMD_FAIL;
+    }
 }
 #endif
 
