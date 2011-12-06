@@ -102,7 +102,7 @@ static on_single_data_queue_t single_data_queue[SINGLE_DATA_QUEUE_SIZE];
 static UInt16 pld_buffer_tail_idx = 0;
 #endif
 
-static UInt8 single_data_queue_size = 0;
+UInt8 single_data_queue_size = 0;
 
 //! @} ONE-NET_MESSAGE_pri_var
 //                              PRIVATE VARIABLES END

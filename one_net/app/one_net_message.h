@@ -289,6 +289,9 @@ typedef struct
 //! \ingroup ONE-NET_MESSAGE
 //! @{
 
+extern UInt8 single_data_queue_size;
+
+
 //! @} ONE-NET_MESSAGE_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
