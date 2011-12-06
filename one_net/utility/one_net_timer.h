@@ -77,6 +77,17 @@
 //! @{
 
 
+#ifdef _DEBUGGING_TOOLS
+// Note : this will increase!
+#ifdef _ONE_NET_MASTER
+#define NUM_DEBUG_INTERVALS 4
+#else
+#define NUM_DEBUG_INTERVALS 2
+#endif
+#endif
+
+
+
 enum
 {
     //! General purpose timer
