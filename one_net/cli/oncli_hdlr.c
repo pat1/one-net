@@ -289,11 +289,21 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	  const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
-	static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)
+#ifdef _STREAM_MESSAGES_ENABLED
+static oncli_status_t change_key_cmd_hdlr(BOOL stream_key,
+  const char * const ASCII_PARAM_LIST);
+#else
+static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
+#endif
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 #ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
-	static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef _ENABLE_CHANNEL_COMMAND
@@ -716,7 +726,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         } // if the end of the command is not valid //
 
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &change_key_cmd_hdlr;
+        *cmd_hdlr = &change_single_block_key_cmd_hdlr;
 
         return ONCLI_SUCCESS;
     } // else if the change key command was received //
@@ -1783,10 +1793,27 @@ static oncli_status_t change_keep_alive_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
+#if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)
+#ifdef _STREAM_MESSAGES_ENABLED
+static oncli_status_t change_key_cmd_hdlr(BOOL stream_key,
+  const char * const ASCII_PARAM_LIST)
+#else
 static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+#endif
 {
     return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    #ifdef _STREAM_MESSAGES_ENABLED
+    return change_key_cmd_hdlr(FALSE, ASCII_PARAM_LIST);
+    #else
+    return change_key_cmd_hdlr(ASCII_PARAM_LIST);
+    #endif
 }
 #endif
 
@@ -1794,7 +1821,7 @@ static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
 static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
+    return change_key_cmd_hdlr(TRUE, ASCII_PARAM_LIST);
 }
 #endif
 
