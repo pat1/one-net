@@ -1955,11 +1955,14 @@ static oncli_status_t memdump_cmd_hdlr(void)
     oncli_send_msg("Proceed = %s\n", proceed ? ONCLI_ON_STR : ONCLI_OFF_STR);
     oncli_send_msg("Pause = %s\n", pause ? ONCLI_ON_STR : ONCLI_OFF_STR);
     oncli_send_msg("Pausing = %s\n", pausing ? ONCLI_ON_STR : ONCLI_OFF_STR);
-    oncli_send_msg("\n\n");    
+    oncli_send_msg("\n\n");
+    delay_ms(25);   
     print_timers();
+    delay_ms(25);   
     print_intervals();
     oncli_send_msg("\n\n");
-    
+    delay_ms(25);   
+
     xdump(memory_ptr, memory_len);
     return ONCLI_SUCCESS;
 }
@@ -2094,11 +2097,11 @@ static int parse_memory_str(UInt8** mem_ptr,
     char* end_ptr;
     BOOL found = FALSE;
     BOOL has_index; // true for memory that is an array, false otherwise
-    int index = 0; // relevant only if has_index is true
+    int index = -1; // relevant only if has_index is true
     
     if(!mem_ptr || !ASCII_PARAM_LIST)
     {
-        return 0; // error
+        return -1; // error
     }
     
     offset = 0;
@@ -2137,7 +2140,7 @@ static int parse_memory_str(UInt8** mem_ptr,
         index = one_net_strtol(ptr, &end_ptr, 0);
         if(!end_ptr || end_ptr == ptr)
         {
-            return 0; // error
+            return -1; // error
         } // if parsing the data failed //
         ptr = end_ptr;
     }
@@ -2149,14 +2152,14 @@ static int parse_memory_str(UInt8** mem_ptr,
         offset = one_net_strtol(ptr, &end_ptr, 0);
         if(!end_ptr || end_ptr == ptr)
         {
-            return 0; // error
+            return -1; // error
         } // if parsing the data failed //
         ptr = end_ptr;
     }
     
     if((*ptr) != '\n')
     {
-        return 0; // error
+        return -1; // error
     }
 
     return get_memory_loc(mem_ptr, memory_type, index, offset);
