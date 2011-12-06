@@ -94,6 +94,10 @@
 //! \defgroup ONE-NET_TIMER_pub_var
 //! \ingroup ONE-NET_TIMER
 //! @{
+    
+    
+//! Array to keep track of the timers.
+ont_timer_t timer[ONT_NUM_TIMERS] = {0};
 
 
 
@@ -117,6 +121,15 @@ UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
     &one_net_master_invite_send_time, // 2
     &one_net_master_channel_scan_time, // 3
     #endif
+};
+
+
+const char* const debug_interval_strs[NUM_DEBUG_INTERVALS] =
+{
+    "Resp. Timeout",
+    "Write Pause",
+    "Invite Send Time",
+    "Channel Scan Time",
 };
 
 
@@ -144,11 +157,10 @@ BOOL pausing = FALSE;
 //! \ingroup ONE-NET_TIMER
 //! @{
 
+
 //! The last time the tick count was read and the timers were updated.
 static tick_t last_tick = 0;
 
-//! Array to keep track of the timers.
-static ont_timer_t timer[ONT_NUM_TIMERS] = {0};
 
 //! @} ONE-NET_TIMER_pri_var
 //                              PRIVATE VARIABLES END
@@ -324,7 +336,8 @@ void print_intervals(void)
     UInt8 i;
     for(i = 0; i < NUM_DEBUG_INTERVALS; i++)
     {
-        oncli_send_msg("Interval %d:\t%ld\n", i, *(debug_intervals[i]));
+        oncli_send_msg("Interval %d(%s):\t%ld\n", i,
+        debug_interval_strs[i], *(debug_intervals[i]));
         delay_ms(10);
     }
 }

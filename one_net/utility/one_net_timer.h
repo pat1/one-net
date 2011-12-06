@@ -161,6 +161,10 @@ typedef struct
 //! \defgroup ONE-NET_TIMER_pub_var
 //! \ingroup ONE-NET_TIMER
 //! @{
+    
+    
+//! Array to keep track of the timers.
+extern ont_timer_t timer[];
 
 
 // debugging tools for timers -- revert to #defines for chips NOT using these
