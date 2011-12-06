@@ -352,6 +352,7 @@ static int parse_memory_str(UInt8** mem_ptr,
   const char * const ASCII_PARAM_LIST);
 static oncli_status_t memory_cmd_hdlr(
   const char * const ASCII_PARAM_LIST);
+static oncli_status_t memdump_cmd_hdlr(void);
 static oncli_status_t pause_cmd_hdlr(void);
 static oncli_status_t proceed_cmd_hdlr(void);
 static oncli_status_t ratchet_cmd_hdlr(void);
@@ -803,6 +804,18 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the memory command was received //
+
+    if(!strnicmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_MEMDUMP_CMD_STR;
+
+        if(CMD[strlen(ONCLI_MEMDUMP_CMD_STR)] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return memdump_cmd_hdlr();
+    } // else if the memdump command was received //
     #endif
     
     else
@@ -1925,6 +1938,33 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _DEBUGGING_TOOLS
+/*!
+    \brief Displays the contents of the stored memory location in hex.
+
+    \return ONCLI_SUCCESS if there is a valid stored memory location
+            ONCLI_CMD_FAIL otherwise.
+*/
+static oncli_status_t memdump_cmd_hdlr(void)
+{
+    if(memory_ptr == NULL || memory_len <= 0)
+    {
+        return ONCLI_CMD_FAIL;
+    }
+    
+    oncli_send_msg("Ratchet = %s\n", ratchet ? ONCLI_ON_STR : ONCLI_OFF_STR);
+    oncli_send_msg("Proceed = %s\n", proceed ? ONCLI_ON_STR : ONCLI_OFF_STR);
+    oncli_send_msg("Pause = %s\n", pause ? ONCLI_ON_STR : ONCLI_OFF_STR);
+    oncli_send_msg("Pausing = %s\n", pausing ? ONCLI_ON_STR : ONCLI_OFF_STR);
+    oncli_send_msg("\n\n");    
+    print_timers();
+    print_intervals();
+    oncli_send_msg("\n\n");
+    
+    xdump(memory_ptr, memory_len);
+    return ONCLI_SUCCESS;
+}
+
+
 /*!
     \brief Returns a certain segment of memory given parameeters.
 
