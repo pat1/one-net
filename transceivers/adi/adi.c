@@ -391,11 +391,11 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     BOOL uart_pause_needed = FALSE;
     
     #ifdef _DEBUGGING_TOOLS
-    if(pause || ratchet)
+    if(pause || ratchet || write_pause)
     {
         proceed = FALSE;
         synchronize_last_tick();
-        oncli_send_msg("Pausing : About to write...\n");
+        oncli_send_msg("\n\nPausing : About to write...\n");
         xdump(data, len);
     }
     
@@ -408,15 +408,15 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     
     if(write_pause > 0)
     {
-        oncli_send_msg("one_net_write : ");
-        xdump(data, len);
-        
+        pausing = TRUE;
         ont_set_timer(WRITE_PAUSE_TIMER, write_pause);
         
         while(!ont_inactive_or_expired(WRITE_PAUSE_TIMER))
         {
             oncli();  // alow the user to enter commands while pausing
         }
+        oncli_send_msg("Pause complete\n");
+        pausing = FALSE;
     }
     #endif    
     
@@ -431,8 +431,14 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     }
     if(uart_pause_needed)
     {
+        #ifdef _DEBUGGING_TOOLS
+        pausing = TRUE;
+        #endif
         delay_ms(2); // slight pause to let the uart clear so nothing
                      // gets garbled.
+        #ifdef _DEBUGGING_TOOLS
+        pausing = FALSE;
+        #endif
     }
 
     tal_turn_on_transmitter();
