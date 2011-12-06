@@ -9,6 +9,7 @@
 #include "one_net_status_codes.h"
 #include "one_net_constants.h"
 #include "one_net_acknowledge.h"
+#include "one_net_master.h"
 
 
 //! \defgroup ON_MASTER_port_specific MASTER Specific ONE-NET functionality
@@ -401,6 +402,22 @@ void one_net_master_single_txn_status(on_message_status_t status,
 */
 void one_net_master_invite_result(one_net_status_t STATUS,
   one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID);
+  
+  
+/*!
+    \brief Reports the results of a device settings update that the application
+      layer initiated.
+
+    \param[in] update What was being updated.
+    \param[in] did The device that was being updated.
+    \param[in] ack_nack The result of the update attempt.  If successful,
+               the nack reason will be "no error".  If unsuccessful, the
+               nack reason will contain the reason for failure.
+
+    \return void
+*/
+void one_net_master_update_result(one_net_mac_update_t update,
+  const on_raw_did_t* did, const on_ack_nack_t* ack_nack);
                  
 
 

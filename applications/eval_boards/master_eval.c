@@ -423,6 +423,81 @@ void one_net_master_single_txn_status(on_message_status_t status,
 }
 
 
+void one_net_master_update_result(one_net_mac_update_t update,
+  const on_raw_did_t* did, const on_ack_nack_t* ack_nack)
+{
+    const char * result_status;
+    const char * result_type;
+    const char * result_fmt = ONCLI_UPDATE_RESULT_FMT;
+    
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        result_status = ONCLI_SUCCEEDED_STR;
+    } // if update was successful //
+    else
+    {
+        result_status = ONCLI_FAILED_STR;
+    } // else update failed //
+    
+    if(!did)
+    {
+        if(update == ONE_NET_UPDATE_NETWORK_KEY)
+        {
+            result_fmt = ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
+        } // if the update network key //
+        else
+        {
+            return;
+        } // else the parameters are invalid //
+    } // if the DID is not valid //
+
+    switch(update)
+    {
+        case ONE_NET_UPDATE_DATA_RATE:
+            result_type = ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
+            break;
+        case ONE_NET_UPDATE_NETWORK_KEY:
+            result_type = ONCLI_M_UPDATE_RESULT_KEY_STR;
+            break;
+        #ifdef _PEER
+        case ONE_NET_UPDATE_ASSIGN_PEER:
+            result_type = ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
+            break;
+        case ONE_NET_UPDATE_UNASSIGN_PEER:
+            result_type = ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
+            break;
+        #endif
+        case ONE_NET_UPDATE_REPORT_TO_MASTER:
+            result_type = ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
+            break;
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_UPDATE_LOW_FRAGMENT_DELAY:
+            result_type = ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR;
+            break;
+        case ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY:
+            result_type = ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR;
+            break;
+        #endif
+        case ONE_NET_UPDATE_KEEP_ALIVE:
+            result_type = ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
+            break;
+        case ONE_NET_UPDATE_REMOVE_DEVICE:
+            result_type = ONCLI_M_UPDATE_RESULT_RM_DEV_STR;
+            break;
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ONE_NET_UPDATE_STREAM_KEY:
+            result_type = ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR;
+            break;
+        #endif
+        default:
+            return; // bad parameter
+    }
+            
+    oncli_send_msg(result_fmt, result_type, did_to_u16(did),
+      result_status);
+} // one_net_master_update_result //
+
+
 
 //! @} ONE-NET_master_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

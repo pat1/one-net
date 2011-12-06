@@ -272,6 +272,32 @@ extern const char* const ACK_NACK_DISPLAY_FMT;
 #endif
 
 
+#ifdef _ONE_NET_MASTER
+// formats for the results of admin messages from the master.
+extern const char * const ONCLI_UPDATE_RESULT_FMT;
+extern const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
+extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
+
+// master admin update strings
+extern const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
+#ifdef _STREAM_MESSAGES_ENABLED
+extern const char* const ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR;;
+#endif
+#ifdef _PEER
+extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
+#endif
+extern const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
+#ifdef _BLOCK_MESSAGES_ENABLED
+extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR;
+#endif
+extern const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR;
+#endif
+
+
 #ifdef _DEBUGGING_TOOLS
 extern const char* const ONCLI_MEMDUMP_CMD_STR;
 extern const char* const ONCLI_MEMLOAD_CMD_STR;
