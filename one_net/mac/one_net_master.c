@@ -143,7 +143,7 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
 static tick_t new_channel_clear_time_out = 0;
 
 //! Flag to denote that a key update is in progress.
-static BOOL key_update_in_progress = FALSE;
+BOOL key_update_in_progress = FALSE;
 
 //! Flag to denote that a stream key update is in progress.
 static BOOL stream_key_update_in_progress = FALSE;
@@ -1003,7 +1003,6 @@ static on_message_status_t on_master_single_data_hdlr(
             break;
     }
             
-
 
     if(msg_status != ON_MSG_CONTINUE)
     {
