@@ -218,8 +218,14 @@ typedef enum
     #endif
     #endif
     
+    ON_KEY_CHANGE_CONFIRM = 0x09,
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    ON_STREAM_KEY_CHANGE_CONFIRM = 0x0A
+    #endif
+    
     //! Sent to change the keep alive interval
-    ON_CHANGE_KEEP_ALIVE = 0x0A,
+    ON_CHANGE_KEEP_ALIVE = 0x0B,
 
     #ifdef _PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
