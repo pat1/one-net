@@ -68,6 +68,10 @@
 #include "one_net.h"
 
 
+// temporary debugging
+#include "oncli.h"
+
+
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup ONE-NET_MASTER_const
@@ -224,6 +228,10 @@ static BOOL check_key_update(void);
 
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
   const on_encoded_did_t* const did, const UInt8* const pld);
+  
+static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
+  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
+  on_client_t ** client, on_ack_nack_t* ack_nack);
 
 
 
@@ -949,6 +957,8 @@ static on_message_status_t on_master_single_data_hdlr(
     on_raw_did_t raw_src_did, raw_repeater_did;
     UInt8 response_pid;
     on_sending_device_t* device;
+    on_client_t** client;
+    *client = client_info(pkt->enc_src_did);
 
     on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
@@ -975,14 +985,24 @@ static on_message_status_t on_master_single_data_hdlr(
         goto omsdh_build_resp;
     }
     
-    #ifndef _ONE_NET_MULTI_HOP
-    msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
-    #else
-    msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
-      &((*txn)->max_hops));
-    #endif
+    switch(*msg_type)
+    {
+        case ON_ADMIN_MSG:
+            msg_status = handle_admin_pkt(pkt->enc_src_did,
+            &raw_pld[ON_PLD_DATA_IDX], *txn, client, ack_nack);
+            break;
+        default:   
+            #ifndef _ONE_NET_MULTI_HOP
+            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
+            #else
+            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
+              &((*txn)->max_hops));
+            #endif
+            break;
+    }
+            
 
 
     if(msg_status != ON_MSG_CONTINUE)
@@ -1647,6 +1667,116 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       );
     #endif
 } // send_admin_pkt //
+
+
+/*!
+    \brief Handles admin packets.
+
+    \param[in] SRC The sender of the admin packet.
+    \param[in] DATA The admin packet.
+    \param[in/out] txn The transaction of the admin packet.
+    \param[in/out] client The CLIENT the message is from if the CLIENT is
+      already part of the network.  If the CLIENT is not yet part of the
+      network and it is a new CLIENT being added to the network, the new CLIENT
+      will be returned in client.
+    \param[out] acknowledgement or negative acknowledgement of a message
+
+    \return ON_MSG_CONTINUE if processing should continue
+            ON_MSG_IGNORE if the message should be ignored
+*/
+static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
+  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
+  on_client_t ** client, on_ack_nack_t* ack_nack)
+{
+    on_message_status_t status;
+    on_raw_did_t raw_did;
+
+    // TODO -- we need some named constants
+    if(!SRC_DID || !DATA || !client || (DATA[1] != ON_FEATURES_RESP &&
+      !(*client)))
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameters are invalid //
+    
+    on_decode(raw_did, *SRC_DID, ON_ENCODED_DID_LEN);
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
+
+
+    switch(DATA[0])
+    {
+        case ON_FEATURES_RESP:
+        {
+            if(!(*client))
+            {
+                // TODO -- this is the start of adding a new client
+                oncli_send_msg("Adding new client!\n");
+                
+                // ignore for now
+                return ON_MSG_IGNORE;
+            } // if the client was not found in the list //
+            
+            one_net_memmove(&((*client)->device_send_info.features),
+              &DATA[1], sizeof(on_features_t));
+            break;
+        } // features response case //
+              
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_STREAM_KEY_CHANGE_CONFIRM:
+        {
+            UInt8 key_crc = one_net_compute_crc(on_base_param->stream_key,
+              ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+              
+            if(key_crc == DATA[1])
+            {
+                if(!((*client)->use_current_stream_key))
+                {
+                    (*client)->use_current_stream_key = TRUE;
+                    one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
+                        &raw_did, ack_nack);
+                    ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
+                }
+            }
+            else
+            {
+                // bad key verify
+                status = ONS_CRC_FAIL;
+            } 
+        } // stream key change confirm case //
+        #endif
+        
+        case ON_KEY_CHANGE_CONFIRM:
+        {
+            UInt8 key_crc = one_net_compute_crc(on_base_param->current_key,
+              ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+              
+            if(key_crc == DATA[1])
+            {
+                if(!((*client)->use_current_key))
+                {
+                    (*client)->use_current_key = TRUE;
+                    one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
+                        &raw_did, ack_nack);
+                }
+            }
+            else
+            {
+                // bad key verify
+                ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
+            } 
+        } // key confirm case //
+
+        default:
+        {
+            ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            ack_nack->handle = ON_NACK_FEATURES;
+            ack_nack->payload->features = THIS_DEVICE_FEATURES;
+        } // default case //
+    } // switch(DATA[ON_ADMIN_MSG_ID_IDX]) //
+
+    return ON_MSG_CONTINUE;
+}
+      
 
 
 
