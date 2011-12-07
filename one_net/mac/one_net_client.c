@@ -412,6 +412,52 @@ tick_t one_net_client(void)
             {
                 sleep_time = queue_sleep_time;
             }
+            
+            if(confirm_key_change)
+            {
+                sleep_time = 0;
+            }
+            
+            if(ont_inactive_or_expired(ONT_STAY_AWAKE_TIMER))
+            {
+                UInt8 raw_pld[5];
+                UInt8 admin_type = ON_FEATURES_RESP;
+                one_net_memcopy(&raw_pld[1], &THIS_DEVICE_FEATURES,
+                  sizeof(on_features_t));
+                if(confirm_key_change)
+                {
+                    admin_type = ON_KEY_CHANGE_CONFIRM;
+                    raw_pld[1] = one_net_compute_crc(
+                      on_base_param->current_key, ONE_NET_XTEA_KEY_LEN,
+                      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+                }
+                
+                if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
+                  ON_ADMIN_MSG, raw_data, 5, ONE_NET_LOW_PRIORITY,
+                  NULL, (on_encoded_did_t*) MASTER_ENCODED_DID,
+                  #ifdef _PEER
+                  , FALSE,
+                  ONE_NET_DEV_UNIT
+                  #endif
+                  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                  , NULL
+                  #endif
+                  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+                  , NULL
+                  #endif
+                  ) == ONS_SUCCESS)
+                {
+                    // TODO -- replace with a real time from memory.
+                    if(!confirm_key_change)
+                    {
+                        ont_set_timer(ONT_STAY_AWAKE_TIMER, 30000);
+                    }
+                    else
+                    {
+                        ont_set_timer(ONT_STAY_AWAKE_TIMER, 1000);
+                    }
+                }
+            }
         }
         else
         {
