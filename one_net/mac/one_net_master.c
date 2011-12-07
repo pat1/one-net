@@ -1562,6 +1562,13 @@ static BOOL check_key_update(void)
     
     const UInt8* key_frag_address = (UInt8*)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+      
+    static tick_t earliest_send_time = 0;
+    
+    if(earliest_send_time > get_tick_count())
+    {
+        return FALSE;
+    }
 
     #ifdef _STREAM_MESSAGES_ENABLED
     if(stream_key)
@@ -1646,6 +1653,9 @@ static BOOL check_key_update(void)
       client->device_send_info.did, key_frag_address);
     #endif
     
+    // send at most every 20 seconds for debugging.
+    earliest_send_time = get_tick_count() + MS_TO_TICK(20000);
+    
     return (status == ONS_SUCCESS);
 } // check_key_update //
 
@@ -1674,8 +1684,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
     #endif
     
-    tick_t send_time_from_now = 0;
-    
 
     switch(admin_msg_id)
     {
@@ -1687,7 +1695,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
              pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
              // send a little bit in the future so we don't hog all the
              // resouces.
-             send_time_from_now = MS_TO_TICK(250);
              break;
         #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_EXTENDED_SINGLE)
         case ON_CHANGE_FRAGMENT_DELAY:
@@ -1714,7 +1721,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , &send_time_from_now
+      , NULL
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
@@ -1727,7 +1734,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , &send_time_from_now
+      , NULL
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
