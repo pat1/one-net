@@ -443,6 +443,22 @@ one_net_status_t one_net_master_change_key_fragment(BOOL stream_key,
       3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
     one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), key_fragment,
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+    
+    {
+        UInt8 i;
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            #ifdef _STREAM_MESSAGES_ENABLED
+            if(stream_key)
+            {
+                client_list[i].use_current_stream_key = FALSE;
+                continue;
+            }
+            #endif
+            
+            client_list[i].use_current_key = FALSE;
+        }
+    }
       
     return ONS_SUCCESS;
 } // one_net_master_change_key_fragment //
@@ -1459,16 +1475,6 @@ static BOOL check_key_update(void)
     
     const UInt8* key_frag_address = (UInt8*)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
-      
-    if(master_param->client_count == 0)
-    {
-        // nothing to update
-        #ifdef _STREAM_MESSAGES_ENABLED
-        stream_key_update_in_progress = FALSE;
-        #endif
-        key_update_in_progress = FALSE;
-        return FALSE;
-    }
 
     #ifdef _STREAM_MESSAGES_ENABLED
     if(stream_key)
@@ -1497,6 +1503,10 @@ static BOOL check_key_update(void)
         #ifdef _STREAM_MESSAGES_ENABLED
         if(stream_key)
         {
+            if(!features_stream_capable(client->device_send_ifo.features))
+            {
+                continue;
+            }
             if(client->use_current_stream_key)
             {
                 client = NULL;
