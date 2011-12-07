@@ -141,6 +141,14 @@ on_master_t * const master
 //! to this device.
 on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
+//! Set to true if a confirmation of a key change is needed.
+static BOOL confirm_key_change = FALSE;
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! Set to true if a confirmation of a stream key change is needed.
+static BOOL confirm_stream_key_change = FALSE;
+#endif
+
 
 //! @} ONE-NET_CLIENT_pri_var
 //                              PRIVATE VARIABLES END
@@ -203,6 +211,9 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
   );
   
 static BOOL look_for_invite(void);
+
+static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
+  SRC_DID, const UInt8 * const DATA, on_txn_t* txn, on_ack_nack_t* ack_nack);
 
 
 //! @} ONE-NET_CLIENT_pri_func
@@ -463,14 +474,23 @@ static on_message_status_t on_client_single_data_hdlr(
         goto ocsdh_build_resp;
     }
     
-    #ifndef _ONE_NET_MULTI_HOP
-    msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
-    #else
-    msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-      &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
-      &((*txn)->max_hops));
-    #endif
+    switch(*msg_type)
+    {
+        case ON_ADMIN_MSG:
+            msg_status = handle_admin_pkt(pkt->enc_src_did,
+            &raw_pld[ON_PLD_DATA_IDX], *txn, ack_nack);
+            break;
+        default:   
+            #ifndef _ONE_NET_MULTI_HOP
+            msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
+            #else
+            msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
+              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
+              &((*txn)->max_hops));
+            #endif
+            break;
+    }
 
 
     if(msg_status != ON_MSG_CONTINUE)
@@ -1011,6 +1031,55 @@ static BOOL look_for_invite(void)
 
     return FALSE;
 } // look_for_invite //
+
+
+/*!
+    \brief Handles admin packets.
+
+    \param[in] SRC_DID The sender of the admin packet.
+    \param[in] DATA The admin packet.
+    \param[in/out] txn The transaction of the admin packet.
+    \param[out] ack_nack acknowledgement or negative acknowledgement
+                of a message
+
+    \return ON_MSG_CONTINUE if processing should continue
+            ON_MSG_IGNORE if the message should be ignored
+*/
+static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
+  SRC_DID, const UInt8 * const DATA, on_txn_t* txn, on_ack_nack_t* ack_nack)
+{
+    on_message_status_t status;
+    
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
+
+
+    switch(DATA[0])
+    {
+        case ON_NEW_KEY_FRAGMENT:
+        {
+            one_net_memmove(&(on_base_param->current_key[0]),
+              &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+            one_net_memmove(
+              &(on_base_param->current_key[3*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+              
+            confirm_key_change = TRUE; 
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0);
+            break;
+        } // change key case //
+
+        default:
+        {
+            ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            ack_nack->handle = ON_NACK_FEATURES;
+            ack_nack->payload->features = THIS_DEVICE_FEATURES;
+        } // default case //
+    } // switch(DATA[ON_ADMIN_MSG_ID_IDX]) //
+
+    return ON_MSG_CONTINUE;
+}
 
 
 #endif // if _ONE_NET_CLIENT is defined //
