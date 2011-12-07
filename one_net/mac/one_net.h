@@ -614,9 +614,7 @@ one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did);
 #endif
 
-BOOL master_try_alternate_key_change_key(UInt8 pid,
-  const on_encoded_did_t* const did, UInt8* payload,
-  one_net_xtea_key_t** key);
+BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did);
 #endif
 
 

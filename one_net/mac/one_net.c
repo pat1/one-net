@@ -2230,6 +2230,8 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     on_data_t type;
     UInt8* pkt_bytes;
     
+    UInt8 original_payload[33];
+    
 
     // only need to check 1 handler since it is all or nothing
     if(!pkt_hdlr.single_data_hdlr)
@@ -2532,6 +2534,14 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         return status;
     }
+    
+    #ifdef _ONE_NET_MASTER
+    // copy in case this is a client in the middle of a key change
+    one_net_memmove(original_payload, raw_payload_bytes,
+      get_raw_payload_len(pid));
+      
+master_decrypt_packet:      
+    #endif
 
     if((status = on_decrypt(type, raw_payload_bytes, key,
       get_raw_payload_len(pid))) != ONS_SUCCESS)
@@ -2542,6 +2552,21 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     // check the payload CRC.
     if(!verify_payload_crc(pid, raw_payload_bytes))
     {
+        #ifdef _ONE_NET_MASTER
+        if(device_is_master && (type == ON_SINGLE || type == ON_RESPONSE) &&
+          master_try_alternate_key_change_key((*this_pkt_ptrs)->enc_src_did))
+        {
+            // the device may be in the middle of a key change so it may be
+            // worthwhile to check both the new and the old key.
+            if(key != &(on_base_param->current_key))
+            {
+                key = &(on_base_param->current_key);
+                one_net_memmove(raw_payload_bytes, original_payload,
+                  get_raw_payload_len(pid));
+                goto master_decrypt_packet; // try again with another key
+            }
+        }
+        #endif
         return ONS_CRC_FAIL;
     }
 
