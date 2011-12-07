@@ -1539,11 +1539,6 @@ static BOOL check_key_update(void)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
       
     static tick_t earliest_send_time = 0;
-    
-    if(earliest_send_time > get_tick_count())
-    {
-        return FALSE;
-    }
 
     #ifdef _STREAM_MESSAGES_ENABLED
     if(stream_key)
@@ -1616,6 +1611,11 @@ static BOOL check_key_update(void)
         one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
         return FALSE;
     }
+    
+    if(earliest_send_time > get_tick_count())
+    {
+        return FALSE;
+    }
 
     
     // send the key fragment
@@ -1628,8 +1628,8 @@ static BOOL check_key_update(void)
       client->device_send_info.did, key_frag_address);
     #endif
     
-    // send at most every 20 seconds for debugging.
-    earliest_send_time = get_tick_count() + MS_TO_TICK(20000);
+    // send at most once every 2 seconds
+    earliest_send_time = get_tick_count() + MS_TO_TICK(2000);
     
     return (status == ONS_SUCCESS);
 } // check_key_update //
