@@ -1000,8 +1000,8 @@ static on_message_status_t on_master_single_data_hdlr(
     on_raw_did_t raw_src_did, raw_repeater_did;
     UInt8 response_pid;
     on_sending_device_t* device;
-    on_client_t** client;
-    *client = client_info(pkt->enc_src_did);
+    on_client_t* client;
+    client = client_info(pkt->enc_src_did);
 
     on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
@@ -1032,7 +1032,7 @@ static on_message_status_t on_master_single_data_hdlr(
     {
         case ON_ADMIN_MSG:
             msg_status = handle_admin_pkt(pkt->enc_src_did,
-            &raw_pld[ON_PLD_DATA_IDX], *txn, client, ack_nack);
+            &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
             break;
         default:   
             #ifndef _ONE_NET_MULTI_HOP
@@ -1786,7 +1786,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     (*client)->use_current_stream_key = TRUE;
                     one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
                         &raw_did, ack_nack);
-                    ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
+                    check_key_update(TRUE);
                 }
             }
             else
@@ -1810,6 +1810,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     (*client)->use_current_key = TRUE;
                     one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
                         &raw_did, ack_nack);
+                    #ifdef _STREAM_MESSAGES_ENABLED
+                    check_key_update(FALSE);
+                    #else
+                    check_key_update();
+                    #endif
                 }
             }
             else
