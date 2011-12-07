@@ -1785,6 +1785,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             one_net_memmove(&((*client)->device_send_info.features),
               &DATA[1], sizeof(on_features_t));
+            
+            ack_nack->handle = ON_ACK_FEATURES;
+            ack_nack->payload->features = THIS_DEVICE_FEATURES;
             break;
         } // features response case //
               
