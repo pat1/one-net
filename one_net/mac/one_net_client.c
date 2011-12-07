@@ -683,14 +683,36 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
+    
+    if(status == ON_MSG_SUCCESS && *msg_type == ON_ADMIN_MSG)
+    {
+        switch(raw_pld[0])
+        {
+            case ON_KEY_CHANGE_CONFIRM:
+            {
+                confirm_key_change = FALSE;
+                break;
+            }
+    
+            #ifdef _STREAM_MESSAGES_ENABLED
+            case ON_STREAM_KEY_CHANGE_CONFIRM:
+            {
+                confirm_stream_key_change = FALSE;
+                break;
+            }
+            #endif
+        }       
+    }
 
     #ifndef _ONE_NET_MULTI_HOP
-    one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack);
+    one_net_client_single_txn_status(status, (*txn)->retry,
+      msg_hdr, raw_pld, &dst, ack_nack);
     #else
-    one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack, pkt->hops);
-    #endif  
+    one_net_client_single_txn_status(status, (*txn)->retry,
+      msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
+    #endif
+    
+    return ON_MSG_SUCCESS;
 }
 
 
