@@ -60,6 +60,7 @@
 #include "one_net_prand.h"
 #include "one_net_acknowledge.h"
 #include "one_net_timer.h"
+#include "one_net_crc.h"
 
 
 
@@ -214,6 +215,8 @@ static BOOL look_for_invite(void);
 
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn, on_ack_nack_t* ack_nack);
+  
+static BOOL check_in_with_master(void);
 
 
 //! @} ONE-NET_CLIENT_pri_func
@@ -356,8 +359,7 @@ tick_t one_net_client(void)
         on_state = ON_LISTEN_FOR_DATA;
     }
     
-    
-    
+
     switch(on_state)
     {
         case ON_IDLE:
@@ -387,12 +389,14 @@ tick_t one_net_client(void)
     one_net(&txn);
 
     // calculate the allowable sleep time for devices that sleep
-    #ifndef _DEVICE_SLEEPS
-    sleep_time = 0; // the easy case
-    #else
     
     // first some cases where we cannot sleep at all.
-    if(*txn || ont_active(ONT_STAY_AWAKE_TIMER))
+    #ifdef _DEVICE_SLEEPS
+    if(txn || ont_active(ONT_STAY_AWAKE_TIMER) || on_state !=
+      ON_LISTEN_FOR_DATA)
+    #else
+    if(txn || on_state != ON_LISTEN_FOR_DATA)
+    #endif
     {
         sleep_time = 0;
     }
@@ -407,65 +411,30 @@ tick_t one_net_client(void)
     
         #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         if(single_data_queue_ready_to_send(&queue_sleep_time) == -1)
+        #else
+        if(single_data_queue_ready_to_send() == -1)
+        #endif
         {
+            #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
             if(queue_sleep_time > 0 && queue_sleep_time < sleep_time)
             {
                 sleep_time = queue_sleep_time;
             }
+            #endif
             
-            if(confirm_key_change)
+            if(check_in_with_master())
             {
                 sleep_time = 0;
-            }
-            
-            if(ont_inactive_or_expired(ONT_STAY_AWAKE_TIMER))
-            {
-                UInt8 raw_pld[5];
-                UInt8 admin_type = ON_FEATURES_RESP;
-                one_net_memcopy(&raw_pld[1], &THIS_DEVICE_FEATURES,
-                  sizeof(on_features_t));
-                if(confirm_key_change)
-                {
-                    admin_type = ON_KEY_CHANGE_CONFIRM;
-                    raw_pld[1] = one_net_compute_crc(
-                      on_base_param->current_key, ONE_NET_XTEA_KEY_LEN,
-                      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-                }
-                
-                if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
-                  ON_ADMIN_MSG, raw_data, 5, ONE_NET_LOW_PRIORITY,
-                  NULL, (on_encoded_did_t*) MASTER_ENCODED_DID,
-                  #ifdef _PEER
-                  , FALSE,
-                  ONE_NET_DEV_UNIT
-                  #endif
-                  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                  , NULL
-                  #endif
-                  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-                  , NULL
-                  #endif
-                  ) == ONS_SUCCESS)
-                {
-                    // TODO -- replace with a real time from memory.
-                    if(!confirm_key_change)
-                    {
-                        ont_set_timer(ONT_STAY_AWAKE_TIMER, 30000);
-                    }
-                    else
-                    {
-                        ont_set_timer(ONT_STAY_AWAKE_TIMER, 1000);
-                    }
-                }
             }
         }
         else
         {
             sleep_time = 0;
         }
-        #endif
     }
-    #endif // if device sleeps
+    
+    // even if the device doesn't sleep, we'll return sleep_time.  Even the
+    // application code of non-sleeping devices might find it useful.
 
     return sleep_time;
 } // one_net_client //
@@ -1125,6 +1094,70 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     } // switch(DATA[ON_ADMIN_MSG_ID_IDX]) //
 
     return ON_MSG_CONTINUE;
+}
+
+
+/*!
+    \brief Checks to see whether the device needs to send a check-in message
+      to the master and if so, sends it.
+
+    \return TRUE if a message was sent
+            FALSE otherwise.
+*/
+static BOOL check_in_with_master(void)
+{
+    tick_t keep_alive_time;
+    UInt8 raw_pld[5];
+    
+    if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
+    {
+        return FALSE;
+    }
+
+    if(confirm_key_change)
+    {
+        raw_pld[0] = ON_KEY_CHANGE_CONFIRM;
+        raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->current_key,
+          ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+        keep_alive_time = MS_TO_TICK(5000);
+    }
+    #ifdef _STREAM_MESSAGES_ENABLED
+    else if(confirm_stream_key_change)
+    {
+        raw_pld[0] = ON_STREAM_KEY_CHANGE_CONFIRM;
+        raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->stream_key,
+          ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+        keep_alive_time = MS_TO_TICK(5000);
+    }
+    #endif
+    else
+    {
+        raw_pld[0] = ON_FEATURES_RESP;
+        one_net_memmove(&raw_pld[1], &THIS_DEVICE_FEATURES,
+          sizeof(on_features_t));
+        keep_alive_time = MS_TO_TICK(30000);
+    }
+    
+    if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
+      ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
+      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
+      #ifdef _PEER
+      , FALSE,
+      ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , NULL
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      , NULL
+      #endif
+      ) == ONS_SUCCESS)
+    {
+        ont_set_timer(ONT_KEEP_ALIVE_TIMER, keep_alive_time);
+        return TRUE;
+    }
+    
+    return FALSE;
 }
 
 
