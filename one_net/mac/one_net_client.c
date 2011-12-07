@@ -1141,7 +1141,7 @@ static BOOL check_in_with_master(void)
         raw_pld[0] = ON_KEY_CHANGE_CONFIRM;
         raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->current_key,
           ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-        keep_alive_time = MS_TO_TICK(5000);
+        keep_alive_time = MS_TO_TICK(250);
     }
     #ifdef _STREAM_MESSAGES_ENABLED
     else if(confirm_stream_key_change)
@@ -1149,7 +1149,7 @@ static BOOL check_in_with_master(void)
         raw_pld[0] = ON_STREAM_KEY_CHANGE_CONFIRM;
         raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->stream_key,
           ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-        keep_alive_time = MS_TO_TICK(5000);
+        keep_alive_time = MS_TO_TICK(250);
     }
     #endif
     else
@@ -1157,7 +1157,7 @@ static BOOL check_in_with_master(void)
         raw_pld[0] = ON_FEATURES_RESP;
         one_net_memmove(&raw_pld[1], &THIS_DEVICE_FEATURES,
           sizeof(on_features_t));
-        keep_alive_time = MS_TO_TICK(30000);
+        keep_alive_time = MS_TO_TICK(1800000);
     }
     
     if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
