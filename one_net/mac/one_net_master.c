@@ -143,7 +143,7 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
 static tick_t new_channel_clear_time_out = 0;
 
 //! Flag to denote that a key update is in progress.
-BOOL key_update_in_progress = FALSE;
+static BOOL key_update_in_progress = FALSE;
 
 //! Flag to denote that a stream key update is in progress.
 static BOOL stream_key_update_in_progress = FALSE;
@@ -682,6 +682,74 @@ one_net_xtea_key_t* master_get_encryption_key(
       (one_net_xtea_key_t*)(on_base_param->current_key) :
       (one_net_xtea_key_t*)(master_param->old_key);
 } // master_get_encryption_key //
+
+
+/*!
+    \brief Returns the new encryption key used by a client in the
+       event of a key change, if relevant.
+
+
+    This is a master-specific function added so that one_net.c
+      can get the correct key for a client.  It is declared in one_net.h
+      rather than one_net_master.h so that one_net.h does not have to
+      include one_net_master.h.
+      
+    When a key change is made, the master sends a new key and the client
+    will respond with the new key.  However, the master still has in its
+    file the belief that the client is still using the old key, so that
+    old key will not work anymore when decrypting in rx_packet().  This
+    function is called as a second attempt to decruypt a packet during a
+    key change.  If the client is not undergoing a key change, this function
+    will FALSE.  It will also return FALSE if the message still does not decrypt
+    correctly.
+
+    \param[in] pid of the message
+    \param[in] did of the device
+    \param[in / out] payload in-->decrypted payload using the old key
+                             out-->decrypted payload using the correct key
+    \param[in / out] key in-->the key that was used unsuccessfully
+                         out-->the key that was used successfully, if any
+
+    \return TRUE if trying with the other key worked and this device is in
+                 the middle of a key change.  FALSE otherwise
+*/
+BOOL master_try_alternate_key_change_key(UInt8 pid,
+  const on_encoded_did_t* const did, UInt8* payload,
+  one_net_xtea_key_t** key)
+{
+    one_net_status_t status;
+    on_client_t* client = client_info(did);
+    
+    if(key == NULL || client == NULL || client->use_current_key ||
+      !key_update_in_progress)
+    {
+        return FALSE;
+    }
+    
+    // right now the payload was decrypted using a bad key, so we'll re-encrypt
+    // using that key
+    if((status = on_encrypt(ON_SINGLE, payload, *key,
+      get_raw_payload_len(pid))) != ONS_SUCCESS)
+    {   
+        return FALSE;
+    }
+    
+    // now decrypt using the current key
+    *key = (one_net_xtea_key_t*) on_base_param->current_key;
+    if((status = on_decrypt(ON_SINGLE, payload, *key,
+      get_raw_payload_len(pid))) != ONS_SUCCESS)
+    {   
+        return FALSE;
+    }
+
+    // check the payload CRC.
+    if(!verify_payload_crc(pid, payload))
+    {
+        return FALSE;
+    }
+    
+    return TRUE;
+}
 
 
 /*!
