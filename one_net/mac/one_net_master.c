@@ -1807,8 +1807,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             else
             {
                 // bad key verify
-                status = ONS_CRC_FAIL;
+                ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
             } 
+            break;
         } // stream key change confirm case //
         #endif
         
@@ -1831,6 +1832,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // bad key verify
                 ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
             } 
+            break;
         } // key confirm case //
 
         default:
