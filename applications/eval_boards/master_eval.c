@@ -497,9 +497,16 @@ void one_net_master_update_result(one_net_mac_update_t update,
         default:
             return; // bad parameter
     }
-            
-    oncli_send_msg(result_fmt, result_type, did_to_u16(did),
-      result_status);
+
+    if(did)
+    {
+        oncli_send_msg(result_fmt, result_type, did_to_u16(did),
+          result_status);
+    }
+    else
+    {
+        oncli_send_msg(result_fmt, result_type, result_status);
+    }
 } // one_net_master_update_result //
 
 
