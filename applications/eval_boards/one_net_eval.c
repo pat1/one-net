@@ -198,6 +198,10 @@ static const char* get_prompt_string(void);
 static void eval_set_modes_from_switch_positions(void);
 
 
+static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
+  UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR);
+
+
 
 //! @} ONE-NET_eval_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -404,20 +408,49 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         return ON_MSG_CONTINUE;
     }
     
+    
+    #ifdef _EXTENDED_SINGLE
+    if(msg_type == ONA_SIMPLE_TEXT || msg_type == ONA_TEXT)
+    #else
+    if(msg_type == ONA_SIMPLE_TEXT)
+    #endif
+    {
+        UInt8 text_len = 2;
+        
+        #ifdef _EXTENDED_SINGLE
+        if(msg_type == ONA_TEXT)
+        {
+            // this is a NULL-terminated string, so find out how long it is;
+            const UInt8* ptr = &raw_pld[ONA_MSG_DATA_IDX];
+            text_len = 0;
+            while(*ptr != 0)
+            {
+                ptr++;
+                text_len++;
+            }
+        }
+        #endif
+        
+        print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_MSG_DATA_IDX]),
+          text_len, src_did);
+        return ON_MSG_CONTINUE;
+    }
+
+
     if(msg_type != ONA_SWITCH)
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
-    
+
     if(msg_data != ONA_ON && msg_data != ONA_OFF && msg_data != ONA_TOGGLE)
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
-    
+
     if(msg_class == ONA_COMMAND)
     {
         if(dst_unit == ONE_NET_DEV_UNIT)
@@ -426,7 +459,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
         }
-        
+    
         if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
         {
             // we'll use a user-defined fatal error for the reason            
@@ -434,7 +467,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
         }
-        
+    
 		switch(dst_unit)
 		{
 			case 0: USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN0; break;
@@ -447,17 +480,17 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
                 ack_nack->handle = ON_NACK;
                 return ON_MSG_CONTINUE;
 		}
-        
+    
         ack_nack->handle = ON_ACK_STATUS;
-        
+    
         // source and destination are reversed in the response.
         put_src_unit(dst_unit, ack_nack->payload->status_resp);
         put_dst_unit(src_unit, ack_nack->payload->status_resp);
         put_msg_class(ONA_STATUS_COMMAND_RESP, ack_nack->payload->status_resp);
-        
+    
         // we don't need to fill in the type.  It's already there since this is the same
         // memory as the raw payload!
-        
+    
         put_msg_data(msg_data, ack_nack->payload->status_resp);
         return ON_MSG_CONTINUE;
     }
@@ -1286,6 +1319,23 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
       );    
 } // send_send_simple_text_command //
 #endif
+
+
+/*!
+    \brief Prints the contents of the received text packet.
+    
+    \param[in] TXN_STR String representing the transaction type that was rcv'd
+    \param[in] TXT The text that was received.
+    \param[in] TXT_LEN The number of characters received
+    \param[in] SRC_ADDR The sender of the data packet
+
+    \return void
+*/
+static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
+  UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR)
+{
+    oncli_send_msg(ONCLI_RX_TXT_FMT, did_to_u16(SRC_ADDR), TXT_LEN, TXT);
+} // print_text_packet //
 
 
 
