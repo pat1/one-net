@@ -282,6 +282,19 @@ typedef struct
 } on_msg_hdr_t;
 
 
+/*!
+    \brief A combination of a did and a unit
+*/
+typedef struct
+{
+    //! did of the of the device
+    on_encoded_did_t did;
+	
+    //! The unit of the device.
+    UInt8 unit;
+} on_did_unit_t;
+
+
 
 
 

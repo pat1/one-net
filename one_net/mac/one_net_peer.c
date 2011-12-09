@@ -192,7 +192,7 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
 
 on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
 {
-    on_peer_send_item_t* peer_send_item;
+    on_did_unit_t* peer_send_item;
     
     if(!msg_ptr || !peer_send_list_ptr)
     {
@@ -215,9 +215,9 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
     
     peer_send_item =
       &(peer_send_list_ptr->peer_list[peer_send_list_ptr->peer_send_index]);
-    one_net_memmove(msg_ptr->dst_did, peer_send_item->peer_did,
+    one_net_memmove(msg_ptr->dst_did, peer_send_item->did,
       ON_ENCODED_DID_LEN);
-    put_dst_unit(peer_send_item->peer_unit, msg_ptr->payload);
+    put_dst_unit(peer_send_item->unit, msg_ptr->payload);
     return msg_ptr;
 }
 
@@ -288,9 +288,9 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
     if(dst_did != NULL)
     {
         one_net_memmove(
-          send_list->peer_list[send_list->num_send_peers].peer_did, *dst_did,
+          send_list->peer_list[send_list->num_send_peers].did, *dst_did,
             ON_ENCODED_DID_LEN);
-        send_list->peer_list[send_list->num_send_peers].peer_unit = dst_unit;
+        send_list->peer_list[send_list->num_send_peers].unit = dst_unit;
         (send_list->num_send_peers)++;
     }
 
@@ -341,9 +341,9 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
         
             // we have a match.  Add it.
             one_net_memmove(
-              send_list->peer_list[send_list->num_send_peers].peer_did,
+              send_list->peer_list[send_list->num_send_peers].did,
               peer_list[i].peer_did, ON_ENCODED_DID_LEN);
-            send_list->peer_list[send_list->num_send_peers].peer_unit =
+            send_list->peer_list[send_list->num_send_peers].unit =
               peer_list[i].peer_unit;
             (send_list->num_send_peers)++;
         }

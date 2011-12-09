@@ -101,20 +101,6 @@ enum
 };
 
 
-// Note -- the two structures replace peer_msg_mgr_t.
-/*!
-    \brief The A peer to send for THIS message(same as on_peer_unit_t but
-           without the source unit
-*/
-typedef struct
-{
-    //! did of the of the peer
-    on_encoded_did_t peer_did;
-	
-    //! The unit in the peer to send to.
-    UInt8 peer_unit;
-} on_peer_send_item_t;
-
 
 /*!
     \brief The list of peers to send for THIS message.  ONE-NET can fill this
@@ -128,10 +114,10 @@ typedef struct
     // and none of the peers are the master, nor is the original destination.
     #ifdef _ONE_NET_CLIENT
     //! List of reciptients to send to for THIS message
-    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 2];
+    on_did_unit_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 2];
     #else
     //! List of recipients to send to for THIS message
-    on_peer_send_item_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 1];
+    on_did_unit_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 1];
     #endif
 
     //! The number of peers for THIS transaction
