@@ -112,6 +112,15 @@ extern on_master_t * const master;
 #endif
 
 
+//! The list of recipients to send to for THIS message
+on_recipient_list_t recipient_send_list;
+
+//! Pointer to the list of recipients to send to for THIS message.  Generally
+//! will point either to NULL or recipient_send_list.  However, the user is
+//! allowed to provide their own recipient lists to override this list
+on_recipient_list_t* recipient_send_list_ptr = NULL;
+
+
 //! @} ONE-NET_MESSAGE_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================

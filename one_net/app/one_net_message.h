@@ -332,6 +332,15 @@ typedef struct
 extern UInt8 single_data_queue_size;
 
 
+//! The list of recipients to send to for THIS message
+extern on_recipient_list_t recipient_send_list;
+
+//! Pointer to the list of recipients to send to for THIS message.  Generally
+//! will point either to NULL or recipient_send_list.  However, the user is
+//! allowed to provide their own recipient lists to override this list
+extern on_recipient_list_t* recipient_send_list_ptr;
+
+
 //! @} ONE-NET_MESSAGE_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================

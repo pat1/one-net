@@ -116,14 +116,6 @@ UInt8 peer_storage[PEER_STORAGE_SIZE_BYTES];
 
 on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
 
-//! The list of peers to send to for THIS message
-on_recipient_list_t peer_send_list;
-
-//! Pointer to the list of peers to send to for THIS message.  Generally
-//! will point either to NULL or peer_send_list.  However, the user is
-//! allowed to provide their own peer lists.
-on_recipient_list_t* peer_send_list_ptr = NULL;
-
 
 
 //! @} ONE-NET_PEER_pub_var
@@ -152,7 +144,7 @@ on_recipient_list_t* peer_send_list_ptr = NULL;
 on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
   const on_peer_unit_t* peer_list, on_recipient_list_t* send_list)
 {
-    peer_send_list_ptr = NULL;
+    recipient_send_list_ptr = NULL;
 
     if(msg_ptr == NULL)
     {
@@ -161,31 +153,31 @@ on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
     
     if(send_list == NULL)
     {
-        send_list = &peer_send_list;
+        send_list = &recipient_send_list;
     }
     
     #ifdef _ONE_NET_CLIENT
     send_to_master = must_send_to_master(msg_ptr);
     #endif
     
-    peer_send_list_ptr = send_list;
+    recipient_send_list_ptr = send_list;
     
     if(peer_list == NULL)
     {
         peer_list = peer;
     }
 
-    fill_in_peer_send_list(&(msg_ptr->dst_did), get_dst_unit(
-      msg_ptr->payload), peer_send_list_ptr,
+    fill_in_recipient_send_list(&(msg_ptr->dst_did), get_dst_unit(
+      msg_ptr->payload), recipient_send_list_ptr,
       msg_ptr->send_to_peer_list ? peer_list : NULL,
       &(msg_ptr->src_did), msg_ptr->src_unit);
 
-    if(peer_send_list_ptr->num_recipients <= 0)
+    if(recipient_send_list_ptr->num_recipients <= 0)
     {
         return NULL;
     }
     
-    peer_send_list_ptr->recipient_index = -1;
+    recipient_send_list_ptr->recipient_index = -1;
     return send_list;
 }
 
@@ -194,17 +186,17 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
 {
     on_did_unit_t* peer_send_item;
     
-    if(!msg_ptr || !peer_send_list_ptr)
+    if(!msg_ptr || !recipient_send_list_ptr)
     {
         return NULL;
     }
     
-    (peer_send_list_ptr->recipient_index)++;
-    if(peer_send_list_ptr->recipient_index >=
-      peer_send_list_ptr->num_recipients
-      || peer_send_list_ptr->recipient_index < 0)
+    (recipient_send_list_ptr->recipient_index)++;
+    if(recipient_send_list_ptr->recipient_index >=
+      recipient_send_list_ptr->num_recipients
+      || recipient_send_list_ptr->recipient_index < 0)
     {
-        peer_send_list_ptr->recipient_index = -2; // end of list
+        recipient_send_list_ptr->recipient_index = -2; // end of list
         return NULL;
     }
     
@@ -214,7 +206,7 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
     }
     
     peer_send_item =
-      &(peer_send_list_ptr->recipient_list[peer_send_list_ptr->recipient_index]);
+      &(recipient_send_list_ptr->recipient_list[recipient_send_list_ptr->recipient_index]);
     one_net_memmove(msg_ptr->dst_did, peer_send_item->did,
       ON_ENCODED_DID_LEN);
     put_dst_unit(peer_send_item->unit, msg_ptr->payload);
@@ -238,8 +230,8 @@ one_net_status_t one_net_reset_peers(void)
     one_net_memset_block(peer, sizeof(empty_peer),
       ONE_NET_MAX_PEER_UNIT, &empty_peer);
       
-    peer_send_list.recipient_index = -2; // inactive 
-    peer_send_list_ptr = NULL; 
+    recipient_send_list.recipient_index = -2; // inactive 
+    recipient_send_list_ptr = NULL; 
     return ONS_SUCCESS;
 } // one_net_reset_peers //
 
@@ -266,7 +258,7 @@ one_net_status_t one_net_reset_peers(void)
                  it will be returned.  If it was NULL, the peer send list
                  that ONE-NET provides will be returned.
 */
-on_recipient_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
+on_recipient_list_t* fill_in_recipient_send_list(const on_encoded_did_t* dst_did,
   UInt8 dst_unit, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list,
   const on_encoded_did_t* src_did, UInt8 src_unit)
 {
@@ -274,7 +266,7 @@ on_recipient_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
     
     if(send_list == NULL)
     {
-        send_list = &peer_send_list;
+        send_list = &recipient_send_list;
     }
     
     if(dst_did != NULL && on_encoded_did_equal(dst_did, &NO_DESTINATION))
