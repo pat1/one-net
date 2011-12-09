@@ -129,14 +129,11 @@ extern on_peer_unit_t* const peer;
 
 
 one_net_status_t one_net_reset_peers(void);
-on_recipient_list_t* fill_in_recipient_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list,
-  const on_encoded_did_t* src_did, UInt8 src_unit);
+void add_peers_to_recipient_list(const on_single_data_queue_t*
+  msg, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list);
 one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT);
-on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
-  const on_peer_unit_t* peer_list, on_recipient_list_t* send_list);
 on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr);
 
 

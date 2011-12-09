@@ -141,47 +141,6 @@ on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
 
 
 
-on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
-  const on_peer_unit_t* peer_list, on_recipient_list_t* send_list)
-{
-    recipient_send_list_ptr = NULL;
-
-    if(msg_ptr == NULL)
-    {
-        return NULL;
-    }
-    
-    if(send_list == NULL)
-    {
-        send_list = &recipient_send_list;
-    }
-    
-    #ifdef _ONE_NET_CLIENT
-    send_to_master = must_send_to_master(msg_ptr);
-    #endif
-    
-    recipient_send_list_ptr = send_list;
-    
-    if(peer_list == NULL)
-    {
-        peer_list = peer;
-    }
-
-    fill_in_recipient_send_list(&(msg_ptr->dst_did), get_dst_unit(
-      msg_ptr->payload), recipient_send_list_ptr,
-      msg_ptr->send_to_peer_list ? peer_list : NULL,
-      &(msg_ptr->src_did), msg_ptr->src_unit);
-
-    if(recipient_send_list_ptr->num_recipients <= 0)
-    {
-        return NULL;
-    }
-    
-    recipient_send_list_ptr->recipient_index = -1;
-    return send_list;
-}
-
-
 on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
 {
     on_did_unit_t* peer_send_item;
@@ -237,111 +196,44 @@ one_net_status_t one_net_reset_peers(void)
 
 
 /*!
-    \brief Fills in peer send list with the list of peers to send to
+    \brief Adds matching peer did / units to a message recipient list
     
-    \param[in] dst_did destination did of this message
-    \param[in] dst_unit destination unit of this message
-    \param[in] send_list the peer send list to fill in.  If NULL, the list
-                 that ONE-NET provides will be used.  This parameter is
-                 usually NULL.  Only applications that maintain their own
-                 peer lists will have a non-NULL parameter here
-    \param[in] peer_list The peer list.  If NULL, we are not sending to a
-                 peer list.
-    \param[in] src_did The "original" source of the message.  If NULL, the
-                 source ID will be considered this device.  Used to prevent
-                 circular messages of peers sending to the peers that
-                 originally sent to THEM.
-    \param[in] src_unit The source unit on THIS device for the message
-    \param[in] src_unit The source unit on THIS device for the message
- 
-    \return pointer to a filled peer send list.  If send_list was not NULL,
-                 it will be returned.  If it was NULL, the peer send list
-                 that ONE-NET provides will be returned.
+    \param[in] msg the message being sent
+    \param[out] send_list The list of devices and units to send to
+    \param[in] peer_list the peer send list to uise when deciding
+                 what dids / units matches the message.
 */
-on_recipient_list_t* fill_in_recipient_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list,
-  const on_encoded_did_t* src_did, UInt8 src_unit)
+void add_peers_to_recipient_list(const on_single_data_queue_t*
+  msg, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list)
 {
     UInt8 i;
+    on_did_unit_t dst_did_unit;
     
-    if(send_list == NULL)
+    if(msg->msg_type != ON_APP_MSG || !msg->send_to_peer_list)
     {
-        send_list = &recipient_send_list;
-    }
-    
-    if(dst_did != NULL && on_encoded_did_equal(dst_did, &NO_DESTINATION))
-    {
-        dst_did = NULL;
+        return; // not sending to peer list
     }
 
-    send_list->num_recipients = 0;
-    send_list->recipient_index = -2;
-    
-    if(dst_did != NULL)
+    for(i = 0; i < ONE_NET_MAX_PEER_PER_TXN; i++)
     {
-        one_net_memmove(
-          send_list->recipient_list[send_list->num_recipients].did, *dst_did,
-            ON_ENCODED_DID_LEN);
-        send_list->recipient_list[send_list->num_recipients].unit = dst_unit;
-        (send_list->num_recipients)++;
-    }
-
-    if(peer_list != NULL)
-    {
-        for(i = 0; send_list->num_recipients < ONE_NET_MAX_PEER_PER_TXN &&
-          i < ONE_NET_MAX_PEER_UNIT; i++)
+        if(is_broadcast_did((const on_encoded_did_t*)
+          (&(peer_list[i].peer_did))))
         {
-            if(src_unit != peer_list[i].src_unit)
-            {
-                continue;
-            }
-        
-            if(src_did != NULL)
-            {
-                if(on_encoded_did_equal(src_did,
-                  (on_encoded_did_t*) (peer_list[i].peer_did)))
-                {
-                    // This peer get the message before us or maybe even
-                    // originated it, so don't send it.
-                    continue;
-                }
-            }
-        
-            // now check to see if this did is the original destination
-            if(dst_did != NULL && on_encoded_did_equal(dst_did,
-              &(peer_list[i].peer_did)))
-            {
-                continue; // it's already been added
-            }
-        
-            #ifdef _ONE_NET_CLIENT
-            if(!device_is_master && is_master_did(&(peer_list[i].peer_did)))
-            {
-                // note : the send_to_master is a flag that is set to denote
-                // that we are sending to the master IN ADDITION to who we are
-                // already sending to.  Since we are sending to the master
-                // already here, we set send_to_master false so we don't
-                // send to the master TWICE, once from the peer list and again
-                // at the end when the send_to_master flag is checked to see
-                // if we need to send that extra message.
-                
-                // TODO -- perhaps rename the send_to_master flag to something
-                // else?  This can get a bit confusing.
-                send_to_master = FALSE;
-            }
-            #endif
-        
-            // we have a match.  Add it.
-            one_net_memmove(
-              send_list->recipient_list[send_list->num_recipients].did,
-              peer_list[i].peer_did, ON_ENCODED_DID_LEN);
-            send_list->recipient_list[send_list->num_recipients].unit =
-              peer_list[i].peer_unit;
-            (send_list->num_recipients)++;
+            break; // end of peer list reached.
         }
-    } // if peer_list is not NULL //
 
-    return send_list;
+        if(peer_list[i].src_unit != msg->src_unit)
+        {
+            continue;
+        }
+        
+        // we have a match.
+        one_net_memmove(dst_did_unit.did, peer_list[i].peer_did,
+          ON_ENCODED_DID_LEN);
+        dst_did_unit.unit = peer_list[i].peer_unit;
+        
+        add_recipient_to_recipient_list(send_list, &dst_did_unit);
+    }
 }
 
 
