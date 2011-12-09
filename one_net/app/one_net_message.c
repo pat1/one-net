@@ -451,7 +451,7 @@ int single_data_queue_ready_to_send(void)
 
 #ifdef _ONE_NET_CLIENT
 /*!
-    \ brief Determiners whether a message must have an added message to the
+    \ brief Determines whether a message must have an added message to the
             master tacked on to the end.
     
     The message will need to have this extra message sent if and only if...
@@ -484,6 +484,104 @@ BOOL must_send_to_master(const on_single_data_queue_t* const element)
       !is_master_did(&(element->dst_did)));
 }
 #endif
+
+
+
+/*!
+    \ brief Clears the recipient list of all recipients
+	
+	\param[out] rec_list The recipient list to clear.
+*/
+void clear_recipient_list(on_recipient_list_t* rec_list)
+{
+    rec_list->num_recipients = 0;
+}
+
+
+/*!
+    \ brief Compares two did / unit pairs and returns TRUE if they are both
+      the same.
+	
+	\param[in] dev1 the first did / unit pair.
+    \param[in] dev2 the second did / unit pair.
+    
+    \return TRUE if the dev1 and dev2 have the same dids and unit numbers
+            FALSE otherwise
+*/
+BOOL did_and_unit_equal(const on_did_unit_t* const dev1,
+  const on_did_unit_t* const dev2)
+{
+    return (on_encoded_did_equal((on_encoded_did_t*) dev1->did,
+        (on_encoded_did_t*) dev2->did) && dev1->unit == dev2->unit);
+}
+
+
+/*!
+    \ brief Removes a recipient from a recipient list
+	
+	\param[out] rec_list The recipient list to delete from.
+    \param[in] recipient_to_remove The recipient to remove
+    
+    \return TRUE if the list was changed, false otherwise.
+*/
+BOOL remove_recipient_from_recipient_list(on_recipient_list_t* rec_list,
+    const on_did_unit_t* const recipient_to_remove)
+{
+    UInt8 i;
+    for(i = 0; i < rec_list->num_recipients; i++)
+    {
+        if(did_and_unit_equal(&(rec_list->recipient_list[i]),
+          recipient_to_remove))
+        {
+            if(i < rec_list->num_recipients - 1)
+            {
+                one_net_memmove(&(rec_list->recipient_list[i]),
+                  &(rec_list->recipient_list[i+1]),
+                  rec_list->num_recipients - i - 1);
+            }
+            
+            return TRUE;
+        }
+    }
+    
+    return FALSE;
+}
+
+
+/*!
+    \ brief Adds a recipient to a recipient list
+	
+	\param[out] rec_list The recipient list to add to.
+    \param[in] recipient_to_add The recipient to add
+    
+    \return TRUE if the recipient is on the list after the function is done
+            FASLE otherwise
+*/
+BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
+    const on_did_unit_t* const recipient_to_add)
+{
+    UInt8 i;
+
+    for(i = 0; i < rec_list->num_recipients; i++)
+    {
+        if(did_and_unit_equal(&(rec_list->recipient_list[i]),
+          recipient_to_add))
+        {
+            return TRUE; // already on the list.
+        }
+    }
+
+    if(rec_list->num_recipients >= ONE_NET_MAX_RECIPIENTS)
+    {
+        return FALSE; // no room.
+    }
+
+    one_net_memmove(&(rec_list->recipient_list[rec_list->num_recipients]),
+        recipient_to_add, sizeof(on_did_unit_t));
+
+    (rec_list->num_recipients)++;
+    return TRUE;
+}
 
 
 //! @} ONE-NET_MESSAGE_pub_func
