@@ -495,6 +495,7 @@ BOOL must_send_to_master(const on_single_data_queue_t* const element)
 void clear_recipient_list(on_recipient_list_t* rec_list)
 {
     rec_list->num_recipients = 0;
+    rec_list->recipient_index = -2;
 }
 
 
@@ -561,6 +562,11 @@ BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
     const on_did_unit_t* const recipient_to_add)
 {
     UInt8 i;
+
+    if(on_encoded_did_equal(&(recipient_to_add->did), &NO_DESTINATION))
+    {
+        return FALSE; // destination is "no destination", so don't add
+    }
 
     for(i = 0; i < rec_list->num_recipients; i++)
     {
