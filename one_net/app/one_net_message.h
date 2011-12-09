@@ -346,6 +346,11 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
 	  , tick_t* expire_time_from_now
   #endif
   );
+  
+
+#ifdef _ONE_NET_CLIENT
+BOOL must_send_to_master(const on_single_data_queue_t* const element);
+#endif
 
 
 

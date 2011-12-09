@@ -96,6 +96,7 @@ static void delete_expired_queue_elements(void);
 //! \ingroup ONE-NET_TIMER
 //! @{
 
+
 #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 static UInt8 payload_buffer[SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE];
 static on_single_data_queue_t single_data_queue[SINGLE_DATA_QUEUE_SIZE];
@@ -103,6 +104,13 @@ static UInt16 pld_buffer_tail_idx = 0;
 #endif
 
 UInt8 single_data_queue_size = 0;
+
+#ifdef _ONE_NET_CLIENT
+extern BOOL device_is_master;
+extern BOOL client_joined_network;
+extern on_master_t * const master;
+#endif
+
 
 //! @} ONE-NET_MESSAGE_pri_var
 //                              PRIVATE VARIABLES END
@@ -428,6 +436,43 @@ int single_data_queue_ready_to_send(void)
     #endif
     
     return 0;
+}
+#endif
+
+
+#ifdef _ONE_NET_CLIENT
+/*!
+    \ brief Determiners whether a message must have an added message to the
+            master tacked on to the end.
+    
+    The message will need to have this extra message sent if and only if...
+    
+    1) Device is a client.
+    2) Device has joined the network.
+    3) Device has the _SEND_TO_MASTER flag set.
+    4) The message is a single message (as opposed to a block or stream)
+    5) The message type is an ON_APP_MSG (as opposed to an admin message or
+           a user-defined message message type.
+    6) The message class is a "status-type" message.
+    7) The message is not already being sent to the master as a recipient,
+       either because the master is the recipient or the master is on the
+       peer list (if relevant).
+       
+    Note that for devices where _PEER is enabled, the second part of
+        condition #7 will be checked elsewhere rather than from this function.
+	
+	\param[in] element An on_single_data_queue_t object containing the message
+                       to be sent.
+
+	\return TRUE if an extra _SEND_TO_MASTER message needs to be sent.
+*/
+BOOL must_send_to_master(const on_single_data_queue_t* const element)
+{
+    return (!device_is_master && client_joined_network
+      && (master->flags & ON_SEND_TO_MASTER)
+      && element->msg_type == ON_APP_MSG && 
+      ONA_IS_STATUS_MESSAGE(get_msg_class(element->payload)) &&
+      !is_master_did(&(element->dst_did)));
 }
 #endif
 
