@@ -226,6 +226,10 @@ on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #endif
   
 #ifdef _ONE_NET_CLIENT
+//! This flag should be set if a message needs to be sent to the master in
+//! addition to wherever else it needs to be sent.
+BOOL send_to_master;
+
 extern BOOL client_looking_for_invite;
 #endif
 
