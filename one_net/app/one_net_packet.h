@@ -689,7 +689,7 @@ typedef enum _ona_msg_type
     //! Set/Query/Report Color
     ONA_COLOR = 0x0E,
 
-    //! Send Simple Text (3 ASCII chars)
+    //! Send Simple Text (2 ASCII chars, no NULL terminator)
     ONA_SIMPLE_TEXT = 0x0F,
 
     //! Query/Report Date
@@ -834,7 +834,10 @@ typedef enum _ona_msg_type
     ONA_POWER_WATTS = 0x3E,
     
     //! Power 2 Watts
-    ONA_POWER_2_WATTS = 0x3F
+    ONA_POWER_2_WATTS = 0x3F,
+    
+    //! Text with a NULL terminator
+    ONA_TEXT = 0x40
 } ona_msg_type_t;
 
 

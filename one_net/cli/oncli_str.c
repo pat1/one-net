@@ -297,6 +297,13 @@ const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
 //! Format output to report the results of a single transaction
 const char * const ONCLI_SINGLE_RESULT_FMT
   = "Single transaction with %03X; return status: %s\n";
+  
+  
+
+// Text messages
+//! Format output when a text transaction has been received
+const char * const ONCLI_RX_TXT_FMT
+  = "Received text from %03X:\n%.*s\n";
 
 
 

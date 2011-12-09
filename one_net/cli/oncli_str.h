@@ -211,6 +211,12 @@ extern const char * const ONCLI_SINGLE_RESULT_FMT;
 
 
 
+// Text messages
+//! Format output when a text transaction has been received
+extern const char * const ONCLI_RX_TXT_FMT;
+
+
+
 // Error Formats
 extern const char * const ONCLI_INVALID_CMD_FMT;
 extern const char * const ONCLI_CMD_FAIL_FMT;
