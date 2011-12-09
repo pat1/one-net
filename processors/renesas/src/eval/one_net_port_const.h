@@ -63,15 +63,27 @@ enum
 };
 
 
+enum
+{
+    //! Maximum number of recipient for any one message.
+    ONE_NET_MAX_RECIPIENTS = 6
+};
+
+
 #ifdef _PEER
 enum
 {
     //! Size of the peer table
     ONE_NET_MAX_PEER_UNIT = 8,
     
-    //! Number of peers than any one message / transaction can send to
-    //! (not including the original recipient).
-    ONE_NET_MAX_PEER_PER_TXN = 4
+    #ifdef _ONE_NET_CLIENT
+    // subtract one for the actual recipient and another for the master
+    // in case we need to send to it and it isn't already on the list
+    ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 2
+    #else
+    // subtract one for the actual recipient
+    ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 1
+    #endif
 };
 #endif
 

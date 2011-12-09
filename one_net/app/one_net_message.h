@@ -4,6 +4,7 @@
 #include "config_options.h"
 #include "one_net_types.h"
 #include "one_net_packet.h"
+#include "one_net_port_const.h"
 
 
 //! \defgroup ONE-NET_MESSAGE ONE-NET Message Definitions
@@ -293,6 +294,26 @@ typedef struct
     //! The unit of the device.
     UInt8 unit;
 } on_did_unit_t;
+
+
+/*!
+    \brief The list of recipients to send for THIS message.  ONE-NET can fill
+           this based on the peer list, if relevant.  The application code
+           will also be given a chance to adjust this list.
+*/
+typedef struct
+{
+    //! List of recipients to send to for THIS message
+    on_did_unit_t recipient_list[ONE_NET_MAX_RECIPIENTS];
+
+    //! The number of recipients for THIS transaction
+    UInt8 num_recipients;
+   
+    //! Index into the list.  Negative number signifies that sending to the
+    //! recipient list either has not started, has finished, or is not
+    //! relevant
+    SInt8 recipient_index;
+} on_recipient_list_t;
 
 
 

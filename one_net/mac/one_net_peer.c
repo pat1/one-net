@@ -117,12 +117,12 @@ UInt8 peer_storage[PEER_STORAGE_SIZE_BYTES];
 on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
 
 //! The list of peers to send to for THIS message
-on_peer_send_list_t peer_send_list;
+on_recipient_list_t peer_send_list;
 
 //! Pointer to the list of peers to send to for THIS message.  Generally
 //! will point either to NULL or peer_send_list.  However, the user is
 //! allowed to provide their own peer lists.
-on_peer_send_list_t* peer_send_list_ptr = NULL;
+on_recipient_list_t* peer_send_list_ptr = NULL;
 
 
 
@@ -149,8 +149,8 @@ on_peer_send_list_t* peer_send_list_ptr = NULL;
 
 
 
-on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
-  const on_peer_unit_t* peer_list, on_peer_send_list_t* send_list)
+on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
+  const on_peer_unit_t* peer_list, on_recipient_list_t* send_list)
 {
     peer_send_list_ptr = NULL;
 
@@ -180,12 +180,12 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
       msg_ptr->send_to_peer_list ? peer_list : NULL,
       &(msg_ptr->src_did), msg_ptr->src_unit);
 
-    if(peer_send_list_ptr->num_send_peers <= 0)
+    if(peer_send_list_ptr->num_recipients <= 0)
     {
         return NULL;
     }
     
-    peer_send_list_ptr->peer_send_index = -1;
+    peer_send_list_ptr->recipient_index = -1;
     return send_list;
 }
 
@@ -199,12 +199,12 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
         return NULL;
     }
     
-    (peer_send_list_ptr->peer_send_index)++;
-    if(peer_send_list_ptr->peer_send_index >=
-      peer_send_list_ptr->num_send_peers
-      || peer_send_list_ptr->peer_send_index < 0)
+    (peer_send_list_ptr->recipient_index)++;
+    if(peer_send_list_ptr->recipient_index >=
+      peer_send_list_ptr->num_recipients
+      || peer_send_list_ptr->recipient_index < 0)
     {
-        peer_send_list_ptr->peer_send_index = -2; // end of list
+        peer_send_list_ptr->recipient_index = -2; // end of list
         return NULL;
     }
     
@@ -214,7 +214,7 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
     }
     
     peer_send_item =
-      &(peer_send_list_ptr->peer_list[peer_send_list_ptr->peer_send_index]);
+      &(peer_send_list_ptr->recipient_list[peer_send_list_ptr->recipient_index]);
     one_net_memmove(msg_ptr->dst_did, peer_send_item->did,
       ON_ENCODED_DID_LEN);
     put_dst_unit(peer_send_item->unit, msg_ptr->payload);
@@ -238,7 +238,7 @@ one_net_status_t one_net_reset_peers(void)
     one_net_memset_block(peer, sizeof(empty_peer),
       ONE_NET_MAX_PEER_UNIT, &empty_peer);
       
-    peer_send_list.peer_send_index = -2; // inactive 
+    peer_send_list.recipient_index = -2; // inactive 
     peer_send_list_ptr = NULL; 
     return ONS_SUCCESS;
 } // one_net_reset_peers //
@@ -266,8 +266,8 @@ one_net_status_t one_net_reset_peers(void)
                  it will be returned.  If it was NULL, the peer send list
                  that ONE-NET provides will be returned.
 */
-on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_peer_send_list_t* send_list, const on_peer_unit_t* peer_list,
+on_recipient_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
+  UInt8 dst_unit, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list,
   const on_encoded_did_t* src_did, UInt8 src_unit)
 {
     UInt8 i;
@@ -282,21 +282,21 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
         dst_did = NULL;
     }
 
-    send_list->num_send_peers = 0;
-    send_list->peer_send_index = -2;
+    send_list->num_recipients = 0;
+    send_list->recipient_index = -2;
     
     if(dst_did != NULL)
     {
         one_net_memmove(
-          send_list->peer_list[send_list->num_send_peers].did, *dst_did,
+          send_list->recipient_list[send_list->num_recipients].did, *dst_did,
             ON_ENCODED_DID_LEN);
-        send_list->peer_list[send_list->num_send_peers].unit = dst_unit;
-        (send_list->num_send_peers)++;
+        send_list->recipient_list[send_list->num_recipients].unit = dst_unit;
+        (send_list->num_recipients)++;
     }
 
     if(peer_list != NULL)
     {
-        for(i = 0; send_list->num_send_peers < ONE_NET_MAX_PEER_PER_TXN &&
+        for(i = 0; send_list->num_recipients < ONE_NET_MAX_PEER_PER_TXN &&
           i < ONE_NET_MAX_PEER_UNIT; i++)
         {
             if(src_unit != peer_list[i].src_unit)
@@ -341,11 +341,11 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
         
             // we have a match.  Add it.
             one_net_memmove(
-              send_list->peer_list[send_list->num_send_peers].did,
+              send_list->recipient_list[send_list->num_recipients].did,
               peer_list[i].peer_did, ON_ENCODED_DID_LEN);
-            send_list->peer_list[send_list->num_send_peers].unit =
+            send_list->recipient_list[send_list->num_recipients].unit =
               peer_list[i].peer_unit;
-            (send_list->num_send_peers)++;
+            (send_list->num_recipients)++;
         }
     } // if peer_list is not NULL //
 

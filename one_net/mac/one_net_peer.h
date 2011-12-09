@@ -102,34 +102,6 @@ enum
 
 
 
-/*!
-    \brief The list of peers to send for THIS message.  ONE-NET can fill this
-           based on the peer list.  The application code can also override
-           that behavior and fill the list on its own.
-*/
-typedef struct
-{
-    // add 1 for the original recipient.  If the device is a master, add
-    // another one for the master in case the ON_SEND_TO_MASTER flag is set
-    // and none of the peers are the master, nor is the original destination.
-    #ifdef _ONE_NET_CLIENT
-    //! List of reciptients to send to for THIS message
-    on_did_unit_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 2];
-    #else
-    //! List of recipients to send to for THIS message
-    on_did_unit_t peer_list[ONE_NET_MAX_PEER_PER_TXN + 1];
-    #endif
-
-    //! The number of peers for THIS transaction
-    UInt8 num_send_peers;
-   
-    //! Index into the list.  Negative number signifies that sending to the
-    //! peer list either has not started, has finished, or is not relevant
-    SInt8 peer_send_index;
-} on_peer_send_list_t;
-
-
-
 //! @} ONE-NET_PEER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -157,14 +129,14 @@ extern on_peer_unit_t* const peer;
 
 
 one_net_status_t one_net_reset_peers(void);
-on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
-  UInt8 dst_unit, on_peer_send_list_t* send_list, const on_peer_unit_t* peer_list,
+on_recipient_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
+  UInt8 dst_unit, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list,
   const on_encoded_did_t* src_did, UInt8 src_unit);
 one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT);
-on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
-  const on_peer_unit_t* peer_list, on_peer_send_list_t* send_list);
+on_recipient_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
+  const on_peer_unit_t* peer_list, on_recipient_list_t* send_list);
 on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr);
 
 
