@@ -1341,8 +1341,6 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
       &(on_base_param->sid[ON_ENCODED_NID_LEN]);
-      
-    oncli_send_msg("dog : %d\n", sizeof(raw_pld));
 
     if(!ASCII_PARAM_LIST)
     {
@@ -1364,6 +1362,10 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     // get the data
     data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX;
+    #ifdef _EXTENDED_SINGLE
+    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX - 1;
+    #endif
+    
     if(!(PARAM_PTR = parse_ascii_tx_text_data(PARAM_PTR, &raw_pld[ONA_MSG_DATA_IDX],
       &data_len)) || (*PARAM_PTR != '\n'))
     {
@@ -1375,8 +1377,12 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     msg_type = ONA_SIMPLE_TEXT;
 
     #ifdef _EXTENDED_SINGLE
-    if(data_len > ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_SECOND_IDX &&
-       data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_SECOND_IDX -1)
+    if(data_len <= ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_DATA_IDX)
+    {
+        // pid, pld_len, msg_type already set.  Do nothing.
+    }
+    else if(data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN -
+      ONA_MSG_DATA_IDX -1)
     {
         pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
         pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;
@@ -1384,19 +1390,13 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         // add a NULL terminator
         text_start_ptr[data_len] = 0;
     }
-    else if(data_len <= ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN -
-      ONA_MSG_SECOND_IDX - 1)
+    else
     {
         pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
         pld_len = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN;
         msg_type = ONA_TEXT;
         // add a NULL terminator
         text_start_ptr[data_len] = 0;
-    }
-    else
-    {
-        // string is too long.
-        return ONCLI_PARSE_ERR;
     }
     #endif
     
