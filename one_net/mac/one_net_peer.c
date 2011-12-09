@@ -108,6 +108,7 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 #include "one_net.h"
 extern on_master_t * const master;
 extern BOOL client_joined_network;
+extern BOOL send_to_master;
 #endif
 
 
@@ -151,12 +152,6 @@ on_peer_send_list_t* peer_send_list_ptr = NULL;
 on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
   const on_peer_unit_t* peer_list, on_peer_send_list_t* send_list)
 {
-    #ifdef _ONE_NET_CLIENT
-    // only send status-type messages to the master if only
-    // sending due to the ON_SEND_TO_MASTER flag
-    BOOL send_to_master;
-    #endif    
-
     peer_send_list_ptr = NULL;
 
     if(msg_ptr == NULL)
@@ -170,10 +165,7 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
     }
     
     #ifdef _ONE_NET_CLIENT
-    send_to_master = !device_is_master && client_joined_network
-      && (master->flags & ON_SEND_TO_MASTER)
-      && msg_ptr->msg_type == ON_APP_MSG && 
-      ONA_IS_STATUS_MESSAGE(get_msg_class(msg_ptr->payload));
+    send_to_master = must_send_to_master(msg_ptr);
     #endif
     
     peer_send_list_ptr = send_list;
@@ -186,11 +178,7 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
     fill_in_peer_send_list(&(msg_ptr->dst_did), get_dst_unit(
       msg_ptr->payload), peer_send_list_ptr,
       msg_ptr->send_to_peer_list ? peer_list : NULL,
-      #ifdef _ONE_NET_CLIENT
-      &(msg_ptr->src_did), msg_ptr->src_unit, send_to_master);
-      #else
       &(msg_ptr->src_did), msg_ptr->src_unit);
-      #endif
 
     if(peer_send_list_ptr->num_send_peers <= 0)
     {
@@ -273,24 +261,16 @@ one_net_status_t one_net_reset_peers(void)
                  originally sent to THEM.
     \param[in] src_unit The source unit on THIS device for the message
     \param[in] src_unit The source unit on THIS device for the message
-    \param[in] send_to_master True if master should be sent this message.
-               Relevant only for clients.    
+ 
     \return pointer to a filled peer send list.  If send_list was not NULL,
                  it will be returned.  If it was NULL, the peer send list
                  that ONE-NET provides will be returned.
 */
 on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
   UInt8 dst_unit, on_peer_send_list_t* send_list, const on_peer_unit_t* peer_list,
-  #ifdef _ONE_NET_CLIENT
-  const on_encoded_did_t* src_did, UInt8 src_unit, BOOL send_to_master)
-  #else
   const on_encoded_did_t* src_did, UInt8 src_unit)
-  #endif
 {
     UInt8 i;
-    #ifdef _ONE_NET_CLIENT
-    BOOL master_added = FALSE;
-    #endif
     
     if(send_list == NULL)
     {
@@ -312,13 +292,6 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
             ON_ENCODED_DID_LEN);
         send_list->peer_list[send_list->num_send_peers].peer_unit = dst_unit;
         (send_list->num_send_peers)++;
-        
-        #ifdef _ONE_NET_CLIENT
-        if(!device_is_master && is_master_did(dst_did))
-        {
-            master_added = TRUE;
-        }
-        #endif
     }
 
     if(peer_list != NULL)
@@ -352,14 +325,17 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
             #ifdef _ONE_NET_CLIENT
             if(!device_is_master && is_master_did(&(peer_list[i].peer_did)))
             {
-                if(master_added)
-                {
-                    // it's already been added.
-                    continue;
-                }
-            
-                // it hasn't been added yet, but it will be below, so flag it now
-                master_added = TRUE;
+                // note : the send_to_master is a flag that is set to denote
+                // that we are sending to the master IN ADDITION to who we are
+                // already sending to.  Since we are sending to the master
+                // already here, we set send_to_master false so we don't
+                // send to the master TWICE, once from the peer list and again
+                // at the end when the send_to_master flag is checked to see
+                // if we need to send that extra message.
+                
+                // TODO -- perhaps rename the send_to_master flag to something
+                // else?  This can get a bit confusing.
+                send_to_master = FALSE;
             }
             #endif
         
@@ -372,19 +348,6 @@ on_peer_send_list_t* fill_in_peer_send_list(const on_encoded_did_t* dst_did,
             (send_list->num_send_peers)++;
         }
     } // if peer_list is not NULL //
-
-    #ifdef _ONE_NET_CLIENT
-    if(send_to_master && !master_added)
-    {
-        // Add the master since we haven't yet and we need to.
-        one_net_memmove(
-          send_list->peer_list[send_list->num_send_peers].peer_did,
-          MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
-        send_list->peer_list[send_list->num_send_peers].peer_unit =
-          ONE_NET_DEV_UNIT;
-        (send_list->num_send_peers)++;        
-    }
-    #endif
 
     return send_list;
 }
