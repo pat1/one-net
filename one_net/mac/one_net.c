@@ -1157,7 +1157,7 @@ BOOL one_net(on_txn_t ** txn)
                 #endif
                 
                 // first see if we're in the middle of a message.
-                if(!load_next_peer(&single_msg))
+                if(!load_next_recipient(&single_msg))
                 {
                     // we are not in the middle of a message.  We might have
                     // something ready to pop though.
@@ -1179,7 +1179,7 @@ BOOL one_net(on_txn_t ** txn)
                         {
                             // we have just popped a message.  Set things up
                             // with the peer list, then next time the
-                            // load_next_peer will take it from there.
+                            // load_next_recipient will take it from there.
                             if(setup_send_list(&single_msg, NULL, NULL))
                             {
                                 #ifndef _ONE_NET_SIMPLE_DEVICE

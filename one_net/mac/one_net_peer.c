@@ -190,7 +190,7 @@ on_peer_send_list_t* setup_send_list(on_single_data_queue_t* msg_ptr,
 }
 
 
-on_single_data_queue_t* load_next_peer(on_single_data_queue_t* msg_ptr)
+on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
 {
     on_peer_send_item_t* peer_send_item;
     
