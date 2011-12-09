@@ -217,6 +217,22 @@ extern const char * const ONCLI_RX_TXT_FMT;
 
 
 
+// Message types
+//! string for a single transaction
+extern const char * const ONCLI_SINGLE_TXN_STR;
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! string for a block transaction
+extern const char * const ONCLI_BLOCK_TXN_STR;
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! string for a stream transaction
+extern const char * const ONCLI_STREAM_TXN_STR;
+#endif
+
+
+
 // Error Formats
 extern const char * const ONCLI_INVALID_CMD_FMT;
 extern const char * const ONCLI_CMD_FAIL_FMT;

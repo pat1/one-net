@@ -304,6 +304,22 @@ const char * const ONCLI_SINGLE_RESULT_FMT
 //! Format output when a text transaction has been received
 const char * const ONCLI_RX_TXT_FMT
   = "Received text from %03X:\n%.*s\n";
+  
+  
+
+// Message types
+//! string for a single transaction
+const char * const ONCLI_SINGLE_TXN_STR = "Single";
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! string for a block transaction
+const char * const ONCLI_BLOCK_TXN_STR = "Block";
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! string for a stream transaction
+const char * const ONCLI_STREAM_TXN_STR = "Stream";
+#endif
 
 
 
