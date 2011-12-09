@@ -1330,11 +1330,19 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     on_encoded_did_t enc_dst;
     UInt16 data_len;
     UInt8 src_unit, dst_unit;
-    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN] = {0};
+    UInt8 raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN] = {0};
     BOOL send_to_peer_list;
     
+    UInt8 pid, pld_len, msg_type;
+    
+    #ifdef _EXTENDED_SINGLE
+    UInt8* text_start_ptr = &raw_pld[ONA_MSG_SECOND_IDX];
+    #endif
+
     const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
       &(on_base_param->sid[ON_ENCODED_NID_LEN]);
+      
+    oncli_send_msg("dog : %d\n", sizeof(raw_pld));
 
     if(!ASCII_PARAM_LIST)
     {
@@ -1352,7 +1360,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
     {
         return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
+    } // if malformed parameter // 
 
     // get the data
     data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX;
@@ -1361,16 +1369,46 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     } // if parsing the data portion failed //
+    
+    pid = ONE_NET_ENCODED_SINGLE_DATA;
+    pld_len = ONA_SINGLE_PACKET_PAYLOAD_LEN;
+    msg_type = ONA_SIMPLE_TEXT;
 
+    #ifdef _EXTENDED_SINGLE
+    if(data_len > ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_SECOND_IDX &&
+       data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_SECOND_IDX -1)
+    {
+        pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+        pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;
+        msg_type = ONA_TEXT;
+        // add a NULL terminator
+        text_start_ptr[data_len] = 0;
+    }
+    else if(data_len <= ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN -
+      ONA_MSG_SECOND_IDX - 1)
+    {
+        pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+        pld_len = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN;
+        msg_type = ONA_TEXT;
+        // add a NULL terminator
+        text_start_ptr[data_len] = 0;
+    }
+    else
+    {
+        // string is too long.
+        return ONCLI_PARSE_ERR;
+    }
+    #endif
+    
     // store the message class/message type in the payload
-    put_msg_hdr(ONA_COMMAND | ONA_SIMPLE_TEXT, raw_pld);
+    put_msg_hdr(ONA_COMMAND | msg_type, raw_pld);
 
     // store the source and destination unit numbers in the payload
     put_dst_unit(dst_unit, raw_pld);
     put_src_unit(src_unit, raw_pld);
+    
 
-    switch((*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
-      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+    switch((*one_net_send_single)(pid, ON_APP_MSG, raw_pld, pld_len,
       ONE_NET_HIGH_PRIORITY, src_did, send_to_peer_list ? NULL : enc_dst
       #ifdef _PEER
           , send_to_peer_list,  src_unit
