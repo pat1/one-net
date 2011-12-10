@@ -232,6 +232,9 @@ extern const char * const ONCLI_STREAM_TXN_STR;
 #endif
 
 
+extern const char* const ONCLI_DEVICE_STATE_FMT;
+extern const char* const ONCLI_CHANGE_PIN_STATE_FMT;
+
 
 // Error Formats
 extern const char * const ONCLI_INVALID_CMD_FMT;
