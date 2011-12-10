@@ -932,6 +932,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->device_send_info.features = features;
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+    client->next_check_in_time = get_tick_count() +
+      MS_TO_TICK(client->keep_alive_interval);
 #ifdef _ONE_NET_MULTI_HOP
     client->device_send_info.max_hops = features_max_hops(features);
     client->device_send_info.hops = 0;
@@ -1197,6 +1199,13 @@ static on_message_status_t on_master_single_data_hdlr(
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?
 omsdh_build_resp:
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        // device has checked in, so reset the next check-in time
+        client->next_check_in_time = get_tick_count() +
+          MS_TO_TICK(client->keep_alive_interval);
+    }
+
     response_pid = get_single_response_pid(*(pkt->pid),
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
 
@@ -1369,22 +1378,32 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 {
     on_msg_hdr_t msg_hdr;
     on_raw_did_t dst;
+    on_client_t* client = client_info(pkt->enc_dst_did);
     
+    if(!client)
+    {
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+
     msg_hdr.pid = *(pkt->pid);
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
-
-
+    
+    
     if(*msg_type == ON_ADMIN_MSG)
     {
-        on_client_t* client = client_info(pkt->enc_dst_did);
-        if(!client)
-        {
-            return ON_MSG_INTERNAL_ERR;
-        }
+
         
         admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
+    }
+
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        // device has checked in, so reset the next check-in time
+        client->next_check_in_time = get_tick_count() +
+          MS_TO_TICK(client->keep_alive_interval);
     }
     
     

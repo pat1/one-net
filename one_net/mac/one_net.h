@@ -354,6 +354,9 @@ typedef struct
     //! Interval at which the client must communicate with the MASTER(in ms)
     UInt32 keep_alive_interval;
     
+    //! The latest time that the client is expected to check in.
+    tick_t next_check_in_time;
+    
     on_sending_device_t device_send_info;
 } on_client_t;
 
