@@ -435,21 +435,45 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
           text_len, src_did);
         return ON_MSG_CONTINUE;
     }
-
-
-    if(msg_type != ONA_SWITCH)
+    
+    
+    if(msg_hdr->pid != ONE_NET_ENCODED_SINGLE_DATA)
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
 
-    if(msg_data != ONA_ON && msg_data != ONA_OFF && msg_data != ONA_TOGGLE)
+    if(ONA_IS_STATUS_MESSAGE(msg_class))
+    {
+        oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(src_did),
+          msg_data);
+    }
+    
+    if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
+      (msg_data == ONA_ON || msg_data == ONA_OFF))
+    {
+        // interpret ONA_STATUS_CHANGE as ONA_COMMAND
+        msg_class = ONA_COMMAND;
+    }
+    
+    if(ONA_IS_STATUS_MESSAGE(msg_class))
+    {
+        return ON_MSG_CONTINUE;
+    }
+
+
+    if(msg_type != ONA_SWITCH || (msg_data != ONA_ON && msg_data != ONA_OFF
+      && msg_data != ONA_TOGGLE) || (msg_data == ONA_TOGGLE && msg_class !=
+      ONA_COMMAND))
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
+    
+    // handle commands, polls, and queries below
+    // right now, only commands.
 
     if(msg_class == ONA_COMMAND)
     {
