@@ -1157,7 +1157,7 @@ BOOL one_net(on_txn_t ** txn)
                 #endif
                 
                 // first see if we're in the middle of a message.
-                if(!load_next_recipient(&single_msg))
+                if(!load_next_recipient(&single_msg, recipient_send_list_ptr))
                 {
                     // we are not in the middle of a message.  We might have
                     // something ready to pop though.

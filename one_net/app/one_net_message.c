@@ -590,6 +590,50 @@ BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
 }
 
 
+/*!
+    \brief Copies the did and sometimes the destination unit number
+           of the next recipient of a message into the message itself
+           so that the message can be sent
+    
+    \param[in/out] msg the message being sent
+    \param[in/out] recipient_list The list of devices and units to send to
+
+    \return
+        The message if there is a message to send.
+        NULL if there is no message to send.
+*/
+on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
+  on_recipient_list_t* recipient_list)
+{
+    on_did_unit_t* next_recipient;
+    
+    if(!msg || !recipient_list)
+    {
+        return NULL;
+    }
+    
+    (recipient_list->recipient_index)++;
+    if(recipient_list->recipient_index >=
+      recipient_send_list_ptr->num_recipients
+      || recipient_send_list_ptr->recipient_index < 0)
+    {
+        recipient_list->recipient_index = -2; // end of list
+        return NULL;
+    }
+    
+    next_recipient =
+      &(recipient_list->recipient_list[recipient_list->recipient_index]);
+    one_net_memmove(msg->dst_did, next_recipient->did,
+      ON_ENCODED_DID_LEN);
+      
+    if(msg->msg_type == ON_APP_MSG)
+    {
+        put_dst_unit(next_recipient->unit, msg->payload);
+    }
+    return msg;
+}
+
+
 //! @} ONE-NET_MESSAGE_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

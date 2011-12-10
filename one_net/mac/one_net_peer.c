@@ -141,38 +141,6 @@ on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
 
 
 
-on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg_ptr)
-{
-    on_did_unit_t* peer_send_item;
-    
-    if(!msg_ptr || !recipient_send_list_ptr)
-    {
-        return NULL;
-    }
-    
-    (recipient_send_list_ptr->recipient_index)++;
-    if(recipient_send_list_ptr->recipient_index >=
-      recipient_send_list_ptr->num_recipients
-      || recipient_send_list_ptr->recipient_index < 0)
-    {
-        recipient_send_list_ptr->recipient_index = -2; // end of list
-        return NULL;
-    }
-    
-    if(msg_ptr->msg_type != ON_APP_MSG)
-    {
-        return msg_ptr; // no changes.
-    }
-    
-    peer_send_item =
-      &(recipient_send_list_ptr->recipient_list[recipient_send_list_ptr->recipient_index]);
-    one_net_memmove(msg_ptr->dst_did, peer_send_item->did,
-      ON_ENCODED_DID_LEN);
-    put_dst_unit(peer_send_item->unit, msg_ptr->payload);
-    return msg_ptr;
-}
-
-
 /*!
     \brief Resets the peer memory.
     
