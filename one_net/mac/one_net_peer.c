@@ -140,7 +140,6 @@ on_peer_unit_t* const peer = (on_peer_unit_t* const) &peer_storage[0];
 //! @{
 
 
-
 /*!
     \brief Resets the peer memory.
     
@@ -156,9 +155,6 @@ one_net_status_t one_net_reset_peers(void)
       ONE_NET_DEV_UNIT};
     one_net_memset_block(peer, sizeof(empty_peer),
       ONE_NET_MAX_PEER_UNIT, &empty_peer);
-      
-    recipient_send_list.recipient_index = -2; // inactive 
-    recipient_send_list_ptr = NULL; 
     return ONS_SUCCESS;
 } // one_net_reset_peers //
 
