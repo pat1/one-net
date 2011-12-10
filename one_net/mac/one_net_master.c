@@ -1333,9 +1333,31 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
   const on_raw_did_t* const raw_did, on_message_status_t status,
   const on_ack_nack_t* const ack_nack, on_client_t* client)
 {
-    // debugging statement
-    oncli_send_msg("Admin transaction completed with device %d with status "
-        "%d\n", did_to_u16(raw_did), status);
+    UInt8 admin_type = raw_pld[0];
+    const UInt8* admin_data_payload = raw_pld + 1;
+    one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
+
+        
+    switch(admin_type)
+    {
+#ifdef _PEER
+        case ON_ASSIGN_PEER:
+        {
+            update = ONE_NET_UPDATE_ASSIGN_PEER;
+            break;
+        } // assign peer case //
+
+        case ON_UNASSIGN_PEER:
+        {
+            update = ONE_NET_UPDATE_UNASSIGN_PEER;
+            break;
+        } // unassign peer case //
+#endif
+
+        default: return;
+    }
+    
+    one_net_master_update_result(update, raw_did, ack_nack);
 }
 
 
