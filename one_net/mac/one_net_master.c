@@ -1010,7 +1010,9 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     on_encoded_did_t enc_src_did;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
     on_encoded_did_t* enc_dst_did = (on_encoded_did_t*)&pld[ON_PEER_DID_IDX];
-    BOOL src_is_master, dst_is_master;
+    
+    // note -- broadcast peer did indicates wildcard
+    BOOL src_is_master, dst_is_master, dst_is_broadcast;
     
 
     if(!SRC_DID || !PEER_DID)
@@ -1027,6 +1029,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     
     src_is_master = is_my_did(&enc_src_did);
     dst_is_master = is_my_did(enc_dst_did);
+    dst_is_broadcast = is_broadcast_did(enc_dst_did);
     
     // make sure that the devices are both part of the network and are
     // not the same device
@@ -1035,7 +1038,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         // source devices is in the network.
         return ONS_INCORRECT_ADDR;
     }
-    if(!dst_is_master && !client_info(enc_dst_did))
+    if(!dst_is_master && !dst_is_broadcast && !client_info(enc_dst_did))
     {
         // dest. device is not part of the network.
         return ONS_INCORRECT_ADDR;
@@ -1043,6 +1046,13 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     if(on_encoded_did_equal(&enc_src_did, enc_dst_did))
     {
         // devices are the same.
+        return ONS_INCORRECT_ADDR;
+    }
+    
+    // one last check -- broadcast dids are valid for unassigning but not
+    // assigning
+    if(dst_is_broadcast && ASSIGN)
+    {
         return ONS_INCORRECT_ADDR;
     }
 
@@ -1062,10 +1072,6 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
                 PEER_UNIT);
         }
     }
-    
-    
-    // verify that both devices are part of the network
-
 
 
     pld[ON_PEER_SRC_UNIT_IDX] = SRC_UNIT;
