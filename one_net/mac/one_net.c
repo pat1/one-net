@@ -1177,11 +1177,15 @@ BOOL one_net(on_txn_t ** txn)
                         if(pop_queue_element())
                         #endif
                         {
+                            on_did_unit_t first_recipient;
+
+
                             // we have just popped a message.  Set things up
                             // with the recipient list, then next time the
                             // load_next_recipient will take it from there.
+                            recipient_send_list_ptr = &recipient_send_list;
                             
-                            on_did_unit_t first_recipient;
+
                             one_net_memmove(first_recipient.did, single_msg.dst_did,
                               ON_ENCODED_DID_LEN);
                               
@@ -1192,15 +1196,16 @@ BOOL one_net(on_txn_t ** txn)
                             first_recipient.unit = get_dst_unit(single_msg.payload);
 
                             // first clear the list and set up the direct
-                            // recipient
-                            clear_recipient_list(&recipient_send_list);
+                            // recipient                            
+                            recipient_send_list_ptr->num_recipients = 0;
+                            
                             add_recipient_to_recipient_list(
-                              &recipient_send_list, &first_recipient);
+                              recipient_send_list_ptr, &first_recipient);
                             
                             #ifdef _PEER
                             // now add any peers, if they are relevant
                             add_peers_to_recipient_list(&single_msg,
-                              &recipient_send_list, peer);
+                              recipient_send_list_ptr, peer);
                             #endif
                             
                             #ifdef _ONE_NET_CLIENT
@@ -1212,24 +1217,23 @@ BOOL one_net(on_txn_t ** txn)
                                   &MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
                                 master_unit.unit = ONE_NET_DEV_UNIT;
                                 add_recipient_to_recipient_list(
-                                  &recipient_send_list, &master_unit);
+                                  recipient_send_list_ptr, &master_unit);
                             }
                             #endif
                               
                               
                             // TODO -- call application code and give it a
                             // chance to adjust the recipient list.
-                              
 
-                            
-                            if(recipient_send_list.num_recipients > 0)
+                            if(recipient_send_list_ptr)
                             {
                                 #ifndef _ONE_NET_SIMPLE_DEVICE
                                 at_least_one_response = FALSE;
                                 #endif
+                                recipient_send_list_ptr->recipient_index = -1;
                             
                                 // we have a message.  We'll take it further
-                                // the next trip through.
+                                // the next trip through.  If the nmber of 
                                 return FALSE; // we have no transaction, but
                                               // we have something to send.
                                               // Return false.
