@@ -1220,10 +1220,9 @@ BOOL one_net(on_txn_t ** txn)
                                   recipient_send_list_ptr, &master_unit);
                             }
                             #endif
-                              
-                              
-                            // TODO -- call application code and give it a
-                            // chance to adjust the recipient list.
+                            
+                            one_net_adjust_recipient_list(single_msg_ptr, 
+                              &recipient_send_list_ptr);
 
                             if(recipient_send_list_ptr)
                             {
