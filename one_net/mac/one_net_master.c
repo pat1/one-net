@@ -174,6 +174,11 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
+  
+  
+static void admin_txn_hdlr(const UInt8* const raw_pld,
+  const on_raw_did_t* const raw_did, on_message_status_t status,
+  const on_ack_nack_t* const ack_nack, on_client_t* client);
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 static on_message_status_t on_master_block_data_hdlr(
@@ -1313,7 +1318,26 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 
     return status;
 }
-  
+
+
+/*!
+    \brief Handles the end of an admin transaction.
+
+    \param[in] raw_pld The raw payload of the packet that was sent.
+    \param[in] raw_did The raw did of the CLIENT the packet was sent to.
+    \param[in] status The status of the transaction.
+    \param[in] ack_nack The CLIENT the pkt was sent to.
+    \param[out] client the client that was the recipient of this packet.
+*/
+static void admin_txn_hdlr(const UInt8* const raw_pld,
+  const on_raw_did_t* const raw_did, on_message_status_t status,
+  const on_ack_nack_t* const ack_nack, on_client_t* client)
+{
+    // debugging statement
+    oncli_send_msg("Admin transaction completed with device %d with status "
+        "%d\n", did_to_u16(raw_did), status);
+}
+
 
 // TODO -- document 
 static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
@@ -1328,13 +1352,28 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
 
+
+    if(*msg_type == ON_ADMIN_MSG)
+    {
+        on_client_t* client = client_info(pkt->enc_dst_did);
+        if(!client)
+        {
+            return ON_MSG_INTERNAL_ERR;
+        }
+        
+        admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
+    }
+    
+    
     #ifndef _ONE_NET_MULTI_HOP
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, &dst, ack_nack);
     #else
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, &dst, ack_nack, pkt->hops);
-    #endif  
+    #endif
+    
+    return ON_MSG_DEFAULT_BHVR;
 }
 
 
