@@ -1476,13 +1476,16 @@ BOOL one_net(on_txn_t ** txn)
                 #ifdef _ONE_NET_MULTI_HOP
                 UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
                   + (1 + (*txn)->max_hops) * (*txn)->response_timeout;
-                  
+                
+                #ifdef _ONE_NET_MASTER
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
                     // invite packets don't lengthen timeout with
                     // multi-hop
                     new_timeout_ms = (*txn)->response_timeout;
                 }
+                #endif
+                
                 #else
                 UInt32 new_timeout_ms = (*txn)->response_timeout;
                 #endif
