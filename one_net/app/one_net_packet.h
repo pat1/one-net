@@ -1123,6 +1123,24 @@ enum
 };
 
 
+
+//! Admin packet indexes
+enum
+{
+    //! Index for encoded did of peer device for (un)assignment of peers
+    ON_PEER_DID_IDX = 0,
+
+    //! Index for peer unit for (un)assignment of peers.  This is the unit in
+    //! the peer device being assigned to a unit in this device
+    ON_PEER_PEER_UNIT_IDX = 2,
+
+    //! Index for destination unit for (un)assignment of peers.  This is the
+    //! unit in the device that is being assigned a peer
+    ON_PEER_SRC_UNIT_IDX = 3,
+};
+
+
+
 //! Payload CRC releated constants
 enum
 {
