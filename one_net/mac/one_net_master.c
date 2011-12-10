@@ -1058,6 +1058,29 @@ static on_message_status_t on_master_single_data_hdlr(
     device->last_nonce = device->expected_nonce;
     device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
     
+    
+    // if this was a normal query response, we'll send a message in addition
+    // to the ACK.
+    if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
+      ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
+    {
+        one_net_master_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_APP_MSG,
+            ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+            ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
+        #ifdef _PEER
+            , FALSE,
+            get_src_unit(ack_nack->payload->status_resp)
+        #endif
+            , NULL
+        #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	        , NULL
+        #endif
+        );
+        
+        // now change the handle to ON_ACK
+        ack_nack->handle = ON_ACK;
+    }
+    
 
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?

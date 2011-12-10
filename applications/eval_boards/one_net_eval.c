@@ -370,6 +370,8 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     UInt8 src_unit, dst_unit;
     ona_msg_class_t msg_class;
     UInt16 msg_type, msg_data;
+    
+    UInt8 pin, state;
 
     #ifndef _ONE_NET_MULTI_HOP
     if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
@@ -454,6 +456,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
       (msg_data == ONA_ON || msg_data == ONA_OFF))
     {
         // interpret ONA_STATUS_CHANGE as ONA_COMMAND
+        oncli_send_msg("hi\n");
         msg_class = ONA_COMMAND;
     }
     
@@ -471,62 +474,74 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
-    
+
     // handle commands, polls, and queries below
     // right now, only commands.
 
-    if(msg_class == ONA_COMMAND)
+
+    if(dst_unit == ONE_NET_DEV_UNIT)
     {
-        if(dst_unit == ONE_NET_DEV_UNIT)
-        {
+        ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+
+    if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
+    {
+        // we'll use a user-defined fatal error for the reason            
+        ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+        
+    switch(dst_unit)
+	{
+		case 0: pin = USER_PIN0; break;
+		case 1: pin = USER_PIN1; break;
+		case 2: pin = USER_PIN2; break;
+		case 3: pin = USER_PIN3; break;
+        default:
+            oncli_send_msg("Invalid dest. unit.\n");
             ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
-        }
-    
-        if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
-        {
-            // we'll use a user-defined fatal error for the reason            
+	}
+        
+    switch(msg_class)
+    {
+        case ONA_COMMAND:
+            msg_class = ONA_STATUS_COMMAND_RESP;
+            switch(msg_data)
+            {
+                case ONA_TOGGLE: pin = !pin; break;
+                default: pin = msg_data;
+            }
+            oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, pin);
+            break;
+        case ONA_QUERY:
+            msg_class = ONA_STATUS_QUERY_RESP;
+            break;
+        case ONA_FAST_QUERY:
+            msg_class = ONA_STATUS_FAST_QUERY_RESP;
+            break;
+        default:
             ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
-        }
-    
-		switch(dst_unit)
-		{
-			case 0: USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN0; break;
-			case 1: USER_PIN1 = (msg_data == ONA_TOGGLE) ? !USER_PIN1 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN1; break;
-			case 2: USER_PIN2 = (msg_data == ONA_TOGGLE) ? !USER_PIN2 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN2; break;
-			case 3: USER_PIN3 = (msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((msg_data == ONA_ON) ? 1 : 0); msg_data = USER_PIN3; break;
-            default:
-                oncli_send_msg("Invalid dest. unit for COMMAND\n");
-                ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
-                ack_nack->handle = ON_NACK;
-                return ON_MSG_CONTINUE;
-		}
-        
-        
-        oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
-    
-        ack_nack->handle = ON_ACK_STATUS;
-    
-        // source and destination are reversed in the response.
-        put_src_unit(dst_unit, ack_nack->payload->status_resp);
-        put_dst_unit(src_unit, ack_nack->payload->status_resp);
-        put_msg_class(ONA_STATUS_COMMAND_RESP, ack_nack->payload->status_resp);
-    
-        // we don't need to fill in the type.  It's already there since this is the same
-        // memory as the raw payload!
-    
-        put_msg_data(msg_data, ack_nack->payload->status_resp);
-        return ON_MSG_CONTINUE;
     }
-    
-    // fill in poll and query and status later.  For now, NACK it.
-    oncli_send_msg("Currently only handling commands.\n", dst_unit);
-    // we'll use a user-defined fatal error for the reason            
-    ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-    ack_nack->handle = ON_NACK;
+    msg_data = pin;
+
+    ack_nack->handle = ON_ACK_STATUS;
+
+    // source and destination are reversed in the response.
+    put_src_unit(dst_unit, ack_nack->payload->status_resp);
+    put_dst_unit(src_unit, ack_nack->payload->status_resp);
+    put_msg_class(msg_class, ack_nack->payload->status_resp);
+
+    // we don't need to fill in the type.  It's already there since this is the same
+    // memory as the raw payload!
+
+    put_msg_data(msg_data, ack_nack->payload->status_resp);
     return ON_MSG_CONTINUE;
 }
 

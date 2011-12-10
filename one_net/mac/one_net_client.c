@@ -514,6 +514,30 @@ static on_message_status_t on_client_single_data_hdlr(
         return msg_status;
     }
     
+    // if this was a normal query response, we'll send a message in addition
+    // to the ACK.
+    if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
+      ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
+    {
+        one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_APP_MSG,
+            ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+            ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
+        #ifdef _PEER
+            , FALSE,
+            get_src_unit(ack_nack->payload->status_resp)
+        #endif
+        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL   
+	        , NULL
+        #endif
+        #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	        , NULL
+        #endif
+        );
+        
+        // now change the handle to ON_ACK
+        ack_nack->handle = ON_ACK;
+    }
+    
     
     // change the nonce we want.
     device->last_nonce = device->expected_nonce;
