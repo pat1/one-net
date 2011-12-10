@@ -1748,6 +1748,14 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     on_encoded_did_t enc_peer_did, enc_src_did;
     
     UInt8 peer_unit, src_unit;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    }
+    #endif
+    
 
     if(!ASCII_PARAM_LIST)
     {
@@ -1801,21 +1809,14 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
     
-    if(on_encode(enc_src_did, src_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS ||
-      on_encode(enc_peer_did, peer_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
-    {
-        return ONS_INTERNAL_ERR;
-    }
-    
-    if(!is_my_did(&enc_src_did))
-    {
-        return ONCLI_INTERNAL_ERR; // currently unavailable.
-    }
-    
-    switch(one_net_add_peer_to_list(src_unit, NULL, &enc_peer_did, peer_unit))
+
+    // we're the master and we want to assign a peer to a client
+    switch(one_net_master_peer_assignment(TRUE, &src_did, src_unit,
+        &peer_did, peer_unit))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
         case ONS_RSRC_FULL: return ONCLI_RSRC_UNAVAILABLE;
+        case ONS_INCORRECT_ADDR: return ONCLI_INVALID_DST;
         default: return ONCLI_CMD_FAIL;
     }
 }

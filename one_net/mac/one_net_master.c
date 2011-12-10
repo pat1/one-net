@@ -66,6 +66,9 @@
 #include "one_net_prand.h"
 #include "one_net_crc.h"
 #include "one_net.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 
 
 // temporary debugging
@@ -977,6 +980,103 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 } // one_net_master_add_client //
 
 
+#ifdef _PEER
+/*!
+    \brief (Un)Assigns a peer for a given client.
+
+    Assigns or unassigns a peer unit and device to the client at DST_DID.
+
+    \param[in] ASSIGN TRUE if the peer is being assigned
+                      FALSE if the peer is being unassigned
+    \param[in] SRC_DID The raw did of the device being (un)assigned the peer.
+    \param[in] SRC_UNIT The unit on the device that is having the peer
+    \param[in] PEER_DID The raw did of the peer being (un)assigned to the
+      client.
+    \param[in] PEER_UNIT The unit on the peer device being (un)assigned to the
+      client.
+      (un)assigned.
+
+    \return ONS_SUCCESS if the operation was successful
+            ONS_BAD_PARAM if any of the parameters are invalid
+            ONS_INCORRECT_ADDR if either the peer or desination device is not
+              part of the network.
+            See send_admin_pkt for more return values.
+*/
+one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
+  const on_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
+  const on_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
+{
+    on_client_t * src_client = 0, * peer_client = 0;
+    on_encoded_did_t enc_src_did;
+    UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
+    on_encoded_did_t* enc_dst_did = (on_encoded_did_t*)&pld[ON_PEER_DID_IDX];
+    BOOL src_is_master, dst_is_master;
+    
+
+    if(!SRC_DID || !PEER_DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if parameters are invalid //
+    
+    if(on_encode(enc_src_did, *SRC_DID, sizeof(enc_src_did)) != ONS_SUCCESS
+      || on_encode(*enc_dst_did, *PEER_DID, ON_ENCODED_DID_LEN)
+      != ONS_SUCCESS)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if the encode failed //
+    
+    src_is_master = is_my_did(&enc_src_did);
+    dst_is_master = is_my_did(enc_dst_did);
+    
+    // make sure that the devices are both part of the network and are
+    // not the same device
+    if(!src_is_master && !client_info(&enc_src_did))
+    {
+        // source devices is in the network.
+        return ONS_INCORRECT_ADDR;
+    }
+    if(!dst_is_master && !client_info(enc_dst_did))
+    {
+        // dest. device is not part of the network.
+        return ONS_INCORRECT_ADDR;
+    }
+    if(on_encoded_did_equal(&enc_src_did, enc_dst_did))
+    {
+        // devices are the same.
+        return ONS_INCORRECT_ADDR;
+    }
+
+    
+    // first see if we're assigning to ourself, in which case no ONE-NET
+    // message will be needed.
+    if(src_is_master)
+    {
+        if(ASSIGN)
+        {
+            return one_net_add_peer_to_list(SRC_UNIT, NULL, enc_dst_did,
+                PEER_UNIT);
+        }
+        else
+        {
+            return one_net_remove_peer_from_list(SRC_UNIT, NULL, enc_dst_did,
+                PEER_UNIT);
+        }
+    }
+    
+    
+    // verify that both devices are part of the network
+
+
+
+    pld[ON_PEER_SRC_UNIT_IDX] = SRC_UNIT;
+    pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
+
+    return send_admin_pkt(ASSIGN ? ON_ASSIGN_PEER : ON_UNASSIGN_PEER,
+        &enc_src_did, pld);
+} // one_net_master_peer_assignment //
+#endif
+
+
 
 //! @} ONE-NET_MASTER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -1251,7 +1351,7 @@ static on_message_status_t on_master_handle_block_ack_nack_response(
 {
     return ON_MSG_CONTINUE;
 }
-  
+
 
 // TODO -- document 
 static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
