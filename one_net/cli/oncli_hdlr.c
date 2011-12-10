@@ -272,6 +272,11 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
+static oncli_change_peer_list(BOOL ASSIGN,
+  const char * const ASCII_PARAM_LIST);
+#endif
+
 #ifdef _ENABLE_ASSIGN_PEER_COMMAND
 	static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -1737,8 +1742,40 @@ static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
-static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+#if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
+/*!
+    \brief Changes a peer list.
+    
+    The command has the form "aaaaaaa:bbb:c:ddd:e"
+    
+    where aaaaaaa is either "assign peer" or "unassign peer"
+    
+    Note that "unassign peer" has "wildcards".  "assign peer" does not.
+    
+    where bbb is the three digit raw did of the source.
+    where c is the source unit ("f" is a wildcard)
+    where ddd is the three digit raw did of the peer ("000" is a wildcard).
+    where e is the peer unit ("f" is a wildcard).
+
+    
+    \param [in] ASSIGN.  If true, we are adding a peer.  If false, we are
+                         deleting a peer.
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONS_RSRC_FULL If the peer assignment is for the master and there
+              is no room on the list.
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+              part of the network or both addresses are the same.
+            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
+              master-only command.
+            ONCLI_CMD_FAIL For any other failure
+*/
+static oncli_change_peer_list(BOOL ASSIGN,
+  const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
 
@@ -1811,7 +1848,7 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
 
     // we're the master and we want to assign a peer to a client
-    switch(one_net_master_peer_assignment(TRUE, &src_did, src_unit,
+    switch(one_net_master_peer_assignment(ASSIGN, &src_did, src_unit,
         &peer_did, peer_unit))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
@@ -1823,11 +1860,77 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+/*!
+    \brief Adds a peer to a peer list of a device
+    
+    The command has the form "assign peer:bbb:c:ddd:e"
+
+    
+    where bbb is the three digit raw did of the source.
+    where c is the source unit
+    where ddd is the three digit raw did of the peer
+    where e is the peer unit
+
+
+    \param [in] ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONS_RSRC_FULL If the peer assignment is for the master and there
+              is no room on the list.
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+              part of the network or both addresses are the same.
+            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
+              master-only command.
+            ONCLI_CMD_FAIL For any other failure
+*/
+static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return oncli_change_peer_list(TRUE, ASCII_PARAM_LIST);
+}
+#endif
+
+
 #ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+/*!
+    \brief Removes peer(s) from a peer list
+    
+    The command has the form "unassign peer:bbb:c:ddd:e"
+    
+    where bbb is the three digit raw did of the source.
+    where c is the source unit ("f" is a wildcard)
+    where ddd is the three digit raw did of the peer ("000" is a wildcard).
+    where e is the peer unit ("f" is a wildcard).
+    
+    
+    Wildcards mean that all existing peers that match will be deleted.
+    
+    For example, "unassign peer:003:f:000:5" will delete all peers in device
+    003 with any source unit, any peer device, and a peer unit of 5.
+    
+
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONS_RSRC_FULL If the peer assignment is for the master and there
+              is no room on the list.
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+              part of the network or both addresses are the same.
+            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
+              master-only command.
+            ONCLI_CMD_FAIL For any other failure
+*/
 static oncli_status_t unassign_peer_cmd_hdlr(
   const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
+    return oncli_change_peer_list(FALSE, ASCII_PARAM_LIST);
 }
 #endif
 
