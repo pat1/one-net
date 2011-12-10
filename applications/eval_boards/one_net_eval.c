@@ -480,6 +480,9 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
                 ack_nack->handle = ON_NACK;
                 return ON_MSG_CONTINUE;
 		}
+        
+        
+        oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
     
         ack_nack->handle = ON_ACK_STATUS;
     
