@@ -1245,7 +1245,9 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_encoded_did_t enc_dst;
     UInt8 src_unit, dst_unit;
+    #ifdef _PEER
     BOOL send_to_peer_list;
+    #endif
     UInt16 data_len;
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
 
@@ -1259,8 +1261,13 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if the parameter is invalid //
 
     // get the send parameters
+    #ifdef _PEER
     if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
       &dst_unit, &enc_dst, &send_to_peer_list)))
+    #else
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
+      &dst_unit, &enc_dst)))
+    #endif
     {
         return ONCLI_PARSE_ERR;
     } // if failed parsing parameters //
@@ -1282,9 +1289,11 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     switch((*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, src_did, send_to_peer_list ? NULL : enc_dst
+      ONE_NET_HIGH_PRIORITY, src_did,
       #ifdef _PEER
-          , send_to_peer_list,  src_unit
+          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
+      #else
+          &enc_dst
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , NULL
@@ -1331,7 +1340,9 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt16 data_len;
     UInt8 src_unit, dst_unit;
     UInt8 raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN] = {0};
+    #ifdef _PEER
     BOOL send_to_peer_list;
+    #endif
     
     UInt8 pid, pld_len, msg_type;
     
@@ -1348,8 +1359,13 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if the parameter is invalid //
 
     // get the send parameters
+    #ifdef _PEER
     if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
       &dst_unit, &enc_dst, &send_to_peer_list)))
+    #else
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
+      &dst_unit, &enc_dst)))
+    #endif
     {
         return ONCLI_PARSE_ERR;
     } // if failed parsing parameters //
@@ -1409,9 +1425,11 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
 
     switch((*one_net_send_single)(pid, ON_APP_MSG, raw_pld, pld_len,
-      ONE_NET_HIGH_PRIORITY, src_did, send_to_peer_list ? NULL : enc_dst
+      ONE_NET_HIGH_PRIORITY, src_did,
       #ifdef _PEER
-          , send_to_peer_list,  src_unit
+          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
+      #else
+          &enc_dst
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , NULL
