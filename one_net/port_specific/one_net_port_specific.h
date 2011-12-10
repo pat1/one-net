@@ -57,6 +57,7 @@
 #include "one_net_types.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
+#include "one_net_message.h"
 
 
 //==============================================================================
@@ -284,6 +285,45 @@ long int one_net_strtol(const char * str, char ** endptr, int base);
 */
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
   UInt8* const max_hops);
+#endif
+
+
+
+#ifndef _ONE_NET_SIMPLE_DEVICE
+/*!
+    \brief Allows the user to adjust the recipient list for a message
+
+    This function is called after a single message has been popped
+    from the queue and ready to send.  ONE-NET has set up a list of
+    destination dids and destination units that the message will be sent to.
+    The destination units are relevant only if the message type is ON_APP_MSG.
+    
+    The application code can do one of four things.
+    
+    1) Do nothing.  In this instance the list remains unchanged and this will
+       be the list that is sent.
+    2) Cancel the message.  If this is desired, *recipient_list should be set
+       to NULL.
+    3) A new list can replace the old list.  In this case the appliation code
+       should change *recipient_list to point to the list it wants to have
+       sent.
+    4) The existing list can be used, but the applicaiton code can add to it,
+       remove from it, or reorder it.
+   
+
+    Lists can be emptied by setting the "num_recipients" field to 0.  Elements
+    can be added using the add_recipient_to_recipient_list function.  Elements
+    can be removed using the "remove_recipient_from_recipient_list" function.
+
+    
+    \param[in] msg The message that is to be sent.
+    \param[in/out] A pointer to a pointer to a list of recipients.  The list
+                   itself can be changed by changing the pointer.  Change the
+                   pointer to NULL to cancel the message.  See the main
+                   description for how to adjust lists.
+*/
+void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
+  on_recipient_list_t** recipient_send_list);
 #endif
 
 
