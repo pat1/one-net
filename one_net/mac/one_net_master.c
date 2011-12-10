@@ -241,6 +241,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
   on_client_t ** client, on_ack_nack_t* ack_nack);
 
+static on_client_t* check_client_check_ins(void);
 
 
 //! @} ONE-NET_MASTER_pri_func
@@ -876,7 +877,11 @@ void one_net_master(void)
         }
         #endif
         
-        // TODO -- any other type of admin checks?
+        if(master_param->client_count)
+        {
+            // if at least one device
+            check_client_check_ins();
+        }
     }
     
 } // one_net_master //
@@ -934,6 +939,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->next_check_in_time = get_tick_count() +
       MS_TO_TICK(client->keep_alive_interval);
+      
 #ifdef _ONE_NET_MULTI_HOP
     client->device_send_info.max_hops = features_max_hops(features);
     client->device_send_info.hops = 0;
@@ -2044,6 +2050,58 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     } // switch(DATA[ON_ADMIN_MSG_ID_IDX]) //
 
     return ON_MSG_CONTINUE;
+}
+
+
+/*!
+    \brief Checks all clients to see if any have missed a required check-in and
+           alerts the application code if any have.
+
+    \return A pointer to an on_client_t object of the client that missed its check-in, if any.
+            NULL if no clients have missed a check-in.
+            
+*/
+static on_client_t* check_client_check_ins(void)
+{
+    on_client_t* client;
+    tick_t time_now = get_tick_count();
+    
+    // make it random so we don't keep checking the same device?
+    // TODO - is this wise / needed?
+    UInt16 index = one_net_prand(time_now, master_param->client_count - 1);
+    UInt16 i;
+    
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        
+        if(index >= master_param->client_count)
+        {
+            index = 0;
+        }
+        
+        client = &client_list[index];
+        
+        if(time_now > client->next_check_in_time)
+        {
+            // client has missed its check-in time.
+            if(one_net_master_client_missed_check_in(client))
+            {
+                // TODO -- ping the client
+            }
+            else
+            {
+                // TODO -- is this where we want to place this reset.
+                client->next_check_in_time = get_tick_count() +
+                  MS_TO_TICK(client->keep_alive_interval);
+            }
+            
+            return client;
+        }
+        
+        index++;
+    }
+    
+    return NULL;
 }
       
 

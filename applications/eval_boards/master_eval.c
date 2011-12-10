@@ -510,6 +510,14 @@ void one_net_master_update_result(one_net_mac_update_t update,
 } // one_net_master_update_result //
 
 
+BOOL one_net_master_client_missed_check_in(on_client_t* client)
+{
+    on_raw_did_t raw_did;
+    on_decode(raw_did, client->device_send_info.did, ON_ENCODED_DID_LEN);
+    oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16(&raw_did));
+    return FALSE;
+}
+
 
 //! @} ONE-NET_master_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

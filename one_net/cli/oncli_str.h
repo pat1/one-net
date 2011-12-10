@@ -191,6 +191,7 @@ extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
 
 
 #ifdef _ONE_NET_MASTER
+extern const char * const ONCLI_CLIENT_MISS_CHECK_IN_FMT;
 extern const char * const ONCLI_DEVICE_ADD_FMT;
 extern const char * const ONCLI_DEVICE_NOT_ADDED_FMT;
 #endif

@@ -445,6 +445,10 @@ const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
 
 #ifdef _ONE_NET_MASTER
 
+//! Format output to report that a client has missed its required check-in.
+const char* const ONCLI_CLIENT_MISS_CHECK_IN_FMT =
+  "Client %03X has missed its keep-alive check-in.\n";
+
 //! Format output to report the results of updating a device's parameters.
 const char * const ONCLI_UPDATE_RESULT_FMT = "Updating %s on %03X %s.\n";
 
