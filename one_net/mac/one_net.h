@@ -309,8 +309,8 @@ typedef struct
     //! Contains the MASTER did, and nonce expected to receive from the MASTER
     on_sending_device_t device;
 
-    //! Interval at which the device must communicate with the MASTER
-    tick_t keep_alive_interval;
+    //! Interval at which the device must communicate with the MASTER(in ms)
+    UInt32 keep_alive_interval;
     
     //! Bitmap of communication and MASTER settable flags
     //! (sent in the SETTINGS admin message).
@@ -350,6 +350,9 @@ typedef struct
     
     //! Indicates if using the current stream key, or the old stream key
     BOOL use_current_stream_key;
+    
+    //! Interval at which the client must communicate with the MASTER(in ms)
+    UInt32 keep_alive_interval;
     
     on_sending_device_t device_send_info;
 } on_client_t;
