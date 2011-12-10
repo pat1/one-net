@@ -202,7 +202,7 @@ void add_peers_to_recipient_list(const on_single_data_queue_t*
 
 
 /*!
-    \brief Saves the peer assignment that is being made.
+    \brief Adds a peer to the list
     
     \param[in] SRC_UNIT The unit on this device being assigned the peer.
     \param[in/out] The peer list to update
@@ -235,6 +235,7 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
         peer_list = peer;
     }
     
+    
     // make sure we have room
     if(one_net_memcmp(INVALID_PEER,
       peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
@@ -243,16 +244,21 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
         // Last element is not empty.  List is full.
         return ONS_RSRC_FULL;
     }
-	
+    
     // There are a few possibilities
     // 1.  This peer assignment is already on the unit list.  If so, do nothing,
 	//     return ONS_SUCCESS
     // 2.  This peer assignment is not on the unit list, but the unit list is
-	//     full.  If so, do nothing and return ONS_RSRC_FULL.
+	//     full.  If so, do nothing and return ONS_RSRC_FULL.  Note that this is
+    //     a separate criteria than the one directly above, which looked to see
+    //     if the ENTIRE list was full.  This is a check of whether the UNIT
+    //     list is full.
     // 3.  This peer assignment is not on the unit list, and the unit list is
 	//     not full.  If so, find the index it should be inserted into and
     //     proceed to step 4.	
     // 4.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
+	
+
     
     // find a spot to add the peer.  List is ordered by source
     // unit, then peer unit.  Empty spots should all be at the end and are
@@ -332,6 +338,80 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
       ON_ENCODED_DID_LEN);
 	return ONS_SUCCESS;
 } // one_net_add_peer_to_list //
+
+
+/*!
+    \brief Removes peer(s) from the peer list
+    
+    \param[in] SRC_UNIT The unit on this device being unassigned.
+                   ONE_NET_DEV_UNIT is a wilcard
+    \param[in/out] The peer list to update
+    \param[in] PEER_DID The peer device being unassigned.
+                   INVALID_PEER is a wildcard
+    \param[in] PEER_UNIT The unit in the peer device being unassigned.
+                   ONE_NET_DEV_UNIT is a wildcard
+                   
+    \return ONS_SUCCESS If successful
+            ONS_BAD_PARAM If the parameters are invalid
+            ONS_INVALID_DATA If the data is incorrect (such as a source unit
+              that is out of range).
+            ONS_INTERNAL_ERR If something unexpected happened
+*/
+one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
+  on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
+  const UInt8 PEER_UNIT)
+{
+    UInt8 i;
+    
+    if(!PEER_DID)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    if(!peer_list)
+    {
+        peer_list = peer;
+    }
+
+    
+    for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
+    {
+        // check the did criteria.
+        if(on_encoded_did_equal(PEER_DID, &INVALID_PEER) ||
+           on_encoded_did_equal(PEER_DID, &(peer_list[i].peer_did)))
+        {
+            continue; // match or wildcard
+        }
+        
+        // check the source unit
+        if(SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT != peer_list[i].src_unit)
+        {
+            continue; // match or wildcard
+        }        
+        
+        // check the peer unit
+        if(PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT !=
+           peer_list[i].peer_unit)
+        {
+            continue; // no match, no wildcard
+        }
+        
+        // this element should be removed
+        
+        
+        // move everything after up one spot
+        one_net_memmove(&peer_list[i], &peer_list[i+1], ONE_NET_MAX_PEER_UNIT
+           - i - 1);
+           
+        // now blank out the last spot if not already blanked out.
+        one_net_memmove(&peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
+            INVALID_PEER, ON_ENCODED_DID_LEN);
+        peer_list[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
+        peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
+    }
+    
+    return ONS_SUCCESS;
+}
 
 
 

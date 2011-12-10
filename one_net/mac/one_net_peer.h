@@ -134,6 +134,9 @@ void add_peers_to_recipient_list(const on_single_data_queue_t*
 one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT);
+one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
+  on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
+  const UInt8 PEER_UNIT);
 
 
 //! @} ONE-NET_PEER_pub_func
