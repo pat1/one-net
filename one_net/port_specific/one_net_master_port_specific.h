@@ -418,6 +418,17 @@ void one_net_master_invite_result(one_net_status_t STATUS,
 */
 void one_net_master_update_result(one_net_mac_update_t update,
   const on_raw_did_t* did, const on_ack_nack_t* ack_nack);
+
+
+/*!
+    \brief Alerts the application code has missed a required check-in
+
+    \param[in] client The client that missed the required check-in
+
+    \return TRUE if the master should ping the client
+            FALSE otherwise
+*/
+BOOL one_net_master_client_missed_check_in(on_client_t* client);
                  
 
 
