@@ -724,8 +724,15 @@ void eval_single_txn_status(on_message_status_t status,
     #if _DEBUG_VERBOSE_LEVEL > 3
     oncli_send_msg("ests end\n");
     #endif
+    
+    if(ack_nack->handle == ON_ACK_STATUS)
+    {
+        UInt8 src_unit = get_src_unit(ack_nack->payload->status_resp);
+        UInt16 msg_data = get_msg_data(ack_nack->payload->status_resp);
+        oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(dst),
+          msg_data);
+    }
 }
-
 
 
 
