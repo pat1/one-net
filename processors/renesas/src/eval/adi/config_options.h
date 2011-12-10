@@ -460,9 +460,6 @@
     #define _DEBUGGING_TOOLS
 #endif
 
-#ifndef _USR_SINGLE
-    #define _USR_SINGLE
-#endif
 
 
 // SINGLE_QUEUE_LEVEL - different levels of options for a single queue
