@@ -243,7 +243,10 @@ typedef enum
     //! be considered changed until a SETTINGS_RESP is received.
     ON_CHANGE_SETTINGS = 0x10,
 
-    //! Sent by the MASTER when it is removing the receiver from the network
+    //! Sent by the MASTER when it is adding a device to the network
+    ON_ADD_DEV = 0x21,
+
+    //! Sent by the MASTER when it is removing a device from the network
     ON_RM_DEV = 0x22
 } on_admin_msg_t;
 
