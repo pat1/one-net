@@ -2165,6 +2165,13 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    }
+    #endif
+    
     // read in the peer did
     if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
