@@ -1370,6 +1370,13 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
         } // unassign peer case //
 #endif
 
+        case ON_CHANGE_KEEP_ALIVE:
+        {
+            update = ONE_NET_UPDATE_KEEP_ALIVE;
+            break;
+        } // change keep-alive case //
+        
+
         default: return;
     }
     
