@@ -361,7 +361,7 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT)
 {
-    UInt8 i;
+    int i;
     
     if(!PEER_DID)
     {
@@ -376,25 +376,33 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
     
     for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
     {
-        // check the did criteria.
-        if(on_encoded_did_equal(PEER_DID, &INVALID_PEER) ||
-           on_encoded_did_equal(PEER_DID, &(peer_list[i].peer_did)))
+        // check to see if we are at the end of the list
+        if(on_encoded_did_equal(&(peer_list[i].peer_did), &INVALID_PEER))
         {
-            continue; // match or wildcard
+            // end of the list.
+            break;
+        }        
+        
+        // check the did criteria.
+        if(!on_encoded_did_equal(PEER_DID, &INVALID_PEER) &&
+           !on_encoded_did_equal(PEER_DID, &(peer_list[i].peer_did)))
+        {
+            continue; // not a match or wildcard
         }
         
         // check the source unit
-        if(SRC_UNIT == ONE_NET_DEV_UNIT || SRC_UNIT != peer_list[i].src_unit)
+        if(SRC_UNIT != ONE_NET_DEV_UNIT && SRC_UNIT != peer_list[i].src_unit)
         {
-            continue; // match or wildcard
-        }        
+            continue; // not a match or wildcard
+        }      
         
         // check the peer unit
-        if(PEER_UNIT == ONE_NET_DEV_UNIT || PEER_UNIT !=
+        if(PEER_UNIT != ONE_NET_DEV_UNIT && PEER_UNIT !=
            peer_list[i].peer_unit)
         {
-            continue; // no match, no wildcard
+            continue; // not a match or wildcard
         }
+
         
         // this element should be removed
         
@@ -408,6 +416,10 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
             INVALID_PEER, ON_ENCODED_DID_LEN);
         peer_list[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
         peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
+        
+        i--; // we just deleted and we're going to increment at the top of the
+             // loop, but since the indexes have changed, we want to keep our
+             // loop index the same, so decrement here to cancel things out.
     }
     
     return ONS_SUCCESS;
