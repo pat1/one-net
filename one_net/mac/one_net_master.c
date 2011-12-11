@@ -1157,7 +1157,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
 */
 one_net_status_t one_net_master_change_frag_dly(
   const on_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
-  const UInt32 DELAY)
+  const UInt16 DELAY)
 {
     const UInt8 admin_type = PRIORITY == ONE_NET_HIGH_PRIORITY
       ? ON_CHANGE_HIGH_FRAGMENT_DELAY : ON_CHANGE_LOW_FRAGMENT_DELAY;
@@ -1166,7 +1166,7 @@ one_net_status_t one_net_master_change_frag_dly(
     one_net_status_t status;
     on_client_t* client;
 
-    UInt8 pld[4];
+    UInt8 pld[2];
 
     if(!RAW_DST || PRIORITY < ONE_NET_LOW_PRIORITY
       || PRIORITY > ONE_NET_HIGH_PRIORITY)
@@ -1210,7 +1210,7 @@ one_net_status_t one_net_master_change_frag_dly(
         return ONS_DEVICE_NOT_CAPABLE;
     }
 
-    one_net_int32_to_byte_stream(DELAY, pld);
+    one_net_int16_to_byte_stream(DELAY, pld);
 
     return send_admin_pkt(admin_type, (const on_encoded_did_t * const)&dst,
       pld);
@@ -2104,10 +2104,10 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
              // send a little bit in the future so we don't hog all the
              // resouces.
              break;
-        #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_EXTENDED_SINGLE)
-        case ON_CHANGE_FRAGMENT_DELAY:
-             admin_pld_data_len = 2 * sizeof(UInt32);
-             pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_CHANGE_LOW_FRAGMENT_DELAY:
+        case ON_CHANGE_HIGH_FRAGMENT_DELAY:
+             admin_pld_data_len = 2;
         #endif
     }
 

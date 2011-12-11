@@ -233,7 +233,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
 #ifdef _BLOCK_MESSAGES_ENABLED
 one_net_status_t one_net_master_change_frag_dly(
   const on_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
-  const UInt32 DELAY);
+  const UInt16 DELAY);
 #endif
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
   const on_raw_did_t * const DST_DID);

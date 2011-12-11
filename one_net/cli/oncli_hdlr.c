@@ -2152,7 +2152,7 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     char * end_ptr;
     on_raw_did_t did;
-    UInt32 delay;
+    UInt16 delay;
     UInt8 priority;
 
     if(!ASCII_PARAM_LIST)
