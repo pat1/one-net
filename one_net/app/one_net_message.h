@@ -222,7 +222,7 @@ typedef enum
     ON_KEY_CHANGE_CONFIRM = 0x09,
     
     #ifdef _STREAM_MESSAGES_ENABLED
-    ON_STREAM_KEY_CHANGE_CONFIRM = 0x0A
+    ON_STREAM_KEY_CHANGE_CONFIRM = 0x0A,
     #endif
     
     //! Sent to change the keep alive interval
