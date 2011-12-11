@@ -106,7 +106,7 @@
 // Stream Messages -- available only if block messages are enabled.
 #ifdef _BLOCK_MESSAGES_ENABLED
     #ifndef _STREAM_MESSAGES_ENABLED
-	    #define _STREAM_MESSAGES_ENABLED
+//	    #define _STREAM_MESSAGES_ENABLED
     #endif
 #endif
 
@@ -198,7 +198,7 @@
 // more detailed the display will be.  This value must be set
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 1
+#define _DEBUG_VERBOSE_LEVEL 4
 
 
 #ifdef _ONE_NET_EVAL
@@ -208,13 +208,13 @@
 	
 	// _AUTO_MODE should be defined if you want the Auto Mode option available
 	#ifndef _AUTO_MODE
-//		#define _AUTO_MODE
+		#define _AUTO_MODE
 	#endif
 
 	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
     #if _DEBUG_VERBOSE_LEVEL > 0
 	    #ifndef _SNIFFER_MODE
-//		    #define _SNIFFER_MODE
+		    #define _SNIFFER_MODE
 	    #endif
     #endif
 #endif
@@ -342,35 +342,35 @@
         
 	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
 	    #ifndef _ENABLE_INVITE_COMMAND
-//		    #define _ENABLE_INVITE_COMMAND
+		    #define _ENABLE_INVITE_COMMAND
 	    #endif
 
 	    // _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
 	    #ifndef _ENABLE_CANCEL_INVITE_COMMAND
-//		    #define _ENABLE_CANCEL_INVITE_COMMAND
+		    #define _ENABLE_CANCEL_INVITE_COMMAND
 	    #endif
 
     	#ifdef _PEER
 	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
 		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
-//			    #define _ENABLE_ASSIGN_PEER_COMMAND
+			    #define _ENABLE_ASSIGN_PEER_COMMAND
 		    #endif
 
 		    // _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
 		    #ifndef _ENABLE_UNASSIGN_PEER_COMMAND
-//			    #define _ENABLE_UNASSIGN_PEER_COMMAND
+			    #define _ENABLE_UNASSIGN_PEER_COMMAND
 		    #endif
 	    #endif
 		
 	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
 	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
-//		    #define _ENABLE_CHANGE_KEY_COMMAND
+		    #define _ENABLE_CHANGE_KEY_COMMAND
 	    #endif
 		
         #ifdef _STREAM_MESSAGES_ENABLED
     	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change stream key" command option
     	    #ifndef _ENABLE_CHANGE_STREAM_KEY_COMMAND
-//    		    #define _ENABLE_CHANGE_STREAM_KEY_COMMAND
+    		    #define _ENABLE_CHANGE_STREAM_KEY_COMMAND
     	    #endif
         #endif
 
@@ -457,7 +457,7 @@
 
 
 #ifndef _DEBUGGING_TOOLS
-//    #define _DEBUGGING_TOOLS
+    #define _DEBUGGING_TOOLS
 #endif
 
 
@@ -473,7 +473,7 @@
 	#define MED_SINGLE_QUEUE_LEVEL 2
 	#define MAX_SINGLE_QUEUE_LEVEL 3
 	
-	#define _SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL
+	#define _SINGLE_QUEUE_LEVEL MAX_SINGLE_QUEUE_LEVEL
 #endif
 
 #ifndef _EXTENDED_SINGLE
