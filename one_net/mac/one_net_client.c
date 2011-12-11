@@ -61,6 +61,9 @@
 #include "one_net_acknowledge.h"
 #include "one_net_timer.h"
 #include "one_net_crc.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 
 
 
@@ -1131,6 +1134,36 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         } // change key case //
 
+        #ifdef _PEER
+        case ON_ASSIGN_PEER:
+        {
+            switch(one_net_add_peer_to_list(DATA[1 + ON_PEER_SRC_UNIT_IDX],
+              NULL, (const on_encoded_did_t * const)
+              &DATA[1 + ON_PEER_DID_IDX], DATA[1 + ON_PEER_PEER_UNIT_IDX]))
+            {
+                case ONS_RSRC_FULL: ack_nack->nack_reason =
+                       ON_NACK_RSN_RSRC_UNAVAIL_ERR; break;
+                case ONS_SUCCESS: break;
+                default: ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+            }
+            
+            break;
+        } // assign peer case //
+        
+        case ON_UNASSIGN_PEER:
+        {
+            switch(one_net_remove_peer_from_list(DATA[1+ON_PEER_SRC_UNIT_IDX],
+              NULL, (const on_encoded_did_t * const)
+              &DATA[1 + ON_PEER_DID_IDX], DATA[1 + ON_PEER_PEER_UNIT_IDX]))
+            {
+                case ONS_SUCCESS: break;
+                default: ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+            }
+            
+            break;
+        } // unassign peer case //
+        #endif
+        
         default:
         {
             ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
