@@ -476,11 +476,8 @@ void one_net_master_update_result(one_net_mac_update_t update,
             result_type = ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
             break;
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_UPDATE_LOW_FRAGMENT_DELAY:
-            result_type = ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR;
-            break;
-        case ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY:
-            result_type = ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR;
+        case ONE_NET_UPDATE_FRAGMENT_DELAY:
+            result_type = ONCLI_M_UPDATE_RESULT_FRAG_STR;
             break;
         #endif
         case ONE_NET_UPDATE_KEEP_ALIVE:

@@ -323,8 +323,7 @@ extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
 #endif
 extern const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
 #ifdef _BLOCK_MESSAGES_ENABLED
-extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR;
 #endif
 extern const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_SETTINGS_STR;

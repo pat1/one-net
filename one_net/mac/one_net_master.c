@@ -1564,27 +1564,11 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
         } // change keep-alive case //
         
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY:
+        case ONE_NET_UPDATE_FRAGMENT_DELAY:
         {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                on_base_param->fragment_delay_high =
-                  ack_nack->payload->ack_time_ms;
-            }
-            update = ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY;
+            update = ONE_NET_UPDATE_FRAGMENT_DELAY;
             break;
-        } // change high-priority fragment delay case //
-        
-        case ONE_NET_UPDATE_LOW_FRAGMENT_DELAY:
-        {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                on_base_param->fragment_delay_low =
-                  ack_nack->payload->ack_time_ms;
-            }
-            update = ONE_NET_UPDATE_LOW_FRAGMENT_DELAY;
-            break;
-        } // change low-priority fragment delay case //
+        } // change one or both fragment delays case //
         #endif
 
         case ON_CHANGE_SETTINGS:
@@ -2115,11 +2099,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
              // send a little bit in the future so we don't hog all the
              // resouces.
              break;
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ON_CHANGE_LOW_FRAGMENT_DELAY:
-        case ON_CHANGE_HIGH_FRAGMENT_DELAY:
-             admin_pld_data_len = 2;
-        #endif
     }
 
     

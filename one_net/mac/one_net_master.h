@@ -86,11 +86,8 @@ typedef enum
     ONE_NET_UPDATE_REPORT_TO_MASTER = 0x04,
 
     #ifdef _BLOCK_MESSAGES_ENABLED
-    //! Low Priority Fragment delay update
-    ONE_NET_UPDATE_LOW_FRAGMENT_DELAY = 0x05,
-
-    //! High Priority Fragment delay update
-    ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY = 0x06,
+    //! Fragment delays update
+    ONE_NET_UPDATE_FRAGMENT_DELAY = 0x05,
     #endif
 
     //! Updates the keep alive interval for a device
