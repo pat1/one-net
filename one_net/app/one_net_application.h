@@ -323,10 +323,10 @@ typedef struct
     #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Low priority fragment delay
-    tick_t fragment_delay_low;
+    UInt16 fragment_delay_low;
 
     //! High priority fragment delay
-    tick_t fragment_delay_high;
+    UInt16 fragment_delay_high;
     #endif
 } on_base_param_t;
 
