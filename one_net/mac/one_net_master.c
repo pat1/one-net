@@ -1617,6 +1617,19 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_SETTINGS;
             break;
         } // change keep-alive case //
+        
+        case ON_RM_DEV:
+        {
+            client->send_remove_device_message = FALSE;
+            update = ONE_NET_UPDATE_REMOVE_DEVICE;
+            
+            if(on_encoded_did_equal(&(client->device_send_info.did),
+              &remove_device_did))
+            {
+                // remove this client from the client list.
+            }
+            break;
+        } // remove device case //
 
         default: return;
     }
@@ -1775,7 +1788,7 @@ static one_net_status_t init_internal(void)
 /*!
     \brief Returns the CLIENT information for the given CLIENT.
 
-    \param[in] CLIENT_DID The enocded device id of the CLIENT to retrieve the
+    \param[in] CLIENT_DID The encoded device id of the CLIENT to retrieve the
       information for.
 
     \return The CLIENT information if the information was found
@@ -1809,10 +1822,58 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
     \param[in] DID The device ID of the CLIENT to remove
 
     \return ONS_SUCCESS if the client was deleted.
+            ONS_NOT_JOINED if the client to delete is not in the network
             ONS_INVALID_DATA if the client was not deleted.
+            ONS_INTERNAL_ERR if some other problem occurred
 */
 static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 {
+    UInt16 index;
+    on_client_t* client;
+    BOOL found = FALSE;
+    
+    if(!DID)
+    {
+        return ONS_INVALID_DATA;
+    } // if the parameter is invalid //
+    
+    sort_client_list_by_encoded_did(); // sort the list if it isn't already
+                                       // sorted.  This is probably not
+                                       // necessary.
+
+    client = client_info(DID);
+    if(!client)
+    {
+        return ONS_NOT_JOINED; // there's no client to delete.  This may be an
+                               // error or it may just be that the device has
+                               // already been deleted.
+    }
+    
+    // now loop through and find the index of the client in the client_list.
+    for(index = 0; index < master_param->client_count; index++)
+    {
+        if(&client_list[index] == client)
+        {
+            found = TRUE;
+            break;
+        }
+    }
+    
+    if(!found)
+    {
+        return ONS_INTERNAL_ERR; // we shouild never get here
+    }
+    
+    // move everything below up one.
+    one_net_memmove(&client_list[index], &client_list[index],
+      (master_param->client_count - index - 1) * sizeof(on_client_t));
+      
+    // subtract 1 from the count
+    (master_param->client_count)--;
+    
+    // now fill in the next client did to assign
+    master_param->next_client_did = find_lowest_vacant_did();
+
 	return ONS_SUCCESS;
 } // rm_client //
 
