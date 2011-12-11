@@ -634,6 +634,46 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
 }
 
 
+/*!
+    \brief Determines whether this sevice will need to communicate in the
+           near future with a device.
+           
+    This function is called when deciding whether to send a regular "ACK" or
+    "NACK" or a "Stay Awake" ACK or NACK to a device.  A device should stay
+    awake if there is a message to it in the queue or it is on the recipient
+    list of a pending message.
+    
+    TODO -- we should probably also check all the messages in the queue to see
+            if it might be on the peer list.  Also possibly alert the
+            application code, which may be waiting.
+            
+    Note : The master must also check whether it is in the middle of a key
+           change.  This function does not do that.
+    
+    \param[in] The DID of the device.
+
+    \return
+        TRUE if we have something pending for this device
+        FALSE otherwise.
+*/
+BOOL device_should_stay_awake(const on_encoded_did_t* const did)
+{
+    UInt8 i;
+    for(i = 0; i < single_data_queue_size; i++)
+    {
+        if(on_encoded_did_equal(&(single_data_queue[i].dst_did), did))
+        {
+            return TRUE;
+        }
+    }
+    
+    // TODO -- check everything else.  This funciton probably needs to be
+    //         moved from one_net_message.c to one_net.c so more things
+    //         can be checked.
+    return FALSE;
+}
+
+
 //! @} ONE-NET_MESSAGE_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

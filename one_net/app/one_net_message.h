@@ -411,6 +411,8 @@ BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
   const on_did_unit_t* const recipient_to_add);
 on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
   on_recipient_list_t* recipient_list);
+  
+BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 
 
 

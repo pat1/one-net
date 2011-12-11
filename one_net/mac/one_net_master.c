@@ -1298,6 +1298,7 @@ static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
+    BOOL stay_awake;
     on_message_status_t msg_status;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
@@ -1394,9 +1395,27 @@ omsdh_build_resp:
         client->next_check_in_time = get_tick_count() +
           MS_TO_TICK(client->keep_alive_interval);
     }
+    
+    stay_awake = device_should_stay_awake((const on_encoded_did_t* const)
+      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
+      
+    // now check to make sure we're not in the middle of a key change
+    if(!(client->use_current_key))
+    {
+        stay_awake = TRUE;
+        // TODO -- actually queue the key change?
+    }
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(!(client->use_current_stream_key))
+    {
+        stay_awake = TRUE;
+        // TODO -- actually queue the key change?
+    }
+    #endif
+
 
     response_pid = get_single_response_pid(*(pkt->pid),
-      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
+      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
     {

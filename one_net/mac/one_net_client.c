@@ -461,6 +461,7 @@ static on_message_status_t on_client_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
 {
+    BOOL stay_awake;
     on_message_status_t msg_status;
     on_msg_hdr_t msg_hdr;
     on_raw_did_t raw_src_did, raw_repeater_did;
@@ -550,8 +551,11 @@ static on_message_status_t on_client_single_data_hdlr(
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?
 ocsdh_build_resp:
+    stay_awake = device_should_stay_awake((const on_encoded_did_t* const)
+      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
+
     response_pid = get_single_response_pid(*(pkt->pid),
-      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, FALSE);
+      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
     {
