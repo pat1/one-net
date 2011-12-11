@@ -1165,20 +1165,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #endif
         
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ON_CHANGE_HIGH_FRAGMENT_DELAY:
-        {
-            on_base_param->fragment_delay_high = one_net_byte_stream_to_int16(
-              &DATA[1]);
-            break;
-        } // update high-priority fragment delay case //
-        
-        case ON_CHANGE_LOW_FRAGMENT_DELAY:
-        {
-            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
-              &DATA[1]);
-            break;
-        } // update high-priority fragment delay case //
-        
         case ON_CHANGE_FRAGMENT_DELAY:
         {
             // changing both within one message.  If a value is 0, then, it
@@ -1188,17 +1174,27 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             UInt16 new_frag_high = one_net_byte_stream_to_int16(
               &DATA[1 + ON_FRAG_HIGH_IDX]);
               
-            if(new_frag_low)
+            if(new_frag_low == 0)
             {
-                on_base_param->fragment_delay_low = new_frag_low;
+                new_frag_low = on_base_param->fragment_delay_low;
             }
-            if(new_frag_high)
+            if(new_frag_high == 0)
             {
-                on_base_param->fragment_delay_low = new_frag_high;
+                new_frag_high = on_base_param->fragment_delay_high;
             }
-
+            
+            if(new_frag_low < new_frag_high)
+            {
+                // Invalid.  Low priority cannot be less than high-priority
+                // delay.
+                ack_nack->nack_reason = ON_NACK_RSN_BAD_DATA_ERR;
+                break;
+            }
+            
+            on_base_param->fragment_delay_low = new_frag_low;
+            on_base_param->fragment_delay_high = new_frag_high;
             break;
-        } // update fragment delays case //
+        } // update fragment delay(s) case //
         #endif
 
         case ON_CHANGE_KEEP_ALIVE:

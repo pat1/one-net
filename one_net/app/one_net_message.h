@@ -207,16 +207,8 @@ typedef enum
     #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
-    //! Sent to change a device's low priority fragment delay
-    ON_CHANGE_LOW_FRAGMENT_DELAY = 0x06,
-    
-    //! Sent to change a device's high priority fragment delay
-    ON_CHANGE_HIGH_FRAGMENT_DELAY = 0x07,
-    
-    #ifdef _EXTENDED_SINGLE
     //! Change both high and low fragment delays in one message
     ON_CHANGE_FRAGMENT_DELAY = 0x08,
-    #endif
     #endif
     
     ON_KEY_CHANGE_CONFIRM = 0x09,
