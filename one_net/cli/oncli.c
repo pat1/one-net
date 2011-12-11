@@ -521,6 +521,17 @@ oncli_status_t oncli_print_channel(void)
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+void oncli_print_fragment_delays(void)
+{
+    oncli_send_msg(ONCLI_FRAG_DELAY_FMT, ONCLI_LOW_STR,
+      on_base_param->fragment_delay_low);
+    oncli_send_msg(ONCLI_FRAG_DELAY_FMT, ONCLI_HIGH_STR,
+      on_base_param->fragment_delay_high);
+}
+#endif
+
+
 /*!
     \brief Sends a message out of the serial port.
     

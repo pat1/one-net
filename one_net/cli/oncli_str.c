@@ -372,6 +372,11 @@ const char * const ONCLI_RX_INVALID_CH_FMT
 //! Format to indicate the output string is too short
 const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
   = "Buffer is not big enough; have %u, needed %u\n";
+  
+  
+#ifdef _BLOCK_MESSAGES_ENABLED
+const char* const ONCLI_FRAG_DELAY_FMT = "%s fragment delay : %d ms\n";
+#endif
 
 
 

@@ -144,6 +144,9 @@ oncli_status_t oncli_print_peer_list(void);
 #endif
 oncli_status_t oncli_print_features(on_features_t features);
 oncli_status_t oncli_print_channel(void);
+#ifdef _BLOCK_MESSAGES_ENABLED
+void oncli_print_fragment_delays(void);
+#endif
 
 BOOL oncli_is_valid_unique_key_ch(const char CH);
 
@@ -154,6 +157,7 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
 #endif
+
 
 
 

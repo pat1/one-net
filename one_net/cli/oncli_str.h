@@ -254,6 +254,11 @@ extern const char * const ONCLI_RX_INVALID_CH_FMT;
 extern const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT;
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+extern const char* const ONCLI_FRAG_DELAY_FMT;
+#endif
+
+
 // Error Strings
 extern const char * const ONCLI_IN_PROGRESS_STR;
 extern const char * const ONCLI_RSRC_UNAVAILABLE_STR;

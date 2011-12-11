@@ -1070,6 +1070,11 @@ static oncli_status_t list_cmd_hdlr(void)
         {
             return ONCLI_CMD_FAIL;
         }
+        
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        oncli_send_msg("\n\n");
+        oncli_print_fragment_delays();
+        #endif
 	}
     
     oncli_send_msg("\n\nDevice Features...\n");
