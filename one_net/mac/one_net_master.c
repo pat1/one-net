@@ -1144,7 +1144,8 @@ one_net_status_t one_net_master_change_client_keep_alive(
     \brief Changes the fragment delay of a device.
 
     \param[in] RAW_DST The device to update
-    \param[in] PRIORITY The fragment delay priority to update (high or low).
+    \param[in] LOW_DELAY The fragment delay for low-priority (0 means irrelevant)
+    \param[in] HIGH_DELAY The fragment delay for high-priority (0 means irrelevant)
     \param[in] DELAY The new [low/high] fragment delay (in ms)
 
     \return ONS_SUCCESS if queueing the transaction was successful
@@ -1156,23 +1157,25 @@ one_net_status_t one_net_master_change_client_keep_alive(
             see ONE-NET status codes for other return values.
 */
 one_net_status_t one_net_master_change_frag_dly(
-  const on_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
-  const UInt16 DELAY)
+  const on_raw_did_t * const RAW_DST, const UInt16 LOW_DELAY,
+  const UInt16 HIGH_DELAY)
 {
-    const UInt8 admin_type = PRIORITY == ONE_NET_HIGH_PRIORITY
-      ? ON_CHANGE_HIGH_FRAGMENT_DELAY : ON_CHANGE_LOW_FRAGMENT_DELAY;
-
     on_encoded_did_t dst;
     one_net_status_t status;
     on_client_t* client;
-
     UInt8 pld[2];
-
-    if(!RAW_DST || PRIORITY < ONE_NET_LOW_PRIORITY
-      || PRIORITY > ONE_NET_HIGH_PRIORITY)
+    
+    
+    if(!RAW_DST)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
+    
+    if(LOW_DELAY != 0 && HIGH_DELAY != 0 && LOW_DELAY < HIGH_DELAY)
+    {
+        return ONS_INVALID_DATA; // low priority delay cannot be less than
+                                 // high priority delay.
+    }
 
     if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
     {
@@ -1181,21 +1184,28 @@ one_net_status_t one_net_master_change_frag_dly(
 
     if(is_my_did((const on_encoded_did_t * const)&dst))
     {
-        // change the MASTER's fragment delay
-        if(PRIORITY == ONE_NET_LOW_PRIORITY
-          && DELAY > on_base_param->fragment_delay_high)
-        {
-            on_base_param->fragment_delay_low = DELAY;
-            return ONS_SUCCESS;
-        } // if setting the low priority fragment delay //
-        else if(PRIORITY == ONE_NET_HIGH_PRIORITY
-          && DELAY < on_base_param->fragment_delay_low)
-        {
-            on_base_param->fragment_delay_high = DELAY;
-            return ONS_SUCCESS;
-        } // else if setting the high priority fragment delay //
+        // change the MASTER's fragment delay        
+        UInt16 new_low = on_base_param->fragment_delay_low;
+        UInt16 new_high = on_base_param->fragment_delay_high;
 
-        return ONS_INVALID_DATA;
+        if(LOW_DELAY != 0)
+        {
+            new_low = LOW_DELAY;
+        }
+        if(HIGH_DELAY != 0)
+        {
+            new_high = HIGH_DELAY;
+        }
+        
+        if(new_low < new_high)
+        {
+            return ONS_INVALID_DATA; // low priority delay cannot be less than
+                                     // high priority delay.
+        }
+        
+        on_base_param->fragment_delay_low = new_low;
+        on_base_param->fragment_delay_high = new_high;
+        return ONS_SUCCESS;
     } // if the MASTER device //
     
     client = client_info((const on_encoded_did_t * const)&dst);
@@ -1210,10 +1220,11 @@ one_net_status_t one_net_master_change_frag_dly(
         return ONS_DEVICE_NOT_CAPABLE;
     }
 
-    one_net_int16_to_byte_stream(DELAY, pld);
+    one_net_int16_to_byte_stream(LOW_DELAY, &pld[ON_FRAG_LOW_IDX]);
+    one_net_int16_to_byte_stream(HIGH_DELAY, &pld[ON_FRAG_HIGH_IDX]);
 
-    return send_admin_pkt(admin_type, (const on_encoded_did_t * const)&dst,
-      pld);
+    return send_admin_pkt(ON_CHANGE_FRAGMENT_DELAY,
+      (const on_encoded_did_t * const)&dst, pld);
 } // one_net_master_change_frag_dly //
 #endif
 

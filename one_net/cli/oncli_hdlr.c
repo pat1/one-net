@@ -2203,7 +2203,9 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if parsing the data failed //
     
-    switch(one_net_master_change_frag_dly(&did, priority, delay))
+    switch(one_net_master_change_frag_dly(&did,
+      priority == ONE_NET_LOW_PRIORITY ? delay : 0,
+      priority == ONE_NET_HIGH_PRIORITY ? delay : 0))
     {
         case ONS_DEVICE_NOT_CAPABLE: return ONCLI_UNSUPPORTED;
         case ONS_RSRC_FULL: return ONCLI_RSRC_UNAVAILABLE;
