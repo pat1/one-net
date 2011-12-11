@@ -1139,6 +1139,57 @@ one_net_status_t one_net_master_change_client_keep_alive(
 } // one_net_master_change_client_keep_alive //
 
 
+/*!
+    \brief Sets the update MASTER flag in the CLIENT.
+
+    \param[in] UPDATE_MASTER TRUE if the device should update the MASTER
+                    when a status change occurs.  FALSE otherwise
+    \param[in] DST_DID The CLIENT to update.
+
+    \return ONS_SUCCESS if the command has successfully been queued.
+            ONS_BAD_PARAM if any of the parameters are invalid.
+            ONS_INCORRECT_ADDR if the device does not exist.
+            See the ONE-NET status codes for other possibilities for more
+            return codes.
+*/
+one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
+  const on_raw_did_t * const DST_DID)
+{
+    on_encoded_did_t did;
+    one_net_status_t status;
+    on_client_t * client;
+    UInt8 flags = client->flags;
+
+
+    if(!DST_DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameters are invalid //
+
+    if((status = on_encode(did, *DST_DID, sizeof(did))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding was not successful //
+
+    if((client = client_info((const on_encoded_did_t * const)&did)) == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if getting the client info was not successful //
+
+    if(UPDATE_MASTER)
+    {
+        flags |= ON_SEND_TO_MASTER;
+    } // if the MASTER should be updated //
+    else
+    {
+        flags &= ~ON_SEND_TO_MASTER;
+    } // else the MASTER does not want to be updated //
+
+    return send_admin_pkt(ON_CHANGE_SETTINGS,
+      (const on_encoded_did_t * const)&did, &flags);
+} // one_net_master_set_update_master_flag //
+
+
 
 //! @} ONE-NET_MASTER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -1421,7 +1472,16 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
-        
+
+        case ON_CHANGE_SETTINGS:
+        {
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                client->flags = ack_nack->payload->ack_value.uint8;
+            }
+            update = ONE_NET_UPDATE_SETTINGS;
+            break;
+        } // change keep-alive case //
 
         default: return;
     }
@@ -1929,6 +1989,9 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 
     switch(admin_msg_id)
     {
+        case ON_CHANGE_SETTINGS:
+            admin_pld_data_len = 1;
+            break;
         case ON_NEW_KEY:
         #ifdef _STREAM_MESSAGES_ENABLED
         case ON_NEW_STREAM_KEY:

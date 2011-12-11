@@ -1936,10 +1936,96 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 
 
 #ifdef _ENABLE_UPDATE_MASTER_COMMAND
+/*!
+    \brief Sets the update MASTER flag in a CLIENT.
+
+    The update_master_cmd_hdlr command has the form
+
+    set update master flag:did:command
+
+    where command is either "set" or "clear".  This is a MASTER only function.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            See set_update_master for more return values.
+*/
 static oncli_status_t update_master_cmd_hdlr(
   const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_raw_did_t dst;
+    BOOL update_master = FALSE;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    }
+    #endif
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // read in the peer did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, dst, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw peer did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // get the flag
+    if(!strnicmp(ONCLI_SET_STR, PARAM_PTR, strlen(ONCLI_SET_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_SET_STR);
+        update_master = TRUE;
+    } // if updating the MASTER //
+    else if(!strnicmp(ONCLI_CLR_STR, PARAM_PTR, strlen(ONCLI_CLR_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_CLR_STR);
+        update_master = FALSE;
+    } // else if not updating the MASTER //
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else invalid parameter //
+
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+    
+    
+    switch(one_net_master_set_update_master_flag(update_master, &dst))
+    {
+        case ONS_SUCCESS:
+        {
+            return ONCLI_SUCCESS;
+        } // success case //
+
+        case ONS_INCORRECT_ADDR:
+        {
+            return ONCLI_INVALID_DST;
+        } // incorrect address case //
+
+        default:
+        {
+            return ONCLI_CMD_FAIL;
+        } // default case //
+    } // switch(one_net_master_set_update_master_flag) //
 }
 #endif
 

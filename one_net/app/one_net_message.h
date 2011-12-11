@@ -246,6 +246,10 @@ typedef enum
     //! Sent by a client to check in with the master whenever the keep-alive
     //! timer expires.
     ON_KEEP_ALIVE_RESP = 0x0F,
+    
+    //! Sent to change a device's settings.  The devices settings should not
+    //! be considered changed until a SETTINGS_RESP is received.
+    ON_CHANGE_SETTINGS = 0x10,
 
     //! Sent by the MASTER when it is removing the receiver from the network
     ON_RM_DEV = 0x22

@@ -486,6 +486,9 @@ void one_net_master_update_result(one_net_mac_update_t update,
         case ONE_NET_UPDATE_KEEP_ALIVE:
             result_type = ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
             break;
+        case ONE_NET_UPDATE_SETTINGS:
+            result_type = ONCLI_M_UPDATE_RESULT_SETTINGS_STR;
+            break;
         case ONE_NET_UPDATE_REMOVE_DEVICE:
             result_type = ONCLI_M_UPDATE_RESULT_RM_DEV_STR;
             break;

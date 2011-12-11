@@ -108,6 +108,12 @@ const char * const ONCLI_EUR_STR = "EUR";
 
 
 // Argument strings
+//! set argument string
+const char * const ONCLI_SET_STR = "set";
+
+//! clear argument string
+const char * const ONCLI_CLR_STR = "clr";
+
 //! on argument string
 const char * const ONCLI_ON_STR = "on";
 
@@ -477,6 +483,7 @@ const char* const ONCLI_M_UPDATE_RESULT_FRAG_LOW_STR = "LOW PRIORITY FRAGMENT DE
 const char* const ONCLI_M_UPDATE_RESULT_FRAG_HIGH_STR = "HIGH PRIORITY FRAGMENT DELAY";
 #endif
 const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR = "KEEP-ALIVE INTERVAL";
+const char* const ONCLI_M_UPDATE_RESULT_SETTINGS_STR = "SETTINGS";
 const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR = "REMOVE DEVICE";
 
 #endif

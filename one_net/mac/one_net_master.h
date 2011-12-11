@@ -103,10 +103,12 @@ typedef enum
     //! Updating the stream key is complete
     ONE_NET_UPDATE_STREAM_KEY = 0x09,
     #endif
+    
+    ONE_NET_UPDATE_SETTINGS = 0x0A,
 
     //! This is to mark nothing was updated.  This item should ALWAYS be
     //! LAST IN THE LIST
-    ONE_NET_UPDATE_NOTHING = 0x0A
+    ONE_NET_UPDATE_NOTHING = 0x0B
 } one_net_mac_update_t;
 
 
@@ -227,6 +229,8 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   
 one_net_status_t one_net_master_change_client_keep_alive(
   const on_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE);
+one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
+  const on_raw_did_t * const DST_DID);
 
 
 
