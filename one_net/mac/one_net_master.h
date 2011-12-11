@@ -222,13 +222,19 @@ void one_net_master(void);
 one_net_status_t one_net_master_add_client(const on_features_t features,
   on_base_param_t* out_base_param, on_master_t* out_master_param);
   
-  
+#ifdef _PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const on_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
   const on_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT);
+#endif
   
 one_net_status_t one_net_master_change_client_keep_alive(
   const on_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE);
+#ifdef _BLOCK_MESSAGES_ENABLED
+one_net_status_t one_net_master_change_frag_dly(
+  const on_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
+  const UInt32 DELAY);
+#endif
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
   const on_raw_did_t * const DST_DID);
 

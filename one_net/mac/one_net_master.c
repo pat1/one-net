@@ -1139,6 +1139,85 @@ one_net_status_t one_net_master_change_client_keep_alive(
 } // one_net_master_change_client_keep_alive //
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Changes the fragment delay of a device.
+
+    \param[in] RAW_DST The device to update
+    \param[in] PRIORITY The fragment delay priority to update (high or low).
+    \param[in] DELAY The new [low/high] fragment delay (in ms)
+
+    \return ONS_SUCCESS if queueing the transaction was successful
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If the address is for a device not in the
+              network.
+            ONS_INVALID_DATA If the data is not valid (such as the high priority
+              having a delay longer than the low priority, or vise-versa).
+            see ONE-NET status codes for other return values.
+*/
+one_net_status_t one_net_master_change_frag_dly(
+  const on_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
+  const UInt32 DELAY)
+{
+    const UInt8 admin_type = PRIORITY == ONE_NET_HIGH_PRIORITY
+      ? ON_CHANGE_HIGH_FRAGMENT_DELAY : ON_CHANGE_LOW_FRAGMENT_DELAY;
+
+    on_encoded_did_t dst;
+    one_net_status_t status;
+    on_client_t* client;
+
+    UInt8 pld[4];
+
+    if(!RAW_DST || PRIORITY < ONE_NET_LOW_PRIORITY
+      || PRIORITY > ONE_NET_HIGH_PRIORITY)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(is_my_did((const on_encoded_did_t * const)&dst))
+    {
+        // change the MASTER's fragment delay
+        if(PRIORITY == ONE_NET_LOW_PRIORITY
+          && DELAY > on_base_param->fragment_delay_high)
+        {
+            on_base_param->fragment_delay_low = DELAY;
+            return ONS_SUCCESS;
+        } // if setting the low priority fragment delay //
+        else if(PRIORITY == ONE_NET_HIGH_PRIORITY
+          && DELAY < on_base_param->fragment_delay_low)
+        {
+            on_base_param->fragment_delay_high = DELAY;
+            return ONS_SUCCESS;
+        } // else if setting the high priority fragment delay //
+
+        return ONS_INVALID_DATA;
+    } // if the MASTER device //
+    
+    client = client_info((const on_encoded_did_t * const)&dst);
+
+    if(!client)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+    
+    if(!features_block_capable(client->device_send_info.features))
+    {
+        return ONS_DEVICE_NOT_CAPABLE;
+    }
+
+    one_net_int32_to_byte_stream(DELAY, pld);
+
+    return send_admin_pkt(admin_type, (const on_encoded_did_t * const)&dst,
+      pld);
+} // one_net_master_change_frag_dly //
+#endif
+
+
 /*!
     \brief Sets the update MASTER flag in the CLIENT.
 
@@ -1472,6 +1551,30 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
+        
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY:
+        {
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                on_base_param->fragment_delay_high =
+                  ack_nack->payload->ack_time_ms;
+            }
+            update = ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY;
+            break;
+        } // change high-priority fragment delay case //
+        
+        case ONE_NET_UPDATE_LOW_FRAGMENT_DELAY:
+        {
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                on_base_param->fragment_delay_low =
+                  ack_nack->payload->ack_time_ms;
+            }
+            update = ONE_NET_UPDATE_LOW_FRAGMENT_DELAY;
+            break;
+        } // change low-priority fragment delay case //
+        #endif
 
         case ON_CHANGE_SETTINGS:
         {
@@ -1894,7 +1997,7 @@ static BOOL check_key_update(void)
         #ifdef _STREAM_MESSAGES_ENABLED
         if(stream_key)
         {
-            if(!features_stream_capable(client->device_send_ifo.features))
+            if(!features_stream_capable(client->device_send_info.features))
             {
                 continue;
             }

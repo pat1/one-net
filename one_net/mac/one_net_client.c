@@ -1164,6 +1164,28 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         } // unassign peer case //
         #endif
         
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_CHANGE_HIGH_FRAGMENT_DELAY:
+        {
+            on_base_param->fragment_delay_high = one_net_byte_stream_to_int32(
+              &DATA[1]);
+            ack_nack->handle = ON_ACK_TIME_MS;
+            ack_nack->payload->ack_time_ms =
+              on_base_param->fragment_delay_high;
+            break;
+        } // update high-priority fragment delay case //
+        
+        case ON_CHANGE_LOW_FRAGMENT_DELAY:
+        {
+            on_base_param->fragment_delay_low = one_net_byte_stream_to_int32(
+              &DATA[1]);
+            ack_nack->handle = ON_ACK_TIME_MS;
+            ack_nack->payload->ack_time_ms =
+              on_base_param->fragment_delay_low;
+            break;
+        } // update high-priority fragment delay case //
+        #endif
+
         case ON_CHANGE_KEEP_ALIVE:
         {
             master->keep_alive_interval = one_net_byte_stream_to_int32(
