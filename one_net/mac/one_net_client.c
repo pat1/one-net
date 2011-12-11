@@ -1167,21 +1167,25 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_CHANGE_HIGH_FRAGMENT_DELAY:
         {
-            on_base_param->fragment_delay_high = one_net_byte_stream_to_int32(
+            on_base_param->fragment_delay_high = one_net_byte_stream_to_int16(
               &DATA[1]);
-            ack_nack->handle = ON_ACK_TIME_MS;
-            ack_nack->payload->ack_time_ms =
-              on_base_param->fragment_delay_high;
             break;
         } // update high-priority fragment delay case //
         
         case ON_CHANGE_LOW_FRAGMENT_DELAY:
         {
-            on_base_param->fragment_delay_low = one_net_byte_stream_to_int32(
+            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
               &DATA[1]);
-            ack_nack->handle = ON_ACK_TIME_MS;
-            ack_nack->payload->ack_time_ms =
-              on_base_param->fragment_delay_low;
+            break;
+        } // update high-priority fragment delay case //
+        
+        case ON_CHANGE_FRAGMENT_DELAY:
+        {
+            // changing both within one message.
+            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
+              &DATA[1 + ON_FRAG_LOW_IDX]);
+            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
+              &DATA[1 + ON_FRAG_HIGH_IDX]);
             break;
         } // update high-priority fragment delay case //
         #endif
