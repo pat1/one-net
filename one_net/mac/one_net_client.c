@@ -153,6 +153,11 @@ static BOOL confirm_key_change = FALSE;
 static BOOL confirm_stream_key_change = FALSE;
 #endif
 
+//! Set to true upon being deleted from the network.  There will be a slight
+//! two second pause before this device actually removes itself to give any
+//! pending transactions to complete.
+static BOOL removed = FALSE;
+
 
 //! @} ONE-NET_CLIENT_pri_var
 //                              PRIVATE VARIABLES END
@@ -375,6 +380,18 @@ tick_t one_net_client(void)
             // Also check to see if there are any events
             // associated with timers that need attention
             //
+            if(removed && ont_inactive_or_expired(ONT_INVITE_TIMER))
+            {
+                // We've been removed from the network.  We paused for 2
+                // seconds to allow any other transaction to complete, and that
+                // pasue is now over.  Set the client_joined_network flag to
+                // false.
+                removed = FALSE;
+                client_joined_network = FALSE;
+                client_looking_for_invite = TRUE;
+                on_state = ON_JOIN_NETWORK;
+                return 0;
+            }
             break;
         }
         
@@ -1220,6 +1237,48 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             ack_nack->payload->ack_value.uint8 = master->flags;
             break;
         } // update settings case //
+        
+        case ON_RM_DEV:
+        {
+            // first check if we are the one being removed.
+            on_encoded_did_t* removed_device = (on_encoded_did_t*) &DATA[1];
+            if(is_my_did(removed_device))
+            {
+                // we're the ones being removed
+                removed = TRUE;
+                
+                // we'll stay alive for another two seconds to complete any
+                // pending transactions so other devices won't miss any ACKs
+                // or NACKs, then delete ourselves.  Just use the invite
+                // timer.
+                ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(2000));
+            }
+            else
+            {
+                // Remove the device from the list of sending devices,
+                // if applicable.  Just make the features unknown and that
+                // will force a revalidation next time any device tries to
+                // use this did.
+                tick_t tick_now = get_tick_count();
+                on_sending_device_t* device = sender_info(removed_device);
+                device->features = FEATURES_UNKNOWN;
+                
+                // for security, change the nonces and the message id too.
+                device->send_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
+                device->expected_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
+                device->last_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
+                device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID);
+
+                
+                #ifdef _PEER
+                // delete any peer assignments for this device
+                one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
+                  removed_device, ONE_NET_DEV_UNIT);
+                #endif
+            }
+            
+            break;
+        }
         
 
         case ON_KEEP_ALIVE_RESP:
