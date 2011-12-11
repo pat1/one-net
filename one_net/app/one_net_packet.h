@@ -1127,6 +1127,16 @@ enum
 //! Admin packet indexes
 enum
 {
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Index for the low priority fragment delay in an admin message
+    //! containing both fragment delays
+    ON_FRAG_LOW_IDX = 0,
+
+    //! Index for the high priority fragment delay in an admin message
+    //! containing both fragment delays
+    ON_FRAG_HIGH_IDX = 2,
+    #endif
+
     //! Index for encoded did of peer device for (un)assignment of peers
     ON_PEER_DID_IDX = 0,
 
