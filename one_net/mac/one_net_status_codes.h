@@ -114,7 +114,7 @@ typedef enum
     
     ONS_DEVICE_LIMIT,               //!< [37] The MASTER can't handle anymore devices
     ONS_NOT_JOINED,                 //!< [38] The device has not joined the network.
-
+    
     ONS_READ_ERR,                   //!< [39] Did not read specified number of bytes.
     ONS_WRITE_ERR,                  //!< [40] Didn't write specified number of bytes.
     ONS_FAIL,                       //!< [41] Generic failure code.
@@ -125,7 +125,10 @@ typedef enum
                                     //!<      that its transceiver cannot handle.
     ONS_PKT_RCVD,                   //!< [43] A packet has been received.
     ONS_BAD_MSG_ID,                 //!< [44] Packet has an invalid message ID.
-    ONS_SNGH_INTERNAL_ERR           //!< [44] "Should Not Get Here" in the code internal error. 
+    ONS_BUSY,                       //!< [45] Device is busy with something and cannot service
+                                    //!<      this request right now.  This is similar to, but
+                                    //!<      not identical to ONS_ALREADY_IN_PROGRESS.
+    ONS_SNGH_INTERNAL_ERR           //!< [46] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
 
