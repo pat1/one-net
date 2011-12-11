@@ -1097,6 +1097,48 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
 #endif
 
 
+/*!
+    \brief Changes a CLIENT's keep alive interval.
+
+    \param[in] RAW_DST The CLIENT to update.
+    \param[in] KEEP_ALIVE The new keep alive interval (in ms) the CLIENT should
+      report at.
+
+    \return ONS_SUCCESS if queueing the transaction was successful
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If the address is for a device not in the
+              network.
+*/
+one_net_status_t one_net_master_change_client_keep_alive(
+  const on_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE)
+{
+    on_encoded_did_t dst;
+    one_net_status_t status;
+
+    UInt8 pld[4];
+
+    if(!RAW_DST)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(!client_info((const on_encoded_did_t * const)&dst))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+    one_net_int32_to_byte_stream(KEEP_ALIVE, pld);
+
+    return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, 
+      (const on_encoded_did_t * const)&dst, pld);
+} // one_net_master_change_client_keep_alive //
+
+
 
 //! @} ONE-NET_MASTER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -1372,6 +1414,10 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
 
         case ON_CHANGE_KEEP_ALIVE:
         {
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                client->keep_alive_interval = ack_nack->payload->ack_time_ms;
+            }
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
@@ -1407,8 +1453,6 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     
     if(*msg_type == ON_ADMIN_MSG)
     {
-
-        
         admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
     }
 

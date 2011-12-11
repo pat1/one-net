@@ -1609,7 +1609,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           &out_master_param) != ONS_SUCCESS)
         {
             return ONCLI_CMD_FAIL;
-        }
+        }        
     }
     #endif
     #ifdef _ONE_NET_CLIENT
@@ -1948,9 +1948,65 @@ static oncli_status_t update_master_cmd_hdlr(
 static oncli_status_t change_keep_alive_cmd_hdlr(
   const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr = 0;
+    on_raw_did_t dst;
+    UInt32 keep_alive;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    }
+    #endif
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // read in the peer did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, dst, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw peer did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER || !isdigit(*PARAM_PTR))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // get the value
+    keep_alive = one_net_strtol(PARAM_PTR, &end_ptr, 0);
+    if(!end_ptr || end_ptr == PARAM_PTR || (*end_ptr != '\n'))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+
+
+    switch(one_net_master_change_client_keep_alive(&dst, keep_alive))
+    {
+        case ONS_SUCCESS:
+        {
+            return ONCLI_SUCCESS;
+        } // success case //
+
+        case ONS_INCORRECT_ADDR:
+        {
+            return ONCLI_INVALID_DST;
+        } // incorrect address case //
+
+        default:
+        {
+            return ONCLI_CMD_FAIL;
+        } // default case //
+    } // switch(one_net_master_change_client_keep_alive) //
 }
 #endif
+
 
 
 #if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)

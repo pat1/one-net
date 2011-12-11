@@ -1164,19 +1164,17 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         } // unassign peer case //
         #endif
         
+        case ON_CHANGE_KEEP_ALIVE:
+        {
+            master->keep_alive_interval = one_net_byte_stream_to_int32(
+              &DATA[1]);
+        } // change keep-alive case : intentional fall-through //
         case ON_KEEP_ALIVE_QUERY:
         {
             ack_nack->handle = ON_ACK_TIME_MS;
             ack_nack->payload->ack_time_ms = master->keep_alive_interval;
             break;
         } // keep alive query case //
-
-        case ON_CHANGE_KEEP_ALIVE:
-        {
-            master->keep_alive_interval = one_net_byte_stream_to_int32(
-              &DATA[1]);
-            break;
-        } // change keep alive case //
         
         case ON_KEEP_ALIVE_RESP:
             break;  // not sure why a client would get this, but ACK it.
