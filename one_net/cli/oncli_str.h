@@ -98,6 +98,8 @@ extern const char * const ONCLI_SET_STR;
 extern const char * const ONCLI_CLR_STR;
 extern const char * const ONCLI_ON_STR;
 extern const char * const ONCLI_OFF_STR;
+extern const char * const ONCLI_LOW_STR;
+extern const char * const ONCLI_HIGH_STR;
 
 
 
@@ -162,6 +164,9 @@ extern const char * const ONCLI_UPDATE_MASTER_CMD_STR;
 #endif
 #ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 extern const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
+#endif
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+extern const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
 #endif
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
 extern const char * const ONCLI_CHANGE_KEY_CMD_STR;

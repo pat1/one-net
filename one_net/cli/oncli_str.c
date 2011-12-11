@@ -120,6 +120,12 @@ const char * const ONCLI_ON_STR = "on";
 //! off argument string
 const char * const ONCLI_OFF_STR = "off";
 
+//! low argument string
+const char * const ONCLI_LOW_STR = "low";
+
+//! high argument string
+const char * const ONCLI_HIGH_STR = "high";
+
 
 
 // Command Strings
@@ -212,6 +218,12 @@ const char * const ONCLI_DISABLE_STR = "disable";
 #ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	//! Change keep alive command string
 	const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
+#endif
+
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+	//! Change fragment delay string
+	const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
+	  = "change fragment delay";
 #endif
 
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
