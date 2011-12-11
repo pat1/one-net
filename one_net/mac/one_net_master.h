@@ -103,9 +103,12 @@ typedef enum
     
     ONE_NET_UPDATE_SETTINGS = 0x0A,
 
+    //! Indicates an attempt to add a device to the network    
+    ONE_NET_UPDATE_ADD_DEVICE = 0x0B,
+
     //! This is to mark nothing was updated.  This item should ALWAYS be
     //! LAST IN THE LIST
-    ONE_NET_UPDATE_NOTHING = 0x0B
+    ONE_NET_UPDATE_NOTHING = 0x0C
 } one_net_mac_update_t;
 
 
