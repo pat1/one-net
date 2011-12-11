@@ -1479,15 +1479,18 @@ static on_message_status_t on_master_single_data_hdlr(
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?
 omsdh_build_resp:
+    stay_awake = FALSE;
     if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
         // device has checked in, so reset the next check-in time
         client->next_check_in_time = get_tick_count() +
           MS_TO_TICK(client->keep_alive_interval);
+        stay_awake = one_net_master_device_is_awake(FALSE,
+          (const on_raw_did_t * const)&raw_src_did);
     }
     
-    stay_awake = device_should_stay_awake((const on_encoded_did_t* const)
-      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
+    stay_awake = stay_awake || device_should_stay_awake(
+      (const on_encoded_did_t* const) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
       
     // now check to make sure we're not in the middle of a key change
     if(!(client->use_current_key))
@@ -1741,6 +1744,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         // device has checked in, so reset the next check-in time
         client->next_check_in_time = get_tick_count() +
           MS_TO_TICK(client->keep_alive_interval);
+        one_net_master_device_is_awake(TRUE,
+          (const on_raw_did_t * const)&dst);
     }
     
     

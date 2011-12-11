@@ -429,6 +429,26 @@ void one_net_master_update_result(one_net_mac_update_t update,
             FALSE otherwise
 */
 BOOL one_net_master_client_missed_check_in(on_client_t* client);
+
+
+/*!
+    \brief Alerts the application that a device is awake.
+    
+    This allows the MASTER to send a message to the device since it knows the
+    device is awake since it just received a message from the device.  Otherwise
+    the MASTER would have to guess if the device is awake, attempt the
+    transaction, and if it failed, it would have to send try sending it again.
+    
+    \param[in] DID The device that just sent a message.
+    \param[in] responding FALSE if the device initiated the message.
+                          TRUE if the device is responding to a message
+    
+    \return TRUE if there is activity for the device and a "Stay-Awake" should
+                 be sent.  Irrelevant unless responding is FALSE.
+            FALSE otherwise
+*/
+BOOL one_net_master_device_is_awake(BOOL responding,
+  const on_raw_did_t *DID);
                  
 
 

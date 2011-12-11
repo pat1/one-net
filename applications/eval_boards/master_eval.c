@@ -175,8 +175,10 @@ one_net_status_t one_net_master_erase_settings(void)
     
 
 
-void one_net_master_device_is_awake(const on_raw_did_t *DID)
+BOOL one_net_master_device_is_awake(BOOL responding,
+  const on_raw_did_t *DID)
 {
+    return FALSE;
 } // one_net_master_device_is_awake //
 
 
