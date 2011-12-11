@@ -1181,13 +1181,24 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_CHANGE_FRAGMENT_DELAY:
         {
-            // changing both within one message.
-            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
+            // changing both within one message.  If a value is 0, then, it
+            // is irrelevant.
+            UInt16 new_frag_low = one_net_byte_stream_to_int16(
               &DATA[1 + ON_FRAG_LOW_IDX]);
-            on_base_param->fragment_delay_low = one_net_byte_stream_to_int16(
+            UInt16 new_frag_high = one_net_byte_stream_to_int16(
               &DATA[1 + ON_FRAG_HIGH_IDX]);
+              
+            if(new_frag_low)
+            {
+                on_base_param->fragment_delay_low = new_frag_low;
+            }
+            if(new_frag_high)
+            {
+                on_base_param->fragment_delay_low = new_frag_high;
+            }
+
             break;
-        } // update high-priority fragment delay case //
+        } // update fragment delays case //
         #endif
 
         case ON_CHANGE_KEEP_ALIVE:
