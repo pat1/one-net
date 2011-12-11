@@ -151,6 +151,13 @@ static BOOL key_update_in_progress = FALSE;
 //! Flag to denote that a stream key update is in progress.
 static BOOL stream_key_update_in_progress = FALSE;
 
+//! Flag to denote that a device has been removed and the master is in
+//! the process of informing all of the devices.
+static BOOL remove_device_in_progress = FALSE;
+
+//! The did of the device being removed.
+static on_encoded_did_t remove_device_did = {0xB4, 0xB4};
+
 
 //! @} ONE-NET_MASTER_pri_var
 //                              PRIVATE VARIABLES END
@@ -233,6 +240,9 @@ static BOOL check_key_update(BOOL stream_key);
 #else
 static BOOL check_key_update(void);
 #endif
+static BOOL check_remove_device_update(void);
+
+
 
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
   const on_encoded_did_t* const did, const UInt8* const pld);
@@ -864,22 +874,22 @@ void one_net_master(void)
       single_data_queue_ready_to_send(&queue_sleep_time) == -1 &&
       queue_sleep_time < MS_TO_TICK(500))
     {
-        #ifndef _STREAM_MESSAGES_ENABLED
-        check_key_update();
-        #else
-        // randomly select so both types of key updates will have a chance to
-        // proceed if they are both happening at once.
-        UInt8 rand_value = one_net_prand(get_tick_count(), 1);
-        if(!check_key_update(rand_value))
-        {
-            // there was no update to do for this type, so try the other type
-            check_key_update(!rand_value);
-        }
-        #endif
-        
         if(master_param->client_count)
-        {
-            // if at least one device
+        {        
+            #ifndef _STREAM_MESSAGES_ENABLED
+            check_key_update();
+            #else
+            // randomly select so both types of key updates will have a chance to
+            // proceed if they are both happening at once.
+            UInt8 rand_value = one_net_prand(get_tick_count(), 1);
+            if(!check_key_update(rand_value))
+            {
+                // there was no update to do for this type, so try the other type
+                check_key_update(!rand_value);
+            }
+            #endif
+
+            check_remove_device_update();
             check_client_check_ins();
         }
     }
@@ -935,6 +945,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
       ON_MAX_NONCE);
     client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device_send_info.features = features;
+    client->send_remove_device_message = FALSE;
     client->use_current_key = TRUE;
 #ifdef _STREAM_MESSAGES_ENABLED
     client->use_current_stream_key = TRUE;
@@ -2084,6 +2095,24 @@ static BOOL check_key_update(void)
     
     return (status == ONS_SUCCESS);
 } // check_key_update //
+
+
+/*!
+    \brief Checks to see if a device needs to be informed that there has been
+           a device deletion
+
+    \return TRUE if a notification was sent, FALSE otherwise
+*/
+static BOOL check_remove_device_update(void)
+{
+    if(!remove_device_in_progress)
+    {
+        return FALSE;
+    }
+
+    // TODO -- actually write this function.
+    return FALSE;
+}
 
 
 /*!

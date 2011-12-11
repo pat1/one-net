@@ -351,6 +351,10 @@ typedef struct
     //! Indicates if using the current stream key, or the old stream key
     BOOL use_current_stream_key;
     
+    //! If true, indicates that a device has been removed and this client has
+    //! not yet been informed.
+    BOOL send_remove_device_message;
+    
     //! Interval at which the client must communicate with the MASTER(in ms)
     UInt32 keep_alive_interval;
     
