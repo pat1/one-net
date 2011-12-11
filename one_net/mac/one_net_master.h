@@ -212,7 +212,7 @@ one_net_status_t one_net_master_cancel_invite(
   const one_net_xtea_key_t * const KEY);
 
 one_net_status_t one_net_master_remove_device(
-  const on_raw_did_t * const RAW_PEER_DID);
+  const on_raw_did_t * const RAW_DID);
 
 void one_net_master(void);
 

@@ -630,15 +630,87 @@ one_net_status_t one_net_master_cancel_invite(
 /*!
     \brief Starts the process to remove a device from the network.
 
-    \param[in] RAW_PEER_DID The device to remove from the network
+    \param[in] RAW_DID The device to remove from the network
 
     \return ONS_SUCCESS If the process to remove the device was started
             ONS_BAD_PARAM If the parameter was invalid
 */
 one_net_status_t one_net_master_remove_device(
-  const on_raw_did_t * const RAW_PEER_DID)
+  const on_raw_did_t * const RAW_DID)
 {
-    return ONS_SUCCESS;
+    one_net_status_t status;
+    UInt8 i;
+    on_client_t* client;
+    
+    
+    if(remove_device_in_progress)
+    {
+        return ONS_ALREADY_IN_PROGRESS;
+    }
+
+    if(!RAW_DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    // first check if we're in the middle of a transaction.  If so, we're
+    // busy and can't do this.
+    // TODO - we want a better solution?
+    if(single_txn.priority != ONE_NET_NO_PRIORITY || response_txn.priority !=
+      ONE_NET_NO_PRIORITY)
+    {
+        return ONS_BUSY;
+    }
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(block_txn.priority != ONE_NET_NO_PRIORITY)
+    {
+        return ONS_BUSY;
+    }
+    #endif
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(stream_txn.priority != ONE_NET_NO_PRIORITY)
+    {
+        return ONS_BUSY;
+    }
+    #endif
+    
+    if((status = on_encode(remove_device_did, *RAW_DID, ON_ENCODED_DID_LEN))
+      != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(!(client = client_info((const on_encoded_did_t * const)
+      &remove_device_did)))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+    
+    
+    remove_device_in_progress = TRUE;
+    
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        client_list[i].send_remove_device_message = TRUE;
+        if(client == &client_list[i])
+        {
+            // this is the one we're deleting.  We're going to send this
+            // one right now, so don't send it later.
+            client_list[i].send_remove_device_message = FALSE;
+        }
+    }
+    
+    #ifdef _PEER
+    // remove any peers of this device.
+    one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL, &remove_device_did,
+      ONE_NET_DEV_UNIT);
+    #endif
+
+    // all client peer assignments to this did are removed.  Now remove the device itself.
+    // When that's done, the other devices will also be informed of this deletion.
+    return send_admin_pkt(ON_RM_DEV, (const on_encoded_did_t * const)&remove_device_did,
+      (const UInt8*) remove_device_did);
 } // one_net_master_remove_device //
 
 
