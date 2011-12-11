@@ -1965,6 +1965,15 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         (*txn)->device->expected_nonce = one_net_prand(time_now,
           ON_MAX_NONCE);
     }
+    
+    #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
+    if(device_is_master && packet_is_stay_awake(*(pkt->pid)))
+    {
+        // we received a stay-awake, so set the stay-awake timer
+        // for 3 seconds
+        ont_set_timer(STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+    }
+    #endif
 
     // the application code may or may not have changed this from an ACK to a
     // NACK or vice versa, changed the number of retries, added a delay,
