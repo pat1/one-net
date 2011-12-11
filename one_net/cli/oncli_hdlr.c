@@ -259,6 +259,11 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+	static oncli_status_t change_frag_dly_cmd_hdlr(
+	  const char * const ASCII_PARAM_LIST);
+#endif
+
 
 
 // MASTER only command handlers
@@ -293,6 +298,8 @@ static oncli_change_peer_list(BOOL ASSIGN,
 	static oncli_status_t change_keep_alive_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif
+
+
 
 #if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)
 #ifdef _STREAM_MESSAGES_ENABLED
@@ -611,6 +618,25 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return cancel_invite_cmd_hdlr();
     } // else if the cancel invite command was received //
+	#endif
+
+	#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    else if(!strnicmp(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR, CMD,
+      strlen(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR)]
+          != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &change_frag_dly_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the change fragment delay command was received //
 	#endif
 
 	#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
@@ -2091,6 +2117,101 @@ static oncli_status_t change_keep_alive_cmd_hdlr(
         } // default case //
     } // switch(one_net_master_change_client_keep_alive) //
 }
+#endif
+
+
+#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+/*!
+    \brief Handles receiving the change fragment delay command and all its
+      parameters.
+    
+    The change fragment delay command has the form
+    
+    change fragment delay:did:priority:time_ms
+    
+    
+    For example, "Change fragment delay:003:low:100" will change the low
+    priority fragment delay of device 003 to 100 ms.
+    
+    This is a MASTER only command.
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+              
+            See below for other errors
+            
+*/
+static oncli_status_t change_frag_dly_cmd_hdlr(
+  const char * const ASCII_PARAM_LIST)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    char * end_ptr;
+    on_raw_did_t did;
+    UInt32 delay;
+    UInt8 priority;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    // read in the peer did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // read in the priority
+    if(!strnicmp(PARAM_PTR, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
+    {
+        priority = ONE_NET_LOW_PRIORITY;
+        PARAM_PTR += strlen(ONCLI_LOW_STR);
+    } // if it's low priority //
+    else if(!strnicmp(PARAM_PTR, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
+    {
+        priority = ONE_NET_HIGH_PRIORITY;
+        PARAM_PTR += strlen(ONCLI_HIGH_STR);
+    } // else if it's high priority
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else the priority is invalid //
+    
+    // check the parameter delimiter
+    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER || !isdigit(*PARAM_PTR))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    // read in delay
+    delay = one_net_strtol(PARAM_PTR, &end_ptr, 0);
+    if(!end_ptr || end_ptr == PARAM_PTR || (*end_ptr != '\n'))
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+    
+    switch(one_net_master_change_frag_dly(&did, priority, delay))
+    {
+        case ONS_DEVICE_NOT_CAPABLE: return ONCLI_UNSUPPORTED;
+        case ONS_RSRC_FULL: return ONCLI_RSRC_UNAVAILABLE;
+        case ONS_INCORRECT_ADDR: return ONCLI_INVALID_DST;
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        default: return ONCLI_CMD_FAIL;
+    }
+} // change_frag_dly_cmd_hdlr //
 #endif
 
 
