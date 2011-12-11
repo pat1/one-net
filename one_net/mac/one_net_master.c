@@ -1163,7 +1163,7 @@ one_net_status_t one_net_master_change_frag_dly(
     on_encoded_did_t dst;
     one_net_status_t status;
     on_client_t* client;
-    UInt8 pld[2];
+    UInt8 pld[4];
     
     
     if(!RAW_DST)
