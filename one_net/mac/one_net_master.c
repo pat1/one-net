@@ -2546,7 +2546,8 @@ static void check_updates_in_progress(void)
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
-            if(!client_list[i].use_current_stream_key)
+            if(features_stream_capable(client_list[i].device_send_info.features) &&
+              !client_list[i].use_current_stream_key)
             {
                 at_least_one_update_in_progress = TRUE;
                 break; // we have one.
