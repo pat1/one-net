@@ -348,8 +348,14 @@ typedef struct
     //! Indicates if using the current key or the old key.
     BOOL use_current_key;
     
+    #ifdef _STREAM_MESSAGES_ENABLED
     //! Indicates if using the current stream key, or the old stream key
     BOOL use_current_stream_key;
+    #endif
+    
+    //! If true, indicates that a device has been added and this client has
+    //! not yet been informed.
+    BOOL send_add_device_message;
     
     //! If true, indicates that a device has been removed and this client has
     //! not yet been informed.
