@@ -238,6 +238,15 @@ typedef enum
     ON_UNASSIGN_PEER = 0x0D,
     #endif
 
+    //! Query for the Keep Alive Timeout.  This is the interval at which a
+    //! CLIENT must attempt to check in with the MASTER.  Any communication
+    //! with the MASTER resets this timer.
+    ON_KEEP_ALIVE_QUERY = 0x0E,
+    
+    //! Sent by a client to check in with the master whenever the keep-alive
+    //! timer expires.
+    ON_KEEP_ALIVE_RESP = 0x0F,
+
     //! Sent by the MASTER when it is removing the receiver from the network
     ON_RM_DEV = 0x22
 } on_admin_msg_t;
