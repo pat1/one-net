@@ -102,6 +102,20 @@
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+
+//! the updates where everyone should be notified.
+enum
+{
+    ON_CLIENT_UPDATE_ADD_DEVICE,
+    ON_CLIENT_UPDATE_RM_DEVICE,
+    ON_CLIENT_UPDATE_CHANGE_KEY,
+    #ifdef _STREAM_MESSAGES_ENABLED
+    ON_CLIENT_UPDATE_CHANGE_STREAM_KEY,
+    #endif
+    NUM_CLIENT_UPDATE_TYPES
+};
+
+
 //! @} ONE-NET_MASTER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -148,15 +162,30 @@ static tick_t new_channel_clear_time_out = 0;
 //! Flag to denote that a key update is in progress.
 static BOOL key_update_in_progress = FALSE;
 
+#ifdef _STREAM_MESSAGES_ENABLED
 //! Flag to denote that a stream key update is in progress.
 static BOOL stream_key_update_in_progress = FALSE;
+#endif
 
 //! Flag to denote that a device has been removed and the master is in
 //! the process of informing all of the devices.
-static BOOL remove_device_in_progress = FALSE;
+static BOOL remove_device_update_in_progress = FALSE;
 
-//! The did of the device being removed.
+//! Flag to denote that a device has been added and the master is in
+//! the process of informing all of the devices.
+static BOOL add_device_update_in_progress = FALSE;
+
+//! Flag to denote the device that should next be notified of any updates,
+//! if any.  Generally denotes either the device being added or removed or
+//! a normally-sleeping device that has woken up and we thus want to move
+//! it to the head of the list.  If NULL, then no device takes precedence
+static on_client_t* device_to_update = NULL;
+
+//! The did of the device being removed.  Irrelevant if broadcast
 static on_encoded_did_t remove_device_did = {0xB4, 0xB4};
+
+//! The did of the device being removed.  Irrelevant if broadcast.
+static on_encoded_did_t add_device_did = {0xB4, 0xB4};
 
 
 //! @} ONE-NET_MASTER_pri_var
@@ -235,12 +264,20 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
   
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 
+#if 0
 #ifdef _STREAM_MESSAGES_ENABLED
 static BOOL check_key_update(BOOL stream_key);
 #else
 static BOOL check_key_update(void);
 #endif
 static BOOL check_remove_device_update(void);
+#endif
+
+
+BOOL check_client_for_updates(on_client_t* client, UInt8 update_type);
+static BOOL check_updates_for_client(on_client_t* client,
+  BOOL send_if_device_sleeps);
+static void check_updates_in_progress(void);
 
 
 
@@ -643,7 +680,7 @@ one_net_status_t one_net_master_remove_device(
     on_client_t* client;
     
     
-    if(remove_device_in_progress)
+    if(remove_device_update_in_progress)
     {
         return ONS_ALREADY_IN_PROGRESS;
     }
@@ -688,7 +725,7 @@ one_net_status_t one_net_master_remove_device(
     } // the CLIENT is not part of the network //
     
     
-    remove_device_in_progress = TRUE;
+    remove_device_update_in_progress = TRUE;
     
     for(i = 0; i < master_param->client_count; i++)
     {
@@ -948,20 +985,7 @@ void one_net_master(void)
     {
         if(master_param->client_count)
         {        
-            #ifndef _STREAM_MESSAGES_ENABLED
-            check_key_update();
-            #else
-            // randomly select so both types of key updates will have a chance to
-            // proceed if they are both happening at once.
-            UInt8 rand_value = one_net_prand(get_tick_count(), 1);
-            if(!check_key_update(rand_value))
-            {
-                // there was no update to do for this type, so try the other type
-                check_key_update(!rand_value);
-            }
-            #endif
-
-            check_remove_device_update();
+            check_updates_in_progress();
             check_client_check_ins();
         }
     }
@@ -2115,6 +2139,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 }
 
 
+#if 0
 /*!
     \brief Checks to see if a key update needs to be sent.
     
@@ -2250,6 +2275,336 @@ static BOOL check_remove_device_update(void)
 
     // TODO -- actually write this function.
     return FALSE;
+}
+#endif
+
+
+/*
+    \brief Checks to see what updates a client needs and sends an update if
+           an update needs to be sent.
+           
+    \param[in | out] client The client to check
+    \param[in] update_type The type of update to attempt (i.e key change, add
+                           device, remove device
+                           
+    \return TRUE if an update was attempted
+            FALSE otherwise
+*/
+BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
+{
+    UInt8 admin_type;
+    UInt8 admin_pld[4];
+    UInt8* key_frag_address = (UInt8*)
+      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+    
+    switch(update_type)
+    {
+        case ON_CLIENT_UPDATE_ADD_DEVICE:
+          if(client->send_add_device_message)
+          {
+              admin_type = ON_ADD_DEV;
+              one_net_memmove(&admin_pld[0], add_device_did, ON_ENCODED_DID_LEN);
+              #ifdef _ONE_NET_MULTI_HOP
+              // Byte 2 is whether the device has mh-repeater capabilty
+              admin_pld[2] = (UInt8) features_mh_repeat_capable(
+                client->device_send_info.features);
+              // Byte 3 is whether there are any mh-repeaters in the network
+              admin_pld[3] = (UInt8) mh_repeater_available;
+              #endif
+          }
+          else
+          {
+              return FALSE;
+          }
+          break;
+        case ON_CLIENT_UPDATE_RM_DEVICE:
+          if(client->send_remove_device_message)
+          {
+              admin_type = ON_RM_DEV;
+              one_net_memmove(&admin_pld[0], remove_device_did, ON_ENCODED_DID_LEN);
+              #ifdef _ONE_NET_MULTI_HOP
+              // Byte 2 is whether the device has mh-repeater capabilty
+              admin_pld[2] = (UInt8) features_mh_repeat_capable(
+                client->device_send_info.features);
+              // Byte 3 is whether there are any mh-repeaters in the network
+              admin_pld[3] = (UInt8) mh_repeater_available;
+              #endif
+          }
+          else
+          {
+              return FALSE;
+          }
+          break;
+        case ON_CLIENT_UPDATE_CHANGE_KEY:
+          if(!client->use_current_key)
+          {
+              admin_type = ON_NEW_KEY_FRAGMENT;
+              one_net_memmove(&admin_pld[0], key_frag_address,
+                ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+          }
+          else
+          {
+              return FALSE;
+          }
+          break;
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_CLIENT_UPDATE_CHANGE_KEY:
+          if(!client->use_current_key)
+          {
+              key_frag_address = (UInt8*) &(on_base_param->stream_key[3 *
+                ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+              admin_type = ON_NEW_STREAM_KEY_FRAGMENT;
+              one_net_memmove(&admin_pld[0], key_frag_address,
+                ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+          }
+          else
+          {
+              return FALSE;
+          }
+        #endif
+    }
+    
+    return (send_admin_pkt(admin_type, (on_encoded_did_t*)
+      client->device_send_info.did, admin_pld) == ONS_SUCCESS);
+}
+
+
+static BOOL check_updates_for_client(on_client_t* client,
+  BOOL send_if_device_sleeps)
+{
+    BOOL device_sleeps = features_device_sleeps(
+      client->device_send_info.features);
+      
+    if(!send_if_device_sleeps && device_sleeps)
+    {
+        if(remove_device_update_in_progress &&
+          client->send_remove_device_message)
+        {
+            // we don't send to sleeping devices and we don't retry when
+            // removing devices so set the flag to updated.
+            client->send_remove_device_message = FALSE;
+            return TRUE;
+        }
+        else if(add_device_update_in_progress &&
+          client->send_add_device_message)
+        {
+            // we don't send to sleeping devices and we don't retry when
+            // removing devices so set the flag to updated.
+            client->send_remove_device_message = FALSE;
+            return TRUE;
+        }
+        else
+        {
+            return FALSE; // nothing to send and nothing updated.
+        }
+    }
+    
+    if(remove_device_update_in_progress)
+    {
+        if(check_client_for_updates(client, ON_CLIENT_UPDATE_RM_DEVICE))
+        {
+            return TRUE;
+        }
+    }
+    if(add_device_update_in_progress)
+    {
+        if(check_client_for_updates(client, ON_CLIENT_UPDATE_ADD_DEVICE))
+        {
+            return TRUE;
+        }
+    }
+    
+    if((!device_sleeps || !send_if_device_sleeps) && 
+      (remove_device_update_in_progress || add_device_update_in_progress))
+    {
+        return FALSE; // no key updates when adding or removing a device
+                      // unless this is a normally sleeping device
+    }
+    
+
+    // now check the key updates
+    if(key_update_in_progress)
+    {
+        if(check_client_for_updates(client, ON_CLIENT_UPDATE_CHANGE_KEY))
+        {
+            return TRUE;
+        }
+    }
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(stream_key_update_in_progress)
+    {
+        if(check_client_for_updates(client,
+          ON_CLIENT_UPDATE_CHANGE_STREAM_KEY))
+        {
+            return TRUE;
+        }
+    }
+    #endif
+    
+    return FALSE;
+}
+
+
+static void check_updates_in_progress(void)
+{
+    UInt16 i;
+    on_client_t* client;
+    UInt16 index;
+    BOOL at_least_one_update_in_progress = FALSE;
+    on_ack_nack_t ack;
+    ack.handle = ON_ACK;
+    ack.nack_reason = ON_NACK_RSN_NO_ERROR;
+    
+    
+    // first check if there are any updates in progress
+    if(remove_device_update_in_progress)
+    {
+        at_least_one_update_in_progress = TRUE;
+
+        // now check if we're done with this update.
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            if(client_list[i].send_remove_device_message)
+            {
+                at_least_one_update_in_progress = TRUE;
+                break; // we have one.
+            }
+        }
+        
+        if(!at_least_one_update_in_progress)
+        {
+            // we don't have any more updates for this, so notify the applciation
+            // code and reset the flag to false.
+            one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE, NULL, &ack);
+            remove_device_update_in_progress = FALSE;
+            
+            // now actually remove the client
+            rm_client(&remove_device_did);
+            
+            // TODO - is there more application code to call?
+            return;
+        }
+    }
+
+    else if(add_device_update_in_progress)
+    {
+        at_least_one_update_in_progress = TRUE;
+
+        // now check if we're done with this update.
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            if(client_list[i].send_add_device_message)
+            {
+                at_least_one_update_in_progress = TRUE;
+                break; // we have one.
+            }
+        }
+
+        if(!at_least_one_update_in_progress)
+        {
+            // we don't have any more updates for this, so notify the applciation
+            // code and reset the flag to false.
+            one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE, NULL, &ack);
+            add_device_update_in_progress = FALSE;
+            
+            // TODO - is there more application code to call?
+            return;
+        }
+    }
+
+    else if(key_update_in_progress)
+    {
+        at_least_one_update_in_progress = TRUE;
+
+        // now check if we're done with this update.
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            if(!client_list[i].use_current_key)
+            {
+                at_least_one_update_in_progress = TRUE;
+                break; // we have one.
+            }
+        }
+
+        if(!at_least_one_update_in_progress)
+        {
+            // we don't have any more updates for this, so notify the application
+            // code and reset the flag to false.
+            one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
+            key_update_in_progress = FALSE;
+            
+            // TODO - is there more application code to call?
+            return;
+        }
+    }
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    else if(stream_key_update_in_progress)
+    {
+        at_least_one_update_in_progress = TRUE;
+
+        // now check if we're done with this update.
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            if(!client_list[i].use_current_stream_key)
+            {
+                at_least_one_update_in_progress = TRUE;
+                break; // we have one.
+            }
+        }
+
+        if(!at_least_one_update_in_progress)
+        {
+            // we don't have any more updates for this, so notify the application
+            // code and reset the flag to false.
+            one_net_master_update_result(ONE_NET_UPDATE_STREAM_NETWORK_KEY,
+              NULL, &ack);
+            stream_key_update_in_progress = FALSE;
+            
+            // TODO - is there more application code to call?
+            return;
+        }
+    }
+    #endif
+    
+
+    if(!at_least_one_update_in_progress)
+    {
+        return; // nothing is being updated.
+    }
+
+
+    
+    if(device_to_update != NULL)
+    {
+        // ignore the random value below
+        if(!check_updates_for_client(device_to_update, TRUE))
+        {
+            // no updates needed for this device.
+            device_to_update = NULL;
+        }
+        
+        return;
+    }
+
+
+    // we don't have any specific device to update.  We'll go through all
+    // the clients starting with a random one till we find one to update.
+    index = one_net_prand(get_tick_count(), master_param->client_count - 1);
+    
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(check_updates_for_client(&client_list[index], FALSE))
+        {
+            return;
+        }
+        
+        index++;
+        if(index >= master_param->client_count)
+        {
+            index = 0;
+        }
+    }
 }
 
 
@@ -2402,7 +2757,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     (*client)->use_current_stream_key = TRUE;
                     one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
                         &raw_did, ack_nack);
-                    check_key_update(TRUE);
                 }
             }
             else
@@ -2426,11 +2780,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     (*client)->use_current_key = TRUE;
                     one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
                         &raw_did, ack_nack);
-                    #ifdef _STREAM_MESSAGES_ENABLED
-                    check_key_update(FALSE);
-                    #else
-                    check_key_update();
-                    #endif
                 }
             }
             else
@@ -2500,7 +2849,7 @@ static on_client_t* check_client_check_ins(void)
         
         index++;
     }
-    
+
     return NULL;
 }
       
