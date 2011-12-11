@@ -1801,7 +1801,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL verify_needed;
     BOOL message_ignore = TRUE;
-    const tick_t VERIFY_TIMEOUT = MS_TO_TICK(/*2000*/60000); // 2 seconds
+    const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
     tick_t time_now = get_tick_count();
     
     if(on_parse_response_pkt(*(pkt->pid), raw_payload_bytes, ack_nack) !=
@@ -2152,7 +2152,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // assume that this is a new message and accept it.
     {
         tick_t time_now = get_tick_count();
-        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(/*2000*/60000); // 2 seconds         
+        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
         UInt8 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
           0 : 1 + (*txn)->device->msg_id);
           
