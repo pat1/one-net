@@ -157,7 +157,7 @@ static void master_user_pin(void);
 #ifdef _NON_VOLATILE_MEMORY
 one_net_status_t one_net_master_save_settings(void)
 {
-    return ONS_SUCCESS;
+    return (eval_save() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_master_save_settings //
 
 

@@ -117,7 +117,7 @@ void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
 #ifdef _NON_VOLATILE_MEMORY
 one_net_status_t one_net_client_save_settings(void)
 {
-    return ONS_SUCCESS;
+    return (eval_save() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_client_save_settings //
 
 
