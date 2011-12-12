@@ -1712,16 +1712,17 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             break;
         } // change keep-alive case //
         
+        case ON_ADD_DEV:
+        {
+            client->send_add_device_message = FALSE;
+            update = ONE_NET_UPDATE_ADD_DEVICE;
+            break;
+        } // add device case //
+        
         case ON_RM_DEV:
         {
             client->send_remove_device_message = FALSE;
             update = ONE_NET_UPDATE_REMOVE_DEVICE;
-            
-            if(on_encoded_did_equal(&(client->device_send_info.did),
-              &remove_device_did))
-            {
-                // remove this client from the client list.
-            }
             break;
         } // remove device case //
 
