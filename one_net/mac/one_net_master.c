@@ -730,12 +730,6 @@ one_net_status_t one_net_master_remove_device(
     for(i = 0; i < master_param->client_count; i++)
     {
         client_list[i].send_remove_device_message = TRUE;
-        if(client == &client_list[i])
-        {
-            // this is the one we're deleting.  We're going to send this
-            // one right now, so don't send it later.
-            client_list[i].send_remove_device_message = FALSE;
-        }
     }
     
     #ifdef _PEER
