@@ -237,6 +237,8 @@ one_net_status_t one_net_master_change_frag_dly(
 #endif
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
   const on_raw_did_t * const DST_DID);
+  
+UInt8 master_nv_crc(BOOL* valid);
 
 
 

@@ -460,6 +460,35 @@ tick_t one_net_client(void)
 } // one_net_client //
 
 
+/*!
+    \brief Calculate CRC over the client parameters.
+    
+    \param[out] valid TRUE if parameters (not including the crc) are valid
+
+    \return CRC of the client parameters
+            0 upon error
+*/
+UInt8 client_nv_crc(BOOL* valid)
+{
+    UInt8 crc;
+    UInt16 starting_crc = ON_PLD_INIT_CRC;
+    const UInt8 CRC_LEN = sizeof(UInt8);
+    
+    *valid = TRUE;
+
+    #ifdef _PEER
+    // crc over peer parameters
+    starting_crc = one_net_compute_crc(peer_storage, PEER_STORAGE_SIZE_BYTES,
+      starting_crc, ON_PLD_CRC_ORDER);
+    #endif
+    
+    crc = one_net_compute_crc(&nv_param[CRC_LEN], CLIENT_NV_PARAM_SIZE_BYTES
+      - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
+    
+    return crc;
+} // client_nv_crc //
+
+
 
 //! @} ONE-NET_CLIENT_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

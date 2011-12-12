@@ -141,6 +141,9 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
 tick_t one_net_client(void);
 
 
+UInt8 client_nv_crc(BOOL* valid);
+
+
 
 //! @} ONE-NET_CLIENT_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
