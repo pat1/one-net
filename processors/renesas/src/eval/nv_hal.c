@@ -52,6 +52,16 @@
 #include "tick.h"
 #include "one_net_led.h"
 
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client.h"
+#endif
+#ifdef _ONE_NET_MASTER
+#include "one_net_master.h"
+#endif
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
+
 
 //=============================================================================
 //                                  CONSTANTS
@@ -235,7 +245,99 @@ BOOL eval_load(const UInt8 NV_DATA_TYPE, UInt16 * const len,
 */
 BOOL eval_save(void)
 {
-    // TODO -- write
+    // 
+    // using the dfi interface for accessing data flash from the eval board.
+    //
+    // for the master,
+    //
+    // the DFI_ST_ONE_NET_MASTER_SETTINGS segment will include
+    // on_base_param_t, client_list, and on_master_param_t.
+    //
+    // data flash segment type DFI_ST_APP_DATA_1 will be used to store the user pin
+    // configuration information.
+    //
+    // data flash segment type DFI_ST_APP_DATA_2 will be used to store peer assignment
+    // date (see extra_device_* variables below).
+    //
+
+    //
+    //
+    // for the client,
+    //
+    // the DFI_ST_ONE_NET_CLIENT_SETTINGS segment will include on_base_param_t
+    // and on_master_t.
+    //
+    // data flash segment type DFI_ST_APP_DATA_1 will be used to store the user pin
+    // configuration information.
+    //
+    // data flash segment type DFI_ST_APP_DATA_2 will be used to store peer assignment
+    // date (see extra_device_* variables below).
+    //
+    
+    BOOL valid;
+    UInt8 * result;
+    dfi_segment_type_t settings_segment_type;
+    UInt16 nv_param_len;
+    
+
+    // first calculate the crc, length, adn type of memory
+    #if !defined(_ONE_NET_CLIENT)
+    on_base_param->crc = master_nv_crc(&valid);
+    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
+      * sizeof(on_client_t);
+    settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
+    #elif !defined(_ONE_NET_MASTER)
+    on_base_param->crc = client_nv_crc(&valid);
+    nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
+    settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
+    #else
+    if(device_is_master)
+    {
+        on_base_param->crc = master_nv_crc(&valid);
+        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
+            * sizeof(on_client_t);
+        settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
+    }
+    else
+    {
+        on_base_param->crc = client_nv_crc(&valid);
+        nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
+        settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
+    }
+    #endif
+    
+    if(!valid)
+    {
+        return FALSE;
+    }
+    
+    
+    //
+    // Write the ONE-NET parameters
+    //
+    result = dfi_write_segment_of_type(settings_segment_type, nv_param,
+      nv_param_len);
+    if (result == (UInt8 *) 0)
+    {
+        return FALSE;
+    }
+    
+    
+    // TODO -- save user pin configuration too.
+        
+    
+#ifdef _PEER
+    //
+    // write peer data using DFI_ST_APP_DATA_2 segment type
+    //
+    result = dfi_write_segment_of_type(DFI_ST_APP_DATA_2, peer_storage,
+      PEER_STORAGE_SIZE_BYTES);
+    if (result == (UInt8 *) 0)
+    {
+        return FALSE;
+    }
+#endif
+	   
     return TRUE;
 } // eval_save //
 
