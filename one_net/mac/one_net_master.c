@@ -1962,7 +1962,7 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
     }
     
     // move everything below up one.
-    one_net_memmove(&client_list[index], &client_list[index],
+    one_net_memmove(&client_list[index], &client_list[index + 1],
       (master_param->client_count - index - 1) * sizeof(on_client_t));
       
     // subtract 1 from the count
