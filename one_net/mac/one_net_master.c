@@ -2297,6 +2297,13 @@ BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
     UInt8 admin_pld[4];
     UInt8* key_frag_address = (UInt8*)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
+      
+    static tick_t last_overall_send_time = 0;
+    
+    if(get_tick_count() < last_overall_send_time)
+    {
+        return FALSE;
+    }
     
     switch(update_type)
     {
@@ -2364,8 +2371,14 @@ BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
           }
         #endif
     }
+
     
     client->last_admin_update_time = get_tick_count();
+    
+    // don't send to ANYONE if you've sent within the last 1.5 seconds.
+    // Otherwise things bunch up if you have more than one client that
+    // needs updating.
+    last_overall_send_time = get_tick_count() + MS_TO_TICK(1500);
     
     return (send_admin_pkt(admin_type, (on_encoded_did_t*)
       client->device_send_info.did, admin_pld) == ONS_SUCCESS);
