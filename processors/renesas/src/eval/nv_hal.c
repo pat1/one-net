@@ -228,8 +228,31 @@ BOOL eval_erase_data_flash(void)
 BOOL eval_load(const UInt8 NV_DATA_TYPE, UInt16 * const len,
   const UInt8 ** const DATA)
 {
-    // TODO -- write
-    return FALSE;
+    UInt8 * one_net_param = 0;
+    dfi_segment_hdr_t * ptr_segment_header;
+
+    if(!len || !DATA)
+    {
+        return FALSE;
+    } // if any of the parameters are invalid //
+    
+    *DATA = 0;
+    *len = 0;
+    
+    // find the segment type specified
+    one_net_param = dfi_find_last_segment_of_type(NV_DATA_TYPE);
+    if (one_net_param != (UInt8 *) 0)
+    {
+        // the segment was found, return a pointer to it and its length
+        *DATA = one_net_param + sizeof(dfi_segment_hdr_t);
+        ptr_segment_header = (dfi_segment_hdr_t *) one_net_param;
+        *len = ptr_segment_header->len;
+        return(TRUE);
+    }
+    else
+    {
+        return(FALSE);
+    }
 } // eval_load //
 
 
