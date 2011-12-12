@@ -2459,7 +2459,7 @@ static void check_updates_in_progress(void)
     // first check if there are any updates in progress
     if(remove_device_update_in_progress)
     {
-        at_least_one_update_in_progress = TRUE;
+        at_least_one_update_in_progress = FALSE;
 
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
@@ -2488,7 +2488,7 @@ static void check_updates_in_progress(void)
 
     else if(add_device_update_in_progress)
     {
-        at_least_one_update_in_progress = TRUE;
+        at_least_one_update_in_progress = FALSE;
 
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
@@ -2514,7 +2514,7 @@ static void check_updates_in_progress(void)
 
     else if(key_update_in_progress)
     {
-        at_least_one_update_in_progress = TRUE;
+        at_least_one_update_in_progress = FALSE;
 
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
@@ -2541,7 +2541,7 @@ static void check_updates_in_progress(void)
     #ifdef _STREAM_MESSAGES_ENABLED
     else if(stream_key_update_in_progress)
     {
-        at_least_one_update_in_progress = TRUE;
+        at_least_one_update_in_progress = FALSE;
 
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
