@@ -197,14 +197,14 @@ void flash_erase_check(void)
 */
 BOOL eval_erase_data_flash(void)
 {
-/*    UInt8 segment_type_list[] = { DFI_ST_DEVICE_MFG_DATA };
+    UInt8 segment_type_list[] = { DFI_ST_DEVICE_MFG_DATA };
     UInt8 segment_type_list_size = sizeof(segment_type_list);
     
     //
     // delete all segments except for the manufacturing data segment type
     //
     dfi_delete_segments_except_for(segment_type_list, segment_type_list_size);
-*/
+
     return TRUE;
 } // eval_erase_data_flash //
 
