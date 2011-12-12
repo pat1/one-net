@@ -1049,6 +1049,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->next_check_in_time = get_tick_count() +
       MS_TO_TICK(client->keep_alive_interval);
+    client->last_admin_update_time = 0;
       
 #ifdef _ONE_NET_MULTI_HOP
     client->device_send_info.max_hops = features_max_hops(features);
@@ -2364,6 +2365,8 @@ BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
         #endif
     }
     
+    client->last_admin_update_time = get_tick_count();
+    
     return (send_admin_pkt(admin_type, (on_encoded_did_t*)
       client->device_send_info.did, admin_pld) == ONS_SUCCESS);
 }
@@ -2372,8 +2375,16 @@ BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
 static BOOL check_updates_for_client(on_client_t* client,
   BOOL send_if_device_sleeps)
 {
+    tick_t time_now = get_tick_count();
     BOOL device_sleeps = features_device_sleeps(
       client->device_send_info.features);
+    
+    
+    // 5 seconds should be enough time for any device, even multi-hop
+    if(get_tick_count() < client->last_admin_update_time + MS_TO_TICK(5000))
+    {
+        return FALSE;
+    }
       
     if(!send_if_device_sleeps && device_sleeps)
     {

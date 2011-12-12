@@ -1247,11 +1247,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // we're the ones being removed
                 removed = TRUE;
                 
-                // we'll stay alive for another two seconds to complete any
+                // we'll stay alive for another ten seconds to complete any
                 // pending transactions so other devices won't miss any ACKs
                 // or NACKs, then delete ourselves.  Just use the invite
                 // timer.
-                ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(2000));
+                ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(10000));
             }
             else
             {
