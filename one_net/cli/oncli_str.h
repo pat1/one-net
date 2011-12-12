@@ -333,6 +333,7 @@ extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_SETTINGS_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR;
+extern const char* const ONCLI_M_UPDATE_RESULT_ADD_DEV_STR;
 #endif
 
 
