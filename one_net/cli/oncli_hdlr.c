@@ -1766,10 +1766,60 @@ static oncli_status_t cancel_invite_cmd_hdlr(void)
 
 
 #ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+/*!
+    \brief Handles receiving the remove device command and all its parameters.
+    
+    \param[in] ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_ALREADY_IN_PROGRESS if the system is already in the middle
+                of a device deletion.
+            ONCLI_RSRC_UNAVAILABLE is the maste is currently processing a
+                transaction.
+            ONCLI_BAD_PARAM If any of the parameters passed into this functtion
+              are invalid.
+            ONCLI_INVALID_DST If the device that we are attempting to remove is
+              not part of the network
+*/
 static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    return ONCLI_SUCCESS;
-}
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    on_raw_did_t dst;
+    
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    }
+    #endif
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // read in the did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, dst, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the raw peer did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if the data is not formatted correctly //
+
+    switch(one_net_master_remove_device(&dst))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
+        case ONS_BUSY: return ONCLI_RSRC_UNAVAILABLE;
+        case ONS_INCORRECT_ADDR: return ONCLI_INVALID_DST;
+        default: return ONCLI_CMD_FAIL;
+    }
+} // rm_dev_cmd_hdlr //
 #endif
 
 
