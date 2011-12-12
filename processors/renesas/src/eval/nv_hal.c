@@ -297,43 +297,71 @@ BOOL eval_save(void)
     // date (see extra_device_* variables below).
     //
     
-    BOOL valid;
     UInt8 * result;
     dfi_segment_type_t settings_segment_type;
     UInt16 nv_param_len;
     
 
     // first calculate the crc, length, adn type of memory
+    #ifdef _PEER
+    
+    
     #if !defined(_ONE_NET_CLIENT)
-    on_base_param->crc = master_nv_crc(&valid);
+    on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
     nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
       * sizeof(on_client_t);
     settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     #elif !defined(_ONE_NET_MASTER)
-    on_base_param->crc = client_nv_crc(&valid);
+    on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
     nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     #else
     if(device_is_master)
     {
-        on_base_param->crc = master_nv_crc(&valid);
+        on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
         nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
             * sizeof(on_client_t);
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     }
     else
     {
-        on_base_param->crc = client_nv_crc(&valid);
+        on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
         nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     }
     #endif
     
-    if(!valid)
-    {
-        return FALSE;
-    }
     
+    #else
+
+
+    #if !defined(_ONE_NET_CLIENT)
+    on_base_param->crc = master_nv_crc(NULL, -1);
+    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
+      * sizeof(on_client_t);
+    settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
+    #elif !defined(_ONE_NET_MASTER)
+    on_base_param->crc = client_nv_crc(NULL, -1);
+    nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
+    settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
+    #else
+    if(device_is_master)
+    {
+        on_base_param->crc = master_nv_crc(NULL, -1);
+        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
+            * sizeof(on_client_t);
+        settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
+    }
+    else
+    {
+        on_base_param->crc = client_nv_crc(NULL, -1);
+        nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
+        settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
+    }
+    #endif
+
+    
+    #endif
     
     //
     // Write the ONE-NET parameters

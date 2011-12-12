@@ -1392,36 +1392,68 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
 /*!
     \brief Calculate CRC over the master parameters.
     
-    \param[out] valid TRUE if parameters (not including the crc) are valid
-
-    \return CRC of the master parameters
-            0 upon error
+    \param[in] param pointer to non-volatile parameters.  If NULL,
+               on_base_param is used.
+    \param[in] param_len Length of non-volatile parameters.  If negative, this
+               is disregarded.
+    \param[in] peer_param pointer to peer parameters.  If NULL,
+               peer is used.
+    \param[in] peer_param_len Length of peer parameters.  If negative, this
+               is disregarded.
+    \return 8-bit CRC of the master parameters if valid
+            -1 if invalid
 */
-UInt8 master_nv_crc(BOOL* valid)
+#ifndef _PEER
+int master_nv_crc(const UInt8* param, int param_len)
+#else
+int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
+    int peer_param_len)
+#endif
 {
-    UInt8 crc;
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
+    on_master_param_t* mast_param;
+    UInt16 expected_param_len;
     
-    *valid = TRUE;
-
-    if(master_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
+    #ifdef _PEER
+    if(!peer_param)
     {
-        *valid = FALSE;
-        return 0;
+        peer_param = peer_storage;
+    }
+    if(peer_param_len >= 0 && peer_param_len != PEER_STORAGE_SIZE_BYTES)
+    {
+        return -1;
+    }
+    #endif
+    
+    if(!param)
+    {
+        param = nv_param;
+    }
+    
+    mast_param = (on_master_param_t*) (param + sizeof(on_base_param_t));
+
+    if(mast_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
+    {
+        return -1;
+    }
+    
+    expected_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES +
+      mast_param->client_count * sizeof(on_client_t);
+      
+    if(param_len >= 0 && expected_param_len != param_len)
+    {
+        return -1;
     }
     
     #ifdef _PEER
     // crc over peer parameters
-    starting_crc = one_net_compute_crc(peer_storage, PEER_STORAGE_SIZE_BYTES,
+    starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
       starting_crc, ON_PLD_CRC_ORDER);
     #endif
     
-    crc = one_net_compute_crc(&nv_param[CRC_LEN],
-      MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count *
-      sizeof(on_client_t) - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
-    
-    return crc;
+    return one_net_compute_crc(&nv_param[CRC_LEN],
+      expected_param_len - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
 } // master_nv_crc //
 
 

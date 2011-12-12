@@ -298,16 +298,46 @@ void init_auto_master(void)
 */
 void init_serial_master(void)
 {
-    const UInt8 * MASTER_PARAM;
-    UInt16 master_len;
+    BOOL memory_loaded = FALSE;
+    const UInt8* nv_memory;
+    const on_base_param_t* base_param;
+    UInt16 nv_memory_len;
+    #ifdef _PEER
+    const UInt8* peer_memory;
+    UInt16 peer_memory_len;
+    #endif
 
-    if(eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &master_len, &MASTER_PARAM))
+    memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &nv_memory_len,
+      &nv_memory);
+    
+    #ifdef _PEER
+    if(memory_loaded)
     {
-    } // if previous settings were stored //
-    else
+        memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS,
+          &peer_memory_len, &peer_memory);
+    }
+    #endif
+    
+    if(memory_loaded)
     {
-        one_net_master_reset_master(); // start a brand new network
-    } // else start a new network //    
+        base_param = (on_base_param_t*) nv_memory;
+        
+        // TODO -- for right now, ignore anything loaded, but we'll
+        // want to use the loaded parameters upon a successful load.
+        if(master_nv_crc(nv_memory, nv_memory_len, peer_memory,
+          peer_memory_len) == base_param->crc)
+        {
+            oncli_send_msg("Parameters have been loaded from flash.\n");
+            
+            // flag memory_loaded as false for now even upon success.
+        }
+        else
+        {
+            memory_loaded = FALSE;
+        }
+    }
+    
+    one_net_master_reset_master(); // start a brand new network   
 } // init_serial_master //
 
 

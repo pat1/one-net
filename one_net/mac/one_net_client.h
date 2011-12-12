@@ -141,7 +141,12 @@ one_net_status_t one_net_client_init(const UInt8 * const PARAM,
 tick_t one_net_client(void);
 
 
-UInt8 client_nv_crc(BOOL* valid);
+#ifndef _PEER
+int client_nv_crc(const UInt8* param, int param_len);
+#else
+int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
+    int peer_param_len);
+#endif
 
 
 

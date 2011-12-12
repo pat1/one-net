@@ -463,29 +463,58 @@ tick_t one_net_client(void)
 /*!
     \brief Calculate CRC over the client parameters.
     
-    \param[out] valid TRUE if parameters (not including the crc) are valid
-
-    \return CRC of the client parameters
-            0 upon error
+    \param[in] param pointer to non-volatile parameters.  If NULL,
+               on_base_param is used.
+    \param[in] param_len Length of non-volatile parameters.  If negative, this
+               is disregarded.
+    \param[in] peer_param pointer to peer parameters.  If NULL,
+               peer is used.
+    \param[in] peer_param_len Length of peer parameters.  If negative, this
+               is disregarded.
+    \return 8-bit CRC of the client parameters if valid
+            -1 if invalid
 */
-UInt8 client_nv_crc(BOOL* valid)
+#ifndef _PEER
+int client_nv_crc(const UInt8* param, int param_len)
+#else
+int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
+    int peer_param_len)
+#endif
 {
-    UInt8 crc;
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
+    UInt16 expected_param_len;
     
-    *valid = TRUE;
+    #ifdef _PEER
+    if(!peer_param)
+    {
+        peer_param = peer_storage;
+    }
+    if(peer_param_len >= 0 && peer_param_len != PEER_STORAGE_SIZE_BYTES)
+    {
+        return -1;
+    }
+    #endif
+    
+    if(!param)
+    {
+        param = nv_param;
+    }
+    
+    if(param_len >= 0 && expected_param_len != CLIENT_NV_PARAM_SIZE_BYTES)
+    {
+        return -1;
+    }
+    
 
     #ifdef _PEER
     // crc over peer parameters
-    starting_crc = one_net_compute_crc(peer_storage, PEER_STORAGE_SIZE_BYTES,
+    starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
       starting_crc, ON_PLD_CRC_ORDER);
     #endif
     
-    crc = one_net_compute_crc(&nv_param[CRC_LEN], CLIENT_NV_PARAM_SIZE_BYTES
+    return one_net_compute_crc(&param[CRC_LEN], CLIENT_NV_PARAM_SIZE_BYTES
       - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
-    
-    return crc;
 } // client_nv_crc //
 
 
