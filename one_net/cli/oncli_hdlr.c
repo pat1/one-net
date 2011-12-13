@@ -2584,8 +2584,18 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_CMD_FAIL;
     }
-
-    // TODO -- reset the system?
+    
+    oncli_send_msg("Erasing current settings and resetting the system with "
+      "a new NID and invite key.\n");
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        one_net_master_erase_settings();
+        one_net_master_reset_master(one_net_master_get_raw_sid());
+    }
+    #endif
+    
+    // TODO -- what about resetting the client?
     return ONCLI_SUCCESS;
 } // setni_cmd_hdlr //
 #endif
