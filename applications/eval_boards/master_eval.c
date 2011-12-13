@@ -332,24 +332,40 @@ void init_serial_master(void)
     
     if(memory_loaded)
     {
-        base_param = (on_base_param_t*) nv_memory;
+        one_net_status_t status;
+        status = one_net_master_init(nv_memory, nv_memory_len);
         
-        // TODO -- for right now, ignore anything loaded, but we'll
-        // want to use the loaded parameters upon a successful load.
-        if(master_nv_crc(nv_memory, nv_memory_len, peer_memory,
-          peer_memory_len) == base_param->crc)
-        {
-            oncli_send_msg("Parameters have been loaded from flash.\n");
-            
-            // flag memory_loaded as false for now even upon success.
-        }
-        else
+        #ifdef _PEER
+        if(status != ONS_MORE)
         {
             memory_loaded = FALSE;
         }
+        else
+        {
+            status = one_net_master_init(peer_memory, peer_memory_len);
+        }
+        #endif
+        
+        if(status != ONS_SUCCESS)
+        {
+            memory_loaded = FALSE;
+        }
+        else
+        {
+            // so far, so good.  Copy the pin info and we should be done.
+            one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
+        }
     }
     
-    one_net_master_reset_master(); // start a brand new network   
+    if(memory_loaded)
+    {
+        oncli_send_msg("Parameters have been loaded from flash.\n");
+    }
+    else
+    {
+        oncli_send_msg("Parameters have not been loaded from flash.\n");
+        one_net_master_reset_master(); // start a brand new network
+    }
 } // init_serial_master //
 
 
