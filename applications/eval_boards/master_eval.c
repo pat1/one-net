@@ -38,15 +38,6 @@
 //! \ingroup ONE-NET_master_eval
 //! @{
 
-//! State machine for dealing with the user pins.
-enum
-{
-    M_CHECK_USER_PIN,               //!< State to check user pins for changes
-    M_SEND_USER_PIN_INPUT           //!< State to send user pin changes to peers
-};
-
-
-
 
 
 //! @} ONE-NET_master_eval_const
@@ -94,14 +85,6 @@ extern BOOL in_auto_mode; // declared in one_net_eval.c
 
 
 
-//! The state of handling the user pins the MASTER is in;
-static UInt8 master_user_pin_state;
-
-//! The source unit of the user pin that has changed
-static UInt8 user_pin_src_unit;
-
-
-
 //! @} ONE-NET_master_eval_pri_var
 //                              PRIVATE VARIABLES END
 //=============================================================================
@@ -137,7 +120,6 @@ static void send_auto_msg(void);
 static void initialize_default_master_pins(void);
 static void init_master_user_pin(const UInt8 *user_pin_type,
   UInt8 user_pin_count);
-static void master_check_user_pins(void);
 static void master_send_user_pin_input(void);
 static void master_user_pin(void);
 
@@ -646,7 +628,7 @@ static void initialize_default_master_pins(void)
     oncli_set_user_pin_type(1, ON_INPUT_PIN);
     oncli_set_user_pin_type(2, ON_OUTPUT_PIN);
     oncli_set_user_pin_type(3, ON_OUTPUT_PIN);
-    master_user_pin_state = M_CHECK_USER_PIN;
+    user_pin_state = CHECK_USER_PIN;
 }
 
 
@@ -664,7 +646,7 @@ static void initialize_default_master_pins(void)
 static void init_master_user_pin(const UInt8 *user_pin_type,
   UInt8 user_pin_count)
 {
-    master_user_pin_state = M_CHECK_USER_PIN;
+    user_pin_state = CHECK_USER_PIN;
     
     if(user_pin_type && user_pin_count == NUM_USER_PINS)
     {
@@ -740,46 +722,6 @@ static void send_auto_msg(void)
 
 
 /*!
-    \brief Checks to see if the state of any of the user pins changed
-    
-    \param void
-    
-    \return void
-*/
-static void master_check_user_pins(void)
-{
-    if(user_pin[0].pin_type == ON_INPUT_PIN
-      && USER_PIN0 != user_pin[0].old_state)
-    {
-        master_user_pin_state = M_SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 0;
-        user_pin[0].old_state = USER_PIN0;
-    } // if the user0 pin has been toggled //
-    else if(user_pin[1].pin_type == ON_INPUT_PIN
-      && USER_PIN1 != user_pin[1].old_state)
-    {
-        master_user_pin_state = M_SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 1;
-        user_pin[1].old_state = USER_PIN1;
-    } // if the user1 pin has been toggled //
-    else if(user_pin[2].pin_type == ON_INPUT_PIN
-      && USER_PIN2 != user_pin[2].old_state)
-    {
-        master_user_pin_state = M_SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 2;
-        user_pin[2].old_state = USER_PIN2;
-    } // if the user2 pin has been toggled //
-    else if(user_pin[3].pin_type == ON_INPUT_PIN
-      && USER_PIN3 != user_pin[3].old_state)
-    {
-        master_user_pin_state = M_SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 3;
-        user_pin[3].old_state = USER_PIN3;
-    } // if the user3 pin has been toggled //
-} // master_check_user_pins //
-
-
-/*!
     \brief Sends the user pin state to the assigned peers
     
     \param void
@@ -794,7 +736,7 @@ static void master_send_user_pin_input(void)
     send_switch_status_change_msg(user_pin_src_unit, 
       user_pin[user_pin_src_unit].old_state, ONE_NET_DEV_UNIT, NULL);
 
-    master_user_pin_state = M_CHECK_USER_PIN;
+    user_pin_state = CHECK_USER_PIN;
 } // master_send_user_pin_input //
 
 
@@ -807,17 +749,17 @@ static void master_send_user_pin_input(void)
 */
 static void master_user_pin(void)
 {
-    switch(master_user_pin_state)
+    switch(user_pin_state)
     {
-        case M_SEND_USER_PIN_INPUT:
+        case SEND_USER_PIN_INPUT:
         {
             master_send_user_pin_input();
             break;
-        } // M_USER_PIN_SEND_INPUT state //
+        } // SEND_USER_PIN_INPUT state //
 
         default:
         {
-            master_check_user_pins();
+            check_user_pins();
             break;
         } // default case //
     } // switch(master_user_pin_state) //

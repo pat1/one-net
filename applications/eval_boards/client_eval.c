@@ -86,7 +86,8 @@
 //! @{
 
 
-static void client_check_user_pins(void);
+static void client_send_user_pin_input(void);
+static void client_user_pin(void);
 
 
 //! @} ONE-NET_client_eval_pri_func
@@ -201,7 +202,7 @@ void init_serial_client(void)
 */
 void client_eval(void)
 {
-    client_check_user_pins();
+    client_user_pin();
     one_net_client();
 } // client_eval //
 
@@ -320,16 +321,48 @@ void one_net_client_single_txn_status(on_message_status_t status,
 
 
 /*!
-    \brief Checks if any of the user pins have been enabled as inputs and sends
-      a message if they have and the state of the pin has changed.
-
+    \brief Sends the user pin state to the assigned peers
+    
     \param void
-
+    
     \return void
 */
-static void client_check_user_pins(void)
+static void client_send_user_pin_input(void)
 {
-} // client_check_user_pins //
+    oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
+      user_pin[user_pin_src_unit].old_state);
+      
+    send_switch_status_change_msg(user_pin_src_unit, 
+      user_pin[user_pin_src_unit].old_state, ONE_NET_DEV_UNIT, NULL);
+
+    user_pin_state = CHECK_USER_PIN;
+} // client_send_user_pin_input //   
+
+
+/*!
+    \brief Checks the user pins and sends messages if the state has changed.
+    
+    \param void
+    
+    \return void
+*/
+static void client_user_pin(void)
+{
+    switch(user_pin_state)
+    {
+        case SEND_USER_PIN_INPUT:
+        {
+            client_send_user_pin_input();
+            break;
+        } // SEND_USER_PIN_INPUT state //
+
+        default:
+        {
+            check_user_pins();
+            break;
+        } // default case //
+    } // switch(user_pin_state) //
+} // client_user_pin //
 
 
 

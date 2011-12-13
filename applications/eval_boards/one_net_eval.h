@@ -73,6 +73,14 @@ typedef struct
 } user_pin_t;
 
 
+//! State machine for dealing with the user pins.
+enum
+{
+    CHECK_USER_PIN,               //!< State to check user pins for changes
+    SEND_USER_PIN_INPUT           //!< State to send user pin changes to peers
+};
+
+
 
 
 //! @} ONE-NET_eval_typedefs
@@ -89,6 +97,10 @@ extern user_pin_t user_pin[NUM_USER_PINS];
 #ifdef _SNIFFER_MODE
 extern BOOL in_sniffer_mode;
 #endif
+
+
+extern UInt8 user_pin_state;
+extern UInt8 user_pin_src_unit;
 
 
 
@@ -113,10 +125,6 @@ extern const UInt8 DEFAULT_RAW_NID[];
 //! of data flash.
 extern const on_raw_sid_t DEFAULT_RAW_SID;
 #endif
-
-
-
-
 
 
 
@@ -158,6 +166,7 @@ void init_auto_client(UInt8 index);
 #endif
 
 
+void check_user_pins(void);
 void disable_user_pins(void);
 
 

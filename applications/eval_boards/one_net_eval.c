@@ -168,6 +168,13 @@ BOOL in_sniffer_mode = FALSE;
 void(*node_loop_func)(void) = 0;
 
 
+//! The state of handling the user pins the device is in
+UInt8 user_pin_state;
+
+//! The source unit of the user pin that has changed
+UInt8 user_pin_src_unit;
+
+
 	
 //! @} ONE-NET_eval_pub_var
 //                              PUBLIC VARIABLES END
@@ -229,6 +236,46 @@ void init_user_pin(const UInt8 *user_pin_type,
   UInt8 user_pin_count)
 {
 } // init_user_pin //
+
+
+/*!
+    \brief Checks to see if the state of any of the user pins changed
+    
+    \param void
+    
+    \return void
+*/
+void check_user_pins(void)
+{
+    if(user_pin[0].pin_type == ON_INPUT_PIN
+      && USER_PIN0 != user_pin[0].old_state)
+    {
+        user_pin_state = SEND_USER_PIN_INPUT;
+        user_pin_src_unit = 0;
+        user_pin[0].old_state = USER_PIN0;
+    } // if the user0 pin has been toggled //
+    else if(user_pin[1].pin_type == ON_INPUT_PIN
+      && USER_PIN1 != user_pin[1].old_state)
+    {
+        user_pin_state = SEND_USER_PIN_INPUT;
+        user_pin_src_unit = 1;
+        user_pin[1].old_state = USER_PIN1;
+    } // if the user1 pin has been toggled //
+    else if(user_pin[2].pin_type == ON_INPUT_PIN
+      && USER_PIN2 != user_pin[2].old_state)
+    {
+        user_pin_state = SEND_USER_PIN_INPUT;
+        user_pin_src_unit = 2;
+        user_pin[2].old_state = USER_PIN2;
+    } // if the user2 pin has been toggled //
+    else if(user_pin[3].pin_type == ON_INPUT_PIN
+      && USER_PIN3 != user_pin[3].old_state)
+    {
+        user_pin_state = SEND_USER_PIN_INPUT;
+        user_pin_src_unit = 3;
+        user_pin[3].old_state = USER_PIN3;
+    } // if the user3 pin has been toggled //
+} // check_user_pins //
 
 
 void oncli_print_prompt(void)
