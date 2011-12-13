@@ -977,9 +977,9 @@ void one_net_master(void)
       single_data_queue_ready_to_send(&queue_sleep_time) == -1 &&
       queue_sleep_time < MS_TO_TICK(500))
     {
+        check_updates_in_progress();
         if(master_param->client_count)
         {        
-            check_updates_in_progress();
             check_client_check_ins();
         }
     }
