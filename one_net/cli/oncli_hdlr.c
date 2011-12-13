@@ -64,8 +64,9 @@
 #include "one_net_master_port_const.h"
 #include "one_net_master.h"
 #endif
-
-
+#ifdef _NON_VOLATILE_MEMORY
+#include "dfi.h"
+#endif
 
 #ifdef _DEBUGGING_TOOLS
 #include "one_net_timer.h"
@@ -320,6 +321,10 @@ static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_
 
 #ifdef _ENABLE_CHANNEL_COMMAND
 static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _ENABLE_SETNI_COMMAND
+static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef _RANGE_TESTING
@@ -799,6 +804,23 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the channel command was received //
 	#endif
+    
+    #ifdef _ENABLE_SETNI_COMMAND
+    if(!strnicmp(ONCLI_SETNI_CMD_STR, CMD, strlen(ONCLI_SETNI_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SETNI_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SETNI_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &setni_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the sid command was received //
+    #endif
     
     #ifdef _RANGE_TESTING
     if(!strnicmp(ONCLI_RANGE_TEST_CMD_STR, CMD,
@@ -2420,6 +2442,152 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     one_net_reset_master_with_channel(channel);
     return ONCLI_SUCCESS;
 } // channel_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_SETNI_COMMAND
+/*!
+    \brief Handles receiving the setni command and all its parameters.
+    
+    The setni command has the form
+    
+    setni:123456789:GGGG-HHHH
+    
+    where 123456789 is a valid NID (one of the NID's allocated to ONE-NET evaluation boards).  
+
+    where GGGG-HHHH is an invite code. It will be repeated to produce the 
+    full invite code (GGGG-HHHH-GGGG-HHHH).
+
+    The manufacturing data segment in data flash will contain a full SID (where the
+    master DID is appended to the NID).
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+
+    enum
+    {
+        SETNI_CMD_NID_OFFSET = 0,
+        SETNI_CMD_NID_NIBBLES = 9,
+        SETNI_CMD_SID_NIBBLES = 12,
+        SETNI_CMD_SEPARATOR_OFFSET = 9,
+        SETNI_CMD_INVITE_OFFSET = 10,
+        SETNI_CMD_INVITE_SEP_OFFSET = 14,
+        SETNI_CMD_INVITE_INPUT_LENGTH = 9,
+        SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH = 4,
+        // total parameter length is SID + delimiter + invite + newline
+        SETNI_CMD_TOTAL_LENGTH = SETNI_CMD_NID_NIBBLES+1+SETNI_CMD_INVITE_INPUT_LENGTH+1
+    };
+
+    char * end_ptr = 0;
+
+    UInt8 sid;
+    BOOL set_sid_and_invite;
+    UInt8 * ptr_segment;
+    UInt8 * ptr_invite;
+    UInt8 i;
+    UInt8 mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*4];
+
+    // delimits the starting address and length
+    const char SETNI_CMD_SEPARATOR = ':';
+    const char SID_INVITE_SEPARATOR = '-';
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    else if (strlen(ASCII_PARAM_LIST) != SETNI_CMD_TOTAL_LENGTH)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    else if (*(ASCII_PARAM_LIST+SETNI_CMD_SEPARATOR_OFFSET) != SETNI_CMD_SEPARATOR)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    else if (*(ASCII_PARAM_LIST+SETNI_CMD_INVITE_SEP_OFFSET) != SID_INVITE_SEPARATOR)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    //
+    // make sure there is no manufacturing data segment in data flash
+    // this command can only be executed once. if you want to change the
+    // SID and invite code, you need to erase data flash using some means
+    // other than the CLI erase command. for example, using a Renesas HEW.
+    //
+    ptr_segment = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
+    if ((UInt8 *) ptr_segment != (UInt8 *) 0)
+    {
+        //
+        // we found manufacturing data, so issue error and
+        // do not complete the command.
+        //
+        return ONCLI_UNSUPPORTED;
+    }
+
+    //
+    // extract the NID from the parameters, convert the NID to binary,
+    // extend it to become an SID, and copy it to the manufacturing data segment buffer.
+    //
+    if(ascii_hex_to_byte_stream(ASCII_PARAM_LIST+SETNI_CMD_NID_OFFSET, &mfg_data_segment[0],
+      SETNI_CMD_NID_NIBBLES) !=SETNI_CMD_NID_NIBBLES)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    // a raw SID is 6 bytes (nn nn nn nn nd dd), the setni provides the 9 nibble raw NID
+    // (nn nn nn nn n). we need to set the d dd portion of the rae SID to 0 01 so the NID
+    // supplied becomes a raw SID of nn nn nn nn n0 01 as we save it to flash,
+    // since we always want the master DID to be 001.
+    mfg_data_segment[ON_RAW_NID_LEN] &= 0xf0;
+    mfg_data_segment[ON_RAW_NID_LEN] = 0x01;
+
+    //
+    // copy the invite code from the parameter list to the manufacturing data buffer.
+    //
+    one_net_memmove(&mfg_data_segment[SETNI_CMD_SID_NIBBLES/2],
+      ASCII_PARAM_LIST+SETNI_CMD_INVITE_OFFSET, SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH);
+    one_net_memmove(&mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH],
+      ASCII_PARAM_LIST+SETNI_CMD_INVITE_SEP_OFFSET+1, SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH);
+    
+    // 
+    // duplicate the 8 byte invite code supplied to give a full 16 byte invite code
+    //
+    one_net_memmove(&mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+(SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2)],
+      &mfg_data_segment[SETNI_CMD_SID_NIBBLES/2], SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2);
+
+    //
+    // verify that the invite key characters supplied are valid for an invite key
+    //
+    ptr_invite=&mfg_data_segment[SETNI_CMD_SID_NIBBLES/2];
+    for (i=0; i<SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2; i++)
+    {
+        if(!oncli_is_valid_unique_key_ch(ptr_invite[i]))
+        {
+            return ONCLI_PARSE_ERR;
+        }
+    }
+    
+    //
+    // write the manufacturing data segment buffer to data flash
+    //
+    if (dfi_write_segment_of_type(DFI_ST_DEVICE_MFG_DATA, &mfg_data_segment[0],
+      sizeof(mfg_data_segment)) == (UInt8 *) 0)
+    {
+        return ONCLI_CMD_FAIL;
+    }
+
+    // TODO -- reset the system?
+    return ONCLI_SUCCESS;
+} // setni_cmd_hdlr //
 #endif
 
 

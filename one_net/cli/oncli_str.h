@@ -180,6 +180,9 @@ extern const char * const ONCLI_RM_DEV_CMD_STR;
 #ifdef _ENABLE_CHANNEL_COMMAND
 extern const char * const ONCLI_CHANNEL_CMD_STR;
 #endif
+#ifdef _ENABLE_SETNI_COMMAND
+extern const char * const ONCLI_SETNI_CMD_STR;
+#endif
 #ifdef _RANGE_TESTING
 extern const char* const ONCLI_RANGE_TEST_CMD_STR;
 extern const char* const ADD_STR;

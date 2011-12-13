@@ -247,6 +247,11 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
 #endif
 
+#ifdef _ENABLE_SETNI_COMMAND
+//! SETNI command string
+const char * const ONCLI_SETNI_CMD_STR = "setni";
+#endif
+
 #ifdef _RANGE_TESTING
     //! Command to adjust range testing
     const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
