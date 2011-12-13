@@ -1452,7 +1452,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
       starting_crc, ON_PLD_CRC_ORDER);
     #endif
     
-    return one_net_compute_crc(&nv_param[CRC_LEN],
+    return one_net_compute_crc(&param[CRC_LEN],
       expected_param_len - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
 } // master_nv_crc //
 
