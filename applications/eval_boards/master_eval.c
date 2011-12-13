@@ -298,23 +298,35 @@ void init_auto_master(void)
 */
 void init_serial_master(void)
 {
-    BOOL memory_loaded = FALSE;
+    BOOL memory_loaded;
     const UInt8* nv_memory;
+    const UInt8* user_pin_memory;
     const on_base_param_t* base_param;
-    UInt16 nv_memory_len;
+    UInt16 nv_memory_len, user_pin_memory_len;
     #ifdef _PEER
     const UInt8* peer_memory;
     UInt16 peer_memory_len;
     #endif
 
-    memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS, &nv_memory_len,
-      &nv_memory);
+    memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
+      &user_pin_memory);
+      
+    if(user_pin_memory_len != sizeof(user_pin))
+    {
+        memory_loaded = FALSE;
+    }
+
+    if(memory_loaded)
+    {
+        memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS,
+          &nv_memory_len, &nv_memory);
+    }
     
     #ifdef _PEER
     if(memory_loaded)
     {
-        memory_loaded = eval_load(DFI_ST_APP_DATA_2, &peer_memory_len,
-          &peer_memory);
+        memory_loaded = eval_load(DFI_ST_ONE_NET_PEER_SETTINGS,
+          &peer_memory_len, &peer_memory);
     }
     #endif
     

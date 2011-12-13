@@ -45,6 +45,7 @@
 
 
 #include "nv_hal.h"
+#include "one_net_eval.h" // for user_pin[] array and user_pin_t.
 #include "one_net_types.h"
 #include "dfi.h"
 #include "one_net_application.h"
@@ -279,8 +280,8 @@ BOOL eval_save(void)
     // data flash segment type DFI_ST_APP_DATA_1 will be used to store the user pin
     // configuration information.
     //
-    // data flash segment type DFI_ST_APP_DATA_2 will be used to store peer assignment
-    // date (see extra_device_* variables below).
+    // data flash segment type ONE_NET_PEER_SETTINGS will be used to store
+    // peer assignment data.
     //
 
     //
@@ -293,8 +294,8 @@ BOOL eval_save(void)
     // data flash segment type DFI_ST_APP_DATA_1 will be used to store the user pin
     // configuration information.
     //
-    // data flash segment type DFI_ST_APP_DATA_2 will be used to store peer assignment
-    // date (see extra_device_* variables below).
+    // data flash segment type ONE_NET_PEER_SETTINGS will be used to store
+    // peer assignment data.
     //
     
     UInt8 * result;
@@ -373,16 +374,23 @@ BOOL eval_save(void)
         return FALSE;
     }
     
-    
-    // TODO -- save user pin configuration too.
+    //
+    // Write the pin configuration using DFI_ST_APP_DATA_1 segment type
+    //
+    result = dfi_write_segment_of_type(DFI_ST_APP_DATA_1, (UInt8*) user_pin,
+      sizeof(user_pin));
+    if (result == (UInt8 *) 0)
+    {
+        return FALSE;
+    }
         
     
 #ifdef _PEER
     //
-    // write peer data using DFI_ST_APP_DATA_2 segment type
+    // write peer data using DFI_ST_ONE_NET_PEER_SETTINGS segment type
     //
-    result = dfi_write_segment_of_type(DFI_ST_APP_DATA_2, peer_storage,
-      PEER_STORAGE_SIZE_BYTES);
+    result = dfi_write_segment_of_type(DFI_ST_ONE_NET_PEER_SETTINGS,
+      peer_storage, PEER_STORAGE_SIZE_BYTES);
     if (result == (UInt8 *) 0)
     {
         return FALSE;

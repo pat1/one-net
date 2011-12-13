@@ -64,9 +64,13 @@ const UInt8 dfi_segment_types_used[] =
 {
     DFI_ST_ONE_NET_MASTER_SETTINGS,
     DFI_ST_ONE_NET_CLIENT_SETTINGS,
+    #ifdef _PEER
+    DFI_ST_ONE_NET_PEER_SETTINGS,
+    #endif
     DFI_ST_APP_DATA_1,
     DFI_ST_APP_DATA_2,
-    DFI_ST_APP_DATA_3
+    DFI_ST_APP_DATA_3,
+    DFI_ST_APP_DATA_4
 };
 
 

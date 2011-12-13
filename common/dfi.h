@@ -118,6 +118,11 @@ typedef enum
     //! ONE-NET client settings data
     DFI_ST_ONE_NET_CLIENT_SETTINGS =    0x12,
 
+    #ifdef _PEER
+    //! ONE-NET peer settings data
+    DFI_ST_ONE_NET_PEER_SETTINGS =      0x13,
+    #endif
+
     //! General application data of user defined type 1
     DFI_ST_APP_DATA_1 =                 0x21,
 
