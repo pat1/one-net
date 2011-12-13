@@ -338,7 +338,7 @@ on_message_status_t one_net_client_handle_ack_nack_response(
     
     \return A pointer to the invite key to use.
 */
-UInt8 * one_net_client_get_invite_key(void);
+one_net_xtea_key_t* one_net_client_get_invite_key(void);
 
 
 #ifdef _NON_VOLATILE_MEMORY

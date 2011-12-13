@@ -275,7 +275,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
 */
 oncli_status_t oncli_print_invite(void)
 {
-    UInt8 * ptr_invite_key = one_net_client_get_invite_key();
+    UInt8* ptr_invite_key = (UInt8*) (one_net_client_get_invite_key());
     oncli_send_msg(ONCLI_DISPLAY_INVITE_STR, &ptr_invite_key[0], &ptr_invite_key[4]);
     return ONCLI_SUCCESS;
 }

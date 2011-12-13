@@ -24,6 +24,9 @@
 #include "one_net_client_port_specific.h"
 #include "oncli_str.h"
 #include "oncli.h"
+#ifdef _NON_VOLATILE_MEMORY
+#include "dfi.h"
+#endif
 
 
 
@@ -208,9 +211,30 @@ void client_eval(void)
     
     \return A pointer to the invite key to use.
 */
-UInt8 * one_net_client_get_invite_key(void)
+one_net_xtea_key_t* one_net_client_get_invite_key(void)
 {
-    return(&DEFAULT_INVITE_KEY[0]);
+    #ifdef _NON_VOLATILE_MEMORY
+    UInt8 * invite_key_ptr;
+
+    invite_key_ptr = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
+    if (invite_key_ptr == (UInt8 *) 0)
+    {
+    #endif
+        //
+        // no manufacturing data was found use a default invite key
+        //
+        return (one_net_xtea_key_t*) &DEFAULT_INVITE_KEY[0];
+    #ifdef _NON_VOLATILE_MEMORY
+    }
+    else
+    {
+        //
+        // there is an invite key in data flash, return a pointer to it.
+        //
+        return (one_net_xtea_key_t*)(invite_key_ptr +
+          sizeof(dfi_segment_hdr_t) + ON_RAW_SID_LEN);
+    }
+    #endif
 }
 
 
