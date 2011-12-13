@@ -213,12 +213,12 @@ static UInt8 * dfi_find_free_space(UInt16 *available)
     current_segment = dfi_current_block();
     if (current_segment == 0)
     {
-        ptr_segment_hdr = (dfi_segment_hdr_t *) DFI_UINT16_TO_ADDR(DF_BLOCK_A_START);
+        ptr_segment_hdr = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_A_START));
         ptr_end_segment = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_A_START+DF_BLOCK_SIZE));
     }
     else
     {
-        ptr_segment_hdr = (dfi_segment_hdr_t *) DFI_UINT16_TO_ADDR(DF_BLOCK_B_START);
+        ptr_segment_hdr = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_B_START));
         ptr_end_segment = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_B_START+DF_BLOCK_SIZE));
     }
 

@@ -75,8 +75,8 @@ extern UInt8 sim_data_flash[];
 #define DFI_UINT16_TO_ADDR(UINT16)     (&sim_data_flash[UINT16-DF_BLOCK_START])
 #define DFI_ADDR_TO_UINT16(ADDR)       ((ADDR-(&sim_data_flash[0]))+DF_BLOCK_START)
 #else
-#define DFI_UINT16_TO_ADDR(UINT16)     (UInt8 *) UINT16
-#define DFI_ADDR_TO_UINT16(ADDR)       (UInt16) ADDR
+#define DFI_UINT16_TO_ADDR(UINT16)     ((UInt8 *) UINT16)
+#define DFI_ADDR_TO_UINT16(ADDR)       ((UInt16) ADDR)
 #endif
 
 //! @} dfi_const

@@ -66,14 +66,14 @@
 #define DF_BLOCK_A_START 0x2400
 
 //! Starting address for Data Flash Block B
-#define DF_BLOCK_B_START DF_BLOCK_A_START + DF_BLOCK_SIZE
+#define DF_BLOCK_B_START (DF_BLOCK_A_START + DF_BLOCK_SIZE)
 
 
 //! The very first data block address
 #define DF_BLOCK_START DF_BLOCK_A_START
 
 //! The very last data block address
-#define DF_BLOCK_END DF_BLOCK_B_START + DF_BLOCK_SIZE
+#define DF_BLOCK_END (DF_BLOCK_B_START + DF_BLOCK_SIZE)
 
 
 //! @} FLASH_const
