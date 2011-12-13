@@ -313,8 +313,8 @@ void init_serial_master(void)
     #ifdef _PEER
     if(memory_loaded)
     {
-        memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS,
-          &peer_memory_len, &peer_memory);
+        memory_loaded = eval_load(DFI_ST_APP_DATA_2, &peer_memory_len,
+          &peer_memory);
     }
     #endif
     
