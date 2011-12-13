@@ -161,8 +161,8 @@ BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
     \return TRUE if the NIDs match.
             FALSE if the NIDs do not match.
 */
-BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
-  const on_encoded_did_t * const RHS)
+BOOL on_encoded_nid_equal(const on_encoded_nid_t * const LHS,
+  const on_encoded_nid_t * const RHS)
 {
     if(!LHS || !RHS)
     {
@@ -170,7 +170,7 @@ BOOL on_encoded_nid_equal(const on_encoded_did_t * const LHS,
     } // if parameters are invalid //
 
     return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_NID_LEN) == 0);
-} // on_encoded_did_equal //  
+} // on_encoded_nid_equal //  
   
 
 /*!
