@@ -408,15 +408,132 @@ one_net_status_t one_net_master_create_network(
               too long).  Initialization is reset and the parameters must be
               passed in from the beginning.
 */
-one_net_status_t one_net_master_init(const UInt8 * const PARAM,
-  const UInt16 PARAM_LEN)
+one_net_status_t one_net_master_init(const UInt8 * PARAM,
+  UInt16 PARAM_LEN)
 {
     UInt8 i;
     one_net_status_t status;
     
+    // The number of bytes in the non-volatile parameter buffer that have been
+    // initialized so far.
+    static UInt16 nv_param_size_initialized = 0;
+    static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+    #ifdef _PEER
+    static UInt8 peer_memory_size_initialized = 0;
+    #endif
+    
+
     if(PARAM != NULL)
     {
-        // code here to initalize things from PARAM and PARAM_LEN
+        // initialization may take place with one call to this function if all
+        // of the bytes needed for non-volatile are passed in at once or it
+        // may take more than one trip to this function.
+        
+        // we'll first check whether we have all of on_base_param and
+        // master_param.  If we have this, we have the client count and we
+        // can do some re-calculating.
+        if(nv_param_size_initialized < MIN_MASTER_NV_PARAM_SIZE_BYTES)
+        {
+            UInt16 needed_to_know_client_count = MIN_MASTER_NV_PARAM_SIZE_BYTES
+              - nv_param_size_initialized;
+
+            if(PARAM_LEN < needed_to_know_client_count)
+            {
+                one_net_memmove(&nv_param[nv_param_size_initialized],
+                  PARAM, PARAM_LEN);
+                nv_param_size_initialized += PARAM_LEN;
+                return ONS_MORE;
+            }
+            
+            // we now have enough information to determine the client count
+            one_net_memmove(&nv_param[nv_param_size_initialized],
+                PARAM, needed_to_know_client_count);
+            PARAM += needed_to_know_client_count;
+            PARAM_LEN -= needed_to_know_client_count;
+            nv_param_size_initialized = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+                
+            if(master_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
+            {
+                // Number of clients is invalid.  Reset and return "invalid"
+                nv_param_size_initialized = 0;
+                nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+                #ifdef _PEER
+                peer_memory_size_initialized = 0;
+                #endif
+                return ONS_INVALID_DATA;
+            }
+            
+            nv_param_size_needed += (sizeof(on_client_t) *
+              master_param->client_count);
+        }
+
+        if(nv_param_size_initialized < nv_param_size_needed)
+        {
+            UInt16 more_needed_for_nv_param = nv_param_size_needed -
+              nv_param_size_initialized;
+              
+            if(PARAM_LEN < more_needed_for_nv_param)
+            {
+                one_net_memmove(&nv_param[nv_param_size_initialized],
+                  PARAM, PARAM_LEN);
+                nv_param_size_initialized += PARAM_LEN;
+                return ONS_MORE;
+            }
+            
+            one_net_memmove(&nv_param[nv_param_size_initialized],
+              PARAM, more_needed_for_nv_param);
+            nv_param_size_initialized = nv_param_size_needed;
+            PARAM += more_needed_for_nv_param;
+            PARAM_LEN -= more_needed_for_nv_param;
+        }
+        
+        
+        // we have all of the non-volatile parameters filled in.  Depending
+        // on whether _PEER is enabled, we'll start filling that in.
+        #ifdef _PEER
+        {
+            UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
+              peer_memory_size_initialized;
+              
+            if(PARAM_LEN <= more_needed_for_peer)
+            {
+                one_net_memmove(&peer_storage[peer_memory_size_initialized],
+                  PARAM, PARAM_LEN);
+                peer_memory_size_initialized += PARAM_LEN;
+                if(PARAM_LEN < more_needed_for_peer)
+                {
+                    return ONS_MORE;
+                }
+                
+                PARAM_LEN -= more_needed_for_peer;
+            }
+        }
+        #endif
+        
+        
+        // just in case the applciation code needs to reset again for
+        // whatever reason, we'll reset everything here.  If everything
+        // worked OK, this function won't be called again so it won't
+        // matter, but if it IS called again, that should mean that we
+        // are initializing from scratch, so we want to reset some values.
+        nv_param_size_initialized = 0;
+        nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+        #ifdef _PEER
+        peer_memory_size_initialized = 0;
+        #endif
+        
+
+        // Last thing to check is the CRC and also make sure that PARAM_LEN
+        // is 0 (if not, we were passed too much data and we need to reject)
+        #ifndef _PEER
+        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1))
+        #else
+        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1,
+          NULL, -1))
+        #endif
+        {
+            return ONS_INVALID_DATA;
+        }
     }
     
     #ifdef _ONE_NET_MULTI_HOP
@@ -438,7 +555,7 @@ one_net_status_t one_net_master_init(const UInt8 * const PARAM,
     } // if initializing the internals failed //
     
     on_state = ON_LISTEN_FOR_DATA;
-   
+
     return ONS_SUCCESS;
 } // one_net_master_init //
 

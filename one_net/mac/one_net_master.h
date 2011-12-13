@@ -179,8 +179,7 @@ one_net_status_t one_net_master_create_network(
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD);
 #endif
 
-one_net_status_t one_net_master_init(const UInt8 * const PARAM,
-  const UInt16 PARAM_LEN);
+one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN);
   
 void one_net_reset_master_with_channel(UInt8 channel);
 
