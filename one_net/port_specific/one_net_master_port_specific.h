@@ -349,15 +349,25 @@ one_net_status_t one_net_master_erase_settings(void);
 
 
 /*!
-    \brief Resets the device to MASTER mode.
+    \brief Returns the raw SID for the master to use.
+    
+    \return Pointer to the raw SID to use.
+*/
+on_raw_sid_t* one_net_master_get_raw_sid(void);
+
+
+/*!
+    \brief Resets the device in MASTER mode.
     
     When the device is reset to MASTER mode, the network is empty and CLIENT
     will need to be added to the network using their unique key.
     
+    \param[in] raw_sid The raw SID tio use for the network.
+    
     \return ONS_SUCCESS If reseting to MASTER mode was successful
             ONS_FAIL If the command failed
 */
-one_net_status_t one_net_master_reset_master(void);
+one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid);
 
 
 /*!

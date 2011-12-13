@@ -171,7 +171,38 @@ one_net_status_t one_net_master_erase_settings(void)
 {
     return (eval_erase_data_flash() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_master_erase_settings //
-#endif // ifdef _NON_VOLATILE_MEMORY //    
+#endif // ifdef _NON_VOLATILE_MEMORY //
+
+
+/*!
+    \brief Returns a pointer to the SID to use.
+    
+    \return A pointer to the SID to use.
+*/
+on_raw_sid_t * one_net_master_get_raw_sid(void)
+{
+    #ifdef _NON_VOLATILE_MEMORY
+    UInt8 * ptr_raw_sid = dfi_find_last_segment_of_type(
+      DFI_ST_DEVICE_MFG_DATA);
+      
+    if (ptr_raw_sid == (UInt8 *) 0)
+    {
+    #endif
+        //
+        // no manufacturing data was found so use default raw SID.
+        //
+        return((on_raw_sid_t*) &DEFAULT_RAW_SID[0]);
+    #ifdef _NON_VOLATILE_MEMORY
+    }
+    else
+    {
+        //
+        // there is SID in data flash, return a pointer to it.
+        //
+        return((on_raw_sid_t*)(ptr_raw_sid + sizeof(dfi_segment_hdr_t)));
+    }
+    #endif
+} // on_master_get_raw_sid //
     
 
 
@@ -308,6 +339,7 @@ void init_serial_master(void)
     UInt16 peer_memory_len;
     #endif
 
+
     memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
       &user_pin_memory);
       
@@ -364,7 +396,9 @@ void init_serial_master(void)
     else
     {
         oncli_send_msg("Parameters have not been loaded from flash.\n");
-        one_net_master_reset_master(); // start a brand new network
+        
+        // start a brand new network
+        one_net_master_reset_master(one_net_master_get_raw_sid());
     }
 } // init_serial_master //
 
@@ -441,18 +475,18 @@ on_message_status_t one_net_master_handle_ack_nack_response(
 }
 
 
-one_net_status_t one_net_master_reset_master(void)
+one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
 {
     one_net_status_t status;
     one_net_xtea_key_t key, stream_key;
     initialize_default_master_pins();
     
     #ifdef _STREAM_MESSAGES_ENABLED
-    if(one_net_master_create_network(&DEFAULT_RAW_SID, &EVAL_KEY,
+    if(one_net_master_create_network(raw_sid, &EVAL_KEY,
       ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32, &EVAL_STREAM_KEY,
       ONE_NET_STREAM_ENCRYPT_XTEA8) == ONS_SUCCESS)
     #else
-    if(one_net_master_create_network(&DEFAULT_RAW_SID, &EVAL_KEY,
+    if(one_net_master_create_network(raw_sid, &EVAL_KEY,
       ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32) == ONS_SUCCESS)
     #endif
     {    
