@@ -1202,8 +1202,7 @@ static BOOL look_for_invite(void)
     }
 
     // we have received an invitation.  First check the version.
-    if(this_pkt_ptrs->payload[ON_INVITE_VERSION_IDX] !=
-      on_base_param->version)
+    if(this_pkt_ptrs->payload[ON_INVITE_VERSION_IDX] != ON_INVITE_VERSION_IDX)
     {
         return FALSE;
     }
@@ -1212,13 +1211,12 @@ static BOOL look_for_invite(void)
     one_net_memmove(on_base_param->sid, *(this_pkt_ptrs->enc_nid),
       ON_ENCODED_NID_LEN);
     one_net_memmove(&(on_base_param->sid[ON_ENCODED_NID_LEN]),
-      &(this_pkt_ptrs->payload[ON_INVITE_ASSIGNED_DID_IDX]),
+      &raw_payload_bytes[ON_INVITE_ASSIGNED_DID_IDX],
       ON_ENCODED_DID_LEN);
     one_net_memmove(on_base_param->current_key,
-      &(this_pkt_ptrs->payload[ON_INVITE_KEY_IDX]),
-      ONE_NET_XTEA_KEY_LEN);
+      &raw_payload_bytes[ON_INVITE_KEY_IDX], ONE_NET_XTEA_KEY_LEN);
     master->device.features =  
-      *((on_features_t*)(&(this_pkt_ptrs->payload[ON_INVITE_FEATURES_IDX])));
+      *((on_features_t*)(&raw_payload_bytes[ON_INVITE_FEATURES_IDX]));
 
     return TRUE;
 } // look_for_invite //
