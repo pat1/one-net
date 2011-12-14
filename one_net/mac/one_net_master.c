@@ -667,6 +667,9 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 {
     one_net_status_t status;
     UInt8 raw_invite[ON_RAW_INVITE_SIZE];
+    on_client_t* client;
+    tick_t time_now = get_tick_count();
+    on_raw_did_t raw_invite_did;
 
     if(!KEY || timeout == 0)
     {
@@ -721,7 +724,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     }
 
     // pick a random message id
-    data_pkt_ptrs.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
+    data_pkt_ptrs.msg_id = one_net_prand(time_now, ON_MAX_MSG_ID);
 
     // fill in the addresses
     if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
@@ -752,6 +755,29 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     invite_txn.priority = ONE_NET_LOW_PRIORITY;
     ont_set_timer(invite_txn.next_txn_timer, 0);
     ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
+    
+    
+    // now set up the next unused position in client_list for this client
+    client = &client_list[master_param->client_count];
+    client->flags = 0;
+    client->use_current_key = TRUE;
+    #ifdef _STREAM_MESSAGES_ENABLED
+    client->use_current_stream_key = FALSE;
+    #endif
+    client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+    client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
+    client->device_send_info.expected_nonce = one_net_prand(time_now,
+      ON_MAX_NONCE);
+    client->device_send_info.last_nonce = one_net_prand(time_now,
+      ON_MAX_NONCE);
+    client->device_send_info.send_nonce = one_net_prand(time_now,
+      ON_MAX_NONCE);
+    client->device_send_info.msg_id = data_pkt_ptrs.msg_id;
+    one_net_int16_to_byte_stream(master_param->next_client_did,
+      raw_invite_did);
+    on_encode(client->device_send_info.did, raw_invite_did,
+      ON_ENCODED_DID_LEN);
+    client->device_send_info.features = FEATURES_UNKNOWN;
 
     return ONS_SUCCESS;
 } // one_net_master_invite //
@@ -2130,6 +2156,13 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
             return &(client_list[i]);
         } // if the CLIENT was found //
     } // loop to find the CLIENT //
+
+    // check to see if this is a device currently accepting an invite.
+    // If it is, then assign it the next DID
+    if(is_invite_did(CLIENT_DID))
+    {
+        return &client_list[master_param->client_count];
+    }
 
     return 0;
 } // client_info //
