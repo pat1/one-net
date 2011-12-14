@@ -371,6 +371,21 @@ one_net_status_t one_net_client_erase_settings(void);
 
 
 /*!
+    \brief Resets the device in client mode.
+    
+    When the device is reset to client mode, the network is empty and the
+    client will need to be added to the network using its invite key.
+    
+    \param[in] invite_key The invite key for use when listening for
+                 invitations.
+    
+    \return ONS_SUCCESS If reseting to client mode was successful
+            ONS_FAIL If the command failed
+*/
+one_net_status_t one_net_client_reset_client(one_net_xtea_key_t* invite_key);
+
+
+/*!
     \brief The status of a single transaction.
 
     Callback to report the status of sending an application single data packet.

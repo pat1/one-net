@@ -290,6 +290,61 @@ static BOOL check_in_with_master(void);
 #endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 {
+    tick_t time_now = get_tick_count();
+    
+    // copy some parameters over to the base parameters and the master
+    // parameters.
+    on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
+    on_base_param->version = ON_PARAM_VERSION;
+    on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
+    one_net_memmove(&(on_base_param->current_key), *INVITE_KEY,
+      sizeof(on_base_param->current_key));
+    #ifdef _STREAM_MESSAGES_ENABLED
+    on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;      
+    #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
+    on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
+    #endif 
+    master->flags = 0x00;
+    master->device.expected_nonce = one_net_prand(time_now, ON_MAX_NONCE);
+    master->device.last_nonce = one_net_prand(time_now, ON_MAX_NONCE);
+    master->device.send_nonce = one_net_prand(time_now, ON_MAX_NONCE);
+    master->device.msg_id = 0;
+    master->device.data_rate = ONE_NET_DATA_RATE_38_4;
+    master->device.features = FEATURES_UNKNOWN;
+    one_net_memmove(master->device.did, MASTER_ENCODED_DID,
+      ON_ENCODED_DID_LEN);
+
+    // now fill in the channels and set some timers and set the state for
+    // the state machine and some flags to get ready to receive invitations.
+    client_joined_network = FALSE;
+    client_looking_for_invite = TRUE;
+
+    #ifdef _ENHANCED_INVITE
+    client_invite_timed_out = FALSE;
+	low_invite_channel = min_channel;
+	high_invite_channel = max_channel;
+    on_base_param->channel = low_invite_channel;
+	
+	if(timeout_time > 0)
+	{
+		ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout_time));
+	}
+    else
+    {
+        ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(ONE_NET_MASTER_INVITE_DURATION));
+    }
+    #else
+    on_base_param->channel = one_net_prand(time_now, ONE_NET_MAX_CHANNEL);
+    ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(ONE_NET_MASTER_INVITE_DURATION));
+    #endif
+    
+    // set up packet handlers, etc.
+    init_internal();
+
+    ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(ONE_NET_SCAN_CHANNEL_TIME));
+    on_state = ON_JOIN_NETWORK;
     return ONS_SUCCESS;
 } // one_net_client_look_for_invite //
 
