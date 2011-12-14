@@ -650,6 +650,25 @@ void disable_user_pins(void)
 } // disable_user_pins //
 
 
+/*!
+    \brief Sends the user pin state to the assigned peers
+    
+    \param void
+    
+    \return void
+*/
+void send_user_pin_input(void)
+{
+    oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
+      user_pin[user_pin_src_unit].old_state);
+      
+    send_switch_status_change_msg(user_pin_src_unit, 
+      user_pin[user_pin_src_unit].old_state, ONE_NET_DEV_UNIT, NULL);
+
+    user_pin_state = CHECK_USER_PIN;
+} // send_user_pin_input //
+
+
 oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type)
 {
     if(pin_type > ON_DISABLE_PIN)
@@ -1224,6 +1243,30 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 {
 }
 #endif
+
+
+/*!
+    \brief Initializes the pins of the master to the default directions and values
+    
+    Masters have even pins as outputs and odd pins and inputs, clients have
+    the reverse, which allows for quick commands between master and clients
+    without having to change pin directions on the Eval Board manually.
+    
+    \param[in] is_master If true, the device is a master.  If false, the
+               device is a client.
+
+    \return void
+*/
+void initialize_default_pin_directions(BOOL is_master)
+{
+    UInt8 i;
+    for(i = 0; i < NUM_USER_PINS; i++)
+    {
+        oncli_set_user_pin_type(i, (is_master == (i % 2)) ? ON_INPUT_PIN :
+          ON_OUTPUT_PIN);
+    }
+    user_pin_state = CHECK_USER_PIN;
+}
 
 
 

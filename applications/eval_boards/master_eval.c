@@ -117,10 +117,6 @@ static void init_base_param(on_base_param_t *base_param);
 #ifdef _AUTO_MODE
 static void send_auto_msg(void);
 #endif
-static void initialize_default_master_pins(void);
-static void init_master_user_pin(const UInt8 *user_pin_type,
-  UInt8 user_pin_count);
-static void master_send_user_pin_input(void);
 static void master_user_pin(void);
 
 
@@ -461,7 +457,7 @@ one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
 {
     one_net_status_t status;
     one_net_xtea_key_t key, stream_key;
-    initialize_default_master_pins();
+    initialize_default_pin_directions(TRUE);
     
     #ifdef _STREAM_MESSAGES_ENABLED
     if(one_net_master_create_network(raw_sid, &EVAL_KEY,
@@ -613,62 +609,6 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 
 
 /*!
-    \brief Initializes the pins of the master to the default directions and values
-    
-    This functions sets pins 0 and 1 as inputs and pins 2 and 3 as output
-    Clients have a default of 0 and 1 as outputs and 2 and 3 as inputs.
-    These can all be changed, but allows for quick commands without having
-    to set pin directions on the Eval Board.
-
-    \return void
-*/
-static void initialize_default_master_pins(void)
-{
-    oncli_set_user_pin_type(0, ON_INPUT_PIN);
-    oncli_set_user_pin_type(1, ON_INPUT_PIN);
-    oncli_set_user_pin_type(2, ON_OUTPUT_PIN);
-    oncli_set_user_pin_type(3, ON_OUTPUT_PIN);
-    user_pin_state = CHECK_USER_PIN;
-}
-
-
-/*!
-    \brief Initializes the parameters used with the master user pins.
-    
-    \param[in] USER_PIN_TYPE List containing the state of the user pins.  If
-      this is 0, then the default configuration will be used.
-    \param[in] USER_PIN_COUNT The number of pins to configure.  This should be
-      equal to the number of user pins, or else the default configuration will
-      be used.
-    
-    \return void
-*/
-static void init_master_user_pin(const UInt8 *user_pin_type,
-  UInt8 user_pin_count)
-{
-    user_pin_state = CHECK_USER_PIN;
-    
-    if(user_pin_type && user_pin_count == NUM_USER_PINS)
-    {
-        UInt8 i;
-
-        for(i = 0; i < NUM_USER_PINS; i++)
-        {
-            oncli_set_user_pin_type(i, user_pin_type[i]);
-        } // loop to set the user pin type //
-    } // if the pins should be configured a certain way //
-    else
-    {
-        disable_user_pins();
-    } // else use the default pin configuration //
-} // init_master_user_pin //
-
-
-
-
-
-
-/*!
     \brief Initializes the base parameters for the evaluation network.
     
     \param[out] base_param The base parameters to initialize.  All base
@@ -722,25 +662,6 @@ static void send_auto_msg(void)
 
 
 /*!
-    \brief Sends the user pin state to the assigned peers
-    
-    \param void
-    
-    \return void
-*/
-static void master_send_user_pin_input(void)
-{
-    oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
-      user_pin[user_pin_src_unit].old_state);
-      
-    send_switch_status_change_msg(user_pin_src_unit, 
-      user_pin[user_pin_src_unit].old_state, ONE_NET_DEV_UNIT, NULL);
-
-    user_pin_state = CHECK_USER_PIN;
-} // master_send_user_pin_input //
-
-
-/*!
     \brief Checks the user pins and sends messages if the state has changed.
     
     \param void
@@ -753,7 +674,7 @@ static void master_user_pin(void)
     {
         case SEND_USER_PIN_INPUT:
         {
-            master_send_user_pin_input();
+            send_user_pin_input();
             break;
         } // SEND_USER_PIN_INPUT state //
 

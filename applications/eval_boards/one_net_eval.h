@@ -166,8 +166,10 @@ void init_auto_client(UInt8 index);
 #endif
 
 
+void initialize_default_pin_directions(BOOL is_master);
 void check_user_pins(void);
 void disable_user_pins(void);
+void send_user_pin_input(void);
 
 
 /*!
