@@ -1526,6 +1526,7 @@ BOOL one_net(on_txn_t ** txn)
                     on_state = ON_LISTEN_FOR_DATA;
                     ont_set_timer(invite_txn.next_txn_timer, MS_TO_TICK(
                       new_timeout_ms));
+                    *txn = 0;
                 }
                 else
                 {
@@ -2309,7 +2310,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     UInt8* pkt_bytes;
     
     UInt8 original_payload[33];
-    
+
 
     // only need to check 1 handler since it is all or nothing
     if(!pkt_hdlr.single_data_hdlr)
