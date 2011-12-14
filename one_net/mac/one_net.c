@@ -2583,7 +2583,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     key = &(on_base_param->current_key);
     
     #ifdef _ONE_NET_CLIENT
-    if(*this_txn == &invite_txn)
+    if(!device_is_master && *this_txn == &invite_txn)
     {
         key = (one_net_xtea_key_t*) one_net_client_get_invite_key();
     }
@@ -2595,7 +2595,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         key = &(on_base_param->stream_key);
     }
     #endif
-
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
@@ -2607,6 +2606,11 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         #endif
     }
     #endif
+    
+    if(key == NULL)
+    {
+        return ONS_DID_FAILED;
+    }
 
     if((status = on_decode(raw_payload_bytes, (*this_pkt_ptrs)->payload,
       (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
@@ -2614,6 +2618,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return status;
     }
     
+
     #ifdef _ONE_NET_MASTER
     // copy in case this is a client in the middle of a key change
     one_net_memmove(original_payload, raw_payload_bytes,
@@ -2648,7 +2653,6 @@ master_decrypt_packet:
         #endif
         return ONS_CRC_FAIL;
     }
-
     
     // decode the message id and fill it in.
     if(on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
