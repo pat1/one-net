@@ -452,7 +452,12 @@ tick_t one_net_client(void)
         
         case ON_JOIN_NETWORK:
         {
-            break;
+            if(!look_for_invite())
+            {
+                break;
+            }
+            
+            oncli_send_msg("We received an invite!\n");
         }
         
         default:
@@ -1156,78 +1161,66 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
 */
 static BOOL look_for_invite(void)
 {
-    UInt8* pid = &invite_pkt[ONE_NET_ENCODED_PID_IDX];
-    UInt8 bytes_read = ONE_NET_ENCODED_PID_IDX + 1;
-    UInt8 bytes_left_to_read;
+    on_txn_t* this_txn = &invite_txn;
+    on_pkt_t* this_pkt_ptrs = &data_pkt_ptrs;
+    
 
-	
-#ifdef _ENHANCED_INVITE
-    if(ont_expired(ONT_INVITE_TIMER))
-	{
-        client_invite_timed_out = TRUE;
-	    client_looking_for_invite = FALSE;
-        one_net_client_invite_result(NULL, ONS_TIME_OUT);
-	    return FALSE;
-	}
-#endif
-
-    // try to read in a packet
-    if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) == ONS_SUCCESS
-      && one_net_read(invite_pkt, bytes_read) == bytes_read &&
-      packet_is_invite(*pid))
+    if(on_rx_packet(&MASTER_ENCODED_DID, &invite_txn, &this_txn, &this_pkt_ptrs,
+      raw_payload_bytes) != ONS_PKT_RCVD)
     {
-        #ifdef _ONE_NET_MULTI_HOP
-        bytes_left_to_read = ON_INVITE_ENCODED_PLD_LEN +
-          packet_is_multihop(*pid) ? ON_ENCODED_HOPS_SIZE : 0;
+        #ifdef _ENHANCED_INVITE
+        if(ont_expired(ONT_INVITE_TIMER))
+    	{
+            client_invite_timed_out = TRUE;
+    	    client_looking_for_invite = FALSE;
+            one_net_client_invite_result(NULL, ONS_TIME_OUT);
+    	}
+        else if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
         #else
-        bytes_left_to_read = ON_INVITE_ENCODED_PLD_LEN;
+        if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
         #endif
-        if(one_net_read(&invite_pkt[bytes_read], bytes_left_to_read) ==
-          bytes_left_to_read)
         {
-            UInt8 raw_invite[ON_RAW_INVITE_SIZE];
-            
-            // verify message CRC and addresses
-            if(setup_pkt_ptr(*pid, invite_pkt, &data_pkt_ptrs) &&
-              is_broadcast_did(data_pkt_ptrs.enc_dst_did) &&
-              is_master_did(data_pkt_ptrs.enc_src_did) &&
-              verify_msg_crc(&data_pkt_ptrs))
+            // need to try the next channel
+            on_base_param->channel++;
+            #ifndef _ENHANCED_INVITE
+            if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
             {
-                if(on_decode(raw_invite, data_pkt_ptrs.payload,
-                  ON_INVITE_ENCODED_PLD_LEN) == ONS_SUCCESS)
-                {
-                    if(on_decrypt(ON_INVITE, raw_invite, &invite_key,
-                      ON_RAW_INVITE_SIZE) == ONS_SUCCESS &&
-                      verify_payload_crc(*(data_pkt_ptrs.pid), raw_invite))
-                    {
-                        // TODO parse the invite packet and respond
-                    }
-                }
-            }
-        }
-    } // if a packet was received //
-
-    if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
-    {
-        // need to try the next channel
-        on_base_param->channel++;
-#ifndef _ENHANCED_INVITE
-        if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
-        {
-            on_base_param->channel = 0;
-        } // if the channel has overflowed //
-#else
-        if(on_base_param->channel > high_invite_channel)
-        {
-            on_base_param->channel = low_invite_channel;
-        } // if the channel has overflowed //
-#endif
+                on_base_param->channel = 0;
+            } // if the channel has overflowed //
+            #else
+            if(on_base_param->channel > high_invite_channel)
+            {
+                on_base_param->channel = low_invite_channel;
+            } // if the channel has overflowed //
+            #endif
 		
-        one_net_set_channel(on_base_param->channel);
-        ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
-    } // if the timer expired //
+            one_net_set_channel(on_base_param->channel);
+            ont_set_timer(ONT_GENERAL_TIMER, ONE_NET_SCAN_CHANNEL_TIME);
+        } // if the timer expired //    
 
-    return FALSE;
+        return FALSE;
+    }
+
+    // we have received an invitation.  First check the version.
+    if(this_pkt_ptrs->payload[ON_INVITE_VERSION_IDX] !=
+      on_base_param->version)
+    {
+        return FALSE;
+    }
+    
+    // We'll fill in some information and return TRUE.
+    one_net_memmove(on_base_param->sid, *(this_pkt_ptrs->enc_nid),
+      ON_ENCODED_NID_LEN);
+    one_net_memmove(&(on_base_param->sid[ON_ENCODED_NID_LEN]),
+      &(this_pkt_ptrs->payload[ON_INVITE_ASSIGNED_DID_IDX]),
+      ON_ENCODED_DID_LEN);
+    one_net_memmove(on_base_param->current_key,
+      &(this_pkt_ptrs->payload[ON_INVITE_KEY_IDX]),
+      ONE_NET_XTEA_KEY_LEN);
+    master->device.features =  
+      *((on_features_t*)(&(this_pkt_ptrs->payload[ON_INVITE_FEATURES_IDX])));
+
+    return TRUE;
 } // look_for_invite //
 
 
