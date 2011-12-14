@@ -290,6 +290,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
 static on_client_t* check_client_check_ins(void);
 
+static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
+
 
 //! @} ONE-NET_MASTER_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -905,6 +907,18 @@ one_net_xtea_key_t* master_get_encryption_key(
     client = client_info(did);
     if(client == NULL)
     {
+        // this could be an invite in progress.  Check.
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if(type != ON_SINGLE)
+        {
+            return NULL; // only want singles
+        }
+        #endif
+
+        if(is_invite_did(did))
+        {
+            return (one_net_xtea_key_t*)(on_base_param->current_key);
+        }
         return NULL; // not in the network
     }
     
@@ -921,6 +935,29 @@ one_net_xtea_key_t* master_get_encryption_key(
       (one_net_xtea_key_t*)(on_base_param->current_key) :
       (one_net_xtea_key_t*)(master_param->old_key);
 } // master_get_encryption_key //
+
+
+/*! \brief Determines whether a DID is a DID that is currently being
+
+    \param[in] encoded_did The did to check
+    
+    \return TRUE if there is an invite pending and this is the DID
+            FALSE if no invite is pending or the DIDs do not match
+*/
+static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
+{
+    on_raw_did_t raw_did;
+    if(!encoded_did || on_decode(raw_did, *encoded_did, ON_ENCODED_DID_LEN)
+      != ONS_SUCCESS || invite_txn.priority == ONE_NET_NO_PRIORITY)
+    {
+        return FALSE;
+    }
+    if(did_to_u16((on_raw_did_t*) raw_did) == master_param->next_client_did)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
 
 
 /*!
