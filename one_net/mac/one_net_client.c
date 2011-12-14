@@ -1202,7 +1202,7 @@ static BOOL look_for_invite(void)
     }
 
     // we have received an invitation.  First check the version.
-    if(this_pkt_ptrs->payload[ON_INVITE_VERSION_IDX] != ON_INVITE_VERSION_IDX)
+    if(raw_payload_bytes[ON_INVITE_VERSION_IDX] != ON_INVITE_VERSION_IDX)
     {
         return FALSE;
     }
