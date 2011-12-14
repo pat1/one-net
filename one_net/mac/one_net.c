@@ -1255,9 +1255,23 @@ BOOL one_net(on_txn_t ** txn)
                     this_txn = &single_txn;
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
-                    status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
-                      (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-                      raw_payload_bytes);
+
+                    // TODO -- clean this up so there is some variable we can
+                    // set for who we expect as the source.
+                    #ifdef _ONE_NET_CLIENT
+                    if(!device_is_master && !client_joined_network)
+                    {
+                        status = on_rx_packet(&MASTER_ENCODED_DID,
+                          (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
+                          raw_payload_bytes);
+                    }
+                    else 
+                    #endif
+                    {
+                        status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
+                          (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
+                          raw_payload_bytes);
+                    }
             
                     if(status == ONS_PKT_RCVD)
                     {

@@ -159,6 +159,32 @@ static BOOL confirm_stream_key_change = FALSE;
 static BOOL removed = FALSE;
 
 
+
+//! flag denoting whether the client accepting the invite has sent
+//! the features
+static BOOL sent_features = FALSE;
+
+//! flag denoting whether the client accepting the invite has received
+//! the keep-alive interval
+static BOOL rcvd_keep_alive = FALSE;
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! flag denoting whether the client accepting the invite has received
+//! the stream key
+static BOOL rcvd_stream_key = FALSE;
+#endif
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! flag denoting whether the client accepting the invite has received
+//! the fragment delays
+static BOOL rcvd_fragment_delays = FALSE;
+#endif
+
+//! flag denoting whether the client accepting the invite has received
+//! the settings / flags.
+static BOOL rcvd_settings = FALSE;
+
+
 //! @} ONE-NET_CLIENT_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
@@ -320,6 +346,15 @@ static BOOL check_in_with_master(void);
     // the state machine and some flags to get ready to receive invitations.
     client_joined_network = FALSE;
     client_looking_for_invite = TRUE;
+    sent_features = FALSE;
+    rcvd_keep_alive = FALSE;
+    #ifdef _STREAM_MESSAGES_ENABLED
+    rcvd_stream_key = FALSE;
+    #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    rcvd_fragment_delays = FALSE;
+    #endif
+    rcvd_settings = FALSE;
 
     #ifdef _ENHANCED_INVITE
     client_invite_timed_out = FALSE;
@@ -425,8 +460,14 @@ tick_t one_net_client(void)
 
     switch(on_state)
     {
+        #ifdef _IDLE
         case ON_IDLE:
+            // not sure what happens here.  This is "do-nothing" mode or
+            // "do-nothing with ONE-NET messages" mode or a chance to put
+            // the device in low-power or only handle application code or
+            // perhaps whatever the developer wishes.
             break;
+        #endif
             
         case ON_LISTEN_FOR_DATA:
         {
@@ -442,10 +483,27 @@ tick_t one_net_client(void)
                 // pasue is now over.  Set the client_joined_network flag to
                 // false.
                 removed = FALSE;
-                client_joined_network = FALSE;
-                client_looking_for_invite = TRUE;
-                on_state = ON_JOIN_NETWORK;
+                // TODO -- Is the application code called anywhere?  Does it
+                // need to be?
+
+                one_net_client_reset_client(one_net_client_get_invite_key());
                 return 0;
+            }
+            
+            if(!client_joined_network &&
+              ont_inactive_or_expired(ONT_GENERAL_TIMER))
+            {
+                // we started to accept an invite, but for whatever reason
+                // we did not get 
+                one_net_client_reset_client(one_net_client_get_invite_key());
+                return 0;
+            }
+            
+            if(!client_joined_network)
+            {
+                // this will cause us to check for the conditions under
+                // which we can actual complete the invite process.
+                ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0);
             }
             break;
         }
@@ -457,7 +515,13 @@ tick_t one_net_client(void)
                 break;
             }
             
-            oncli_send_msg("We received an invite!\n");
+            client_looking_for_invite = FALSE;
+            
+            // give it ten seconds to finish joining the network and if we
+            // have not completed the process by then, start looking for
+            // invites again.
+            ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(10000));
+            on_state = ON_LISTEN_FOR_DATA;
         }
         
         default:
@@ -867,6 +931,35 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 break;
             }
             #endif
+            
+            case ON_FEATURES_RESP:
+            {
+                sent_features = TRUE;
+                break;
+            }
+            
+            case ON_KEEP_ALIVE_QUERY:
+            case ON_KEEP_ALIVE_RESP:
+            {
+                master->keep_alive_interval = ack_nack->payload->ack_time_ms;
+                rcvd_keep_alive = TRUE;
+                
+                if(!client_joined_network)
+                {
+                    on_raw_did_t raw_did;
+                    on_decode(raw_did,
+                      &(on_base_param->sid[ON_ENCODED_DID_LEN]),
+                      ON_ENCODED_DID_LEN);
+                      
+                    // We've definitely joined by now.
+                    client_joined_network = TRUE;
+                    one_net_client_invite_result(&raw_did, ONS_SUCCESS);
+
+                    // TODO -- wait for ON_ADD_DEV message instead??
+                }
+
+                break;
+            }
         }       
     }
 
@@ -1174,6 +1267,7 @@ static BOOL look_for_invite(void)
             client_invite_timed_out = TRUE;
     	    client_looking_for_invite = FALSE;
             one_net_client_invite_result(NULL, ONS_TIME_OUT);
+            on_state = ON_IDLE;
     	}
         else if(ont_inactive_or_expired(ONT_GENERAL_TIMER))
         #else
@@ -1318,6 +1412,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             on_base_param->fragment_delay_low = new_frag_low;
             on_base_param->fragment_delay_high = new_frag_high;
+            rcvd_fragment_delays = TRUE;
             break;
         } // update fragment delay(s) case //
         #endif
@@ -1331,6 +1426,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             ack_nack->handle = ON_ACK_TIME_MS;
             ack_nack->payload->ack_time_ms = master->keep_alive_interval;
+            rcvd_keep_alive = TRUE;
             break;
         } // keep alive query case //
         
@@ -1339,6 +1435,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             master->flags = DATA[1];
             ack_nack->handle = ON_ACK_VALUE;
             ack_nack->payload->ack_value.uint8 = master->flags;
+            rcvd_settings = TRUE;
             break;
         } // update settings case //
         
@@ -1384,6 +1481,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         
+        case ON_ADD_DEV:
+            // TODO -- how should this be handled.
+            break;
 
         case ON_KEEP_ALIVE_RESP:
             break;  // not sure why a client would get this, but ACK it.
@@ -1433,12 +1533,39 @@ static BOOL check_in_with_master(void)
         keep_alive_time = MS_TO_TICK(250);
     }
     #endif
-    else
+    else if(!client_joined_network && !sent_features)
     {
+        // we have received an invite and have not sent the master our
+        // features, so send them now.
         raw_pld[0] = ON_FEATURES_RESP;
         one_net_memmove(&raw_pld[1], &THIS_DEVICE_FEATURES,
           sizeof(on_features_t));
-        keep_alive_time = MS_TO_TICK(1800000);
+        keep_alive_time = MS_TO_TICK(1000);
+    }
+    #ifdef _STREAM_MESSAGES_ENABLED
+    else if(!client_joined_network && !rcvd_stream_key)
+    {
+        return FALSE; // master will send us the stream key.  Wait for it.
+    }
+    #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    else if(!client_joined_network && !rcvd_fragment_delays)
+    {
+        return FALSE; // master will send us the fragment delays.  Wait for it.
+    }
+    #endif
+    else if(!client_joined_network && (!rcvd_keep_alive || !rcvd_settings))
+    {
+        return FALSE; // master will send us the settings and keep-alive.
+                      // Wait for them.
+    }
+    else
+    {
+        // we are part of the network already or are in the process of
+        // joining the network and are sending our first keep-alive
+        // message.
+        keep_alive_time = MS_TO_TICK(1000);
+        raw_pld[0] = ON_KEEP_ALIVE_RESP;
     }
     
     if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
