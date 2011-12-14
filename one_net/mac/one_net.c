@@ -1484,7 +1484,7 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     // invite packets don't lengthen timeout with
                     // multi-hop
-                    new_timeout_ms = (*txn)->response_timeout;
+                    new_timeout_ms = invite_txn.response_timeout;
                 }
                 #endif
                 
@@ -1505,16 +1505,17 @@ BOOL one_net(on_txn_t ** txn)
                     on_state = ON_LISTEN_FOR_DATA;
                     return TRUE;
                 }
-
-                ont_set_timer(ONT_RESPONSE_TIMER, MS_TO_TICK(new_timeout_ms));
                 
                 #ifdef _ONE_NET_MASTER  
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
                     on_state = ON_LISTEN_FOR_DATA;
+                    ont_set_timer(invite_txn.next_txn_timer, MS_TO_TICK(
+                      new_timeout_ms));
                 }
                 else
                 {
+                    ont_set_timer(ONT_RESPONSE_TIMER, MS_TO_TICK(new_timeout_ms));
                     on_state++;
                 }
                 #else
