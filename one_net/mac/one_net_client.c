@@ -523,7 +523,8 @@ tick_t one_net_client(void)
             // give it ten seconds to finish joining the network and if we
             // have not completed the process by then, start looking for
             // invites again.
-            ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(10000));
+            ont_set_timer(ONT_GENERAL_TIMER,
+              MS_TO_TICK(INVITE_TRANSACTION_TIMEOUT));
             on_state = ON_LISTEN_FOR_DATA;
         }
         
@@ -1454,7 +1455,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // pending transactions so other devices won't miss any ACKs
                 // or NACKs, then delete ourselves.  Just use the invite
                 // timer.
-                ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(10000));
+                ont_set_timer(ONT_INVITE_TIMER,
+                  MS_TO_TICK(INVITE_TRANSACTION_TIMEOUT));
             }
             else
             {

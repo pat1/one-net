@@ -1915,6 +1915,9 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
     UInt8 admin_type = raw_pld[0];
     const UInt8* admin_data_payload = raw_pld + 1;
     one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
+    on_encoded_did_t enc_did;
+    
+    on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN);
 
         
     switch(admin_type)
@@ -1938,7 +1941,35 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->keep_alive_interval = ack_nack->payload->ack_time_ms;
+                
+                // check to see if this is a new client accepting an
+                // invite.
+                if(is_invite_did(&enc_did))
+                {
+                    const tick_t INTERVAL = MS_TO_TICK(2000);
+                    static tick_t earliest_send_time = 0;
+                    
+                    if(get_tick_count() >= earliest_send_time)
+                    {
+                        client->flags = ON_JOINED;
+                        if(ONE_NET_MASTER_SEND_TO_MASTER)
+                        {
+                            client->flags |= ON_SEND_TO_MASTER;
+                        }
+                    
+                        // This client is accepting an invite.  Send the settings
+                        // as the next step.
+                        oncli_send_msg("giraffe\n");
+                        if(send_admin_pkt(ON_CHANGE_SETTINGS, &enc_did,
+                          &(client->flags)) == ONS_SUCCESS)
+                        {
+                            earliest_send_time = get_tick_count() + INTERVAL;
+                        }
+                        return;
+                    }
+                }
             }
+            
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
@@ -2908,7 +2939,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
     #endif
     
-
+    
     switch(admin_msg_id)
     {
         case ON_CHANGE_SETTINGS:
@@ -2957,7 +2988,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       ONE_NET_DEV_UNIT
       #endif
       , NULL
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 	  , NULL
       #endif
       );
@@ -3003,20 +3034,38 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     {
         case ON_FEATURES_RESP:
         {
-            if(!(*client))
-            {
-                // TODO -- this is the start of adding a new client
-                oncli_send_msg("Adding new client!\n");
-                
-                // ignore for now
-                return ON_MSG_IGNORE;
-            } // if the client was not found in the list //
-            
             one_net_memmove(&((*client)->device_send_info.features),
               &DATA[1], sizeof(on_features_t));
-            
             ack_nack->handle = ON_ACK_FEATURES;
             ack_nack->payload->features = THIS_DEVICE_FEATURES;
+
+            // first check to see if this is a new client accepting an
+            // invite.
+            if(is_invite_did(SRC_DID))
+            {
+                const tick_t INTERVAL = MS_TO_TICK(2000);
+                static tick_t earliest_send_time = 0;
+                
+                if(get_tick_count() >= earliest_send_time)
+                {
+                    // This client is accepting an invite.  Send the keep-alive.
+                    UInt8 admin_pld[4];
+                    one_net_int32_to_byte_stream(
+                      ONE_NET_MASTER_DEFAULT_KEEP_ALIVE, admin_pld);
+
+                    if(send_admin_pkt(ON_CHANGE_KEEP_ALIVE, SRC_DID, admin_pld)
+                      != ONS_SUCCESS)
+                    {
+                        // no room in the queue?  Who knows.  Just NACK it.
+                        ack_nack->nack_reason = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
+                    }
+                    else
+                    {
+                        earliest_send_time = get_tick_count() + INTERVAL;
+                    }
+                }
+            }
+
             break;
         } // features response case //
               
