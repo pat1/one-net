@@ -280,9 +280,9 @@ static BOOL check_updates_for_client(on_client_t* client,
 static void check_updates_in_progress(void);
 
 
-
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
-  const on_encoded_did_t* const did, const UInt8* const pld);
+  const on_encoded_did_t* const did, const UInt8* const pld,
+  tick_t send_time_from_now);
   
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
@@ -886,7 +886,7 @@ one_net_status_t one_net_master_remove_device(
     // all client peer assignments to this did are removed.  Now remove the device itself.
     // When that's done, the other devices will also be informed of this deletion.
     return send_admin_pkt(ON_RM_DEV, (const on_encoded_did_t * const)&remove_device_did,
-      (const UInt8*) remove_device_did);
+      (const UInt8*) remove_device_did, 0);
 } // one_net_master_remove_device //
 
 
@@ -1382,7 +1382,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
 
     return send_admin_pkt(ASSIGN ? ON_ASSIGN_PEER : ON_UNASSIGN_PEER,
-        &enc_src_did, pld);
+        &enc_src_did, pld, 0);
 } // one_net_master_peer_assignment //
 #endif
 
@@ -1425,7 +1425,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
     one_net_int32_to_byte_stream(KEEP_ALIVE, pld);
 
     return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, 
-      (const on_encoded_did_t * const)&dst, pld);
+      (const on_encoded_did_t * const)&dst, pld, 0);
 } // one_net_master_change_client_keep_alive //
 
 
@@ -1514,7 +1514,7 @@ one_net_status_t one_net_master_change_frag_dly(
     one_net_int16_to_byte_stream(HIGH_DELAY, &pld[ON_FRAG_HIGH_IDX]);
 
     return send_admin_pkt(ON_CHANGE_FRAGMENT_DELAY,
-      (const on_encoded_did_t * const)&dst, pld);
+      (const on_encoded_did_t * const)&dst, pld, 0);
 } // one_net_master_change_frag_dly //
 #endif
 
@@ -1566,7 +1566,7 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
     } // else the MASTER does not want to be updated //
 
     return send_admin_pkt(ON_CHANGE_SETTINGS,
-      (const on_encoded_did_t * const)&did, &flags);
+      (const on_encoded_did_t * const)&did, &flags, 0);
 } // one_net_master_set_update_master_flag //
 
 
@@ -1969,7 +1969,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                         // This client is accepting an invite.  Send the settings
                         // as the next step.
                         if(send_admin_pkt(ON_CHANGE_SETTINGS, &enc_did,
-                          &(client->flags)) == ONS_SUCCESS)
+                          &(client->flags), INTERVAL) == ONS_SUCCESS)
                         {
                             earliest_send_time = get_tick_count() + INTERVAL;
                         }
@@ -2538,10 +2538,10 @@ static BOOL check_key_update(void)
     #ifdef _STREAM_MESSAGES_ENABLED
     status = send_admin_pkt(stream_key ? ON_NEW_STREAM_KEY_FRAGMENT :
       ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device_send_info.did, key_frag_address);
+      client->device_send_info.did, key_frag_address, 0);
     #else
     status = send_admin_pkt(ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device_send_info.did, key_frag_address);
+      client->device_send_info.did, key_frag_address, 0);
     #endif
     
     // send at most once every 2 seconds
@@ -2671,7 +2671,7 @@ BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
     last_overall_send_time = get_tick_count() + MS_TO_TICK(1500);
     
     return (send_admin_pkt(admin_type, (on_encoded_did_t*)
-      client->device_send_info.did, admin_pld) == ONS_SUCCESS);
+      client->device_send_info.did, admin_pld, 0) == ONS_SUCCESS);
 }
 
 
@@ -2931,13 +2931,15 @@ static void check_updates_in_progress(void)
     \param[in] admin_msg_id the type of admin message being sent.
     \param[in] did The device to send to.  NULL means broadcast.
     \param[in] pld The  admin data to be sent.
+    \param[in] send_time_from_now The time to pause before sending.
 
     \return ONS_SUCCESS If the packet was built and queued successfully
             ONS_BAD_PARAM If any of the parameters are invalid
             ONS_RSRC_FULL If there are no resources available
 */
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
-  const on_encoded_did_t* const did, const UInt8* const pld)
+  const on_encoded_did_t* const did, const UInt8* const pld,
+  tick_t send_time_from_now)
 {
     #ifndef _EXTENDED_SINGLE
     UInt8 admin_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
@@ -2947,7 +2949,18 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
     #endif
     
+    // we have a variable already, so use it, but the name is a bit confusing.
+    // Still we'll use it rather than create a new one.  send_time_from_now
+    // will now represent absolute time, not time from now.  It all works,
+    // since the one_net_master_send_single() funciton wants an absolute time.
+    // If this function was passed 2000, the message will be sent 2000 ticks
+    // from now, or the soonest time after that that we have the resources to
+    // do it.
     
+    // TODO -fix / change this so everything takes the same paremters?
+    send_time_from_now += get_tick_count();
+
+
     switch(admin_msg_id)
     {
         case ON_CHANGE_SETTINGS:
@@ -2982,7 +2995,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , NULL
+      , &send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , NULL
       #endif
@@ -2995,7 +3008,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , NULL
+      , &send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 	  , NULL
       #endif
@@ -3085,7 +3098,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     one_net_int32_to_byte_stream(
                       ONE_NET_MASTER_DEFAULT_KEEP_ALIVE, admin_pld);
 
-                    if(send_admin_pkt(ON_CHANGE_KEEP_ALIVE, SRC_DID, admin_pld)
+                    if(send_admin_pkt(ON_CHANGE_KEEP_ALIVE, SRC_DID,
+                      admin_pld, INTERVAL)
                       != ONS_SUCCESS)
                     {
                         // no room in the queue?  Who knows.  Just NACK it.
