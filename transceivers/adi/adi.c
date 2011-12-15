@@ -613,7 +613,15 @@ one_net_status_t tal_set_channel(const UInt8 channel)
 {
     if(channel < ONE_NET_NUM_CHANNELS)
     {
+        // see config_options.h.  Make sure _CHANNEL_OVERRIDE and
+        // CHANNEL_OVERRIDE_CHANNEL are defined if overriding the channel
+        // parameter here.  Make sure _CHANNEL_OVERRIDE is NOT defined if
+        // NOT overriding the channel.
+        #ifdef _CHANNEL_OVERRIDE
+        current_channel = CHANNEL_OVERRIDE_CHANNEL
+        #else
         current_channel = channel;
+        #endif
         return ONS_SUCCESS;
     } // if the parameter is valid //
     
