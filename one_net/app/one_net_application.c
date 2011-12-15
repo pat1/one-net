@@ -184,14 +184,6 @@ BOOL on_encoded_nid_equal(const on_encoded_nid_t * const LHS,
 BOOL is_my_nid(const on_encoded_nid_t* nid)
 {
     on_encoded_nid_t* my_nid = (on_encoded_nid_t*) (on_base_param->sid);
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && !client_joined_network)
-    {
-        return FALSE; // client does notm have a network ID yet since it is
-                      // not a member of a network
-    }
-    #endif
-    
     return on_encoded_nid_equal(nid, my_nid);
 }
 
