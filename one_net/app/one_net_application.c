@@ -76,9 +76,6 @@
 
 one_net_send_single_func_t one_net_send_single;
 extern BOOL device_is_master;
-#ifdef _ONE_NET_CLIENT
-extern BOOL client_joined_network;
-#endif
 extern on_base_param_t* const on_base_param;
 extern const on_encoded_did_t MASTER_ENCODED_DID;
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
@@ -214,15 +211,7 @@ BOOL is_my_did(const on_encoded_did_t* did)
 {
     on_encoded_did_t* my_did = (on_encoded_did_t*)
       &(on_base_param->sid[ON_ENCODED_NID_LEN]);
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && !client_joined_network)
-    {
-        return FALSE; // client does notm have a DID yet since it is
-                      // not a member of a network
-    }
-    
     return on_encoded_did_equal(did, my_did);
-    #endif
 }
 
 
