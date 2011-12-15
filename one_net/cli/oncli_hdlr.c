@@ -1698,6 +1698,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         on_base_param->fragment_delay_high = add_fragment_delay_high;
     #endif
     
+        on_state = ON_LISTEN_FOR_DATA;
         client_joined_network = TRUE;
         client_looking_for_invite = FALSE;
     }
