@@ -112,7 +112,7 @@
 
 // Multi-Hop
 #ifndef _ONE_NET_MULTI_HOP
-//	#define _ONE_NET_MULTI_HOP
+	#define _ONE_NET_MULTI_HOP
 #endif
 
 
@@ -198,7 +198,7 @@
 // more detailed the display will be.  This value must be set
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 4
+#define _DEBUG_VERBOSE_LEVEL 6
 
 
 #ifdef _ONE_NET_EVAL

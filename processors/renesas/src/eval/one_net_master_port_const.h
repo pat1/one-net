@@ -83,6 +83,10 @@ enum
 //! Duration the MASTER sends the new CLIENT invite.
 #define ONE_NET_MASTER_INVITE_DURATION 600000
 
+//! Default of whether the master wants to the client to inform it when
+//! status is changed.  Should be TRUE or FALSE
+#define ONE_NET_MASTER_SEND_TO_MASTER TRUE
+
 
 
 //! @} on_master_port_const_const

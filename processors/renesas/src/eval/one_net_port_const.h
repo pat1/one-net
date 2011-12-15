@@ -135,8 +135,8 @@ enum
 
 //! The time before timeout of the invite process from beginning of the time
 //! that the invite starts to be accepted until the time all information has
-//! been passed between the master and the new client.
-#define INVITE_TRANSACTION_TIMEOUT 5000
+//! been passed between the master and the new client.  In ms.
+#define INVITE_TRANSACTION_TIMEOUT 10000
 
 
 enum
