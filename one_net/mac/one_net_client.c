@@ -320,6 +320,9 @@ static BOOL check_in_with_master(void);
     
     // copy some parameters over to the base parameters and the master
     // parameters.
+    
+    // initialize SID to invalid (all zeroes).
+    one_net_memset(on_base_param->sid, 0xB4, ON_ENCODED_SID_LEN);
     on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
     on_base_param->version = ON_PARAM_VERSION;
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
