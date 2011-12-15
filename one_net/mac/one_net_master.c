@@ -1959,7 +1959,6 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                     
                         // This client is accepting an invite.  Send the settings
                         // as the next step.
-                        oncli_send_msg("giraffe\n");
                         if(send_admin_pkt(ON_CHANGE_SETTINGS, &enc_did,
                           &(client->flags)) == ONS_SUCCESS)
                         {
