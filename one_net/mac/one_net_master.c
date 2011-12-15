@@ -1946,6 +1946,15 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                 // invite.
                 if(is_invite_did(&enc_did))
                 {
+                    // we are pausing here because without the pause it seems
+                    // like the master and client are both constantly trying to
+                    // ACK and NACK each other and send each other information to
+                    // complete this process and the result is they are both
+                    // constantly sending and rarely listening and there are too
+                    // many messages going back and forth.
+                
+                    // TODO -- 2000 milliseconds is a long time.  We want a better
+                    // time here.
                     const tick_t INTERVAL = MS_TO_TICK(2000);
                     static tick_t earliest_send_time = 0;
                     
@@ -3023,7 +3032,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-    
+
     on_decode(raw_did, *SRC_DID, ON_ENCODED_DID_LEN);
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
@@ -3042,12 +3051,36 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // invite.
             if(is_invite_did(SRC_DID))
             {
+                // we are pausing here because without the pause it seems
+                // like the master and client are both constantly trying to
+                // ACK and NACK each other and send each other information to
+                // complete this process and the result is they are both
+                // constantly sending and rarely listening and there are too
+                // many messages going back and forth.
+                
+                // TODO -- 2000 milliseconds is a long time.  We want a better
+                // time here.
                 const tick_t INTERVAL = MS_TO_TICK(2000);
+                
+                
                 static tick_t earliest_send_time = 0;
+                
+                // since it looks like we have a client accepting an invite,
+                // stop sending them.  Instead of cancelling, we'll pause for
+                // INVITE_TRANSACTION_TIMEOUT milliseconds.  If the invite
+                // process didn't complete by then, something went wrong, so
+                // we'll want to start sending them again.  If it is successful
+                // within this time period the code will cancel the invitation
+                // as a success elsewhere in the code, so all we do here is
+                // pause the invite sends, which occur whenever
+                // invite_txn.next_txn_timer expires.
+                ont_set_timer(invite_txn.next_txn_timer,
+                  MS_TO_TICK(INVITE_TRANSACTION_TIMEOUT));
                 
                 if(get_tick_count() >= earliest_send_time)
                 {
-                    // This client is accepting an invite.  Send the keep-alive.
+                    // This client is accepting an invite.  Send the
+                    // keep-alive time.
                     UInt8 admin_pld[4];
                     one_net_int32_to_byte_stream(
                       ONE_NET_MASTER_DEFAULT_KEEP_ALIVE, admin_pld);
