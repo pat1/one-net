@@ -978,7 +978,8 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
     {
         return FALSE;
     }
-    if(did_to_u16((on_raw_did_t*) raw_did) == master_param->next_client_did)
+    if(did_to_u16((on_raw_did_t*) raw_did) ==
+      (master_param->next_client_did >> RAW_DID_SHIFT))
     {
         return TRUE;
     }
