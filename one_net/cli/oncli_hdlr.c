@@ -2076,7 +2076,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 	
 	TTT = timeout (in milliseconds)
 	LL  = Locale (US or Europe)
-	NN  = Channel number
+	NN  = Channel number within locale
     
     If no parameters, all channels on all locales are scanned, no timeout.
 	If no timeout is specified, there is no timeout.
@@ -2084,7 +2084,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 	locale are searched.
 	If a locale and a channel are specified, only that channel is listened to.
 	
-	Example: join:30:US:5
+	Example: join:30000:US:5
 	will look for an invite on US Channel 5 for 30 seconds
     
     \param ASCII_PARAM_LIST ASCII parameter list.
