@@ -2135,6 +2135,19 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     
     if(!src_features_known)
     {
+        // this may be an admin message where this device is giving us its
+        // features, so check and copy them if it is.  NACK regardless just in
+        // case that device needs OUT features.
+        // TODO -- does this make sense to NACK?  Seems a bit strange and
+        // possibly redundant given that we have a message type called
+        // ON_FEATURE_MSG.
+        if(msg_type == ON_ADMIN_MSG && raw_payload[ON_PLD_ADMIN_TYPE_IDX] ==
+          ON_PLD_ADMIN_TYPE_IDX)
+        {
+            one_net_memmove(&((*txn)->device->features),
+              &raw_payload[ON_PLD_ADMIN_DATA_IDX], sizeof(on_features_t));
+        }
+        
         // this time WE need the other device's features, so we'll set
         // the nack reason to ON_NACK_FEATURES.
         ack_nack->nack_reason = ON_NACK_RSN_NEED_FEATURES;
