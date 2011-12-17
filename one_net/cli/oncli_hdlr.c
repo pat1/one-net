@@ -72,6 +72,8 @@
 #include "one_net_timer.h"
 #endif
 
+#include "tick.h"
+
 
 
 
@@ -469,7 +471,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_LIST_COMMAND 
-    else if(!strnicmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
+    if(!strnicmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
     {
         *CMD_STR = ONCLI_LIST_CMD_STR;
 
@@ -825,6 +827,8 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         #else
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
         *cmd_hdlr = &join_cmd_hdlr;
+        
+        return ONCLI_SUCCESS;
         #endif        
     } // else if the join command was received //
     #endif
@@ -1529,7 +1533,6 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
-#include "tick.h"
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     long int new_data_rate;

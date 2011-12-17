@@ -140,10 +140,10 @@ extern const char * const ONCLI_SET_DATA_RATE_CMD_STR;
 
 #ifdef _ENABLE_USER_PIN_COMMAND
 extern const char * const ONCLI_USER_PIN_CMD_STR;
+#endif
 extern const char * const ONCLI_INPUT_STR;
 extern const char * const ONCLI_OUTPUT_STR;
 extern const char * const ONCLI_DISABLE_STR;
-#endif
 
 
 // Master only commands

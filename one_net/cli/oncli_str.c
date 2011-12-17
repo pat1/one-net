@@ -177,6 +177,7 @@ const char * const ONCLI_SINGLE_CMD_STR = "single";
 #ifdef _ENABLE_USER_PIN_COMMAND
 //! Command to enable or disable user pins
 const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
+#endif
 
 //! input argument string
 const char * const ONCLI_INPUT_STR = "input";
@@ -186,7 +187,6 @@ const char * const ONCLI_OUTPUT_STR = "output";
 
 //! disable argument string
 const char * const ONCLI_DISABLE_STR = "disable";
-#endif
 
 
 // Master only commands
