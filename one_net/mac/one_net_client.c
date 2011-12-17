@@ -1017,6 +1017,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
       msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
     #endif
     
+                    
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        // success.  Reset the Keep-Alive Timer
+        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
+          MS_TO_TICK(master->keep_alive_interval));
+    }
+    
     return ON_MSG_SUCCESS;
 }
 
@@ -1557,10 +1565,6 @@ static BOOL check_in_with_master(void)
 {
     tick_t keep_alive_time;
     UInt8 raw_pld[5];
-    
-    return FALSE; // Dec. 16, 2011.  Wiring around buggy check-in code
-                  // TODO -- obviously, debug and put back in.
-    
     
     if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
     {

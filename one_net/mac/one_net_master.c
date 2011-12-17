@@ -1222,8 +1222,9 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->use_current_stream_key = TRUE;
 #endif
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+    // give it 5 extra seconds.
     client->next_check_in_time = get_tick_count() +
-      MS_TO_TICK(client->keep_alive_interval);
+      MS_TO_TICK(5000 + client->keep_alive_interval);
     client->last_admin_update_time = 0;
       
 #ifdef _ONE_NET_MULTI_HOP
@@ -1751,8 +1752,9 @@ omsdh_build_resp:
     if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
         // device has checked in, so reset the next check-in time
+        // give it 5 extra seconds.
         client->next_check_in_time = get_tick_count() +
-          MS_TO_TICK(client->keep_alive_interval);
+          MS_TO_TICK(5000 + client->keep_alive_interval);
         stay_awake = one_net_master_device_is_awake(FALSE,
           (const on_raw_did_t * const)&raw_src_did);
     }
@@ -2047,16 +2049,6 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
     }
 
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-    {
-        // device has checked in, so reset the next check-in time
-        client->next_check_in_time = get_tick_count() +
-          MS_TO_TICK(client->keep_alive_interval);
-        one_net_master_device_is_awake(TRUE,
-          (const on_raw_did_t * const)&dst);
-    }
-    
-    
     #ifndef _ONE_NET_MULTI_HOP
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, &dst, ack_nack);
@@ -2064,6 +2056,16 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, &dst, ack_nack, pkt->hops);
     #endif
+    
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        // device has checked in, so reset the next check-in time
+        // give it 5 extra seconds.
+        client->next_check_in_time = get_tick_count() +
+          MS_TO_TICK(5000 + client->keep_alive_interval);
+        one_net_master_device_is_awake(TRUE,
+          (const on_raw_did_t * const)&dst);
+    }
     
     return ON_MSG_DEFAULT_BHVR;
 }
@@ -3053,6 +3055,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
+        case ON_KEEP_ALIVE_RESP:
+        {
+            ack_nack->handle = ON_ACK_TIME_MS;
+            ack_nack->payload->ack_time_ms = (*client)->keep_alive_interval;
+            break;
+        }
+        
         case ON_FEATURES_RESP:
         {
             one_net_memmove(&((*client)->device_send_info.features),
@@ -3200,7 +3209,7 @@ static on_client_t* check_client_check_ins(void)
         }
         
         client = &client_list[index];
-        
+
         if(time_now > client->next_check_in_time)
         {
             // client has missed its check-in time.
