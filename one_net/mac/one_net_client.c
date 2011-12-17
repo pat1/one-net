@@ -352,7 +352,7 @@ static BOOL check_in_with_master(void);
     // functions as models.  See the code below too which CLEARS the memory
     // and flags.  You'll want to SET them.
     
-    #if 1
+    #if 0
     // TODO -remove when the bugs in the invite process are fixed.
     init_internal(); // do we need this call.
     on_state = ON_IDLE;
