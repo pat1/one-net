@@ -194,7 +194,7 @@ extern const char* const CLEAR_STR;
 extern const char* const DISPLAY_STR;
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef _ONE_NET_MULTI_HOP
 extern const char * const ONCLI_MH_REPEAT_CMD_STR;
 #endif
 

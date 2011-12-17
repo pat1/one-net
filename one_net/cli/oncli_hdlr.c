@@ -337,7 +337,7 @@ static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef _ONE_NET_MULTI_HOP
 // temporary debugging
 static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -868,7 +868,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the range test command was received //
     #endif
     
-    #ifdef _RANGE_TESTING
+    #ifdef _ONE_NET_MULTI_HOP
     if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
       strlen(ONCLI_MH_REPEAT_CMD_STR)))
     {
@@ -2862,7 +2862,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _RANGE_TESTING
+#ifdef _ONE_NET_MULTI_HOP
 // temporary debugging
 static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {

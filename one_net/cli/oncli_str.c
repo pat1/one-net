@@ -274,7 +274,7 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
     const char* const DISPLAY_STR = "display";
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef _ONE_NET_MULTI_HOP
 	//! Command set the mh_repeater_avaialable variable true or false.
 	const char * const ONCLI_MH_REPEAT_CMD_STR = "mh_repeat";
 #endif
