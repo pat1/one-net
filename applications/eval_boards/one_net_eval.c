@@ -83,7 +83,8 @@ const on_encoded_did_t ENC_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
 
 #ifdef _AUTO_MODE
 //! The default keep alive for Eval Boards
-const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000;
+const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000; // TODO -- replace
+                           // with ONE_NET_MASTER_DEFAULT_KEEP_ALIVE?
 #endif
 
 //! The key used in the evaluation network
@@ -295,7 +296,9 @@ int main(void)
     #endif
     
     INIT_TICK();
+    #ifdef _NON_VOLATILE_MEMORY
     FLASH_ERASE_CHECK();
+    #endif
 
     uart_init(BAUD_38400/*BAUD_115200*/, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     disable_user_pins();

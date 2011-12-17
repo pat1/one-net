@@ -307,6 +307,7 @@ void init_auto_master(void)
 */
 void init_serial_master(void)
 {
+#ifdef _NON_VOLATILE_MEMORY
     BOOL memory_loaded;
     const UInt8* nv_memory;
     const UInt8* user_pin_memory;
@@ -374,10 +375,12 @@ void init_serial_master(void)
     else
     {
         oncli_send_msg("Parameters have not been loaded from flash.\n");
-        
+#endif        
         // start a brand new network
         one_net_master_reset_master(one_net_master_get_raw_sid());
+#ifdef _NON_VOLATILE_MEMORY
     }
+#endif
 } // init_serial_master //
 
 
