@@ -122,11 +122,8 @@
 	#endif
 #endif
 
-
-#ifdef _ONE_NET_MULTI_HOP
-    #ifndef _RANGE_TESTING
-        #define _RANGE_TESTING
-    #endif
+#ifndef _RANGE_TESTING
+    #define _RANGE_TESTING
 #endif
 
 
