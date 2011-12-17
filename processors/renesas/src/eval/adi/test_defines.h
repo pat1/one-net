@@ -55,6 +55,26 @@
 //                                  TYPEDEFS
 //! \defgroup one_net_test_defines_typedefs
 //! \ingroup one_net_test_defines
+
+
+
+// Dec. 16, 2011 -- testing defines.  This will change.  Some combinations are
+// unstable and so are disabled.  Not all bad combinatiions have been detected.
+#ifdef _BLOCK_MESSAGES_ENABLED
+    #error "Dec. 16, 2011 -- Block and stream are not currently available."
+#endif
+
+#if defined(_ONE_NET_SIMPLE_CLIENT) || defined(_ONE_NET_SIMPLE_MASTER) || defined(_ONE_NET_SIMPLE_DEVICE)
+    #error "Dec. 16, 2011 -- Simple devices are not currently available."
+#endif
+
+#ifdef _ONE_NET_MASTER
+    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+        #error "Dec. 16, 2011 -- Masters must have queue levels of at least MED_SINGLE_QUEUE_LEVEL."
+    #endif
+#endif
+
+
 //! @{
 
 //! @} one_net_test_defines_typedefs
