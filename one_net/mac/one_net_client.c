@@ -1558,6 +1558,10 @@ static BOOL check_in_with_master(void)
     tick_t keep_alive_time;
     UInt8 raw_pld[5];
     
+    return FALSE; // Dec. 16, 2011.  Wiring around buggy check-in code
+                  // TODO -- obviously, debug and put back in.
+    
+    
     if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
     {
         return FALSE;
