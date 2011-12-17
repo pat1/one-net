@@ -247,6 +247,11 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
 #endif
 
+#ifdef _ENABLE_JOIN_COMMAND
+	//! Command to restart in CLIENT mode and look for an invite from a MASTER
+	const char * const ONCLI_JOIN_CMD_STR = "join";
+#endif
+
 #ifdef _ENABLE_SETNI_COMMAND
 //! SETNI command string
 const char * const ONCLI_SETNI_CMD_STR = "setni";
