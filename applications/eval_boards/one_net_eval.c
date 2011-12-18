@@ -500,21 +500,17 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     {
         oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(src_did),
           msg_data);
+        if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
+          (msg_data == ONA_ON || msg_data == ONA_OFF))
+        {
+            // interpret ONA_STATUS_CHANGE as ONA_COMMAND
+            msg_class = ONA_COMMAND;
+        }
+        else
+        {
+            return ON_MSG_CONTINUE;
+        }
     }
-    
-    if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
-      (msg_data == ONA_ON || msg_data == ONA_OFF))
-    {
-        // interpret ONA_STATUS_CHANGE as ONA_COMMAND
-        oncli_send_msg("hi\n");
-        msg_class = ONA_COMMAND;
-    }
-    
-    if(ONA_IS_STATUS_MESSAGE(msg_class))
-    {
-        return ON_MSG_CONTINUE;
-    }
-
 
     if(msg_type != ONA_SWITCH || (msg_data != ONA_ON && msg_data != ONA_OFF
       && msg_data != ONA_TOGGLE) || (msg_data == ONA_TOGGLE && msg_class !=
@@ -525,25 +521,13 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         return ON_MSG_CONTINUE;
     }
 
-    // handle commands, polls, and queries below
-    // right now, only commands.
-
-
     if(dst_unit == ONE_NET_DEV_UNIT)
     {
         ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
-
-    if (user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
-    {
-        // we'll use a user-defined fatal error for the reason            
-        ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
-    }
-        
+   
     switch(dst_unit)
 	{
 		case 0: pin = USER_PIN0; break;
@@ -560,6 +544,14 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     switch(msg_class)
     {
         case ONA_COMMAND:
+            if(user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
+            {
+                // we'll use a user-defined fatal error for the reason            
+                ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
+                ack_nack->handle = ON_NACK;
+                return ON_MSG_CONTINUE;
+            }        
+        
             msg_class = ONA_STATUS_COMMAND_RESP;
             switch(msg_data)
             {
@@ -631,6 +623,12 @@ on_message_status_t eval_handle_ack_nack_response(
         }
     }
     #endif
+    
+    oncli_send_msg("ehanr : ");
+    print_ack_nack(resp_ack_nack, 5);
+    delay_ms(100);
+    
+    
     return ON_MSG_CONTINUE;
 }
 
