@@ -274,7 +274,7 @@ static BOOL check_remove_device_update(void);
 #endif
 
 
-BOOL check_client_for_updates(on_client_t* client, UInt8 update_type);
+static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type);
 static BOOL check_updates_for_client(on_client_t* client,
   BOOL send_if_device_sleeps);
 static void check_updates_in_progress(void);
@@ -2580,7 +2580,7 @@ static BOOL check_remove_device_update(void)
     \return TRUE if an update was attempted
             FALSE otherwise
 */
-BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
+static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
 {
     UInt8 admin_type;
     UInt8 admin_pld[4];
