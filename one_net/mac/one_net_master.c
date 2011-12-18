@@ -1995,23 +1995,6 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
 
         case ON_CHANGE_SETTINGS:
         {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                client->flags = ack_nack->payload->ack_value.uint8;
-                // we may have just received the final stage of adding a
-                // client.
-                if(is_invite_did(&enc_did))
-                {
-                    on_raw_did_t raw_did;
-                    on_decode(raw_did, enc_did, ON_ENCODED_DID_LEN);
-                    master_param->client_count++;
-                    master_param->next_client_did = find_lowest_vacant_did();
-                    one_net_master_invite_result(ONS_SUCCESS, &invite_key,
-                      &raw_did);
-                    one_net_master_cancel_invite(&invite_key);
-                    // TODO - send an ON_ADD_DEV message.
-                }
-            }
             update = ONE_NET_UPDATE_SETTINGS;
             break;
         } // change keep-alive case //
@@ -3082,6 +3065,24 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                                            // set.
             ack_nack->handle = ON_ACK_VALUE;
             ack_nack->payload->ack_value.uint8 = (*client)->flags;
+            
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                (*client)->flags = ack_nack->payload->ack_value.uint8;
+                // we may have just received the final stage of adding a
+                // client.
+                if(is_invite_did(SRC_DID))
+                {
+                    // device has been added.
+                    master_param->client_count++;
+                    master_param->next_client_did = find_lowest_vacant_did();
+                    one_net_master_invite_result(ONS_SUCCESS, &invite_key,
+                      &raw_did);
+                    one_net_master_cancel_invite(&invite_key);
+                    // TODO - send an ON_ADD_DEV message.
+                }
+            } 
+            break;           
         }
         
         case ON_FEATURES_RESP:
