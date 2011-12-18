@@ -983,27 +983,18 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 sent_features = TRUE;
                 break;
             }
-            
-            case ON_KEEP_ALIVE_QUERY:
+
             case ON_KEEP_ALIVE_RESP:
             {
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
                 rcvd_keep_alive = TRUE;
-                
-                if(!client_joined_network)
-                {
-                    on_raw_did_t raw_did;
-                    on_decode(raw_did,
-                      &(on_base_param->sid[ON_ENCODED_DID_LEN]),
-                      ON_ENCODED_DID_LEN);
-                      
-                    // We've definitely joined by now.
-                    client_joined_network = TRUE;
-                    one_net_client_invite_result(&raw_did, ONS_SUCCESS);
-
-                    // TODO -- wait for ON_ADD_DEV message instead??
-                }
-
+                break;
+            }
+            
+            case ON_QUERY_SETTINGS:
+            {
+                master->flags = ack_nack->payload->ack_value.uint8;
+                rcvd_settings = TRUE;
                 break;
             }
         }       
@@ -1020,9 +1011,17 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                     
     if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
-        // success.  Reset the Keep-Alive Timer
-        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
-          MS_TO_TICK(master->keep_alive_interval));
+        if(client_joined_network)
+        {
+            // success.  Reset the Keep-Alive Timer
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER,
+              MS_TO_TICK(master->keep_alive_interval));
+        }
+        else
+        {
+            // success.  Reset the Keep-Alive Timer
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0);
+        }
     }
     
     return ON_MSG_SUCCESS;
@@ -1608,10 +1607,26 @@ static BOOL check_in_with_master(void)
         return FALSE; // master will send us the fragment delays.  Wait for it.
     }
     #endif
-    else if(!client_joined_network && (!rcvd_keep_alive || !rcvd_settings))
+    else if(!client_joined_network && !rcvd_keep_alive)
     {
-        return FALSE; // master will send us the settings and keep-alive.
-                      // Wait for them.
+        raw_pld[0] = ON_KEEP_ALIVE_RESP;
+    }
+    else if(!client_joined_network && !rcvd_settings)
+    {
+        raw_pld[0] = ON_QUERY_SETTINGS;
+    }
+    else if(!client_joined_network)
+    {
+        // we've joined the network!
+        on_raw_did_t raw_did;
+        on_decode(raw_did, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
+          ON_ENCODED_DID_LEN);
+        client_joined_network = TRUE;
+        client_looking_for_invite = FALSE;
+        one_net_client_invite_result(&raw_did, ONS_SUCCESS);
+        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
+          MS_TO_TICK(master->keep_alive_interval));
+        return FALSE;
     }
     else
     {

@@ -242,6 +242,9 @@ typedef enum
     //! Sent to change a device's settings.  The devices settings should not
     //! be considered changed until a SETTINGS_RESP is received.
     ON_CHANGE_SETTINGS = 0x10,
+    
+    //! Query settings
+    ON_QUERY_SETTINGS = 0x11,
 
     //! Sent by the MASTER when it is adding a device to the network
     ON_ADD_DEV = 0x21,

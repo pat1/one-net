@@ -1943,7 +1943,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->keep_alive_interval = ack_nack->payload->ack_time_ms;
-                
+#if 0
                 // check to see if this is a new client accepting an
                 // invite.
                 if(is_invite_did(&enc_did))
@@ -1978,8 +1978,9 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                         return;
                     }
                 }
+#endif
             }
-            
+           
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
@@ -1997,6 +1998,19 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->flags = ack_nack->payload->ack_value.uint8;
+                // we may have just received the final stage of adding a
+                // client.
+                if(is_invite_did(&enc_did))
+                {
+                    on_raw_did_t raw_did;
+                    on_decode(raw_did, enc_did, ON_ENCODED_DID_LEN);
+                    master_param->client_count++;
+                    master_param->next_client_did = find_lowest_vacant_did();
+                    one_net_master_invite_result(ONS_SUCCESS, &invite_key,
+                      &raw_did);
+                    one_net_master_cancel_invite(&invite_key);
+                    // TODO - send an ON_ADD_DEV message.
+                }
             }
             update = ONE_NET_UPDATE_SETTINGS;
             break;
@@ -3062,13 +3076,21 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         
+        case ON_QUERY_SETTINGS:
+        {
+            (*client)->flags |= ON_JOINED; // set this flag if not already
+                                           // set.
+            ack_nack->handle = ON_ACK_VALUE;
+            ack_nack->payload->ack_value.uint8 = (*client)->flags;
+        }
+        
         case ON_FEATURES_RESP:
         {
             one_net_memmove(&((*client)->device_send_info.features),
               &DATA[1], sizeof(on_features_t));
             ack_nack->handle = ON_ACK_FEATURES;
             ack_nack->payload->features = THIS_DEVICE_FEATURES;
-
+#if 0
             // first check to see if this is a new client accepting an
             // invite.
             if(is_invite_did(SRC_DID))
@@ -3120,7 +3142,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     }
                 }
             }
-
+#endif
             break;
         } // features response case //
               
