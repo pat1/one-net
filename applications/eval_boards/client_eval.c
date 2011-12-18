@@ -251,7 +251,7 @@ void init_serial_client(void)
         {
             // so far, so good.  Copy the pin info and we should be done.
             one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
-            oncli_send_msg("Parameters have not been loaded from flash.\n");
+            oncli_send_msg("Parameters have been loaded from flash.\n");
         }
     }
     else
