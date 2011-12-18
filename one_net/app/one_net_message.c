@@ -255,9 +255,9 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     
     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     element->send_time = 0;
-    if(send_time_from_now)
+    if(send_time_from_now && *send_time_from_now > 0)
     {
-        element->send_time = *send_time_from_now;
+        element->send_time = get_tick_count() + *send_time_from_now;
     }
     #endif
     #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
