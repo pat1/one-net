@@ -135,8 +135,14 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 #endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 
-one_net_status_t one_net_client_init(const UInt8 * const PARAM,
-  const UInt16 PARAM_LEN);
+#ifndef _PEER
+one_net_status_t one_net_client_init(const UInt8 * const param,
+  const UInt16 param_len);
+#else
+one_net_status_t one_net_client_init(const UInt8 * const param,
+  const UInt16 param_len, const UInt8* const peer_param,
+  const UInt16 peer_param_len);
+#endif
 
 tick_t one_net_client(void);
 

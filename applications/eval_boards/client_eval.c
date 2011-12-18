@@ -173,8 +173,13 @@ void init_auto_client(UInt8 index)
     master->device.last_nonce = ON_INVALID_NONCE;
     master->device.send_nonce = ON_INVALID_NONCE;
     master->device.msg_id = ON_MAX_MSG_ID + 1; // invalid
-    
+
+    #ifndef _PEER
     one_net_client_init(NULL, 0);
+    #else
+    one_net_reset_peers();
+    one_net_client_init(NULL, 0, NULL, 0);
+    #endif
 } // init_auto_client //
 #endif
 
@@ -188,9 +193,66 @@ void init_auto_client(UInt8 index)
 */
 void init_serial_client(void)
 {
-    // TODO -- try to load from Flash first.
-    one_net_client_reset_client(one_net_client_get_invite_key());
+#ifdef _NON_VOLATILE_MEMORY
+    BOOL memory_loaded;
+    const UInt8* nv_memory;
+    const UInt8* user_pin_memory;
+    const on_base_param_t* base_param;
+    UInt16 nv_memory_len, user_pin_memory_len;
+    #ifdef _PEER
+    const UInt8* peer_memory;
+    UInt16 peer_memory_len;
+    #endif
+
+
+    memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
+      &user_pin_memory);
+      
+    if(user_pin_memory_len != sizeof(user_pin))
+    {
+        memory_loaded = FALSE;
+    }
+
+    if(memory_loaded)
+    {
+        memory_loaded = eval_load(DFI_ST_ONE_NET_CLIENT_SETTINGS,
+          &nv_memory_len, &nv_memory);
+    }
     
+    #ifdef _PEER
+    if(memory_loaded)
+    {
+        memory_loaded = eval_load(DFI_ST_ONE_NET_PEER_SETTINGS,
+          &peer_memory_len, &peer_memory);
+    }
+    #endif
+    
+    if(memory_loaded)
+    {
+        one_net_status_t status;
+        
+        #ifndef _PEER
+        status = one_net_client_init(nv_memory, nv_memory_len);
+        #else
+        status = one_net_client_init(nv_memory, nv_memory_len, peer_memory,
+          peer_memory_len);
+        #endif
+        
+        if(status != ONS_SUCCESS)
+        {
+            oncli_send_msg("Parameters have not been loaded from flash.\n");
+            one_net_client_reset_client(one_net_client_get_invite_key());
+        }
+        else
+        {
+            // so far, so good.  Copy the pin info and we should be done.
+            one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
+            oncli_send_msg("Parameters have not been loaded from flash.\n");
+        }
+    }
+#else
+    one_net_client_reset_client(one_net_client_get_invite_key());
+#endif
 }
 
 

@@ -436,22 +436,49 @@ static BOOL check_in_with_master(void);
     If the CLIENT has not yet joined a network, one_net_client_look_for_invite
     needs to be called instead of this function.
 
-    \param[in] PARAM The parameters (or part) that were saved.  If NULL, then
-                     the caller has already initialized the base memory.
-    \param[in] PARAM_LEN The sizeof PARAM in bytes.
+    \param[in] param The parameters (not including peer) that were saved.
+                     If NULL, then the caller has already initialized the
+                     memory.
+    \param[in] param_len The sizeof param in bytes.
+    \param[in] peer_param The peer memory that was saved.  If NULL, then the
+                          caller has already initialized the peer memory.
+    \param[in] peer_param_len The length of the peer memory.
 
     \return ONS_SUCCESS If initializing the CLIENT was successful
             ONS_BAD_PARAM If any of the parameters are invalid
 */
-one_net_status_t one_net_client_init(const UInt8 * const PARAM,
-  const UInt16 PARAM_LEN)
+#ifndef _PEER
+one_net_status_t one_net_client_init(const UInt8 * const param,
+  const UInt16 param_len)
+#else
+one_net_status_t one_net_client_init(const UInt8 * const param,
+  const UInt16 param_len, const UInt8* const peer_param,
+  const UInt16 peer_param_len)
+#endif
 {
     one_net_status_t status;
     
-    if(PARAM != NULL)
+    if(param)
     {
-        // code here to initalize things from PARAM and PARAM_LEN
+        if(param_len != CLIENT_NV_PARAM_SIZE_BYTES)
+        {
+            return ONS_BAD_PARAM;
+        }
+        one_net_memmove(nv_param, param, CLIENT_NV_PARAM_SIZE_BYTES);
     }
+    
+    #ifdef _PEER
+    if(peer_param != NULL)
+    {
+        one_net_reset_peers();
+        if(peer_param_len > PEER_STORAGE_SIZE_BYTES || peer_param_len %
+          sizeof(on_peer_unit_t) != 0)
+        {
+            return ONS_BAD_PARAM;
+        }
+        one_net_memmove(peer_storage, peer_param, peer_param_len);
+    }
+    #endif
 
     if(!(master->flags & ON_JOINED))
     {
@@ -492,14 +519,11 @@ tick_t one_net_client(void)
     
     if(!pkt_hdlr.single_data_hdlr)
     {
-        if(one_net_client_init(0, 0) != ONS_SUCCESS)
-        {
-            init_internal();
-            client_joined_network = FALSE;
-            client_looking_for_invite = TRUE;
-        }
-
-        on_state = ON_LISTEN_FOR_DATA;
+        // shouldn't get here.  If we did, something very bad happened.
+        // Reset everything and try again.
+        oncli_send_msg("Error!  We should never get here!\n");
+        one_net_client_reset_client(one_net_client_get_invite_key());
+        return 0;
     }
     
 
