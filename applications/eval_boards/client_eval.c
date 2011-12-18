@@ -28,6 +28,10 @@
 #include "dfi.h"
 #endif
 
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
+
 
 
 //=============================================================================
@@ -250,9 +254,11 @@ void init_serial_client(void)
             oncli_send_msg("Parameters have not been loaded from flash.\n");
         }
     }
-#else
-    one_net_client_reset_client(one_net_client_get_invite_key());
+    else
 #endif
+    {
+        one_net_client_reset_client(one_net_client_get_invite_key());
+    }
 }
 
 

@@ -420,8 +420,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     UInt8 src_unit, dst_unit;
     ona_msg_class_t msg_class;
     UInt16 msg_type, msg_data;
-    
-    UInt8 pin, state;
+
 
     #ifndef _ONE_NET_MULTI_HOP
     if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
@@ -527,13 +526,37 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
+    
+    if(msg_class == ONA_COMMAND)
+    {
+        if(user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
+        {
+            // we'll use a user-defined fatal error for the reason            
+            ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
+            ack_nack->handle = ON_NACK;
+            return ON_MSG_CONTINUE;
+        }
+        
+        switch(dst_unit)
+        {
+            case 0: USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : 
+                    msg_data; break;
+            case 1: USER_PIN1 = (msg_data == ONA_TOGGLE) ? !USER_PIN1 : 
+                    msg_data; break;
+            case 2: USER_PIN2 = (msg_data == ONA_TOGGLE) ? !USER_PIN2 : 
+                    msg_data; break;
+            case 3: USER_PIN3 = (msg_data == ONA_TOGGLE) ? !USER_PIN3 : 
+                    msg_data; break;
+        }
+    }
    
     switch(dst_unit)
 	{
-		case 0: pin = USER_PIN0; break;
-		case 1: pin = USER_PIN1; break;
-		case 2: pin = USER_PIN2; break;
-		case 3: pin = USER_PIN3; break;
+		case 0: msg_data = USER_PIN0; break;
+		case 1: msg_data = USER_PIN1; break;
+		case 2: msg_data = USER_PIN2; break;
+		case 3: msg_data = USER_PIN3; break;
+
         default:
             oncli_send_msg("Invalid dest. unit.\n");
             ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
@@ -543,22 +566,10 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         
     switch(msg_class)
     {
+        // note : Status message have already been handled.
         case ONA_COMMAND:
-            if(user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
-            {
-                // we'll use a user-defined fatal error for the reason            
-                ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
-                ack_nack->handle = ON_NACK;
-                return ON_MSG_CONTINUE;
-            }        
-        
             msg_class = ONA_STATUS_COMMAND_RESP;
-            switch(msg_data)
-            {
-                case ONA_TOGGLE: pin = !pin; break;
-                default: pin = msg_data;
-            }
-            oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, pin);
+            oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
             break;
         case ONA_QUERY:
             msg_class = ONA_STATUS_QUERY_RESP;
@@ -571,7 +582,6 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
     }
-    msg_data = pin;
 
     ack_nack->handle = ON_ACK_STATUS;
 
@@ -580,8 +590,8 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     put_dst_unit(src_unit, ack_nack->payload->status_resp);
     put_msg_class(msg_class, ack_nack->payload->status_resp);
 
-    // we don't need to fill in the type.  It's already there since this is the same
-    // memory as the raw payload!
+    // we don't need to fill in the type.  It's already there since this is
+    // the same memory as the raw payload!
 
     put_msg_data(msg_data, ack_nack->payload->status_resp);
     return ON_MSG_CONTINUE;
