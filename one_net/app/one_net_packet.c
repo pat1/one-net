@@ -69,21 +69,21 @@ static enum
 //! The PID pairs of stay-awake / non-stay-awake response PIDs.
 static const UInt8 stay_awake_packet_pairs[NUM_STAY_AWAKE_PAIRS][2] =
 {
-    {ONE_NET_ENCODED_SINGLE_DATA_ACK, ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_SINGLE_DATA_ACK, ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE},
     
     #ifdef _EXTENDED_SINGLE
-    {ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK, ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK, ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_LARGE_SINGLE_DATA_ACK, ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK, ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
     #ifdef _ONE_NET_MULTI_HOP
-    {ONE_NET_ENCODED_MH_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK, ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
-    {ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_SINGLE_DATA_ACK, ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK, ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK, ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE},
+    {ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN, ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE},
     #endif
     #endif
 };
@@ -126,14 +126,14 @@ static const UInt8 stay_awake_packet_pairs[NUM_STAY_AWAKE_PAIRS][2] =
 /*!
     \brief Returns the encoded payload len for a PID
 
-    \param[in] pid pid of the packet
+    \param[in] raw_pid raw_pid of the packet
 
     \return the length of the encoded payload if the pid is valid,
            -1 if the pid is not valid.
 */
-SInt8 get_encoded_payload_len(UInt8 pid)
+SInt8 get_encoded_payload_len(UInt8 raw_pid)
 {
-    SInt8 num_payload_blocks = get_num_payload_blocks(pid);   
+    SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
     switch(num_payload_blocks)
     {
         case 1: case 2: case 3: return 11 * num_payload_blocks;
@@ -146,15 +146,15 @@ SInt8 get_encoded_payload_len(UInt8 pid)
 /*!
     \brief Returns the raw payload len for a PID
 
-    \param[in] pid pid of the packet
+    \param[in] raw_pid raw pid of the packet
 
     \return the length of the raw payload if the pid is valid, -1 if the pid
            is not valid.
 */
-SInt8 get_raw_payload_len(UInt8 pid)
+SInt8 get_raw_payload_len(UInt8 raw_pid)
 {
     // includes 1 byte for the encryption method
-    SInt8 num_payload_blocks = get_num_payload_blocks(pid);   
+    SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
     switch(num_payload_blocks)
     {
         case 1: case 2: case 3: case 4:
@@ -167,12 +167,12 @@ SInt8 get_raw_payload_len(UInt8 pid)
 /*!
     \brief Returns the number of XTEA blocks in the payload for a PID
 
-    \param[in] pid pid of the packet
+    \param[in] raw_pid raw_pid of the packet
 
     \return the number of XTEA blocks in the payload, -1 if the pid is
            not valid.
 */
-SInt8 get_num_payload_blocks(UInt8 pid)
+SInt8 get_num_payload_blocks(UInt8 raw_pid)
 {
     // first change the PID so we have fewer things to check.  We're only
     // looking for the number of blocks, so ACKs and NACKs will be equivalent
@@ -180,43 +180,43 @@ SInt8 get_num_payload_blocks(UInt8 pid)
     // stay-awake versus non-stay-awake packets.
 
     #ifdef _ONE_NET_MULTI_HOP
-    set_multihop_pid(&pid, FALSE);
+    set_multihop_pid(&raw_pid, FALSE);
     #endif
     
-    set_stay_awake_pid(&pid, FALSE); // if it's not an ACk or a NACK, not a
+    set_stay_awake_pid(&raw_pid, FALSE); // if it's not an ACk or a NACK, not a
                                      // problem.  No changes will be made.
-    set_ack_or_nack_pid(&pid, TRUE); // if it's not an ACk or a NACK, not a
+    set_ack_or_nack_pid(&raw_pid, TRUE); // if it's not an ACk or a NACK, not a
                                      // problem.  No changes will be made.
     
-    switch(pid)
+    switch(raw_pid)
     {
-        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
             return 3;
 
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_SINGLE_DATA_ACK:
             return 1;
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK:
             return 2;        
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK:
             return 3;
         #endif        
         
 
-        case ONE_NET_ENCODED_SINGLE_DATA:
+        case ONE_NET_RAW_SINGLE_DATA:
             return 1;
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA:
             return 2;
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
             return 3;
         #endif
         
 
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA:
+        case ONE_NET_RAW_BLOCK_DATA:
         #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_STREAM_DATA:
+        case ONE_NET_RAW_STREAM_DATA:
         #endif
             return 4;
         #endif
@@ -230,19 +230,19 @@ SInt8 get_num_payload_blocks(UInt8 pid)
 /*!
     \brief Returns the packet length for a PID
 
-    \param[in] pid pid of the packet
+    \param[in] raw_pid raw pid of the packet
     \param[in] include_header True if the packet lengh should include the
                preamble / header bytes, false otherwise
 
     \return the length of the packet if the pid is valid, 0 if the pid is
            not valid.
 */
-UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
+UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header)
 {
-    UInt8 pld_len = get_encoded_payload_len(pid);
+    UInt8 pld_len = get_encoded_payload_len(raw_pid);
     
     #ifdef _ONE_NET_MULTI_HOP
-    UInt8 mh_bytes = packet_is_multihop(pid) ? ON_ENCODED_HOPS_SIZE : 0;
+    UInt8 mh_bytes = packet_is_multihop(raw_pid) ? ON_ENCODED_HOPS_SIZE : 0;
     #endif
     UInt8 header_offset = include_header ? 0 : ONE_NET_ENCODED_RPTR_DID_IDX;
     
@@ -265,16 +265,16 @@ UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header)
 
     Determines whether a given PID represents a stay-awake packet.
 
-    \param[in] encoded_pid The pid to check
+    \param[in] raw_pid The raw pid to check
 
     \return True if encoded_pid is a stay-awake packet, false otherwise.
 */
-BOOL packet_is_stay_awake(UInt8 encoded_pid)
+BOOL packet_is_stay_awake(UInt8 raw_pid)
 {
     UInt8 i;
     for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
     {
-        if(encoded_pid == stay_awake_packet_pairs[i][1])
+        if(raw_pid == stay_awake_packet_pairs[i][1])
         {
             return TRUE;
         }
@@ -293,16 +293,16 @@ BOOL packet_is_stay_awake(UInt8 encoded_pid)
       no change is made.  Similarly if a non-stay-awake PID is given and
       stay_awake is false, no change is made.
 
-    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in/out] raw_pid The pid to (possibly) be converted.
     \param[in] stay_awake True if the DESIRED OUTGOING PID should be
       a stay_awake PID, False otherwise.
       
     \return True if the pid changed, false otherwise
 */
-BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
+BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
 {
     UInt8 i;
-    BOOL pid_is_stay_awake = packet_is_stay_awake(*encoded_pid);
+    BOOL pid_is_stay_awake = packet_is_stay_awake(*raw_pid);
     
     if(pid_is_stay_awake == stay_awake)
     {
@@ -311,9 +311,9 @@ BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
     
     for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
     {
-        if(*encoded_pid == stay_awake_packet_pairs[i][pid_is_stay_awake])
+        if(*raw_pid == stay_awake_packet_pairs[i][pid_is_stay_awake])
         {
-            *encoded_pid = stay_awake_packet_pairs[i][!pid_is_stay_awake];
+            *raw_pid = stay_awake_packet_pairs[i][!pid_is_stay_awake];
             return TRUE;
         }
     }
@@ -326,21 +326,21 @@ BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake)
     \brief Converts a response PID into its ACK or NACK
       equivalent.
 
-    Converts a response PID into its AK or NACK
+    Converts a response PID into its ACK or NACK
       equivalent.  If an ACK PID is given and is_ack is true,
       no change is made.  Similarly if a NACK PID is given and
       is_ack is false, no change is made.
 
-    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in/out] raw_pid The pid to (possibly) be converted.
     \param[in] is_ack True if the DESIRED OUTGOING PID should be
       an ACK, False otherwise.
       
     \return True if the pid changed, false otherwise
 */
-BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack)
+BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack)
 {
     UInt8 i, j;
-    BOOL pid_is_nack = packet_is_nack(*encoded_pid);
+    BOOL pid_is_nack = packet_is_nack(*raw_pid);
     if(pid_is_nack == !is_ack)
     {
         return FALSE;
@@ -351,11 +351,11 @@ BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack)
         // NACKs are odd, ACKs are even
         for(j = pid_is_nack; j < NUM_STAY_AWAKE_PAIRS; j += 2)
         {
-            if(*encoded_pid == stay_awake_packet_pairs[j][i])
+            if(*raw_pid == stay_awake_packet_pairs[j][i])
             {
                 // found it.  We subtract 1 if we're going from a NACK
                 // to an ACK.  Add 1 if going from an ACK to a NACK.
-                *encoded_pid = pid_is_nack ? stay_awake_packet_pairs[j-1][i] :
+                *raw_pid = pid_is_nack ? stay_awake_packet_pairs[j-1][i] :
                   stay_awake_packet_pairs[j+1][i];
                 return TRUE;
             }
@@ -372,25 +372,14 @@ BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack)
 
     Determines whether a given PID represents a multi-hop packet.
 
-    \param[in] encoded_pid The pid to check
+    \param[in] raw_pid The pid to check
 
     \return True if encoded_pid is a multi-hop packet, false otherwise.
 */
-BOOL packet_is_multihop(UInt8 encoded_pid)
+BOOL packet_is_multihop(UInt8 raw_pid)
 {
-    UInt8 raw_pid;
-    if(on_decode(&raw_pid, &encoded_pid, 1) != ONS_SUCCESS)
-    {
-        return FALSE; // invalid encoded pid
-    }
-    
-    // if MSB is 1, then it's multi-hop
-    if(raw_pid & 0x80)
-    {
-        return TRUE;
-    }
-    
-    return FALSE;
+    // if raw_pid is >= 0x20, then packet is multi-hop
+    return (raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET);
 }
 
 
@@ -402,42 +391,32 @@ BOOL packet_is_multihop(UInt8 encoded_pid)
       if a non-multi-hop PID is given and is_multihop is false, no change is
       made.
 
-    \param[in/out] encoded_pid The pid to (possibly) be converted.
+    \param[in/out] raw_pid The pid to (possibly) be converted.
     \param[in] is_multihop True if the DESIRED OUTGOING PID should be multi-hop,
                False otherwise.
     \return True if the pid changed, false otherwise
 */
-BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop)
+BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop)
 {
-    UInt8 raw_pid;
-    
-    // note that we shift by 2 since the raw bits are shifted 2.
-    const MULTI_HOP_OFFSET = ONE_NET_RAW_PID_MULTI_HOP_OFFSET << 2;
-    if(on_decode(&raw_pid, encoded_pid, 1) != ONS_SUCCESS)
-    {
-        return FALSE; // invalid incoming encoded PID
-    }
-    
     if(is_multihop)
     {
-        if(raw_pid >= MULTI_HOP_OFFSET)
+        if(*raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET)
         {
             return FALSE; // want multi-hop, already have multi-hop.
         }
         
-        raw_pid += MULTI_HOP_OFFSET;
+        (*raw_pid) += ONE_NET_RAW_PID_MULTI_HOP_OFFSET;
     }
     else
     {
-        if(raw_pid < MULTI_HOP_OFFSET)
+        if(*raw_pid < ONE_NET_RAW_PID_MULTI_HOP_OFFSET)
         {
             return FALSE; // want non-multi-hop, already have non-multi-hop.
         }
         
-        raw_pid -= MULTI_HOP_OFFSET;
+        (*raw_pid) -= ONE_NET_RAW_PID_MULTI_HOP_OFFSET;
     }
     
-    on_encode(encoded_pid, &raw_pid, 1);
     return TRUE; // pid has changed.
 }
 #endif
@@ -449,29 +428,18 @@ BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop)
 
     Determines whether a given PID represents a stream packet.
 
-    \param[in] pid The pid to check
+    \param[in] raw_pid The pid to check
 
     \return True if pid is a stream packet, false otherwise.
 */
-BOOL packet_is_stream(UInt8 pid)
+BOOL packet_is_stream(UInt8 raw_pid)
 {
-    // TODO -- rewrite function.
-    return FALSE;
-    #if 0
-    switch(pid)
-    {
-        case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
-        case ONE_NET_ENCODED_STREAM_DATA:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE:
-        case ONE_NET_ENCODED_MH_STREAM_DATA:
-        #endif
-            return TRUE;
-
-        default:
-            return FALSE;
-    }
-    #endif    
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid >= 0x18 && raw_pid < 0x1F);
+    #else  
+    return ((raw_pid >= 0x18 && raw_pid < 0x1F) ||
+            (raw_pid >= 0x38 && raw_pid < 0x3F));
+    #endif 
 }
 #endif
 
@@ -481,23 +449,22 @@ BOOL packet_is_stream(UInt8 pid)
 
     Determines whether a given PID represents an invite packet.
 
-    \param[in] pid The pid to check
+    \param[in] raw_pid The pid to check
 
     \return True if pid is an invite packet, false otherwise.
 */
-BOOL packet_is_invite(UInt8 pid)
+BOOL packet_is_invite(UInt8 raw_pid)
 {
-    switch(pid)
+    switch(raw_pid)
     {
-        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
+        case ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT:
         #endif
             return TRUE;
-
         default:
             return FALSE;
-    }    
+    }
 }
 
 
@@ -507,99 +474,99 @@ BOOL packet_is_invite(UInt8 pid)
     Determines the "family" type of a packet(i.e. single packet, block
       backet, stream packet, etc.
 
-    \param[in] pid The pid to check
+    \param[in] raw_pid The raw pid to check
 
     \return the "family" type of the packet.
 */
-pkt_group_t get_pkt_family(UInt8 pid)
+pkt_group_t get_pkt_family(UInt8 raw_pid)
 {
-    switch(pid)
+    switch(raw_pid)
     {
-        case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT:
+        case ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT:
         #endif
             return INVITE_PKT_GRP;
             
             
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE:
 
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
         #endif
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
         #endif
         #endif
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA_ACK:
-        case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
+        case ONE_NET_RAW_BLOCK_DATA_ACK:
+        case ONE_NET_RAW_BLOCK_DATA_NACK_RSN:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_ACK:
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_BLOCK_DATA_ACK:
+        case ONE_NET_RAW_MH_BLOCK_DATA_NACK_RSN:
         #endif
         #endif
         #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_STREAM_ACK_KEEP_ALIVE:
-        case ONE_NET_ENCODED_STREAM_NACK_KEEP_ALIVE:
+        case ONE_NET_RAW_STREAM_ACK_KEEP_ALIVE:
+        case ONE_NET_RAW_STREAM_NACK_KEEP_ALIVE:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_STREAM_ACK_KEEP_ALIVE:
-        case ONE_NET_ENCODED_MH_STREAM_NACK_KEEP_ALIVE:
+        case ONE_NET_RAW_MH_STREAM_ACK_KEEP_ALIVE:
+        case ONE_NET_RAW_MH_STREAM_NACK_KEEP_ALIVE:
         #endif
         #endif
             return ACK_NACK_PKT_GRP;
             
        
-        case ONE_NET_ENCODED_SINGLE_DATA:
+        case ONE_NET_RAW_SINGLE_DATA:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
         #endif
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA:
+        case ONE_NET_RAW_MH_SINGLE_DATA:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA:
         #endif
         #endif
             return SINGLE_PKT_GRP;
                         
             
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA:
+        case ONE_NET_RAW_BLOCK_DATA:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_DATA:
+        case ONE_NET_RAW_MH_BLOCK_DATA:
         #endif  
             return BLOCK_PKT_GRP;
         #endif
         
         
         #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_STREAM_DATA:
+        case ONE_NET_RAW_STREAM_DATA:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_STREAM_DATA:
+        case ONE_NET_RAW_MH_STREAM_DATA:
         #endif
             return STREAM_PKT_GRP;
         #endif
@@ -616,37 +583,37 @@ pkt_group_t get_pkt_family(UInt8 pid)
 
     Determines whether a given PID represents a NACK packet.
 
-    \param[in] pid The pid to check
+    \param[in] raw_pid The pid to check
 
     \return True if pid is a NACK packet, false otherwise.
 */
-BOOL packet_is_nack(UInt8 pid)
+BOOL packet_is_nack(UInt8 raw_pid)
 {
-    switch(pid)
+    switch(raw_pid)
     {
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
         #endif
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_ENCODED_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
         #endif
         #endif
 
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
+        case ONE_NET_RAW_BLOCK_DATA_NACK_RSN:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN:
+        case ONE_NET_RAW_MH_BLOCK_DATA_NACK_RSN:
         #endif
         #endif
             return TRUE;
@@ -657,35 +624,35 @@ BOOL packet_is_nack(UInt8 pid)
 
 
 /*!
-    \brief Determines whether a given PID represents an AACK packet.
+    \brief Determines whether a given PID represents an ACK packet.
 
     Determines whether a given PID represents an ACK packet.
 
-    \param[in] pid The pid to check
+    \param[in] raw_pid The pid to check
 
     \return True if pid is an ACK packet, false otherwise.
 */
-BOOL packet_is_ack(UInt8 pid)
+BOOL packet_is_ack(UInt8 raw_pid)
 {
-    switch(pid)
+    switch(raw_pid)
     {
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE:
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
         #endif
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK:
-        case ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE:
+        case ONE_NET_RAW_MH_SINGLE_DATA_ACK:
+        case ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE:
         #endif
         
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_BLOCK_DATA_ACK:
+        case ONE_NET_RAW_BLOCK_DATA_ACK:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_BLOCK_DATA_ACK:
+        case ONE_NET_RAW_MH_BLOCK_DATA_ACK:
         #endif
         #endif
             return TRUE;
@@ -700,55 +667,56 @@ BOOL packet_is_ack(UInt8 pid)
       single data packet with certain criteria.
 
     For a given PID and given criteria, the response PID that should be
-    given.  For example, a pid of ONE_NET_ENCODED_SINGLE_DATA that should
+    given.  For example, a pid of ONE_NET_RAW_SINGLE_DATA that should
     ACK and tell the original device to stay awake would return
-    ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE.
+    ONE_NET_ENCODED_RAW_DATA_ACK_STAY_AWAKE.
     
 
-    \param[in] single_pid The pid we are responding to or an ACK or a NACK
+    \param[in] raw_single_pid The pid we are responding to or an ACK or a NACK
     \param[in] isACK If true, we should ACK.  If false, we should NACK.
     \param[in] stay_awake True if we want the other device to stay awake,
                false otherwise.
 
     \return the PID we should use to respond.
 */
-UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake)
+UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK,
+  BOOL stay_awake)
 {
-    UInt8 resp_pid;
+    UInt8 raw_resp_pid;
     #ifdef _ONE_NET_MULTI_HOP
-    BOOL pid_is_multi = packet_is_multihop(single_pid);
-    set_multihop_pid(&single_pid, FALSE);
+    BOOL pid_is_multi = packet_is_multihop(raw_single_pid);
+    set_multihop_pid(&raw_single_pid, FALSE);
     #endif
     
-    switch(single_pid)
+    switch(raw_single_pid)
     {
-        case ONE_NET_ENCODED_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;break;
+        case ONE_NET_RAW_SINGLE_DATA:
+          raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK;break;
         #ifdef _EXTENDED_SINGLE
-        case ONE_NET_ENCODED_LARGE_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA_ACK; break;             
-        case ONE_NET_ENCODED_EXTENDED_SINGLE_DATA:
-          resp_pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA_ACK; break; 
+        case ONE_NET_RAW_LARGE_SINGLE_DATA:
+          raw_resp_pid = ONE_NET_RAW_LARGE_SINGLE_DATA_ACK; break;             
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
+          raw_resp_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK; break; 
         #endif
         default:
-          if(!packet_is_ack(single_pid) && !packet_is_nack(single_pid))
+          if(!packet_is_ack(raw_single_pid) && !packet_is_nack(raw_single_pid))
           {
               return 0;  // bad pid
           }
-          resp_pid = single_pid;
+          raw_resp_pid = raw_single_pid;
     }
     
-    set_ack_or_nack_pid(&resp_pid, isACK);
+    set_ack_or_nack_pid(&raw_resp_pid, isACK);
     
     #ifdef _ONE_NET_MULTI_HOP
     // turn it back into multi-hop if it was before
-    set_multihop_pid(&resp_pid, pid_is_multi);
+    set_multihop_pid(&raw_resp_pid, pid_is_multi);
     #endif
     
     // now set stay-awake
-    set_stay_awake_pid(&resp_pid, stay_awake);
+    set_stay_awake_pid(&raw_resp_pid, stay_awake);
 
-    return resp_pid;
+    return raw_resp_pid;
 }
 
 

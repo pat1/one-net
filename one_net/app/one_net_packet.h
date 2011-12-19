@@ -1387,26 +1387,28 @@ typedef struct
 //! \ingroup ONE-NET_PACKET
 //! @{
 
-SInt8 get_encoded_payload_len(UInt8 pid);
-SInt8 get_raw_payload_len(UInt8 pid);
-SInt8 get_num_payload_blocks(UInt8 pid);
-UInt8 get_encoded_packet_len(UInt8 pid, BOOL include_header);
-BOOL packet_is_stay_awake(UInt8 encoded_pid);
-BOOL set_ack_or_nack_pid(UInt8* encoded_pid, BOOL is_ack);
-BOOL set_stay_awake_pid(UInt8* encoded_pid, BOOL stay_awake);
+SInt8 get_encoded_payload_len(UInt8 raw_pid);
+SInt8 get_raw_payload_len(UInt8 raw_pid);
+SInt8 get_num_payload_blocks(UInt8 raw_pid);
+UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header);
+BOOL packet_is_stay_awake(UInt8 raw_pid);
+BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack);
+BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP
-BOOL packet_is_multihop(UInt8 encoded_pid);
-BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop);
+BOOL packet_is_multihop(UInt8 raw_pid);
+BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
 #endif
-BOOL packet_is_invite(UInt8 pid);
-BOOL packet_is_stream(UInt8 pid);
-pkt_group_t get_pkt_family(UInt8 pid);
+BOOL packet_is_invite(UInt8 raw_pid);
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL packet_is_stream(UInt8 raw_pid);
+#endif
+pkt_group_t get_pkt_family(UInt8 raw_pid);
 
-BOOL packet_is_ack(UInt8 pid);
-BOOL packet_is_nack(UInt8 pid);
+BOOL packet_is_ack(UInt8 raw_pid);
+BOOL packet_is_nack(UInt8 raw_pid);
 
-UInt8 get_single_response_pid(UInt8 single_pid, BOOL isACK, BOOL stay_awake);
+UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK, BOOL stay_awake);
 
 
     
