@@ -2645,8 +2645,8 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
           }
           break;
         #ifdef _STREAM_MESSAGES_ENABLED
-        case ON_CLIENT_UPDATE_CHANGE_KEY:
-          if(!client->use_current_key)
+        case ON_CLIENT_UPDATE_CHANGE_STREAM_KEY:
+          if(!client->use_current_stream_key)
           {
               key_frag_address = (UInt8*) &(on_base_param->stream_key[3 *
                 ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
@@ -2871,7 +2871,7 @@ static void check_updates_in_progress(void)
         {
             // we don't have any more updates for this, so notify the application
             // code and reset the flag to false.
-            one_net_master_update_result(ONE_NET_UPDATE_STREAM_NETWORK_KEY,
+            one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
               NULL, &ack);
             stream_key_update_in_progress = FALSE;
             
