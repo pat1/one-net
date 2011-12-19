@@ -238,10 +238,10 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
+      , tick_t send_time_from_now
   #endif
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   );
   
@@ -800,10 +800,10 @@ static on_message_status_t on_client_single_data_hdlr(
             get_src_unit(ack_nack->payload->status_resp)
         #endif
         #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL   
-	        , NULL
+	        , 0
         #endif
         #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	        , NULL
+	        , 0
         #endif
         );
         
@@ -1290,10 +1290,10 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
+      , tick_t send_time_from_now
   #endif
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   )
 {
@@ -1669,10 +1669,10 @@ static BOOL check_in_with_master(void)
       ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , NULL
+      , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-      , NULL
+      , 0
       #endif
       ) == ONS_SUCCESS)
     {

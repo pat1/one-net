@@ -255,9 +255,9 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  , tick_t* send_time_from_now
+  , tick_t send_time_from_now
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   );
   
@@ -1734,9 +1734,9 @@ static on_message_status_t on_master_single_data_hdlr(
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
         #endif
-            , NULL
+            , 0
         #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	        , NULL
+	        , 0
         #endif
         );
         
@@ -2377,9 +2377,9 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  , tick_t* send_time_from_now
+  , tick_t send_time_from_now
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   )
 {    
@@ -2947,18 +2947,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
     UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
     #endif
-    
-    // we have a variable already, so use it, but the name is a bit confusing.
-    // Still we'll use it rather than create a new one.  send_time_from_now
-    // will now represent absolute time, not time from now.  It all works,
-    // since the one_net_master_send_single() funciton wants an absolute time.
-    // If this function was passed 2000, the message will be sent 2000 ticks
-    // from now, or the soonest time after that that we have the resources to
-    // do it.
-    
-    // TODO -fix / change this so everything takes the same paremters?
-    send_time_from_now += get_tick_count();
-
 
     switch(admin_msg_id)
     {
@@ -2994,9 +2982,9 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , &send_time_from_now
+      , send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , NULL
+	  , 0
       #endif
       );
     #else
@@ -3007,9 +2995,9 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      , &send_time_from_now
+      , send_time_from_now
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-	  , NULL
+	  , 0
       #endif
       );
     #endif

@@ -394,10 +394,10 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
+      , tick_t send_time_from_now
   #endif
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   );
   

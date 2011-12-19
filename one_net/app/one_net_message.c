@@ -166,8 +166,8 @@ void empty_queue(void)
     \param[in] send_to_peer_list If true, the message will be sent to.
     \param[in] src_unit The unit that the message originated from.  Relevant
       only if sending to the peer list.
-	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
-	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
+	\param[in] send_time_from_now Time to pause before sending.  0 is interpreted as "send immediately"
+	\param[in] expire_time_from_now If after this time, don't bother sending.  0 is interpreted as "no expiration"
     
     \return pointer to the queue element if the queue add was successful
             NULL if error or no room in queue.
@@ -181,14 +181,15 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
+      , tick_t send_time_from_now
   #endif
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   )
 {
     on_single_data_queue_t* element = NULL;
+    tick_t time_now = get_tick_count();
     
     if(!raw_data)
     {
@@ -255,16 +256,14 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     
     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     element->send_time = 0;
-    if(send_time_from_now && *send_time_from_now > 0)
-    {
-        element->send_time = get_tick_count() + *send_time_from_now;
-    }
+    element->send_time = time_now + send_time_from_now;
+
     #endif
     #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
     element->expire_time = 0;
-    if(expire_time_from_now && *expire_time_from_now > 0)
+    if(expire_time_from_now)
     {
-	    element->expire_time = get_tick_count() + *expire_time_from_now;
+	    element->expire_time = time_now + expire_time_from_now;
     }
     #endif
     
