@@ -455,6 +455,9 @@ BOOL set_multihop_pid(UInt8* encoded_pid, BOOL is_multihop)
 */
 BOOL packet_is_stream(UInt8 pid)
 {
+    // TODO -- rewrite function.
+    return FALSE;
+    #if 0
     switch(pid)
     {
         case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
@@ -467,7 +470,8 @@ BOOL packet_is_stream(UInt8 pid)
 
         default:
             return FALSE;
-    }    
+    }
+    #endif    
 }
 #endif
 
@@ -558,9 +562,11 @@ pkt_group_t get_pkt_family(UInt8 pid)
         #endif
         #endif
         #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
+        case ONE_NET_ENCODED_STREAM_ACK_KEEP_ALIVE:
+        case ONE_NET_ENCODED_STREAM_NACK_KEEP_ALIVE:
         #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE:
+        case ONE_NET_ENCODED_MH_STREAM_ACK_KEEP_ALIVE:
+        case ONE_NET_ENCODED_MH_STREAM_NACK_KEEP_ALIVE:
         #endif
         #endif
             return ACK_NACK_PKT_GRP;
