@@ -1173,11 +1173,11 @@ static oncli_status_t list_cmd_hdlr(void)
         {
             on_client_t* client = &client_list[i];
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
-            oncli_print_did(&(client->device_send_info.did));
+            oncli_print_did(&(client->device.did));
             oncli_send_msg("\n");
             oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
               client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-            oncli_print_features(client->device_send_info.features);
+            oncli_print_features(client->device.features);
         }
     }
     #endif

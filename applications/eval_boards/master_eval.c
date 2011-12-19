@@ -271,13 +271,13 @@ void init_auto_master(void)
       NUM_AUTO_CLIENTS * ON_CLIENT_DID_INCREMENT;
     for(i = 0; i < NUM_AUTO_CLIENTS; i++)
     {
-        on_encode(client_list[i].device_send_info.did,
+        on_encode(client_list[i].device.did,
           RAW_AUTO_CLIENT_DID[i], ON_ENCODED_DID_LEN);
-        client_list[i].device_send_info.features = THIS_DEVICE_FEATURES;
-        client_list[i].device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
+        client_list[i].device.features = THIS_DEVICE_FEATURES;
+        client_list[i].device.data_rate = ONE_NET_DATA_RATE_38_4;
         #ifdef _ONE_NET_MULTI_HOP
-        client_list[i].device_send_info.hops = 0;
-        client_list[i].device_send_info.max_hops =
+        client_list[i].device.hops = 0;
+        client_list[i].device.max_hops =
           features_max_hops(THIS_DEVICE_FEATURES);
         #endif
         client_list[i].flags = ON_JOINED;
@@ -286,10 +286,10 @@ void init_auto_master(void)
         client_list[i].use_current_stream_key = TRUE;
         #endif
         
-        client_list[i].device_send_info.expected_nonce = ON_INVALID_NONCE;
-        client_list[i].device_send_info.last_nonce = ON_INVALID_NONCE;
-        client_list[i].device_send_info.send_nonce = ON_INVALID_NONCE;
-        client_list[i].device_send_info.msg_id = ON_MAX_MSG_ID + 1; // invalid
+        client_list[i].device.expected_nonce = ON_INVALID_NONCE;
+        client_list[i].device.last_nonce = ON_INVALID_NONCE;
+        client_list[i].device.send_nonce = ON_INVALID_NONCE;
+        client_list[i].device.msg_id = ON_MAX_MSG_ID + 1; // invalid
     }
     
     one_net_master_init(NULL, 0);
@@ -593,7 +593,7 @@ void one_net_master_update_result(one_net_mac_update_t update,
 BOOL one_net_master_client_missed_check_in(on_client_t* client)
 {
     on_raw_did_t raw_did;
-    on_decode(raw_did, client->device_send_info.did, ON_ENCODED_DID_LEN);
+    on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);
     oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16(&raw_did));
     return FALSE;
 }

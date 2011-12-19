@@ -370,7 +370,7 @@ typedef struct
     //! Last update_time for messages that go to everyone, like key_changes
     tick_t last_admin_update_time;
     
-    on_sending_device_t device_send_info;
+    on_sending_device_t device;
 } on_client_t;
 
 

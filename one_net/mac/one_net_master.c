@@ -543,7 +543,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     for(i = 0; i < master_param->client_count; i++)
     {
         if(features_mh_repeat_capable(
-          client_list[i].device_send_info.features))
+          client_list[i].device.features))
         {
             mh_repeater_available = TRUE;
             break;
@@ -765,19 +765,19 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client->use_current_stream_key = FALSE;
     #endif
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-    client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
-    client->device_send_info.expected_nonce = one_net_prand(time_now,
+    client->device.data_rate = ONE_NET_DATA_RATE_38_4;
+    client->device.expected_nonce = one_net_prand(time_now,
       ON_MAX_NONCE);
-    client->device_send_info.last_nonce = one_net_prand(time_now,
+    client->device.last_nonce = one_net_prand(time_now,
       ON_MAX_NONCE);
-    client->device_send_info.send_nonce = one_net_prand(time_now,
+    client->device.send_nonce = one_net_prand(time_now,
       ON_MAX_NONCE);
-    client->device_send_info.msg_id = data_pkt_ptrs.msg_id;
+    client->device.msg_id = data_pkt_ptrs.msg_id;
     one_net_int16_to_byte_stream(master_param->next_client_did,
       raw_invite_did);
-    on_encode(client->device_send_info.did, raw_invite_did,
+    on_encode(client->device.did, raw_invite_did,
       ON_ENCODED_DID_LEN);
-    client->device_send_info.features = FEATURES_UNKNOWN;
+    client->device.features = FEATURES_UNKNOWN;
 
     return ONS_SUCCESS;
 } // one_net_master_invite //
@@ -1206,16 +1206,16 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     //
     // initialize the fields in the client_t structure for this new client
     //    
-    client->device_send_info.msg_id = one_net_prand(get_tick_count(),
+    client->device.msg_id = one_net_prand(get_tick_count(),
       ON_MAX_MSG_ID);
-    client->device_send_info.expected_nonce = one_net_prand(get_tick_count(),
+    client->device.expected_nonce = one_net_prand(get_tick_count(),
       ON_MAX_NONCE);
-    client->device_send_info.last_nonce = one_net_prand(get_tick_count(),
+    client->device.last_nonce = one_net_prand(get_tick_count(),
       ON_MAX_NONCE);
-    client->device_send_info.send_nonce = one_net_prand(get_tick_count(),
+    client->device.send_nonce = one_net_prand(get_tick_count(),
       ON_MAX_NONCE);
-    client->device_send_info.data_rate = ONE_NET_DATA_RATE_38_4;
-    client->device_send_info.features = features;
+    client->device.data_rate = ONE_NET_DATA_RATE_38_4;
+    client->device.features = features;
     client->send_remove_device_message = FALSE;
     client->use_current_key = TRUE;
 #ifdef _STREAM_MESSAGES_ENABLED
@@ -1228,14 +1228,14 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->last_admin_update_time = 0;
       
 #ifdef _ONE_NET_MULTI_HOP
-    client->device_send_info.max_hops = features_max_hops(features);
-    client->device_send_info.hops = 0;
+    client->device.max_hops = features_max_hops(features);
+    client->device.hops = 0;
 #endif
     one_net_int16_to_byte_stream(master_param->next_client_did, raw_did);
-    on_encode(client->device_send_info.did, raw_did, ON_ENCODED_DID_LEN);
+    on_encode(client->device.did, raw_did, ON_ENCODED_DID_LEN);
     
     one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
-      client->device_send_info.did, ON_ENCODED_DID_LEN);
+      client->device.did, ON_ENCODED_DID_LEN);
     one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
     out_master_param->device.features = THIS_DEVICE_FEATURES;
     out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
@@ -1506,7 +1506,7 @@ one_net_status_t one_net_master_change_frag_dly(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
     
-    if(!features_block_capable(client->device_send_info.features))
+    if(!features_block_capable(client->device.features))
     {
         return ONS_DEVICE_NOT_CAPABLE;
     }
@@ -2190,7 +2190,7 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
     for(i = 0; i < master_param->client_count; i++)
     {
         if(on_encoded_did_equal(CLIENT_DID,
-          (const on_encoded_did_t * const)&client_list[i].device_send_info.did))
+          (const on_encoded_did_t * const)&client_list[i].device.did))
         {
             return &(client_list[i]);
         } // if the CLIENT was found //
@@ -2284,9 +2284,9 @@ static void sort_client_list_by_encoded_did(void)
     // through the whole list again.
     for(i = 1; i < master_param->client_count; i++)
     {
-        on_decode(raw_did1, client_list[i-1].device_send_info.did,
+        on_decode(raw_did1, client_list[i-1].device.did,
           ON_ENCODED_DID_LEN);
-        on_decode(raw_did2, client_list[i].device_send_info.did,
+        on_decode(raw_did2, client_list[i].device.did,
           ON_ENCODED_DID_LEN);
           
         if(one_net_byte_stream_to_int16(raw_did1) >
@@ -2327,7 +2327,7 @@ static UInt16 find_lowest_vacant_did(void)
     // the last client and return that.
     for(i = 0; i < master_param->client_count; i++)
     {
-        on_decode(raw_did, client_list[i].device_send_info.did,
+        on_decode(raw_did, client_list[i].device.did,
           ON_ENCODED_DID_LEN);
         if(one_net_byte_stream_to_int16(raw_did) != vacant_did)
         {
@@ -2425,7 +2425,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         return NULL;
     }
     
-    return &(client->device_send_info);
+    return &(client->device);
 }
 
 
@@ -2482,7 +2482,7 @@ static BOOL check_key_update(void)
         #ifdef _STREAM_MESSAGES_ENABLED
         if(stream_key)
         {
-            if(!features_stream_capable(client->device_send_info.features))
+            if(!features_stream_capable(client->device.features))
             {
                 continue;
             }
@@ -2537,10 +2537,10 @@ static BOOL check_key_update(void)
     #ifdef _STREAM_MESSAGES_ENABLED
     status = send_admin_pkt(stream_key ? ON_NEW_STREAM_KEY_FRAGMENT :
       ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device_send_info.did, key_frag_address, 0);
+      client->device.did, key_frag_address, 0);
     #else
     status = send_admin_pkt(ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device_send_info.did, key_frag_address, 0);
+      client->device.did, key_frag_address, 0);
     #endif
     
     // send at most once every 2 seconds
@@ -2604,7 +2604,7 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               #ifdef _ONE_NET_MULTI_HOP
               // Byte 2 is whether the device has mh-repeater capabilty
               admin_pld[2] = (UInt8) features_mh_repeat_capable(
-                client->device_send_info.features);
+                client->device.features);
               // Byte 3 is whether there are any mh-repeaters in the network
               admin_pld[3] = (UInt8) mh_repeater_available;
               #endif
@@ -2622,7 +2622,7 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               #ifdef _ONE_NET_MULTI_HOP
               // Byte 2 is whether the device has mh-repeater capabilty
               admin_pld[2] = (UInt8) features_mh_repeat_capable(
-                client->device_send_info.features);
+                client->device.features);
               // Byte 3 is whether there are any mh-repeaters in the network
               admin_pld[3] = (UInt8) mh_repeater_available;
               #endif
@@ -2670,7 +2670,7 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
     last_overall_send_time = get_tick_count() + MS_TO_TICK(1500);
     
     return (send_admin_pkt(admin_type, (on_encoded_did_t*)
-      client->device_send_info.did, admin_pld, 0) == ONS_SUCCESS);
+      client->device.did, admin_pld, 0) == ONS_SUCCESS);
 }
 
 
@@ -2679,7 +2679,7 @@ static BOOL check_updates_for_client(on_client_t* client,
 {
     tick_t time_now = get_tick_count();
     BOOL device_sleeps = features_device_sleeps(
-      client->device_send_info.features);
+      client->device.features);
     
     
     // 5 seconds should be enough time for any device, even multi-hop
@@ -2859,7 +2859,7 @@ static void check_updates_in_progress(void)
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
-            if(features_stream_capable(client_list[i].device_send_info.features) &&
+            if(features_stream_capable(client_list[i].device.features) &&
               !client_list[i].use_current_stream_key)
             {
                 at_least_one_update_in_progress = TRUE;
@@ -3087,7 +3087,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_FEATURES_RESP:
         {
-            one_net_memmove(&((*client)->device_send_info.features),
+            one_net_memmove(&((*client)->device.features),
               &DATA[1], sizeof(on_features_t));
             ack_nack->handle = ON_ACK_FEATURES;
             ack_nack->payload->features = THIS_DEVICE_FEATURES;
