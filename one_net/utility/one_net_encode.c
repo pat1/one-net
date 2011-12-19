@@ -140,6 +140,134 @@ static const UInt8 ENCODED_TO_RAW_L_NIB[] =
 //! \defgroup ONE-NET_encode_pub_func
 //! \ingroup ONE-NET_encode
 //! @{
+    
+    
+/*!
+    \brief Takes an encoded byte and returns its decoded equivalent.
+
+    Takes an encoded byte and returns its decoded equivalent.
+    For example, 0x6C decodes to 0x31.
+    
+    Since the on_decode and on_encode expect / return left-justified decoded
+    arrays, an option is given in the function of whether to left-justify
+    the return value.
+    
+    Therefore, a call to encoded_to_decoded_byte(0x6C, FALSE) will return 0x31
+    and a call to to encoded_to_decoded_byte(0x6C, TRUE) will return 0xC4.
+    
+    In other words, code block 1 is equivalent to code block 2 and code block
+    3 is equivalent to code block 4.  Blocks 1 and 3 use the on_decode
+    function below with an "array" size of 1 (i.e. we pretend that
+    encoded_byte and decoded_byte are arrays, hence we pass it the address of
+    the first and only element of that "array")
+    
+
+
+    // Code block 1
+    UInt8 decoded_byte;
+    UInt8 encoded_byte = 0x6C;
+    on_decode(&decoded_byte, &encoded_byte, 1); // decoded_byte contains 0xC4
+    
+    // Code block 2 -- equivalent to code block 1 above.
+    UInt8 decoded_byte = encoded_to_decoded_byte(0x6C, TRUE); // decoded_byte contains 0xC4
+
+
+    // Code block 3
+    UInt8 decoded_byte;
+    UInt8 encoded_byte = 0x6C;
+    on_decode(&decoded_byte, &encoded_byte, 1); // decoded_byte contains 0xC4
+    decoded_byte >>= 2;                         // decoded_byte contains 0x31
+    
+    // Code block 4 -- equivalent to code block 3 above.
+    UInt8 decoded_byte = encoded_to_decoded_byte(0x6C, FALSE); // decoded_byte contains 0x31
+
+
+
+    \param[in] encoded_byte The encoded byte
+    \param[in] left_justify If true, the decoded byte should be shifted two
+               bytes to the left.  If false, no shifting occurs.
+
+    \return The decoded byte, shifted if desired.
+            0xFF if the encoded byte has no valid conversion.
+*/
+UInt8 encoded_to_decoded_byte(UInt8 encoded_byte, BOOL left_justify)
+{
+    UInt8 decoded_byte = ENCODED_TO_RAW_H_NIB[encoded_byte >> 4] +
+        ENCODED_TO_RAW_L_NIB[encoded_byte % 16];
+    if(decoded_byte >= 0x40)
+    {
+        return 0xFF; // invalid
+    }
+    
+    return left_justify ? (decoded_byte << 2) : decoded_byte;
+}
+
+
+/*!
+    \brief Takes a decoded byte and returns its encoded equivalent.
+
+    Takes a decoded byte and returns its encoded equivalent.
+    For example, 0x31 encodes to 0x6C.
+    
+    Since the on_decode and on_encode functions expect / return left-justified
+    decoded arrays, an option is given in the function of whether the input
+    parameter represents a left-justified decoded value.
+    
+    Therefore, a call to encoded_to_decoded_byte(0x31, FALSE) will return 0x6C
+    and a call to to encoded_to_decoded_byte(0xC4, TRUE) will return 0x6C since
+    0xC4 is 0x31 shifted two bits left.
+    
+    In other words, code block 1 is equivalent to code block 2 and code block
+    3 is equivalent to code block 4.  Blocks 1 and 3 use the on_encode
+    function below with an "array" size of 1 (i.e. we pretend that
+    encoded_byte and decoded_byte are arrays, hence we pass it the address of
+    the first and only element of that "array")
+    
+
+
+    // Code block 1
+    UInt8 encoded_byte;
+    UInt8 decoded_byte = 0xC4;
+    on_encode(&encoded_byte, &decoded_byte, 1); // encoded_byte contains 0x6C
+    
+    // Code block 2 -- equivalent to code block 1 above.
+    UInt8 encoded_byte = decoded_to_encoded_byte(0xC4, TRUE); // encoded_byte contains 0x6C
+
+
+    // Code block 3
+    UInt8 encoded_byte;
+    UInt8 decoded_byte = 0x31;
+    decoded_byte <<= 2; // decoded byte now contains 0xC4
+    on_encode(&encoded_byte, &decoded_byte, 1); // encoded_byte contains 0x6C
+    
+    // Code block 4 -- equivalent to code block 3 above.
+    UInt8 encoded_byte = decoded_to_encoded_byte(0x31, FALSE); // encoded_byte contains 0x6C
+
+
+
+    \param[in] decoded_byte The decoded byte
+    \param[in] left_justify If true, the decoded byte is left justified and
+               needs to be shifted two bytes to the right.  If false, no
+               shifting occurs.
+
+    \return The encoded byte
+            0xFF if the decoded byte has no valid conversion.
+*/
+UInt8 decoded_to_encoded_byte(UInt8 decoded_byte, BOOL left_justify)
+{
+    if(left_justify)
+    {
+        decoded_byte >>= 2;
+    }
+    
+    if(decoded_byte >= 0x40)
+    {
+        return 0xFF; // invalid
+    }
+    
+    return RAW_TO_ENCODED[decoded_byte];
+}
+
 
 /*!
     \brief Encodes 6-bit data to 8-bit data.
