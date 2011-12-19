@@ -106,6 +106,27 @@ static void client_user_pin(void);
 //! @{
     
     
+void one_net_client_client_removed(const on_raw_did_t * const raw_did,
+    BOOL this_device_removed)
+{
+    if(this_device_removed)
+    {
+        oncli_send_msg("This device has been removed from the network.\n");
+    }
+    else
+    {
+        oncli_send_msg("Device %03d has been removed from the network.\n",
+          raw_did);
+    }
+}
+
+
+void one_net_client_client_added(const on_raw_did_t * const raw_did)
+{
+    oncli_send_msg("Device %03d has been added to the network.\n", raw_did);
+}
+
+
 void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
   one_net_status_t status)
 {

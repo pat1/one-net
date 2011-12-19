@@ -2950,6 +2950,10 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 
     switch(admin_msg_id)
     {
+        case ON_ADD_DEV:
+        case ON_RM_DEV:
+            admin_pld_data_len = 2;
+            break;
         case ON_CHANGE_SETTINGS:
             admin_pld_data_len = 1;
             break;

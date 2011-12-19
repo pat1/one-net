@@ -555,6 +555,7 @@ tick_t one_net_client(void)
                 // TODO -- Is the application code called anywhere?  Does it
                 // need to be?
 
+                one_net_client_client_removed(NULL, TRUE);
                 one_net_client_reset_client(one_net_client_get_invite_key());
                 return 0;
             }
@@ -1519,6 +1520,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             // first check if we are the one being removed.
             on_encoded_did_t* removed_device = (on_encoded_did_t*) &DATA[1];
+
             if(is_my_did(removed_device))
             {
                 // we're the ones being removed

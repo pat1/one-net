@@ -111,7 +111,35 @@
 */
 void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
   one_net_status_t status);
+  
+  
+/*!
+    \brief Callback when a CLIENT has been removed.
+    
+    This function is called by ONE-NET after a CLIENT has been
+    removed from the network.
 
+    \param[in] raw_did The did of the device that was removed.
+    \param[in] this_device_removed TRUE if this device was removed, false
+               otherwise.
+
+    \return void
+*/
+void one_net_client_client_removed(const on_raw_did_t * const raw_did,
+    BOOL this_device_removed);
+  
+  
+/*!
+    \brief Callback when a CLIENT has been added.
+    
+    This function is called by ONE-NET after a CLIENT has been
+    added to the network.
+
+    \param[in] raw_did The did of the device that was added.
+
+    \return void
+*/
+void one_net_client_client_added(const on_raw_did_t * const raw_did);
 
 
 /*!
