@@ -3050,7 +3050,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         case ON_QUERY_SETTINGS:
         {
             ack_nack->handle = ON_ACK_VALUE;
-            ack_nack->payload->ack_value.uint8 = (*client)->flags;
             
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
