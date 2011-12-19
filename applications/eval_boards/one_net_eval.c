@@ -488,7 +488,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     }
     
     
-    if(msg_hdr->pid != ONE_NET_ENCODED_SINGLE_DATA)
+    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA)
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
@@ -833,7 +833,7 @@ void eval_single_txn_status(on_message_status_t status,
       hops, (*dst)[0], (*dst)[1]);
     #endif
 
-    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.pid) -  1 -
+    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
       ON_PLD_DATA_IDX);
     #endif
 
@@ -969,21 +969,22 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 
     #if _DEBUG_VERBOSE_LEVEL > 1
     {
-        UInt8 pid = packet_bytes[ONE_NET_ENCODED_PID_IDX];
+        UInt8 raw_pid = encoded_to_decoded_byte(
+            packet_bytes[ONE_NET_ENCODED_PID_IDX], FALSE);
         on_pkt_t debug_pkt_ptrs;
-        oncli_send_msg("pid=%02X", pid);
+        oncli_send_msg("Raw PID=%02X", raw_pid);
 
-        if(!setup_pkt_ptr(pid, packet_bytes, &debug_pkt_ptrs))
+        if(!setup_pkt_ptr(raw_pid, packet_bytes, &debug_pkt_ptrs))
         {
             oncli_send_msg(" is invalid\n");
         }
         else
         {
-            if(get_encoded_packet_len(pid, TRUE) != num_bytes)
+            if(get_encoded_packet_len(raw_pid, TRUE) != num_bytes)
             {
-                oncli_send_msg(" -- Invalid number of bytes for pid %02X, "
-                  "Expected=%d, Actual=%d\n\n", pid,
-                  get_encoded_packet_len(pid, TRUE), num_bytes);
+                oncli_send_msg(" -- Invalid number of bytes for raw pid %02X, "
+                  "Expected=%d, Actual=%d\n\n", raw_pid,
+                  get_encoded_packet_len(raw_pid, TRUE), num_bytes);
                 return;
             }
             
@@ -1059,7 +1060,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             #if _DEBUG_VERBOSE_LEVEL > 2
             {
-                UInt8 raw_pld_len = get_raw_payload_len(pid);
+                UInt8 raw_pld_len = get_raw_payload_len(raw_pid);
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
                   raw_pld_len);
                 if(on_decode(raw_payload_bytes, debug_pkt_ptrs.payload,
@@ -1096,7 +1097,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     const one_net_xtea_key_t* keys =
                       (const one_net_xtea_key_t*) &alternate_keys[0];
 
-                    if(packet_is_invite(pid))
+                    if(packet_is_invite(raw_pid))
                     {
                         if(num_invite_keys > 0)
                         {
@@ -1125,7 +1126,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         data_type = ON_INVITE;
                     }
                     #ifdef _STREAM_MESSAGES_ENABLED
-                    else if(packet_is_stream(pid))
+                    else if(packet_is_stream(raw_pid))
                     {
                         if(num_stream_keys > 0)
                         {
@@ -1217,7 +1218,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                           decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
                         #ifdef _ONE_NET_MULTI_HOP
                         {
-                            if(packet_is_multihop(pid))
+                            if(packet_is_multihop(raw_pid))
                             {
                                 oncli_send_msg("Encoded Hops Field : %02X  ",
                                   *(debug_pkt_ptrs.enc_hops_field));

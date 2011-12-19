@@ -384,11 +384,11 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
 
 
 // TODO -- document
-one_net_status_t on_parse_response_pkt(UInt8 pid, UInt8* raw_bytes,
+one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
   on_ack_nack_t* const ack_nack)
 {
-    BOOL is_ack = packet_is_ack(pid);
-    if(!is_ack && !packet_is_nack(pid))
+    BOOL is_ack = packet_is_ack(raw_pid);
+    if(!is_ack && !packet_is_nack(raw_pid))
     {
         return ONS_BAD_PKT_TYPE;
     }
@@ -450,15 +450,16 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   BOOL stay_awake)
 {
     UInt8 status;
-    SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
-    SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
+    SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
+    SInt8 num_words = get_encoded_payload_len(pkt_ptrs->raw_pid);
     BOOL is_ack = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR);
     UInt8* ack_nack_pld_ptr = &raw_payload_bytes[ON_PLD_DATA_IDX];
     UInt8 ack_nack_pld_len = raw_pld_len - 1 - ON_PLD_DATA_IDX;
     
     // change pid if necessary
-    *(pkt_ptrs->pid) = get_single_response_pid(*(pkt_ptrs->pid), is_ack,
-      stay_awake);   
+    pkt_ptrs->raw_pid = get_single_response_pid(pkt_ptrs->raw_pid, is_ack,
+      stay_awake);
+    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
 
     // for all we know, ack_nack->payload is located at the same address
@@ -536,7 +537,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     #ifdef _ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
-    set_multihop_pid(pkt_ptrs->pid, pkt_ptrs->max_hops > 0);    
+    set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
+    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(pkt_ptrs->max_hops > 0)
     {
@@ -579,8 +581,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 {
     UInt8 status;
-    SInt8 raw_pld_len = get_raw_payload_len(*(pkt_ptrs->pid));
-    SInt8 num_words = get_encoded_payload_len(*(pkt_ptrs->pid));
+    SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
+    SInt8 num_words = get_encoded_payload_len(pkt_ptrs->raw_pid);
     
     if(num_words <= 0)
     {
@@ -591,7 +593,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #ifdef _ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
-    set_multihop_pid(pkt_ptrs->pid, pkt_ptrs->max_hops > 0);    
+    set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
+    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(pkt_ptrs->max_hops > 0)
     {
@@ -840,16 +843,16 @@ BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
 /*!
     \brief Sets the pointers of an on_pkt_t structure.
 
-    \param[in] pid pid of the packet
+    \param[in] raw_pid the raw pid of the packet
     \param[in] pkt_bytes The array holding the packet bytes
     \param[out] pkt The on_pkt_t structure to fill
 
     \return TRUE if the on_pkt structure was set up successfully.
             FALSE upon error.
 */
-BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
+BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
 {
-    SInt8 len = get_encoded_payload_len(pid);
+    SInt8 len = get_encoded_payload_len(raw_pid);
     if(len < 0)
     {
         return FALSE; // bad pid
@@ -861,8 +864,8 @@ BOOL setup_pkt_ptr(UInt8 pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     }
     
     pkt->packet_header    = &pkt_bytes[0];
-    pkt->pid              = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
-    *(pkt->pid)           = pid;
+    pkt->enc_pid          = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    pkt->raw_pid          = encoded_to_decoded_byte(*(pkt->enc_pid), FALSE);
     pkt->enc_msg_id       = &pkt_bytes[ONE_NET_ENCODED_MSG_ID_IDX];
     pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
     pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
@@ -1812,7 +1815,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     on_message_status_t msg_status;
-    BOOL ack_rcvd = packet_is_ack(*(pkt->pid));
+    BOOL ack_rcvd = packet_is_ack(pkt->raw_pid);
     UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL verify_needed;
@@ -1820,7 +1823,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
     tick_t time_now = get_tick_count();
     
-    if(on_parse_response_pkt(*(pkt->pid), raw_payload_bytes, ack_nack) !=
+    if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
       ONS_SUCCESS)
     {
         return ON_MSG_IGNORE; // undecipherable

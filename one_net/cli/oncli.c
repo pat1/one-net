@@ -766,7 +766,7 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
     };
     
     oncli_send_msg("PID=0x%02X,Msg ID=0x%02X,Msg Type=0x%01X(%s)\n",
-      msg_hdr->pid, msg_hdr->msg_id, msg_hdr->msg_type,
+      msg_hdr->raw_pid, msg_hdr->msg_id, msg_hdr->msg_type,
       msg_hdr->msg_type < 3 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
 }
 #endif

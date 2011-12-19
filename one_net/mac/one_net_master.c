@@ -1670,7 +1670,7 @@ static on_message_status_t on_master_single_data_hdlr(
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
     
     msg_hdr.msg_type = *msg_type;
-    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     
     // we'll be sending it back to the souerce.
@@ -1777,7 +1777,7 @@ omsdh_build_resp:
     #endif
 
 
-    response_pid = get_single_response_pid(*(pkt->pid),
+    response_pid = get_single_response_pid(pkt->raw_pid,
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
     if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
@@ -1835,7 +1835,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
         return status;
     }    
 
-    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
 
@@ -2035,7 +2035,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     }
     
 
-    msg_hdr.pid = *(pkt->pid);
+    msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
