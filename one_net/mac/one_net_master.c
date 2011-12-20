@@ -717,7 +717,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
 
     // so far, so good.  Start building the packet.
-    if(!setup_pkt_ptr(ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT, invite_pkt,
+    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_pkt,
       &data_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
@@ -743,7 +743,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     
     // now finish building the packet.
     if(status = on_complete_pkt_build(&data_pkt_ptrs,
-      data_pkt_ptrs.msg_id, ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT)
+      data_pkt_ptrs.msg_id, ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
       != ONS_SUCCESS)
     {
         return status;                          
@@ -1104,7 +1104,7 @@ void one_net_master(void)
             if(invite_txn.priority != ONE_NET_NO_PRIORITY &&
               ont_inactive_or_expired(invite_txn.next_txn_timer))
             {
-                UInt8 pid = ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT;
+                UInt8 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT;
                 
                 if(ont_expired(ONT_INVITE_TIMER))
                 {
@@ -1121,17 +1121,17 @@ void one_net_master(void)
                 if(mh_repeater_available && txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
                 {
                     txn->retry = 0;
-                    pid = ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT;
+                    raw_pid = ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT;
                 } // if time to send a multi hop packet //
                 #endif
 
-                if(!setup_pkt_ptr(pid, invite_pkt, &data_pkt_ptrs))
+                if(!setup_pkt_ptr(raw_pid, invite_pkt, &data_pkt_ptrs))
                 {
                     break; // we should never get here
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
-                if(pid == ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT)
+                if(raw_pid == ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT)
                 {
                     on_build_hops(data_pkt_ptrs.enc_hops_field,
                       features_max_hops(THIS_DEVICE_FEATURES), 0);
