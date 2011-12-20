@@ -422,6 +422,47 @@ BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop)
 #endif
 
 
+/*!
+    \brief Determines whether a given PID represents a single packet.
+
+    Determines whether a given PID represents a single packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a single packet, false otherwise.
+*/
+BOOL packet_is_single(UInt8 raw_pid)
+{
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid < 0x10);
+    #else  
+    return (raw_pid < 0x10 || (raw_pid >= 0x20 && raw_pid < 0x30));
+    #endif 
+}
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Determines whether a given PID represents a block packet.
+
+    Determines whether a given PID represents a single packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a block packet, false otherwise.
+*/
+BOOL packet_is_block(UInt8 raw_pid)
+{
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid >= 0x10 && raw_pid < 0x18);
+    #else  
+    return ((raw_pid >= 0x10 && raw_pid < 0x18) ||
+            (raw_pid >= 0x30 && raw_pid < 0x38));
+    #endif 
+}
+#endif
+
+
 #ifdef _STREAM_MESSAGES_ENABLED
 /*!
     \brief Determines whether a given PID represents a stream packet.

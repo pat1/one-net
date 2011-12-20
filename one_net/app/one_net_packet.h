@@ -1401,6 +1401,10 @@ BOOL packet_is_multihop(UInt8 raw_pid);
 BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
 #endif
 BOOL packet_is_invite(UInt8 raw_pid);
+BOOL packet_is_single(UInt8 raw_pid);
+#ifdef _BLOCK_MESSAGES_ENABLED
+BOOL packet_is_block(UInt8 raw_pid);
+#endif
 #ifdef _STREAM_MESSAGES_ENABLED
 BOOL packet_is_stream(UInt8 raw_pid);
 #endif
