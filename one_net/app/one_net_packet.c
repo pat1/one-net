@@ -271,16 +271,21 @@ UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header)
 */
 BOOL packet_is_stay_awake(UInt8 raw_pid)
 {
-    UInt8 i;
-    for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
+    #ifdef _ONE_NET_MULTI_HOP
+    set_multihop_pid(&raw_pid, FALSE);
+    #endif
+    
+    if(!packet_is_single(raw_pid))
     {
-        if(raw_pid == stay_awake_packet_pairs[i][1])
-        {
-            return TRUE;
-        }
+        return FALSE;
     }
     
-    return FALSE;
+    #ifdef _EXTENDED_SINGLE
+    raw_pid /= 5;
+    #endif
+    
+    return (raw_pid == ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE ||
+            raw_pid == ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE);
 }
 
 
@@ -562,37 +567,7 @@ pkt_group_t get_pkt_family(UInt8 raw_pid)
 */
 BOOL packet_is_nack(UInt8 raw_pid)
 {
-    switch(raw_pid)
-    {
-        case ONE_NET_RAW_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE:
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE:
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN:
-        case ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE:
-        case ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE:
-        #endif
-        #endif
-
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_RAW_BLOCK_DATA_NACK_RSN:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_RAW_MH_BLOCK_DATA_NACK_RSN:
-        #endif
-        #endif
-            return TRUE;
-        default:
-            return FALSE;
-    }
+    return packet_is_ack(raw_pid - 1);
 }
 
 
@@ -607,31 +582,23 @@ BOOL packet_is_nack(UInt8 raw_pid)
 */
 BOOL packet_is_ack(UInt8 raw_pid)
 {
-    switch(raw_pid)
+    #ifdef _ONE_NET_MULTI_HOP
+    set_multihop_pid(&raw_pid, FALSE);
+    #endif
+    
+    if(raw_pid >= ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
     {
-        case ONE_NET_RAW_SINGLE_DATA_ACK:
-        case ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE:
-        #ifdef _EXTENDED_SINGLE
-        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK:
-        case ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE:
-        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK:
-        case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE:
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_RAW_MH_SINGLE_DATA_ACK:
-        case ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE:
-        #endif
-        
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_RAW_BLOCK_DATA_ACK:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_RAW_MH_BLOCK_DATA_ACK:
-        #endif
-        #endif
-            return TRUE;
-        default:
-            return FALSE;
+        return FALSE;
     }
+    
+    #ifdef _EXTENDED_SINGLE
+    if(raw_pid < 0x10)
+    {
+        raw_pid /= 5;
+    }
+    #endif
+
+    return (raw_pid % 2);
 }
 
 
