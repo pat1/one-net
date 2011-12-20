@@ -423,6 +423,41 @@ BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop)
 
 
 /*!
+    \brief Determines whether a given PID represents a data packet.
+
+    Determines whether a given PID represents a data packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a data packet, false otherwise.
+*/
+BOOL packet_is_data(UInt8 raw_pid)
+{
+    #ifdef _ONE_NET_MULTI_HOP
+    set_multihop_pid(&raw_pid, FALSE);
+    #endif
+
+    switch(raw_pid)
+    {
+        case ONE_NET_RAW_SINGLE_DATA:
+        #ifdef _EXTENDED_SINGLE
+        case ONE_NET_RAW_LARGE_SINGLE_DATA:
+        case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
+        #endif
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ONE_NET_RAW_BLOCK_DATA:
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ONE_NET_RAW_STREAM_DATA:
+        #endif
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+
+/*!
     \brief Determines whether a given PID represents a single packet.
 
     Determines whether a given PID represents a single packet.
