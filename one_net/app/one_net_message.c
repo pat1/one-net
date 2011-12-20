@@ -154,7 +154,7 @@ void empty_queue(void)
     The message is either sent to the peer list or only to the specific device
     that is passed in.
     
-    \param[in] pid The pid of the message.
+    \param[in] raw_pid The raw pid of the message.
     \param[in] msg_type The message type of the message(admin, application, etc.)
     \param[in] data The data to send.
     \param[in] data_len The length of DATA (in bytes).
@@ -172,7 +172,7 @@ void empty_queue(void)
     \return pointer to the queue element if the queue add was successful
             NULL if error or no room in queue.
 */
-on_single_data_queue_t* push_queue_element(UInt8 pid,
+on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
@@ -217,7 +217,7 @@ on_single_data_queue_t* push_queue_element(UInt8 pid,
     element= single_msg_ptr;
     #endif
     
-    element->pid = pid;
+    element->raw_pid = raw_pid;
     element->priority = priority;
     element->msg_type = msg_type;
     element->payload_size = data_len;

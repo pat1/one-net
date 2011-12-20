@@ -1373,7 +1373,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if parsing the data portion failed //
 
     
-    switch((*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+    switch((*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, src_did,
       #ifdef _PEER
@@ -1430,7 +1430,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     BOOL send_to_peer_list;
     #endif
     
-    UInt8 pid, pld_len, msg_type;
+    UInt8 raw_pid, pld_len, msg_type;
     
     #ifdef _EXTENDED_SINGLE
     UInt8* text_start_ptr = &raw_pld[ONA_MSG_SECOND_IDX];
@@ -1474,7 +1474,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if parsing the data portion failed //
     
-    pid = ONE_NET_ENCODED_SINGLE_DATA;
+    raw_pid = ONE_NET_RAW_SINGLE_DATA;
     pld_len = ONA_SINGLE_PACKET_PAYLOAD_LEN;
     msg_type = ONA_SIMPLE_TEXT;
 
@@ -1486,7 +1486,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     else if(data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN -
       ONA_MSG_DATA_IDX -1)
     {
-        pid = ONE_NET_ENCODED_LARGE_SINGLE_DATA;
+        raw_pid = ONE_NET_RAW_LARGE_SINGLE_DATA;
         pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;
         msg_type = ONA_TEXT;
         // add a NULL terminator
@@ -1494,7 +1494,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     else
     {
-        pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+        raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
         pld_len = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN;
         msg_type = ONA_TEXT;
         // add a NULL terminator
@@ -1510,7 +1510,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     put_src_unit(src_unit, raw_pld);
     
 
-    switch((*one_net_send_single)(pid, ON_APP_MSG, raw_pld, pld_len,
+    switch((*one_net_send_single)(raw_pid, ON_APP_MSG, raw_pld, pld_len,
       ONE_NET_HIGH_PRIORITY, src_did,
       #ifdef _PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit

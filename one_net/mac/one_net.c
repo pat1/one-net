@@ -446,7 +446,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
 
 
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
-  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
   BOOL stay_awake)
 {
     UInt8 status;
@@ -1365,7 +1365,7 @@ BOOL one_net(on_txn_t ** txn)
                     device->msg_id = 0;
                 }
                 
-                if(!setup_pkt_ptr(single_msg.pid, single_pkt,
+                if(!setup_pkt_ptr(single_msg.raw_pid, single_pkt,
                   &data_pkt_ptrs))
                 {
                     // an error of some sort occurred.  We likely have
@@ -1437,7 +1437,7 @@ BOOL one_net(on_txn_t ** txn)
 
                 // now finish building the packet.
                 if(on_complete_pkt_build(&data_pkt_ptrs,
-                  device->msg_id, single_msg.pid) != ONS_SUCCESS)
+                  device->msg_id, single_msg.raw_pid) != ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
                     return TRUE; // no outstanding transaction                            
@@ -1447,7 +1447,7 @@ BOOL one_net(on_txn_t ** txn)
                 // state, etc.
                 single_txn.priority = single_msg.priority;
                 single_txn.data_len =
-                  get_encoded_packet_len(single_msg.pid, TRUE);
+                  get_encoded_packet_len(single_msg.raw_pid, TRUE);
                 *txn = &single_txn;
                 (*txn)->retry = 0;
                 (*txn)->response_timeout = one_net_response_time_out;
@@ -1652,12 +1652,12 @@ BOOL one_net(on_txn_t ** txn)
             if(!terminate_txn && response_msg_or_timeout)
             {
                 // rebuild the packet                
-                if(setup_pkt_ptr(single_msg.pid, single_pkt,
+                if(setup_pkt_ptr(single_msg.raw_pid, single_pkt,
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
-                  &data_pkt_ptrs, (*txn)->device->msg_id, single_msg.pid) ==
-                  ONS_SUCCESS)
+                  &data_pkt_ptrs, (*txn)->device->msg_id, single_msg.raw_pid)
+                  == ONS_SUCCESS)
                 {
                     // do nothing. everything worked.
                 }

@@ -1361,7 +1361,7 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
     put_msg_data(status, raw_pld);
     put_dst_unit(dst_unit, raw_pld);
 
-    return (*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, src_did, enc_dst
       #ifdef _PEER
@@ -1463,7 +1463,7 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
     // endianness.  Instead use one_net_memmove
     one_net_memmove(&raw_pld[ONA_MSG_DATA_IDX], text, ONA_MSG_DATA_LEN);
       
-    return (*one_net_send_single)(ONE_NET_ENCODED_SINGLE_DATA,
+    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, src_did, enc_dst
       #ifdef _PEER

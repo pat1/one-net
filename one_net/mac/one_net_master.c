@@ -247,7 +247,7 @@ static void sort_client_list_by_encoded_did(void);
 static UInt16 find_lowest_vacant_did(void);
 
 
-static one_net_status_t one_net_master_send_single(UInt8 pid,
+static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
@@ -1727,7 +1727,7 @@ static on_message_status_t on_master_single_data_hdlr(
     if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
       ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
     {
-        one_net_master_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_APP_MSG,
+        one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
         #ifdef _PEER
@@ -2349,7 +2349,7 @@ static UInt16 find_lowest_vacant_did(void)
     The message is either sent to the peer list or only to the specific device
     that is passed in.
     
-    \param[in] pid The pid of the message.
+    \param[in] raw_pid The raw pid of the message.
     \param[in] msg_type The message type of the message(admin, application, etc.)
     \param[in] data The data to send.
     \param[in] data_len The length of DATA (in bytes).
@@ -2369,7 +2369,7 @@ static UInt16 find_lowest_vacant_did(void)
             ONS_RSRC_FULL If no resources are currently available to handle the
               request.
 */
-static one_net_status_t one_net_master_send_single(UInt8 pid,
+static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
@@ -2383,8 +2383,8 @@ static one_net_status_t one_net_master_send_single(UInt8 pid,
   #endif
   )
 {    
-    if(push_queue_element(pid, msg_type, raw_data, data_len, priority, src_did,
-      enc_dst
+    if(push_queue_element(raw_pid, msg_type, raw_data, data_len, priority,
+      src_did, enc_dst
       #ifdef _PEER
           , send_to_peer_list, src_unit
       #endif
@@ -2945,7 +2945,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     #else
     UInt8 admin_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
     UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
-    UInt8 pid = ONE_NET_ENCODED_SINGLE_DATA;
+    UInt8 raw_pid = ONE_NET_RAW_SINGLE_DATA;
     #endif
 
     switch(admin_msg_id)
@@ -2962,7 +2962,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
         case ON_NEW_STREAM_KEY:
         #endif
              admin_pld_data_len = ONE_NET_XTEA_KEY_LEN;
-             pid = ONE_NET_ENCODED_EXTENDED_SINGLE_DATA;
+             raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
              // send a little bit in the future so we don't hog all the
              // resouces.
              break;
@@ -2979,7 +2979,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     #endif
     
     #ifndef _EXTENDED_SINGLE
-    return one_net_master_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_ADMIN_MSG,
+    return one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, did
       #ifdef _PEER
@@ -2992,7 +2992,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       #endif
       );
     #else
-    return one_net_master_send_single(pid, ON_ADMIN_MSG,
+    return one_net_master_send_single(raw_pid, ON_ADMIN_MSG,
       admin_pld, admin_pld_data_len + 1, ONE_NET_LOW_PRIORITY,
       NULL, did
       #ifdef _PEER

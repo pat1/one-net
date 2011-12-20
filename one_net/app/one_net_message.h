@@ -264,7 +264,7 @@ typedef enum
 //!< Single Message Data Queue Structure.
 typedef struct
 {
-    UInt8 pid; 
+    UInt8 raw_pid; 
     UInt8 priority;   
 	on_encoded_did_t dst_did;
     UInt8 msg_type;

@@ -229,7 +229,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
 
-static one_net_status_t one_net_client_send_single(UInt8 pid,
+static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
@@ -793,7 +793,7 @@ static on_message_status_t on_client_single_data_hdlr(
     if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
       ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
     {
-        one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA, ON_APP_MSG,
+        one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
         #ifdef _PEER
@@ -1262,7 +1262,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
     The message is either sent to the peer list or only to the specific device
     that is passed in.
     
-    \param[in] pid The pid of the message.
+    \param[in] raw_pid The raw pid of the message.
     \param[in] msg_type The message type of the message(admin, application, etc.)
     \param[in] data The data to send.
     \param[in] data_len The length of DATA (in bytes).
@@ -1282,7 +1282,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
             ONS_RSRC_FULL If no resources are currently available to handle the
               request.
 */
-static one_net_status_t one_net_client_send_single(UInt8 pid,
+static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
@@ -1298,8 +1298,8 @@ static one_net_status_t one_net_client_send_single(UInt8 pid,
   #endif
   )
 {
-    if(push_queue_element(pid, msg_type, raw_data, data_len, priority, src_did,
-      enc_dst
+    if(push_queue_element(raw_pid, msg_type, raw_data, data_len, priority,
+      src_did, enc_dst
       #ifdef _PEER
           , send_to_peer_list, src_unit
       #endif
@@ -1663,7 +1663,7 @@ static BOOL check_in_with_master(void)
         raw_pld[0] = ON_KEEP_ALIVE_RESP;
     }
     
-    if(one_net_client_send_single(ONE_NET_ENCODED_SINGLE_DATA,
+    if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
       NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
       #ifdef _PEER
