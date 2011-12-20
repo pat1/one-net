@@ -805,16 +805,16 @@ BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs)
 /*!
     \brief Verify that the payload CRC is valid
 
-    \param[in] pid The pid of the packet
+    \param[in] raw_pid The raw pid of the packet
     \param[in] decrypted The decrypted bytes
 
     \return TRUE if the message CRC is valid, FALSE otherwise
 */
-BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted)
+BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted)
 {
     const UInt8* crc_calc_start;
     UInt8 crc_calc, crc_calc_len;
-    SInt8 num_encoded_blocks = get_num_payload_blocks(pid);
+    SInt8 num_encoded_blocks = get_num_payload_blocks(raw_pid);
     
     if(num_encoded_blocks == 0)
     {
@@ -2313,7 +2313,10 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     one_net_status_t status;
     on_encoded_did_t src_did;
     one_net_xtea_key_t* key = NULL;
-    UInt8 pid;
+    UInt8 raw_pid, enc_pid; // TODO -- make this one variable?  This can be
+                            // easily done, but it's a little confusing to
+                            // read the code, so I'll keep them as two
+                            // separate variables for now.
     BOOL dst_is_broadcast, dst_is_me, src_match;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL packet_is_mh;
@@ -2391,7 +2394,13 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     }
     #endif
     
-    pid = pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    enc_pid = pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    raw_pid = encoded_to_decoded_byte(enc_pid, FALSE);
+    if(raw_pid >= 0x40)
+    {
+        return ONS_BAD_PKT_TYPE;
+    }
+
     dst_is_broadcast = is_broadcast_did((on_encoded_did_t*)
       (&pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX]));
     dst_is_me = is_my_did((on_encoded_did_t*)
@@ -2401,7 +2410,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
     
     #ifdef _ONE_NET_MULTI_HOP
-    packet_is_mh = packet_is_multihop(pid);
+    packet_is_mh = packet_is_multihop(raw_pid);
     #endif
     
     #ifndef _ONE_NET_MH_CLIENT_REPEATER
@@ -2426,7 +2435,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
 
 
-    switch(get_pkt_family(pid))
+    switch(get_pkt_family(raw_pid))
     {
         case SINGLE_PKT_GRP:
         {
@@ -2523,7 +2532,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         }
     }
 
-    if(!setup_pkt_ptr(pid, (*this_txn)->pkt, *this_pkt_ptrs))
+    if(!setup_pkt_ptr(raw_pid, (*this_txn)->pkt, *this_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
     }
@@ -2638,19 +2647,19 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #ifdef _ONE_NET_MASTER
     // copy in case this is a client in the middle of a key change
     one_net_memmove(original_payload, raw_payload_bytes,
-      get_raw_payload_len(pid));
+      get_raw_payload_len(raw_pid));
       
 master_decrypt_packet:      
     #endif
 
     if((status = on_decrypt(type, raw_payload_bytes, key,
-      get_raw_payload_len(pid))) != ONS_SUCCESS)
+      get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
     {   
         return status;
     }
 
     // check the payload CRC.
-    if(!verify_payload_crc(pid, raw_payload_bytes))
+    if(!verify_payload_crc(raw_pid, raw_payload_bytes))
     {
         #ifdef _ONE_NET_MASTER
         if(device_is_master && (type == ON_SINGLE || type == ON_RESPONSE) &&
@@ -2662,7 +2671,7 @@ master_decrypt_packet:
             {
                 key = &(on_base_param->current_key);
                 one_net_memmove(raw_payload_bytes, original_payload,
-                  get_raw_payload_len(pid));
+                  get_raw_payload_len(raw_pid));
                 goto master_decrypt_packet; // try again with another key
             }
         }

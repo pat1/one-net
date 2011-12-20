@@ -604,7 +604,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
   
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);
-BOOL verify_payload_crc(UInt8 pid, const UInt8* decrypted);
+BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted);
   
 
 
