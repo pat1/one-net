@@ -1397,24 +1397,121 @@ BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack);
 BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP
-BOOL packet_is_multihop(UInt8 raw_pid);
 BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
 #endif
-BOOL packet_is_invite(UInt8 raw_pid);
-BOOL packet_is_single(UInt8 raw_pid);
 BOOL packet_is_data(UInt8 raw_pid);
-#ifdef _BLOCK_MESSAGES_ENABLED
-BOOL packet_is_block(UInt8 raw_pid);
-#endif
-#ifdef _STREAM_MESSAGES_ENABLED
-BOOL packet_is_stream(UInt8 raw_pid);
-#endif
 pkt_group_t get_pkt_family(UInt8 raw_pid);
 
 BOOL packet_is_ack(UInt8 raw_pid);
 BOOL packet_is_nack(UInt8 raw_pid);
 
 UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK, BOOL stay_awake);
+
+
+// inline function implementation below //
+
+
+/*!
+    \brief Determines whether a given PID represents a multi-hop packet.
+
+    Determines whether a given PID represents a multi-hop packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if encoded_pid is a multi-hop packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_multihop(UInt8 raw_pid)
+{
+    // if raw_pid is >= 0x20, then packet is multi-hop
+    return (raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET);
+}
+
+
+/*!
+    \brief Determines whether a given PID represents a single packet.
+
+    Determines whether a given PID represents a single packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a single packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_single(UInt8 raw_pid)
+{
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid < 0x10);
+    #else  
+    return (raw_pid < 0x10 || (raw_pid >= 0x20 && raw_pid < 0x30));
+    #endif 
+}
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Determines whether a given PID represents a block packet.
+
+    Determines whether a given PID represents a single packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a block packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_block(UInt8 raw_pid)
+{
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid >= 0x10 && raw_pid < 0x18);
+    #else  
+    return ((raw_pid >= 0x10 && raw_pid < 0x18) ||
+            (raw_pid >= 0x30 && raw_pid < 0x38));
+    #endif 
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Determines whether a given PID represents a stream packet.
+
+    Determines whether a given PID represents a stream packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is a stream packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_stream(UInt8 raw_pid)
+{
+    #ifndef _ONE_NET_MULTI_HOP
+    return (raw_pid >= 0x18 && raw_pid < 0x1F);
+    #else  
+    return ((raw_pid >= 0x18 && raw_pid < 0x1F) ||
+            (raw_pid >= 0x38 && raw_pid < 0x3F));
+    #endif 
+}
+#endif
+
+
+/*!
+    \brief Determines whether a given PID represents an invite packet.
+
+    Determines whether a given PID represents an invite packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if pid is an invite packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_invite(UInt8 raw_pid)
+{
+    switch(raw_pid)
+    {
+        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
+        #ifdef _ONE_NET_MULTI_HOP
+        case ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT:
+        #endif
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
 
 
     
