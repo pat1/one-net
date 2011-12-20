@@ -205,7 +205,7 @@
 	
 	// _AUTO_MODE should be defined if you want the Auto Mode option available
 	#ifndef _AUTO_MODE
-		#define _AUTO_MODE
+//		#define _AUTO_MODE
 	#endif
 
 	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
