@@ -1477,7 +1477,8 @@ BOOL one_net(on_txn_t ** txn)
               && check_for_clr_channel())
             {
                 one_net_write((*txn)->pkt, get_encoded_packet_len(
-                  (*txn)->pkt[ONE_NET_ENCODED_PID_IDX], TRUE));
+                  encoded_to_decoded_byte((*txn)->pkt[ONE_NET_ENCODED_PID_IDX],
+                  FALSE)));
                 on_state++;
             } // if the channel is clear //
             
