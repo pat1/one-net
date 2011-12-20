@@ -55,6 +55,7 @@
 #include "tick.h"
 #include "one_net_port_specific.h"
 #include "cb.h"
+#include "one_net_encode.h"
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
 #endif
@@ -531,8 +532,9 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             // in, so the packet size that is being read in is shorter, so
             // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
-            blks_to_rx = get_encoded_packet_len(rx_rf_data[ONE_NET_ENCODED_PID_IDX - 
-              ONE_NET_ENCODED_RPTR_DID_IDX], FALSE);
+            blks_to_rx = get_encoded_packet_len(
+              encoded_to_decoded_byte(rx_rf_data[ONE_NET_ENCODED_PID_IDX - 
+              ONE_NET_ENCODED_RPTR_DID_IDX]), FALSE);
             if(blks_to_rx == 0)
             {
                 // bad packet type
