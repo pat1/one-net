@@ -306,24 +306,27 @@ BOOL packet_is_stay_awake(UInt8 raw_pid)
 */
 BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
 {
-    UInt8 i;
-    BOOL pid_is_stay_awake = packet_is_stay_awake(*raw_pid);
+    BOOL pid_is_stay_awake;
+    
+    if(!packet_is_single(*raw_pid) || packet_is_data(*raw_pid))
+    {
+        return FALSE; // not a single ACK or a NACK.
+    }
+    
+    pid_is_stay_awake = packet_is_stay_awake(*raw_pid);
     
     if(pid_is_stay_awake == stay_awake)
     {
         return FALSE; // no change
     }
     
-    for(i = 0; i < NUM_STAY_AWAKE_PAIRS; i++)
+    (*raw_pid) += 2;
+    if(pid_is_stay_awake)
     {
-        if(*raw_pid == stay_awake_packet_pairs[i][pid_is_stay_awake])
-        {
-            *raw_pid = stay_awake_packet_pairs[i][!pid_is_stay_awake];
-            return TRUE;
-        }
+        (*raw_pid) -= 4;
     }
     
-    return FALSE; // not an ACK or NACK
+    return TRUE;
 }
 
 
@@ -346,26 +349,23 @@ BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack)
 {
     UInt8 i, j;
     BOOL pid_is_nack = packet_is_nack(*raw_pid);
-    if(pid_is_nack == !is_ack)
+    BOOL pid_is_ack  = packet_is_ack(*raw_pid);
+    if(!pid_is_ack && !pid_is_nack)
     {
-        return FALSE;
+        return FALSE; // raw pid is not an ACK or a NACK.
     }
     
-    for(i = 0; i < 2; i++)
+    if(pid_is_ack == is_ack)
     {
-        // NACKs are odd, ACKs are even
-        for(j = pid_is_nack; j < NUM_STAY_AWAKE_PAIRS; j += 2)
-        {
-            if(*raw_pid == stay_awake_packet_pairs[j][i])
-            {
-                // found it.  We subtract 1 if we're going from a NACK
-                // to an ACK.  Add 1 if going from an ACK to a NACK.
-                *raw_pid = pid_is_nack ? stay_awake_packet_pairs[j-1][i] :
-                  stay_awake_packet_pairs[j+1][i];
-                return TRUE;
-            }
-        }
+        return FALSE; // No conversion required.
     }
+    
+    (*raw_pid)++;
+    if(is_ack)
+    {
+        (*raw_pid) -= 2;
+    }
+
     
     return FALSE; // not an ACK or a NACK. encoded_pid unchanged
 }
