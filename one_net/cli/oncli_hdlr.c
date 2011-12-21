@@ -2066,7 +2066,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 #endif
 
 
-#ifdef _ENHANCED_INVITE
+#ifdef _ENABLE_JOIN_COMMAND
 /*!
     \brief Handles receiving the join command and all its parameters
     

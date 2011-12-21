@@ -164,7 +164,7 @@
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
 // if _IDLE is defined.
-#ifdef _IDLE
+#if defined(_IDLE) && defined(_ONE_NET_CLIENT)
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
 	#endif
@@ -405,9 +405,11 @@
 	#endif
 
 	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
-	#ifndef _ENABLE_JOIN_COMMAND
-		#define _ENABLE_JOIN_COMMAND
-	#endif
+    #ifdef _ONE_NET_CLIENT
+        #ifndef _ENABLE_JOIN_COMMAND
+		    #define _ENABLE_JOIN_COMMAND
+	    #endif
+    #endif
 
 	// _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
 	#ifndef _ENABLE_SETNI_COMMAND
