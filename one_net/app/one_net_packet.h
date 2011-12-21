@@ -1418,6 +1418,7 @@ UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK, BOOL stay_awake)
 // inline function implementation below //
 
 
+#ifdef _ONE_NET_MULTI_HOP
 /*!
     \brief Determines whether a given PID represents a multi-hop packet.
 
@@ -1432,6 +1433,7 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt8 raw_pid)
     // if raw_pid is >= 0x20, then packet is multi-hop
     return (raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET);
 }
+#endif
 
 
 /*!
