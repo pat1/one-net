@@ -229,7 +229,7 @@ void sniff_eval(void)
       , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
       , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS
       #ifdef _STREAM_MESSAGES_ENABLED
-      , sniff_stream_keys, NUM_SNIFF_STREM_ENCRYPT_KEYS);
+      , sniff_enc_keys, NUM_SNIFF_STREAM_ENCRYPT_KEYS);
       #else
       , NULL, 0);
       #endif
