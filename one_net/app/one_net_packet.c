@@ -446,6 +446,8 @@ BOOL packet_is_data(UInt8 raw_pid)
 }
 
 
+// TODO - confirm that this is indeed now obsolete code.
+#if 0
 /*!
     \brief Determines the "family" type of a packet
 
@@ -554,6 +556,7 @@ pkt_group_t get_pkt_family(UInt8 raw_pid)
             return NUM_PKT_GROUPS; // invalid PID 
     }
 }
+#endif
 
 
 /*!

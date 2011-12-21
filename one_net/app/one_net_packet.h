@@ -903,6 +903,8 @@ enum
 #endif
 
 
+// TODO - confirm that this is indeed now obsolete code.
+#if 0
 typedef enum
 {
     ACK_NACK_PKT_GRP,
@@ -916,6 +918,7 @@ typedef enum
     #endif
     NUM_PKT_GROUPS
 } pkt_group_t;
+#endif
 
 
 enum
@@ -1400,7 +1403,11 @@ BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake);
 BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
 #endif
 BOOL packet_is_data(UInt8 raw_pid);
+
+// TODO - confirm that this is indeed now obsolete code.
+#if 0
 pkt_group_t get_pkt_family(UInt8 raw_pid);
+#endif
 
 BOOL packet_is_ack(UInt8 raw_pid);
 BOOL packet_is_nack(UInt8 raw_pid);

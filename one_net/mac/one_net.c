@@ -2435,8 +2435,41 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         repeat_this_packet = TRUE;
     }
     #endif
+    
+    
+    if(packet_is_single(raw_pid))
+    {
+        type = ON_SINGLE;
+    }
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    else if(packet_is_block(raw_pid))
+    {
+        type = ON_BLOCK;
+    }
+    #endif
+    #ifdef _STREAM_MESSAGES_ENABLED
+    else if(packet_is_stream(raw_pid))
+    {
+        type = ON_STREAM;
+    }
+    #endif
+    else if(packet_is_ack(raw_pid) || packet_is_nack(raw_pid))
+    {
+        type = ON_RESPONSE;
+    }
+    #ifdef _ONE_NET_CLIENT
+    else if(packet_is_invite(raw_pid))
+    {
+        type = ON_INVITE;
+    }
+    #endif
+    else
+    {
+        return ONS_BAD_PKT_TYPE;
+    }
 
-
+    // TODO - confirm that this is indeed now obsolete code.
+    #if 0
     switch(get_pkt_family(raw_pid))
     {
         case SINGLE_PKT_GRP:
@@ -2477,6 +2510,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
             return ONS_BAD_PKT_TYPE;
         }
     }
+    #endif
 
     
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
