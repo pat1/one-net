@@ -3063,6 +3063,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 {
                     // device has been added.
                     master_param->client_count++;
+                    #ifdef _ONE_NET_MULTI_HOP
+                    if(features_mh_repeat_capable((*client)->device.features))
+                    {
+                        mh_repeater_available = TRUE;
+                    }
+                    #endif
                     master_param->next_client_did = find_lowest_vacant_did();
                     one_net_master_invite_result(ONS_SUCCESS, &invite_key,
                       &raw_did);

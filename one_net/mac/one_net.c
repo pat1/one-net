@@ -2415,13 +2415,14 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     packet_is_mh = packet_is_multihop(raw_pid);
     #endif
     
-    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+    #if !defined(_ONE_NET_MH_CLIENT_REPEATER) || !defined(_ONE_NET_CLIENT)
     if(!src_match || (!dst_is_me && !dst_is_broadcast))
     {
         return ONS_BAD_ADDR;
     }
     #else
-    if(!src_match || (!dst_is_me && !dst_is_broadcast))
+    if(!src_match || (!dst_is_me && !dst_is_broadcast) || (enc_pid ==
+      ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT && client_joined_network))
     {
         // not to us, but maybe we'll repeat it if we're not the master,
         // not in the middle of our own transaction, it's a multi-hop
@@ -2468,7 +2469,12 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     else
     {
-        return ONS_BAD_PKT_TYPE;
+        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        if(!repeat_this_packet)
+        #endif
+        {
+            return ONS_BAD_PKT_TYPE;
+        }
     }
 
     // TODO - confirm that this is indeed now obsolete code.
