@@ -548,6 +548,10 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         {
             return status;
         }
+        
+        // put it back into the packet pointers.
+        on_parse_hops(*(pkt_ptrs->enc_hops_field), &(pkt_ptrs->hops),
+          &(pkt_ptrs->max_hops));        
     }
     #endif
 
@@ -2642,19 +2646,17 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
             }
             
             // we have everything.  Increment the hops, add ourself as the
-            // repeater, and send the message.
+            // repeater, pause a very short time, and send the message.
             ((*this_pkt_ptrs)->hops)++;
             
-            // TODO -- fix the building and parsing of hops.  Some start with
-            // 0 and add each time, some start with the max and SUBTRACT each
-            // time.  Doesn't matter which we do, but be consistent
-            // everywhere.
             raw_hops_field = ((((*this_pkt_ptrs)->hops) << 3) +
               (*this_pkt_ptrs)->max_hops) << 2;
             on_encode((*this_pkt_ptrs)->enc_hops_field, &raw_hops_field,
               ON_ENCODED_HOPS_SIZE);
             one_net_memmove((*this_pkt_ptrs)->enc_repeater_did,
               &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
+            ont_set_timer(mh_txn.next_txn_timer, MS_TO_TICK(
+              ONE_NET_MH_LATENCY / 2));
               
             return ONS_PKT_RCVD;
         }
