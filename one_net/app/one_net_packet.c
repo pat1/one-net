@@ -597,7 +597,7 @@ BOOL packet_is_ack(UInt8 raw_pid)
     #ifdef _EXTENDED_SINGLE
     if(raw_pid < 0x10)
     {
-        raw_pid /= 5;
+        raw_pid %= 5;
     }
     #endif
 
