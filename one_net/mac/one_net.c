@@ -2763,13 +2763,7 @@ BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range)
 {
     UInt8 i = 0;
     UInt8 arr_size;
-    
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && !client_joined_network)
-    {
-        return FALSE; // not in a network yet.
-    }
-    #endif
+
     
     if(!enc_dids || !num_in_range)
     {
