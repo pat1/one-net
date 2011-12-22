@@ -1133,8 +1133,8 @@ void one_net_master(void)
                 #ifdef _ONE_NET_MULTI_HOP
                 if(raw_pid == ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT)
                 {
-                    on_build_hops(data_pkt_ptrs.enc_hops_field,
-                      features_max_hops(THIS_DEVICE_FEATURES), 0);
+                    on_build_hops(data_pkt_ptrs.enc_hops_field, 0,
+                      features_max_hops(THIS_DEVICE_FEATURES));
                 }
                 #endif
 
