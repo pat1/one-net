@@ -2437,22 +2437,25 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     
     
-    if(packet_is_single(raw_pid))
+    if(packet_is_data(raw_pid))
     {
-        type = ON_SINGLE;
+        if(packet_is_single(raw_pid))
+        {
+            type = ON_SINGLE;
+        }
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        else if(packet_is_block(raw_pid))
+        {
+            type = ON_BLOCK;
+        }
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        else if(packet_is_stream(raw_pid))
+        {
+            type = ON_STREAM;
+        }
+        #endif
     }
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    else if(packet_is_block(raw_pid))
-    {
-        type = ON_BLOCK;
-    }
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    else if(packet_is_stream(raw_pid))
-    {
-        type = ON_STREAM;
-    }
-    #endif
     else if(packet_is_ack(raw_pid) || packet_is_nack(raw_pid))
     {
         type = ON_RESPONSE;
