@@ -1136,6 +1136,15 @@ void one_net_master(void)
                     on_build_hops(data_pkt_ptrs.enc_hops_field, 0,
                       features_max_hops(THIS_DEVICE_FEATURES));
                 }
+                if(txn->retry < 2)
+                {
+                    // we're either switching from multi-hop to non-multi-hop
+                    // or vice-versa, so we need to re-calculate the message
+                    // crc.
+                    data_pkt_ptrs.msg_crc = calculate_msg_crc(&data_pkt_ptrs);
+                    *(data_pkt_ptrs.enc_msg_crc) = decoded_to_encoded_byte(
+                      data_pkt_ptrs.msg_crc, TRUE);
+                }
                 #endif
 
                 on_state = ON_SEND_INVITE_PKT;
