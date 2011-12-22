@@ -1873,6 +1873,8 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         {
             // they gave it to us.
             (*txn)->device->features = ack_nack->payload->features;
+            (*txn)->device->max_hops =
+              features_max_hops((*txn)->device->features);
             // OK, we both have each otehrs' features.  Next time we'll
             // send the real message.
             return ON_MSG_CONTINUE;

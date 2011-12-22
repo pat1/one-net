@@ -384,6 +384,10 @@ static BOOL check_in_with_master(void);
     master->device.msg_id = 0;
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = FEATURES_UNKNOWN;
+    #ifdef _ONE_NET_MULTI_HOP
+    master->device.hops = 0;
+    master->device.max_hops = ON_MAX_HOPS_LIMIT;
+    #endif
     one_net_memmove(master->device.did, MASTER_ENCODED_DID,
       ON_ENCODED_DID_LEN);
 
