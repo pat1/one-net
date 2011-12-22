@@ -634,11 +634,12 @@ on_message_status_t eval_handle_ack_nack_response(
     }
     #endif
     
+    #if _DEBUG_VERBOSE_LEVEL > 3
     oncli_send_msg("ehanr : ");
     print_ack_nack(resp_ack_nack, 5);
-    delay_ms(100);
-    
-    
+    delay_ms(10);
+    #endif
+
     return ON_MSG_CONTINUE;
 }
 

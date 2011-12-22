@@ -396,11 +396,14 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     {
         proceed = FALSE;
         synchronize_last_tick();
-        oncli_send_msg("\n\nPausing : About to write...\n");
         #if _DEBUG_VERBOSE_LEVEL > 5
+        oncli_send_msg("\n\nPause : About to write...\n");
         display_pkt(data, len, NULL, 0, NULL, 0, NULL, 0);
-        #else
+        #elif _DEBUG_VERBOSE_LEVEL > 2
+        oncli_send_msg("\n\nPause : About to write...\n");
         xdump(data, len);
+        #elif _DEBUG_VERBOSE_LEVEL > 1
+        oncli_send_msg("\n\nWrite PID %02X\n", data[ONE_NET_ENCODED_PID_IDX]);
         #endif
     }
     
@@ -420,7 +423,9 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
         {
             oncli();  // alow the user to enter commands while pausing
         }
-        oncli_send_msg("Pause complete\n");
+        #if _DEBUG_VERBOSE_LEVEL > 1
+        oncli_send_msg("Pause done\n");
+        #endif
         pausing = FALSE;
     }
     #endif    

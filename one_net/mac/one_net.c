@@ -2402,11 +2402,21 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         // we'll pretend that this device was out of range and we couldn't
         // read it.
+        #if _DEBUG_VERBOSE_LEVEL > 3
         oncli_send_msg("Repeater %02X%02X is not within range.\n",
           pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX],
           pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
+        #endif
         return ONS_READ_ERR;
     }
+    #if _DEBUG_VERBOSE_LEVEL > 3
+    else
+    {
+        oncli_send_msg("Repeater %02X%02X is within range.\n",
+          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX],
+          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
+    }
+    #endif
     #endif
     
     enc_pid = pkt_bytes[ONE_NET_ENCODED_PID_IDX];
@@ -2656,7 +2666,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
             one_net_memmove((*this_pkt_ptrs)->enc_repeater_did,
               &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
             ont_set_timer(mh_txn.next_txn_timer, MS_TO_TICK(
-              ONE_NET_MH_LATENCY / 2));
+              ONE_NET_MH_LATENCY));
               
             return ONS_PKT_RCVD;
         }
