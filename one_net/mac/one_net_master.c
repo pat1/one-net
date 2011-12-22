@@ -1682,7 +1682,7 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     
-    // we'll be sending it back to the souerce.
+    // we'll be sending it back to the source
     if(!(device = sender_info(pkt->enc_src_did)))
     {
         // I think we should have solved this problem before now, but abort if
@@ -1806,9 +1806,6 @@ omsdh_build_resp:
 
     response_txn.key = (*txn)->key;
     *txn = &response_txn;
-
-    // TODO -- what about the hops?  We allowed the application code to
-    // change them.  We need to pass that along.  Should we change "device"?
 
     if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
       FALSE) != ONS_SUCCESS)

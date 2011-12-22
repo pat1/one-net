@@ -933,8 +933,8 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             #ifdef _ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops.
             
-            if(mh_repeater_available && txn->max_hops <
-              txn->device->max_hops)
+            if((mh_repeater_available || !client_joined_network) &&
+              txn->max_hops < txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
