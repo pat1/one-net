@@ -1392,6 +1392,9 @@ static BOOL look_for_invite(void)
       &raw_payload_bytes[ON_INVITE_KEY_IDX], ONE_NET_XTEA_KEY_LEN);
     master->device.features =  
       *((on_features_t*)(&raw_payload_bytes[ON_INVITE_FEATURES_IDX]));
+    #ifdef _ONE_NET_MULTI_HOP
+    master->device.max_hops = features_max_hops(master->device.features);
+    #endif
 
     return TRUE;
 } // look_for_invite //
