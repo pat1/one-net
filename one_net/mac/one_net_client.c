@@ -846,6 +846,8 @@ ocsdh_build_resp:
         return ON_MSG_INTERNAL_ERR;
     }
 
+    response_txn.hops = (*txn)->hops;
+    response_txn.max_hops = (*txn)->max_hops;
     response_txn.key = (*txn)->key;
     *txn = &response_txn;
 

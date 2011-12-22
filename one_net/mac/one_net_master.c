@@ -1805,6 +1805,8 @@ omsdh_build_resp:
     }
 
     response_txn.key = (*txn)->key;
+    response_txn.hops = (*txn)->hops;
+    response_txn.max_hops = (*txn)->max_hops;
     *txn = &response_txn;
 
     if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
@@ -3104,6 +3106,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             one_net_memmove(&((*client)->device.features),
               &DATA[1], sizeof(on_features_t));
+            (*client)->device.max_hops = features_max_hops(
+              (*client)->device.features);
             ack_nack->handle = ON_ACK_FEATURES;
             ack_nack->payload->features = THIS_DEVICE_FEATURES;
 #if 0

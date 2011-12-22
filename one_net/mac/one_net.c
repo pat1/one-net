@@ -2105,6 +2105,18 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    {
+        (*txn)->device->hops = sing_pkt_ptr->hops;
+        (*txn)->hops = (*txn)->device->hops;
+        
+        // assume it will take as many hops to get back as it took to get
+        // there.  Application code will change if it likes.
+        (*txn)->max_hops = (*txn)->device->hops;
+    }
+    #endif    
+    
 
     src_features_known = features_known((*txn)->device->features);
     msg_type = get_payload_msg_type(raw_payload);
@@ -2243,12 +2255,6 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
     }
 
-    #ifdef _ONE_NET_MULTI_HOP
-    // assume it will take the same number of hops to get back as it took to
-    // get here.  Application code can change this assumption if it likes.
-    (*txn)->max_hops = (*txn)->hops;
-    #endif
-
     return ON_MSG_CONTINUE;
 } // rx_single_data //
 
@@ -2333,7 +2339,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     on_data_t type;
     UInt8* pkt_bytes;
-    on_sending_device_t* device;
     UInt8 original_payload[33];
 
 
@@ -2742,19 +2747,6 @@ master_decrypt_packet:
 
     // set the key
     (*this_txn)->key = key;
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    {
-        device = get_sender_info((*this_pkt_ptrs)->enc_src_did);
-        if(!device)
-        {
-            return ON_MSG_INTERNAL_ERR;
-        }
-        
-        device->hops = (*this_pkt_ptrs)->hops;
-        (*this_txn)->hops = device->hops;
-    }
-    #endif
 
     return ONS_PKT_RCVD;
 } // on_rx_packet //
