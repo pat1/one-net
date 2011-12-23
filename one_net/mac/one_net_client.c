@@ -525,7 +525,6 @@ tick_t one_net_client(void)
     {
         // shouldn't get here.  If we did, something very bad happened.
         // Reset everything and try again.
-        oncli_send_msg("Error!  We should never get here!\n");
         one_net_client_reset_client(one_net_client_get_invite_key());
         return 0;
     }
