@@ -61,9 +61,6 @@
 #include "one_net_client_port_specific.h"
 #endif
 
-// debugging -- temporary
-#include "oncli.h"
-
 
 
 //==============================================================================
@@ -2263,31 +2260,6 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 } // rx_single_data //
 
 
-/*!
-    \brief Finishes reception of a response pkt
-
-    \param[in/out] txn The response transaction
-    \param[in] raw_payload The decoded, decrypted payload
-    \param[in] txn_nonce The transaction nonce in the packet
-    \param[in] resp_nonce The response nonce in the packet
-
-    \return ONS_READ_ERR If the hops field could not be read.
-            ONS_INTERNAL_ERR If something unexpexted happened.
-            See one_net_status_codes.h and single_data_hdlr for more options.
-*/
-one_net_status_t rx_response_data(on_txn_t** txn, UInt8* raw_payload,
-  UInt8 txn_nonce, UInt8 resp_nonce)
-{
-    // adding a little debugging
-    oncli_send_msg("Rcv'd response : source=%02X%02X repeater=%02X%02X\n",
-      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX],
-      (*txn)->pkt[ON_ENCODED_SRC_DID_IDX + 1],
-      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX],
-      (*txn)->pkt[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
-    return ONS_SUCCESS;
-} // rx_response_data //
-
-
 #ifdef _BLOCK_MESSAGES_ENABLED
 one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce)
@@ -2402,21 +2374,8 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     {
         // we'll pretend that this device was out of range and we couldn't
         // read it.
-        #if _DEBUG_VERBOSE_LEVEL > 3
-        oncli_send_msg("Repeater %02X%02X is not within range.\n",
-          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX],
-          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
-        #endif
         return ONS_READ_ERR;
     }
-    #if _DEBUG_VERBOSE_LEVEL > 3
-    else
-    {
-        oncli_send_msg("Repeater %02X%02X is within range.\n",
-          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX],
-          pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX + 1]);
-    }
-    #endif
     #endif
     
     enc_pid = pkt_bytes[ONE_NET_ENCODED_PID_IDX];
@@ -2500,51 +2459,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         }
     }
 
-    // TODO - confirm that this is indeed now obsolete code.
-    #if 0
-    switch(get_pkt_family(raw_pid))
-    {
-        case SINGLE_PKT_GRP:
-        {
-            type = ON_SINGLE;
-            break;
-        }
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case BLOCK_PKT_GRP:
-        {
-            type = ON_BLOCK;
-            break;
-        }
-        #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case STREAM_PKT_GRP:
-        {
-            type = ON_STREAM;
-            break;
-        }
-        #endif
-        case ACK_NACK_PKT_GRP:
-        {
-            type = ON_RESPONSE;
-            break;
-        }
-
-        #ifdef _ONE_NET_CLIENT
-        case INVITE_PKT_GRP:
-        {
-            type = ON_INVITE;
-            break;
-        }
-        #endif
-
-        default:
-        {
-            return ONS_BAD_PKT_TYPE;
-        }
-    }
-    #endif
-
-    
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
     {
@@ -2963,4 +2877,3 @@ static BOOL check_for_clr_channel(void)
 //==============================================================================
 
 //! @} ONE_NET
-
