@@ -113,7 +113,6 @@ extern BOOL in_auto_mode; // declared in one_net_eval.c
 
 
 
-static void init_base_param(on_base_param_t *base_param);
 #ifdef _AUTO_MODE
 static void send_auto_msg(void);
 #endif
@@ -609,19 +608,6 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 //! \ingroup ONE-NET_master_eval
 //! @{
 
-
-
-/*!
-    \brief Initializes the base parameters for the evaluation network.
-    
-    \param[out] base_param The base parameters to initialize.  All base
-      parameters except the SID are initialized.
-    
-    \return void
-*/
-static void init_base_param(on_base_param_t* base_param)
-{
-} // init_base_param //
 
 
 #ifdef _AUTO_MODE

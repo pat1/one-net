@@ -222,22 +222,6 @@ static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
 //! @{
 
 
-/*!
-    \brief Initializes the parameters used with the user pins.
-    
-    \param[in] USER_PIN_TYPE List containing the state of the user pins.  If
-      this is 0, then the default configuration will be used.
-    \param[in] USER_PIN_COUNT The number of pins to configure.  This should be
-      equal to the number of user pins, or else the default configuration will
-      be used.
-    
-    \return void
-*/
-void init_user_pin(const UInt8 *user_pin_type,
-  UInt8 user_pin_count)
-{
-} // init_user_pin //
-
 
 /*!
     \brief Checks to see if the state of any of the user pins changed
