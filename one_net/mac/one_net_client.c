@@ -556,9 +556,6 @@ tick_t one_net_client(void)
                 // pasue is now over.  Set the client_joined_network flag to
                 // false.
                 removed = FALSE;
-                // TODO -- Is the application code called anywhere?  Does it
-                // need to be?
-
                 one_net_client_client_removed(NULL, TRUE);
                 one_net_client_reset_client(one_net_client_get_invite_key());
                 return 0;
@@ -1558,12 +1555,16 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 device->last_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
                 device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID);
 
-                
                 #ifdef _PEER
                 // delete any peer assignments for this device
                 one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
                   removed_device, ONE_NET_DEV_UNIT);
                 #endif
+                {
+                    on_raw_did_t raw_did;
+                    on_decode(raw_did, *removed_device, ON_ENCODED_DID_LEN);
+                    one_net_client_client_removed(&raw_did, FALSE);
+                }
             }
             
             break;
