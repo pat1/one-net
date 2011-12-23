@@ -1616,6 +1616,8 @@ static BOOL check_in_with_master(void)
         on_decode(raw_did, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
           ON_ENCODED_DID_LEN);
         client_joined_network = TRUE;
+        master->flags |= ON_JOINED; // TODO -- seems like this should have
+                                    // been set elsewhere?
         client_looking_for_invite = FALSE;
         one_net_client_invite_result(&raw_did, ONS_SUCCESS);
         ont_set_timer(ONT_KEEP_ALIVE_TIMER,
