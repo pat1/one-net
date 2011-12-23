@@ -317,48 +317,7 @@ static BOOL check_in_with_master(void);
 #endif
 {
     tick_t time_now = get_tick_count();
-    
-    
-    // Dec. 15, 2011 -- overriding for now.  Use the add_dev command to add
-    // instead.  For clients, the command is "add_dev:004", where 004 is the
-    // raw did.  Make sure it matches the master.  Add on the master's side
-    // first.  Do a "list" command, see what the master's features are, and
-    // assign them to the client with the add_dev function.
-    
-    // "add dev:2E033F87" issued on the master's CLI would add a client with
-    // features "2E033F87".  The "list" command will tell you what these
-    // values mean (i.e. multi-hop versus non-multi-hop, etc.).  After this
-    // command on the master, execute the "list" command again on the master,
-    // see what's been added as a client (i.e. 004), then execute "add_dev:004"
-    // on the client (assuming, of course, that 004 was the raw did that the
-    // master just assigned.
-    
-    // For anyone, NOT using EVAL Boards, use the add_dev_cmd_hdlr as a model.
-    // You need to get parameters copied into "on_base_param" and "master" for
-    // clients.  For the master, you need to adjust "on_base_param",
-    // "masterparam", and "client_list".  Additionally you need to place
-    // on_state equal to ON_LISTEN_FOR_DATA.  A few flags need to be set too
-    // (i.e. set device_joined_network to TRUE for clients).  It is irrelevant
-    // how you do this.  You can copy the code from the add_dev_cmd_hdlr()
-    // and the functions it calls, you can set it at run-time in a debugger,
-    // etc.
-    
-    // Make sure, obviously, that the clients and the masters have the same
-    // channel in on_base_param->channel.  Also make sure to SET the channel
-    // using the one_net_set_channel() function.  Also note the
-    // _CHANNEL_OVERRIDE option in config_options.h.
-    
-    // You can also use the init_auto_master() and init_auto_client()
-    // functions as models.  See the code below too which CLEARS the memory
-    // and flags.  You'll want to SET them.
-    
-    #if 0
-    // TODO -remove when the bugs in the invite process are fixed.
-    init_internal(); // do we need this call.
-    on_state = ON_IDLE;
-    return ONS_SUCCESS;
-    #endif
-    
+
     
     // copy some parameters over to the base parameters and the master
     // parameters.

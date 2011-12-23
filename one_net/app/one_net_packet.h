@@ -903,24 +903,6 @@ enum
 #endif
 
 
-// TODO - confirm that this is indeed now obsolete code.
-#if 0
-typedef enum
-{
-    ACK_NACK_PKT_GRP,
-    SINGLE_PKT_GRP,
-    INVITE_PKT_GRP,
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    BLOCK_PKT_GRP,
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    STREAM_PKT_GRP,
-    #endif
-    NUM_PKT_GROUPS
-} pkt_group_t;
-#endif
-
-
 enum
 {
     ON_ACK_NACK_ENCODED_PLD_LEN = 11,
@@ -1403,11 +1385,6 @@ BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake);
 BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
 #endif
 BOOL packet_is_data(UInt8 raw_pid);
-
-// TODO - confirm that this is indeed now obsolete code.
-#if 0
-pkt_group_t get_pkt_family(UInt8 raw_pid);
-#endif
 
 BOOL packet_is_ack(UInt8 raw_pid);
 BOOL packet_is_nack(UInt8 raw_pid);
