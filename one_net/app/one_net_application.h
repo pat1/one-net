@@ -310,6 +310,9 @@ typedef struct
 
     //! The current xtea key being used.
     one_net_xtea_key_t current_key;
+    
+    //! Key fragment of the old key.
+    one_net_xtea_key_fragment_t old_key_fragment;
 
     //! Method to encrypt single or block data
     UInt8 single_block_encrypt;
@@ -317,6 +320,9 @@ typedef struct
     #ifdef _STREAM_MESSAGES_ENABLED
     //! Key to use for stream data transfers
     one_net_xtea_key_t stream_key;
+    
+    //! Key fragment of the old stream key.
+    one_net_xtea_key_fragment_t old_stream_key_fragment;
 
     //! Method used to encrypt stream data
     UInt8 stream_encrypt;

@@ -5,6 +5,7 @@
 #include "one_net_types.h"
 #include "one_net_packet.h"
 #include "one_net_features.h"
+#include "one_net_xtea.h"
 
 
 
@@ -86,7 +87,7 @@ typedef enum
     ON_NACK_RSN_NEED_FEATURES,       //! Do not have the device's features
     ON_NACK_RSN_FEATURES,            //! A general error involving features / capabilities other than not having them.
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
-    
+    ON_NACK_RSN_OLD_KEY,             //! Sent when the other device is using the old key rather than the new one.
 
     ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
     ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
@@ -151,8 +152,9 @@ typedef enum
                               //! the time specified.
 	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
                               //! the time specified.
-	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.                              
+	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.
 	ON_ACK_STATUS,        //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
+    ON_NACK_OLD_KEY = ON_ACK_STATUS, //! This NACK is sent when the device is using an old key and contains the new key fragment.
     ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
                                   //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
                                   //! but their meanings are to be interpreted by the application code.
@@ -206,6 +208,7 @@ typedef union
       // subtract 1 byte for the nack reason
 	UInt32 nack_value;
     tick_t nack_time_ms;
+    one_net_xtea_key_fragment_t key_frag;
     on_features_t features;
 } ack_nack_payload_t;
 

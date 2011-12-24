@@ -294,7 +294,7 @@ void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
 {
     UInt8 i;
 
-    for(i = 0; i < ONE_NET_XTEA_KEY_LEN / 4; i++)
+    for(i = 0; i < ONE_NET_XTEA_KEY_FRAGMENT_SIZE; i++)
     {
 		if(i != 0)
 		{

@@ -133,9 +133,6 @@ enum
     //! The number of hops to try when sending the first Multi-Hop packet
     ON_FIRST_MH_MAX_HOPS_COUNT = 2,
     #endif
-    
-    //! Size in bytes of a XTEA key fragment
-    ONE_NET_XTEA_KEY_FRAGMENT_SIZE = 4
 };
 
 
@@ -177,9 +174,6 @@ typedef enum
     #endif
 } invite_accept_stage_t;
     
-    
-//! type of the XTEA key fragment
-typedef UInt8 one_net_xtea_key_fragment_t[ONE_NET_XTEA_KEY_FRAGMENT_SIZE];
 
 
 /*!
@@ -289,7 +283,7 @@ typedef struct
     
     //! Key to use for this transaction
     one_net_xtea_key_t* key;
-    
+
     //! True if initiating / sending the transaction, false otherwise.
     BOOL send;
 

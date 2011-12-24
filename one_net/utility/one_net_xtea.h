@@ -59,6 +59,9 @@ enum
     //! Length of an XTEA key (in bytes)
     ONE_NET_XTEA_KEY_LEN = 16,
 
+    //! Size in bytes of a XTEA key fragment
+    ONE_NET_XTEA_KEY_FRAGMENT_SIZE = 4,
+
     //! size of a block that gets enciphered/deciphered (in bytes)
     ONE_NET_XTEA_BLOCK_SIZE = 8
 };
@@ -75,6 +78,9 @@ enum
 
 //! Typedef the xtea key
 typedef UInt8 one_net_xtea_key_t[ONE_NET_XTEA_KEY_LEN];
+
+//! type of the XTEA key fragment
+typedef UInt8 one_net_xtea_key_fragment_t[ONE_NET_XTEA_KEY_FRAGMENT_SIZE];
 
 
 /*!
