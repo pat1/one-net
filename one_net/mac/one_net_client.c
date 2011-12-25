@@ -801,8 +801,10 @@ ocsdh_build_resp:
         return ON_MSG_INTERNAL_ERR;
     }
 
+    #ifdef _ONE_NET_MULTI_HOP
     response_txn.hops = (*txn)->hops;
     response_txn.max_hops = (*txn)->max_hops;
+    #endif
     response_txn.key = (*txn)->key;
     *txn = &response_txn;
 
