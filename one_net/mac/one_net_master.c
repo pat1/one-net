@@ -109,9 +109,6 @@ enum
     ON_CLIENT_UPDATE_ADD_DEVICE,
     ON_CLIENT_UPDATE_RM_DEVICE,
     ON_CLIENT_UPDATE_CHANGE_KEY,
-    #ifdef _STREAM_MESSAGES_ENABLED
-    ON_CLIENT_UPDATE_CHANGE_STREAM_KEY,
-    #endif
     NUM_CLIENT_UPDATE_TYPES
 };
 
@@ -265,11 +262,7 @@ static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 
 #if 0
-#ifdef _STREAM_MESSAGES_ENABLED
-static BOOL check_key_update(BOOL stream_key);
-#else
 static BOOL check_key_update(void);
-#endif
 static BOOL check_remove_device_update(void);
 #endif
 
@@ -2405,17 +2398,10 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 #if 0
 /*!
     \brief Checks to see if a key update needs to be sent.
-    
-    param[in] stream_key If true, the stream key update should be checked
-              If false, the regular key should be checked.
 
     \return TRUE if an update request was sent, FALSE otherwise
 */
-#ifdef _STREAM_MESSAGES_ENABLED
-static BOOL check_key_update(BOOL stream_key)
-#else
 static BOOL check_key_update(void)
-#endif
 {
     UInt16 i;
     one_net_status_t status;
@@ -2426,50 +2412,14 @@ static BOOL check_key_update(void)
     const UInt8* key_frag_address = (UInt8*)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
       
-    static tick_t earliest_send_time = 0;
+    if(!key_update_in_progress)
+    {
+        return FALSE;
+    }
 
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(stream_key)
-    {
-        if(!stream_key_update_in_progress)
-        {
-            return FALSE;
-        }
-        
-        key_frag_address = (UInt8*)
-          &(on_base_param->stream_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
-    }
-    else
-    #endif
-    {
-        if(!key_update_in_progress)
-        {
-            return FALSE;
-        }
-    }
-    
-    
     for(i = 0; !client && i < master_param->client_count; i++)
     {
         client = &client_list[index];
-        #ifdef _STREAM_MESSAGES_ENABLED
-        if(stream_key)
-        {
-            if(!features_stream_capable(client->device.features))
-            {
-                continue;
-            }
-            if(client->use_current_stream_key)
-            {
-                client = NULL;
-                index++;
-                index %= master_param->client_count; // rollover if overflow
-            }
-            
-            continue;
-        }
-        #endif
-        
         if(client->use_current_key)
         {
             client = NULL;
@@ -2483,18 +2433,7 @@ static BOOL check_key_update(void)
         // everything is updated.
         on_ack_nack_t ack;
         ack.handle = ON_ACK;
-        ack.nack_reason = ON_NACK_RSN_NO_ERROR;
-        
-        #ifdef _STREAM_MESSAGES_ENABLED
-        if(stream_key)
-        {
-            stream_key_update_in_progress = FALSE;
-            one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY, NULL,
-              &ack);
-            return FALSE;
-        }
-        #endif
-        
+        ack.nack_reason = ON_NACK_RSN_NO_ERROR;        
         key_update_in_progress = FALSE;
         one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
         return FALSE;
@@ -2507,14 +2446,8 @@ static BOOL check_key_update(void)
 
     
     // send the key fragment
-    #ifdef _STREAM_MESSAGES_ENABLED
-    status = send_admin_pkt(stream_key ? ON_NEW_STREAM_KEY_FRAGMENT :
-      ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device.did, key_frag_address, 0);
-    #else
     status = send_admin_pkt(ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
       client->device.did, key_frag_address, 0);
-    #endif
     
     // send at most once every 2 seconds
     earliest_send_time = get_tick_count() + MS_TO_TICK(2000);
@@ -2617,21 +2550,6 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               return FALSE;
           }
           break;
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ON_CLIENT_UPDATE_CHANGE_STREAM_KEY:
-          if(!client->use_current_stream_key)
-          {
-              key_frag_address = (UInt8*) &(on_base_param->stream_key[3 *
-                ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
-              admin_type = ON_NEW_STREAM_KEY_FRAGMENT;
-              one_net_memmove(&admin_pld[0], key_frag_address,
-                ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-          }
-          else
-          {
-              return FALSE;
-          }
-        #endif
     }
 
     
@@ -2716,16 +2634,6 @@ static BOOL check_updates_for_client(on_client_t* client,
             return TRUE;
         }
     }
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(stream_key_update_in_progress)
-    {
-        if(check_client_for_updates(client,
-          ON_CLIENT_UPDATE_CHANGE_STREAM_KEY))
-        {
-            return TRUE;
-        }
-    }
-    #endif
     
     return FALSE;
 }
@@ -2824,37 +2732,6 @@ static void check_updates_in_progress(void)
         }
     }
 
-    #ifdef _STREAM_MESSAGES_ENABLED
-    else if(stream_key_update_in_progress)
-    {
-        at_least_one_update_in_progress = FALSE;
-
-        // now check if we're done with this update.
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            if(features_stream_capable(client_list[i].device.features) &&
-              !client_list[i].use_current_stream_key)
-            {
-                at_least_one_update_in_progress = TRUE;
-                break; // we have one.
-            }
-        }
-
-        if(!at_least_one_update_in_progress)
-        {
-            // we don't have any more updates for this, so notify the application
-            // code and reset the flag to false.
-            one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
-              NULL, &ack);
-            stream_key_update_in_progress = FALSE;
-            
-            // TODO - is there more application code to call?
-            return;
-        }
-    }
-    #endif
-    
-
     if(!at_least_one_update_in_progress)
     {
         return; // nothing is being updated.
@@ -2931,9 +2808,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
             admin_pld_data_len = 1;
             break;
         case ON_NEW_KEY:
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ON_NEW_STREAM_KEY:
-        #endif
              admin_pld_data_len = ONE_NET_XTEA_KEY_LEN;
              raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
              // send a little bit in the future so we don't hog all the
@@ -3079,31 +2953,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             ack_nack->payload->features = THIS_DEVICE_FEATURES;
             break;
         } // features response case //
-              
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ON_STREAM_KEY_CHANGE_CONFIRM:
-        {
-            UInt8 key_crc = one_net_compute_crc(on_base_param->stream_key,
-              ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-              
-            if(key_crc == DATA[1])
-            {
-                if(!((*client)->use_current_stream_key))
-                {
-                    (*client)->use_current_stream_key = TRUE;
-                    one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY,
-                        &raw_did, ack_nack);
-                }
-            }
-            else
-            {
-                // bad key verify
-                ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
-            } 
-            break;
-        } // stream key change confirm case //
-        #endif
-        
+
         case ON_KEY_CHANGE_CONFIRM:
         {
             UInt8 key_crc = one_net_compute_crc(on_base_param->current_key,

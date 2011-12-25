@@ -121,11 +121,6 @@ enum
 
     //! Timer used for key changes
     ONT_CHANGE_KEY_TIMER,
-	
-    #ifdef _STREAM_MESSAGES_ENABLED	
-    //! Timer used for stream key changes.
-    ONT_CHANGE_STREAM_KEY_TIMER,
-    #endif
     
     #ifdef _ONE_NET_CLIENT
     //! Timer for CLIENT to know when to send a Keep Alive

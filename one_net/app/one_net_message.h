@@ -196,10 +196,6 @@ typedef enum
     #endif
     
     #ifdef _STREAM_MESSAGES_ENABLED
-    //! Replacing the first four bytes of the stream key and adding these four
-    //! bytes at the end
-    ON_NEW_STREAM_KEY_FRAGMENT = 0x04,
-    
     #ifdef _EXTENDED_SINGLE
     //! Replacing all 16 bytes of the stream key
     ON_NEW_STREAM_KEY = 0x05,
@@ -212,10 +208,6 @@ typedef enum
     #endif
     
     ON_KEY_CHANGE_CONFIRM = 0x09,
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    ON_STREAM_KEY_CHANGE_CONFIRM = 0x0A,
-    #endif
     
     //! Sent to change the keep alive interval
     ON_CHANGE_KEEP_ALIVE = 0x0B,

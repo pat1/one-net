@@ -957,14 +957,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 confirm_key_change = FALSE;
                 break;
             }
-    
-            #ifdef _STREAM_MESSAGES_ENABLED
-            case ON_STREAM_KEY_CHANGE_CONFIRM:
-            {
-                confirm_stream_key_change = FALSE;
-                break;
-            }
-            #endif
             
             case ON_FEATURES_RESP:
             {
@@ -1573,15 +1565,6 @@ static BOOL check_in_with_master(void)
           ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
         keep_alive_time = MS_TO_TICK(250);
     }
-    #ifdef _STREAM_MESSAGES_ENABLED
-    else if(confirm_stream_key_change)
-    {
-        raw_pld[0] = ON_STREAM_KEY_CHANGE_CONFIRM;
-        raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->stream_key,
-          ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-        keep_alive_time = MS_TO_TICK(250);
-    }
-    #endif
     else if(!client_joined_network && !sent_features)
     {
         // we have received an invite and have not sent the master our

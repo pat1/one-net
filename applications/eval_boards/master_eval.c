@@ -515,14 +515,8 @@ void one_net_master_update_result(one_net_mac_update_t update,
     
     if(!did)
     {
-        #ifdef _STREAM_MESSAGES_ENABLED
-        if(update == ONE_NET_UPDATE_NETWORK_KEY || update ==
-          ONE_NET_UPDATE_STREAM_KEY || update == ONE_NET_UPDATE_REMOVE_DEVICE
-          || update == ONE_NET_UPDATE_ADD_DEVICE)
-        #else
         if(update == ONE_NET_UPDATE_NETWORK_KEY || update ==
           ONE_NET_UPDATE_REMOVE_DEVICE || update == ONE_NET_UPDATE_ADD_DEVICE)
-        #endif
         {
             result_fmt = ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
         } // if the update network key //
@@ -568,11 +562,6 @@ void one_net_master_update_result(one_net_mac_update_t update,
         case ONE_NET_UPDATE_ADD_DEVICE:
             result_type = ONCLI_M_UPDATE_RESULT_ADD_DEV_STR;
             break;
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case ONE_NET_UPDATE_STREAM_KEY:
-            result_type = ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR;
-            break;
-        #endif
         default:
             return; // bad parameter
     }
