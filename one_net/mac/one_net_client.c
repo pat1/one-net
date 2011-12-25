@@ -163,12 +163,6 @@ static BOOL sent_features = FALSE;
 //! the keep-alive interval
 static BOOL rcvd_keep_alive = FALSE;
 
-#ifdef _STREAM_MESSAGES_ENABLED
-//! flag denoting whether the client accepting the invite has received
-//! the stream key
-static BOOL rcvd_stream_key = FALSE;
-#endif
-
 #ifdef _BLOCK_MESSAGES_ENABLED
 //! flag denoting whether the client accepting the invite has received
 //! the fragment delays
@@ -351,9 +345,6 @@ static BOOL check_in_with_master(void);
     client_looking_for_invite = TRUE;
     sent_features = FALSE;
     rcvd_keep_alive = FALSE;
-    #ifdef _STREAM_MESSAGES_ENABLED
-    rcvd_stream_key = FALSE;
-    #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
     rcvd_fragment_delays = FALSE;
     #endif
@@ -1605,12 +1596,6 @@ static BOOL check_in_with_master(void)
           sizeof(on_features_t));
         keep_alive_time = MS_TO_TICK(1000);
     }
-    #ifdef _STREAM_MESSAGES_ENABLED
-    else if(!client_joined_network && !rcvd_stream_key)
-    {
-        return FALSE; // master will send us the stream key.  Wait for it.
-    }
-    #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
     else if(!client_joined_network && !rcvd_fragment_delays)
     {
