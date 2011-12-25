@@ -2844,8 +2844,82 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
+        case ON_ADD_DEV_RESP:
+        {
+            // this is sent when a client has received a message that a device
+            // has been added.
+            if((*client)->send_add_device_message)
+            {
+                one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
+                  &raw_did, ack_nack);
+            }
+            
+            (*client)->send_add_device_message = FALSE;
+            break;
+        }
+        
+        case ON_REMOVE_DEV_RESP:
+        {
+            // this is sent when a client has received a message that a device
+            // has been removed.
+            if((*client)->send_remove_device_message)
+            {
+                one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
+                  &raw_did, ack_nack);
+            }
+            
+            (*client)->send_remove_device_message = FALSE;
+            break;
+        }
+        
         case ON_KEEP_ALIVE_RESP:
         {
+            // Several things need to be considered here.
+            // One, we could be in the middle of an event that requires that
+            // we update all devices.  In particular, we could have added a
+            // device, we could have removed a device, or we could have
+            // changed a key.  It would be nice to simply send back an ACK
+            // with the update message, so that's what we'll do.  We can never
+            // assume, however, that the client will get this ACK (more below).
+            // It's not a big problem if the device gets extra
+            // "device removed" or "device added" messages.  It is a potential
+            // problem if it gets multiple key fragment changes and tries to
+            // change it more than once.  To rectify that problem, ONE-NET
+            // stipulates that a new key fragmet cannot match any of the 4
+            // existing key fragments.  Before a client changes key fragments,
+            // it compares the new fragment to what it has now.  If there's a
+            // match, it already has the new key fragment and there was a
+            // a missed ACK or the timing synchronization was off, or something
+            // else occurred.  In any case, in this case it will not replace
+            // the key fragment.
+            
+            // Every time a Keep-Alive message is sent, the last key fragment
+            // is sent.  The master compares the key fragments to make sure
+            // the client has the current key.  If it does not, an admin
+            // message will be sent back in the ACK containing the new key
+            // fragment.  Upon receiving this message, the client should
+            // send another keep-alive message containing the current key.
+            // The master used this to keep track of when a key change is
+            // complete.
+            
+            // If the device has the right key, the master then makes sure it
+            // is informed of any pending additions / removals of devices.
+            // when the client is informed of such an occurrence, it will
+            // send either an ON_ADD_DEV_RESP message or an ON_REMOVE_DEV_RESP
+            // message as confirmation, at which point the master will add the
+            // client to the list of devices that have been informed.
+            // The client should then send another keep-alive reponse message.
+            
+            // If there are no more administrative tasks to finish up, the
+            // master will send back a new keep-alive interval.  Then and only
+            // then may a client go to sleep.  This is regardless of whether
+            // the ACK or NACK sent back was of the "keep awake" type.  A
+            // client has fulfilled its obligation to check in with the master
+            // only when it has received this new keep-alive time.  That
+            // signifies that the master has no more messages for this client.
+            
+            ack_nack->handle = ON_ACK_ADMIN_MSG;
+            
             // the client has attached its key.  We want to make sure it's
             // using the right one.
             if(one_net_memcmp(&DATA[1],
@@ -2853,17 +2927,45 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
             {
                 // they are not using the correct key.  We'll attach it.
-                ack_nack->handle = ON_ACK_ADMIN_MSG;
                 ack_nack->payload->admin_msg[0] = ON_NEW_KEY_FRAGMENT;
                 one_net_memmove(&(ack_nack->payload->admin_msg[1]),
                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                key_update_in_progress = TRUE;
                 (*client)->use_current_key = FALSE;
                 break;
             }
+            else
+            {
+                if(!((*client)->use_current_key))
+                {
+                    one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
+                        &raw_did, ack_nack);
+                }
+                (*client)->use_current_key = TRUE;
+            }
             
-            // they have the right key.  We'll send back the keep-alive
-            // interval they should use.
+            if(remove_device_update_in_progress && 
+              (*client)->send_remove_device_message)
+            {
+                ack_nack->payload->admin_msg[0] = ON_RM_DEV;
+                ack_nack->payload->admin_msg[1] = remove_device_did[0];
+                ack_nack->payload->admin_msg[2] = remove_device_did[1];
+                break;
+            }
+            
+            if(add_device_update_in_progress && 
+              (*client)->send_add_device_message)
+            {
+                ack_nack->payload->admin_msg[0] = ON_ADD_DEV;
+                ack_nack->payload->admin_msg[1] = add_device_did[0];
+                ack_nack->payload->admin_msg[2] = add_device_did[1];
+                break;
+            }
+
+            // they have the right key and no other admin messages need to
+            // go out.  We'll send back the keep-alive interval they should
+            // use.
             (*client)->use_current_key = TRUE;
             ack_nack->handle = ON_ACK_TIME_MS;
             ack_nack->payload->ack_time_ms = (*client)->keep_alive_interval;
