@@ -236,6 +236,14 @@ typedef enum
     
     //! Query settings
     ON_QUERY_SETTINGS = 0x11,
+    
+    //! Sent in response to a change settings message.
+    ON_CHANGE_SETTINGS_RESP = 0x12,
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    //! Sent in response to a fragment delay change
+    ON_CHANGE_FRAGMENT_DELAY = 0x13,
+    #endif
 
     //! Sent by the MASTER when it is adding a device to the network
     ON_ADD_DEV = 0x21,
