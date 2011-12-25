@@ -2910,6 +2910,20 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // client to the list of devices that have been informed.
             // The client should then send another keep-alive reponse message.
             
+            
+            // In addition, the device might be in the middle of adding itself
+            // to the network.  In that case, it needs to be informed of the
+            // following...
+            
+            // 1. Fragment delays (if block enabled)
+            // 2. Settings / Flags
+
+            // For a device just joining, the master's features and the key
+            // were included in the invite message.  The keep-alive time is
+            // not known yet, but will be known with the first keep-alive
+            // message AFTER the device has been fully added.
+            
+            
             // If there are no more administrative tasks to finish up, the
             // master will send back a new keep-alive interval.  Then and only
             // then may a client go to sleep.  This is regardless of whether
