@@ -194,6 +194,12 @@ typedef enum
     //! Replacing all 16 bytes of the key
     ON_NEW_KEY = 0x03,
     #endif
+    
+    //! Response from a client when a device has been added.
+    ON_ADD_DEV_RESP = 0x04,
+    
+    //! Response from a client when a device has been removed.
+    ON_REMOVE_DEV_RESP = 0x05,
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
