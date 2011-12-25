@@ -179,6 +179,19 @@ static on_encoded_did_t remove_device_did = {0xB4, 0xB4};
 //! The did of the device being removed.  Irrelevant if broadcast.
 static on_encoded_did_t add_device_did = {0xB4, 0xB4};
 
+//! Flag for whether the device being added has been notified of its
+//! settings / flags.
+static BOOL settings_sent = FALSE;
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! Flag for whether the device being added has been notified of its fragment
+//! delays.
+static BOOL fragment_delay_sent = FALSE;
+#endif
+
+
+
+
 
 //! @} ONE-NET_MASTER_pri_var
 //                              PRIVATE VARIABLES END
@@ -2957,6 +2970,63 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                         &raw_did, ack_nack);
                 }
                 (*client)->use_current_key = TRUE;
+            }
+            
+            if(is_invite_did(SRC_DID))
+            {
+                BOOL send_update_msg = TRUE;
+                
+                if(!settings_sent)
+                {
+                    ack_nack->payload->admin_msg[0] = ON_CHANGE_SETTINGS;
+                    ack_nack->payload->admin_msg[1] = (*client)->flags;
+                }                
+                #ifdef _BLOCK_MESSAGES_ENABLED
+                else if(!fragment_delay_sent)
+                {
+                    ack_nack->payload->admin_msg[0] = ON_CHANGE_FRAGMENT_DELAY;
+                    one_net_int16_to_byte_stream(
+                      on_base_param->fragment_delay_low,
+                      &(ack_nack->payload->admin_msg[1]));
+                    one_net_int16_to_byte_stream(
+                      on_base_param->fragment_delay_low,
+                      &(ack_nack->payload->admin_msg[3]));
+                }
+                #endif
+                else
+                {
+                    UInt8 i;
+                    // device is now added.  Adjust the client count,
+                    // next Device DID, and notify everyone.
+                    (*client)->flags |= ON_JOINED;
+                    add_device_update_in_progress = TRUE;
+                    master_param->client_count++;
+                    master_param->next_client_did = find_lowest_vacant_did();
+
+                    for(i = 0; i < master_param->client_count; i++)
+                    {
+                        client_list[i].send_add_device_message = TRUE;
+                    }
+                    
+                    send_update_msg = FALSE;
+                }
+                
+                if(send_update_msg)
+                {
+                    one_net_master_send_single(
+                      ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
+                      ack_nack->payload->admin_msg, 5, ONE_NET_HIGH_PRIORITY,
+                      NULL, SRC_DID
+                      #ifdef _PEER
+                      , FALSE, ONE_NET_DEV_UNIT
+                      #endif
+                      , 0
+                      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+                      , 0
+                      #endif
+                      );
+                    break;
+                }
             }
             
             if(remove_device_update_in_progress && 
