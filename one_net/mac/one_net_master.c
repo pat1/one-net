@@ -581,6 +581,21 @@ one_net_status_t one_net_master_change_key_fragment(
         return ONS_ALREADY_IN_PROGRESS;
     }
     
+    // check to make sure the new key fragment doesn't match any of the old
+    // ones.
+    {
+        UInt8 i;
+        for(i = 0; i < 4; i++)
+        {
+            if(one_net_memcmp(key_fragment,
+              &(on_base_param->current_key[i*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE)
+            {
+                return ONS_BAD_KEY_FRAGMENT;
+            }
+        }
+    }
+    
     key_update_in_progress = TRUE;
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
     one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),

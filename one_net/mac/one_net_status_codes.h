@@ -128,7 +128,8 @@ typedef enum
     ONS_BUSY,                       //!< [45] Device is busy with something and cannot service
                                     //!<      this request right now.  This is similar to, but
                                     //!<      not identical to ONS_ALREADY_IN_PROGRESS.
-    ONS_SNGH_INTERNAL_ERR           //!< [46] "Should Not Get Here" in the code internal error. 
+    ONS_BAD_KEY_FRAGMENT,           //!< [46] Key fragment is invalid.
+    ONS_SNGH_INTERNAL_ERR           //!< [47] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
 
 
