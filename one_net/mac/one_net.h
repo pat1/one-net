@@ -167,11 +167,6 @@ typedef enum
     //! Master has sent the fragment delay values
     INVITE_FRAG_DELAY_TRANSFERRED,
     #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    //! Master has sent the stream key
-    INVITE_STREAM_KEY_TRANSFERRED
-    #endif
 } invite_accept_stage_t;
     
 
