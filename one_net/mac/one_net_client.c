@@ -148,11 +148,6 @@ on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 //! Set to true if a confirmation of a key change is needed.
 static BOOL confirm_key_change = FALSE;
 
-#ifdef _STREAM_MESSAGES_ENABLED
-//! Set to true if a confirmation of a stream key change is needed.
-static BOOL confirm_stream_key_change = FALSE;
-#endif
-
 //! Set to true upon being deleted from the network.  There will be a slight
 //! two second pause before this device actually removes itself to give any
 //! pending transactions to complete.

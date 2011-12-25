@@ -305,12 +305,7 @@ static oncli_change_peer_list(BOOL ASSIGN,
 
 
 #if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)
-#ifdef _STREAM_MESSAGES_ENABLED
-static oncli_status_t change_key_cmd_hdlr(BOOL stream_key,
-  const char * const ASCII_PARAM_LIST);
-#else
 static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
 #endif
 
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
@@ -2421,12 +2416,7 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
 
 
 #if defined(_ENABLE_CHANGE_KEY_COMMAND) || defined(_ENABLE_CHANGE_STREAM_KEY_COMMAND)
-#ifdef _STREAM_MESSAGES_ENABLED
-static oncli_status_t change_key_cmd_hdlr(BOOL stream_key,
-  const char * const ASCII_PARAM_LIST)
-#else
 static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-#endif
 {
     enum
     {
@@ -2489,12 +2479,7 @@ static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         } // else it should be a key character //
     } // loop to read in the unique key //
 
-    #ifndef _STREAM_MESSAGES_ENABLED
     status = one_net_master_change_key_fragment(key_fragment);
-    #else
-    status = one_net_master_change_key_fragment(stream_key, key_fragment);
-    #endif
-    
     switch(status)
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
@@ -2508,11 +2493,7 @@ static oncli_status_t change_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
 static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    #ifdef _STREAM_MESSAGES_ENABLED
-    return change_key_cmd_hdlr(FALSE, ASCII_PARAM_LIST);
-    #else
     return change_key_cmd_hdlr(ASCII_PARAM_LIST);
-    #endif
 }
 #endif
 
@@ -2520,7 +2501,7 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
 #ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
 static oncli_status_t change_stream_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    return change_key_cmd_hdlr(TRUE, ASCII_PARAM_LIST);
+    return change_key_cmd_hdlr(ASCII_PARAM_LIST);
 }
 #endif
 

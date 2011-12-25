@@ -574,46 +574,19 @@ void one_net_reset_master_with_channel(UInt8 channel)
 }
 
 
-#ifndef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_master_change_key_fragment(
   const one_net_xtea_key_fragment_t key_fragment)
-#else
-one_net_status_t one_net_master_change_key_fragment(BOOL stream_key,
-  const one_net_xtea_key_fragment_t key_fragment)
-#endif
 {
+    // TODO -- do we need these two variables?
     one_net_xtea_key_t* key = (one_net_xtea_key_t*)on_base_param->current_key;
     one_net_xtea_key_t* old_key = (one_net_xtea_key_t*) master_param->old_key;
     
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(stream_key)
-    {
-        key = (one_net_xtea_key_t*) on_base_param->stream_key;
-        old_key = (one_net_xtea_key_t*) master_param->old_stream_key;
-        if(stream_key_update_in_progress)
-        {
-            return ONS_ALREADY_IN_PROGRESS;
-        }
-        
-        stream_key_update_in_progress = TRUE;
-    }
-    else if(key_update_in_progress)
-    {
-        return ONS_ALREADY_IN_PROGRESS;
-    }
-    else
-    {
-        key_update_in_progress = TRUE;
-    }
-    #else
     if(key_update_in_progress)
     {
         return ONS_ALREADY_IN_PROGRESS;
     }
     
     key_update_in_progress = TRUE;
-    #endif
-
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
     one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
@@ -624,14 +597,6 @@ one_net_status_t one_net_master_change_key_fragment(BOOL stream_key,
         UInt8 i;
         for(i = 0; i < master_param->client_count; i++)
         {
-            #ifdef _STREAM_MESSAGES_ENABLED
-            if(stream_key)
-            {
-                client_list[i].use_current_stream_key = FALSE;
-                continue;
-            }
-            #endif
-            
             client_list[i].use_current_key = FALSE;
         }
     }
