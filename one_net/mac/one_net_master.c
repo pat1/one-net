@@ -2865,11 +2865,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_memmove(&(ack_nack->payload->admin_msg[1]),
                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                (*client)->use_current_key = FALSE;
                 break;
             }
             
             // they have the right key.  We'll send back the keep-alive
             // interval they should use.
+            (*client)->use_current_key = TRUE;
             ack_nack->handle = ON_ACK_TIME_MS;
             ack_nack->payload->ack_time_ms = (*client)->keep_alive_interval;
             break;

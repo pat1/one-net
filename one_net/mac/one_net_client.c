@@ -985,6 +985,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                     // the master may have more admin messages for us, so
                     // we will check in again after a very short pause.
                     ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(1000));
+                    break;
                 }
                 
                 // No admin messages.  We were sent a new interval.
@@ -1398,15 +1399,48 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     {
         case ON_NEW_KEY_FRAGMENT:
         {
-            one_net_memmove(&(on_base_param->current_key[0]),
-              &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-            one_net_memmove(
-              &(on_base_param->current_key[3*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+            // there has been a key change.  We may already have the new key
+            // and we may not.  Check here.  If our last key fragment matches
+            // what is in the message, we already have the key, so don't
+            // replace anything.  If not, replace the last fragment with what
+            // we received.
+            
+            if(one_net_memcmp(&DATA[1],
+              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
+            {
+                // we are not using the correct key.  Copy it.
+                
+                // first shift the current fragments left.
+                one_net_memmove(on_base_param->current_key,
+                  &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                
+                // now copy in the new fragment we just received.
+                one_net_memmove(
+                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                break;
+            }
               
             confirm_key_change = TRUE; 
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0);
+            
+            // we'll want to check in again soon, but we'll do it at a random
+            // time.  There may be a lot of traffic out there trying to check
+            // in with the new key.  We'll ACK it now, then check in.  If we
+            // are a device that sleeps, we get precedence.  If we don't
+            // sleep, we'll wait a little longer so any devices that do sleep
+            // can hopefully check in first.
+            
+            // TODO -- is this a good technique to prevent a lot of messages
+            // crashing into each other?
+            #ifdef _DEVICE_SLEEPS
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(500 +
+              one_net_prand(get_tick_count(), 1500)));
+            #else
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(2000 +
+              one_net_prand(get_tick_count(), 2500)));
+            #endif
             break;
         } // change key case //
 
@@ -1580,13 +1614,38 @@ static BOOL check_in_with_master(void)
         return FALSE;
     }
 
-    if(confirm_key_change)
+    if(confirm_key_change || client_joined_network)
     {
         raw_pld[0] = ON_KEY_CHANGE_CONFIRM;
         raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->current_key,
           ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-        keep_alive_time = MS_TO_TICK(250);
+          
+        // note : if we send the keep-alive and everything was successful,
+        // the master will send us a new keep-alive time that will override
+        // the one below.  The one below is set in case something goes wrong
+        // and to prevent a lot of collisions.
+        
+        // TODO -- revisit this protocol and see if it's a good one.
+        keep_alive_time = MS_TO_TICK(1000);
+        
+        if(confirm_key_change)
+        {
+            // We may need to check in again soon, but we'll do it at a random
+            // time.  There may be a lot of traffic out there trying to check
+            // in with the new key.  We'll ACK it now, then check in.  If we
+            // are a device that sleeps, we get precedence.  If we don't
+            // sleep, we'll wait a little longer so any devices that do sleep
+            // can hopefully check in first.
+            #ifdef _DEVICE_SLEEPS
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(500 +
+              one_net_prand(get_tick_count(), 1500)));
+            #else
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(2000 +
+              one_net_prand(get_tick_count(), 2500)));
+            #endif
+        }
     }
+    
     else if(!client_joined_network && !sent_features)
     {
         // we have received an invite and have not sent the master our
