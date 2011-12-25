@@ -194,13 +194,6 @@ typedef enum
     //! Replacing all 16 bytes of the key
     ON_NEW_KEY = 0x03,
     #endif
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    #ifdef _EXTENDED_SINGLE
-    //! Replacing all 16 bytes of the stream key
-    ON_NEW_STREAM_KEY = 0x05,
-    #endif
-    #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
