@@ -322,9 +322,6 @@ extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
 // master admin update strings
 extern const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
-#ifdef _STREAM_MESSAGES_ENABLED
-extern const char* const ONCLI_M_UPDATE_RESULT_STREAM_KEY_STR;;
-#endif
 #ifdef _PEER
 extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;

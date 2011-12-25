@@ -96,11 +96,6 @@ typedef enum
     //! Indicates an attempt to remove a device from the network
     ONE_NET_UPDATE_REMOVE_DEVICE = 0x08,
     
-    #ifdef _STREAM_MESSAGES_ENABLED
-    //! Updating the stream key is complete
-    ONE_NET_UPDATE_STREAM_KEY = 0x09,
-    #endif
-    
     ONE_NET_UPDATE_SETTINGS = 0x0A,
 
     //! Indicates an attempt to add a device to the network    

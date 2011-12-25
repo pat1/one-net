@@ -159,11 +159,6 @@ static tick_t new_channel_clear_time_out = 0;
 //! Flag to denote that a key update is in progress.
 static BOOL key_update_in_progress = FALSE;
 
-#ifdef _STREAM_MESSAGES_ENABLED
-//! Flag to denote that a stream key update is in progress.
-static BOOL stream_key_update_in_progress = FALSE;
-#endif
-
 //! Flag to denote that a device has been removed and the master is in
 //! the process of informing all of the devices.
 static BOOL remove_device_update_in_progress = FALSE;
