@@ -171,9 +171,6 @@ extern const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
 extern const char * const ONCLI_CHANGE_KEY_CMD_STR;
 #endif
-#ifdef _ENABLE_CHANGE_STREAM_KEY_COMMAND
-extern const char * const ONCLI_CHANGE_STREAM_KEY_CMD_STR;
-#endif
 #ifdef _ENABLE_REMOVE_DEVICE_COMMAND
 extern const char * const ONCLI_RM_DEV_CMD_STR;
 #endif
