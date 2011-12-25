@@ -925,9 +925,6 @@ void debug_display_nid(const char* const description,
     \param[in] invite_keys the invite keys to check.  If not relevant, set to
                  NULL and set num_invite_keys to 0.
     \param[in] num_invite_keys the number of invite keys to check.
-    \param[in] stream_keys the stream keys to check.  If not relevant, set to
-                 NULL and set num_stream_keys to 0.
-    \param[in] num_stream_keys the number of stream keys to check.
     
     \return void
 */
@@ -936,8 +933,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
 #else
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
   const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
-  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys,
-  const one_net_xtea_key_t* const stream_keys, UInt8 num_stream_keys)
+  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys)
 #endif
 {
     UInt8 i;
@@ -1110,34 +1106,6 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 
                         data_type = ON_INVITE;
                     }
-                    #ifdef _STREAM_MESSAGES_ENABLED
-                    else if(packet_is_stream(raw_pid))
-                    {
-                        if(num_stream_keys > 0)
-                        {
-                            num_keys = num_stream_keys;
-                            keys = (const one_net_xtea_key_t*)
-                              &stream_keys[0];
-                        }
-                        else
-                        {
-                            one_net_memmove(alternate_keys[0],
-                              on_base_param->stream_key,
-                              sizeof(one_net_xtea_key_t));
-                            num_keys = 1;
-                            #ifdef _ONE_NET_MASTER
-                            if(device_is_master)
-                            {
-                                one_net_memmove(alternate_keys[1],
-                                  master_param->old_stream_key,
-                                  sizeof(one_net_xtea_key_t));
-                                num_keys = 2;
-                            }
-                            #endif
-                        }
-                        data_type = ON_STREAM;
-                    }
-                    #endif
                     else
                     {
                         if(num_enc_keys > 0)
@@ -1162,7 +1130,20 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             }
                             #endif
                         }
-                        data_type = ON_SINGLE;                        
+                        
+                        data_type = ON_SINGLE;
+                        #ifdef _BLOCK_MESSAGES_ENABLED
+                        if(packet_is_block(raw_pid))
+                        {
+                            data_type = ON_BLOCK;
+                        }
+                        #endif
+                        #ifdef _STREAM_MESSAGES_ENABLED
+                        else if(packet_is_stream(raw_pid))
+                        {
+                            data_type = ON_STREAM;
+                        }
+                        #endif
                     }
                     
                     for(j = 0; j < num_keys; j++)

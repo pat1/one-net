@@ -82,11 +82,6 @@ enum
     
     //! number of known encryption keys to try for decryption.
     NUM_SNIFF_ENCRYPT_KEYS = 1,
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    //! number of known encryption keys to try for decryption.
-    NUM_SNIFF_STREAM_ENCRYPT_KEYS = 1
-    #endif
 };
 #endif
 
@@ -116,16 +111,6 @@ static const one_net_xtea_key_t sniff_enc_keys[NUM_SNIFF_ENCRYPT_KEYS] =
     {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
      0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F}
 };
-
-#ifdef _STREAM_MESSAGES_ENABLED
-//! Place any known stream encryption keys in the array below
-static const one_net_xtea_key_t
-  sniff_stream_enc_keys[NUM_SNIFF_STREAM_ENCRYPT_KEYS] =
-{
-    {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
-     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F}
-};
-#endif
 #endif
 
 
@@ -227,12 +212,7 @@ void sniff_eval(void)
     #if _DEBUG_VERBOSE_LEVEL > 2
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN
       , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
-      , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS
-      #ifdef _STREAM_MESSAGES_ENABLED
-      , sniff_enc_keys, NUM_SNIFF_STREAM_ENCRYPT_KEYS);
-      #else
-      , NULL, 0);
-      #endif
+      , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS);
     #else
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
     #endif

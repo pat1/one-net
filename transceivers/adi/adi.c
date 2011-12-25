@@ -398,7 +398,7 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
         synchronize_last_tick();
         #if _DEBUG_VERBOSE_LEVEL > 5
         oncli_send_msg("\n\nPause : About to write...\n");
-        display_pkt(data, len, NULL, 0, NULL, 0, NULL, 0);
+        display_pkt(data, len, NULL, 0, NULL, 0);
         #elif _DEBUG_VERBOSE_LEVEL > 2
         oncli_send_msg("\n\nPause : About to write...\n");
         xdump(data, len);

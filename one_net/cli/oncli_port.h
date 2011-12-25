@@ -228,9 +228,6 @@ void debug_display_nid(const char* const description,
     \param[in] invite_keys the invite keys to check.  If not relevant, set to
                  NULL and set num_invite_keys to 0.
     \param[in] num_invite_keys the number of invite keys to check.
-    \param[in] stream_keys the stream keys to check.  If not relevant, set to
-                 NULL and set num_stream_keys to 0.
-    \param[in] num_stream_keys the number of stream keys to check.
     
     \return void
 */
@@ -239,8 +236,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
 #else
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
   const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
-  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys,
-  const one_net_xtea_key_t* const stream_keys, UInt8 num_stream_keys);
+  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys);
 #endif
 
 #endif
