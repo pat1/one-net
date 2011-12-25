@@ -961,6 +961,42 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
             case ON_KEEP_ALIVE_RESP:
             {
+                if(ack_nack->handle == ON_ACK_ADMIN_MSG)
+                {
+                    switch(ack_nack->payload->admin_msg[0])
+                    {
+                        case ON_NEW_KEY_FRAGMENT:
+                        {
+                            // we MAY be using the wrong key.  The master is
+                            // giving us the right device to use.  If we are
+                            // already using it, copy it into the key and
+                            // shift.
+                            if(one_net_memcmp(
+                              &(ack_nack->payload->admin_msg[1]),
+                              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+                            {
+                                // shift the current key left.
+                                one_net_memmove(on_base_param->current_key,
+                                  &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                                  
+                                // replace the last fragment with the one we
+                                // just received
+                                one_net_memmove(
+                                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                                  &(ack_nack->payload->admin_msg[1]),
+                                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                            }
+                        }
+                    }
+                    
+                    // the master may have more admin messages for us, so
+                    // we will check in again after a very short pause.
+                    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(1000));
+                }
+                
+                // No admin messages.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
                 rcvd_keep_alive = TRUE;
                 break;
@@ -1584,6 +1620,12 @@ static BOOL check_in_with_master(void)
     else if(!client_joined_network && !rcvd_keep_alive)
     {
         raw_pld[0] = ON_KEEP_ALIVE_RESP;
+        // copy the last fragment of the key into the message.  The master
+        // will check to make sure we have the right key.  If not, it will
+        // send back the correct last fragment.
+        one_net_memmove(&raw_pld[1],
+          &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+          ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
     }
     else if(!client_joined_network && !rcvd_settings)
     {
@@ -1611,6 +1653,13 @@ static BOOL check_in_with_master(void)
         // message.
         keep_alive_time = MS_TO_TICK(1000);
         raw_pld[0] = ON_KEEP_ALIVE_RESP;
+        
+        // copy the last fragment of the key into the message.  The master
+        // will check to make sure we have the right key.  If not, it will
+        // send back the correct last fragment.
+        one_net_memmove(&raw_pld[1],
+          &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+          ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
     }
     
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
