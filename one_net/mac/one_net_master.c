@@ -729,9 +729,6 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client = &client_list[master_param->client_count];
     client->flags = 0;
     client->use_current_key = TRUE;
-    #ifdef _STREAM_MESSAGES_ENABLED
-    client->use_current_stream_key = FALSE;
-    #endif
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.expected_nonce = one_net_prand(time_now,
@@ -915,15 +912,6 @@ one_net_xtea_key_t* master_get_encryption_key(
         }
         return NULL; // not in the network
     }
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(type == ON_STREAM)
-    {
-        return client->use_current_stream_key ?
-          (one_net_xtea_key_t*)(on_base_param->stream_key) :
-          (one_net_xtea_key_t*)(master_param->old_stream_key);
-    }
-    #endif
     
     return client->use_current_key ?
       (one_net_xtea_key_t*)(on_base_param->current_key) :
@@ -1195,9 +1183,6 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->device.features = features;
     client->send_remove_device_message = FALSE;
     client->use_current_key = TRUE;
-#ifdef _STREAM_MESSAGES_ENABLED
-    client->use_current_stream_key = TRUE;
-#endif
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     // give it 5 extra seconds.
     client->next_check_in_time = get_tick_count() +
@@ -1745,13 +1730,6 @@ omsdh_build_resp:
         stay_awake = TRUE;
         // TODO -- actually queue the key change?
     }
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(!(client->use_current_stream_key))
-    {
-        stay_awake = TRUE;
-        // TODO -- actually queue the key change?
-    }
-    #endif
 
 
     response_pid = get_single_response_pid(pkt->raw_pid,
