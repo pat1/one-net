@@ -119,8 +119,10 @@ enum
     ONT_MH_TIMER,
     #endif // ifdef _ONE_NET_MH_CLIENT_REPEATER //
 
+    #ifdef _ONE_NET_MASTER
     //! Timer used for key changes
-    ONT_CHANGE_KEY_TIMER,
+    ONT_UPDATE_TIMER,
+    #endif
     
     #ifdef _ONE_NET_CLIENT
     //! Timer for CLIENT to know when to send a Keep Alive

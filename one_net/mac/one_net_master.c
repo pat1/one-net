@@ -369,7 +369,7 @@ one_net_status_t one_net_master_create_network(
     // one_net_master() loop to explain we are using these timers and what
     // we're doing.
     ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(new_channel_clear_time_out));
-    ont_set_timer(ONT_CHANGE_KEY_TIMER,
+    ont_set_timer(ONT_UPDATE_TIMER,
       MS_TO_TICK(one_net_master_channel_scan_time));
     on_state = ON_JOIN_NETWORK;
 
@@ -589,7 +589,7 @@ one_net_status_t one_net_master_change_key_fragment(
         {
             if(one_net_memcmp(key_fragment,
               &(on_base_param->current_key[i*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE)
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE))
             {
                 return ONS_BAD_KEY_FRAGMENT;
             }
@@ -1031,7 +1031,7 @@ void one_net_master(void)
             // Therefore we don't need to create a new timer for this process.
             // Instead we'll just use two that we already have since we know
             // that they aren't currently being used for their normal purposes.
-            // We'll use the general timer and the change key timer.  Note that
+            // We'll use the general timer and the update timer.  Note that
             // they were initially set in the one_net_master_create_network()
             // function.
             if(one_net_channel_is_clear())
@@ -1039,7 +1039,7 @@ void one_net_master(void)
                 if(ont_expired(ONT_GENERAL_TIMER))
                 {
                     on_state = ON_LISTEN_FOR_DATA;
-                    ont_stop_timer(ONT_CHANGE_KEY_TIMER);
+                    ont_stop_timer(ONT_UPDATE_TIMER);
                 } // if channel has been clear for enough time //
             } // if channel is clear //
             else
@@ -1057,10 +1057,10 @@ void one_net_master(void)
                 // check if it's been long enough where the device thinks that
                 // there is traffic on all the channels.  If that is the case
                 // lower the time in hopes of finding the least busy channel.
-                if(ont_inactive_or_expired(ONT_CHANGE_KEY_TIMER))
+                if(ont_inactive_or_expired(ONT_UPDATE_TIMER))
                 {
                     new_channel_clear_time_out >>= 1;
-                    ont_set_timer(ONT_CHANGE_KEY_TIMER,
+                    ont_set_timer(ONT_UPDATE_TIMER,
                       ONE_NET_MASTER_CHANNEL_SCAN_TIME);
                 } // if time to lower the channel clear time //
             } // else channel is not clear //
