@@ -153,6 +153,7 @@ typedef enum
 	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
                               //! the time specified.
 	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.
+    ON_ACK_ADMIN_MSG,     //! Sending back an Admin message with an ACK
 	ON_ACK_STATUS,        //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
     ON_NACK_OLD_KEY = ON_ACK_STATUS, //! This NACK is sent when the device is using an old key and contains the new key fragment.
     ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
@@ -201,6 +202,7 @@ typedef union
     UInt8 status_resp[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN]; //! only valid for
       //! ACKs.  Generally, but not exclusively intended for "fast query"/
       //! "poll" responses.
+    UInt8 admin_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
 	UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
 	ack_value_t ack_value;
     tick_t ack_time_ms;

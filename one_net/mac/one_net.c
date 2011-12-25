@@ -410,6 +410,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_FEATURES:              
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
+            case ON_ACK_ADMIN_MSG:
                 // nothing to do with these.
                 break;
 	        case ON_ACK_VALUE:
@@ -503,6 +504,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
                 break;
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
+            case ON_ACK_ADMIN_MSG:
                 one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
                   ack_nack_pld_len);
                 break;
