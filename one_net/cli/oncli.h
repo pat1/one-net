@@ -157,6 +157,7 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
 void print_admin_payload(const UInt8* const pld);
+void print_recipient_list(const on_recipient_list_t* const recip_list);
 #endif
 
 

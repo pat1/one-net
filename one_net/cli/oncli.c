@@ -789,6 +789,30 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
       msg_hdr->raw_pid, msg_hdr->msg_id, msg_hdr->msg_type,
       msg_hdr->msg_type < 3 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
 }
+
+
+void print_recipient_list(const on_recipient_list_t* const recip_list)
+{
+    UInt8 i;
+    on_raw_did_t raw_did;
+    oncli_send_msg("Recip. List : #Recip. = %d : index = %d\n",
+      recip_list->num_recipients, recip_list->recipient_index);
+    for(i = 0; i < recip_list->num_recipients; i++)
+    {
+        if(on_decode(raw_did, recip_list->recipient_list[i].did,
+          ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+        {
+            oncli_send_msg("Recip. %d : Not decodable\n", i + 1);
+        }
+        else
+        {
+            oncli_send_msg("Recip. %d : %02X%02X(%03X):%1X\n", i + 1,
+              recip_list->recipient_list[i].did[0],
+              recip_list->recipient_list[i].did[1], did_to_u16(&raw_did),
+              recip_list->recipient_list[i].unit);
+        }
+    }
+}
 #endif
 
 
