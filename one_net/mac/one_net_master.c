@@ -2538,13 +2538,6 @@ static void check_updates_in_progress(void)
                                // any real message is to be sent.
     ack.nack_reason = ON_NACK_RSN_NO_ERROR;
 
-    
-    
-    if(time_now < last_send_time + SEND_INTERVAL)
-    {
-        return;
-    }
-    
     // now go through the update types and see if any messages need sending
     if(remove_device_update_in_progress)
     {
@@ -2630,7 +2623,8 @@ static void check_updates_in_progress(void)
         }
     }
 
-    if(admin_msg_id == 0xFF)
+
+    if(time_now < last_send_time + SEND_INTERVAL || admin_msg_id == 0xFF)
     {
         return; // nothing is being updated.
     }
