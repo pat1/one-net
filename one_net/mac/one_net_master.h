@@ -165,9 +165,7 @@ extern on_client_t * const client_list;
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
-  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-  const one_net_xtea_key_t * const STREAM_KEY,
-  const UInt8 STREAM_ENCRYPT_METHOD);
+  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD, const UInt8 STREAM_ENCRYPT_METHOD);
 #else
 one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,

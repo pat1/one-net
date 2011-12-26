@@ -91,12 +91,6 @@ const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000; // TODO -- replace
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
   0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
-#ifdef _STREAM_MESSAGES_ENABLED
-//! The key to use for stream transactions in the eval network
-const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-  0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-#endif
-
 //! Default invite key to use if no manufacturing data (SID and invite key) segment
 //! is found in data flash.
 const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
@@ -322,8 +316,6 @@ int main(void)
     #endif
 
     #ifdef _STREAM_MESSAGES_ENABLED
-    one_net_memmove(on_base_param->stream_key, EVAL_STREAM_KEY,
-      ONE_NET_XTEA_KEY_LEN);
     on_base_param->stream_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
     #endif
     

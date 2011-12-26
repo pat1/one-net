@@ -454,12 +454,11 @@ on_message_status_t one_net_master_handle_ack_nack_response(
 one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
 {
     one_net_status_t status;
-    one_net_xtea_key_t key, stream_key;
     initialize_default_pin_directions(TRUE);
     
     #ifdef _STREAM_MESSAGES_ENABLED
     if(one_net_master_create_network(raw_sid, &EVAL_KEY,
-      ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32, &EVAL_STREAM_KEY,
+      ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
       ONE_NET_STREAM_ENCRYPT_XTEA8) == ONS_SUCCESS)
     #else
     if(one_net_master_create_network(raw_sid, &EVAL_KEY,

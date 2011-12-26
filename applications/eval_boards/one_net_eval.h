@@ -107,11 +107,6 @@ extern UInt8 user_pin_src_unit;
 //! The key used in the evaluation network
 extern const one_net_xtea_key_t EVAL_KEY;
 
-#ifdef _STREAM_MESSAGES_ENABLED
-//! The key to use for stream transactions in the eval network
-extern const one_net_xtea_key_t EVAL_STREAM_KEY;
-#endif
-
 //! Default invite key to use if no manufacturing data (SID and invite key) segment
 //! is found in data flash.
 extern const UInt8 DEFAULT_INVITE_KEY[];

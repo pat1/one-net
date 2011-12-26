@@ -323,7 +323,6 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     \param[in] KEY The xtea key to use for single and block transactions.
     \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
       and block packets when they are sent.
-    \param[in] STREAM_KEY The xtea key to use for stream transactions.
     \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
       when they are sent.
 
@@ -335,7 +334,6 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
 one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-  const one_net_xtea_key_t * const STREAM_KEY,
   const UInt8 STREAM_ENCRYPT_METHOD)
 #else
 one_net_status_t one_net_master_create_network(
@@ -348,7 +346,7 @@ one_net_status_t one_net_master_create_network(
 #ifdef _STREAM_MESSAGES_ENABLED
     if(!SID || !KEY
       || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
-      || !STREAM_KEY || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
+      || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
 #else
     if(!SID || !KEY
       || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32)
@@ -370,8 +368,6 @@ one_net_status_t one_net_master_create_network(
     on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
 	
 #ifdef _STREAM_MESSAGES_ENABLED
-    one_net_memmove(on_base_param->stream_key, *STREAM_KEY,
-      sizeof(on_base_param->stream_key));
     on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;
 #endif
 #ifdef _BLOCK_MESSAGES_ENABLED
