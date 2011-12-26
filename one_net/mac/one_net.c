@@ -1229,7 +1229,7 @@ BOOL one_net(on_txn_t ** txn)
                             #endif
                             
                             #ifndef _ONE_NET_SIMPLE_DEVICE
-                            (*pkt_hdlr.adj_recip_list_hdlr)(single_msg_ptr, 
+                            (*pkt_hdlr.adj_recip_list_hdlr)(&single_msg, 
                               &recipient_send_list_ptr);
                             #endif
 
