@@ -269,12 +269,6 @@ static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
   
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 
-#if 0
-static BOOL check_key_update(void);
-static BOOL check_remove_device_update(void);
-#endif
-
-
 static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type);
 static BOOL check_updates_for_client(on_client_t* client,
   BOOL send_if_device_sleeps);
@@ -2363,86 +2357,6 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
     
     return &(client->device);
 }
-
-
-#if 0
-/*!
-    \brief Checks to see if a key update needs to be sent.
-
-    \return TRUE if an update request was sent, FALSE otherwise
-*/
-static BOOL check_key_update(void)
-{
-    UInt16 i;
-    one_net_status_t status;
-    on_client_t* client = NULL;
-    UInt16 index = one_net_prand(get_tick_count(), master_param->client_count - 1);
-    UInt8 raw_admin_msg[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-    
-    const UInt8* key_frag_address = (UInt8*)
-      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]);
-      
-    if(!key_update_in_progress)
-    {
-        return FALSE;
-    }
-
-    for(i = 0; !client && i < master_param->client_count; i++)
-    {
-        client = &client_list[index];
-        if(client->use_current_key)
-        {
-            client = NULL;
-            index++;
-            index %= master_param->client_count; // rollover if overflow
-        }
-    }
-
-    if(!client)
-    {
-        // everything is updated.
-        on_ack_nack_t ack;
-        ack.handle = ON_ACK;
-        ack.nack_reason = ON_NACK_RSN_NO_ERROR;        
-        key_update_in_progress = FALSE;
-        one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
-        return FALSE;
-    }
-    
-    if(earliest_send_time > get_tick_count())
-    {
-        return FALSE;
-    }
-
-    
-    // send the key fragment
-    status = send_admin_pkt(ON_NEW_KEY_FRAGMENT, (on_encoded_did_t*)
-      client->device.did, key_frag_address, 0);
-    
-    // send at most once every 2 seconds
-    earliest_send_time = get_tick_count() + MS_TO_TICK(2000);
-    
-    return (status == ONS_SUCCESS);
-} // check_key_update //
-
-
-/*!
-    \brief Checks to see if a device needs to be informed that there has been
-           a device deletion
-
-    \return TRUE if a notification was sent, FALSE otherwise
-*/
-static BOOL check_remove_device_update(void)
-{
-    if(!remove_device_in_progress)
-    {
-        return FALSE;
-    }
-
-    // TODO -- actually write this function.
-    return FALSE;
-}
-#endif
 
 
 /*
