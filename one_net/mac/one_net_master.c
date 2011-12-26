@@ -1888,10 +1888,8 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
     const UInt8* admin_data_payload = raw_pld + 1;
     one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
     on_encoded_did_t enc_did;
-    
     on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN);
-
-        
+    
     switch(admin_type)
     {
 #ifdef _PEER
@@ -1945,6 +1943,17 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_REMOVE_DEVICE;
             break;
         } // remove device case //
+        
+        case ON_NEW_KEY_FRAGMENT:
+        {
+            if(one_net_memcmp(&(on_base_param->current_key[3 *
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), ack_nack->payload->key_frag,
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+            {
+                client->use_current_key = TRUE;
+                update = ONE_NET_UPDATE_NETWORK_KEY;
+            }
+        }
 
         default: return;
     }

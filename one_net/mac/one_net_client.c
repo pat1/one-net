@@ -989,6 +989,13 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
                             }
                             
+                            // we have the new key now.  we need to check-in
+                            // again so that the master knows we have the
+                            // correct key.  Slight random pause to prevent
+                            // logjams.
+                            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
+                              one_net_prand(get_tick_count(), 1000)));
+                            
                             break;
                         }
                         
@@ -1070,7 +1077,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                     
                     // the master may have more admin messages for us, so
                     // we will check in again after a very short pause.
-                    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(1000));
+                    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
+                      one_net_prand(get_tick_count(), 1000)));
                     break;
                 }
                 
@@ -1508,11 +1516,16 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_memmove(
                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                   &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                break;
             }
-              
-            confirm_key_change = TRUE; 
             
+            
+            // we now have the right key.  Send it back in the ACK.
+            ack_nack->handle = ON_ACK_KEY_FRAGMENT;
+            one_net_memmove(ack_nack->payload->key_frag, &DATA[1],
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+              
+            confirm_key_change = TRUE;
+
             // we'll want to check in again soon, but we'll do it at a random
             // time.  There may be a lot of traffic out there trying to check
             // in with the new key.  We'll ACK it now, then check in.  If we
