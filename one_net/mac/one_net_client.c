@@ -1701,98 +1701,24 @@ static BOOL check_in_with_master(void)
         return FALSE;
     }
 
-    if(confirm_key_change || client_joined_network)
-    {
-        raw_pld[0] = ON_KEY_CHANGE_CONFIRM;
-        raw_pld[1] = one_net_compute_crc((UInt8*) on_base_param->current_key,
-          ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-          
-        // note : if we send the keep-alive and everything was successful,
-        // the master will send us a new keep-alive time that will override
-        // the one below.  The one below is set in case something goes wrong
-        // and to prevent a lot of collisions.
-        
-        // TODO -- revisit this protocol and see if it's a good one.
-        keep_alive_time = MS_TO_TICK(1000);
-        
-        if(confirm_key_change)
-        {
-            // We may need to check in again soon, but we'll do it at a random
-            // time.  There may be a lot of traffic out there trying to check
-            // in with the new key.  We'll ACK it now, then check in.  If we
-            // are a device that sleeps, we get precedence.  If we don't
-            // sleep, we'll wait a little longer so any devices that do sleep
-            // can hopefully check in first.
-            #ifdef _DEVICE_SLEEPS
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(500 +
-              one_net_prand(get_tick_count(), 1500)));
-            #else
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(2000 +
-              one_net_prand(get_tick_count(), 2500)));
-            #endif
-        }
-    }
+    // we are part of the network already or are in the process of
+    // joining the network and are sending our first keep-alive
+    // message.
+    keep_alive_time = MS_TO_TICK(1000);
+    raw_pld[0] = ON_KEEP_ALIVE_RESP;
     
-    else if(!client_joined_network && !sent_features)
-    {
-        // we have received an invite and have not sent the master our
-        // features, so send them now.
-        raw_pld[0] = ON_FEATURES_RESP;
-        one_net_memmove(&raw_pld[1], &THIS_DEVICE_FEATURES,
-          sizeof(on_features_t));
-        keep_alive_time = MS_TO_TICK(1000);
-    }
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    else if(!client_joined_network && !rcvd_fragment_delays)
-    {
-        return FALSE; // master will send us the fragment delays.  Wait for it.
-    }
-    #endif
-    else if(!client_joined_network && !rcvd_keep_alive)
-    {
-        raw_pld[0] = ON_KEEP_ALIVE_RESP;
-        // copy the last fragment of the key into the message.  The master
-        // will check to make sure we have the right key.  If not, it will
-        // send back the correct last fragment.
-        one_net_memmove(&raw_pld[1],
-          &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-          ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    }
-    else if(!client_joined_network && !rcvd_settings)
-    {
-        raw_pld[0] = ON_QUERY_SETTINGS;
-    }
-    else if(!client_joined_network)
-    {
-        // we've joined the network!
-        on_raw_did_t raw_did;
-        on_decode(raw_did, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
-          ON_ENCODED_DID_LEN);
-        client_joined_network = TRUE;
-        master->flags |= ON_JOINED; // TODO -- seems like this should have
-                                    // been set elsewhere?
-        client_looking_for_invite = FALSE;
-        one_net_client_invite_result(&raw_did, ONS_SUCCESS);
-        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
-          MS_TO_TICK(master->keep_alive_interval));
-        return FALSE;
-    }
-    else
-    {
-        // we are part of the network already or are in the process of
-        // joining the network and are sending our first keep-alive
-        // message.
-        keep_alive_time = MS_TO_TICK(1000);
-        raw_pld[0] = ON_KEEP_ALIVE_RESP;
-        
-        // copy the last fragment of the key into the message.  The master
-        // will check to make sure we have the right key.  If not, it will
-        // send back the correct last fragment.
-        one_net_memmove(&raw_pld[1],
-          &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-          ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    }
-    
+    // copy the last fragment of the key into the message.  The master
+    // will check to make sure we have the right key.  If not, it will
+    // send back the correct last fragment.
+    one_net_memmove(&raw_pld[1],
+      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+      
+    // this may or may not get overridden later depending on whether / how
+    // we get ACK'd.
+    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(1000 + one_net_prand(
+      get_tick_count(), 1000)));
+
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
       NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
@@ -1801,10 +1727,10 @@ static BOOL check_in_with_master(void)
       ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , 0
+      , MS_TO_TICK(500)
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-      , 0
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+      , MS_TO_TICK(1500)
       #endif
       ) == ONS_SUCCESS)
     {
