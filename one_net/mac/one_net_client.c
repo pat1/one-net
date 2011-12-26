@@ -955,11 +955,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 sent_features = TRUE;
                 break;
             }
-
+            
             case ON_KEEP_ALIVE_RESP:
-            {
+            {                 
                 if(ack_nack->handle == ON_ACK_ADMIN_MSG)
                 {
+                    BOOL send_confirm_admin_msg = FALSE;
+                    UInt8 admin_msg_type;
+                    
                     switch(ack_nack->payload->admin_msg[0])
                     {
                         case ON_NEW_KEY_FRAGMENT:
@@ -985,7 +988,64 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                   &(ack_nack->payload->admin_msg[1]),
                                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
                             }
+                            
+                            break;
                         }
+                        
+                        case ON_ADD_DEV:
+                        {
+                            on_raw_did_t raw_did_added;
+                            if(on_decode(raw_did_added,
+                              &(ack_nack->payload->admin_msg)[1],
+                              ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+                            {
+                                break;
+                            }
+                            one_net_client_client_added(&raw_did_added);
+                            send_confirm_admin_msg = TRUE;
+                            admin_msg_type = ON_ADD_DEV_RESP;
+                            break;
+                        }
+                        
+                        case ON_RM_DEV:
+                        {
+                            on_raw_did_t raw_did_added;
+                            if(on_decode(raw_did_added,
+                              &(ack_nack->payload->admin_msg)[1],
+                              ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+                            {
+                                break;
+                            }
+                            one_net_client_client_added(&raw_did_added);
+                            send_confirm_admin_msg = TRUE;
+                            admin_msg_type = ON_ADD_DEV_RESP;
+                            break;
+                        }
+                        
+                        case ON_CHANGE_SETTINGS:
+                        {
+                            master->flags = ack_nack->payload->admin_msg[1];
+                            send_confirm_admin_msg = TRUE;
+                            admin_msg_type = ON_CHANGE_SETTINGS_RESP;
+                            break;
+                        }
+                    }
+                    
+                    if(send_confirm_admin_msg)
+                    {
+                        one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
+                          ON_ADMIN_MSG, &admin_msg_type, 1,
+                          ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
+                          #ifdef _PEER
+                          , FALSE, ONE_NET_DEV_UNIT
+                          #endif
+                          #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                          , 0
+                          #endif
+                          #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+                          , 0
+                          #endif
+                          );
                     }
                     
                     // the master may have more admin messages for us, so
@@ -996,6 +1056,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 
                 // No admin messages.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
+                ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
+                  master->keep_alive_interval));
                 rcvd_keep_alive = TRUE;
                 break;
             }
