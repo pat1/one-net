@@ -782,8 +782,6 @@ one_net_status_t one_net_master_cancel_invite(
     
     // zero out invite_key_for good measure    
     one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
-    one_net_memmove(add_device_did, ON_ENCODED_BROADCAST_DID,
-      ON_ENCODED_DID_LEN);
     return ONS_SUCCESS;
 } // one_net_master_cancel_invite //
 
@@ -2595,6 +2593,8 @@ static void check_updates_in_progress(void)
             // application code
             one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE, NULL,
               &ack);
+            one_net_memmove(add_device_did, ON_ENCODED_BROADCAST_DID,
+              ON_ENCODED_DID_LEN);
             return;
         }
     }
@@ -2928,6 +2928,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     // next Device DID, and notify everyone.
                     (*client)->flags |= ON_JOINED;
                     add_device_update_in_progress = TRUE;
+                    one_net_master_cancel_invite(&invite_key);
                     master_param->client_count++;
                     master_param->next_client_did = find_lowest_vacant_did();
 
