@@ -3249,7 +3249,185 @@ static on_client_t* check_client_check_ins(void)
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list)
 {
-    // TODO -- check for admin messages before passing to the application code
+    // first see if this is an admin message of type ON_NEW_KEY_FRAGMENT,
+    // ON_ADD_DEV, or ON_RM_DEV
+    if(msg->msg_type == ON_ADMIN_MSG)
+    {
+        int i;
+        int index = master_param->client_count == 0 ? 0 :
+          one_net_prand(get_tick_count(), master_param->client_count);
+        on_did_unit_t did_unit;
+        on_client_t* client;
+        BOOL add_clients = TRUE;
+        did_unit.unit = ONE_NET_DEV_UNIT;
+        
+        switch(msg->payload[0])
+        {
+            // TODO -- seems like we should be able to condense these
+            // three cases.
+            case ON_NEW_KEY_FRAGMENT:
+            {
+                if(!key_update_in_progress)
+                {
+                    *recipient_send_list = NULL;
+                    return;
+                }
+                
+                if((*recipient_send_list)->num_recipients > 0)
+                {
+                    // we already have a list, so don't add anybody.
+                    add_clients = FALSE;
+                }
+                
+                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
+                {
+                    client = client_info(
+                      &(*recipient_send_list)->recipient_list[i].did);
+                    if(!client || client->use_current_key)
+                    {
+                        remove_recipient_from_recipient_list(
+                          *recipient_send_list, 
+                          &(*recipient_send_list)->recipient_list[i]);
+                    }
+                }
+                
+                if(add_clients)
+                {
+                    // send to at most 5 devices at a time.
+                    i = 0;
+                    while(i < master_param->client_count &&
+                      (*recipient_send_list)->num_recipients < 5)
+                    {
+                        client =
+                          &client_list[index % master_param->client_count];
+                        i++;
+                        index++;
+                        if(client->use_current_key)
+                        {
+                            continue;
+                        }
+                        
+                        did_unit.did[0] = client->device.did[0];
+                        did_unit.did[1] = client->device.did[1];
+                        add_recipient_to_recipient_list(
+                          *recipient_send_list,
+                          &((*recipient_send_list)->recipient_list[i]));
+                    }
+                }
+                
+                return;
+            }
+            
+            case ON_ADD_DEV:
+            {
+                if(!add_device_update_in_progress)
+                {
+                    *recipient_send_list = NULL;
+                    return;
+                }
+                
+                if((*recipient_send_list)->num_recipients > 0)
+                {
+                    // we already have a list, so don't add anybody.
+                    add_clients = FALSE;
+                }
+                
+                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
+                {
+                    client = client_info(
+                      &((*recipient_send_list)->recipient_list[i].did));
+                    if(!client || client->use_current_key)
+                    {
+                        remove_recipient_from_recipient_list(
+                          *recipient_send_list, 
+                          &((*recipient_send_list)->recipient_list[i]));
+                    }
+                }
+                
+                if(add_clients)
+                {
+                    // send to at most 5 devices at a time.
+                    i = 0;
+                    while(i < master_param->client_count &&
+                      (*recipient_send_list)->num_recipients < 5)
+                    {
+                        client =
+                          &client_list[index % master_param->client_count];
+                        i++;
+                        index++;
+                        if(!(client->send_add_device_message))
+                        {
+                            continue;
+                        }
+                        
+                        did_unit.did[0] = client->device.did[0];
+                        did_unit.did[1] = client->device.did[1];
+                        add_recipient_to_recipient_list(
+                          *recipient_send_list,
+                          &((*recipient_send_list)->recipient_list[i]));
+                    }
+                }
+                
+                return;
+            }
+            
+            
+            case ON_RM_DEV:
+            {
+                if(!remove_device_update_in_progress)
+                {
+                    *recipient_send_list = NULL;
+                    return;
+                }
+                
+                if((*recipient_send_list)->num_recipients > 0)
+                {
+                    // we already have a list, so don't add anybody.
+                    add_clients = FALSE;
+                }
+                
+                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
+                {
+                    client = client_info(
+                      &((*recipient_send_list)->recipient_list[i].did));
+                    if(!client || client->use_current_key)
+                    {
+                        remove_recipient_from_recipient_list(
+                          *recipient_send_list,
+                          &((*recipient_send_list)->recipient_list[i]));
+                    }
+                }
+                
+                if(add_clients)
+                {
+                    // send to at most 5 devices at a time.
+                    i = 0;
+                    while(i < master_param->client_count &&
+                      (*recipient_send_list)->num_recipients < 5)
+                    {
+                        client =
+                          &client_list[index % master_param->client_count];
+                        i++;
+                        index++;
+                        if(!(client->send_remove_device_message))
+                        {
+                            continue;
+                        }
+                        
+                        did_unit.did[0] = client->device.did[0];
+                        did_unit.did[1] = client->device.did[1];
+                        add_recipient_to_recipient_list(
+                          *recipient_send_list,
+                          &((*recipient_send_list)->recipient_list[i]));
+                    }
+                }
+                
+                return;
+            }
+        }
+    }
+
+
     one_net_adjust_recipient_list(msg, recipient_send_list);
 }
 #endif
