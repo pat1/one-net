@@ -753,7 +753,9 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     on_encode(client->device.did, raw_invite_did,
       ON_ENCODED_DID_LEN);
     client->device.features = FEATURES_UNKNOWN;
-
+    
+    one_net_memmove(add_device_did, client->device.did, ON_ENCODED_DID_LEN);
+    
     return ONS_SUCCESS;
 } // one_net_master_invite //
 
@@ -780,6 +782,8 @@ one_net_status_t one_net_master_cancel_invite(
     
     // zero out invite_key_for good measure    
     one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
+    one_net_memmove(add_device_did, ON_ENCODED_BROADCAST_DID,
+      ON_ENCODED_DID_LEN);
     return ONS_SUCCESS;
 } // one_net_master_cancel_invite //
 

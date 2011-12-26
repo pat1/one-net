@@ -994,16 +994,32 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         
                         case ON_ADD_DEV:
                         {
+                            BOOL this_device_added;
+                            on_encoded_did_t* added_device =
+                              (on_encoded_did_t*)
+                              &(ack_nack->payload->admin_msg[1]);
                             on_raw_did_t raw_did_added;
-                            if(on_decode(raw_did_added,
-                              &(ack_nack->payload->admin_msg)[1],
+                            if(on_decode(raw_did_added, *added_device,
                               ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                             {
                                 break;
                             }
+                            
+                            this_device_added = is_my_did(added_device);
                             one_net_client_client_added(&raw_did_added,
-                              is_my_did((on_encoded_did_t*)
-                              &(ack_nack->payload->admin_msg)[1]));
+                              this_device_added);
+                              
+                            if(this_device_added)
+                            {
+                                one_net_client_invite_result(&raw_did_added,
+                                  ONS_SUCCESS);
+                                client_joined_network = TRUE;
+                                // TODO -- seems like this should have
+                                // been set elsewhere?
+                                master->flags |= ON_JOINED;
+                                client_looking_for_invite = FALSE;
+                            }
+
                             send_confirm_admin_msg = TRUE;
                             admin_msg_type = ON_ADD_DEV_RESP;
                             break;
