@@ -3209,9 +3209,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                         
                         did_unit.did[0] = client->device.did[0];
                         did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(
-                          *recipient_send_list,
-                          &((*recipient_send_list)->recipient_list[i]));
+                        add_recipient_to_recipient_list(*recipient_send_list,
+                          &did_unit);
                     }
                 }
                 
@@ -3263,9 +3262,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                         
                         did_unit.did[0] = client->device.did[0];
                         did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(
-                          *recipient_send_list,
-                          &((*recipient_send_list)->recipient_list[i]));
+                        add_recipient_to_recipient_list(*recipient_send_list,
+                          &did_unit);
                     }
                 }
                 
@@ -3318,9 +3316,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                         
                         did_unit.did[0] = client->device.did[0];
                         did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(
-                          *recipient_send_list,
-                          &((*recipient_send_list)->recipient_list[i]));
+                        add_recipient_to_recipient_list(*recipient_send_list,
+                          &did_unit);
                     }
                 }
                 
