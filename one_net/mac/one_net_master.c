@@ -1134,10 +1134,12 @@ void one_net_master(void)
       queue_sleep_time < MS_TO_TICK(500))
     {
         check_updates_in_progress();
+        #if 0
         if(master_param->client_count)
         {        
             check_client_check_ins();
         }
+        #endif
     }
     
 } // one_net_master //
@@ -2525,133 +2527,119 @@ static BOOL check_updates_for_client(on_client_t* client,
 
 static void check_updates_in_progress(void)
 {
+    static tick_t last_send_time = 0;
+    tick_t time_now = get_tick_count();
+    const tick_t SEND_INTERVAL = MS_TO_TICK(5000);
     UInt16 i;
     on_client_t* client;
-    UInt16 index;
-    BOOL at_least_one_update_in_progress = FALSE;
+    UInt8 admin_payload[4];
     on_ack_nack_t ack;
-    ack.handle = ON_ACK;
+    UInt8 admin_msg_id = 0xFF; // garbage argument.  Will be written over if
+                               // any real message is to be sent.
     ack.nack_reason = ON_NACK_RSN_NO_ERROR;
+
     
     
-    // first check if there are any updates in progress
+    if(time_now < last_send_time + SEND_INTERVAL)
+    {
+        return;
+    }
+    
+    // now go through the update types and see if any messages need sending
     if(remove_device_update_in_progress)
     {
-        at_least_one_update_in_progress = FALSE;
-
+        remove_device_update_in_progress = FALSE;
+        
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
             if(client_list[i].send_remove_device_message)
             {
-                at_least_one_update_in_progress = TRUE;
+                admin_msg_id = ON_RM_DEV;
+                admin_payload[0] = remove_device_did[0];
+                admin_payload[1] = remove_device_did[1];
+                remove_device_update_in_progress = TRUE;
                 break; // we have one.
             }
         }
         
-        if(!at_least_one_update_in_progress)
+        if(!remove_device_update_in_progress)
         {
-            // we don't have any more updates for this, so notify the applciation
-            // code and reset the flag to false.
-            one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE, NULL, &ack);
-            remove_device_update_in_progress = FALSE;
-            
+            // we don't have any more updates for this, so notify the
+            // application code
+            one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE, NULL,
+              &ack);
             // now actually remove the client
             rm_client(&remove_device_did);
-            
-            // TODO - is there more application code to call?
             return;
         }
     }
 
     else if(add_device_update_in_progress)
     {
-        at_least_one_update_in_progress = FALSE;
-
+        add_device_update_in_progress = FALSE;
+        
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
             if(client_list[i].send_add_device_message)
             {
-                at_least_one_update_in_progress = TRUE;
+                admin_msg_id = ON_ADD_DEV;
+                admin_payload[0] = add_device_did[0];
+                admin_payload[1] = add_device_did[1];
+                add_device_update_in_progress = TRUE;
                 break; // we have one.
             }
         }
 
-        if(!at_least_one_update_in_progress)
+        if(!add_device_update_in_progress)
         {
-            // we don't have any more updates for this, so notify the applciation
-            // code and reset the flag to false.
-            one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE, NULL, &ack);
-            add_device_update_in_progress = FALSE;
-            
-            // TODO - is there more application code to call?
+            // we don't have any more updates for this, so notify the
+            // application code
+            one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE, NULL,
+              &ack);
             return;
         }
     }
 
     else if(key_update_in_progress)
     {
-        at_least_one_update_in_progress = FALSE;
+        key_update_in_progress = FALSE;
 
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
             if(!client_list[i].use_current_key)
             {
-                at_least_one_update_in_progress = TRUE;
+                admin_msg_id = ON_NEW_KEY_FRAGMENT;
+                one_net_memmove(admin_payload, &(on_base_param->current_key[
+                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                key_update_in_progress = TRUE;
                 break; // we have one.
             }
         }
 
-        if(!at_least_one_update_in_progress)
+        if(!key_update_in_progress)
         {
-            // we don't have any more updates for this, so notify the application
-            // code and reset the flag to false.
-            one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL, &ack);
-            key_update_in_progress = FALSE;
-            
-            // TODO - is there more application code to call?
+            // we don't have any more updates for this, so notify the
+            // application code
+            one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL,
+              &ack);
             return;
         }
     }
 
-    if(!at_least_one_update_in_progress)
+    if(admin_msg_id == 0xFF)
     {
         return; // nothing is being updated.
     }
-
-
     
-    if(device_to_update != NULL)
+    // don't worry about filling in any destination addresses.  This message's
+    // recipient list will be adjusted when the message is actually popped.
+    if(send_admin_pkt(admin_msg_id, NULL, admin_payload, 0) == ONS_SUCCESS)
     {
-        // ignore the random value below
-        if(!check_updates_for_client(device_to_update, TRUE))
-        {
-            // no updates needed for this device.
-            device_to_update = NULL;
-        }
-        
-        return;
-    }
-
-
-    // we don't have any specific device to update.  We'll go through all
-    // the clients starting with a random one till we find one to update.
-    index = one_net_prand(get_tick_count(), master_param->client_count - 1);
-    
-    for(i = 0; i < master_param->client_count; i++)
-    {
-        if(check_updates_for_client(&client_list[index], FALSE))
-        {
-            return;
-        }
-        
-        index++;
-        if(index >= master_param->client_count)
-        {
-            index = 0;
-        }
+        last_send_time = time_now;
     }
 }
 
@@ -3071,6 +3059,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 }
 
 
+#if 0
 /*!
     \brief Checks all clients to see if any have missed a required check-in and
            alerts the application code if any have.
@@ -3121,6 +3110,7 @@ static on_client_t* check_client_check_ins(void)
 
     return NULL;
 }
+#endif
 
 
 #ifndef _ONE_NET_SIMPLE_DEVICE
