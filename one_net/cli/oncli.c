@@ -1090,6 +1090,12 @@ static void print_cmd_result(const char * const CMD,
             #endif
             break;            
         }
+        
+        case ONCLI_BAD_KEY_FRAGMENT:
+        {
+            oncli_send_msg(ONCLI_CMD_FAIL_FMT, CMD, ONCLI_BAD_KEY_FRAGMENT_STR);
+            break;
+        }
 
         default:
         {

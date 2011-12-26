@@ -599,7 +599,7 @@ one_net_status_t one_net_master_change_key_fragment(
         {
             if(one_net_memcmp(key_fragment,
               &(on_base_param->current_key[i*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE))
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
             {
                 return ONS_BAD_KEY_FRAGMENT;
             }

@@ -272,6 +272,7 @@ extern const char * const ONCLI_ONS_NOT_INIT_ERR_STR;
 extern const char * const ONCLI_INTERNAL_ERR_STR;
 extern const char * const ONCLI_INVALID_DST_STR;
 extern const char * const ONCLI_NEED_TO_JOIN_STR;
+extern const char * const ONCLI_BAD_KEY_FRAGMENT_STR;
 extern const char * const ONCLI_INVALID_CMD_LEN_STR;
 extern const char * const ONCLI_LOAD_FAIL_STR;
 extern const char * const ONCLI_FATAL_ERR_1_STR;

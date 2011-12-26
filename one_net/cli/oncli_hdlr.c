@@ -2454,6 +2454,7 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
         case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
+        case ONS_BAD_KEY_FRAGMENT: return ONCLI_BAD_KEY_FRAGMENT;
         default: return ONCLI_CMD_FAIL;
     }
 }

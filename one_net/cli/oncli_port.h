@@ -93,6 +93,7 @@ typedef enum
     ONCLI_INVALID_CMD_FOR_MODE,     //!< Command is not allowed in the current mode of operation
     ONCLI_INVALID_CMD_FOR_NODE,     //!< Command is invalid for this device type.  Generally
                                     //!< this is a master versus client type of thing.
+    ONCLI_BAD_KEY_FRAGMENT          //!< Key fragment is invalid or is already part of the key
 } oncli_status_t;
 
 

@@ -416,6 +416,10 @@ const char * const ONCLI_INVALID_DST_STR
 const char * const ONCLI_NEED_TO_JOIN_STR
   = "Device needs to join a network first";
 
+//! String to indicate an invalid key fragment
+const char * const ONCLI_BAD_KEY_FRAGMENT_STR
+  = "Key fragment invalid or already in key";
+
 //! The length of the parameters exceeds the limit.
 const char * const ONCLI_INVALID_CMD_LEN_STR
   = "The command (and parameters) exceeds the max possible length\n";
