@@ -1001,7 +1001,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             {
                                 break;
                             }
-                            one_net_client_client_added(&raw_did_added);
+                            one_net_client_client_added(&raw_did_added,
+                              is_my_did((on_encoded_did_t*)
+                              &(ack_nack->payload->admin_msg)[1]));
                             send_confirm_admin_msg = TRUE;
                             admin_msg_type = ON_ADD_DEV_RESP;
                             break;
@@ -1016,9 +1018,11 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             {
                                 break;
                             }
-                            one_net_client_client_added(&raw_did_added);
+                            one_net_client_client_removed(&raw_did_added,
+                              is_my_did((on_encoded_did_t*)
+                              &(ack_nack->payload->admin_msg)[1]));
                             send_confirm_admin_msg = TRUE;
-                            admin_msg_type = ON_ADD_DEV_RESP;
+                            admin_msg_type = ON_REMOVE_DEV_RESP;
                             break;
                         }
                         
@@ -1648,8 +1652,14 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         }
         
         case ON_ADD_DEV:
-            // TODO -- how should this be handled.
+        {
+            // first check if we are the one being added.
+            on_encoded_did_t* added_device = (on_encoded_did_t*) &DATA[1];
+            on_raw_did_t raw_did;
+            on_decode(raw_did, *added_device, ON_ENCODED_DID_LEN);
+            one_net_client_client_added(&raw_did, is_my_did(added_device));
             break;
+        }
 
         case ON_KEEP_ALIVE_RESP:
             break;  // not sure why a client would get this, but ACK it.

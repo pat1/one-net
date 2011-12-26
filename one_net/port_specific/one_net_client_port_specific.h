@@ -136,10 +136,13 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
     added to the network.
 
     \param[in] raw_did The did of the device that was added.
+    \param[in] this_device_added TRUE if this device was added, false
+               otherwise.
 
     \return void
 */
-void one_net_client_client_added(const on_raw_did_t * const raw_did);
+void one_net_client_client_added(const on_raw_did_t * const raw_did,
+    BOOL this_device_added);
 
 
 /*!
