@@ -3302,7 +3302,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                           &client_list[index % master_param->client_count];
                         i++;
                         index++;
-                        if(client->use_current_key)
+                        if(features_device_sleeps(client->device.features) ||
+                          client->use_current_key)
                         {
                             continue;
                         }
@@ -3355,7 +3356,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                           &client_list[index % master_param->client_count];
                         i++;
                         index++;
-                        if(!(client->send_add_device_message))
+                        if(features_device_sleeps(client->device.features) ||
+                          !(client->send_add_device_message))
                         {
                             continue;
                         }
@@ -3409,7 +3411,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                           &client_list[index % master_param->client_count];
                         i++;
                         index++;
-                        if(!(client->send_remove_device_message))
+                        if(features_device_sleeps(client->device.features) ||
+                          !(client->send_remove_device_message))
                         {
                             continue;
                         }
