@@ -1463,7 +1463,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn, on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
-    
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
 
@@ -1653,11 +1652,20 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_ADD_DEV:
         {
-            // first check if we are the one being added.
+            BOOL this_device_added;
             on_encoded_did_t* added_device = (on_encoded_did_t*) &DATA[1];
             on_raw_did_t raw_did;
             on_decode(raw_did, *added_device, ON_ENCODED_DID_LEN);
-            one_net_client_client_added(&raw_did, is_my_did(added_device));
+            this_device_added = is_my_did(added_device);
+            if(this_device_added)
+            {
+                one_net_client_invite_result(&raw_did, ONS_SUCCESS);
+                client_joined_network = TRUE;
+                master->flags |= ON_JOINED; // TODO -- seems like this should have
+                                    // been set elsewhere?
+                client_looking_for_invite = FALSE;
+            }
+            one_net_client_client_added(&raw_did, this_device_added);
             break;
         }
 
