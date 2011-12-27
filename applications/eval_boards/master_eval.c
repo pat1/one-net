@@ -280,11 +280,13 @@ void init_auto_master(void)
           features_max_hops(THIS_DEVICE_FEATURES);
         #endif
         client_list[i].flags = ON_JOINED;
-        client_list[i].use_current_key = TRUE;        
+        client_list[i].use_current_key = TRUE;
         client_list[i].device.expected_nonce = ON_INVALID_NONCE;
         client_list[i].device.last_nonce = ON_INVALID_NONCE;
         client_list[i].device.send_nonce = ON_INVALID_NONCE;
         client_list[i].device.msg_id = ON_MAX_MSG_ID + 1; // invalid
+        client_list[i].keep_alive_interval = MS_TO_TICK(
+            DEFAULT_EVAL_KEEP_ALIVE_MS);
     }
     
     one_net_master_init(NULL, 0);
