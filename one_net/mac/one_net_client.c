@@ -1089,13 +1089,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 rcvd_keep_alive = TRUE;
                 break;
             }
-            
-            case ON_QUERY_SETTINGS:
-            {
-                master->flags = ack_nack->payload->ack_value.uint8;
-                rcvd_settings = TRUE;
-                break;
-            }
         }       
     }
 

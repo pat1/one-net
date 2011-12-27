@@ -234,9 +234,6 @@ typedef enum
     //! be considered changed until a SETTINGS_RESP is received.
     ON_CHANGE_SETTINGS = 0x10,
     
-    //! Query settings
-    ON_QUERY_SETTINGS = 0x11,
-    
     //! Sent in response to a change settings message.
     ON_CHANGE_SETTINGS_RESP = 0x12,
     

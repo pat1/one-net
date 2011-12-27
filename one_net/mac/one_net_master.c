@@ -2961,49 +2961,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         
-        case ON_QUERY_SETTINGS:
-        {
-            ack_nack->handle = ON_ACK_VALUE;
-            
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                // we may have just received the final stage of adding a
-                // client.
-                if(is_invite_did(SRC_DID))
-                {
-                    // device has been added.
-                    master_param->client_count++;
-                    #ifdef _ONE_NET_MULTI_HOP
-                    if(features_mh_repeat_capable((*client)->device.features))
-                    {
-                        mh_repeater_available = TRUE;
-                    }
-                    #endif
-                    master_param->next_client_did = find_lowest_vacant_did();
-                    one_net_master_invite_result(ONS_SUCCESS, &invite_key,
-                      &raw_did);
-                    one_net_master_cancel_invite(&invite_key);
-
-                    (*client)->flags = ON_JOINED;
-                    
-                    // set the ON_SEND_TO_MASTER to the default value set as
-                    // TRUE or FALSE in the port constants file.
-                    if(ONE_NET_MASTER_SEND_TO_MASTER)
-                    {
-                        (*client)->flags |= ON_SEND_TO_MASTER;
-                    }
-                    
-                    // TODO -- application code call for the ON_SEND_TO_MASTER
-                    // instead?
-
-                    // TODO - send an ON_ADD_DEV message.
-                }
-                
-                ack_nack->payload->ack_value.uint8 = (*client)->flags;
-            } 
-            break;           
-        }
-        
         case ON_FEATURES_RESP:
         {
             one_net_memmove(&((*client)->device.features),
