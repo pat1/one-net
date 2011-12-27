@@ -114,6 +114,12 @@ const on_encoded_did_t MASTER_ENCODED_DID = {0xB4, 0xBC};
 #ifdef _ONE_NET_MULTI_HOP
 //! flag that indicates if any Multi-Hop Repeaters have joined the network
 BOOL mh_repeater_available = FALSE;
+
+//! The number of multi-hop capable devices in the network
+UInt8 num_mh_devices = 0;
+
+//! The number of multi-hop repeater clients in the network
+UInt8 num_mh_repeaters = 0;
 #endif
 
 
