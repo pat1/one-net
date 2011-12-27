@@ -501,7 +501,7 @@ tick_t one_net_client(void)
             //
             if(removed && ont_inactive_or_expired(ONT_INVITE_TIMER))
             {
-                // We've been removed from the network.  We paused for 2
+                // We've been removed from the network.  We paused for 3
                 // seconds to allow any other transaction to complete, and that
                 // pasue is now over.  Set the client_joined_network flag to
                 // false.
@@ -1628,12 +1628,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // we're the ones being removed
                 removed = TRUE;
                 
-                // we'll stay alive for another ten seconds to complete any
+                // we'll stay alive for another 3 seconds to complete any
                 // pending transactions so other devices won't miss any ACKs
                 // or NACKs, then delete ourselves.  Just use the invite
                 // timer.
                 ont_set_timer(ONT_INVITE_TIMER,
-                  MS_TO_TICK(INVITE_TRANSACTION_TIMEOUT));
+                  MS_TO_TICK(3000));
             }
             else
             {
