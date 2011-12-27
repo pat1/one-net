@@ -87,7 +87,7 @@ typedef enum
     ON_NACK_RSN_NEED_FEATURES,       //! Do not have the device's features
     ON_NACK_RSN_FEATURES,            //! A general error involving features / capabilities other than not having them.
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
-    ON_NACK_RSN_OLD_KEY,             //! Sent when the other device is using the old key rather than the new one.
+    ON_NACK_RSN_BAD_KEY,             //! Sent when the other device is using the wrong key
 
     ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
     ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
