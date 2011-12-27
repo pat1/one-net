@@ -233,6 +233,15 @@ static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
 	  , tick_t expire_time_from_now
   #endif
   );
+
+#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+static one_net_status_t send_keep_alive(tick_t send_time_from_now,
+  tick_t expire_time_from_now);
+#elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+static one_net_status_t send_keep_alive(tick_t send_time_from_now);
+#else
+static one_net_status_t send_keep_alive(void);
+#endif
   
 static BOOL look_for_invite(void);
 
@@ -952,7 +961,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 break;
             }
             
-            #ifndef _ONE_NET_SIMPLE_CLIENT
             case ON_ADD_DEV_RESP:
             case ON_REMOVE_DEV_RESP:
             case ON_CHANGE_SETTINGS_RESP:
@@ -960,18 +968,16 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             case ON_CHANGE_FRAGMENT_DELAY_RESP:
             #endif
             {
-                // For non-simple devices, these cases will fall through
-                // intentionally in order to set a random keep-alive time.
-                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                master->keep_alive_interval = MS_TO_TICK(750 +
-                  one_net_prand(get_tick_count(), 2000));
+                // success.  We'll check in immediately again.
+                #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+                send_keep_alive(0, 0);
+                #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                send_keep_alive(0);
                 #else
-                master->keep_alive_interval = 0;
+                send_keep_alive();
                 #endif
-                
                 break;
             }
-            #endif            
             
             case ON_KEEP_ALIVE_RESP:
             {
@@ -1134,36 +1140,36 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                           , FALSE, ONE_NET_DEV_UNIT
                           #endif
                           #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                          , master->keep_alive_interval - MS_TO_TICK(250)
+                          , 0
                           #endif
                           #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
                           , 0
                           #endif
                           );
+                        break;
                     }
+                    
+                    // success.  We'll check in immediately again.
+                    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+                    send_keep_alive(0, 0);
+                    #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                    send_keep_alive(0);
+                    #else
+                    send_keep_alive();
+                    #endif
 
                     break;
                 }
                 
-                // No admin messages.  We were sent a new interval.
+                // No admin messages within the keep-alive response from
+                // the master.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
                 ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
                   master->keep_alive_interval));
                 rcvd_keep_alive = TRUE;
                 break;
             }
-        }       
-    }
-    else if(*msg_type == ON_ADMIN_MSG)
-    {
-        // Admin message failed.  Pick a short random pause and check in with
-        // master.
-        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-        master->keep_alive_interval = MS_TO_TICK(750 +
-          one_net_prand(get_tick_count(), 2000));
-        #else
-        master->keep_alive_interval = 0;
-        #endif
+        }
     }
 
     #ifndef _ONE_NET_MULTI_HOP
@@ -1173,9 +1179,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     one_net_client_single_txn_status(status, (*txn)->retry,
       msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
     #endif
-    
-                    
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR || *msg_type ==
+
+
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR || *msg_type !=
       ON_ADMIN_MSG)
     {
         // Reset the Keep-Alive Timer
@@ -1454,6 +1460,43 @@ static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
 }
 
 
+#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+static one_net_status_t send_keep_alive(tick_t send_time_from_now,
+  tick_t expire_time_from_now)
+#elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+static one_net_status_t send_keep_alive(tick_t send_time_from_now)
+#else
+static one_net_status_t send_keep_alive(void)
+#endif
+{
+    UInt8 raw_pld[5];
+    raw_pld[0] = ON_KEEP_ALIVE_RESP;
+    
+    // copy the last fragment of the key into the message.  The master
+    // will check to make sure we have the right key.  If not, it will
+    // send back the correct last fragment.
+    one_net_memmove(&raw_pld[1],
+      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+
+    return one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
+      ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
+      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
+      #ifdef _PEER
+      , FALSE,
+      ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , send_time_from_now
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+      // if it can't get out of the queue within five seconds, cancel it.
+      , expire_time_from_now
+      #endif
+      );
+}
+
+
 /*!
     \brief Looks for the Invite packet when the device is being added to the
       network.
@@ -1550,11 +1593,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     on_message_status_t status;
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
-    
-    
-    oncli_send_msg("cha %02X%02X%02X%02X%02X\n",
-      DATA[0],DATA[1],DATA[2],DATA[3],DATA[4]);
-
 
 
     switch(DATA[0])
@@ -1810,21 +1848,13 @@ static BOOL check_in_with_master(void)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
 
-    if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
-      ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
-      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
-      #ifdef _PEER
-      , FALSE,
-      ONE_NET_DEV_UNIT
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-      // if it can't get out of the queue within five seconds, cancel it.
-      , MS_TO_TICK(5000)
-      #endif
-      ) == ONS_SUCCESS)
+    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+    if(send_keep_alive(0, 0) == ONS_SUCCESS)
+    #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    if(send_keep_alive(0) == ONS_SUCCESS)
+    #else
+    if(send_keep_alive() == ONS_SUCCESS)
+    #endif
     {
         // this should get reset to something else in the transaction
         // handler long before this timer expires, but just in case it
