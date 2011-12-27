@@ -941,6 +941,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
     
+    
     if(status == ON_MSG_SUCCESS && *msg_type == ON_ADMIN_MSG)
     {
         switch(raw_pld[0])
@@ -951,8 +952,75 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 break;
             }
             
+            #ifndef _ONE_NET_SIMPLE_CLIENT
+            case ON_ADD_DEV_RESP:
+            case ON_REMOVE_DEV_RESP:
+            case ON_CHANGE_SETTINGS_RESP:
+            #ifdef _BLOCK_MESSAGES_ENABLED
+            case ON_CHANGE_FRAGMENT_DELAY_RESP:
+            #endif
+            {
+                // For non-simple devices, these cases will fall through
+                // intentionally in order to set a random keep-alive time.
+                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                master->keep_alive_interval = MS_TO_TICK(750 +
+                  one_net_prand(get_tick_count(), 2000));
+                #else
+                master->keep_alive_interval = 0;
+                #endif
+                
+                break;
+            }
+            #endif            
+            
             case ON_KEEP_ALIVE_RESP:
-            {                 
+            {
+                // If we get anything but a new keep-alive interval, we'll
+                // need to send another keep-alive message very soon, but
+                // not immediately.  We're pausing and making everything
+                // random because the master may be informing lots of clients
+                // about a change, and if so, we could have a lot of
+                // collisions.  The randomness and the slight pause will
+                // hopefully cut down.
+                
+                // TODO / Note
+                // How long and whether to pause and who should pause is
+                // something that needs to be perfected.  It will also vary
+                // greatly between networks based on...
+                
+                // 1.  Whether any devices are multi-hop.
+                // 2.  Whether the network even bothers to inform all the
+                //     devices when a device joins or is removed.  All devices
+                //     need to notified of key changes, of course.
+                // 3.  How many devices are "simple" devices.  "Simple"
+                //     devices can be assumed to 1) not care about device
+                //     additions, and 2) Cannot handle sophisticated decisions
+                //     about how to stagger messages, when messages are to be
+                //     sent in the future, when they should "expire", etc.
+                // 4.  How many devices are in the network.
+                // 5.  How many devices, if any, sleep.
+                
+                
+                // All in all, this is a work in progress and it may be useful
+                // to tweak this protocol to your own system's needs.  I was
+                // trying to make a one-size-fits-all protocol and there just
+                // isn't one, I don't think.
+                
+                
+                // Setting a slight pause till the next check-in.  If there
+                // is no additional check-in needed, we will receive a NEW
+                // keep-alive interval while will override this one.  In fact
+                // that is usually what is going to happen.
+                
+                
+                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                master->keep_alive_interval = MS_TO_TICK(750 +
+                  one_net_prand(get_tick_count(), 2000));
+                #else
+                master->keep_alive_interval = 0;
+                #endif
+                
+                               
                 if(ack_nack->handle == ON_ACK_ADMIN_MSG)
                 {
                     BOOL send_confirm_admin_msg = FALSE;
@@ -982,20 +1050,17 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                                   &(ack_nack->payload->admin_msg[1]),
                                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                            }
-                            
-                            // we have the new key now.  we need to check-in
-                            // again so that the master knows we have the
-                            // correct key.  Slight random pause to prevent
-                            // logjams.
-                            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
-                              one_net_prand(get_tick_count(), 1000)));
-                            
+                            }                            
                             break;
                         }
                         
                         case ON_ADD_DEV:
                         {
+                            // TODO -- we seem to be getting this message
+                            // several times when we join this device joins
+                            // the network.
+                            
+                            
                             BOOL this_device_added;
                             on_encoded_did_t* added_device =
                               (on_encoded_did_t*)
@@ -1008,10 +1073,13 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             }
                             
                             this_device_added = is_my_did(added_device);
-                            one_net_client_client_added(&raw_did_added,
-                              this_device_added);
-                              
-                            if(this_device_added)
+                            
+                            if(!this_device_added)
+                            {
+                                one_net_client_client_added(&raw_did_added);
+                            }
+
+                            if(this_device_added && !client_joined_network)
                             {
                                 one_net_client_invite_result(&raw_did_added,
                                   ONS_SUCCESS);
@@ -1055,6 +1123,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                     
                     if(send_confirm_admin_msg)
                     {
+                        // we'll send a confirmation message here.  We want
+                        // this to go out BEFORE the next keep-alive message
+                        // so we'll set it to go out slightly before the
+                        // next keep-alive check-in if we are able to pause.
                         one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
                           ON_ADMIN_MSG, &admin_msg_type, 1,
                           ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
@@ -1062,18 +1134,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                           , FALSE, ONE_NET_DEV_UNIT
                           #endif
                           #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                          , 0
+                          , master->keep_alive_interval - MS_TO_TICK(250)
                           #endif
                           #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
                           , 0
                           #endif
                           );
                     }
-                    
-                    // the master may have more admin messages for us, so
-                    // we will check in again after a very short pause.
-                    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
-                      one_net_prand(get_tick_count(), 1000)));
+
                     break;
                 }
                 
@@ -1086,6 +1154,17 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             }
         }       
     }
+    else if(*msg_type == ON_ADMIN_MSG)
+    {
+        // Admin message failed.  Pick a short random pause and check in with
+        // master.
+        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        master->keep_alive_interval = MS_TO_TICK(750 +
+          one_net_prand(get_tick_count(), 2000));
+        #else
+        master->keep_alive_interval = 0;
+        #endif
+    }
 
     #ifndef _ONE_NET_MULTI_HOP
     one_net_client_single_txn_status(status, (*txn)->retry,
@@ -1096,22 +1175,16 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     #endif
     
                     
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR || *msg_type ==
+      ON_ADMIN_MSG)
     {
-        if(client_joined_network)
-        {
-            // success.  Reset the Keep-Alive Timer
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER,
-              MS_TO_TICK(master->keep_alive_interval));
-        }
-        else
-        {
-            // success.  Reset the Keep-Alive Timer
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0);
-        }
+        // Reset the Keep-Alive Timer
+        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
+          MS_TO_TICK(master->keep_alive_interval));
     }
     
-    return ON_MSG_SUCCESS;
+    return ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR ? ON_MSG_SUCCESS :
+      ON_MSG_FAIL;
 }
 
 
@@ -1477,6 +1550,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     on_message_status_t status;
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
+    
+    
+    oncli_send_msg("cha %02X%02X%02X%02X%02X\n",
+      DATA[0],DATA[1],DATA[2],DATA[3],DATA[4]);
+
 
 
     switch(DATA[0])
@@ -1674,7 +1752,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             on_raw_did_t raw_did;
             on_decode(raw_did, *added_device, ON_ENCODED_DID_LEN);
             this_device_added = is_my_did(added_device);
-            if(this_device_added)
+            if(this_device_added && !client_joined_network)
             {
                 one_net_client_invite_result(&raw_did, ONS_SUCCESS);
                 client_joined_network = TRUE;
@@ -1682,7 +1760,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                                     // been set elsewhere?
                 client_looking_for_invite = FALSE;
             }
-            one_net_client_client_added(&raw_did, this_device_added);
+            else
+            {
+                one_net_client_client_added(&raw_did);
+            }
             break;
         }
 

@@ -2684,7 +2684,8 @@ static void check_updates_in_progress(void)
     
     // don't worry about filling in any destination addresses.  This message's
     // recipient list will be adjusted when the message is actually popped.
-    if(send_admin_pkt(admin_msg_id, NULL, admin_payload, 0) == ONS_SUCCESS)
+    if(send_admin_pkt(admin_msg_id, NULL, admin_payload,
+      MS_TO_TICK(2500)) == ONS_SUCCESS)
     {
         last_send_time = time_now;
     }
@@ -3148,186 +3149,123 @@ static on_client_t* check_client_check_ins(void)
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list)
 {
-    // first see if this is an admin message of type ON_NEW_KEY_FRAGMENT,
-    // ON_ADD_DEV, or ON_RM_DEV
-    if(msg->msg_type == ON_ADMIN_MSG)
+    int i, index;
+    on_did_unit_t did_unit;
+    on_client_t* client;
+    
+    
+    // it's possible that this message was queued at a time when we had
+    // clients, but we no longer have any.  If that's the case, cancel this
+    // message.
+    
+    // TODO -- is this really possible?  Perhaps during a deletion?  Is this
+    // checked anywhere else?
+    if(master_param->client_count == 0)
     {
-        int i;
-        int index = master_param->client_count == 0 ? 0 :
-          one_net_prand(get_tick_count(), master_param->client_count);
-        on_did_unit_t did_unit;
-        on_client_t* client;
-        BOOL add_clients = TRUE;
-        did_unit.unit = ONE_NET_DEV_UNIT;
-        
-        switch(msg->payload[0])
+        *recipient_send_list = NULL;
+        return;
+    }
+    
+    // first see if this is an admin message of type ON_NEW_KEY_FRAGMENT,
+    // ON_ADD_DEV, or ON_RM_DEV.  If not, we aren't interested in it here, but
+    // the application code might be.
+    if(msg->msg_type != ON_ADMIN_MSG || (msg->payload[0] != ON_NEW_KEY_FRAGMENT
+      && msg->payload[0] != ON_ADD_DEV && msg->payload[0] != ON_RM_DEV))
+    {
+        one_net_adjust_recipient_list(msg, recipient_send_list);
+        return;
+    }
+    
+    did_unit.unit = ONE_NET_DEV_UNIT; // all of these updates go to the device
+                                      // as a whole.
+    
+    // we may already have a destination queued.  If so, override the
+    // random index with that one.
+    client = NULL;
+    if((*recipient_send_list)->num_recipients)
+    {
+        client = client_info(
+          &(*recipient_send_list)->recipient_list[0].did);
+          
+        if(client)
         {
-            // TODO -- seems like we should be able to condense these
-            // three cases.
-            case ON_NEW_KEY_FRAGMENT:
+            // iterate through the clients till we find the one we're queued
+            // to send.
+            for(index = 0; index < master_param->client_count; index++)
             {
-                if(!key_update_in_progress)
+                if(client == &client_list[index])
                 {
-                    *recipient_send_list = NULL;
-                    return;
+                    break; // found it.
                 }
-                
-                if((*recipient_send_list)->num_recipients > 0)
-                {
-                    // we already have a list, so don't add anybody.
-                    add_clients = FALSE;
-                }
-                
-                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
-                {
-                    client = client_info(
-                      &(*recipient_send_list)->recipient_list[i].did);
-                    if(!client || client->use_current_key)
-                    {
-                        remove_recipient_from_recipient_list(
-                          *recipient_send_list, 
-                          &(*recipient_send_list)->recipient_list[i]);
-                    }
-                }
-                
-                if(add_clients)
-                {
-                    // send to at most 5 devices at a time.
-                    i = 0;
-                    while(i < master_param->client_count &&
-                      (*recipient_send_list)->num_recipients < 5)
-                    {
-                        client =
-                          &client_list[index % master_param->client_count];
-                        i++;
-                        index++;
-                        if(features_device_sleeps(client->device.features) ||
-                          client->use_current_key)
-                        {
-                            continue;
-                        }
-                        
-                        did_unit.did[0] = client->device.did[0];
-                        did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(*recipient_send_list,
-                          &did_unit);
-                    }
-                }
-                
-                return;
-            }
-            
-            case ON_ADD_DEV:
-            {
-                if(!add_device_update_in_progress)
-                {
-                    *recipient_send_list = NULL;
-                    return;
-                }
-                
-                if((*recipient_send_list)->num_recipients > 0)
-                {
-                    // we already have a list, so don't add anybody.
-                    add_clients = FALSE;
-                }
-                
-                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
-                {
-                    client = client_info(
-                      &((*recipient_send_list)->recipient_list[i].did));
-                    if(!client || client->use_current_key)
-                    {
-                        remove_recipient_from_recipient_list(
-                          *recipient_send_list, 
-                          &((*recipient_send_list)->recipient_list[i]));
-                    }
-                }
-                
-                if(add_clients)
-                {
-                    // send to at most 5 devices at a time.
-                    i = 0;
-                    while(i < master_param->client_count &&
-                      (*recipient_send_list)->num_recipients < 5)
-                    {
-                        client =
-                          &client_list[index % master_param->client_count];
-                        i++;
-                        index++;
-                        if(features_device_sleeps(client->device.features) ||
-                          !(client->send_add_device_message))
-                        {
-                            continue;
-                        }
-                        
-                        did_unit.did[0] = client->device.did[0];
-                        did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(*recipient_send_list,
-                          &did_unit);
-                    }
-                }
-                
-                return;
-            }
-            
-            
-            case ON_RM_DEV:
-            {
-                if(!remove_device_update_in_progress)
-                {
-                    *recipient_send_list = NULL;
-                    return;
-                }
-                
-                if((*recipient_send_list)->num_recipients > 0)
-                {
-                    // we already have a list, so don't add anybody.
-                    add_clients = FALSE;
-                }
-                
-                for(i = (*recipient_send_list)->num_recipients - 1; i >= 0; i--)
-                {
-                    client = client_info(
-                      &((*recipient_send_list)->recipient_list[i].did));
-                    if(!client || client->use_current_key)
-                    {
-                        remove_recipient_from_recipient_list(
-                          *recipient_send_list,
-                          &((*recipient_send_list)->recipient_list[i]));
-                    }
-                }
-                
-                if(add_clients)
-                {
-                    // send to at most 5 devices at a time.
-                    i = 0;
-                    while(i < master_param->client_count &&
-                      (*recipient_send_list)->num_recipients < 5)
-                    {
-                        client =
-                          &client_list[index % master_param->client_count];
-                        i++;
-                        index++;
-                        if(features_device_sleeps(client->device.features) ||
-                          !(client->send_remove_device_message))
-                        {
-                            continue;
-                        }
-                        
-                        did_unit.did[0] = client->device.did[0];
-                        did_unit.did[1] = client->device.did[1];
-                        add_recipient_to_recipient_list(*recipient_send_list,
-                          &did_unit);
-                    }
-                }
-                
-                return;
+                client = NULL;
             }
         }
     }
-
-
-    one_net_adjust_recipient_list(msg, recipient_send_list);
+    
+    
+    // clear the list.  If there was something on it and it still needs to be
+    // sent, we'll add it back in
+    (*recipient_send_list)->num_recipients = 0;
+    
+    // if we don't have an index already, pick a random one.
+    if(!client)
+    {
+        index = one_net_prand(get_tick_count(), master_param->client_count - 1);
+    }
+    
+    
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(index >= master_param->client_count)
+        {
+            index = 0; // wraparound.
+        }
+        client = &client_list[index];
+        index++;
+        
+        // see if we need to send this message fo this client.  We don't need
+        // to send it if...
+        // 1) It's already been sent and the device has verified that it has
+        //    been sent.
+        // 2) The device sleeps.  Sleeping devices don't receive outgoing
+        //    messages for these particular updates.  They get them when they
+        //    check in with keep-alive messages.
+        
+        // TODO -- do we need to check this one?  Presumably it was checked
+        //         before it was queued in the first place?
+        if(features_device_sleeps(client->device.features))
+        {
+            continue;
+        }
+        
+        if(msg->payload[0] == ON_NEW_KEY_FRAGMENT && client->use_current_key)
+        {
+            // already sent
+            continue;
+        }
+        if(msg->payload[0] == ON_ADD_DEV &&
+          !(client->send_add_device_message))
+        {
+            // already sent
+            continue;
+        }
+        if(msg->payload[0] == ON_RM_DEV &&
+          !(client->send_remove_device_message))
+        {
+            // already sent
+            continue;
+        }
+        
+        
+        // looks like we should send this one.
+        did_unit.did[0] = client->device.did[0];
+        did_unit.did[1] = client->device.did[1];
+        add_recipient_to_recipient_list(*recipient_send_list, &did_unit);
+        return;
+    }
+    
+    // looks like nothing should be sent.  Abort this message.
+    *recipient_send_list = NULL;
 }
 #endif
       
