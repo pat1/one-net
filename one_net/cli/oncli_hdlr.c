@@ -1070,16 +1070,10 @@ static oncli_status_t list_cmd_hdlr(void)
     if(client_joined_network)
     #endif
 	{
-        // print encryption keys
-		oncli_send_msg    ("Non-stream message key : ");
+        // print encryption key
+		oncli_send_msg    ("Message key : ");
 	    oncli_print_xtea_key(&(on_base_param->current_key));
-        oncli_send_msg("\n");
-    	#ifdef _STREAM_MESSAGES_ENABLED
-		oncli_send_msg("Stream message key     : ");
-	    oncli_print_xtea_key(&(on_base_param->stream_key));			
-        oncli_send_msg("\n");
-		#endif
-        oncli_send_msg("\n");
+        oncli_send_msg("\n\n");
         // print the NID and the DID
         if(oncli_print_sid((on_encoded_sid_t*)(on_base_param->sid)) !=
           ONCLI_SUCCESS)
@@ -1682,8 +1676,6 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         on_base_param->single_block_encrypt = add_single_block_encrypt;
         on_base_param->channel = add_channel;
     #ifdef _STREAM_MESSAGES_ENABLED
-        one_net_memmove(on_base_param->stream_key, add_key,
-          sizeof(one_net_xtea_key_t));
         on_base_param->stream_encrypt = add_stream_encrypt;
     #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
