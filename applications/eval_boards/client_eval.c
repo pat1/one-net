@@ -116,7 +116,7 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
     else
     {
         oncli_send_msg("Device %03d has been removed from the network.\n",
-          raw_did);
+          did_to_u16(raw_did));
     }
 }
 
