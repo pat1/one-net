@@ -540,13 +540,18 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     // check for repeater
     for(i = 0; i < master_param->client_count; i++)
     {
-        if(features_mh_repeat_capable(
-          client_list[i].device.features))
+        if(features_mh_capable(client_list[i].device.features))
         {
-            mh_repeater_available = TRUE;
+            num_mh_devices++;
             break;
-        } // if a mh repeater capable CLIENT was found //
-    } // loop to look for any Multi-Hop repeaters //
+        } // if client is a multi-hop client //
+        
+        if(features_mh_repeat_capable(client_list[i].device.features))
+        {
+            num_mh_repeaters++;
+            break;
+        } // if client is a multi-hop repeater //
+    } // loop to look for Multi-Hop and Multi-Hop repeaters //
     #endif
     
     if((status = init_internal()) != ONS_SUCCESS)
@@ -800,6 +805,7 @@ one_net_status_t one_net_master_remove_device(
     one_net_status_t status;
     UInt8 i;
     on_client_t* client;
+    UInt8 admin_pld[4];
     
     
     if(remove_device_update_in_progress)
@@ -846,6 +852,16 @@ one_net_status_t one_net_master_remove_device(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
     
+    #ifdef _ONE_NET_MULTI_HOP
+    if(features_mh_capable(client->device.features))
+    {
+        num_mh_devices--;
+    }
+    if(features_mh_repeat_capable(client->device.features))
+    {
+        num_mh_repeaters--;
+    }
+    #endif
     
     remove_device_update_in_progress = TRUE;
     
@@ -859,11 +875,22 @@ one_net_status_t one_net_master_remove_device(
     one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL, &remove_device_did,
       ONE_NET_DEV_UNIT);
     #endif
+    
+    admin_pld[0] = remove_device_did[0];
+    admin_pld[1] = remove_device_did[1];
+    #ifdef _ONE_NET_MULTI_HOP
+    admin_pld[2] = num_mh_devices;
+    admin_pld[3] = num_mh_repeaters;
+    #else
+    // TODO -- should we ban multi-hop just because the master isn't capable?
+    admin_pld[2] = 0;
+    admin_pld[3] = 0;
+    #endif
 
     // all client peer assignments to this did are removed.  Now remove the device itself.
     // When that's done, the other devices will also be informed of this deletion.
     return send_admin_pkt(ON_RM_DEV, (const on_encoded_did_t * const)&remove_device_did,
-      (const UInt8*) remove_device_did, 0);
+      admin_pld, 0);
 } // one_net_master_remove_device //
 
 
@@ -1066,7 +1093,7 @@ void one_net_master(void)
                 
                 #ifdef _ONE_NET_MULTI_HOP
                 txn->retry++;
-                if(mh_repeater_available && txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
+                if(num_mh_repeaters && txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
                 {
                     txn->retry = 0;
                     raw_pid = ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT;
@@ -1225,9 +1252,14 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     master_param->next_client_did = find_lowest_vacant_did();
     
     #ifdef _ONE_NET_MULTI_HOP
+    if(features_mh_capable(features))
+    {
+        num_mh_devices++;
+    }
+    
     if(features_mh_repeat_capable(features))
     {
-        mh_repeater_available = TRUE;
+        num_mh_repeaters++;
     }
     #endif
 
@@ -1800,9 +1832,9 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
         if(txn->retry >= ON_MAX_RETRY)
         {
             #ifdef _ONE_NET_MULTI_HOP
-            // we may be able to re-send with a higher max hops.
-            
-            if(mh_repeater_available && txn->max_hops <
+            // we may be able to re-send with a higher max hops if there are
+            // any multi-hop clients.
+            if(num_mh_repeaters && txn->max_hops <
               txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
@@ -2389,11 +2421,14 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               admin_type = ON_ADD_DEV;
               one_net_memmove(&admin_pld[0], add_device_did, ON_ENCODED_DID_LEN);
               #ifdef _ONE_NET_MULTI_HOP
-              // Byte 2 is whether the device has mh-repeater capabilty
-              admin_pld[2] = (UInt8) features_mh_repeat_capable(
-                client->device.features);
-              // Byte 3 is whether there are any mh-repeaters in the network
-              admin_pld[3] = (UInt8) mh_repeater_available;
+              // Byte 2 is the # of MH devices in the network
+              admin_pld[2] = num_mh_devices;
+              // Byte 3 is the # of MH repeaters in the network
+              admin_pld[3] = num_mh_repeaters;
+              #else
+              // TODO -- ban Multi-Hop just because the master doesn't have it?
+              admin_pld[2] = 0;
+              admin_pld[3] = 0;
               #endif
           }
           else
@@ -2407,11 +2442,14 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               admin_type = ON_RM_DEV;
               one_net_memmove(&admin_pld[0], remove_device_did, ON_ENCODED_DID_LEN);
               #ifdef _ONE_NET_MULTI_HOP
-              // Byte 2 is whether the device has mh-repeater capabilty
-              admin_pld[2] = (UInt8) features_mh_repeat_capable(
-                client->device.features);
-              // Byte 3 is whether there are any mh-repeaters in the network
-              admin_pld[3] = (UInt8) mh_repeater_available;
+              // Byte 2 is the # of MH devices in the network
+              admin_pld[2] = num_mh_devices;
+              // Byte 3 is the # of MH repeaters in the network
+              admin_pld[3] = num_mh_repeaters;
+              #else
+              // TODO -- ban Multi-Hop just because the master doesn't have it?
+              admin_pld[2] = 0;
+              admin_pld[3] = 0;
               #endif
           }
           else
@@ -2546,6 +2584,15 @@ static void check_updates_in_progress(void)
                 admin_msg_id = ON_RM_DEV;
                 admin_payload[0] = remove_device_did[0];
                 admin_payload[1] = remove_device_did[1];
+                #ifdef _ONE_NET_MULTI_HOP
+                admin_payload[2] = num_mh_devices;
+                admin_payload[3] = num_mh_repeaters;
+                #else
+                // TODO -- should we ban multi-hop just because the master
+                // isn't capable.
+                admin_payload[2] = 0;
+                admin_payload[3] = 0;
+                #endif
                 remove_device_update_in_progress = TRUE;
                 break; // we have one.
             }
@@ -2575,6 +2622,15 @@ static void check_updates_in_progress(void)
                 admin_msg_id = ON_ADD_DEV;
                 admin_payload[0] = add_device_did[0];
                 admin_payload[1] = add_device_did[1];
+                #ifdef _ONE_NET_MULTI_HOP
+                admin_payload[2] = num_mh_devices;
+                admin_payload[3] = num_mh_repeaters;
+                #else
+                // TODO -- should we ban multi-hop just because the master
+                // isn't capable.
+                admin_payload[2] = 0;
+                admin_payload[3] = 0;
+                #endif
                 add_device_update_in_progress = TRUE;
                 break; // we have one.
             }
@@ -2663,10 +2719,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 
     switch(admin_msg_id)
     {
-        case ON_ADD_DEV:
-        case ON_RM_DEV:
-            admin_pld_data_len = 2;
-            break;
         case ON_CHANGE_SETTINGS:
             admin_pld_data_len = 1;
             break;
@@ -2855,6 +2907,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // client has fulfilled its obligation to check in with the master
             // only when it has received this new keep-alive time.  That
             // signifies that the master has no more messages for this client.
+            on_encoded_did_t* device_change_did = NULL;
             
             ack_nack->handle = ON_ACK_ADMIN_MSG;
             
@@ -2914,6 +2967,19 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     // device is now added.  Adjust the client count,
                     // next Device DID, and notify everyone.
                     (*client)->flags |= ON_JOINED;
+                    
+                    // adjust the multi-hop and repeater count
+                    #ifdef _ONE_NET_MULTI_HOP
+                    if(features_mh_capable((*client)->device.features))
+                    {
+                        num_mh_devices++;
+                    }
+                    if(features_mh_repeat_capable((*client)->device.features))
+                    {
+                        num_mh_repeaters++;
+                    }
+                    #endif
+                    
                     add_device_update_in_progress = TRUE;
                     one_net_master_cancel_invite(&invite_key);
                     master_param->client_count++;
@@ -2931,21 +2997,34 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if(remove_device_update_in_progress && 
               (*client)->send_remove_device_message)
             {
+                device_change_did = &remove_device_did;
                 ack_nack->payload->admin_msg[0] = ON_RM_DEV;
-                ack_nack->payload->admin_msg[1] = remove_device_did[0];
-                ack_nack->payload->admin_msg[2] = remove_device_did[1];
                 break;
             }
             
             if(add_device_update_in_progress && 
               (*client)->send_add_device_message)
             {
+                device_change_did = &add_device_did;
                 ack_nack->payload->admin_msg[0] = ON_ADD_DEV;
-                ack_nack->payload->admin_msg[1] = add_device_did[0];
-                ack_nack->payload->admin_msg[2] = add_device_did[1];
                 break;
             }
-
+            
+            if(device_change_did)
+            {
+                ack_nack->payload->admin_msg[1] = (*device_change_did)[0];
+                ack_nack->payload->admin_msg[2] = (*device_change_did)[1];
+                #ifdef _ONE_NET_MULTI_HOP
+                ack_nack->payload->admin_msg[3] = num_mh_devices;
+                ack_nack->payload->admin_msg[4] = num_mh_repeaters;
+                #else
+                // TODO - should we ban multi-hop just because the master
+                // isn't multi-hop?
+                ack_nack->payload->admin_msg[3] = 0;
+                ack_nack->payload->admin_msg[4] = 0;
+                #endif
+            }
+            
             // they have the right key and no other admin messages need to
             // go out.  We'll send back the keep-alive interval they should
             // use.

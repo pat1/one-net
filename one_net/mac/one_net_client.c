@@ -882,9 +882,10 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         if(txn->retry >= ON_MAX_RETRY)
         {
             #ifdef _ONE_NET_MULTI_HOP
-            // we may be able to re-send with a higher max hops.
+            // we may be able to re-send with a higher max hops if there are
+            // any repeaters available
             
-            if((mh_repeater_available || !client_joined_network) &&
+            if((num_mh_repeaters || !client_joined_network) &&
               txn->max_hops < txn->device->max_hops)
             {
                 on_raw_did_t raw_did;

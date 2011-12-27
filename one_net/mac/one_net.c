@@ -116,7 +116,7 @@ const on_encoded_did_t MASTER_ENCODED_DID = {0xB4, 0xBC};
 BOOL mh_repeater_available = FALSE;
 
 //! The number of multi-hop capable devices in the network
-UInt8 num_mh_devices = 0;
+UInt8 num_mh_devices = 1; // add 1 for the master
 
 //! The number of multi-hop repeater clients in the network
 UInt8 num_mh_repeaters = 0;

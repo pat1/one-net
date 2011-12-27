@@ -1060,8 +1060,8 @@ static oncli_status_t list_cmd_hdlr(void)
     #endif
     
     #ifdef _ONE_NET_MULTI_HOP
-    oncli_send_msg("MH Repeater Available : %s\n",
-      mh_repeater_available ? TRUE_STR : FALSE_STR);
+    oncli_send_msg("# of Network MH Devices : %d\n", num_mh_devices);
+    oncli_send_msg("# of Network MH Repeaters : %d\n", num_mh_repeaters);
     #endif
     
     #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
