@@ -407,7 +407,8 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
         BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
-            case ON_ACK_FEATURES:              
+            case ON_ACK_FEATURES:
+            case ON_ACK_KEY_FRAGMENT:
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
             case ON_ACK_ADMIN_MSG:
@@ -498,9 +499,10 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
-            case ON_ACK_FEATURES:              
-                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
-                  sizeof(on_features_t));
+            case ON_ACK_FEATURES:
+            case ON_ACK_KEY_FRAGMENT:
+                // both features and key fragments are 4 bytes long.
+                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload, 4);
                 break;
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
