@@ -2999,7 +2999,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 device_change_did = &remove_device_did;
                 ack_nack->payload->admin_msg[0] = ON_RM_DEV;
-                break;
             }
             
             if(add_device_update_in_progress && 
@@ -3007,7 +3006,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 device_change_did = &add_device_did;
                 ack_nack->payload->admin_msg[0] = ON_ADD_DEV;
-                break;
             }
             
             if(device_change_did)
@@ -3023,6 +3021,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 ack_nack->payload->admin_msg[3] = 0;
                 ack_nack->payload->admin_msg[4] = 0;
                 #endif
+                break;
             }
             
             // they have the right key and no other admin messages need to
