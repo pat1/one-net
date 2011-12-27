@@ -874,19 +874,13 @@ one_net_status_t one_net_master_remove_device(
       rather than one_net_master.h so that one_net.h does not have to
       include one_net_master.h
 
-    \param[in] type Stream, Block, or Single
     \param[in] did of the device
 
     \return The key to use.  NULL if type is invalid or the device is not
             part of the network
 */
-#ifdef _STREAM_MESSAGES_ENABLED
-one_net_xtea_key_t* master_get_encryption_key(on_data_t type,
-  const on_encoded_did_t* const did)
-#else
 one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did)
-#endif
 {
     on_client_t* client;
     
@@ -898,26 +892,12 @@ one_net_xtea_key_t* master_get_encryption_key(
     if(on_encoded_did_equal(did, &MASTER_ENCODED_DID))
     {
         // the device is this master device.  Master is using the current key.
-        #ifdef _STREAM_MESSAGES_ENABLED
-        if(type == ON_STREAM)
-        {
-            return (one_net_xtea_key_t*)(on_base_param->stream_key);
-        }
-        #endif
         return (one_net_xtea_key_t*)(on_base_param->current_key);
     }
     
     client = client_info(did);
     if(client == NULL)
     {
-        // this could be an invite in progress.  Check.
-        #ifdef _STREAM_MESSAGES_ENABLED
-        if(type != ON_SINGLE)
-        {
-            return NULL; // only want singles
-        }
-        #endif
-
         if(is_invite_did(did))
         {
             return (one_net_xtea_key_t*)(on_base_param->current_key);
@@ -1229,17 +1209,11 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
       ON_ENCODED_DID_LEN);
     one_net_memmove(out_base_param->current_key, on_base_param->current_key,
-      sizeof(one_net_xtea_key_t));
-#ifdef _STREAM_MESSAGES_ENABLED
-    one_net_memmove(out_base_param->stream_key, on_base_param->stream_key,
-      sizeof(one_net_xtea_key_t));
-#endif      
+      sizeof(one_net_xtea_key_t));    
     out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
     out_base_param->channel = on_base_param->channel;
 #ifdef _STREAM_MESSAGES_ENABLED
-    one_net_memmove(out_base_param->stream_key, on_base_param->stream_key,
-      sizeof(one_net_xtea_key_t));
     out_base_param->stream_encrypt = on_base_param->stream_encrypt;
 #endif
 #ifdef _BLOCK_MESSAGES_ENABLED

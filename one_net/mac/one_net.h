@@ -610,14 +610,8 @@ void one_net_init(void);
 // one_net.h include one_net_master.h.  The implementation is in
 // one_net_master.c
 #ifdef _ONE_NET_MASTER
-#ifdef _STREAM_MESSAGES_ENABLED
-one_net_xtea_key_t* master_get_encryption_key(on_data_t type,
-  const on_encoded_did_t* const did);
-#else
 one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did);
-#endif
-
 BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did);
 #endif
 
