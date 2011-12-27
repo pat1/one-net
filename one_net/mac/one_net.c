@@ -562,10 +562,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);
       
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
-	raw_payload_bytes[ON_PLD_RESP_HANDLE_IDX] |=
-      (ack_nack->handle & ON_RESP_HANDLE_BUILD_MASK); 
-      
-      
+	put_ack_nack_handle(ack_nack->handle, raw_payload_bytes);
+
     // compute the crc
     raw_payload_bytes[0] = (UInt8)one_net_compute_crc(
       &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
