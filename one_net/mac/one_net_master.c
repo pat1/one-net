@@ -189,7 +189,14 @@ static BOOL settings_sent = FALSE;
 static BOOL fragment_delay_sent = FALSE;
 #endif
 
+//! The time that the remove device update started.
+static tick_t remove_device_start_time = 0;
 
+//! The time that the add device update started.
+static tick_t add_device_start_time = 0;
+
+//! The time that the change update started.
+static tick_t change_key_start_time = 0;
 
 
 
@@ -612,6 +619,8 @@ one_net_status_t one_net_master_change_key_fragment(
     }
     
     key_update_in_progress = TRUE;
+    change_key_start_time = get_tick_count();
+
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
     one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
@@ -864,6 +873,8 @@ one_net_status_t one_net_master_remove_device(
     #endif
     
     remove_device_update_in_progress = TRUE;
+    remove_device_start_time = get_tick_count();
+
     
     for(i = 0; i < master_param->client_count; i++)
     {
@@ -2563,17 +2574,36 @@ static void check_updates_in_progress(void)
     static tick_t last_send_time = 0;
     tick_t time_now = get_tick_count();
     const tick_t SEND_INTERVAL = MS_TO_TICK(5000);
+    
+    // The time to stop trying to update any devices which have not been updated
+    // TODO -- should this be a port constant?  Should it exist at all?
+    // Note -- Does NOT apply to devices that sleep with key changes
+    // And should this value be defined locally or globally.
+    // located here?
+    const tick_t UPDATE_TIME_LIMIT = MS_TO_TICK(60000);
+
     UInt16 i;
     on_client_t* client;
     UInt8 admin_payload[4];
     on_ack_nack_t ack;
     UInt8 admin_msg_id = 0xFF; // garbage argument.  Will be written over if
                                // any real message is to be sent.
+
     ack.nack_reason = ON_NACK_RSN_NO_ERROR;
 
     // now go through the update types and see if any messages need sending
     if(remove_device_update_in_progress)
     {
+        if(time_now > remove_device_start_time + UPDATE_TIME_LIMIT)
+        {
+            // time's up.  Set everyone's flag to "sent" even if they have not
+            // sent.  This includes devices that sleep.
+            for(i = 0; i < master_param->client_count; i++)
+            {
+                client_list[i].send_remove_device_message = FALSE;
+            }
+        }        
+        
         remove_device_update_in_progress = FALSE;
         
         // now check if we're done with this update.
@@ -2612,6 +2642,17 @@ static void check_updates_in_progress(void)
 
     else if(add_device_update_in_progress)
     {
+        if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
+        {
+            // time's up.  Set everyone's flag to "sent" even if they have not
+            // sent.  This includes devices that sleep.
+            for(i = 0; i < master_param->client_count; i++)
+            {
+                client_list[i].send_add_device_message = FALSE;
+            }
+        }
+        
+        
         add_device_update_in_progress = FALSE;
         
         // now check if we're done with this update.
@@ -2650,6 +2691,19 @@ static void check_updates_in_progress(void)
 
     else if(key_update_in_progress)
     {
+        if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
+        {
+            // time's up.  Set everyone's flag to "sent" even if they have not
+            // sent.  This does not include devices that sleep.
+            for(i = 0; i < master_param->client_count; i++)
+            {
+                if(!features_device_sleeps(client[i].device.features))
+                {
+                    client_list[i].send_add_device_message = FALSE;
+                }
+            }
+        }        
+        
         key_update_in_progress = FALSE;
 
         // now check if we're done with this update.
@@ -2982,6 +3036,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     #endif
                     
                     add_device_update_in_progress = TRUE;
+                    add_device_start_time = get_tick_count();
+
                     one_net_master_cancel_invite(&invite_key);
                     master_param->client_count++;
                     master_param->next_client_did = find_lowest_vacant_did();
