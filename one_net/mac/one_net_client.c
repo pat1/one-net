@@ -1791,7 +1791,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 */
 static BOOL check_in_with_master(void)
 {
-    tick_t keep_alive_time;
     UInt8 raw_pld[5];
     
     if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
@@ -1802,7 +1801,6 @@ static BOOL check_in_with_master(void)
     // we are part of the network already or are in the process of
     // joining the network and are sending our first keep-alive
     // message.
-    keep_alive_time = MS_TO_TICK(1000);
     raw_pld[0] = ON_KEEP_ALIVE_RESP;
     
     // copy the last fragment of the key into the message.  The master
@@ -1811,11 +1809,6 @@ static BOOL check_in_with_master(void)
     one_net_memmove(&raw_pld[1],
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-      
-    // this may or may not get overridden later depending on whether / how
-    // we get ACK'd.
-    ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(1000 + one_net_prand(
-      get_tick_count(), 1000)));
 
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
@@ -1825,14 +1818,18 @@ static BOOL check_in_with_master(void)
       ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , MS_TO_TICK(500)
+      , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-      , MS_TO_TICK(1500)
+      // if it can't get out of the queue within five seconds, cancel it.
+      , MS_TO_TICK(5000)
       #endif
       ) == ONS_SUCCESS)
     {
-        ont_set_timer(ONT_KEEP_ALIVE_TIMER, keep_alive_time);
+        // this should get reset to something else in the transaction
+        // handler long before this timer expires, but just in case it
+        // doesn't reset it for 10 seconds here.
+        ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(10000));
         return TRUE;
     }
     
