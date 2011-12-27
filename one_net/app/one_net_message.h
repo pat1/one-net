@@ -190,11 +190,6 @@ typedef enum
     //! bytes at the end
     ON_NEW_KEY_FRAGMENT = 0x02,
     
-    #ifdef _EXTENDED_SINGLE
-    //! Replacing all 16 bytes of the key
-    ON_NEW_KEY = 0x03,
-    #endif
-    
     //! Response from a client when a device has been added.
     ON_ADD_DEV_RESP = 0x04,
     

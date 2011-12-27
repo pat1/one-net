@@ -2670,12 +2670,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
         case ON_CHANGE_SETTINGS:
             admin_pld_data_len = 1;
             break;
-        case ON_NEW_KEY:
-             admin_pld_data_len = ONE_NET_XTEA_KEY_LEN;
-             raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
-             // send a little bit in the future so we don't hog all the
-             // resouces.
-             break;
     }
 
     
