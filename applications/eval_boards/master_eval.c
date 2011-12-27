@@ -625,7 +625,7 @@ static void send_auto_msg(void)
         // each client gets a different text message
         char* auto_messages[NUM_AUTO_CLIENTS] = {"11", "22", "33"};
 
-        for(i = 0; i < /*NUM_AUTO_CLIENTS*/1; i++)
+        for(i = 0; i < NUM_AUTO_CLIENTS; i++)
         {
             send_simple_text_command(auto_messages[i], ONE_NET_DEV_UNIT,
               ONE_NET_DEV_UNIT, &ENC_AUTO_CLIENT_DID[i]);
