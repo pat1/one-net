@@ -1635,8 +1635,8 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     response_msg_or_timeout = TRUE;
                     msg_status = rx_single_resp_pkt(txn, &this_txn,
-                      this_pkt_ptrs, raw_payload_bytes, &ack_nack);                    
-
+                      this_pkt_ptrs, raw_payload_bytes, &ack_nack);
+                      
                     switch(msg_status)
                     {
                         case ON_MSG_IGNORE:
@@ -1965,8 +1965,9 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         else
         {
             // they gave us a bad nonce.  We accepted theirs.  We won't
-            // change ours and we'll hope that we'll sync up the next
-            // time we send.  Set the NACK reason to a bad nonce.
+            // change ours unless it's invalid and we'll hope that we'll
+            // sync up the next time we send.  Set the NACK reason to a
+            // bad nonce.
             ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
         }
     }
@@ -1990,10 +1991,12 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     
     
     // if we have a nack reason of anything but a bad nonce or a bad message
-    // id AND a verification was needed, we'll change nonces
-
-    if(verify_needed && (ack_nack->nack_reason != ON_NACK_RSN_NONCE_ERR &&
-      ack_nack->nack_reason != ON_NACK_RSN_INVALID_MSG_ID))
+    // id AND a verification was needed, we'll change nonces.  We will also
+    // pick a new nonce if the expected nonce is illegal.  Otherwise the other
+    // device can never match it.
+    if((*txn)->device->expected_nonce > ON_MAX_NONCE || (verify_needed &&
+      (ack_nack->nack_reason != ON_NACK_RSN_NONCE_ERR &&
+      ack_nack->nack_reason != ON_NACK_RSN_INVALID_MSG_ID)))
     {
         // pick a new nonce
         (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
@@ -2263,6 +2266,14 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // now let's see if the other device gave US the correct nonce.
     if((*txn)->device->expected_nonce != txn_nonce)
     {
+        // Make sure that the expected nonce is a legal nonce.  If not, change
+        // it to a legal one or we'll never get a matching nonce.
+        if((*txn)->device->expected_nonce > ON_MAX_NONCE)
+        {
+            (*txn)->device->expected_nonce = one_net_prand(get_tick_count(),
+              ON_MAX_NONCE);
+        }
+        
         // they gave us the wrong nonce.
         ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
     }
