@@ -584,7 +584,7 @@ one_net_status_t one_net_master_change_key_fragment(
 {
     // TODO -- do we need these two variables?
     one_net_xtea_key_t* key = (one_net_xtea_key_t*)on_base_param->current_key;
-    one_net_xtea_key_t* old_key = (one_net_xtea_key_t*) master_param->old_key;
+    one_net_xtea_key_t* old_key = (one_net_xtea_key_t*)on_base_param->old_key;
     
     if(key_update_in_progress)
     {
@@ -927,7 +927,7 @@ one_net_xtea_key_t* master_get_encryption_key(
     
     return client->use_current_key ?
       (one_net_xtea_key_t*)(on_base_param->current_key) :
-      (one_net_xtea_key_t*)(master_param->old_key);
+      (one_net_xtea_key_t*)(on_base_param->old_key);
 } // master_get_encryption_key //
 
 

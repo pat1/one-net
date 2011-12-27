@@ -313,9 +313,6 @@ typedef struct
 {
     //! The next available DID to be handed to a CLIENT that joins the network.
     UInt16 next_client_did;
-	
-    //! The last key used
-    one_net_xtea_key_t old_key;
     
     //! The number of CLIENTs currently in the network
     UInt16 client_count;

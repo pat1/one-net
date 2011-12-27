@@ -1116,7 +1116,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             if(device_is_master)
                             {
                                 one_net_memmove(alternate_keys[1],
-                                  master_param->old_key,
+                                  on_base_param->old_key,
                                   sizeof(one_net_xtea_key_t));
                                 num_keys = 2;
                             }
