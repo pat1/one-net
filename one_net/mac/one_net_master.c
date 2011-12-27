@@ -1932,27 +1932,37 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
         
         case ON_ADD_DEV:
         {
-            client->send_add_device_message = FALSE;
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                client->send_add_device_message = FALSE;
+            }
             update = ONE_NET_UPDATE_ADD_DEVICE;
             break;
         } // add device case //
         
         case ON_RM_DEV:
         {
-            client->send_remove_device_message = FALSE;
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
+            {
+                client->send_remove_device_message = FALSE;
+            }
             update = ONE_NET_UPDATE_REMOVE_DEVICE;
             break;
         } // remove device case //
         
         case ON_NEW_KEY_FRAGMENT:
         {
-            if(one_net_memcmp(&(on_base_param->current_key[3 *
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), ack_nack->payload->key_frag,
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
-                client->use_current_key = TRUE;
+                if(one_net_memcmp(&(on_base_param->current_key[3 *
+                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), ack_nack->payload->key_frag,
+                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+                {
+                    client->use_current_key = TRUE;
+                }
                 update = ONE_NET_UPDATE_NETWORK_KEY;
             }
+            break;
         }
 
         default: return;
