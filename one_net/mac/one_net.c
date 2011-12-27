@@ -1643,7 +1643,8 @@ BOOL one_net(on_txn_t ** txn)
                             response_msg_or_timeout = FALSE;
                             break;
                         default:
-                            terminate_txn = (this_txn == 0);
+                            terminate_txn = ((*txn)->retry >= ON_MAX_RETRY ||
+                              this_txn == 0);
                             #ifndef _ONE_NET_SIMPLE_DEVICE
                             at_least_one_response = TRUE;
                             #endif
