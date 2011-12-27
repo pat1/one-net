@@ -529,6 +529,8 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
     "SLOW DOWN TIME MS",
     "SPEED UP TIME MS",
     "PAUSE TIME MS",
+    "ADMIN MSG",
+    "KEY FRAG",
     "STATUS" // note : this one isn't valid for NACKs but is included
                      // for ease of programming.
 };
@@ -560,7 +562,7 @@ const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_N
     "Need Feat",
     "Features",
     "Bad CRC",
-    "",
+    "Bad Key",
     "",
     "Unset",
     "Gen Err",
