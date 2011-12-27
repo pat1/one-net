@@ -318,15 +318,10 @@ typedef struct
     UInt8 single_block_encrypt;
 
     #ifdef _STREAM_MESSAGES_ENABLED
-    //! Key to use for stream data transfers
-    one_net_xtea_key_t stream_key;
-    
-    //! Key fragment of the old stream key.
-    one_net_xtea_key_fragment_t old_stream_key_fragment;
-
     //! Method used to encrypt stream data
     UInt8 stream_encrypt;
     #endif
+    
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Low priority fragment delay
     UInt16 fragment_delay_low;

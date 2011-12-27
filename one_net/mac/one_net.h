@@ -317,11 +317,6 @@ typedef struct
     //! The last key used
     one_net_xtea_key_t old_key;
     
-    #ifdef _STREAM_MESSAGES_ENABLED
-    //! The last stream key used
-    one_net_xtea_key_t old_stream_key;
-    #endif
-    
     //! The number of CLIENTs currently in the network
     UInt16 client_count;
 } on_master_param_t;
