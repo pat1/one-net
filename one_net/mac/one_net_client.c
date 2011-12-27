@@ -944,12 +944,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     {
         switch(raw_pld[0])
         {
-            case ON_KEY_CHANGE_CONFIRM:
-            {
-                confirm_key_change = FALSE;
-                break;
-            }
-            
             case ON_FEATURES_RESP:
             {
                 sent_features = TRUE;

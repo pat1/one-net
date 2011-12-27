@@ -201,8 +201,6 @@ typedef enum
     ON_CHANGE_FRAGMENT_DELAY = 0x08,
     #endif
     
-    ON_KEY_CHANGE_CONFIRM = 0x09,
-    
     //! Sent to change the keep alive interval
     ON_CHANGE_KEEP_ALIVE = 0x0B,
 

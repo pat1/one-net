@@ -2968,28 +2968,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         } // features response case //
 
-        case ON_KEY_CHANGE_CONFIRM:
-        {
-            UInt8 key_crc = one_net_compute_crc(on_base_param->current_key,
-              ONE_NET_XTEA_KEY_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-              
-            if(key_crc == DATA[1])
-            {
-                if(!((*client)->use_current_key))
-                {
-                    (*client)->use_current_key = TRUE;
-                    one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
-                        &raw_did, ack_nack);
-                }
-            }
-            else
-            {
-                // bad key verify
-                ack_nack->nack_reason = ON_NACK_RSN_BAD_CRC;
-            } 
-            break;
-        } // key confirm case //
-
         default:
         {
             ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
