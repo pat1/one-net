@@ -1409,9 +1409,6 @@ static void eval_set_modes_from_switch_positions(void)
 one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
   UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
 {
-    // source is this device
-    on_encoded_did_t* src_did = (on_encoded_did_t*)
-      (&(on_base_param->sid[ON_ENCODED_NID_LEN]));    
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
 
     put_src_unit(src_unit, raw_pld);
@@ -1423,15 +1420,15 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
       
     return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, src_did, enc_dst
+      ONE_NET_HIGH_PRIORITY, NULL, enc_dst
       #ifdef _PEER
           , FALSE, ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , NULL
+          , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , NULL
+          , 0
       #endif
       );    
 } // send_send_simple_text_command //
