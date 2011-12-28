@@ -74,6 +74,10 @@
 
 #include "tick.h"
 
+#ifdef _ENABLE_SINGLE_COMMAND
+#include "io_port_mapping.h"
+#endif
+
 
 
 
@@ -252,6 +256,12 @@ static oncli_status_t oncli_send_single(const on_raw_did_t* const dst,
     const on_priority_t priority);
 static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t status_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t fast_query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+static oncli_status_t parse_and_send_pin_msg(
+  const char * const ASCII_PARAM_LIST, UInt16 msg_class);
 #endif
 
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
@@ -546,6 +556,69 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the send single command was received //
+    
+    else if(!strnicmp(ONCLI_STATUS_PIN_CMD_STR, CMD,
+      strlen(ONCLI_STATUS_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_STATUS_PIN_CMD_STR;
+
+        if(CMD[strlen(ONCLI_STATUS_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &status_pin_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the status pin command was received //
+    
+    else if(!strnicmp(ONCLI_QUERY_PIN_CMD_STR, CMD,
+      strlen(ONCLI_QUERY_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_QUERY_PIN_CMD_STR;
+
+        if(CMD[strlen(ONCLI_QUERY_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &query_pin_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the query command was received //
+
+    else if(!strnicmp(ONCLI_FAST_QUERY_PIN_CMD_STR, CMD,
+      strlen(ONCLI_FAST_QUERY_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_FAST_QUERY_PIN_CMD_STR;
+
+        if(CMD[strlen(ONCLI_FAST_QUERY_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &fast_query_pin_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the fast query command was received //
+    
+    else if(!strnicmp(ONCLI_SET_PIN_CMD_STR, CMD, strlen(ONCLI_SET_PIN_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_SET_PIN_CMD_STR;
+
+        if(CMD[strlen(ONCLI_SET_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &set_pin_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the set pin command was received //
 	#endif // _ENABLE_SINGLE_COMMAND //
 
 	#ifdef _ENABLE_SET_DATA_RATE_COMMAND
@@ -1482,6 +1555,177 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         default: return ONCLI_RSRC_UNAVAILABLE;
     }
 } // single_txt_cmd_hdlr //
+
+
+static oncli_status_t status_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_STATUS);
+}
+
+
+static oncli_status_t query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_QUERY);
+}
+
+
+static oncli_status_t fast_query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_FAST_QUERY);
+}
+
+
+static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_COMMAND);
+}
+
+
+/*!
+    \brief Parses and sends commands, status messages, queries, and fast queries
+    
+    Valid commands are of the following type...
+    
+    status pin:DDD:P
+    query pin:DDD:P
+    fast query pin:DDD:P
+    set pin:DDD:P:V
+    
+    where DDD is the raw DID of the device receiving the message, P is the pin
+              number, V is the value to set the pin.
+              
+    status pin:003:2 sends the status of THIS DEVICE's pin number 2 to device 003
+    query pin:003:2 tells device 003 to report back the current state of it pin number 2
+    fast query pin:003:2 Same as "query pin:003:2" except this is a "fast query" (i.e.
+        device 003 should NOT send back a separate message, but instead only send
+        back the status in the response message.
+    set pin:003:2:1 commands device device 003 to set pin 2 to state 1(high).  Valid states
+        are 0(low), 1(high), or 2(toggle).  This can only be used as if pin 2 of device 003
+        is an output pin.
+    
+    
+
+    \param[in] ASCII_PARAM_LIST ASCII parameter list.
+    \param[in] msg_class Themessage class of the outgoing single app message
+
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            See user_pin for more return values.
+*/
+static oncli_status_t parse_and_send_pin_msg(
+  const char * const ASCII_PARAM_LIST, UInt16 msg_class)
+{
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    const char * endptr = NULL;
+    on_encoded_did_t enc_dst;
+    UInt16 raw_did_int;
+    on_raw_did_t raw_dst;
+    UInt8 src_unit, dst_unit, unit, pin_value;
+    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+    
+    one_net_memset(raw_pld, 0, sizeof(raw_pld));
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    // store the message class/message type in the payload
+    put_msg_hdr(msg_class | ONA_SWITCH, raw_pld);
+    
+    raw_did_int = one_net_strtol(PARAM_PTR, &endptr, 16);
+    if(raw_did_int < 0x001 || raw_did_int > 0xFFF || *endptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    raw_did_int <<= 4;
+    raw_dst[0] = (raw_did_int & 0xFF00) >> 8;
+    raw_dst[1] = raw_did_int & 0xFF;
+    on_encode(enc_dst, raw_dst, ON_ENCODED_DID_LEN);
+    
+    if(*endptr == '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    endptr++;
+    PARAM_PTR = endptr;
+    
+    unit = one_net_strtol(PARAM_PTR, &endptr, 16);
+    if(unit >= ONE_NET_NUM_UNITS)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(msg_class == ONA_COMMAND)
+    {
+        if(*endptr != ':')
+        {
+            return ONCLI_PARSE_ERR;
+        }
+        endptr++;
+        PARAM_PTR = endptr;
+        
+        pin_value = one_net_strtol(PARAM_PTR, &endptr, 10);
+        if(pin_value >= ONA_TOGGLE)
+        {
+            return ONCLI_PARSE_ERR;
+        }
+    }
+    
+    if(*endptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    src_unit = ONE_NET_DEV_UNIT;
+    dst_unit = unit;
+
+    if(msg_class == ONA_STATUS)
+    {
+        src_unit = unit;
+        dst_unit = ONE_NET_DEV_UNIT;
+        switch(src_unit)
+        {
+            case 0: pin_value = USER_PIN0; break;
+            case 1: pin_value = USER_PIN1; break;
+            case 2: pin_value = USER_PIN2; break;
+            case 3: pin_value = USER_PIN3; break;
+        }
+    }
+    
+    if(msg_class == ONA_STATUS || msg_class == ONA_COMMAND)
+    {
+        put_msg_data(pin_value, raw_pld);
+    }
+
+
+    // store the source and destination unit numbers in the payload
+    put_dst_unit(dst_unit, raw_pld);
+    put_src_unit(src_unit, raw_pld);
+      
+    switch((*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
+      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+      ONE_NET_HIGH_PRIORITY, NULL, &enc_dst
+      #ifdef _PEER
+          , FALSE,  src_unit
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          , 0
+      #endif    
+      ))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        default: return ONCLI_RSRC_UNAVAILABLE;
+    }
+}
 #endif // _ENABLE_SINGLE_COMMAND //
 
 
