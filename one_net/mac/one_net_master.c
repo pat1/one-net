@@ -749,7 +749,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     
     // now set up the next unused position in client_list for this client
     client = &client_list[master_param->client_count];
-    client->flags = 0;
+    client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
