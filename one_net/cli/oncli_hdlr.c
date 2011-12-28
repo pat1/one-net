@@ -1297,10 +1297,6 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt16 data_len;
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
 
-    
-    const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
-      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
-
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
@@ -1335,7 +1331,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     switch((*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, src_did,
+      ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef _PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
       #else
@@ -1395,9 +1391,6 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef _EXTENDED_SINGLE
     UInt8* text_start_ptr = &raw_pld[ONA_MSG_SECOND_IDX];
     #endif
-
-    const on_encoded_did_t* const src_did = (const on_encoded_did_t* const)
-      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
 
     if(!ASCII_PARAM_LIST)
     {
@@ -1471,7 +1464,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
 
     switch((*one_net_send_single)(raw_pid, ON_APP_MSG, raw_pld, pld_len,
-      ONE_NET_HIGH_PRIORITY, src_did,
+      ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef _PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
       #else
