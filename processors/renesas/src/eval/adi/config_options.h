@@ -195,7 +195,7 @@
 // more detailed the display will be.  This value must be set
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 6
+#define _DEBUG_VERBOSE_LEVEL 1
 
 
 #ifdef _ONE_NET_EVAL
@@ -273,16 +273,6 @@
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
-	// _ENABLE_SET_VALUE_COMMAND should be defined if you are implementing the "set value" command option
-	#ifndef _ENABLE_SET_VALUE_COMMAND
-		#define _ENABLE_SET_VALUE_COMMAND
-	#endif
-
-	// _ENABLE_SET_PIN_COMMAND should be defined if you are implementing the "set pin" command option
-	#ifndef _ENABLE_SET_PIN_COMMAND
-		#define _ENABLE_SET_PIN_COMMAND
-	#endif
-
     #ifdef _BLOCK_MESSAGES_ENABLED
 	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
 	    #ifndef _ENABLE_BLOCK_COMMAND
@@ -309,13 +299,13 @@
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
 	#ifndef _ENABLE_DUMP_COMMAND
-		#define _ENABLE_DUMP_COMMAND
+	//	#define _ENABLE_DUMP_COMMAND
 	#endif
 
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	#ifdef _ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
-			#define _ENABLE_RSINGLE_COMMAND
+	//		#define _ENABLE_RSINGLE_COMMAND
 		#endif
 	#endif
 
@@ -389,7 +379,7 @@
 
 	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
 	#ifndef _ENABLE_GET_CHANNEL_COMMAND
-		#define _ENABLE_GET_CHANNEL_COMMAND
+	//	#define _ENABLE_GET_CHANNEL_COMMAND
 	#endif
 
 	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
@@ -429,7 +419,7 @@
     // _ENABLE_SET_DATA_RATE_COMMAND should be defined if you are implementing the "set data rate" command option
     #ifdef _DATA_RATE
         #ifndef _ENABLE_SET_DATA_RATE_COMMAND
-            #define _ENABLE_SET_DATA_RATE_COMMAND
+    //        #define _ENABLE_SET_DATA_RATE_COMMAND
         #endif
     #endif
 #endif
@@ -485,7 +475,7 @@
 // to make sense of the shortens strings.  However, shortening the strings
 // can allow you to use the ebugger and use other debugging tools.
 #ifndef _MINIMIZE_STRING_LENGTHS
-    #define _MINIMIZE_STRING_LENGTHS
+ //   #define _MINIMIZE_STRING_LENGTHS
 #endif
 
 
@@ -507,7 +497,7 @@
 // "#define _CHANNEL_OVERIDE" line for normal behavior.
 // behavior.
 #ifndef _CHANNEL_OVERRIDE
-    #define _CHANNEL_OVERIDE
+//    #define _CHANNEL_OVERIDE
     #ifdef _CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2
