@@ -290,8 +290,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
   on_client_t ** client, on_ack_nack_t* ack_nack);
 
-static on_client_t* check_client_check_ins(void);
-
 static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
 
 
@@ -1154,12 +1152,6 @@ void one_net_master(void)
       queue_sleep_time < MS_TO_TICK(500))
     {
         check_updates_in_progress();
-        #if 0
-        if(master_param->client_count)
-        {        
-            check_client_check_ins();
-        }
-        #endif
     }
     
 } // one_net_master //
@@ -3113,60 +3105,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     return ON_MSG_CONTINUE;
 }
-
-
-#if 0
-/*!
-    \brief Checks all clients to see if any have missed a required check-in and
-           alerts the application code if any have.
-
-    \return A pointer to an on_client_t object of the client that missed its check-in, if any.
-            NULL if no clients have missed a check-in.
-            
-*/
-static on_client_t* check_client_check_ins(void)
-{
-    on_client_t* client;
-    tick_t time_now = get_tick_count();
-    
-    // make it random so we don't keep checking the same device?
-    // TODO - is this wise / needed?
-    UInt16 index = one_net_prand(time_now, master_param->client_count - 1);
-    UInt16 i;
-    
-    for(i = 0; i < master_param->client_count; i++)
-    {
-        
-        if(index >= master_param->client_count)
-        {
-            index = 0;
-        }
-        
-        client = &client_list[index];
-
-        if(time_now > client->next_check_in_time)
-        {
-            // client has missed its check-in time.
-            if(one_net_master_client_missed_check_in(client))
-            {
-                // TODO -- ping the client
-            }
-            else
-            {
-                // TODO -- is this where we want to place this reset.
-                client->next_check_in_time = get_tick_count() +
-                  MS_TO_TICK(client->keep_alive_interval);
-            }
-            
-            return client;
-        }
-        
-        index++;
-    }
-
-    return NULL;
-}
-#endif
 
 
 #ifndef _ONE_NET_SIMPLE_DEVICE

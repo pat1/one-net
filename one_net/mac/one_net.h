@@ -468,9 +468,6 @@ typedef struct
 
 
 #ifdef _ONE_NET_MULTI_HOP
-//! flag that indicates if any Multi-Hop Repeaters have joined the network
-extern BOOL mh_repeater_available;
-
 //! The number of multi-hop capable devices in the network
 extern UInt8 num_mh_devices;
 
