@@ -108,6 +108,11 @@ enum
 #endif
 
 
+// Note : When experimenting with multi-hop, try changing ONE_NET_MH_LATENCY.
+// If this value is too small, there may be collisions on the repeat.  If
+// you increase this value, be aware that you may also need to increase
+// ONE_NET_RESPONSE_TIME_OUT.
+
 //! Timer related constants
 enum
 {
