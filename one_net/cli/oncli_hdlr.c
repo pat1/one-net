@@ -2791,39 +2791,63 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 #ifdef _ONE_NET_MULTI_HOP
-// temporary debugging
+/*!
+    \brief Sets the num_mh_devices and num_mh_repeaters counts manually
+    
+    This function is useful mostly for debugging multi-hop applications.
+    Multi-hop works only when num_mh_repeat is a positive number.  Setting
+    these variables, particularly the num_mh_repeat variable, can serve to
+    
+    1) Quickly turn multi-hop on and off.
+    2) Correct these variable values if they become incorrect due to either
+       a non-ONE-NET wireless invite or deletion process (i.e. manual adding
+       or deleting a device through the command line or otherwise).
+    3) Or due to losing these values due to power cycling.
+    4) Or due to any other experiment or bug that may cause these values to
+       become incorrect.
+
+    \param[in] ASCII_PARAM_LIST String containing the memory to load
+
+    \return ONCLI_SUCCESS if the parsing of the string worked and the parsed
+                values were valid.
+            ONCLI_PARSE_ERR if the string could not be parsed.
+            ONCLI_BAD_PARAM if the string parsed correctly, but the parsed
+                values were invalid.
+*/
 static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
-    BOOL repeater_present = FALSE;
+    const char* endptr = 0;
+    int num_mh = 0;
+    int num_mh_repeat = 0;
 
     if(!ASCII_PARAM_LIST)
     {
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    if(!strnicmp(PARAM_PTR, TRUE_STR, strlen(TRUE_STR)))
+    num_mh = one_net_strtol(PARAM_PTR, &endptr, 10);
+    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != ':')
     {
-        PARAM_PTR += strlen(TRUE_STR);
-        repeater_present = TRUE;
-    }
-    else if(!strnicmp(PARAM_PTR, FALSE_STR, strlen(FALSE_STR)))
-    {
-        PARAM_PTR += strlen(FALSE_STR);
-        repeater_present = FALSE;
-    }
-    else
+        return ONCLI_PARSE_ERR;
+    }    
+    endptr++;
+    PARAM_PTR = endptr;
+    num_mh_repeat = one_net_strtol(PARAM_PTR, &endptr, 10);
+    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != '\n')
     {
         return ONCLI_PARSE_ERR;
     }
     
-    if(*PARAM_PTR != '\n')
+    if(num_mh_repeat > num_mh)
     {
-        return ONCLI_PARSE_ERR;
+        // all multi-hop repeaters are multi-hop, so this is an impossible
+        // scenario.
+        return ONCLI_BAD_PARAM;
     }
 
-    mh_repeater_available = repeater_present;
-    
+    num_mh_devices = num_mh;
+    num_mh_repeaters = num_mh_repeat;
     return ONCLI_SUCCESS;
 }
 #endif
