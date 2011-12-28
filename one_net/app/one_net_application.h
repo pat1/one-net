@@ -472,10 +472,10 @@ typedef one_net_status_t (*one_net_send_single_func_t)(UInt8 pid,
       UInt8 src_unit
   #endif
   #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t* send_time_from_now
+      , tick_t send_time_from_now
   #endif
   #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t* expire_time_from_now
+	  , tick_t expire_time_from_now
   #endif
   );
 

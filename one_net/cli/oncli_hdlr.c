@@ -1342,10 +1342,10 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           &enc_dst
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , NULL
+          , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , NULL
+          , 0
       #endif    
       ))
     {
@@ -1478,10 +1478,10 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           &enc_dst
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , NULL
+          , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , NULL
+          , 0
       #endif    
       ))
     {

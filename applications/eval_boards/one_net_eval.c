@@ -1326,10 +1326,10 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
           , TRUE, src_unit
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , NULL
+          , 0
       #endif
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , NULL
+          , 0
       #endif
       );    
 } // send_switch_status_change_msg //
