@@ -1062,11 +1062,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         
                         case ON_ADD_DEV:
                         {
-                            // TODO -- we seem to be getting this message
-                            // several times when we join this device joins
-                            // the network.
-                            
-                            
                             BOOL this_device_added;
                             on_encoded_did_t* added_device =
                               (on_encoded_did_t*)
@@ -1095,6 +1090,11 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                 master->flags |= ON_JOINED;
                                 client_looking_for_invite = FALSE;
                             }
+                            
+                            #ifdef _ONE_NET_MULTI_HOP
+                            num_mh_devices = ack_nack->payload->admin_msg[3];
+                            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                            #endif
 
                             send_confirm_admin_msg = TRUE;
                             admin_msg_type = ON_ADD_DEV_RESP;
@@ -1113,6 +1113,12 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             one_net_client_client_removed(&raw_did_added,
                               is_my_did((on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
+                              
+                            #ifdef _ONE_NET_MULTI_HOP
+                            num_mh_devices = ack_nack->payload->admin_msg[3];
+                            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                            #endif                              
+                              
                             send_confirm_admin_msg = TRUE;
                             admin_msg_type = ON_REMOVE_DEV_RESP;
                             break;
@@ -1778,6 +1784,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     on_decode(raw_did, *removed_device, ON_ENCODED_DID_LEN);
                     one_net_client_client_removed(&raw_did, FALSE);
                 }
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                num_mh_devices = ack_nack->payload->admin_msg[3];
+                num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                #endif
             }
             
             break;
@@ -1802,6 +1813,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 one_net_client_client_added(&raw_did);
             }
+            
+            #ifdef _ONE_NET_MULTI_HOP
+            num_mh_devices = ack_nack->payload->admin_msg[3];
+            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+            #endif
             break;
         }
 
