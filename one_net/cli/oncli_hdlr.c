@@ -1883,7 +1883,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(device_is_master)
     {
         if(one_net_master_add_client(features, &out_base_param,
-          &out_master_param) != ONS_SUCCESS)
+          &out_master_param, FALSE) != ONS_SUCCESS)
         {
             return ONCLI_CMD_FAIL;
         }        

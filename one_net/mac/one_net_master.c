@@ -71,9 +71,6 @@
 #endif
 
 
-// temporary debugging
-#include "oncli.h"
-
 
 //==============================================================================
 //                                  CONSTANTS
@@ -1164,18 +1161,22 @@ void one_net_master(void)
     to the current network and you do not want to use the normal
     invite/join process. A client is added with the information
     supplied and the information that the client will need to
-    communicate on the current network is returned.
+    communicate on the current network is returned.  It is also used by the
+    master in the ONE-NET invite process
 
     \param[in] features The client's features / capabilities.
     \param[out] out_base_param Pointer to the base parameters the new client should use.
     \param[out] out_master_param Pointer to the master parameters the new client should use.
+    \param[in] send_update_to_network If true, the network should be notified
+               of the addition of this client.
 
     \return ONS_SUCCESS if the client was added.
             ONS_BAD_PARAM if the parameter was invalid.
             ONS_DEVICE_LIMIT if there is no room to hold another client.
 */
 one_net_status_t one_net_master_add_client(const on_features_t features,
-  on_base_param_t* out_base_param, on_master_t* out_master_param)
+  on_base_param_t* out_base_param, on_master_t* out_master_param,
+  BOOL send_update_to_network)
 {
     // instead of separate arguments for values returned.
     one_net_status_t status;
@@ -1203,6 +1204,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
       ON_MAX_NONCE);
     client->device.send_nonce = one_net_prand(get_tick_count(),
       ON_MAX_NONCE);
+    client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
+    client->flags |= ON_JOINED;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.features = features;
     client->send_remove_device_message = FALSE;
@@ -1213,47 +1216,80 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
       MS_TO_TICK(5000 + client->keep_alive_interval);
     client->last_admin_update_time = 0;
       
-#ifdef _ONE_NET_MULTI_HOP
+    #ifdef _ONE_NET_MULTI_HOP
     client->device.max_hops = features_max_hops(features);
     client->device.hops = 0;
-#endif
+    #endif
     one_net_int16_to_byte_stream(master_param->next_client_did, raw_did);
     on_encode(client->device.did, raw_did, ON_ENCODED_DID_LEN);
     
-    one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
-      client->device.did, ON_ENCODED_DID_LEN);
-    one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
-    out_master_param->device.features = THIS_DEVICE_FEATURES;
-    out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    out_master_param->device.last_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    out_master_param->device.msg_id = one_net_prand(get_tick_count(),
-      ON_MAX_MSG_ID);
-#ifdef _ONE_NET_MULTI_HOP
-    out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
-    out_master_param->device.hops = 0;
-#endif
-    one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
-      ON_ENCODED_DID_LEN);
-    one_net_memmove(out_base_param->current_key, on_base_param->current_key,
-      sizeof(one_net_xtea_key_t));    
-    out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-    out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
-    out_base_param->channel = on_base_param->channel;
-#ifdef _STREAM_MESSAGES_ENABLED
-    out_base_param->stream_encrypt = on_base_param->stream_encrypt;
-#endif
-#ifdef _BLOCK_MESSAGES_ENABLED
-    out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
-    out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;
-#endif
+    
+    // if these are not NULL, the master is passing these parameters to the
+    // client somehow, most likely as part of a process which is NOT part of
+    // a ONE-NET protocol invite (an example of this might be if a device is
+    // temporarily plugged in / attached to the master in a way that the
+    // master is in direct communication with the client rather than
+    // communicating through ONE-NET messages.  Note that this very often
+    // means that the client is directly attached to the master physically
+    // through a physical plug, but the two devices could also be on opposite
+    // sides of the world and each side is attached to a computer via the
+    // serial port and the information is transmitted via the internet.
+    // Regardless, the point is that this function can be used for any invite
+    // process that is not using a ONE-NET message protocol.  If this is the
+    // case, out_base_param and out_master_param must be non-NULL.  For ONE-NET
+    // invite processes, they should be NULL.
+    if(out_base_param && out_master_param)
+    {
+        one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
+          client->device.did, ON_ENCODED_DID_LEN);
+        one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
+        out_master_param->device.features = THIS_DEVICE_FEATURES;
+        out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+        out_master_param->device.last_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+        out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
+          ON_MAX_NONCE);
+        out_master_param->device.msg_id = one_net_prand(get_tick_count(),
+          ON_MAX_MSG_ID);
+        #ifdef _ONE_NET_MULTI_HOP
+        out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
+        out_master_param->device.hops = 0;
+        #endif
+        one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
+          ON_ENCODED_DID_LEN);
+        one_net_memmove(out_base_param->current_key, on_base_param->current_key,
+          sizeof(one_net_xtea_key_t));    
+        out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+        out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
+        out_base_param->channel = on_base_param->channel;
+        #ifdef _STREAM_MESSAGES_ENABLED
+        out_base_param->stream_encrypt = on_base_param->stream_encrypt;
+        #endif
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
+        out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;
+        #endif
+    }
 
     master_param->client_count++;
     master_param->next_client_did = find_lowest_vacant_did();
     
+    if(send_update_to_network)
+    {
+        UInt8 i;
+        add_device_update_in_progress = TRUE;
+        for(i = 0; i < master_param->client_count; i++)
+        {
+            client_list[i].send_add_device_message = TRUE;
+            device_to_update = client; // update the device being added
+                                       // first.
+            add_device_start_time = get_tick_count();
+            add_device_did[0] = client->device.did[0];
+            add_device_did[1] = client->device.did[1];
+        }
+    }
+
     #ifdef _ONE_NET_MULTI_HOP
     if(features_mh_capable(features))
     {
@@ -3010,36 +3046,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 #endif
                 else
                 {
-                    UInt8 i;
                     // device is now added.  Adjust the client count,
                     // next Device DID, and notify everyone.
-                    (*client)->flags |= ON_JOINED;
-                    
-                    // adjust the multi-hop and repeater count
-                    #ifdef _ONE_NET_MULTI_HOP
-                    if(features_mh_capable((*client)->device.features))
-                    {
-                        num_mh_devices++;
-                    }
-                    if(features_mh_repeat_capable((*client)->device.features))
-                    {
-                        num_mh_repeaters++;
-                    }
-                    #endif
-                    
-                    add_device_update_in_progress = TRUE;
-                    add_device_start_time = get_tick_count();
-
                     one_net_master_cancel_invite(&invite_key);
-                    master_param->client_count++;
-                    master_param->next_client_did = find_lowest_vacant_did();
-
-                    // Client has joined.  Set up some flags to make sure
-                    // everyone gets the message.
-                    for(i = 0; i < master_param->client_count; i++)
-                    {
-                        client_list[i].send_add_device_message = TRUE;
-                    }
+                    // TODO -- check return value.  What do we do if this
+                    // is not a success?
+                    one_net_master_add_client((*client)->device.features,
+                      NULL, NULL, TRUE);
                 }
             }
             

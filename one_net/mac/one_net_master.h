@@ -205,7 +205,8 @@ one_net_status_t one_net_master_remove_device(
 void one_net_master(void);
 
 one_net_status_t one_net_master_add_client(const on_features_t features,
-  on_base_param_t* out_base_param, on_master_t* out_master_param);
+  on_base_param_t* out_base_param, on_master_t* out_master_param,
+  BOOL send_update_to_network);
   
 #ifdef _PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
