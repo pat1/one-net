@@ -97,8 +97,6 @@ enum
 //! \ingroup ONE-NET_encode
 //! @{
 
-UInt8 encoded_to_decoded_byte(UInt8 encoded_byte, BOOL left_justify);
-UInt8 decoded_to_encoded_byte(UInt8 decoded_byte, BOOL left_justify);
 one_net_status_t on_encode(UInt8 * encoded, const UInt8 * RAW, 
   const UInt16 ENCODED_SIZE);
 one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED, 

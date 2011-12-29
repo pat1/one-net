@@ -46,10 +46,13 @@
     ONE-NET protocol (MAC layer).
 */
 
-
 #include "config_options.h"
+
+#ifdef _ENABLE_CLI
+
+#include "one_net.h"
+
 #include "oncli_port.h"
-#include "oncli.h"
 
 
 //==============================================================================
@@ -68,6 +71,7 @@
 //! \ingroup oncli_hdlr
 //! @{
 
+typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 
 //! @} oncli_hdlr_typedefs
 //								TYPEDEFS END
@@ -92,13 +96,13 @@
 oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
   UInt8 * const next_state, oncli_cmd_hdlr_t * const cmd_hdlr);
 
-
 //! @} oncli_hdlr_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
 //! @} oncli_hdlr
 
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_HDLR_H //
 

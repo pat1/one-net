@@ -1,0 +1,23 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\oncli.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,880,1,11,JSR,_oncli_is_master
+W,884,1,18,JSR,_oncli_is_client
+W,1270,1,e1,JSR,_oncli_print_prompt
+W,1317,1,e7,JMP,$uart_read
+W,1361,1,103,JSR,$vsnprintf
+W,1381,1,125,JSR,_snprintf
+W,1393,1,13d,JSR,$uart_write
+W,1397,1,141,JSR,_uart_tx_bytes_free
+W,1400,1,148,JSR,_uart_tx_buffer_size
+W,1414,1,15e,JSR,$uart_write
+W,1584,1,1df,JSR,$ascii_hex_to_nibble
+W,1815,1,2e9,JSR,$oncli_parse_cmd
+W,1849,1,320,JSR,_oncli_print_prompt
+W,1902,1,36a,JSR,_oncli_print_prompt
+W,2020,1,42c,JSR,_oncli_print_prompt
+W,2298,1,4df,JSR,_oncli_mode_type_str
+W,2337,1,4f1,JSR,_oncli_node_type_str
+W,2473,1,541,JSR,_snprintf

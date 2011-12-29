@@ -1,0 +1,12 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_xtea.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,221,1,51,JSR,$one_net_int32_to_byte_stream
+W,231,1,62,JSR,$one_net_int32_to_byte_stream
+W,295,1,eb,JSR,$one_net_byte_stream_to_int32
+W,309,1,109,JSR,$one_net_byte_stream_to_int32
+W,314,1,118,JSR,$one_net_byte_stream_to_int32
+W,442,1,1a8,JSR,$one_net_int32_to_byte_stream
+W,452,1,1b9,JSR,$one_net_int32_to_byte_stream

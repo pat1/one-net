@@ -1,0 +1,2606 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:48 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\pal.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+_pm0_addr	.equ	0004H	 
+_pm1_addr	.equ	0005H	 
+_cm0_addr	.equ	0006H	 
+_cm1_addr	.equ	0007H	 
+_prcr_addr	.equ	000AH	 
+_ocd_addr	.equ	000CH	 
+_wdtr_addr	.equ	000DH	 
+_wdts_addr	.equ	000EH	 
+_wdc_addr	.equ	000FH	 
+_rmad0_addr	.equ	0010H	 
+_aier_addr	.equ	0013H	 
+_rmad1_addr	.equ	0014H	 
+_cspr_addr	.equ	001CH	 
+_fra0_addr	.equ	0023H	 
+_fra1_addr	.equ	0024H	 
+_fra2_addr	.equ	0025H	 
+_vca1_addr	.equ	0031H	 
+_vca2_addr	.equ	0032H	 
+_vw1c_addr	.equ	0036H	 
+_vw2c_addr	.equ	0037H	 
+_c01wkic_addr	.equ	0043h	 
+_c0recic_addr	.equ	0044h	 
+_c0trmic_addr	.equ	0045h	 
+_c01erric_addr	.equ	0046h	 
+_trd0ic_addr	.equ	0048H	 
+_trd1ic_addr	.equ	0049H	 
+_treic_addr	.equ	004AH	 
+_kupic_addr	.equ	004DH	 
+_adic_addr	.equ	004EH	 
+_ssuaic_addr	.equ	004FH	 
+_iic2aic_addr	.equ	004FH	 
+_s0tic_addr	.equ	0051H	 
+_s0ric_addr	.equ	0052H	 
+_s1tic_addr	.equ	0053H	 
+_s1ric_addr	.equ	0054H	 
+_int2ic_addr	.equ	0055H	 
+_traic_addr	.equ	0056H	 
+_trbic_addr	.equ	0058H	 
+_int1ic_addr	.equ	0059H	 
+_int3ic_addr	.equ	005AH	 
+_int0ic_addr	.equ	005DH	 
+_u0mr_addr	.equ	00A0H	 
+_u0brg_addr	.equ	00A1H	 
+_u0tb_addr	.equ	00A2H	 
+_u0c0_addr	.equ	00A4H	 
+_u0c1_addr	.equ	00A5H	 
+_u0rb_addr	.equ	00A6H	 
+_u1mr_addr	.equ	00A8H	 
+_u1brg_addr	.equ	00A9H	 
+_u1tb_addr	.equ	00AAH	 
+_u1c0_addr	.equ	00ACH	 
+_u1c1_addr	.equ	00ADH	 
+_u1rb_addr	.equ	00AEH	 
+_sscrh_addr	.equ	00B8H	 
+_iccr1_addr	.equ	00B8H	 
+_sscrl_addr	.equ	00B9H	 
+_iccr2_addr	.equ	00B9H	 
+_ssmr_addr	.equ	00BAH	 
+_icmr_addr	.equ	00BAH	 
+_sser_addr	.equ	00BBH	 
+_icier_addr	.equ	00BBH	 
+_sssr_addr	.equ	00BCH	 
+_icsr_addr	.equ	00BCH	 
+_ssmr2_addr	.equ	00BDH	 
+_sar_addr	.equ	00BDH	 
+_sstdr_addr	.equ	00BEH	 
+_icdrt_addr	.equ	00BEH	 
+_ssrdr_addr	.equ	00BFH	 
+_icdrr_addr	.equ	00BFH	 
+_ad_addr	.equ	00C0H	 
+_adcon2_addr	.equ	00D4H	 
+_adcon0_addr	.equ	00D6H	 
+_adcon1_addr	.equ	00D7H	 
+_p0_addr	.equ	00E0H	 
+_p1_addr	.equ	00E1H	 
+_pd0_addr	.equ	00E2H	 
+_pd1_addr	.equ	00E3H	 
+_p2_addr	.equ	00E4H	 
+_p3_addr	.equ	00E5H	 
+_pd2_addr	.equ	00E6H	 
+_pd3_addr	.equ	00E7H	 
+_p4_addr	.equ	00E8H	 
+_pd4_addr	.equ	00EAH	 
+_p6_addr	.equ	00ECH	 
+_pd6_addr	.equ	00EEH	 
+_u1sr_addr	.equ	00F5H	 
+_pmr_addr	.equ	00F8H	 
+_inten_addr	.equ	00F9H	 
+_intf_addr	.equ	00FAH	 
+_kien_addr	.equ	00FBH	 
+_pur0_addr	.equ	00FCH	 
+_pur1_addr	.equ	00FDH	 
+_tracr_addr	.equ	0100H	 
+_traioc_addr	.equ	0101H	 
+_tramr_addr	.equ	0102H	 
+_trapre_addr	.equ	0103H	 
+_tra_addr	.equ	0104H	 
+_lincr_addr	.equ	0106H	 
+_linst_addr	.equ	0107H	 
+_trbcr_addr	.equ	0108H	 
+_trbocr_addr	.equ	0109H	 
+_trbioc_addr	.equ	010AH	 
+_trbmr_addr	.equ	010BH	 
+_trbpre_addr	.equ	010CH	 
+_trbsc_addr	.equ	010DH	 
+_trbpr_addr	.equ	010EH	 
+_tresec_addr	.equ	0118H	 
+_tremin_addr	.equ	0119H	 
+_trecr1_addr	.equ	011CH	 
+_trecr2_addr	.equ	011DH	 
+_trecsr_addr	.equ	011EH	 
+_trdstr_addr	.equ	0137H	 
+_trdmr_addr	.equ	0138H	 
+_trdpmr_addr	.equ	0139H	 
+_trdfcr_addr	.equ	013AH	 
+_trdoer1_addr	.equ	013BH	 
+_trdoer2_addr	.equ	013CH	 
+_trdocr_addr	.equ	013DH	 
+_trddf0_addr	.equ	013EH	 
+_trddf1_addr	.equ	013FH	 
+_trdcr0_addr	.equ	0140H	 
+_trdiora0_addr	.equ	0141H	 
+_trdiorc0_addr	.equ	0142H	 
+_trdsr0_addr	.equ	0143H	 
+_trdier0_addr	.equ	0144H	 
+_trdpocr0_addr	.equ	0145H	 
+_trd0_addr	.equ	0146H	 
+_trdgra0_addr	.equ	0148H	 
+_trdgrb0_addr	.equ	014AH	 
+_trdgrc0_addr	.equ	014CH	 
+_trdgrd0_addr	.equ	014EH	 
+_trdcr1_addr	.equ	0150H	 
+_trdiora1_addr	.equ	0151H	 
+_trdiorc1_addr	.equ	0152H	 
+_trdsr1_addr	.equ	0153H	 
+_trdier1_addr	.equ	0154H	 
+_trdpocr1_addr	.equ	0155H	 
+_trd1_addr	.equ	0156H	 
+_trdgra1_addr	.equ	0158H	 
+_trdgrb1_addr	.equ	015AH	 
+_trdgrc1_addr	.equ	015CH	 
+_trdgrd1_addr	.equ	015EH	 
+_fmr4_addr	.equ	01B3H	 
+_fmr1_addr	.equ	01B5H	 
+_fmr0_addr	.equ	01B7H	 
+_c0mctl	.equ	1300h        
+_c0mctl0	.equ	1300h        
+_c0mctl1	.equ	1301h        
+_c0mctl2	.equ	1302h        
+_c0mctl3	.equ	1303h        
+_c0mctl4	.equ	1304h        
+_c0mctl5	.equ	1305h        
+_c0mctl6	.equ	1306h        
+_c0mctl7	.equ	1307h        
+_c0mctl8	.equ	1308h        
+_c0mctl9	.equ	1309h        
+_c0mctl10	.equ	130ah        
+_c0mctl11	.equ	130bh        
+_c0mctl12	.equ	130ch        
+_c0mctl13	.equ	130dh        
+_c0mctl14	.equ	130eh        
+_c0mctl15	.equ	130fh        
+_c0ctlr_addr	.equ	1310h        
+_c0str_addr	.equ	1312h        
+_c0sstr_addr	.equ	1314h        
+_c0icr_addr	.equ	1316h        
+_c0idr_addr	.equ	1318h        
+_c0conr_addr	.equ	131ah        
+_c0recr_addr	.equ	131ch        
+_c0tecr_addr	.equ	131dh        
+_c0afs_addr	.equ	1342h        
+_cclkr_addr	.equ	135fh        
+_c0slot	.equ	1360h        
+_c0slot0	.equ	1360h        
+_c0slot1	.equ	1370h        
+_c0slot2	.equ	1380h        
+_c0slot3	.equ	1390h        
+_c0slot4	.equ	13a0h        
+_c0slot5	.equ	13b0h        
+_c0slot6	.equ	13c0h        
+_c0slot7	.equ	13d0h        
+_c0slot8	.equ	13e0h        
+_c0slot9	.equ	13f0h        
+_c0slot10	.equ	1400h        
+_c0slot11	.equ	1410h        
+_c0slot12	.equ	1420h        
+_c0slot13	.equ	1430h        
+_c0slot14	.equ	1440h        
+_c0slot15	.equ	1450h        
+_c0gmr	.equ	1460h        
+_c0lmar	.equ	1466h        
+_c0lmbr	.equ	146ch        
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal.c", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../src/r8c23/sfr_r823.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'V', 'd', "pm0_addr", "_pm0_addr", 'G', 430, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pm1_addr", "_pm1_addr", 'G', 438, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cm0_addr", "_cm0_addr", 'G', 446, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cm1_addr", "_cm1_addr", 'G', 456, 1, 1, 0, 00h
+	._inspect	'V', 'd', "aier_addr", "_aier_addr", 'G', 469, 1, 1, 0, 00h
+	._inspect	'V', 'd', "prcr_addr", "_prcr_addr", 'G', 478, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ocd_addr", "_ocd_addr", 'G', 489, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdtr_addr", "_wdtr_addr", 'G', 500, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdts_addr", "_wdts_addr", 'G', 506, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdc_addr", "_wdc_addr", 'G', 512, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cspr_addr", "_cspr_addr", 'G', 520, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fra0_addr", "_fra0_addr", 'G', 527, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fra1_addr", "_fra1_addr", 'G', 536, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fra2_addr", "_fra2_addr", 'G', 542, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vca1_addr", "_vca1_addr", 'G', 552, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vca2_addr", "_vca2_addr", 'G', 560, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vw1c_addr", "_vw1c_addr", 'G', 569, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vw2c_addr", "_vw2c_addr", 'G', 583, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0brg_addr", "_u0brg_addr", 'G', 598, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1brg_addr", "_u1brg_addr", 'G', 604, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sscrh_addr", "_sscrh_addr", 'G', 610, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sscrl_addr", "_sscrl_addr", 'G', 622, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssmr_addr", "_ssmr_addr", 'G', 632, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sser_addr", "_sser_addr", 'G', 645, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sssr_addr", "_sssr_addr", 'G', 658, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssmr2_addr", "_ssmr2_addr", 'G', 670, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sstdr_addr", "_sstdr_addr", 'G', 685, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssrdr_addr", "_ssrdr_addr", 'G', 691, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iccr1_addr", "_iccr1_addr", 'G', 697, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iccr2_addr", "_iccr2_addr", 'G', 712, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icmr_addr", "_icmr_addr", 'G', 725, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icier_addr", "_icier_addr", 'G', 738, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icsr_addr", "_icsr_addr", 'G', 753, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sar_addr", "_sar_addr", 'G', 768, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icdrt_addr", "_icdrt_addr", 'G', 783, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icdrr_addr", "_icdrr_addr", 'G', 789, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon2_addr", "_adcon2_addr", 'G', 795, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon0_addr", "_adcon0_addr", 'G', 803, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon1_addr", "_adcon1_addr", 'G', 819, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p0_addr", "_p0_addr", 'G', 830, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd0_addr", "_pd0_addr", 'G', 845, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p1_addr", "_p1_addr", 'G', 860, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd1_addr", "_pd1_addr", 'G', 875, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p2_addr", "_p2_addr", 'G', 890, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd2_addr", "_pd2_addr", 'G', 905, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p3_addr", "_p3_addr", 'G', 920, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd3_addr", "_pd3_addr", 'G', 933, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p4_addr", "_p4_addr", 'G', 946, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd4_addr", "_pd4_addr", 'G', 959, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p6_addr", "_p6_addr", 'G', 969, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd6_addr", "_pd6_addr", 'G', 984, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1sr_addr", "_u1sr_addr", 'G', 999, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pmr_addr", "_pmr_addr", 'G', 1005, 1, 1, 0, 00h
+	._inspect	'V', 'd', "inten_addr", "_inten_addr", 'G', 1014, 1, 1, 0, 00h
+	._inspect	'V', 'd', "intf_addr", "_intf_addr", 'G', 1029, 1, 1, 0, 00h
+	._inspect	'V', 'd', "kien_addr", "_kien_addr", 'G', 1044, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pur0_addr", "_pur0_addr", 'G', 1059, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pur1_addr", "_pur1_addr", 'G', 1074, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tracr_addr", "_tracr_addr", 'G', 1085, 1, 1, 0, 00h
+	._inspect	'V', 'd', "traioc_addr", "_traioc_addr", 'G', 1097, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tramr_addr", "_tramr_addr", 'G', 1110, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trapre_addr", "_trapre_addr", 'G', 1124, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tra_addr", "_tra_addr", 'G', 1130, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbcr_addr", "_trbcr_addr", 'G', 1136, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbocr_addr", "_trbocr_addr", 'G', 1146, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbioc_addr", "_trbioc_addr", 'G', 1156, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbmr_addr", "_trbmr_addr", 'G', 1167, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbpre_addr", "_trbpre_addr", 'G', 1180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbsc_addr", "_trbsc_addr", 'G', 1186, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbpr_addr", "_trbpr_addr", 'G', 1192, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tresec_addr", "_tresec_addr", 'G', 1198, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tremin_addr", "_tremin_addr", 'G', 1204, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trecr1_addr", "_trecr1_addr", 'G', 1210, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trecr2_addr", "_trecr2_addr", 'G', 1222, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trecsr_addr", "_trecsr_addr", 'G', 1230, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdstr_addr", "_trdstr_addr", 'G', 1242, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdmr_addr", "_trdmr_addr", 'G', 1256, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdpmr_addr", "_trdpmr_addr", 'G', 1275, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdfcr_addr", "_trdfcr_addr", 'G', 1288, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdoer1_addr", "_trdoer1_addr", 'G', 1303, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdoer2_addr", "_trdoer2_addr", 'G', 1318, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdocr_addr", "_trdocr_addr", 'G', 1326, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trddf0_addr", "_trddf0_addr", 'G', 1341, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trddf1_addr", "_trddf1_addr", 'G', 1354, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdcr0_addr", "_trdcr0_addr", 'G', 1367, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdcr1_addr", "_trdcr1_addr", 'G', 1385, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdiora0_addr", "_trdiora0_addr", 'G', 1403, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdiora1_addr", "_trdiora1_addr", 'G', 1417, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdiorc0_addr", "_trdiorc0_addr", 'G', 1431, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdiorc1_addr", "_trdiorc1_addr", 'G', 1446, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdsr0_addr", "_trdsr0_addr", 'G', 1461, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdsr1_addr", "_trdsr1_addr", 'G', 1473, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdier0_addr", "_trdier0_addr", 'G', 1486, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdier1_addr", "_trdier1_addr", 'G', 1498, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdpocr0_addr", "_trdpocr0_addr", 'G', 1510, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trdpocr1_addr", "_trdpocr1_addr", 'G', 1520, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trd0_addr", "_trd0_addr", 'G', 1530, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgra0_addr", "_trdgra0_addr", 'G', 1530, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrb0_addr", "_trdgrb0_addr", 'G', 1530, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrc0_addr", "_trdgrc0_addr", 'G', 1530, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrd0_addr", "_trdgrd0_addr", 'G', 1530, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trd1_addr", "_trd1_addr", 'G', 1531, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgra1_addr", "_trdgra1_addr", 'G', 1531, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrb1_addr", "_trdgrb1_addr", 'G', 1531, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrc1_addr", "_trdgrc1_addr", 'G', 1531, 2, 1, 0, 00h
+	._inspect	'V', 'd', "trdgrd1_addr", "_trdgrd1_addr", 'G', 1531, 2, 1, 0, 00h
+	._inspect	'V', 'd', "lincr_addr", "_lincr_addr", 'G', 1548, 1, 1, 0, 00h
+	._inspect	'V', 'd', "linst_addr", "_linst_addr", 'G', 1563, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr4_addr", "_fmr4_addr", 'G', 1576, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr1_addr", "_fmr1_addr", 'G', 1590, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr0_addr", "_fmr0_addr", 'G', 1600, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c01wkic_addr", "_c01wkic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0recic_addr", "_c0recic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0trmic_addr", "_c0trmic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c01erric_addr", "_c01erric_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trd0ic_addr", "_trd0ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trd1ic_addr", "_trd1ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "treic_addr", "_treic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "kupic_addr", "_kupic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adic_addr", "_adic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssuaic_addr", "_ssuaic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iic2aic_addr", "_iic2aic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s0tic_addr", "_s0tic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s0ric_addr", "_s0ric_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s1tic_addr", "_s1tic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s1ric_addr", "_s1ric_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int2ic_addr", "_int2ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "traic_addr", "_traic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "trbic_addr", "_trbic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int1ic_addr", "_int1ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int3ic_addr", "_int3ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int0ic_addr", "_int0ic_addr", 'G', 1627, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0mr_addr", "_u0mr_addr", 'G', 1858, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1mr_addr", "_u1mr_addr", 'G', 1858, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0c0_addr", "_u0c0_addr", 'G', 1898, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1c0_addr", "_u1c0_addr", 'G', 1898, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0c1_addr", "_u0c1_addr", 'G', 1936, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1c1_addr", "_u1c1_addr", 'G', 1936, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0rb_addr", "_u0rb_addr", 'G', 1986, 2, 1, 0, 00h
+	._inspect	'V', 'd', "u1rb_addr", "_u1rb_addr", 'G', 1986, 2, 1, 0, 00h
+	._inspect	'V', 'd', "rmad0_addr", "_rmad0_addr", 'G', 2044, 4, 1, 0, 00h
+	._inspect	'V', 'd', "rmad1_addr", "_rmad1_addr", 'G', 2044, 4, 1, 0, 00h
+	._inspect	'V', 'd', "u0tb_addr", "_u0tb_addr", 'G', 2080, 2, 1, 0, 00h
+	._inspect	'V', 'd', "u1tb_addr", "_u1tb_addr", 'G', 2080, 2, 1, 0, 00h
+	._inspect	'V', 'd', "ad_addr", "_ad_addr", 'G', 2080, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot", "_c0slot", 'G', 2125, 256, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot0", "_c0slot0", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot1", "_c0slot1", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot2", "_c0slot2", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot3", "_c0slot3", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot4", "_c0slot4", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot5", "_c0slot5", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot6", "_c0slot6", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot7", "_c0slot7", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot8", "_c0slot8", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot9", "_c0slot9", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot10", "_c0slot10", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot11", "_c0slot11", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot12", "_c0slot12", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot13", "_c0slot13", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot14", "_c0slot14", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0slot15", "_c0slot15", 'G', 2125, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0gmr", "_c0gmr", 'G', 2150, 6, 1, 0, 00h
+	._inspect	'V', 'd', "c0lmar", "_c0lmar", 'G', 2150, 6, 1, 0, 00h
+	._inspect	'V', 'd', "c0lmbr", "_c0lmbr", 'G', 2150, 6, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl", "_c0mctl", 'G', 2180, 16, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl0", "_c0mctl0", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl1", "_c0mctl1", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl2", "_c0mctl2", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl3", "_c0mctl3", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl4", "_c0mctl4", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl5", "_c0mctl5", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl6", "_c0mctl6", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl7", "_c0mctl7", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl8", "_c0mctl8", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl9", "_c0mctl9", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl10", "_c0mctl10", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl11", "_c0mctl11", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl12", "_c0mctl12", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl13", "_c0mctl13", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl14", "_c0mctl14", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0mctl15", "_c0mctl15", 'G', 2180, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0ctlr_addr", "_c0ctlr_addr", 'G', 2263, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0str_addr", "_c0str_addr", 'G', 2305, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0sstr_addr", "_c0sstr_addr", 'G', 2327, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0icr_addr", "_c0icr_addr", 'G', 2334, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0idr_addr", "_c0idr_addr", 'G', 2340, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0conr_addr", "_c0conr_addr", 'G', 2360, 2, 1, 0, 00h
+	._inspect	'V', 'd', "c0recr_addr", "_c0recr_addr", 'G', 2376, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0tecr_addr", "_c0tecr_addr", 'G', 2376, 1, 1, 0, 00h
+	._inspect	'V', 'd', "c0afs_addr", "_c0afs_addr", 'G', 2386, 2, 1, 0, 00h
+	._inspect	'V', 'd', "cclkr_addr", "_cclkr_addr", 'G', 2393, 1, 1, 0, 00h
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/stdlib.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'F', 'p', "abort", "_abort", 'G', 73, 0, 00h, 0
+	._inspect	'F', 'p', "div", "$div", 'G', 74, 0, 00h, 0
+	._inspect	'F', 'p', "exit", "$exit", 'G', 75, 0, 00h, 0
+	._inspect	'F', 'p', "calloc", "$calloc", 'G', 76, 0, 00h, 0
+	._inspect	'F', 'p', "free", "_free", 'G', 77, 0, 00h, 0
+	._inspect	'F', 'p', "malloc", "$malloc", 'G', 78, 0, 00h, 0
+	._inspect	'F', 'p', "realloc", "$realloc", 'G', 79, 0, 00h, 0
+	._inspect	'F', 'p', "strtol", "_strtol", 'G', 81, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtol", "$_n_n_strtol", 'G', 82, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtol", "$_n_f_strtol", 'G', 83, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtol", "$_f_n_strtol", 'G', 84, 0, 00h, 0
+	._inspect	'F', 'p', "strtoul", "_strtoul", 'G', 85, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtoul", "$_n_n_strtoul", 'G', 86, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtoul", "$_n_f_strtoul", 'G', 87, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtoul", "$_f_n_strtoul", 'G', 88, 0, 00h, 0
+	._inspect	'F', 'p', "strtod", "_strtod", 'G', 89, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtod", "$_n_n_strtod", 'G', 90, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtod", "$_n_f_strtod", 'G', 91, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtod", "$_f_n_strtod", 'G', 92, 0, 00h, 0
+	._inspect	'F', 'p', "atoi", "_atoi", 'G', 94, 0, 00h, 0
+	._inspect	'F', 'p', "atol", "_atol", 'G', 95, 0, 00h, 0
+	._inspect	'F', 'p', "atof", "_atof", 'G', 96, 0, 00h, 0
+	._inspect	'F', 'p', "abs", "$abs", 'G', 97, 0, 00h, 0
+	._inspect	'F', 'p', "labs", "_labs", 'G', 98, 0, 00h, 0
+	._inspect	'F', 'p', "ldiv", "_ldiv", 'G', 99, 0, 00h, 0
+	._inspect	'F', 'p', "qsort", "$qsort", 'G', 100, 0, 00h, 0
+	._inspect	'F', 'p', "bsearch", "_bsearch", 'G', 101, 0, 00h, 0
+	._inspect	'F', 'p', "mblen", "$mblen", 'G', 102, 0, 00h, 0
+	._inspect	'F', 'p', "mbtowc", "_mbtowc", 'G', 103, 0, 00h, 0
+	._inspect	'F', 'p', "wctomb", "$wctomb", 'G', 104, 0, 00h, 0
+	._inspect	'F', 'p', "wcstombs", "_wcstombs", 'G', 105, 0, 00h, 0
+	._inspect	'F', 'p', "mbstowcs", "_mbstowcs", 'G', 106, 0, 00h, 0
+	._inspect	'F', 'p', "rand", "_rand", 'G', 107, 0, 00h, 0
+	._inspect	'F', 'p', "srand", "$srand", 'G', 108, 0, 00h, 0
+	._inspect	'F', 'p', "strtof", "_strtof", 'G', 110, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtof", "$_n_n_strtof", 'G', 111, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtof", "$_n_f_strtof", 'G', 112, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtof", "$_f_n_strtof", 'G', 113, 0, 00h, 0
+	._inspect	'F', 'p', "atoff", "_atoff", 'G', 114, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../src/common/one_net_types.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/tick.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'F', 'p', "init_tick", "_init_tick", 'G', 108, 0, 00h, 0
+	._inspect	'F', 'p', "get_tick_count", "_get_tick_count", 'G', 188, 0, 00h, 0
+	._inspect	'F', 'p', "delay_ms", "$delay_ms", 'G', 190, 0, 00h, 0
+	._inspect	'F', 'p', "delay_100s_us", "$delay_100s_us", 'G', 191, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'V', 'e', "BATTERY_THRESHOLD", 'G', 85, 2, 0, 0, 00h
+	._inspect	'V', 'e', "VOLTAGE_THRESHOLD", 'G', 86, 2, 0, 0, 00h
+	._inspect	'F', 'p', "init_ports", "_init_ports", 'G', 122, 0, 00h, 0
+	._inspect	'F', 'p', "init_ports_leds", "_init_ports_leds", 'G', 123, 0, 00h, 0
+	._inspect	'F', 'p', "high_speed_mode", "_high_speed_mode", 'G', 124, 0, 00h, 0
+	._inspect	'F', 'p', "low_speed_mode", "_low_speed_mode", 'G', 125, 0, 00h, 0
+	._inspect	'F', 'p', "processor_sleep", "_processor_sleep", 'G', 127, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../../../transceivers/adi/tal.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'F', 'p', "tal_init_transceiver", "_tal_init_transceiver", 'G', 91, 0, 00h, 0
+	._inspect	'F', 'p', "tal_init_ports", "_tal_init_ports", 'G', 92, 0, 00h, 0
+	._inspect	'F', 'p', "init_rf_interrupts", "_init_rf_interrupts", 'G', 93, 0, 00h, 0
+	._inspect	'F', 'p', "read_battery", "_read_battery", 'G', 95, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal.c", "C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal"
+	._inspect	'F', 'p', "update_tick_count", "_update_tick_count", 'G', 98, 0, 00h, 0
+
+;## #	FUNCTION init_ports
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+
+	.SECTION	program_high_rom,CODE
+	._inspect	'U', 2, "program_high_rom", "program", 1
+	._file	'C:/HEWProj/2_0_trunk/processors/renesas/src/eval/pal.c'
+	._type	256,'v'
+	._type	257,'v'
+	._type	258,'x',256,1
+	._type	258,'m','',0,257
+	._func	'init_ports','G',0,258,_init_ports,0
+	._inspect	'F', 's', "init_ports", "_init_ports", 'G', 3
+	._block
+	._line	118
+;## # C_SRC :	{
+	.glb	_init_ports
+_init_ports:
+	._block
+	._line	122
+;## # C_SRC :	    pur0  = 0xff;
+	mov.b	#0ffH,_pur0_addr
+	._line	123
+;## # C_SRC :	    pur1  = 0x33;
+	mov.b	#33H,_pur1_addr
+	._line	124
+;## # C_SRC :	    INIT_PORTS_LEDS();
+	._inspect	'S', 'c', "init_ports_leds", "_init_ports_leds", 'G', 0, 124
+	jmp	_init_ports_leds
+E1:
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "init_ports", "_init_ports", 'G', 118, 0, 00h, 0
+	._inspect	'F', 't', "init_ports", 'G', 258
+	._inspect	'V', 'r', "pur0_addr", 'G', 122, 1, 1, 0, 00h
+	._inspect	'V', 'r', "pur1_addr", 'G', 123, 1, 1, 0, 00h
+	._inspect	'F', 'r', "init_ports_leds", "_init_ports_leds", 'G', 124, 0, 00h, 0
+	._inspect	'F', 'e', "init_ports", "_init_ports", 'G', 0, 0
+
+
+;## #	FUNCTION init_ports_leds
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+	._type	259,'v'
+	._type	260,'v'
+	._type	261,'x',259,1
+	._type	261,'m','',0,260
+	._func	'init_ports_leds','G',0,261,_init_ports_leds,0
+	._inspect	'F', 's', "init_ports_leds", "_init_ports_leds", 'G', 3
+	._line	136
+;## # C_SRC :	{
+	.glb	_init_ports_leds
+_init_ports_leds:
+	._block
+	._line	137
+;## # C_SRC :	    prc2 = 1;
+	bset	2,_prcr_addr
+	._line	138
+;## # C_SRC :	    LED2_DIR = OUTPUT;
+	or.b	#30H,_pd0_addr
+	._line	140
+;## # C_SRC :	    prc2 = 0;
+	bclr	2,_prcr_addr
+	._line	142
+;## # C_SRC :	    TURN_OFF(LED2);
+	and.b	#0cfH,_p0_addr
+	._eblock
+	._line	144
+;## # C_SRC :	} // init_ports_leds //
+_processor_sleep:
+	rts	
+E2:
+M2:
+E5:
+M5:
+	._efunc	M2
+	._inspect	'F', 'd', "init_ports_leds", "_init_ports_leds", 'G', 136, 0, 00h, 0
+	._inspect	'F', 't', "init_ports_leds", 'G', 261
+	._inspect	'V', 'r', "prcr_addr", 'G', 137, 1, 1, 0, 04h
+	._inspect	'V', 'r', "pd0_addr", 'G', 138, 1, 1, 0, 030h
+	._inspect	'V', 'r', "prcr_addr", 'G', 140, 1, 1, 0, 04h
+	._inspect	'V', 'r', "p0_addr", 'G', 142, 1, 1, 0, 030h
+	._inspect	'F', 'e', "init_ports_leds", "_init_ports_leds", 'G', 0, 0
+
+
+;## #	FUNCTION high_speed_mode
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+	._type	262,'v'
+	._type	263,'v'
+	._type	264,'x',262,1
+	._type	264,'m','',0,263
+	._func	'high_speed_mode','G',0,264,_high_speed_mode,0
+	._inspect	'F', 's', "high_speed_mode", "_high_speed_mode", 'G', 3
+	._line	159
+;## # C_SRC :	{
+	.glb	_high_speed_mode
+_high_speed_mode:
+	._block
+	._line	160
+;## # C_SRC :	    prc0 = 1;                       // protect off
+	bset	0,_prcr_addr
+	._line	161
+;## # C_SRC :	    fra00 = 1;                      // enable high speed oscillator
+	bset	0,_fra0_addr
+	._line	168
+;## # C_SRC :	    delay_ms(1);
+	mov.w	#0001H,R1
+	._inspect	'S', 'c', "delay_ms", "$delay_ms", 'G', 0, 168
+	jsr	$delay_ms
+	._line	169
+;## # C_SRC :	    asm("nop");                     // let it settle
+;#### ASM START
+nop
+	._line	170
+;## # C_SRC :	    asm("nop");
+nop
+	._line	171
+;## # C_SRC :	    asm("nop");
+nop
+	._line	172
+;## # C_SRC :	    asm("nop");
+nop
+;#### ASM END
+	._line	174
+;## # C_SRC :	    cm06 = 0;                       // enable CM16, CM17    
+	bclr	6,_cm0_addr
+	._line	176
+;## # C_SRC :	    cm16 = 0;
+	and.b	#3fH,_cm1_addr
+	._line	180
+;## # C_SRC :	    fra20 = 0;
+	and.b	#0f8H,_fra2_addr
+	._line	184
+;## # C_SRC :	    fra01 = 1;                      // system clock is internal high speed osc.
+	bset	1,_fra0_addr
+	._line	185
+;## # C_SRC :	    prc0 = 0;                       // protect on
+	bclr	0,_prcr_addr
+	._eblock
+	._line	186
+;## # C_SRC :	} // high_speed_mode //
+	rts	
+E3:
+M3:
+	._efunc	M3
+	._inspect	'F', 'd', "high_speed_mode", "_high_speed_mode", 'G', 159, 0, 00h, 0
+	._inspect	'F', 't', "high_speed_mode", 'G', 264
+	._inspect	'V', 'r', "prcr_addr", 'G', 160, 1, 1, 0, 01h
+	._inspect	'V', 'r', "fra0_addr", 'G', 161, 1, 1, 0, 01h
+	._inspect	'F', 'r', "delay_ms", "$delay_ms", 'G', 168, 0, 00h, 0
+	._inspect	'V', 'r', "cm0_addr", 'G', 174, 1, 1, 0, 040h
+	._inspect	'V', 'r', "cm1_addr", 'G', 176, 1, 1, 0, 0c0h
+	._inspect	'V', 'r', "fra2_addr", 'G', 180, 1, 1, 0, 07h
+	._inspect	'V', 'r', "fra0_addr", 'G', 184, 1, 1, 0, 02h
+	._inspect	'V', 'r', "prcr_addr", 'G', 185, 1, 1, 0, 01h
+	._inspect	'F', 'e', "high_speed_mode", "_high_speed_mode", 'G', 0, 0
+
+
+;## #	FUNCTION low_speed_mode
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+	._type	265,'v'
+	._type	266,'v'
+	._type	267,'x',265,1
+	._type	267,'m','',0,266
+	._func	'low_speed_mode','G',0,267,_low_speed_mode,0
+	._inspect	'F', 's', "low_speed_mode", "_low_speed_mode", 'G', 3
+	._line	197
+;## # C_SRC :	{
+	.glb	_low_speed_mode
+_low_speed_mode:
+	._block
+	._line	198
+;## # C_SRC :	    prc0 = 1;                       // protect off
+	bset	0,_prcr_addr
+	._line	199
+;## # C_SRC :	    ocd2 = 1;                       // select internal oscillator
+	bset	2,_ocd_addr
+	._line	200
+;## # C_SRC :	    cm05 = 1;                       // main clock stops
+	bset	5,_cm0_addr
+	._line	201
+;## # C_SRC :	    prc0 = 0;                       // protoect on
+	bclr	0,_prcr_addr
+	._eblock
+	._line	202
+;## # C_SRC :	} // low_speed_mode //
+	rts	
+E4:
+M4:
+	._efunc	M4
+	._inspect	'F', 'd', "low_speed_mode", "_low_speed_mode", 'G', 197, 0, 00h, 0
+	._inspect	'F', 't', "low_speed_mode", 'G', 267
+	._inspect	'V', 'r', "prcr_addr", 'G', 198, 1, 1, 0, 01h
+	._inspect	'V', 'r', "ocd_addr", 'G', 199, 1, 1, 0, 04h
+	._inspect	'V', 'r', "cm0_addr", 'G', 200, 1, 1, 0, 020h
+	._inspect	'V', 'r', "prcr_addr", 'G', 201, 1, 1, 0, 01h
+	._inspect	'F', 'e', "low_speed_mode", "_low_speed_mode", 'G', 0, 0
+
+
+;## #	FUNCTION processor_sleep
+;## #  FRAME   ARG (      MS)  size   4,    offset 5
+;## #	ARG Size(4)	Auto Size(0)	Context Size(5)
+
+	._type	268,'v'
+	._type	269,'T','UInt32',7
+	._type	270,'x',268,1
+	._type	270,'m','MS',0,269
+	._func	'processor_sleep','G',0,270,_processor_sleep,0
+	._inspect	'F', 's', "processor_sleep", "_processor_sleep", 'G', 5
+	._line	218
+;## # C_SRC :	{
+	.glb	_processor_sleep
+	._line	219
+;## # C_SRC :	} // processor_sleep //
+	._efunc	M5
+	._inspect	'F', 'd', "processor_sleep", "_processor_sleep", 'G', 218, 0, 00h, 0
+	._inspect	'F', 't', "processor_sleep", 'G', 270
+	._inspect	'F', 'e', "processor_sleep", "_processor_sleep", 'G', 0, 0
+
+	.glb	_abort
+	.glb	$div
+	.glb	$exit
+	.glb	$calloc
+	.glb	_free
+	.glb	$malloc
+	.glb	$realloc
+	.glb	_strtol
+	.glb	$_n_n_strtol
+	.glb	$_n_f_strtol
+	.glb	$_f_n_strtol
+	.glb	_strtoul
+	.glb	$_n_n_strtoul
+	.glb	$_n_f_strtoul
+	.glb	$_f_n_strtoul
+	.glb	_strtod
+	.glb	$_n_n_strtod
+	.glb	$_n_f_strtod
+	.glb	$_f_n_strtod
+	.glb	_atoi
+	.glb	_atol
+	.glb	_atof
+	.glb	$abs
+	.glb	_labs
+	.glb	_ldiv
+	.glb	$qsort
+	.glb	_bsearch
+	.glb	$mblen
+	.glb	_mbtowc
+	.glb	$wctomb
+	.glb	_wcstombs
+	.glb	_mbstowcs
+	.glb	_rand
+	.glb	$srand
+	.glb	_strtof
+	.glb	$_n_n_strtof
+	.glb	$_n_f_strtof
+	.glb	$_f_n_strtof
+	.glb	_atoff
+	.glb	_init_tick
+	.glb	_get_tick_count
+	.glb	$delay_ms
+	.glb	$delay_100s_us
+	.glb	_BATTERY_THRESHOLD
+	.glb	_VOLTAGE_THRESHOLD
+	.glb	_tal_init_transceiver
+	.glb	_tal_init_ports
+	.glb	_init_rf_interrupts
+	.glb	_read_battery
+	.glb	_update_tick_count
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	273,'g','b0',0,1,3
+	._type	274,'g','b1',0,1,3
+	._type	275,'g','b2',0,1,3
+	._type	276,'g','b3',0,1,3
+	._type	277,'g','b4',0,1,3
+	._type	278,'g','b5',0,1,3
+	._type	279,'g','b6',0,1,3
+	._type	280,'g','b7',0,1,3
+	._type	272,'S','bit_def',1
+	._type	272,'m','b0',273,0
+	._type	272,'m','b1',274,1
+	._type	272,'m','b2',275,2
+	._type	272,'m','b3',276,3
+	._type	272,'m','b4',277,4
+	._type	272,'m','b5',278,5
+	._type	272,'m','b6',279,6
+	._type	272,'m','b7',280,7
+	._type	271,'U','byte_def',1
+	._type	271,'m','bit',272,0
+	._type	271,'m','byte',3,0
+	._var	'pm0_addr','S',271,_pm0_addr
+	._var	'pm1_addr','S',271,_pm1_addr
+	._var	'cm0_addr','S',271,_cm0_addr
+	._var	'cm1_addr','S',271,_cm1_addr
+	._var	'aier_addr','S',271,_aier_addr
+	._var	'prcr_addr','S',271,_prcr_addr
+	._var	'ocd_addr','S',271,_ocd_addr
+	._var	'wdtr_addr','S',271,_wdtr_addr
+	._var	'wdts_addr','S',271,_wdts_addr
+	._var	'wdc_addr','S',271,_wdc_addr
+	._var	'cspr_addr','S',271,_cspr_addr
+	._var	'fra0_addr','S',271,_fra0_addr
+	._var	'fra1_addr','S',271,_fra1_addr
+	._var	'fra2_addr','S',271,_fra2_addr
+	._var	'vca1_addr','S',271,_vca1_addr
+	._var	'vca2_addr','S',271,_vca2_addr
+	._var	'vw1c_addr','S',271,_vw1c_addr
+	._var	'vw2c_addr','S',271,_vw2c_addr
+	._var	'u0brg_addr','S',271,_u0brg_addr
+	._var	'u1brg_addr','S',271,_u1brg_addr
+	._var	'sscrh_addr','S',271,_sscrh_addr
+	._var	'sscrl_addr','S',271,_sscrl_addr
+	._var	'ssmr_addr','S',271,_ssmr_addr
+	._var	'sser_addr','S',271,_sser_addr
+	._var	'sssr_addr','S',271,_sssr_addr
+	._var	'ssmr2_addr','S',271,_ssmr2_addr
+	._var	'sstdr_addr','S',271,_sstdr_addr
+	._var	'ssrdr_addr','S',271,_ssrdr_addr
+	._var	'iccr1_addr','S',271,_iccr1_addr
+	._var	'iccr2_addr','S',271,_iccr2_addr
+	._var	'icmr_addr','S',271,_icmr_addr
+	._var	'icier_addr','S',271,_icier_addr
+	._var	'icsr_addr','S',271,_icsr_addr
+	._var	'sar_addr','S',271,_sar_addr
+	._var	'icdrt_addr','S',271,_icdrt_addr
+	._var	'icdrr_addr','S',271,_icdrr_addr
+	._var	'adcon2_addr','S',271,_adcon2_addr
+	._var	'adcon0_addr','S',271,_adcon0_addr
+	._var	'adcon1_addr','S',271,_adcon1_addr
+	._var	'p0_addr','S',271,_p0_addr
+	._var	'pd0_addr','S',271,_pd0_addr
+	._var	'p1_addr','S',271,_p1_addr
+	._var	'pd1_addr','S',271,_pd1_addr
+	._var	'p2_addr','S',271,_p2_addr
+	._var	'pd2_addr','S',271,_pd2_addr
+	._var	'p3_addr','S',271,_p3_addr
+	._var	'pd3_addr','S',271,_pd3_addr
+	._var	'p4_addr','S',271,_p4_addr
+	._var	'pd4_addr','S',271,_pd4_addr
+	._var	'p6_addr','S',271,_p6_addr
+	._var	'pd6_addr','S',271,_pd6_addr
+	._var	'u1sr_addr','S',271,_u1sr_addr
+	._var	'pmr_addr','S',271,_pmr_addr
+	._var	'inten_addr','S',271,_inten_addr
+	._var	'intf_addr','S',271,_intf_addr
+	._var	'kien_addr','S',271,_kien_addr
+	._var	'pur0_addr','S',271,_pur0_addr
+	._var	'pur1_addr','S',271,_pur1_addr
+	._var	'tracr_addr','S',271,_tracr_addr
+	._var	'traioc_addr','S',271,_traioc_addr
+	._var	'tramr_addr','S',271,_tramr_addr
+	._var	'trapre_addr','S',271,_trapre_addr
+	._var	'tra_addr','S',271,_tra_addr
+	._var	'trbcr_addr','S',271,_trbcr_addr
+	._var	'trbocr_addr','S',271,_trbocr_addr
+	._var	'trbioc_addr','S',271,_trbioc_addr
+	._var	'trbmr_addr','S',271,_trbmr_addr
+	._var	'trbpre_addr','S',271,_trbpre_addr
+	._var	'trbsc_addr','S',271,_trbsc_addr
+	._var	'trbpr_addr','S',271,_trbpr_addr
+	._var	'tresec_addr','S',271,_tresec_addr
+	._var	'tremin_addr','S',271,_tremin_addr
+	._var	'trecr1_addr','S',271,_trecr1_addr
+	._var	'trecr2_addr','S',271,_trecr2_addr
+	._var	'trecsr_addr','S',271,_trecsr_addr
+	._var	'trdstr_addr','S',271,_trdstr_addr
+	._var	'trdmr_addr','S',271,_trdmr_addr
+	._var	'trdpmr_addr','S',271,_trdpmr_addr
+	._var	'trdfcr_addr','S',271,_trdfcr_addr
+	._var	'trdoer1_addr','S',271,_trdoer1_addr
+	._var	'trdoer2_addr','S',271,_trdoer2_addr
+	._var	'trdocr_addr','S',271,_trdocr_addr
+	._var	'trddf0_addr','S',271,_trddf0_addr
+	._var	'trddf1_addr','S',271,_trddf1_addr
+	._var	'trdcr0_addr','S',271,_trdcr0_addr
+	._var	'trdcr1_addr','S',271,_trdcr1_addr
+	._var	'trdiora0_addr','S',271,_trdiora0_addr
+	._var	'trdiora1_addr','S',271,_trdiora1_addr
+	._var	'trdiorc0_addr','S',271,_trdiorc0_addr
+	._var	'trdiorc1_addr','S',271,_trdiorc1_addr
+	._var	'trdsr0_addr','S',271,_trdsr0_addr
+	._var	'trdsr1_addr','S',271,_trdsr1_addr
+	._var	'trdier0_addr','S',271,_trdier0_addr
+	._var	'trdier1_addr','S',271,_trdier1_addr
+	._var	'trdpocr0_addr','S',271,_trdpocr0_addr
+	._var	'trdpocr1_addr','S',271,_trdpocr1_addr
+	._var	'trd0_addr','S',5,_trd0_addr
+	._var	'trdgra0_addr','S',5,_trdgra0_addr
+	._var	'trdgrb0_addr','S',5,_trdgrb0_addr
+	._var	'trdgrc0_addr','S',5,_trdgrc0_addr
+	._var	'trdgrd0_addr','S',5,_trdgrd0_addr
+	._var	'trd1_addr','S',5,_trd1_addr
+	._var	'trdgra1_addr','S',5,_trdgra1_addr
+	._var	'trdgrb1_addr','S',5,_trdgrb1_addr
+	._var	'trdgrc1_addr','S',5,_trdgrc1_addr
+	._var	'trdgrd1_addr','S',5,_trdgrd1_addr
+	._var	'lincr_addr','S',271,_lincr_addr
+	._var	'linst_addr','S',271,_linst_addr
+	._var	'fmr4_addr','S',271,_fmr4_addr
+	._var	'fmr1_addr','S',271,_fmr1_addr
+	._var	'fmr0_addr','S',271,_fmr0_addr
+	._type	283,'g','ilvl0',0,1,3
+	._type	284,'g','ilvl1',0,1,3
+	._type	285,'g','ilvl2',0,1,3
+	._type	286,'g','ir',0,1,3
+	._type	287,'g','pol',0,1,3
+	._type	288,'g','b5',0,1,3
+	._type	289,'g','b6',0,1,3
+	._type	290,'g','b7',0,1,3
+	._type	282,'S','',1
+	._type	282,'m','ilvl0',283,0
+	._type	282,'m','ilvl1',284,1
+	._type	282,'m','ilvl2',285,2
+	._type	282,'m','ir',286,3
+	._type	282,'m','pol',287,4
+	._type	282,'m','b5',288,5
+	._type	282,'m','b6',289,6
+	._type	282,'m','b7',290,7
+	._type	281,'U','',1
+	._type	281,'m','bit',282,0
+	._type	281,'m','byte',3,0
+	._var	'c01wkic_addr','S',281,_c01wkic_addr
+	._type	293,'g','ilvl0',0,1,3
+	._type	294,'g','ilvl1',0,1,3
+	._type	295,'g','ilvl2',0,1,3
+	._type	296,'g','ir',0,1,3
+	._type	297,'g','pol',0,1,3
+	._type	298,'g','b5',0,1,3
+	._type	299,'g','b6',0,1,3
+	._type	300,'g','b7',0,1,3
+	._type	292,'S','',1
+	._type	292,'m','ilvl0',293,0
+	._type	292,'m','ilvl1',294,1
+	._type	292,'m','ilvl2',295,2
+	._type	292,'m','ir',296,3
+	._type	292,'m','pol',297,4
+	._type	292,'m','b5',298,5
+	._type	292,'m','b6',299,6
+	._type	292,'m','b7',300,7
+	._type	291,'U','',1
+	._type	291,'m','bit',292,0
+	._type	291,'m','byte',3,0
+	._var	'c0recic_addr','S',291,_c0recic_addr
+	._type	303,'g','ilvl0',0,1,3
+	._type	304,'g','ilvl1',0,1,3
+	._type	305,'g','ilvl2',0,1,3
+	._type	306,'g','ir',0,1,3
+	._type	307,'g','pol',0,1,3
+	._type	308,'g','b5',0,1,3
+	._type	309,'g','b6',0,1,3
+	._type	310,'g','b7',0,1,3
+	._type	302,'S','',1
+	._type	302,'m','ilvl0',303,0
+	._type	302,'m','ilvl1',304,1
+	._type	302,'m','ilvl2',305,2
+	._type	302,'m','ir',306,3
+	._type	302,'m','pol',307,4
+	._type	302,'m','b5',308,5
+	._type	302,'m','b6',309,6
+	._type	302,'m','b7',310,7
+	._type	301,'U','',1
+	._type	301,'m','bit',302,0
+	._type	301,'m','byte',3,0
+	._var	'c0trmic_addr','S',301,_c0trmic_addr
+	._type	313,'g','ilvl0',0,1,3
+	._type	314,'g','ilvl1',0,1,3
+	._type	315,'g','ilvl2',0,1,3
+	._type	316,'g','ir',0,1,3
+	._type	317,'g','pol',0,1,3
+	._type	318,'g','b5',0,1,3
+	._type	319,'g','b6',0,1,3
+	._type	320,'g','b7',0,1,3
+	._type	312,'S','',1
+	._type	312,'m','ilvl0',313,0
+	._type	312,'m','ilvl1',314,1
+	._type	312,'m','ilvl2',315,2
+	._type	312,'m','ir',316,3
+	._type	312,'m','pol',317,4
+	._type	312,'m','b5',318,5
+	._type	312,'m','b6',319,6
+	._type	312,'m','b7',320,7
+	._type	311,'U','',1
+	._type	311,'m','bit',312,0
+	._type	311,'m','byte',3,0
+	._var	'c01erric_addr','S',311,_c01erric_addr
+	._type	323,'g','ilvl0',0,1,3
+	._type	324,'g','ilvl1',0,1,3
+	._type	325,'g','ilvl2',0,1,3
+	._type	326,'g','ir',0,1,3
+	._type	327,'g','pol',0,1,3
+	._type	328,'g','b5',0,1,3
+	._type	329,'g','b6',0,1,3
+	._type	330,'g','b7',0,1,3
+	._type	322,'S','',1
+	._type	322,'m','ilvl0',323,0
+	._type	322,'m','ilvl1',324,1
+	._type	322,'m','ilvl2',325,2
+	._type	322,'m','ir',326,3
+	._type	322,'m','pol',327,4
+	._type	322,'m','b5',328,5
+	._type	322,'m','b6',329,6
+	._type	322,'m','b7',330,7
+	._type	321,'U','',1
+	._type	321,'m','bit',322,0
+	._type	321,'m','byte',3,0
+	._var	'trd0ic_addr','S',321,_trd0ic_addr
+	._type	333,'g','ilvl0',0,1,3
+	._type	334,'g','ilvl1',0,1,3
+	._type	335,'g','ilvl2',0,1,3
+	._type	336,'g','ir',0,1,3
+	._type	337,'g','pol',0,1,3
+	._type	338,'g','b5',0,1,3
+	._type	339,'g','b6',0,1,3
+	._type	340,'g','b7',0,1,3
+	._type	332,'S','',1
+	._type	332,'m','ilvl0',333,0
+	._type	332,'m','ilvl1',334,1
+	._type	332,'m','ilvl2',335,2
+	._type	332,'m','ir',336,3
+	._type	332,'m','pol',337,4
+	._type	332,'m','b5',338,5
+	._type	332,'m','b6',339,6
+	._type	332,'m','b7',340,7
+	._type	331,'U','',1
+	._type	331,'m','bit',332,0
+	._type	331,'m','byte',3,0
+	._var	'trd1ic_addr','S',331,_trd1ic_addr
+	._type	343,'g','ilvl0',0,1,3
+	._type	344,'g','ilvl1',0,1,3
+	._type	345,'g','ilvl2',0,1,3
+	._type	346,'g','ir',0,1,3
+	._type	347,'g','pol',0,1,3
+	._type	348,'g','b5',0,1,3
+	._type	349,'g','b6',0,1,3
+	._type	350,'g','b7',0,1,3
+	._type	342,'S','',1
+	._type	342,'m','ilvl0',343,0
+	._type	342,'m','ilvl1',344,1
+	._type	342,'m','ilvl2',345,2
+	._type	342,'m','ir',346,3
+	._type	342,'m','pol',347,4
+	._type	342,'m','b5',348,5
+	._type	342,'m','b6',349,6
+	._type	342,'m','b7',350,7
+	._type	341,'U','',1
+	._type	341,'m','bit',342,0
+	._type	341,'m','byte',3,0
+	._var	'treic_addr','S',341,_treic_addr
+	._type	353,'g','ilvl0',0,1,3
+	._type	354,'g','ilvl1',0,1,3
+	._type	355,'g','ilvl2',0,1,3
+	._type	356,'g','ir',0,1,3
+	._type	357,'g','pol',0,1,3
+	._type	358,'g','b5',0,1,3
+	._type	359,'g','b6',0,1,3
+	._type	360,'g','b7',0,1,3
+	._type	352,'S','',1
+	._type	352,'m','ilvl0',353,0
+	._type	352,'m','ilvl1',354,1
+	._type	352,'m','ilvl2',355,2
+	._type	352,'m','ir',356,3
+	._type	352,'m','pol',357,4
+	._type	352,'m','b5',358,5
+	._type	352,'m','b6',359,6
+	._type	352,'m','b7',360,7
+	._type	351,'U','',1
+	._type	351,'m','bit',352,0
+	._type	351,'m','byte',3,0
+	._var	'kupic_addr','S',351,_kupic_addr
+	._type	363,'g','ilvl0',0,1,3
+	._type	364,'g','ilvl1',0,1,3
+	._type	365,'g','ilvl2',0,1,3
+	._type	366,'g','ir',0,1,3
+	._type	367,'g','pol',0,1,3
+	._type	368,'g','b5',0,1,3
+	._type	369,'g','b6',0,1,3
+	._type	370,'g','b7',0,1,3
+	._type	362,'S','',1
+	._type	362,'m','ilvl0',363,0
+	._type	362,'m','ilvl1',364,1
+	._type	362,'m','ilvl2',365,2
+	._type	362,'m','ir',366,3
+	._type	362,'m','pol',367,4
+	._type	362,'m','b5',368,5
+	._type	362,'m','b6',369,6
+	._type	362,'m','b7',370,7
+	._type	361,'U','',1
+	._type	361,'m','bit',362,0
+	._type	361,'m','byte',3,0
+	._var	'adic_addr','S',361,_adic_addr
+	._type	373,'g','ilvl0',0,1,3
+	._type	374,'g','ilvl1',0,1,3
+	._type	375,'g','ilvl2',0,1,3
+	._type	376,'g','ir',0,1,3
+	._type	377,'g','pol',0,1,3
+	._type	378,'g','b5',0,1,3
+	._type	379,'g','b6',0,1,3
+	._type	380,'g','b7',0,1,3
+	._type	372,'S','',1
+	._type	372,'m','ilvl0',373,0
+	._type	372,'m','ilvl1',374,1
+	._type	372,'m','ilvl2',375,2
+	._type	372,'m','ir',376,3
+	._type	372,'m','pol',377,4
+	._type	372,'m','b5',378,5
+	._type	372,'m','b6',379,6
+	._type	372,'m','b7',380,7
+	._type	371,'U','',1
+	._type	371,'m','bit',372,0
+	._type	371,'m','byte',3,0
+	._var	'ssuaic_addr','S',371,_ssuaic_addr
+	._type	383,'g','ilvl0',0,1,3
+	._type	384,'g','ilvl1',0,1,3
+	._type	385,'g','ilvl2',0,1,3
+	._type	386,'g','ir',0,1,3
+	._type	387,'g','pol',0,1,3
+	._type	388,'g','b5',0,1,3
+	._type	389,'g','b6',0,1,3
+	._type	390,'g','b7',0,1,3
+	._type	382,'S','',1
+	._type	382,'m','ilvl0',383,0
+	._type	382,'m','ilvl1',384,1
+	._type	382,'m','ilvl2',385,2
+	._type	382,'m','ir',386,3
+	._type	382,'m','pol',387,4
+	._type	382,'m','b5',388,5
+	._type	382,'m','b6',389,6
+	._type	382,'m','b7',390,7
+	._type	381,'U','',1
+	._type	381,'m','bit',382,0
+	._type	381,'m','byte',3,0
+	._var	'iic2aic_addr','S',381,_iic2aic_addr
+	._type	393,'g','ilvl0',0,1,3
+	._type	394,'g','ilvl1',0,1,3
+	._type	395,'g','ilvl2',0,1,3
+	._type	396,'g','ir',0,1,3
+	._type	397,'g','pol',0,1,3
+	._type	398,'g','b5',0,1,3
+	._type	399,'g','b6',0,1,3
+	._type	400,'g','b7',0,1,3
+	._type	392,'S','',1
+	._type	392,'m','ilvl0',393,0
+	._type	392,'m','ilvl1',394,1
+	._type	392,'m','ilvl2',395,2
+	._type	392,'m','ir',396,3
+	._type	392,'m','pol',397,4
+	._type	392,'m','b5',398,5
+	._type	392,'m','b6',399,6
+	._type	392,'m','b7',400,7
+	._type	391,'U','',1
+	._type	391,'m','bit',392,0
+	._type	391,'m','byte',3,0
+	._var	's0tic_addr','S',391,_s0tic_addr
+	._type	403,'g','ilvl0',0,1,3
+	._type	404,'g','ilvl1',0,1,3
+	._type	405,'g','ilvl2',0,1,3
+	._type	406,'g','ir',0,1,3
+	._type	407,'g','pol',0,1,3
+	._type	408,'g','b5',0,1,3
+	._type	409,'g','b6',0,1,3
+	._type	410,'g','b7',0,1,3
+	._type	402,'S','',1
+	._type	402,'m','ilvl0',403,0
+	._type	402,'m','ilvl1',404,1
+	._type	402,'m','ilvl2',405,2
+	._type	402,'m','ir',406,3
+	._type	402,'m','pol',407,4
+	._type	402,'m','b5',408,5
+	._type	402,'m','b6',409,6
+	._type	402,'m','b7',410,7
+	._type	401,'U','',1
+	._type	401,'m','bit',402,0
+	._type	401,'m','byte',3,0
+	._var	's0ric_addr','S',401,_s0ric_addr
+	._type	413,'g','ilvl0',0,1,3
+	._type	414,'g','ilvl1',0,1,3
+	._type	415,'g','ilvl2',0,1,3
+	._type	416,'g','ir',0,1,3
+	._type	417,'g','pol',0,1,3
+	._type	418,'g','b5',0,1,3
+	._type	419,'g','b6',0,1,3
+	._type	420,'g','b7',0,1,3
+	._type	412,'S','',1
+	._type	412,'m','ilvl0',413,0
+	._type	412,'m','ilvl1',414,1
+	._type	412,'m','ilvl2',415,2
+	._type	412,'m','ir',416,3
+	._type	412,'m','pol',417,4
+	._type	412,'m','b5',418,5
+	._type	412,'m','b6',419,6
+	._type	412,'m','b7',420,7
+	._type	411,'U','',1
+	._type	411,'m','bit',412,0
+	._type	411,'m','byte',3,0
+	._var	's1tic_addr','S',411,_s1tic_addr
+	._type	423,'g','ilvl0',0,1,3
+	._type	424,'g','ilvl1',0,1,3
+	._type	425,'g','ilvl2',0,1,3
+	._type	426,'g','ir',0,1,3
+	._type	427,'g','pol',0,1,3
+	._type	428,'g','b5',0,1,3
+	._type	429,'g','b6',0,1,3
+	._type	430,'g','b7',0,1,3
+	._type	422,'S','',1
+	._type	422,'m','ilvl0',423,0
+	._type	422,'m','ilvl1',424,1
+	._type	422,'m','ilvl2',425,2
+	._type	422,'m','ir',426,3
+	._type	422,'m','pol',427,4
+	._type	422,'m','b5',428,5
+	._type	422,'m','b6',429,6
+	._type	422,'m','b7',430,7
+	._type	421,'U','',1
+	._type	421,'m','bit',422,0
+	._type	421,'m','byte',3,0
+	._var	's1ric_addr','S',421,_s1ric_addr
+	._type	433,'g','ilvl0',0,1,3
+	._type	434,'g','ilvl1',0,1,3
+	._type	435,'g','ilvl2',0,1,3
+	._type	436,'g','ir',0,1,3
+	._type	437,'g','pol',0,1,3
+	._type	438,'g','b5',0,1,3
+	._type	439,'g','b6',0,1,3
+	._type	440,'g','b7',0,1,3
+	._type	432,'S','',1
+	._type	432,'m','ilvl0',433,0
+	._type	432,'m','ilvl1',434,1
+	._type	432,'m','ilvl2',435,2
+	._type	432,'m','ir',436,3
+	._type	432,'m','pol',437,4
+	._type	432,'m','b5',438,5
+	._type	432,'m','b6',439,6
+	._type	432,'m','b7',440,7
+	._type	431,'U','',1
+	._type	431,'m','bit',432,0
+	._type	431,'m','byte',3,0
+	._var	'int2ic_addr','S',431,_int2ic_addr
+	._type	443,'g','ilvl0',0,1,3
+	._type	444,'g','ilvl1',0,1,3
+	._type	445,'g','ilvl2',0,1,3
+	._type	446,'g','ir',0,1,3
+	._type	447,'g','pol',0,1,3
+	._type	448,'g','b5',0,1,3
+	._type	449,'g','b6',0,1,3
+	._type	450,'g','b7',0,1,3
+	._type	442,'S','',1
+	._type	442,'m','ilvl0',443,0
+	._type	442,'m','ilvl1',444,1
+	._type	442,'m','ilvl2',445,2
+	._type	442,'m','ir',446,3
+	._type	442,'m','pol',447,4
+	._type	442,'m','b5',448,5
+	._type	442,'m','b6',449,6
+	._type	442,'m','b7',450,7
+	._type	441,'U','',1
+	._type	441,'m','bit',442,0
+	._type	441,'m','byte',3,0
+	._var	'traic_addr','S',441,_traic_addr
+	._type	453,'g','ilvl0',0,1,3
+	._type	454,'g','ilvl1',0,1,3
+	._type	455,'g','ilvl2',0,1,3
+	._type	456,'g','ir',0,1,3
+	._type	457,'g','pol',0,1,3
+	._type	458,'g','b5',0,1,3
+	._type	459,'g','b6',0,1,3
+	._type	460,'g','b7',0,1,3
+	._type	452,'S','',1
+	._type	452,'m','ilvl0',453,0
+	._type	452,'m','ilvl1',454,1
+	._type	452,'m','ilvl2',455,2
+	._type	452,'m','ir',456,3
+	._type	452,'m','pol',457,4
+	._type	452,'m','b5',458,5
+	._type	452,'m','b6',459,6
+	._type	452,'m','b7',460,7
+	._type	451,'U','',1
+	._type	451,'m','bit',452,0
+	._type	451,'m','byte',3,0
+	._var	'trbic_addr','S',451,_trbic_addr
+	._type	463,'g','ilvl0',0,1,3
+	._type	464,'g','ilvl1',0,1,3
+	._type	465,'g','ilvl2',0,1,3
+	._type	466,'g','ir',0,1,3
+	._type	467,'g','pol',0,1,3
+	._type	468,'g','b5',0,1,3
+	._type	469,'g','b6',0,1,3
+	._type	470,'g','b7',0,1,3
+	._type	462,'S','',1
+	._type	462,'m','ilvl0',463,0
+	._type	462,'m','ilvl1',464,1
+	._type	462,'m','ilvl2',465,2
+	._type	462,'m','ir',466,3
+	._type	462,'m','pol',467,4
+	._type	462,'m','b5',468,5
+	._type	462,'m','b6',469,6
+	._type	462,'m','b7',470,7
+	._type	461,'U','',1
+	._type	461,'m','bit',462,0
+	._type	461,'m','byte',3,0
+	._var	'int1ic_addr','S',461,_int1ic_addr
+	._type	473,'g','ilvl0',0,1,3
+	._type	474,'g','ilvl1',0,1,3
+	._type	475,'g','ilvl2',0,1,3
+	._type	476,'g','ir',0,1,3
+	._type	477,'g','pol',0,1,3
+	._type	478,'g','b5',0,1,3
+	._type	479,'g','b6',0,1,3
+	._type	480,'g','b7',0,1,3
+	._type	472,'S','',1
+	._type	472,'m','ilvl0',473,0
+	._type	472,'m','ilvl1',474,1
+	._type	472,'m','ilvl2',475,2
+	._type	472,'m','ir',476,3
+	._type	472,'m','pol',477,4
+	._type	472,'m','b5',478,5
+	._type	472,'m','b6',479,6
+	._type	472,'m','b7',480,7
+	._type	471,'U','',1
+	._type	471,'m','bit',472,0
+	._type	471,'m','byte',3,0
+	._var	'int3ic_addr','S',471,_int3ic_addr
+	._type	483,'g','ilvl0',0,1,3
+	._type	484,'g','ilvl1',0,1,3
+	._type	485,'g','ilvl2',0,1,3
+	._type	486,'g','ir',0,1,3
+	._type	487,'g','pol',0,1,3
+	._type	488,'g','b5',0,1,3
+	._type	489,'g','b6',0,1,3
+	._type	490,'g','b7',0,1,3
+	._type	482,'S','',1
+	._type	482,'m','ilvl0',483,0
+	._type	482,'m','ilvl1',484,1
+	._type	482,'m','ilvl2',485,2
+	._type	482,'m','ir',486,3
+	._type	482,'m','pol',487,4
+	._type	482,'m','b5',488,5
+	._type	482,'m','b6',489,6
+	._type	482,'m','b7',490,7
+	._type	481,'U','',1
+	._type	481,'m','bit',482,0
+	._type	481,'m','byte',3,0
+	._var	'int0ic_addr','S',481,_int0ic_addr
+	._type	493,'g','smd0',0,1,3
+	._type	494,'g','smd1',0,1,3
+	._type	495,'g','smd2',0,1,3
+	._type	496,'g','ckdir',0,1,3
+	._type	497,'g','stps',0,1,3
+	._type	498,'g','pry',0,1,3
+	._type	499,'g','prye',0,1,3
+	._type	500,'g','b7',0,1,3
+	._type	492,'S','',1
+	._type	492,'m','smd0',493,0
+	._type	492,'m','smd1',494,1
+	._type	492,'m','smd2',495,2
+	._type	492,'m','ckdir',496,3
+	._type	492,'m','stps',497,4
+	._type	492,'m','pry',498,5
+	._type	492,'m','prye',499,6
+	._type	492,'m','b7',500,7
+	._type	491,'U','',1
+	._type	491,'m','bit',492,0
+	._type	491,'m','byte',3,0
+	._var	'u0mr_addr','S',491,_u0mr_addr
+	._type	503,'g','smd0',0,1,3
+	._type	504,'g','smd1',0,1,3
+	._type	505,'g','smd2',0,1,3
+	._type	506,'g','ckdir',0,1,3
+	._type	507,'g','stps',0,1,3
+	._type	508,'g','pry',0,1,3
+	._type	509,'g','prye',0,1,3
+	._type	510,'g','b7',0,1,3
+	._type	502,'S','',1
+	._type	502,'m','smd0',503,0
+	._type	502,'m','smd1',504,1
+	._type	502,'m','smd2',505,2
+	._type	502,'m','ckdir',506,3
+	._type	502,'m','stps',507,4
+	._type	502,'m','pry',508,5
+	._type	502,'m','prye',509,6
+	._type	502,'m','b7',510,7
+	._type	501,'U','',1
+	._type	501,'m','bit',502,0
+	._type	501,'m','byte',3,0
+	._var	'u1mr_addr','S',501,_u1mr_addr
+	._type	513,'g','clk0',0,1,3
+	._type	514,'g','clk1',0,1,3
+	._type	515,'g','b2',0,1,3
+	._type	516,'g','txept',0,1,3
+	._type	517,'g','b4',0,1,3
+	._type	518,'g','nch',0,1,3
+	._type	519,'g','ckpol',0,1,3
+	._type	520,'g','uform',0,1,3
+	._type	512,'S','',1
+	._type	512,'m','clk0',513,0
+	._type	512,'m','clk1',514,1
+	._type	512,'m','b2',515,2
+	._type	512,'m','txept',516,3
+	._type	512,'m','b4',517,4
+	._type	512,'m','nch',518,5
+	._type	512,'m','ckpol',519,6
+	._type	512,'m','uform',520,7
+	._type	511,'U','',1
+	._type	511,'m','bit',512,0
+	._type	511,'m','byte',3,0
+	._var	'u0c0_addr','S',511,_u0c0_addr
+	._type	523,'g','clk0',0,1,3
+	._type	524,'g','clk1',0,1,3
+	._type	525,'g','b2',0,1,3
+	._type	526,'g','txept',0,1,3
+	._type	527,'g','b4',0,1,3
+	._type	528,'g','nch',0,1,3
+	._type	529,'g','ckpol',0,1,3
+	._type	530,'g','uform',0,1,3
+	._type	522,'S','',1
+	._type	522,'m','clk0',523,0
+	._type	522,'m','clk1',524,1
+	._type	522,'m','b2',525,2
+	._type	522,'m','txept',526,3
+	._type	522,'m','b4',527,4
+	._type	522,'m','nch',528,5
+	._type	522,'m','ckpol',529,6
+	._type	522,'m','uform',530,7
+	._type	521,'U','',1
+	._type	521,'m','bit',522,0
+	._type	521,'m','byte',3,0
+	._var	'u1c0_addr','S',521,_u1c0_addr
+	._type	533,'g','te',0,1,3
+	._type	534,'g','ti',0,1,3
+	._type	535,'g','re',0,1,3
+	._type	536,'g','ri',0,1,3
+	._type	537,'g','irs',0,1,3
+	._type	538,'g','rrm',0,1,3
+	._type	539,'g','b6',0,1,3
+	._type	540,'g','b7',0,1,3
+	._type	532,'S','',1
+	._type	532,'m','te',533,0
+	._type	532,'m','ti',534,1
+	._type	532,'m','re',535,2
+	._type	532,'m','ri',536,3
+	._type	532,'m','irs',537,4
+	._type	532,'m','rrm',538,5
+	._type	532,'m','b6',539,6
+	._type	532,'m','b7',540,7
+	._type	531,'U','',1
+	._type	531,'m','bit',532,0
+	._type	531,'m','byte',3,0
+	._var	'u0c1_addr','S',531,_u0c1_addr
+	._type	543,'g','te',0,1,3
+	._type	544,'g','ti',0,1,3
+	._type	545,'g','re',0,1,3
+	._type	546,'g','ri',0,1,3
+	._type	547,'g','irs',0,1,3
+	._type	548,'g','rrm',0,1,3
+	._type	549,'g','b6',0,1,3
+	._type	550,'g','b7',0,1,3
+	._type	542,'S','',1
+	._type	542,'m','te',543,0
+	._type	542,'m','ti',544,1
+	._type	542,'m','re',545,2
+	._type	542,'m','ri',546,3
+	._type	542,'m','irs',547,4
+	._type	542,'m','rrm',548,5
+	._type	542,'m','b6',549,6
+	._type	542,'m','b7',550,7
+	._type	541,'U','',1
+	._type	541,'m','bit',542,0
+	._type	541,'m','byte',3,0
+	._var	'u1c1_addr','S',541,_u1c1_addr
+	._type	553,'g','b0',0,1,3
+	._type	554,'g','b1',0,1,3
+	._type	555,'g','b2',0,1,3
+	._type	556,'g','b3',0,1,3
+	._type	557,'g','b4',0,1,3
+	._type	558,'g','b5',0,1,3
+	._type	559,'g','b6',0,1,3
+	._type	560,'g','b7',0,1,3
+	._type	561,'g','b8',0,1,3
+	._type	562,'g','b9',0,1,3
+	._type	563,'g','b10',0,1,3
+	._type	564,'g','b11',0,1,3
+	._type	565,'g','oer',0,1,3
+	._type	566,'g','fer',0,1,3
+	._type	567,'g','per',0,1,3
+	._type	568,'g','sum',0,1,3
+	._type	552,'S','',2
+	._type	552,'m','b0',553,0
+	._type	552,'m','b1',554,1
+	._type	552,'m','b2',555,2
+	._type	552,'m','b3',556,3
+	._type	552,'m','b4',557,4
+	._type	552,'m','b5',558,5
+	._type	552,'m','b6',559,6
+	._type	552,'m','b7',560,7
+	._type	552,'m','b8',561,8
+	._type	552,'m','b9',562,9
+	._type	552,'m','b10',563,10
+	._type	552,'m','b11',564,11
+	._type	552,'m','oer',565,12
+	._type	552,'m','fer',566,13
+	._type	552,'m','per',567,14
+	._type	552,'m','sum',568,15
+	._type	569,'S','',2
+	._type	569,'m','low',3,0
+	._type	569,'m','high',3,1
+	._type	551,'U','',2
+	._type	551,'m','bit',552,0
+	._type	551,'m','byte',569,0
+	._type	551,'m','word',5,0
+	._var	'u0rb_addr','S',551,_u0rb_addr
+	._type	572,'g','b0',0,1,3
+	._type	573,'g','b1',0,1,3
+	._type	574,'g','b2',0,1,3
+	._type	575,'g','b3',0,1,3
+	._type	576,'g','b4',0,1,3
+	._type	577,'g','b5',0,1,3
+	._type	578,'g','b6',0,1,3
+	._type	579,'g','b7',0,1,3
+	._type	580,'g','b8',0,1,3
+	._type	581,'g','b9',0,1,3
+	._type	582,'g','b10',0,1,3
+	._type	583,'g','b11',0,1,3
+	._type	584,'g','oer',0,1,3
+	._type	585,'g','fer',0,1,3
+	._type	586,'g','per',0,1,3
+	._type	587,'g','sum',0,1,3
+	._type	571,'S','',2
+	._type	571,'m','b0',572,0
+	._type	571,'m','b1',573,1
+	._type	571,'m','b2',574,2
+	._type	571,'m','b3',575,3
+	._type	571,'m','b4',576,4
+	._type	571,'m','b5',577,5
+	._type	571,'m','b6',578,6
+	._type	571,'m','b7',579,7
+	._type	571,'m','b8',580,8
+	._type	571,'m','b9',581,9
+	._type	571,'m','b10',582,10
+	._type	571,'m','b11',583,11
+	._type	571,'m','oer',584,12
+	._type	571,'m','fer',585,13
+	._type	571,'m','per',586,14
+	._type	571,'m','sum',587,15
+	._type	588,'S','',2
+	._type	588,'m','low',3,0
+	._type	588,'m','high',3,1
+	._type	570,'U','',2
+	._type	570,'m','bit',571,0
+	._type	570,'m','byte',588,0
+	._type	570,'m','word',5,0
+	._var	'u1rb_addr','S',570,_u1rb_addr
+	._type	591,'g','b0',0,1,3
+	._type	592,'g','b1',0,1,3
+	._type	593,'g','b2',0,1,3
+	._type	594,'g','b3',0,1,3
+	._type	595,'g','b4',0,1,3
+	._type	596,'g','b5',0,1,3
+	._type	597,'g','b6',0,1,3
+	._type	598,'g','b7',0,1,3
+	._type	599,'g','b8',0,1,3
+	._type	600,'g','b9',0,1,3
+	._type	601,'g','b10',0,1,3
+	._type	602,'g','b11',0,1,3
+	._type	603,'g','b12',0,1,3
+	._type	604,'g','b13',0,1,3
+	._type	605,'g','b14',0,1,3
+	._type	606,'g','b15',0,1,3
+	._type	607,'g','b16',0,1,3
+	._type	608,'g','b17',0,1,3
+	._type	609,'g','b18',0,1,3
+	._type	610,'g','b19',0,1,3
+	._type	590,'S','',3
+	._type	590,'m','b0',591,0
+	._type	590,'m','b1',592,1
+	._type	590,'m','b2',593,2
+	._type	590,'m','b3',594,3
+	._type	590,'m','b4',595,4
+	._type	590,'m','b5',596,5
+	._type	590,'m','b6',597,6
+	._type	590,'m','b7',598,7
+	._type	590,'m','b8',599,8
+	._type	590,'m','b9',600,9
+	._type	590,'m','b10',601,10
+	._type	590,'m','b11',602,11
+	._type	590,'m','b12',603,12
+	._type	590,'m','b13',604,13
+	._type	590,'m','b14',605,14
+	._type	590,'m','b15',606,15
+	._type	590,'m','b16',607,16
+	._type	590,'m','b17',608,17
+	._type	590,'m','b18',609,18
+	._type	590,'m','b19',610,19
+	._type	611,'S','',4
+	._type	611,'m','low',3,0
+	._type	611,'m','mid',3,1
+	._type	611,'m','high',3,2
+	._type	611,'m','nc',3,3
+	._type	589,'U','',4
+	._type	589,'m','bit',590,0
+	._type	589,'m','byte',611,0
+	._type	589,'m','dword',7,0
+	._var	'rmad0_addr','S',589,_rmad0_addr
+	._type	614,'g','b0',0,1,3
+	._type	615,'g','b1',0,1,3
+	._type	616,'g','b2',0,1,3
+	._type	617,'g','b3',0,1,3
+	._type	618,'g','b4',0,1,3
+	._type	619,'g','b5',0,1,3
+	._type	620,'g','b6',0,1,3
+	._type	621,'g','b7',0,1,3
+	._type	622,'g','b8',0,1,3
+	._type	623,'g','b9',0,1,3
+	._type	624,'g','b10',0,1,3
+	._type	625,'g','b11',0,1,3
+	._type	626,'g','b12',0,1,3
+	._type	627,'g','b13',0,1,3
+	._type	628,'g','b14',0,1,3
+	._type	629,'g','b15',0,1,3
+	._type	630,'g','b16',0,1,3
+	._type	631,'g','b17',0,1,3
+	._type	632,'g','b18',0,1,3
+	._type	633,'g','b19',0,1,3
+	._type	613,'S','',3
+	._type	613,'m','b0',614,0
+	._type	613,'m','b1',615,1
+	._type	613,'m','b2',616,2
+	._type	613,'m','b3',617,3
+	._type	613,'m','b4',618,4
+	._type	613,'m','b5',619,5
+	._type	613,'m','b6',620,6
+	._type	613,'m','b7',621,7
+	._type	613,'m','b8',622,8
+	._type	613,'m','b9',623,9
+	._type	613,'m','b10',624,10
+	._type	613,'m','b11',625,11
+	._type	613,'m','b12',626,12
+	._type	613,'m','b13',627,13
+	._type	613,'m','b14',628,14
+	._type	613,'m','b15',629,15
+	._type	613,'m','b16',630,16
+	._type	613,'m','b17',631,17
+	._type	613,'m','b18',632,18
+	._type	613,'m','b19',633,19
+	._type	634,'S','',4
+	._type	634,'m','low',3,0
+	._type	634,'m','mid',3,1
+	._type	634,'m','high',3,2
+	._type	634,'m','nc',3,3
+	._type	612,'U','',4
+	._type	612,'m','bit',613,0
+	._type	612,'m','byte',634,0
+	._type	612,'m','dword',7,0
+	._var	'rmad1_addr','S',612,_rmad1_addr
+	._type	637,'g','b0',0,1,3
+	._type	638,'g','b1',0,1,3
+	._type	639,'g','b2',0,1,3
+	._type	640,'g','b3',0,1,3
+	._type	641,'g','b4',0,1,3
+	._type	642,'g','b5',0,1,3
+	._type	643,'g','b6',0,1,3
+	._type	644,'g','b7',0,1,3
+	._type	645,'g','b8',0,1,3
+	._type	646,'g','b9',0,1,3
+	._type	647,'g','b10',0,1,3
+	._type	648,'g','b11',0,1,3
+	._type	649,'g','b12',0,1,3
+	._type	650,'g','b13',0,1,3
+	._type	651,'g','b14',0,1,3
+	._type	652,'g','b15',0,1,3
+	._type	636,'S','',2
+	._type	636,'m','b0',637,0
+	._type	636,'m','b1',638,1
+	._type	636,'m','b2',639,2
+	._type	636,'m','b3',640,3
+	._type	636,'m','b4',641,4
+	._type	636,'m','b5',642,5
+	._type	636,'m','b6',643,6
+	._type	636,'m','b7',644,7
+	._type	636,'m','b8',645,8
+	._type	636,'m','b9',646,9
+	._type	636,'m','b10',647,10
+	._type	636,'m','b11',648,11
+	._type	636,'m','b12',649,12
+	._type	636,'m','b13',650,13
+	._type	636,'m','b14',651,14
+	._type	636,'m','b15',652,15
+	._type	653,'S','',2
+	._type	653,'m','low',3,0
+	._type	653,'m','high',3,1
+	._type	635,'U','',2
+	._type	635,'m','bit',636,0
+	._type	635,'m','byte',653,0
+	._type	635,'m','word',18,0
+	._var	'u0tb_addr','S',635,_u0tb_addr
+	._type	656,'g','b0',0,1,3
+	._type	657,'g','b1',0,1,3
+	._type	658,'g','b2',0,1,3
+	._type	659,'g','b3',0,1,3
+	._type	660,'g','b4',0,1,3
+	._type	661,'g','b5',0,1,3
+	._type	662,'g','b6',0,1,3
+	._type	663,'g','b7',0,1,3
+	._type	664,'g','b8',0,1,3
+	._type	665,'g','b9',0,1,3
+	._type	666,'g','b10',0,1,3
+	._type	667,'g','b11',0,1,3
+	._type	668,'g','b12',0,1,3
+	._type	669,'g','b13',0,1,3
+	._type	670,'g','b14',0,1,3
+	._type	671,'g','b15',0,1,3
+	._type	655,'S','',2
+	._type	655,'m','b0',656,0
+	._type	655,'m','b1',657,1
+	._type	655,'m','b2',658,2
+	._type	655,'m','b3',659,3
+	._type	655,'m','b4',660,4
+	._type	655,'m','b5',661,5
+	._type	655,'m','b6',662,6
+	._type	655,'m','b7',663,7
+	._type	655,'m','b8',664,8
+	._type	655,'m','b9',665,9
+	._type	655,'m','b10',666,10
+	._type	655,'m','b11',667,11
+	._type	655,'m','b12',668,12
+	._type	655,'m','b13',669,13
+	._type	655,'m','b14',670,14
+	._type	655,'m','b15',671,15
+	._type	672,'S','',2
+	._type	672,'m','low',3,0
+	._type	672,'m','high',3,1
+	._type	654,'U','',2
+	._type	654,'m','bit',655,0
+	._type	654,'m','byte',672,0
+	._type	654,'m','word',18,0
+	._var	'u1tb_addr','S',654,_u1tb_addr
+	._type	675,'g','b0',0,1,3
+	._type	676,'g','b1',0,1,3
+	._type	677,'g','b2',0,1,3
+	._type	678,'g','b3',0,1,3
+	._type	679,'g','b4',0,1,3
+	._type	680,'g','b5',0,1,3
+	._type	681,'g','b6',0,1,3
+	._type	682,'g','b7',0,1,3
+	._type	683,'g','b8',0,1,3
+	._type	684,'g','b9',0,1,3
+	._type	685,'g','b10',0,1,3
+	._type	686,'g','b11',0,1,3
+	._type	687,'g','b12',0,1,3
+	._type	688,'g','b13',0,1,3
+	._type	689,'g','b14',0,1,3
+	._type	690,'g','b15',0,1,3
+	._type	674,'S','',2
+	._type	674,'m','b0',675,0
+	._type	674,'m','b1',676,1
+	._type	674,'m','b2',677,2
+	._type	674,'m','b3',678,3
+	._type	674,'m','b4',679,4
+	._type	674,'m','b5',680,5
+	._type	674,'m','b6',681,6
+	._type	674,'m','b7',682,7
+	._type	674,'m','b8',683,8
+	._type	674,'m','b9',684,9
+	._type	674,'m','b10',685,10
+	._type	674,'m','b11',686,11
+	._type	674,'m','b12',687,12
+	._type	674,'m','b13',688,13
+	._type	674,'m','b14',689,14
+	._type	674,'m','b15',690,15
+	._type	691,'S','',2
+	._type	691,'m','low',3,0
+	._type	691,'m','high',3,1
+	._type	673,'U','',2
+	._type	673,'m','bit',674,0
+	._type	673,'m','byte',691,0
+	._type	673,'m','word',18,0
+	._var	'ad_addr','S',673,_ad_addr
+	._type	694,'Z',8,3
+	._type	693,'S','can_slot_byte_def',16
+	._type	693,'m','sidh',3,0
+	._type	693,'m','sidl',3,1
+	._type	693,'m','eidh',3,2
+	._type	693,'m','eidm',3,3
+	._type	693,'m','eidl',3,4
+	._type	693,'m','dlc',3,5
+	._type	693,'m','data',694,6
+	._type	693,'m','tsh',3,14
+	._type	693,'m','tsl',3,15
+	._type	696,'Z',8,3
+	._type	695,'S','can_slot_word_def',16
+	._type	695,'m','sidl',3,0
+	._type	695,'m','sidh',3,1
+	._type	695,'m','eidm',3,2
+	._type	695,'m','eidh',3,3
+	._type	695,'m','dlc',3,4
+	._type	695,'m','eidl',3,5
+	._type	695,'m','data',696,6
+	._type	695,'m','tsl',3,14
+	._type	695,'m','tsh',3,15
+	._type	697,'Z',16,3
+	._type	698,'Z',8,23
+	._type	692,'U','can_slot_def_t',16
+	._type	692,'m','ba',693,0
+	._type	692,'m','wa',695,0
+	._type	692,'m','byte',697,0
+	._type	692,'m','word',698,0
+	._type	699,'Z',16,692
+	._var	'c0slot','S',699,_c0slot
+	._var	'c0slot0','S',692,_c0slot0
+	._var	'c0slot1','S',692,_c0slot1
+	._var	'c0slot2','S',692,_c0slot2
+	._var	'c0slot3','S',692,_c0slot3
+	._var	'c0slot4','S',692,_c0slot4
+	._var	'c0slot5','S',692,_c0slot5
+	._var	'c0slot6','S',692,_c0slot6
+	._var	'c0slot7','S',692,_c0slot7
+	._var	'c0slot8','S',692,_c0slot8
+	._var	'c0slot9','S',692,_c0slot9
+	._var	'c0slot10','S',692,_c0slot10
+	._var	'c0slot11','S',692,_c0slot11
+	._var	'c0slot12','S',692,_c0slot12
+	._var	'c0slot13','S',692,_c0slot13
+	._var	'c0slot14','S',692,_c0slot14
+	._var	'c0slot15','S',692,_c0slot15
+	._type	701,'S','can_mask_byte_def',6
+	._type	701,'m','sidh',3,0
+	._type	701,'m','sidl',3,1
+	._type	701,'m','eidh',3,2
+	._type	701,'m','eidm',3,3
+	._type	701,'m','eidl',3,4
+	._type	701,'m','dummy',3,5
+	._type	702,'S','can_mask_word_def',6
+	._type	702,'m','sidl',3,0
+	._type	702,'m','sidh',3,1
+	._type	702,'m','eidm',3,2
+	._type	702,'m','eidh',3,3
+	._type	702,'m','dummy',3,4
+	._type	702,'m','eidl',3,5
+	._type	700,'U','can_mask_def_t',6
+	._type	700,'m','ba',701,0
+	._type	700,'m','wa',702,0
+	._var	'c0gmr','S',700,_c0gmr
+	._var	'c0lmar','S',700,_c0lmar
+	._var	'c0lmbr','S',700,_c0lmbr
+	._type	705,'g','newdata',0,1,3
+	._type	706,'g','invaldata',0,1,3
+	._type	707,'g','msglost',0,1,3
+	._type	708,'g','remactive',0,1,3
+	._type	709,'g','rsplock',0,1,3
+	._type	710,'g','remote',0,1,3
+	._type	711,'g','recreq',0,1,3
+	._type	712,'g','dummy',0,1,3
+	._type	704,'S','',1
+	._type	704,'m','newdata',705,0
+	._type	704,'m','invaldata',706,1
+	._type	704,'m','msglost',707,2
+	._type	704,'m','remactive',708,3
+	._type	704,'m','rsplock',709,4
+	._type	704,'m','remote',710,5
+	._type	704,'m','recreq',711,6
+	._type	704,'m','dummy',712,7
+	._type	714,'g','sentdata',0,1,3
+	._type	715,'g','trmactive',0,1,3
+	._type	716,'g','dummy1',0,1,3
+	._type	717,'g','remactive',0,1,3
+	._type	718,'g','dummy2',0,1,3
+	._type	719,'g','remote',0,1,3
+	._type	720,'g','dummy3',0,1,3
+	._type	721,'g','trmreq',0,1,3
+	._type	713,'S','',1
+	._type	713,'m','sentdata',714,0
+	._type	713,'m','trmactive',715,1
+	._type	713,'m','dummy1',716,2
+	._type	713,'m','remactive',717,3
+	._type	713,'m','dummy2',718,4
+	._type	713,'m','remote',719,5
+	._type	713,'m','dummy3',720,6
+	._type	713,'m','trmreq',721,7
+	._type	703,'U','can_mctl_def',1
+	._type	703,'m','receive',704,0
+	._type	703,'m','transmit',713,0
+	._type	703,'m','byte',3,0
+	._type	722,'Z',16,703
+	._var	'c0mctl','S',722,_c0mctl
+	._var	'c0mctl0','S',703,_c0mctl0
+	._var	'c0mctl1','S',703,_c0mctl1
+	._var	'c0mctl2','S',703,_c0mctl2
+	._var	'c0mctl3','S',703,_c0mctl3
+	._var	'c0mctl4','S',703,_c0mctl4
+	._var	'c0mctl5','S',703,_c0mctl5
+	._var	'c0mctl6','S',703,_c0mctl6
+	._var	'c0mctl7','S',703,_c0mctl7
+	._var	'c0mctl8','S',703,_c0mctl8
+	._var	'c0mctl9','S',703,_c0mctl9
+	._var	'c0mctl10','S',703,_c0mctl10
+	._var	'c0mctl11','S',703,_c0mctl11
+	._var	'c0mctl12','S',703,_c0mctl12
+	._var	'c0mctl13','S',703,_c0mctl13
+	._var	'c0mctl14','S',703,_c0mctl14
+	._var	'c0mctl15','S',703,_c0mctl15
+	._type	725,'g','reset',0,1,3
+	._type	726,'g','loopback',0,1,3
+	._type	727,'g','msgorder',0,1,3
+	._type	728,'g','basiccan',0,1,3
+	._type	729,'g','buserren',0,1,3
+	._type	730,'g','sleep',0,1,3
+	._type	731,'g','porten',0,1,3
+	._type	732,'g','dummy0',0,1,3
+	._type	733,'g','tsprescale',0,2,3
+	._type	734,'g','tsreset',0,1,3
+	._type	735,'g','retbusoff',0,1,3
+	._type	736,'g','dummy1',0,1,3
+	._type	737,'g','rxonly',0,1,3
+	._type	738,'g','dummy2',0,2,3
+	._type	724,'S','',2
+	._type	724,'m','reset',725,0
+	._type	724,'m','loopback',726,1
+	._type	724,'m','msgorder',727,2
+	._type	724,'m','basiccan',728,3
+	._type	724,'m','buserren',729,4
+	._type	724,'m','sleep',730,5
+	._type	724,'m','porten',731,6
+	._type	724,'m','dummy0',732,7
+	._type	724,'m','tsprescale',733,8
+	._type	724,'m','tsreset',734,10
+	._type	724,'m','retbusoff',735,11
+	._type	724,'m','dummy1',736,12
+	._type	724,'m','rxonly',737,13
+	._type	724,'m','dummy2',738,14
+	._type	739,'S','',2
+	._type	739,'m','low',3,0
+	._type	739,'m','high',3,1
+	._type	723,'U','',2
+	._type	723,'m','b',724,0
+	._type	723,'m','byte',739,0
+	._type	723,'m','word',23,0
+	._var	'c0ctlr_addr','S',723,_c0ctlr_addr
+	._type	742,'g','mbox',0,4,3
+	._type	743,'g','trmsucc',0,1,3
+	._type	744,'g','recsucc',0,1,3
+	._type	745,'g','trmstate',0,1,3
+	._type	746,'g','recstate',0,1,3
+	._type	747,'g','state_reset',0,1,3
+	._type	748,'g','state_loopback',0,1,3
+	._type	749,'g','state_msgorder',0,1,3
+	._type	750,'g','state_basiccan',0,1,3
+	._type	751,'g','state_buserror',0,1,3
+	._type	752,'g','state_errpas',0,1,3
+	._type	753,'g','state_busoff',0,1,3
+	._type	754,'g','dummy',0,1,3
+	._type	741,'S','',2
+	._type	741,'m','mbox',742,0
+	._type	741,'m','trmsucc',743,4
+	._type	741,'m','recsucc',744,5
+	._type	741,'m','trmstate',745,6
+	._type	741,'m','recstate',746,7
+	._type	741,'m','state_reset',747,8
+	._type	741,'m','state_loopback',748,9
+	._type	741,'m','state_msgorder',749,10
+	._type	741,'m','state_basiccan',750,11
+	._type	741,'m','state_buserror',751,12
+	._type	741,'m','state_errpas',752,13
+	._type	741,'m','state_busoff',753,14
+	._type	741,'m','dummy',754,15
+	._type	755,'S','',2
+	._type	755,'m','low',3,0
+	._type	755,'m','high',3,1
+	._type	740,'U','',2
+	._type	740,'m','b',741,0
+	._type	740,'m','byte',755,0
+	._type	740,'m','word',23,0
+	._var	'c0str_addr','S',740,_c0str_addr
+	._type	758,'g','slot0',0,1,3
+	._type	759,'g','slot1',0,1,3
+	._type	760,'g','slot2',0,1,3
+	._type	761,'g','slot3',0,1,3
+	._type	762,'g','slot4',0,1,3
+	._type	763,'g','slot5',0,1,3
+	._type	764,'g','slot6',0,1,3
+	._type	765,'g','slot7',0,1,3
+	._type	766,'g','slot8',0,1,3
+	._type	767,'g','slot9',0,1,3
+	._type	768,'g','slot10',0,1,3
+	._type	769,'g','slot11',0,1,3
+	._type	770,'g','slot12',0,1,3
+	._type	771,'g','slot13',0,1,3
+	._type	772,'g','slot14',0,1,3
+	._type	773,'g','slot15',0,1,3
+	._type	757,'S','slot_bit_def',2
+	._type	757,'m','slot0',758,0
+	._type	757,'m','slot1',759,1
+	._type	757,'m','slot2',760,2
+	._type	757,'m','slot3',761,3
+	._type	757,'m','slot4',762,4
+	._type	757,'m','slot5',763,5
+	._type	757,'m','slot6',764,6
+	._type	757,'m','slot7',765,7
+	._type	757,'m','slot8',766,8
+	._type	757,'m','slot9',767,9
+	._type	757,'m','slot10',768,10
+	._type	757,'m','slot11',769,11
+	._type	757,'m','slot12',770,12
+	._type	757,'m','slot13',771,13
+	._type	757,'m','slot14',772,14
+	._type	757,'m','slot15',773,15
+	._type	756,'U','slot_def',2
+	._type	756,'m','b',757,0
+	._type	756,'m','word',23,0
+	._var	'c0sstr_addr','S',756,_c0sstr_addr
+	._var	'c0icr_addr','S',756,_c0icr_addr
+	._var	'c0idr_addr','S',756,_c0idr_addr
+	._type	776,'g','brp',0,4,3
+	._type	777,'g','sam',0,1,3
+	._type	778,'g','pts',0,3,3
+	._type	779,'g','pbs1',0,3,3
+	._type	780,'g','pbs2',0,3,3
+	._type	781,'g','sjw',0,2,3
+	._type	775,'S','',2
+	._type	775,'m','brp',776,0
+	._type	775,'m','sam',777,4
+	._type	775,'m','pts',778,5
+	._type	775,'m','pbs1',779,8
+	._type	775,'m','pbs2',780,11
+	._type	775,'m','sjw',781,14
+	._type	782,'S','',2
+	._type	782,'m','low',3,0
+	._type	782,'m','high',3,1
+	._type	774,'U','',2
+	._type	774,'m','b',775,0
+	._type	774,'m','byte',782,0
+	._type	774,'m','word',23,0
+	._var	'c0conr_addr','S',774,_c0conr_addr
+	._var	'c0recr_addr','S',271,_c0recr_addr
+	._var	'c0tecr_addr','S',271,_c0tecr_addr
+	._type	784,'Z',2,3
+	._type	783,'U','',2
+	._type	783,'m','byte',784,0
+	._type	783,'m','word',23,0
+	._var	'c0afs_addr','S',783,_c0afs_addr
+	._var	'cclkr_addr','S',271,_cclkr_addr
+	._type	785,'S','_div_t',4
+	._type	785,'m','quot',16,0
+	._type	785,'m','rem',16,2
+	._type	786,'T','div_t',785
+	._type	787,'S','_ldiv_t',8
+	._type	787,'m','quot',20,0
+	._type	787,'m','rem',20,4
+	._type	788,'T','ldiv_t',787
+	._type	789,'T','size_t',18
+	._type	790,'T','wchar_t',5
+	._type	791,'v'
+	._type	792,'v'
+	._type	793,'x',791,1
+	._type	793,'m','',0,792
+	._var	'abort','F',793
+	._type	794,'x',786,2
+	._type	794,'m','numer',0,16
+	._type	794,'m','denom',0,16
+	._var	'div','F',794
+	._type	795,'v'
+	._type	796,'x',795,1
+	._type	796,'m','status',0,16
+	._var	'exit','F',796
+	._type	797,'v'
+	._type	798,'P',797
+	._type	799,'x',798,2
+	._type	799,'m','nelem',0,789
+	._type	799,'m','size',0,789
+	._var	'calloc','F',799
+	._type	800,'v'
+	._type	801,'v'
+	._type	802,'P',801
+	._type	803,'x',800,1
+	._type	803,'m','ptr',0,802
+	._var	'free','F',803
+	._type	804,'v'
+	._type	805,'P',804
+	._type	806,'x',805,1
+	._type	806,'m','size',0,789
+	._var	'malloc','F',806
+	._type	807,'v'
+	._type	808,'P',807
+	._type	809,'v'
+	._type	810,'P',809
+	._type	811,'x',808,2
+	._type	811,'m','ptr',0,810
+	._type	811,'m','size',0,789
+	._var	'realloc','F',811
+	._type	812,'P',3
+	._type	813,'P',3
+	._type	814,'P',813
+	._type	815,'x',20,3
+	._type	815,'m','s',0,812
+	._type	815,'m','endptr',0,814
+	._type	815,'m','base',0,16
+	._var	'strtol','F',815
+	._type	816,'O',3
+	._type	817,'O',3
+	._type	818,'O',817
+	._type	819,'x',20,3
+	._type	819,'m','s',0,816
+	._type	819,'m','endptr',0,818
+	._type	819,'m','base',0,16
+	._var	'_n_n_strtol','F',819
+	._type	820,'O',3
+	._type	821,'O',3
+	._type	822,'P',821
+	._type	823,'x',20,3
+	._type	823,'m','s',0,820
+	._type	823,'m','endptr',0,822
+	._type	823,'m','base',0,16
+	._var	'_n_f_strtol','F',823
+	._type	824,'P',3
+	._type	825,'P',3
+	._type	826,'O',825
+	._type	827,'x',20,3
+	._type	827,'m','s',0,824
+	._type	827,'m','endptr',0,826
+	._type	827,'m','base',0,16
+	._var	'_f_n_strtol','F',827
+	._type	828,'P',3
+	._type	829,'P',3
+	._type	830,'P',829
+	._type	831,'x',7,3
+	._type	831,'m','s',0,828
+	._type	831,'m','endptr',0,830
+	._type	831,'m','base',0,16
+	._var	'strtoul','F',831
+	._type	832,'O',3
+	._type	833,'O',3
+	._type	834,'O',833
+	._type	835,'x',7,3
+	._type	835,'m','s',0,832
+	._type	835,'m','endptr',0,834
+	._type	835,'m','base',0,16
+	._var	'_n_n_strtoul','F',835
+	._type	836,'O',3
+	._type	837,'O',3
+	._type	838,'P',837
+	._type	839,'x',7,3
+	._type	839,'m','s',0,836
+	._type	839,'m','endptr',0,838
+	._type	839,'m','base',0,16
+	._var	'_n_f_strtoul','F',839
+	._type	840,'P',3
+	._type	841,'P',3
+	._type	842,'O',841
+	._type	843,'x',7,3
+	._type	843,'m','s',0,840
+	._type	843,'m','endptr',0,842
+	._type	843,'m','base',0,16
+	._var	'_f_n_strtoul','F',843
+	._type	844,'P',3
+	._type	845,'P',3
+	._type	846,'P',845
+	._type	847,'x',10,2
+	._type	847,'m','s',0,844
+	._type	847,'m','endptr',0,846
+	._var	'strtod','F',847
+	._type	848,'O',3
+	._type	849,'O',3
+	._type	850,'O',849
+	._type	851,'x',10,2
+	._type	851,'m','s',0,848
+	._type	851,'m','endptr',0,850
+	._var	'_n_n_strtod','F',851
+	._type	852,'O',3
+	._type	853,'O',3
+	._type	854,'P',853
+	._type	855,'x',10,2
+	._type	855,'m','s',0,852
+	._type	855,'m','endptr',0,854
+	._var	'_n_f_strtod','F',855
+	._type	856,'P',3
+	._type	857,'P',3
+	._type	858,'O',857
+	._type	859,'x',10,2
+	._type	859,'m','s',0,856
+	._type	859,'m','endptr',0,858
+	._var	'_f_n_strtod','F',859
+	._type	860,'P',3
+	._type	861,'x',16,1
+	._type	861,'m','s',0,860
+	._var	'atoi','F',861
+	._type	862,'P',3
+	._type	863,'x',20,1
+	._type	863,'m','s',0,862
+	._var	'atol','F',863
+	._type	864,'P',3
+	._type	865,'x',10,1
+	._type	865,'m','s',0,864
+	._var	'atof','F',865
+	._type	866,'x',16,1
+	._type	866,'m','n',0,16
+	._var	'abs','F',866
+	._type	867,'x',20,1
+	._type	867,'m','n',0,20
+	._var	'labs','F',867
+	._type	868,'x',788,2
+	._type	868,'m','numer',0,20
+	._type	868,'m','denom',0,20
+	._var	'ldiv','F',868
+	._type	869,'v'
+	._type	870,'v'
+	._type	871,'P',870
+	._type	872,'v'
+	._type	873,'P',872
+	._type	874,'v'
+	._type	875,'P',874
+	._type	876,'x',16,2
+	._type	876,'m','e1',0,873
+	._type	876,'m','e2',0,875
+	._type	877,'P',876
+	._type	878,'x',869,4
+	._type	878,'m','base',0,871
+	._type	878,'m','nelem',0,789
+	._type	878,'m','size',0,789
+	._type	878,'m','cmp',0,877
+	._var	'qsort','F',878
+	._type	879,'v'
+	._type	880,'O',879
+	._type	881,'v'
+	._type	882,'P',881
+	._type	883,'v'
+	._type	884,'P',883
+	._type	885,'v'
+	._type	886,'P',885
+	._type	887,'v'
+	._type	888,'P',887
+	._type	889,'x',16,2
+	._type	889,'m','ck',0,886
+	._type	889,'m','ce',0,888
+	._type	890,'P',889
+	._type	891,'x',880,5
+	._type	891,'m','key',0,882
+	._type	891,'m','base',0,884
+	._type	891,'m','nelem',0,789
+	._type	891,'m','size',0,789
+	._type	891,'m','cmp',0,890
+	._var	'bsearch','F',891
+	._type	892,'P',3
+	._type	893,'x',16,2
+	._type	893,'m','s',0,892
+	._type	893,'m','n',0,789
+	._var	'mblen','F',893
+	._type	894,'P',790
+	._type	895,'P',3
+	._type	896,'x',16,3
+	._type	896,'m','pwc',0,894
+	._type	896,'m','s',0,895
+	._type	896,'m','n',0,789
+	._var	'mbtowc','F',896
+	._type	897,'P',3
+	._type	898,'x',16,2
+	._type	898,'m','s',0,897
+	._type	898,'m','wchar',0,790
+	._var	'wctomb','F',898
+	._type	899,'P',3
+	._type	900,'P',790
+	._type	901,'x',789,3
+	._type	901,'m','s',0,899
+	._type	901,'m','wcs',0,900
+	._type	901,'m','n',0,789
+	._var	'wcstombs','F',901
+	._type	902,'P',790
+	._type	903,'P',3
+	._type	904,'x',789,3
+	._type	904,'m','wcs',0,902
+	._type	904,'m','s',0,903
+	._type	904,'m','n',0,789
+	._var	'mbstowcs','F',904
+	._type	905,'v'
+	._type	906,'x',16,1
+	._type	906,'m','',0,905
+	._var	'rand','F',906
+	._type	907,'v'
+	._type	908,'x',907,1
+	._type	908,'m','',0,18
+	._var	'srand','F',908
+	._type	909,'P',3
+	._type	910,'P',3
+	._type	911,'P',910
+	._type	912,'x',10,2
+	._type	912,'m','s',0,909
+	._type	912,'m','endptr',0,911
+	._var	'strtof','F',912
+	._type	913,'O',3
+	._type	914,'O',3
+	._type	915,'O',914
+	._type	916,'x',10,2
+	._type	916,'m','s',0,913
+	._type	916,'m','endptr',0,915
+	._var	'_n_n_strtof','F',916
+	._type	917,'O',3
+	._type	918,'O',3
+	._type	919,'P',918
+	._type	920,'x',10,2
+	._type	920,'m','s',0,917
+	._type	920,'m','endptr',0,919
+	._var	'_n_f_strtof','F',920
+	._type	921,'P',3
+	._type	922,'P',3
+	._type	923,'O',922
+	._type	924,'x',10,2
+	._type	924,'m','s',0,921
+	._type	924,'m','endptr',0,923
+	._var	'_f_n_strtof','F',924
+	._type	925,'P',3
+	._type	926,'x',10,1
+	._type	926,'m','s',0,925
+	._var	'atoff','F',926
+	._type	927,'T','UInt8',3
+	._type	928,'T','SInt8',19
+	._type	929,'T','UInt16',18
+	._type	930,'T','SInt16',16
+	._type	931,'T','SInt32',20
+	._type	932,'T','Float32',10
+	._type	933,'T','tick_t',269
+	._type	934,'T','BOOL',927
+	._type	935,'v'
+	._type	936,'v'
+	._type	937,'x',935,1
+	._type	937,'m','',0,936
+	._var	'init_tick','F',937
+	._type	938,'v'
+	._type	939,'x',933,1
+	._type	939,'m','',0,938
+	._var	'get_tick_count','F',939
+	._type	940,'v'
+	._type	941,'x',940,1
+	._type	941,'m','count',0,929
+	._var	'delay_ms','F',941
+	._type	942,'v'
+	._type	943,'x',942,1
+	._type	943,'m','count',0,929
+	._var	'delay_100s_us','F',943
+	._var	'BATTERY_THRESHOLD','E',929
+	._var	'VOLTAGE_THRESHOLD','E',929
+	._type	944,'v'
+	._type	945,'v'
+	._type	946,'x',944,1
+	._type	946,'m','',0,945
+	._var	'tal_init_transceiver','F',946
+	._type	947,'v'
+	._type	948,'v'
+	._type	949,'x',947,1
+	._type	949,'m','',0,948
+	._var	'tal_init_ports','F',949
+	._type	950,'v'
+	._type	951,'v'
+	._type	952,'x',950,1
+	._type	952,'m','',0,951
+	._var	'init_rf_interrupts','F',952
+	._type	953,'v'
+	._type	954,'x',929,1
+	._type	954,'m','',0,953
+	._var	'read_battery','F',954
+	._type	955,'v'
+	._type	956,'x',955,1
+	._type	956,'m','UPDATE',0,933
+	._var	'update_tick_count','F',956
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "pm0_addr", 'G', 271
+	._inspect	'V', 't', "pm1_addr", 'G', 271
+	._inspect	'V', 't', "cm0_addr", 'G', 271
+	._inspect	'V', 't', "cm1_addr", 'G', 271
+	._inspect	'V', 't', "aier_addr", 'G', 271
+	._inspect	'V', 't', "prcr_addr", 'G', 271
+	._inspect	'V', 't', "ocd_addr", 'G', 271
+	._inspect	'V', 't', "wdtr_addr", 'G', 271
+	._inspect	'V', 't', "wdts_addr", 'G', 271
+	._inspect	'V', 't', "wdc_addr", 'G', 271
+	._inspect	'V', 't', "cspr_addr", 'G', 271
+	._inspect	'V', 't', "fra0_addr", 'G', 271
+	._inspect	'V', 't', "fra1_addr", 'G', 271
+	._inspect	'V', 't', "fra2_addr", 'G', 271
+	._inspect	'V', 't', "vca1_addr", 'G', 271
+	._inspect	'V', 't', "vca2_addr", 'G', 271
+	._inspect	'V', 't', "vw1c_addr", 'G', 271
+	._inspect	'V', 't', "vw2c_addr", 'G', 271
+	._inspect	'V', 't', "u0brg_addr", 'G', 271
+	._inspect	'V', 't', "u1brg_addr", 'G', 271
+	._inspect	'V', 't', "sscrh_addr", 'G', 271
+	._inspect	'V', 't', "sscrl_addr", 'G', 271
+	._inspect	'V', 't', "ssmr_addr", 'G', 271
+	._inspect	'V', 't', "sser_addr", 'G', 271
+	._inspect	'V', 't', "sssr_addr", 'G', 271
+	._inspect	'V', 't', "ssmr2_addr", 'G', 271
+	._inspect	'V', 't', "sstdr_addr", 'G', 271
+	._inspect	'V', 't', "ssrdr_addr", 'G', 271
+	._inspect	'V', 't', "iccr1_addr", 'G', 271
+	._inspect	'V', 't', "iccr2_addr", 'G', 271
+	._inspect	'V', 't', "icmr_addr", 'G', 271
+	._inspect	'V', 't', "icier_addr", 'G', 271
+	._inspect	'V', 't', "icsr_addr", 'G', 271
+	._inspect	'V', 't', "sar_addr", 'G', 271
+	._inspect	'V', 't', "icdrt_addr", 'G', 271
+	._inspect	'V', 't', "icdrr_addr", 'G', 271
+	._inspect	'V', 't', "adcon2_addr", 'G', 271
+	._inspect	'V', 't', "adcon0_addr", 'G', 271
+	._inspect	'V', 't', "adcon1_addr", 'G', 271
+	._inspect	'V', 't', "p0_addr", 'G', 271
+	._inspect	'V', 't', "pd0_addr", 'G', 271
+	._inspect	'V', 't', "p1_addr", 'G', 271
+	._inspect	'V', 't', "pd1_addr", 'G', 271
+	._inspect	'V', 't', "p2_addr", 'G', 271
+	._inspect	'V', 't', "pd2_addr", 'G', 271
+	._inspect	'V', 't', "p3_addr", 'G', 271
+	._inspect	'V', 't', "pd3_addr", 'G', 271
+	._inspect	'V', 't', "p4_addr", 'G', 271
+	._inspect	'V', 't', "pd4_addr", 'G', 271
+	._inspect	'V', 't', "p6_addr", 'G', 271
+	._inspect	'V', 't', "pd6_addr", 'G', 271
+	._inspect	'V', 't', "u1sr_addr", 'G', 271
+	._inspect	'V', 't', "pmr_addr", 'G', 271
+	._inspect	'V', 't', "inten_addr", 'G', 271
+	._inspect	'V', 't', "intf_addr", 'G', 271
+	._inspect	'V', 't', "kien_addr", 'G', 271
+	._inspect	'V', 't', "pur0_addr", 'G', 271
+	._inspect	'V', 't', "pur1_addr", 'G', 271
+	._inspect	'V', 't', "tracr_addr", 'G', 271
+	._inspect	'V', 't', "traioc_addr", 'G', 271
+	._inspect	'V', 't', "tramr_addr", 'G', 271
+	._inspect	'V', 't', "trapre_addr", 'G', 271
+	._inspect	'V', 't', "tra_addr", 'G', 271
+	._inspect	'V', 't', "trbcr_addr", 'G', 271
+	._inspect	'V', 't', "trbocr_addr", 'G', 271
+	._inspect	'V', 't', "trbioc_addr", 'G', 271
+	._inspect	'V', 't', "trbmr_addr", 'G', 271
+	._inspect	'V', 't', "trbpre_addr", 'G', 271
+	._inspect	'V', 't', "trbsc_addr", 'G', 271
+	._inspect	'V', 't', "trbpr_addr", 'G', 271
+	._inspect	'V', 't', "tresec_addr", 'G', 271
+	._inspect	'V', 't', "tremin_addr", 'G', 271
+	._inspect	'V', 't', "trecr1_addr", 'G', 271
+	._inspect	'V', 't', "trecr2_addr", 'G', 271
+	._inspect	'V', 't', "trecsr_addr", 'G', 271
+	._inspect	'V', 't', "trdstr_addr", 'G', 271
+	._inspect	'V', 't', "trdmr_addr", 'G', 271
+	._inspect	'V', 't', "trdpmr_addr", 'G', 271
+	._inspect	'V', 't', "trdfcr_addr", 'G', 271
+	._inspect	'V', 't', "trdoer1_addr", 'G', 271
+	._inspect	'V', 't', "trdoer2_addr", 'G', 271
+	._inspect	'V', 't', "trdocr_addr", 'G', 271
+	._inspect	'V', 't', "trddf0_addr", 'G', 271
+	._inspect	'V', 't', "trddf1_addr", 'G', 271
+	._inspect	'V', 't', "trdcr0_addr", 'G', 271
+	._inspect	'V', 't', "trdcr1_addr", 'G', 271
+	._inspect	'V', 't', "trdiora0_addr", 'G', 271
+	._inspect	'V', 't', "trdiora1_addr", 'G', 271
+	._inspect	'V', 't', "trdiorc0_addr", 'G', 271
+	._inspect	'V', 't', "trdiorc1_addr", 'G', 271
+	._inspect	'V', 't', "trdsr0_addr", 'G', 271
+	._inspect	'V', 't', "trdsr1_addr", 'G', 271
+	._inspect	'V', 't', "trdier0_addr", 'G', 271
+	._inspect	'V', 't', "trdier1_addr", 'G', 271
+	._inspect	'V', 't', "trdpocr0_addr", 'G', 271
+	._inspect	'V', 't', "trdpocr1_addr", 'G', 271
+	._inspect	'V', 't', "trd0_addr", 'G', 5
+	._inspect	'V', 't', "trdgra0_addr", 'G', 5
+	._inspect	'V', 't', "trdgrb0_addr", 'G', 5
+	._inspect	'V', 't', "trdgrc0_addr", 'G', 5
+	._inspect	'V', 't', "trdgrd0_addr", 'G', 5
+	._inspect	'V', 't', "trd1_addr", 'G', 5
+	._inspect	'V', 't', "trdgra1_addr", 'G', 5
+	._inspect	'V', 't', "trdgrb1_addr", 'G', 5
+	._inspect	'V', 't', "trdgrc1_addr", 'G', 5
+	._inspect	'V', 't', "trdgrd1_addr", 'G', 5
+	._inspect	'V', 't', "lincr_addr", 'G', 271
+	._inspect	'V', 't', "linst_addr", 'G', 271
+	._inspect	'V', 't', "fmr4_addr", 'G', 271
+	._inspect	'V', 't', "fmr1_addr", 'G', 271
+	._inspect	'V', 't', "fmr0_addr", 'G', 271
+	._inspect	'V', 't', "c01wkic_addr", 'G', 281
+	._inspect	'V', 't', "c0recic_addr", 'G', 291
+	._inspect	'V', 't', "c0trmic_addr", 'G', 301
+	._inspect	'V', 't', "c01erric_addr", 'G', 311
+	._inspect	'V', 't', "trd0ic_addr", 'G', 321
+	._inspect	'V', 't', "trd1ic_addr", 'G', 331
+	._inspect	'V', 't', "treic_addr", 'G', 341
+	._inspect	'V', 't', "kupic_addr", 'G', 351
+	._inspect	'V', 't', "adic_addr", 'G', 361
+	._inspect	'V', 't', "ssuaic_addr", 'G', 371
+	._inspect	'V', 't', "iic2aic_addr", 'G', 381
+	._inspect	'V', 't', "s0tic_addr", 'G', 391
+	._inspect	'V', 't', "s0ric_addr", 'G', 401
+	._inspect	'V', 't', "s1tic_addr", 'G', 411
+	._inspect	'V', 't', "s1ric_addr", 'G', 421
+	._inspect	'V', 't', "int2ic_addr", 'G', 431
+	._inspect	'V', 't', "traic_addr", 'G', 441
+	._inspect	'V', 't', "trbic_addr", 'G', 451
+	._inspect	'V', 't', "int1ic_addr", 'G', 461
+	._inspect	'V', 't', "int3ic_addr", 'G', 471
+	._inspect	'V', 't', "int0ic_addr", 'G', 481
+	._inspect	'V', 't', "u0mr_addr", 'G', 491
+	._inspect	'V', 't', "u1mr_addr", 'G', 501
+	._inspect	'V', 't', "u0c0_addr", 'G', 511
+	._inspect	'V', 't', "u1c0_addr", 'G', 521
+	._inspect	'V', 't', "u0c1_addr", 'G', 531
+	._inspect	'V', 't', "u1c1_addr", 'G', 541
+	._inspect	'V', 't', "u0rb_addr", 'G', 551
+	._inspect	'V', 't', "u1rb_addr", 'G', 570
+	._inspect	'V', 't', "rmad0_addr", 'G', 589
+	._inspect	'V', 't', "rmad1_addr", 'G', 612
+	._inspect	'V', 't', "u0tb_addr", 'G', 635
+	._inspect	'V', 't', "u1tb_addr", 'G', 654
+	._inspect	'V', 't', "ad_addr", 'G', 673
+	._inspect	'V', 't', "c0slot", 'G', 699
+	._inspect	'V', 't', "c0slot0", 'G', 692
+	._inspect	'V', 't', "c0slot1", 'G', 692
+	._inspect	'V', 't', "c0slot2", 'G', 692
+	._inspect	'V', 't', "c0slot3", 'G', 692
+	._inspect	'V', 't', "c0slot4", 'G', 692
+	._inspect	'V', 't', "c0slot5", 'G', 692
+	._inspect	'V', 't', "c0slot6", 'G', 692
+	._inspect	'V', 't', "c0slot7", 'G', 692
+	._inspect	'V', 't', "c0slot8", 'G', 692
+	._inspect	'V', 't', "c0slot9", 'G', 692
+	._inspect	'V', 't', "c0slot10", 'G', 692
+	._inspect	'V', 't', "c0slot11", 'G', 692
+	._inspect	'V', 't', "c0slot12", 'G', 692
+	._inspect	'V', 't', "c0slot13", 'G', 692
+	._inspect	'V', 't', "c0slot14", 'G', 692
+	._inspect	'V', 't', "c0slot15", 'G', 692
+	._inspect	'V', 't', "c0gmr", 'G', 700
+	._inspect	'V', 't', "c0lmar", 'G', 700
+	._inspect	'V', 't', "c0lmbr", 'G', 700
+	._inspect	'V', 't', "c0mctl", 'G', 722
+	._inspect	'V', 't', "c0mctl0", 'G', 703
+	._inspect	'V', 't', "c0mctl1", 'G', 703
+	._inspect	'V', 't', "c0mctl2", 'G', 703
+	._inspect	'V', 't', "c0mctl3", 'G', 703
+	._inspect	'V', 't', "c0mctl4", 'G', 703
+	._inspect	'V', 't', "c0mctl5", 'G', 703
+	._inspect	'V', 't', "c0mctl6", 'G', 703
+	._inspect	'V', 't', "c0mctl7", 'G', 703
+	._inspect	'V', 't', "c0mctl8", 'G', 703
+	._inspect	'V', 't', "c0mctl9", 'G', 703
+	._inspect	'V', 't', "c0mctl10", 'G', 703
+	._inspect	'V', 't', "c0mctl11", 'G', 703
+	._inspect	'V', 't', "c0mctl12", 'G', 703
+	._inspect	'V', 't', "c0mctl13", 'G', 703
+	._inspect	'V', 't', "c0mctl14", 'G', 703
+	._inspect	'V', 't', "c0mctl15", 'G', 703
+	._inspect	'V', 't', "c0ctlr_addr", 'G', 723
+	._inspect	'V', 't', "c0str_addr", 'G', 740
+	._inspect	'V', 't', "c0sstr_addr", 'G', 756
+	._inspect	'V', 't', "c0icr_addr", 'G', 756
+	._inspect	'V', 't', "c0idr_addr", 'G', 756
+	._inspect	'V', 't', "c0conr_addr", 'G', 774
+	._inspect	'V', 't', "c0recr_addr", 'G', 271
+	._inspect	'V', 't', "c0tecr_addr", 'G', 271
+	._inspect	'V', 't', "c0afs_addr", 'G', 783
+	._inspect	'V', 't', "cclkr_addr", 'G', 271
+	._inspect	'V', 't', "div_t", 'O', 785
+	._inspect	'V', 't', "ldiv_t", 'O', 787
+	._inspect	'V', 't', "size_t", 'O', 18
+	._inspect	'V', 't', "wchar_t", 'O', 5
+	._inspect	'F', 't', "abort", 'G', 793
+	._inspect	'F', 't', "div", 'G', 794
+	._inspect	'F', 't', "exit", 'G', 796
+	._inspect	'F', 't', "calloc", 'G', 799
+	._inspect	'F', 't', "free", 'G', 803
+	._inspect	'F', 't', "malloc", 'G', 806
+	._inspect	'F', 't', "realloc", 'G', 811
+	._inspect	'F', 't', "strtol", 'G', 815
+	._inspect	'F', 't', "_n_n_strtol", 'G', 819
+	._inspect	'F', 't', "_n_f_strtol", 'G', 823
+	._inspect	'F', 't', "_f_n_strtol", 'G', 827
+	._inspect	'F', 't', "strtoul", 'G', 831
+	._inspect	'F', 't', "_n_n_strtoul", 'G', 835
+	._inspect	'F', 't', "_n_f_strtoul", 'G', 839
+	._inspect	'F', 't', "_f_n_strtoul", 'G', 843
+	._inspect	'F', 't', "strtod", 'G', 847
+	._inspect	'F', 't', "_n_n_strtod", 'G', 851
+	._inspect	'F', 't', "_n_f_strtod", 'G', 855
+	._inspect	'F', 't', "_f_n_strtod", 'G', 859
+	._inspect	'F', 't', "atoi", 'G', 861
+	._inspect	'F', 't', "atol", 'G', 863
+	._inspect	'F', 't', "atof", 'G', 865
+	._inspect	'F', 't', "abs", 'G', 866
+	._inspect	'F', 't', "labs", 'G', 867
+	._inspect	'F', 't', "ldiv", 'G', 868
+	._inspect	'F', 't', "qsort", 'G', 878
+	._inspect	'F', 't', "bsearch", 'G', 891
+	._inspect	'F', 't', "mblen", 'G', 893
+	._inspect	'F', 't', "mbtowc", 'G', 896
+	._inspect	'F', 't', "wctomb", 'G', 898
+	._inspect	'F', 't', "wcstombs", 'G', 901
+	._inspect	'F', 't', "mbstowcs", 'G', 904
+	._inspect	'F', 't', "rand", 'G', 906
+	._inspect	'F', 't', "srand", 'G', 908
+	._inspect	'F', 't', "strtof", 'G', 912
+	._inspect	'F', 't', "_n_n_strtof", 'G', 916
+	._inspect	'F', 't', "_n_f_strtof", 'G', 920
+	._inspect	'F', 't', "_f_n_strtof", 'G', 924
+	._inspect	'F', 't', "atoff", 'G', 926
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 269
+	._inspect	'V', 't', "BOOL", 'O', 927
+	._inspect	'F', 't', "init_tick", 'G', 937
+	._inspect	'F', 't', "get_tick_count", 'G', 939
+	._inspect	'F', 't', "delay_ms", 'G', 941
+	._inspect	'F', 't', "delay_100s_us", 'G', 943
+	._inspect	'V', 't', "BATTERY_THRESHOLD", 'G', 929
+	._inspect	'V', 't', "VOLTAGE_THRESHOLD", 'G', 929
+	._inspect	'F', 't', "tal_init_transceiver", 'G', 946
+	._inspect	'F', 't', "tal_init_ports", 'G', 949
+	._inspect	'F', 't', "init_rf_interrupts", 'G', 952
+	._inspect	'F', 't', "read_battery", 'G', 954
+	._inspect	'F', 't', "update_tick_count", 'G', 956
+
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:48 2011
+
+

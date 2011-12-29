@@ -3,21 +3,13 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_CLIENT
 
-
-#include "one_net_status_codes.h"
-#include "one_net_constants.h"
-#include "one_net_message.h"
-#include "one_net_acknowledge.h"
-
-
-//! \defgroup ON_CLIENT_port_specific CLIENT Specific ONE-NET functionality
+//! \defgroup ONE_NET_CLIENT_port_specific CLIENT Specific ONE-NET functionality
 //! \ingroup ONE-NET_port_specific 
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -52,52 +44,54 @@
 
     These are interfaces for application and hardware specific functions that
     must be implemented for the ONE-NET project to compile (and work).
-
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
 */
 
-#include "one_net_acknowledge.h"
+#include "one_net_port_specific.h"
+
+#include "one_net_client_port_const.h"
+#include "one_net_client.h"
 
 
 //==============================================================================
 //                                  CONSTANTS
-//! \defgroup ON_CLIENT_port_specific_const
-//! \ingroup ON_CLIENT_port_specific
+//! \defgroup ONE_NET_CLIENT_port_specific_const
+//! \ingroup ONE_NET_CLIENT_port_specific
 //! @{
 
-//! @} ON_CLIENT_port_specific_const
+//! @} ONE_NET_CLIENT_port_specific_const
 //                                  CONSTANTS END
 //==============================================================================
 
 //==============================================================================
 //                                  TYPEDEFS
-//! \defgroup ON_CLIENT_port_specific_typedefs
-//! \ingroup ON_CLIENT_port_specific
+//! \defgroup ONE_NET_CLIENT_port_specific_typedefs
+//! \ingroup ONE_NET_CLIENT_port_specific
 //! @{
     
-//! @} ON_CLIENT_port_specific_typedefs
+//! @} ONE_NET_CLIENT_port_specific_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
 
 //==============================================================================
 //                              PUBLIC VARIABLES
-//! \defgroup ON_CLIENT_port_specific_pub_var
-//! \ingroup ON_CLIENT_port_specific
+//! \defgroup ONE_NET_CLIENT_port_specific_pub_var
+//! \ingroup ONE_NET_CLIENT_port_specific
 //! @{
 
-//! @} ON_CLIENT_port_specific_pub_var
+//! @} ONE_NET_CLIENT_port_specific_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
-//! \defgroup ON_CLIENT_port_specific_pub_func
-//! \ingroup ON_CLIENT_port_specific
+//! \defgroup ONE_NET_CLIENT_port_specific_pub_func
+//! \ingroup ONE_NET_CLIENT_port_specific
 //! @{
-    
-    
+
 /*!
     \brief Callback when the CLIENT has successfully joined a network.
     
@@ -105,351 +99,325 @@
     a network in which it had been invited (received the invite packet).
 
     \param[in] RAW_DID The did assigned to the CLIENT.
-    \param[in] status Result of the invitation (success, timeout, cancelled)
+    \param[in] MASTER_DID The did of the MASTER
 
     \return void
 */
-void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
-  one_net_status_t status);
-  
-  
+void one_net_client_joined_network(const one_net_raw_did_t * const RAW_DID,
+  const one_net_raw_did_t * const MASTER_DID);
+
+
+#ifdef _ENHANCED_INVITE
 /*!
-    \brief Callback when a CLIENT has been removed.
+    \brief Callback when a client that has been looking for an invitation has
+	timed out.
     
-    This function is called by ONE-NET after a CLIENT has been
-    removed from the network.
+    This function is called by ONE-NET after a CLIENT has was looking for an
+	invitation and is no longer looking.  Most common reason would be a timeout,
+	but there could be other reasons.  If the application code needs this scenario
+	handled, it should use this function.
 
-    \param[in] raw_did The did of the device that was removed.
-    \param[in] this_device_removed TRUE if this device was removed, false
-               otherwise.
-
-    \return void
-*/
-void one_net_client_client_removed(const on_raw_did_t * const raw_did,
-    BOOL this_device_removed);
-  
-  
-/*!
-    \brief Callback when a CLIENT has been added.
-    
-    This function is called by ONE-NET after a CLIENT has been
-    added to the network.
-
-    \param[in] raw_did The did of the device that was added.
+    \param[in] RAW_DID The did assigned to the CLIENT.
+    \param[in] MASTER_DID The did of the MASTER
 
     \return void
 */
-void one_net_client_client_added(const on_raw_did_t * const raw_did);
+void one_net_client_invite_cancelled(cancel_invite_reason_t reason);
+#endif
 
 
 /*!
-    \brief Handles the received single packet.
+    \brief Callback for the application to handle the received packet.
+
+    This function is application dependent.  It is called by ONE-NET when a
+    MASTER receives a packet.  ONE-NET provides default handling for
+	query messages.  In addition, the application code can fill in a NACK reason
+	if needed.  The application can provide its own handling by setting the
+	useDefaultHandling parameter to false.  If it cannot send an immediate
+	response, it should set useDefaultHandling to false.
 	
-    \param[in] raw_pld the raw single payload.  Note that ack_nack.ayload below
-      also points to this parameter, so the memory can be changed.  Therefore,
-      if the application code needs this payload to NOT change after sending
-      a response, it must copy it.
-    \param[in/out] msg_hdr of packet / response -- only the pid portion of
-      this parameter should be changed.  The message type is irrelevant for
-      a response message (the equivalent of a "message type" can be specified
-      in the "handle" portion of the "ack_nack" parameter below.  The message
-      id should not be changed.  The pid should be changed to the type of ACK
-      or NACK that should be sent.
-	\param[in] src_did the raw address of the source
-	\param[in] repeater_did the raw address of the repeater, if any.  This will
-               always equal the source id if 1) this is not a multi-hop message
-               and 2) this is not a "forwarded" message by either the peer
-               manager or the application code.  Most applications will ignore
-               this parameter.
-	\param[out] ack_nack: Contains three parts...
-                  nack_reason... if nacking, the reason for the NACK.  Irrelevant for ACKs
-	            handle... if including a payload, how the payload should be parsed.
-                  For example, if this is a ffast query or command response that contains
-                  a status message, the handle should be set to ON_ACK_STATUS.
-                  If the message contains a time, this should be set to
-                  ON_ACK_TIME_MS or ON_NACK_MS.  If the message contains an
-                  application-specific value, this should be set to ON_ACK_VALUE
-                  or ON_NACK_VALUE.  If simply sending an ACK or a NACK without
-                  any payload, this parameter can be ignored.
-                payload...
-                  The "payload" of the NACK or ACK.  Irrelevant if the handle
-                  is not set.  Note that this also points to raw_pld to save
-                  space.
-    \param[in] hops the number of hops it took to get here.  Can be ignored by
-                    most applications.
-    \param[in/out] max_hops in --> the maximum number of hops that was set for the message
-	                        out --> the maximum number of hops to use for a response.  Can
-                                    generally be ignored if you want the maximum number of
-                                    hops to remain unchanged.
-                 
-    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
-            ON_MSG_IGNORE if no reponse should occur.
+
+    \param[in] raw_pld the raw un-parsed 5 byte single payload 
+    \param[in] msg_class the type of the payload (ONA_STATUS, ONA_QUERY, ONA_POLL or ONA_COMMAND)
+    \param[in] msg_type the unit type of the destination unit
+    \param[in] src_unit the source unit number
+	\param[in] dst_unit the destination unit
+	\param[in/out] msg_data the data in the incoming message and possibly in the outgoing message
+	\param[in] SRC_ADDR the raw address of the source
+	\param[out] useDefaultHandling flag set that is read by ONE-NET.  If true, then ONE-NET will use
+	            its default handling for queries
+	            If false, the application provides its own handling
+	\param[in/out] nack_reason The "reason" that should be given if a NACK needs to be sent
+	\param[out] ack_nack_handle Filled in by application code if sending data with the ACK/NACK message
+	\param[out] ack_nack_payload Filled in by application code if sending data with the ACK/NACK message
+	
+    \return TRUE If it was a valid packet (and it will be handled)
+            FALSE If it was an invalid packet and a NACK should be sent
 */
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
-#else
-on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
-  UInt8 hops, UInt8* const max_hops);
-#endif
+BOOL one_net_client_handle_single_pkt(const UInt8* const raw_pld,
+       const ona_msg_class_t msg_class, ona_msg_type_t* const msg_type,
+	   const UInt8 src_unit, const UInt8 dst_unit, UInt16* const msg_data,
+       const one_net_raw_did_t* const SRC_ADDR,
+	   BOOL* const useDefaultHandling, on_nack_rsn_t* const nack_reason,
+	   on_ack_nack_handle_t* const ack_nack_handle,
+	   ack_nack_payload_t* const ack_nack_payload);
+	   
 
-
-#ifdef _BLOCK_MESSAGES_ENABLED
 /*!
-    \brief Handles the received block packet.
+    \brief Callback for the application to handle status messages.
+
+    This function is application dependent.  It is called by ONE-NET when a
+    CLIENT receives a status message, either alone or as a response to a query
+	for the current status of a unit on another device.
 	
-    \param[in] raw_pld the raw block payload.  Note that ack_nack.ayload below
-      also points to this parameter, so the memory can be changed.  Therefore,
-      if the application code needs this payload to NOT change after sending
-      a response, it must copy it.
-    \param[in/out] msg_hdr of packet / response -- only the pid portion of
-      this parameter should be changed.  The message type is irrelevant for
-      a response message (the equivalent of a "message type" can be specified
-      in the "handle" portion of the "ack_nack" parameter below.  The message
-      id should not be changed.  The pid should be changed to the type of ACK
-      or NACK that should be sent.
-	\param[in] src_did the raw address of the source
-	\param[in] repeater_did the raw address of the repeater, if any.  This will
-               always equal the source id if 1) this is not a multi-hop message
-               and 2) this is not a "forwarded" message by either the peer
-               manager or the application code.  Most applications will ignore
-               this parameter.
-	\param[out] ack_nack: Contains three parts...
-                  nack_reason... if nacking, the reason for the NACK.  Irrelevant for ACKs
-	            handle... if including a payload, how the payload should be parsed.
-                  For example, if this is a ffast query or command response that contains
-                  a status message, the handle should be set to ON_ACK_STATUS.
-                  If the message contains a time, this should be set to
-                  ON_ACK_TIME_MS or ON_NACK_MS.  If the message contains an
-                  application-specific value, this should be set to ON_ACK_VALUE
-                  or ON_NACK_VALUE.  If simply sending an ACK or a NACK without
-                  any payload, this parameter can be ignored.
-                payload...
-                  The "payload" of the NACK or ACK.  Irrelevant if the handle
-                  is not set.  Note that this also points to raw_pld to save
-                  space.
-    \param[in] hops the number of hops it took to get here.  Can be ignored by
-                    most applications.
-    \param[in/out] max_hops in --> the maximum number of hops that was set for the message
-	                        out --> the maximum number of hops to use for a response.  Can
-                                    generally be ignored if you want the maximum number of
-                                    hops to remain unchanged.
-                 
-    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
-            ON_MSG_IGNORE if no reponse should occur.
+
+    \param[in] raw_pld the raw un-parsed 5 byte single payload 
+    \param[in] msg_class ONA_STATUS or ONA_STATUS_QUERY_RESP or ONA_STATUS_FAST_QUERY_RESP or ONA_STATUS_ACK_RESP
+    \param[in] msg_type the unit type of the destination unit
+    \param[in] src_unit the source unit number(this is the unit that the msg_data value correspons to
+	\param[in] dst_unit the destination unit
+	\param[in] msg_data the data in the incoming message and possibly in the outgoing message
+	\param[in] src_addr the raw address of the device sending the status message
+	\param[in/out] nack_reason Any nack reason than has occurred already or that will be set by this function
+	\param[in/out] ack_nack_handle If a payload is to be set, this denotes how it should be interpreted.
+	\param[in/out] ack_nack_payload Any information beyond a nack reason that is either passed to this function
+	               or is returned from it.
+	
+	\return TRUE if the transaction should be "handled" further.
+	        FALSE if any ahndling should be cancelled and the applciation code plans to take
+			      over all handling of the packet.
 */
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_client_handle_block_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
-#else
-on_message_status_t one_net_client_handle_block_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
-  UInt8 hops, UInt8* const max_hops);
-#endif
-#endif
+BOOL one_net_client_handle_status_msg(const UInt8* const raw_pld, const ona_msg_class_t msg_class,
+       const ona_msg_type_t msg_type, const UInt8 src_unit,
+       const UInt8 dst_unit, const UInt16 msg_data,
+	   const one_net_raw_did_t* const src_addr,
+	   on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+	   ack_nack_payload_t* const ack_nack_payload);
 
 
 /*!
     \brief Callback for the application to handle an ack or a nack.
 
     This function is application dependent.  It is called by ONE-NET when a
-    CLIENT receives an ACK or a NACK.  For many applications, no ACK/ NACK
-    handling is needed and the application waits for the entire transaction
-    to be completed.  In this case (which is very common), the function should
-    simply be an empty function that returns ON_MSG_CONTINUE, which tells
-    ONE-NET to use its default handling.
-    
-    For NON-defgault handling, this function allows the application code to
-    change a nack reason, change the number of retries, change the message it
-    is sending, change the number of hops, or abort the transaction.  Even if
-    nothing is changed, it informs the application code of what is going on
-    with each individual response.  The application may be keeping tracking
-    of how many ACKs versus NACKs it gets for whatever reason.
-    
-    
-    "Fast query" messages and "command" messages or any other message which
-    involves response messages containing status messages, may wish to call
-    the one_net_client_handle_single_pkt and pass it the ACK payload as
-    the payload.  This is generally how this is handled.
-    one_net_client_handle_single_pkt should look at the message class and,
-    if it is ONA_STATUS_FAST_QUERY_RESP or ONA_STATUS_COMMAND_RESP, this
-    tells the function that the message was a response to a command or a fast
-    query.
+    CLIENT receives an ACK or a NACK.  ONE-NET provides default handling for
+	query responses.  In addition, the application code can change a NACK reason or
+	change an ACK to a NACK or vice versa.  It can also change the number of retries
+	to either prolong the number of retries or decrease them.  The application can
+	provide its own handling by returning false.  If it wants to abort the transaction
+	for whatever reason, either because it has its own handling or because it does not
+	want to handle the message at all, it should return false.
 	
 
-    \param[in/out] raw_pld Raw payload of the ORIGINAL message so that the
-       application code can see what is being ACK'd or NACK'd.  Changable, but
-       generally is NOT changed.
-    \param[in/out] msg_hdr PID, Message ID, and Message Type(i.e. admin,
-      app, etc.) of the ORIGINAL message.  This is changable, but like the
-      raw payload, is generally NOT changed.  In particular, the message id
-      is assigned by ONE-NET, so it should only be changed by ONE-NET.  If the
-      application code needs to change the message id to a new one, it should
-      call the function get_new_message_id() and use its return value.  Again,
-      use caution when changing the message id.  There is usually no need to
-      change it.
-    \param[in] resp_msg_hdr The PID and Message ID of the response. Generally
-      the message TYPE is irrelevant in a response.  The "handle" of the ACK
-      or the NACK should be looked at instead for how to parse.
-    \param[in] resp_msg_hdr The PID and Message ID of the response. Generally
-      the message TYPE is irrelevant in a response.  The "handle" of the ACK
-      or the NACK should be looked at instead for how to parse.  The message
-      ID in the response should match the message id in the original message.
-      If it does not, the original raw payload should be considered invalid.
-      ONE-NET will consider this an invalid response if the message
-      IDs do not match.  However, this function is still called to notify
-      the application code.  If the message IDs DO NOT match, however, any
-      changes made in this function will be ignored by ONE-NET.
-    \param[in/out] resp_ack_nack The response (ACK or NACK), possibly with a
-      payload and a NACK reason.  The "handle" will describe how the payload
-      should be interpreted.  The nack reason can be changed and possibly
-      a time in the payload if the nack reason involves a time that ONE-NET
-      understands (i.e. length of time to pause).
-    \param[in] resp_ack_nack The response (ACK or NACK), possibly with a
-      payload and a NACK reason.  The "handle" will describe how the payload
-      should be interpreted.  See the description of ack_nack in the
-      one_net_client_handle_single_pkt for more details of how this should
-      be interpreted.  This function can change an ACK to a NACK or vice versa
-      and can also change the NACK reason.
-	\param[in] src_did the raw address of the source
-	\param[in] repeater_did the raw address of the repeater, if any.  This will
-               always equal the source id if 1) this is not a multi-hop message
-               and 2) this is not a "forwarded" message by either the peer
-               manager or the application code.  Most applications will ignore
-               this parameter.
-    \param[in/out] retries The number of times this message has been sent.
-      Generally this is not changed, but it can be.
-    \param[in] hops the number of hops it took to get here.  Can be ignored by
-                    most applications.
-    \param[in/out] max_hops in --> the maximum number of hops that was set for
-                                   the message
-	                       out --> the maximum number of hops to use.  Can
-                                   generally be ignored if you want the maximum
-                                   number of hops to remain unchanged.
+    \param[in] msg_type The type of message(application, admin, or extended admin)
+    \param[in/out] The payload that was originally sent and which will possibly be sent again.
+    \param[in] payload_len length of the payload
+	\param[out] need_txn_payload TRUE if the function needs the raw original transaction payload
+	            FALSE if it does not.  This function will originally be called WITHOUT being
+				provided the raw original transaction payload.  Due to the overhead of encrypting
+				and decrypting, this will not be done if it's not necessary.  If the function is
+				passed a NULL payload and it needs that payload, it should set the need_txn_payload
+				to true and return true.  ONE-NET will re-call the function, providing the raw
+				transaction payload.
+    \param[in/out] retries the number of times this message has been sent
+	\param[in] src_did the did of the device we received this ACK or NACK from.
+	\param[in/out] The reason for the NACK.  If this is null or equals ON_NACK_RSN_NO_ERROR
+	               then we received an ACK, not a NACK.
+	\param[in/out] ack_nack_handle The way the data(if any) provided by the ACk or NACK should be
+	               interpreted.
+	\param[in/out] ack_nack_payload The data(if any) sent with the ACK/NACK message.
 	
-    \return ON_MSG_CONTINUED If ONE-NET should proceed with any further handling
-              of the transaction
-            ON_MSG_IGNORE to ignore this response and treat it at as if it had
-              never been received
-            ON_MSG_SUCCESS, ON_MSG_FAIL, ON_MSG_ABORT, or an
-              application-specific code if this transaction should be
-              terminated prematurely.  The nack reason (if it is to be
-              changed), should be set here because this return code will
-              result in a call to a callback function with both the NACK
-              reason and this return code passed as parameters.
+    \return TRUE If ONE-NET should proceed with any further handling of the transaction
+            FALSE If ONE-NET should consider the transaction complete for whatever reason.
 */
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_client_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries);
-#else
-on_message_status_t one_net_client_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries,
-  UInt8 hops, UInt8* const max_hops);
-#endif
-
-
-/*!
-    \brief Returns a pointer to the invite key to use in for joining a network.
-    
-    \return A pointer to the invite key to use.
-*/
-one_net_xtea_key_t* one_net_client_get_invite_key(void);
-
-
-#ifdef _NON_VOLATILE_MEMORY
-/*!
-    \brief Saves ONE-NET client settings to non-volatile memory
-    
-    \return ONS_SUCCESS If parameters were saved successfully
-            ONS_FAIL or any other failure message upon failure.
-*/
-one_net_status_t one_net_client_save_settings(void);
-
-
-/*!
-    \brief Loads ONE-NET client settings from non-volatile memory(i.e. Flash)
-    
-    \return ONS_SUCCESS If parameters were loaded successfully
-            ONS_FAIL or any other failure message upon failure.
-*/
-one_net_status_t one_net_client_load_settings(void);
-
-
-/*!
-    \brief Erases ONE-NET client settings(if any) from non-volatile memory(i.e. Flash)
-    
-    \return ONS_SUCCESS If non-volatile memory was erased successfully
-            ONS_FAIL or any other failure message upon failure.
-*/
-one_net_status_t one_net_client_erase_settings(void);
-#endif
-
-
-/*!
-    \brief Resets the device in client mode.
-    
-    When the device is reset to client mode, the network is empty and the
-    client will need to be added to the network using its invite key.
-    
-    \param[in] invite_key The invite key for use when listening for
-                 invitations.
-    
-    \return ONS_SUCCESS If reseting to client mode was successful
-            ONS_FAIL If the command failed
-*/
-one_net_status_t one_net_client_reset_client(one_net_xtea_key_t* invite_key);
-
-
+BOOL one_net_client_handle_ack_nack_response(const ona_msg_type_t msg_type,
+    UInt8* const payload, const UInt8 payload_len, BOOL* const need_txn_payload,
+    UInt8* const retries,
+	const one_net_raw_did_t* const src_did, on_nack_rsn_t* const nack_reason,
+	on_ack_nack_handle_t* const ack_nack_handle,
+	ack_nack_payload_t* const ack_nack_payload);
+	   
+	      
 /*!
     \brief The status of a single transaction.
 
     Callback to report the status of sending an application single data packet.
+    A SINGLE_END will be sent for every single transaction initiated by the
+    CLIENT whether the data was sent to a specific device, or the peer list.
+    ONS_SINGLE_END will be returned after the status for the last device is
+    returned.  The did returned for the ONS_SINGLE_END is the DID of the
+    destination for the last single transaction that was sent.
 
-    \param[in] status The status of the transaction.
-    \param[in] retry_count The number of times that the packet had to be sent.
-    \param[in] msg_hdr message id, message type, and pid of the message.
-    \param[in] data The data that was sent.
-    \param[in] dst The raw did of where the packet was sent.
-    \param[in] ack_nack The reason for failure, if relevant.  A response
-               payload, if relevant.
-    \param[in] hops Number of hops it took to deliver the message, if
-               known and relevant.  Negative number implies unknown or
-               not relevant / reliable.
+    \param[in] STATUS The status of the transaction.  As long as the status is
+      not ONS_SINGLE_END, the data should be updated with NEXT_DST_UNIT.
+      ONS_SUCCESS if the single transaction was successfully been queued (dst is
+        0), or the single transaction to DST was successful.
+      ONS_SINGLE_FAIL if the transaction to DST failed
+      ONS_SINGLE_END If the transaction has been sent to all peers
+        and the MASTER (if required).
+    \param[in] RETRY_COUNT The number of times that the packet had to be resent.
+      0 will be passed in when this function is called to alert the application
+      that the single transaction is complete (done sending to all the peers in
+      the peer list).
+    \param[in/out] DATA The data that was sent by the application (what was
+      passed to client_send_single).  This value may be 0 if the data
+      could not be reliably returned to the app.
+    \param[in] DST The raw did of where the packet was sent.  This can be 0 if
+      an internal error occured.  If such an event occurs, then the destination
+      DID was not decoded properly.
+    \param[in] NEXT_DST_UNIT The destination unit in the next peer that the
+      packet is going to be sent to.
+
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
-void one_net_client_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
-#else
-void one_net_client_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
-#endif
+void one_net_client_single_txn_status(const one_net_status_t STATUS,
+  const UInt8 RETRY_COUNT, const UInt8 * const DATA,
+  const one_net_raw_did_t * const DST);
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+    /*!
+    \brief Callback to check if device should grant the requested transaction
+    
+    \param[in] TYPE The type of transaction being requested.  Currently only
+      handles ON_BLOCK
+    \param[in] SEND TRUE if this device is the sender of the data.  Currently
+      only handles FALSE.
+    \param[in] DATA_TYPE The type of data being requested
+    \param[in] DATA_LEN The number of bytes to be transferred.  If the
+                   application rejects this value, it can set this value
+                   to one tht it WILL accept if re-requested.  However,
+                   it should not change THIS variable, but instead
+                   place the new value in the ack_nack_payload.
+    \param[in] DID The other end of the transaction.
+    \param[in] src_unit The source unit for this transaction.
+    \param[in] dst_unit The destination unit for this transaction.
+    \param[in/out] nack_reason Reason for rejection, if any.
+    \param[in/out] ack_nack_handle "Handle" of the ack_nack_payload, if any.
+    \param[in/out] ack_nack_payload Payload contained in the ACK or NACK,
+                   if any.
+    
+    \return TRUE if the transaction should be ACK'd or NACK'd.
+            FALSE if the transaction should not be ACK'd or NACK'd.
+    */
+    BOOL one_net_client_txn_requested(const UInt8 TYPE, const BOOL SEND,
+      const UInt8 DATA_TYPE, const UInt16 DATA_LEN,
+      const one_net_raw_did_t * const DID, const UInt8 src_unit,
+      const UInt8 dst_unit, on_nack_rsn_t* const nack_reason,
+      on_ack_nack_handle_t* const ack_nack_handle,
+      ack_nack_payload_t* const ack_nack_payload);
 
-//! @} ON_CLIENT_port_specific_pub_func
+
+    /*!
+        \brief Callback for the application to handle the received block packet.
+
+        \param[in] LEN The length of the payload in bytes.
+        \param[in] SRC_ADDR The raw address of the sender
+        \param[out] nack_reason The reason (if any) the message should
+                   be NACK'd.
+        \param[out] ack_nack_handle The handle (if any) of the NACK
+                    payload.
+        \param[out] ack_nack_payload The payload (if any) of the NACK
+
+        \return TRUE if an ACK or a NACK should be sent.
+                FALSE if an ACK or a NACK should not be sent.
+    */
+    BOOL one_net_client_handle_block_pkt(const UInt16 LEN,
+      const one_net_raw_did_t * const SRC_ADDR,
+      on_nack_rsn_t* const nack_reason,
+      on_ack_nack_handle_t* const ack_nack_handle,
+      ack_nack_payload_t* const ack_nack_payload);
+
+
+    /*!
+        \brief Callback to report the status of a block transaction.
+
+        \param[in] STATUS The status of the transaction.
+        \param[in] DID The device ID of the other device involved in the txn.
+
+        \return void
+    */
+    void one_net_client_block_txn_status(const one_net_status_t STATUS,
+      const one_net_raw_did_t * const DID);
+
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    /*!
+        \brief Callback to report the status of a stream transaction.
+
+        \param[in] STATUS The status of the transaction.
+        \param[in] DID The device ID of the other device involved in the txn.
+
+        \return void
+    */
+    void one_net_client_stream_txn_status(const one_net_status_t STATUS,
+      const one_net_raw_did_t * const DID);
+
+
+    /*!
+        \brief Callback for the application to handle the received stream
+          packet.
+
+        \param[in] PLD The decoded, decrypted payload that was received.
+        \param[in] LEN The length of PLD in bytes.
+        \param[in] SRC_ADDR The raw address of the sender
+
+        \return TRUE if it was a valid packet (and it will be handled).
+                FALSE If it was not a valid packet and is being ignored
+    */
+    BOOL one_net_client_handle_stream_pkt(const UInt8 * PLD, const UInt16 LEN,
+      const one_net_raw_did_t * const SRC_ADDR);
+	#endif
+
+
+/*!
+    \brief Returns the next payload to send for the given transaction by
+           adjusting a pointer visible to the ONE-NET code to the start
+           of the block.  Also sets the length to be sent.
+
+    \param[in] TYPE The type of transaction.  Must be ON_BLOCK.
+    \param[out] len The number of bytes to be sent
+      (must be <= ONE_NET_RAW_BLOCK_STREAM_DATA_LEN minus the header size)
+    \param[in] DST The device receiving the next payload.
+
+    \return A non-Error nack reason if the block transaction should proceed
+            An error nack reason if the block transaction should not proceed.
+*/
+on_nack_rsn_t one_net_client_next_payload(const UInt8 TYPE, UInt16* len,
+                     const one_net_raw_did_t* const DST); 
+#endif // ifdef _BLOCK_MESSAGES_ENABLED //
+
+
+/*!
+    \brief Called when settings have been changed that need to be saved.
+
+    This data should be saved into non-volatile memory and passed in to
+    initialize ONE-NET when the device starts up.
+
+    \param[in] PARAM The parameters to save in non-volatile memory.
+    \param[in] PARAM_LEN The number of bytes to save.
+
+    \return void
+*/
+void one_net_client_save_settings(const UInt8 * PARAM, const UInt16 PARAM_LEN);
+
+
+/*!
+    \brief Called when a CLIENT has been removed from the network.
+    
+    If this is called, it means that the device has received a Remove Device
+    admin message and has been removed from the network.
+
+    \param void
+
+    \return void
+*/
+void one_net_client_client_remove_device(void);
+
+//! @} ONE_NET_CLIENT_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
-//! @} ON_CLIENT_port_specific
-
-
-#endif // ifdef _ONE_NET_CLIENT //
-
+//! @} ONE_NET_CLIENT_port_specific
 
 #endif // _ONE_NET_CLIENT_PORT_SPECIFIC_H //
+

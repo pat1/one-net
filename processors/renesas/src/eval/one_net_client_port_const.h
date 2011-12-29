@@ -1,6 +1,7 @@
 #ifndef _ONE_NET_CLIENT_PORT_CONST_H
 #define _ONE_NET_CLIENT_PORT_CONST_H
 
+#include "config_options.h"
 
 
 //! \defgroup ONE_NET_CLIENT_port_const ONE-NET CLIENT Specific constants
@@ -8,7 +9,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -40,29 +41,70 @@
 /*!
     \file one_net_client_port_const.h
     \brief ONE-NET CLIENT specific constants.
+
+    These are constants that are specific to each ONE-NET CLIENT device.  This
+    file should be copied to a project specific location and renamed to
+    client_port_const.h.
+    
+    \note See one_net.h for the version of the ONE-NET source as a whole.  If
+      any one file is modified, the version number in one_net.h will need to be
+      updated.
 */
 
+#include "one_net_application.h"
+#include "tick.h"
 
 
 //=============================================================================
 //                                  CONSTANTS
-
-
     
 enum
 {
-    //! The number of remembered devices that communicate with this device.
-    ONE_NET_RX_FROM_DEVICE_COUNT = 3
+    //! The number of remembered devices that have sent to this device.
+    ONE_NET_RX_FROM_DEVICE_COUNT = 3,
+
+    // Derek_S - No longer using a "by unit" approach.  You can now have all
+	// commenting out below
+
+#ifdef _PEER	
+    //! The maximum number of separate physical devices the CLIENT can
+    //! keep track of
+    ONE_NET_MAX_PEER_DEV = 8,
+	
+    //! The maximum number of unit peers the CLIENT can keep track of
+    ONE_NET_MAX_PEER_UNIT = 16,
+#endif	
+
+    //! The number of different unit types this device supports.  If this value
+    //! changes, UNIT_TYPES will also need to be changed.
+    ONE_NET_NUM_UNIT_TYPES = 1,
+
+    //! Number of units on this device.  This needs to be the sum of the values
+    //! in ONE_NET_DEVICE_UNIT_TYPE
+    ONE_NET_NUM_UNITS = 4
 };
 
-
 //! Time constants
-//! Number of ticks to scan each channel when trying to join the network.
-//! 1s
-#define ONE_NET_SCAN_CHANNEL_TIME 1000
+enum
+{
+    //! Number of ticks to scan each channel when trying to join the network.
+    //! 1s
+    ONE_NET_SCAN_CHANNEL_TIME = MS_TO_TICK(1000)
+};
 
+#ifdef _STREAM_MESSAGES_ENABLED
+    enum
+    {
+        //! Interval to send the stream key query in ticks
+        ONE_NET_STREAM_KEY_QUERY_INTERVAL = MS_TO_TICK(3000)
+    };
+#endif // ifdef _STREAM_MESSAGES_ENABLED //
 
-
+//! An array that contains the number of of units of each type that this
+//! device supports.  If values are changed here, see ONE_NET_NUM_UNIT_TYPES &
+//! ONE_NET_NUM_UNITS
+extern const ona_unit_type_count_t
+  ONE_NET_DEVICE_UNIT_TYPE[ONE_NET_NUM_UNIT_TYPES];
 
 //                                  CONSTANTS END
 //=============================================================================
@@ -88,3 +130,4 @@ enum
 //! @} ONE_NET_CLIENT_port_const
 
 #endif // _ONE_NET_CLIENT_PORT_CONST_H //
+

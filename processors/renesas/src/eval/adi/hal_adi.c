@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@
 
 #include "hal_adi.h"
 #include "io_port_mapping.h"
+#include "one_net_port_specific.h"
 #include "tal.h"
-#include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
 //=============================================================================
 //                                  CONSTANTS
@@ -67,35 +67,22 @@
 //                                  TYPEDEFS END
 //=============================================================================
 
-
-
-//=============================================================================
-//                              PUBLIC VARIABLES
-//! \defgroup HAL_ADI_pub_var
-//! \ingroup HAL_ADI
-//! @{
-
-
-
-extern UInt16 rx_rf_idx;
-extern UInt16 rx_rf_count;
-extern UInt8 rx_rf_data[];
-extern UInt16 tx_rf_len;
-extern UInt16 tx_rf_idx;
-extern const UInt8 * tx_rf_data;
-extern UInt8 bit_mask;
-
-
-
-//! @} HAL_ADI_pub_var
-//                              PUBLIC VARIABLES END
-//=============================================================================
-
 //=============================================================================
 //                              PRIVATE VARIABLES
 //! \defgroup HAL_ADI_pri_var
 //! \ingroup HAL_ADI
 //! @{
+
+// These are derived from adi.c
+extern UInt16 rx_rf_idx;
+extern UInt16 rx_rf_count;
+extern UInt8 rx_rf_data[];
+
+extern UInt16 tx_rf_len;
+extern UInt16 tx_rf_idx;
+extern UInt8 * TX_RF_DATA;
+
+extern UInt8 bit_mask;
 
 //! @} HAL_ADI_pri_var
 //                              PRIVATE VARIABLES END
@@ -107,7 +94,8 @@ extern UInt8 bit_mask;
 //! \ingroup HAL_ADI
 //! @{
 
-
+// Considered private, but used by adi.c.
+void tx_byte(const UInt8 VAL);
 
 //! @} HAL_ADI_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -148,6 +136,42 @@ void tal_init_ports(void)
 } // tal_init_ports //
 
 
+/*!
+    \brief Initialize interrupts needed for ADI 7025 operation.
+
+    Timer Z is used as the bit timer for transmitting data.  The INT1 interrupt
+    is triggered by the DATACLK signal from the ADI when receiving data.
+
+    \param void
+
+    \return void
+*/
+void init_rf_interrupts(void)
+{
+    // initialize Timer RA to to timer mode for rf output
+    // Timer A count source = Event Counter
+    DISABLE_TX_BIT_INTERRUPTS();
+
+    tck0_tramr = 0;
+    tck1_tramr = 0;
+    tck2_tramr = 0;
+    
+    /* 
+         Prescaler and timer register initialization
+      
+        11.0592MHz : 1/1 * 16 * 18 = 26 us for 38400 bits/sec
+    */
+    trapre = 16 - 1;                // Setting Prescaler A register 
+    tra   = 18 - 1;                 // Setting timer A register 
+    
+    tramr = 0x02;                   // Timer A : event counter mode
+    traic = 0x05;                   // Int priority level = 5, clear request
+    
+    // initialize the INT0 interrupt to handle DATACLK for receive mode
+    // rising edge instead of falling edge
+    tedgf_tracr = 0;
+    int0ic = 0x05;
+} // init_rf_interrupts //
 
 //! @} HAL_ADI_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -159,6 +183,41 @@ void tal_init_ports(void)
 //! \ingroup HAL_ADI
 //! @{
 
+#if ON_RF_TRANSFER == ON_POLLED
+
+#error "The tx_byte function needs to be verified that it is set up correctly."
+
+/*!
+    \brief Transmits a byte over the rf channel.
+
+    Polls the transmit bit clock and sets the rf data line.  This function
+    assumes interrupts have been disabled when it is called, and will also
+    update the tick count since interrupts are disabled.
+
+    \param[in] VAL The value to be transmitted.
+
+    \return void
+*/
+void tx_byte(const UInt8 VAL)
+{
+    for (UInt8_temp2 = 0x80; UInt8_temp2; UInt8_temp2 >>= 1)
+    {
+        // global interrupts are disabled, so check the
+        // IR bits in a polling fashion
+        while (!ir_taic);
+        RF_TX_DATA = ((UInt8_temp2 & val) != 0);
+        ir_taic = 0;
+
+        // check timer_x's flag to see if should adjust the tick count
+        if(ir_tbic)
+        {
+            TickCount++;
+            ir_tbic = 0;
+        }
+    }
+} // tx_byte (for R8C1_PROCESSOR) //
+
+#endif // #ifdef polled //
 
 /*!
     \brief ISR for bit timer to transmit data.
@@ -167,6 +226,7 @@ void tal_init_ports(void)
 
     \return void
 */
+
 #pragma interrupt tx_bit_isr
 void tx_bit_isr(void)
 {
@@ -176,10 +236,10 @@ void tx_bit_isr(void)
         bit_mask = 0x80;    
         tx_rf_idx++;
     } // if done with current byte //
-    RF_DATA = ((tx_rf_data[tx_rf_idx] & bit_mask) && 1);
+    RF_DATA = ((TX_RF_DATA[tx_rf_idx] & bit_mask) && 1);
 
-    bit_mask >>= 1;    
-} // interrupt tx_bit_isr //
+    bit_mask >>= 1;
+} // clkout_timer_ra_isr //
 
 
 /*!
@@ -207,14 +267,12 @@ void dataclk_isr(void)
     if(bit_mask == 0)
     {
         bit_mask = 0x80;
-        if(++rx_rf_count >= ON_MAX_ENCODED_PKT_SIZE)
+        if(++rx_rf_count >= ONE_NET_MAX_ENCODED_PKT_LEN)
         {
             rx_rf_count = 0;
         } // if the end of the receive buffer has been passed //
     } // if done receiving a byte //
 } // dataclk_isr //
-
-
 
 //! @} HAL_ADI_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END

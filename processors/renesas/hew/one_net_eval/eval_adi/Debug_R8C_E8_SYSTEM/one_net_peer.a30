@@ -1,0 +1,26 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:42 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_peer.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_peer.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:42 2011
+
+

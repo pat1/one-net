@@ -58,23 +58,25 @@
     These values assume the data flash is layed out in contiguous blocks.
     These values are based on the R8C/1B.  
 */
-//! Size of a Data Flash Block
-#define DF_BLOCK_SIZE 0x0400
+enum
+{
+    //! Size of a Data Flash Block
+    DF_BLOCK_SIZE = 0x0400,
 
 
-//! Starting address for Data Flash Block A
-#define DF_BLOCK_A_START 0x2400
+    //! Starting address for Data Flash Block A
+    DF_BLOCK_A_START = 0x2400,
+    
+    //! Starting address for Data Flash Block B
+    DF_BLOCK_B_START = DF_BLOCK_A_START + DF_BLOCK_SIZE,
 
-//! Starting address for Data Flash Block B
-#define DF_BLOCK_B_START (DF_BLOCK_A_START + DF_BLOCK_SIZE)
 
+    //! The very first data block address
+    DF_BLOCK_START = DF_BLOCK_A_START,
 
-//! The very first data block address
-#define DF_BLOCK_START DF_BLOCK_A_START
-
-//! The very last data block address
-#define DF_BLOCK_END (DF_BLOCK_B_START + DF_BLOCK_SIZE)
-
+    //! The very last data block address
+    DF_BLOCK_END = DF_BLOCK_B_START + DF_BLOCK_SIZE
+};
 
 //! @} FLASH_const
 //                                  CONSTANTS END
@@ -106,8 +108,8 @@
 //! \ingroup FLASH
 //! @{
 
-UInt16 read_data_flash(const UInt16 ADDR, UInt8 * data, const UInt8 LEN);
-UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * data, const UInt8 LEN);
+UInt16 read_data_flash(const UInt16 ADDR, UInt8 * data, const UInt16 LEN);
+UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * data, const UInt16 LEN);
 BOOL erase_data_flash(const UInt16 ADDR);
 
 //! @} FLASH_pub_func

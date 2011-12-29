@@ -40,12 +40,12 @@
 
 #include "config_options.h"
 
-
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 
 #include "flash.h"
-#include "sfr_r823.h"
 
 
 //==============================================================================
@@ -170,7 +170,7 @@ void clr_status_reg(UInt8 * addr);
 
     \return The number of bytes written
 */
-UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * DATA, const UInt8 LEN)
+UInt16 write_data_flash(const UInt16 ADDR, const UInt8 * DATA, const UInt16 LEN)
 {
     UInt16 written = 0;
     
@@ -306,7 +306,3 @@ void clr_status_reg(UInt8 * addr)
 //==============================================================================
 
 //! @} FLASH
-
-
-
-#endif // ifdef _NON_VOLATILE_MEMORY //

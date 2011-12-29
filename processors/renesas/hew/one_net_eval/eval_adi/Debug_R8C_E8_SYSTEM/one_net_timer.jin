@@ -1,0 +1,6 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_timer.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,491,1,102,JSR,_one_net_tick

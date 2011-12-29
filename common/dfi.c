@@ -42,13 +42,18 @@
 #include "config_options.h"
 
 
-#ifdef _NON_VOLATILE_MEMORY
-
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 #include "dfi.h"
 #include "flash.h"
+
 #include "one_net_port_specific.h"
 
+#if 0 // for debugging
+#include "uart.h"
+#endif
 
 
 //==============================================================================
@@ -56,28 +61,6 @@
 //! \defgroup dfi_const
 //! \ingroup dfi
 //! @{
-
-
-//! Only the dfi_segment_type_t's in the following table will be copied
-//! to the new data flash block when the current data flash block is full.
-const UInt8 dfi_segment_types_used[] =
-{
-    DFI_ST_DEVICE_MFG_DATA, /* TODO -- should this be on the list? */
-    DFI_ST_ONE_NET_MASTER_SETTINGS,
-    DFI_ST_ONE_NET_CLIENT_SETTINGS,
-    #ifdef _PEER
-    DFI_ST_ONE_NET_PEER_SETTINGS,
-    #endif
-    DFI_ST_APP_DATA_1,
-    DFI_ST_APP_DATA_2,
-    DFI_ST_APP_DATA_3,
-    DFI_ST_APP_DATA_4
-};
-
-
-//! the number of entries in dfi_segment_types_used
-const UInt8 dfi_segment_types_used_count = sizeof(dfi_segment_types_used);
-
 
 //! @} dfi_const
 //								CONSTANTS END
@@ -218,18 +201,31 @@ static UInt8 * dfi_find_free_space(UInt16 *available)
     current_segment = dfi_current_block();
     if (current_segment == 0)
     {
-        ptr_segment_hdr = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_A_START));
+        ptr_segment_hdr = (dfi_segment_hdr_t *) DFI_UINT16_TO_ADDR(DF_BLOCK_A_START);
         ptr_end_segment = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_A_START+DF_BLOCK_SIZE));
     }
     else
     {
-        ptr_segment_hdr = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_B_START));
+        ptr_segment_hdr = (dfi_segment_hdr_t *) DFI_UINT16_TO_ADDR(DF_BLOCK_B_START);
         ptr_end_segment = (dfi_segment_hdr_t *) (DFI_UINT16_TO_ADDR(DF_BLOCK_B_START+DF_BLOCK_SIZE));
     }
 
     result = (UInt8 *) 0;
     while (ptr_segment_hdr < ptr_end_segment)
     {
+#if 0 // for debugging
+        uart_write("dfi: ff: sadr=", 14);
+        uart_write_int8_hex((UInt8) (((UInt16)ptr_segment_hdr>>8) & 0xff));
+        uart_write_int8_hex((UInt8) (((UInt16)ptr_segment_hdr) & 0xff));
+        uart_write(" eadr=", 6);
+        delay_ms(100);
+        uart_write_int8_hex((UInt8) (((UInt16)ptr_end_segment>>8) & 0xff));
+        uart_write_int8_hex((UInt8) (((UInt16)ptr_end_segment) & 0xff));
+        uart_write(" type=", 6);
+        uart_write_int8_hex(ptr_segment_hdr->type);
+        uart_write("\n", 1);
+        delay_ms(100);
+#endif
         if (ptr_segment_hdr->type == DFI_ST_UNUSED_FLASH_DATA)
         {
             result = (UInt8 *) ptr_segment_hdr;
@@ -253,6 +249,13 @@ static UInt8 * dfi_find_free_space(UInt16 *available)
         *available -= sizeof(dfi_segment_hdr_t);
     }
 
+#if 0 // for debugging
+        uart_write("dfi: ff: free=", 14);
+        uart_write_int8_hex((UInt8) ((*available>>8) & 0xff));
+        uart_write_int8_hex((UInt8) ((*available) & 0xff));
+        uart_write("\n", 1);
+        delay_ms(100);
+#endif
     return(result);
 } // dfi_find_free_space //
 
@@ -293,7 +296,12 @@ static void dfi_switch_blocks(BOOL erase_flag,
     UInt8 *ptr_current_block;
 
     current_block = dfi_current_block();
-
+#if 0 // for debugging
+    uart_write("dfi: sb: cb= ", 13);
+    uart_write_int8_hex((UInt8) current_block);
+    uart_write("\n", 1);
+    delay_ms(100);
+#endif
     if (current_block == 0)
     {
         ptr_other_block = DFI_UINT16_TO_ADDR(DF_BLOCK_B_START);
@@ -348,6 +356,7 @@ static void dfi_switch_blocks(BOOL erase_flag,
     // erase the current block so that the other block becomes the current block
     //
     erase_data_flash(DFI_ADDR_TO_UINT16(ptr_current_block));
+
 } // dfi_switch_blocks //
  
 
@@ -383,6 +392,20 @@ static UInt8 * dfi_add_segment(dfi_segment_type_t type, UInt16 size)
     // see if there is room for this segment in the current block
     //
     result = dfi_find_free_space(&free_space);
+#if 0 // for debugging
+    uart_write("dfi: as: type=", 14);
+    uart_write_int8_hex((UInt8) type);
+    uart_write(" size=", 6);
+    uart_write_int8_hex((UInt8) size);
+    uart_write(" free=", 6);
+    uart_write_int8_hex((UInt8) ((free_space>>8) & 0xff));
+    uart_write_int8_hex((UInt8) ((free_space) & 0xff));
+    uart_write(" addr=", 6);
+    uart_write_int8_hex((UInt8) (((UInt16)result>>8) & 0xff));
+    uart_write_int8_hex((UInt8) (((UInt16)result) & 0xff));
+    uart_write("\n", 1);
+    delay_ms(100);
+#endif
 
     if (free_space < size)
     {
@@ -412,6 +435,7 @@ static UInt8 * dfi_add_segment(dfi_segment_type_t type, UInt16 size)
     result = result + sizeof(dfi_segment_hdr_t);
 
     return(result);
+
 } // dfi_add_segment //
 
 
@@ -519,7 +543,3 @@ void dfi_delete_segments_except_for(
 //==============================================================================
 
 //! @} cb
-
-
-
-#endif // ifdef _NON_VOLATILE_MEMORY //

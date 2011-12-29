@@ -1,0 +1,13 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_client_net.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,303,1,2a,JSR,$place_in_single_queue
+W,357,1,62,JSR,$on_client_encoded_master_did
+W,389,1,7c,JSR,$on_encode
+W,409,1,95,JSR,$on_client_send_single
+W,488,1,c1,JSR,$on_decode
+W,504,1,da,JSR,$one_net_client_single_txn_status
+W,521,1,f1,JSR,$one_net_client_single_txn_status
+W,533,1,104,JSR,$one_net_client_single_txn_status

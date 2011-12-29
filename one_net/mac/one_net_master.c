@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -43,33 +43,24 @@
       updated.
 */
 
-
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
-
-#if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
-    #error "_SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if _ONE_NET_MASTER is defined"
-#endif
-
-
-
 #include "one_net_master.h"
-#include "one_net_master_port_const.h"
-#include "one_net_timer.h"
-#include "tick.h"
-#include "tal.h"
-#include "one_net_encode.h"
-#include "one_net_port_specific.h"
-#include "one_net_master_port_specific.h"
-#include "one_net_status_codes.h"
-#include "one_net_prand.h"
-#include "one_net_crc.h"
-#include "one_net.h"
-#ifdef _PEER
-#include "one_net_peer.h"
-#endif
 
+#include "one_net_crc.h"
+#include "one_net_encode.h"
+#include "one_net_master_port_const.h"
+#include "one_net_master_port_specific.h"
+#include "one_net_timer.h"
+#include "one_net_prand.h"
+
+#include "one_net_peer.h"
+
+
+#ifdef _ONE_NET_EVAL
+    #include "one_net_eval.h"
+    #include "oncli.h"
+#endif // ifdef ONE_NET_EVAL
 
 
 //==============================================================================
@@ -78,16 +69,47 @@
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+enum
+{
+    //! Value to increment the next CLIENT did by each time a device is added
+    //! to the network
+    ON_CLIENT_DID_INCREMENT = 0x0010,
 
-//! Number of bits to shift the initial CLIENT address to use as a 16-bit
-//! or raw address value
-#define ON_INIT_CLIENT_SHIFT RAW_DID_SHIFT
+    //! Number of bits to shift the initial CLIENT address to use as a 16-bit
+    //! or raw address value
+    ON_INIT_CLIENT_SHIFT = 4,
+};
 
 
-#ifdef _ONE_NET_MULTI_HOP
-    #define ON_INVITES_BEFORE_MULTI_HOP 5
-#endif
+enum
+{
+    //! The number of invites sent before a Multi-hop invite is sent
+    ON_INVITES_BEFORE_MULTI_HOP = 5
+};
 
+
+/*!
+    \brief Indexes for queued transactions.
+
+    These indexes are used to store the raw information for a queued transaction
+    (type, destination, payload), in the pkt field of the txn_t.  When the
+    packet is about to be sent, the raw data will be copied to local variables,
+    and the packet will then be built and the pkt field will then contain the
+    encoded packet.
+
+    The ONE_NET_ENCODED_PID_IDX is added to these values, to make sure the data
+    does not overlap the ENCODED_PID_IDX for transactions who are ready to be
+    sent (data rate & invites).  Otherwise the difference between valid data or
+    one of these other PIDs can not be determined.
+*/
+enum
+{
+    //! The admin message type (if admin msg).
+    ON_ADMIN_TYPE_IDX = ONE_NET_ENCODED_PID_IDX + 1,
+
+    //! Start of where the data is stored.
+    ON_DATA_IDX
+};
 
 //! @} ONE-NET_MASTER_const
 //                                  CONSTANTS END
@@ -99,45 +121,63 @@
 //! \ingroup ONE-NET_MASTER
 //! @{
 
-
-//! the updates where everyone should be notified.
-enum
+//! Represents an element in the transaction list.
+typedef struct
 {
-    ON_CLIENT_UPDATE_ADD_DEVICE,
-    ON_CLIENT_UPDATE_RM_DEVICE,
-    ON_CLIENT_UPDATE_CHANGE_KEY,
-    NUM_CLIENT_UPDATE_TYPES
-};
+    //! Type of txn.  See on_data_t in one_net.h
+    UInt8 type;
+
+    //! The did of the other device involved in the transaction.
+    on_encoded_did_t did;
+
+    //! Pointer to txn (if sending)
+    on_txn_t txn;
+
+    //! Index that contains which packet is being pointed to by the pkt pointer
+    //! in txn.
+    UInt8 pkt_idx;
+
+    //! Pointer to next queued transaction
+    UInt8 next;
+} txn_info_t;
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Block/stream request info.
+
+    This information needs to be stored when the single data admin packet for a
+    block or stream request is made.
+*/
+typedef struct
+{
+    //! type of request being made
+    UInt8 type;
+
+    //! TRUE if this device is the sending the data for the transaction.
+    BOOL send;
+
+    //! The total number of bytes to be transfered (if a block transaction).
+    UInt16 len;
+} block_stream_req_t;
+#endif
+
+
+//! Location to store packet data
+typedef struct
+{
+    //! flag to indicate if the packet is being used
+    BOOL in_use;
+
+    //! The memory to store packets to send
+    UInt8 pkt_data[ONE_NET_MAX_ENCODED_PKT_LEN];
+} pkt_mgr_t;
+
 
 
 //! @} ONE-NET_MASTER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
-
-
-
-//==============================================================================
-//                              PUBLIC VARIABLES
-//! \defgroup ONE-NET_MASTER_pub_var
-//! \ingroup ONE-NET_MASTER
-//! @{
-
-
-//! MASTER specific parameters.  These need to be saved in non-volatile memory.
-on_master_param_t * const master_param =
-  (on_master_param_t * const)(&nv_param[0] + sizeof(on_base_param_t));
-  
-//! List of the CLIENTS
-on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
-  sizeof(on_base_param_t) + sizeof(on_master_param_t));
-
-
-
-//! @} ONE-NET_MASTER_pub_var
-//                              PUBLIC VARIABLES END
-//==============================================================================
-
-
 
 //==============================================================================
 //                              PRIVATE VARIABLES
@@ -145,7 +185,107 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+//------------------------------------------------------------------------------
+// If any txn_t variables are added or removed, may need to update
+// ON_MASTER_TXN_COUNT
+//------------------------------------------------------------------------------
 
+//! "Protected" state variable inherited from one_net.c
+extern on_state_t on_state;
+
+//! Contiguous block of memory to store parameters that are saved to
+//! non-volatile memory.  Parameters will point to locations in the array
+UInt8 nv_param[sizeof(on_base_param_t) + sizeof(on_master_param_t)
+  + ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t)];
+
+const int MASTER_NV_PARAM_SIZE_BYTES = sizeof(nv_param);
+
+on_master_param_t* master_param
+  = (on_master_param_t *)(nv_param + sizeof(on_base_param_t));
+
+//! List of the CLIENTS
+on_client_t * client_list = (on_client_t *)(nv_param
+  + sizeof(on_base_param_t) + sizeof(on_master_param_t));
+
+//! "Protected" base parameters variable inherited from one_net.c
+extern on_base_param_t * on_base_param;
+
+
+#ifdef _NONCES_MATTER
+extern BOOL nonces_matter;
+#endif
+
+
+//! Locations to be used to store packets that are queued to be sent.
+static pkt_mgr_t pkt_list[ONE_NET_MASTER_MAX_SEND_TXN] =
+{
+    {FALSE, {0}}, {FALSE, {0}}, {FALSE, {0}},
+    {FALSE, {0}}, {FALSE, {0}}, {FALSE, {0}}
+};
+
+//! Total number of elements from txn_data_list being used.
+static UInt8 txn_data_count = 0;
+
+//! The number of elements from txn_data_list used for single transactions.
+static UInt8 single_txn_data_count = 0;
+
+//! The available resources for single transactions.  Also acts as the queue
+//! for single transactions.
+static txn_info_t txn_list[ONE_NET_MASTER_MAX_TXN] =
+{
+#if defined(_BLOCK_MESSAGES_ENABLED)
+    {ON_NO_TXN, {0xB4, 0xB4}, {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+      FALSE, 0, 0, FALSE, 0, 0, 0}, ONE_NET_MASTER_MAX_SEND_TXN,
+      ONE_NET_MASTER_MAX_TXN}
+#elif defined(_ONE_NET_MASTER)
+    {ON_NO_TXN, {0xB4, 0xB4}, {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+      0, 0, FALSE, 0, 0, 0}, ONE_NET_MASTER_MAX_SEND_TXN,
+      ONE_NET_MASTER_MAX_TXN}
+#else
+    {ON_NO_TXN, {0xB4, 0xB4}, {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+      0, 0, FALSE, 0, 0, 0}, ONE_NET_MASTER_MAX_SEND_TXN,
+      ONE_NET_MASTER_MAX_TXN}
+#endif
+};
+
+
+//! The head of the queued transactions
+static UInt8 txn_head = ONE_NET_MASTER_MAX_TXN;
+
+//! The current transaction being carried out.
+static UInt8 cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+
+//! the index into txn_list of the transaction used to send the invite message
+static UInt8 invite_idx = ONE_NET_MASTER_MAX_TXN;
+
+/*!
+    \brief Location used to send response packets
+
+    This will also be used to send a single data stream end packet.
+*/
+UInt8 on_master_response_pkt[ONE_NET_MAX_ENCODED_PKT_LEN];
+
+//! Transaction used to send a response
+// if this is removed, need to update ON_MASTER_TXN_COUNT
+#if defined(_BLOCK_MESSAGES_ENABLED)
+static on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+  FALSE, ON_MASTER_RESPONSE_TXN_TIMER_OFFSEST, 0, 0, // no hops field
+  sizeof(on_master_response_pkt), on_master_response_pkt};
+#elif defined(_ONE_NET_MASTER)
+static on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+  FALSE, ON_MASTER_RESPONSE_TXN_TIMER_OFFSEST, 0, // no hops field
+  sizeof(on_master_response_pkt), on_master_response_pkt};
+#else
+static on_txn_t response_txn = {ONE_NET_NO_PRIORITY, 0, 0, ON_INVALID_MSG_TYPE,
+  FALSE, ON_MASTER_RESPONSE_TXN_TIMER_OFFSEST, 0, // no hops field
+  sizeof(on_master_response_pkt), on_master_response_pkt};
+#endif
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! Information stored when a block/stream request admin packet is built and
+//! sent.
+static block_stream_req_t b_s_req = {ON_NO_TXN, FALSE, 0};
+#endif
 
 /*!
     The length of time in ticks that the channel must be clear for before
@@ -153,48 +293,51 @@ on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
 */
 static tick_t new_channel_clear_time_out = 0;
 
-//! Flag to denote that a key update is in progress.
-static BOOL key_update_in_progress = FALSE;
+//! Unique key of the device being invited into the network
+static one_net_xtea_key_t invite_key;
 
-//! Flag to denote that a device has been removed and the master is in
-//! the process of informing all of the devices.
-static BOOL remove_device_update_in_progress = FALSE;
+//! Index used to try and update keys without waiting for a keep alive from
+//! a CLIENT.
+static UInt16 key_change_idx = 0;
 
-//! Flag to denote that a device has been added and the master is in
-//! the process of informing all of the devices.
-static BOOL add_device_update_in_progress = FALSE;
-
-//! Flag to denote the device that should next be notified of any updates,
-//! if any.  Generally denotes either the device being added or removed or
-//! a normally-sleeping device that has woken up and we thus want to move
-//! it to the head of the list.  If NULL, then no device takes precedence
-static on_client_t* device_to_update = NULL;
-
-//! The did of the device being removed.  Irrelevant if broadcast
-static on_encoded_did_t remove_device_did = {0xB4, 0xB4};
-
-//! The did of the device being removed.  Irrelevant if broadcast.
-static on_encoded_did_t add_device_did = {0xB4, 0xB4};
-
-//! Flag for whether the device being added has been notified of its
-//! settings / flags.
-static BOOL settings_sent = FALSE;
-
-#ifdef _BLOCK_MESSAGES_ENABLED
-//! Flag for whether the device being added has been notified of its fragment
-//! delays.
-static BOOL fragment_delay_sent = FALSE;
+#ifdef _STREAM_MESSAGES_ENABLED
+//! Index used to try and update the stream key without waiting for a keep alive
+//! from a CLIENT.
+static UInt16 stream_key_change_idx = 0;
 #endif
 
-//! The time that the remove device update started.
-static tick_t remove_device_start_time = 0;
+//! Keeps track of the data rate test being carried out
+static struct
+{
+    //! Indexes to single transactions being used to set up the data rate test.
+    UInt8 recv_idx, send_idx;
 
-//! The time that the add device update started.
-static tick_t add_device_start_time = 0;
+    //! DIDs of the two devices involved in the data rate test.
+    on_encoded_did_t recv_did, send_did;
 
-//! The time that the change update started.
-static tick_t change_key_start_time = 0;
+    //! Indicates the timeout period in which the a response should be heard in.
+    UInt8 timer;
 
+    //! The data rate being tested
+    UInt8 rate;
+
+    //! Flag to indicate if it a Multi-Hop data rate test was performed.
+    BOOL multi_hop;
+} data_rate_test;
+
+//! flag that indicates if any Multi-Hop Repeaters have joined the network
+static BOOL mh_repeater_available = FALSE;
+
+//! flag to indicate if the MASTER should save settings
+static BOOL save = FALSE;
+
+
+// June 18, 2011 - making this a PUBLIC variable so it can be changed
+// by application code.
+// TODO - stick it in the PUBLIC varaibles section.  Should still be
+// accessible as an extern though since it doesn't have a "static" modifier
+//! flag to indicate how long to try inviting a client before giving up.
+tick_t one_net_master_invite_duration = ONE_NET_MASTER_INVITE_DURATION;
 
 
 //! @} ONE-NET_MASTER_pri_var
@@ -207,91 +350,110 @@ static tick_t change_key_start_time = 0;
 //! \ingroup ONE-NET_MASTER
 //! @{
 
+static void init_internal(void);
 
+one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn);
 
-// packet handlers
-static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_handle_single_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack);
-  
-  
-static void admin_txn_hdlr(const UInt8* const raw_pld,
-  const on_raw_did_t* const raw_did, on_message_status_t status,
-  const on_ack_nack_t* const ack_nack, on_client_t* client);
+one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  const UInt8 NEXT_NONCE, const one_net_status_t STATUS);
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-static on_message_status_t on_master_block_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_handle_block_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack);
+static one_net_status_t b_s_request(const UInt8 TXN_TYPE, const UInt8 MSG_TYPE,
+  const BOOL SEND, const UInt8 DATA_TYPE, const UInt16 LEN,
+  const UInt8 PRIORITY, const on_encoded_did_t * const DID,
+  const UInt8 SRC_UNIT, const UInt8 DST_UNIT);
+
+one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn);
+
+one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
+  const one_net_status_t STATUS, const UInt8 HOPS_TAKEN);
 #endif
 
+void on_master_data_rate_hdlr(const UInt8 RATE,
+  const on_encoded_did_t * const DID, const UInt8 RESULT);
+
+static one_net_status_t setup_data_rate_test(
+  const on_encoded_did_t * const SENDER,
+  const on_encoded_did_t * const RECEIVER, const UInt8 DATA_RATE,
+  const BOOL MH);
+
+static BOOL retry_data_rate_test(const UInt8 RATE);
+
+static void report_data_rate_result(const UInt8 DATA_RATE, const UInt8 RESULT,
+  const UInt8 ATTEMPTS);
+
+static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
+  const UInt8 * const DATA, const UInt8 DATA_LEN, on_client_t ** client,
+  on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+  ack_nack_payload_t* const ack_nack_payload);
+
+static one_net_status_t admin_txn_hdlr(const UInt8 ADMIN_ID,
+  const UInt8 * const DATA, on_txn_t ** txn, const one_net_status_t STATUS,
+  on_client_t * const client, const one_net_raw_did_t * const DID);
 #ifdef _STREAM_MESSAGES_ENABLED
-static on_message_status_t on_master_stream_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_handle_stream_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack);
+static one_net_status_t extended_admin_single_txn_hdlr(const UInt8 ADMIN_ID,
+  const UInt8 * const DATA, on_txn_t ** txn, const one_net_status_t STATUS,
+  on_client_t * const client, const one_net_raw_did_t * const DID);
 #endif
 
-static one_net_status_t init_internal(void);
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
+static one_net_status_t send_change_settings(const on_encoded_did_t * const DST,
+  const UInt8 CLIENT_DATA_RATE, const UInt8 FLAGS);
+
+static void check_key_update(const BOOL ONLY_IF_ACTIVE);
+static void key_update_confirmed(on_client_t * const client);
+static one_net_status_t send_key_update(const on_encoded_did_t * const DST);
+#ifdef _STREAM_MESSAGES_ENABLED
+static void check_stream_key_update(const BOOL ONLY_IF_ACTIVE);
+static void stream_key_update_confirmed(on_client_t * const client);
+static one_net_status_t send_stream_key_update(
+  const on_encoded_did_t * const DST);
+#endif
+
+static one_net_status_t send_admin_pkt(const UInt8 ADMIN_MSG_ID,
+  const UInt8 MSG_TYPE, const on_encoded_did_t * const DST,
+  const UInt8 PRIORITY, const UInt8 * const PLD, const UInt8 PLD_LEN);
+
+//#ifdef _BLOCK_MESSAGES_ENABLED
+static BOOL get_next_b_s_pld(const UInt8 TXN_INFO);
+static on_nack_rsn_t get_b_s_app_data(const UInt8 TXN_INFO);
+#ifdef _STREAM_MESSAGES_ENABLED
+static BOOL get_b_s_extended_admin_data(const UInt8 TXN_INFO);
+#endif
+
+static void check_b_s_req(void);
+
+static BOOL b_s_in_progress(const UInt8 TYPE,
+  const on_encoded_did_t * const DID);
+//#endif
+
+static one_net_status_t build_txn_data_pkt(const UInt8 TXN);
+
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
-static void sort_client_list_by_encoded_did(void);
-static UInt16 find_lowest_vacant_did(void);
+static on_client_t* one_net_master_add_new_client_to_list(void);
+static int adjust_client_list(void);
 
+static UInt8 get_free_txn(const UInt8 TYPE, const BOOL SEND);
 
-static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  , tick_t send_time_from_now
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  );
-  
-  
-static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
-static void check_updates_in_progress(void);
+static void free_txn(const UInt8 TXN);
 
+static BOOL enqueue_txn(const UInt8 TXN);
 
-static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
-  const on_encoded_did_t* const did, const UInt8* const pld,
-  tick_t send_time_from_now);
-  
-static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
-  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
-  on_client_t ** client, on_ack_nack_t* ack_nack);
+static void dequeue_txn(const UInt8 TXN);
 
-static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
-
-
-#ifndef _ONE_NET_SIMPLE_DEVICE
-static void on_master_adjust_recipient_list(const on_single_data_queue_t*
-  const msg, on_recipient_list_t** recipient_send_list);
+#ifdef _BLOCK_MESSAGES_ENABLED
+static UInt8 dequeue_b_s_txn(const UInt8 TYPE,
+  const on_encoded_did_t * const DID);
 #endif
 
+static BOOL next_txn_queued_for_client(const on_encoded_did_t * const DID);
 
+static void data_rate_txn(UInt8 * const txn_idx);
+
+static UInt8 txn_nonce_for_client(const on_encoded_did_t * const DID);
+
+static void save_param(void);
 
 //! @} ONE-NET_MASTER_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -315,6 +477,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     \param[in] KEY The xtea key to use for single and block transactions.
     \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
       and block packets when they are sent.
+    \param[in] STREAM_KEY The xtea key to use for stream transactions.
     \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
       when they are sent.
 
@@ -324,21 +487,22 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
 
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_master_create_network(
-  const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
+  const one_net_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
+  const one_net_xtea_key_t * const STREAM_KEY,
   const UInt8 STREAM_ENCRYPT_METHOD)
 #else
 one_net_status_t one_net_master_create_network(
-  const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
+  const one_net_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
   const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
-#endif  
+#endif
 {
 	UInt8 i;
 
 #ifdef _STREAM_MESSAGES_ENABLED
     if(!SID || !KEY
       || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
-      || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
+      || !STREAM_KEY || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
 #else
     if(!SID || !KEY
       || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32)
@@ -349,17 +513,23 @@ one_net_status_t one_net_master_create_network(
 
     on_base_param->version = ON_PARAM_VERSION;
     on_encode(on_base_param->sid, *SID, sizeof(on_base_param->sid));
-
-    on_base_param->channel = one_net_prand(get_tick_count(),
-      ONE_NET_MAX_CHANNEL);
-    // randomly pick any channel //
-    
+    #if defined(_ONE_NET_EVAL) && defined(_US_CHANNELS)
+        // the eval board contains both US and European channels, but the MASTER
+        // defaults to creating the network on the US channel.
+        on_base_param->channel = one_net_prand(one_net_tick(),
+          ONE_NET_MAX_US_CHANNEL);
+    #else // pick any U.S. Channel //
+        on_base_param->channel = one_net_prand(one_net_tick(),
+          ONE_NET_MAX_CHANNEL);
+    #endif // else pick any channel //
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(on_base_param->current_key, *KEY,
       sizeof(on_base_param->current_key));
     on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
-	
+
 #ifdef _STREAM_MESSAGES_ENABLED
+    one_net_memmove(on_base_param->stream_key, *STREAM_KEY,
+      sizeof(on_base_param->stream_key));
     on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;
 #endif
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -372,19 +542,9 @@ one_net_status_t one_net_master_create_network(
 
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
-    
-    // see comment in the "case ON_JOIN_NETWORK" segment of the
-    // one_net_master() loop to explain we are using these timers and what
-    // we're doing.
-    ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(new_channel_clear_time_out));
-    ont_set_timer(ONT_UPDATE_TIMER,
-      MS_TO_TICK(one_net_master_channel_scan_time));
+    ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
+    ont_set_timer(ONT_CHANGE_KEY_TIMER, ONE_NET_MASTER_CHANNEL_SCAN_TIME);
     on_state = ON_JOIN_NETWORK;
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    on_base_param->num_mh_devices = 1; // for the master
-    on_base_param->num_mh_repeaters = 0; // new network, no clients, master is not a repeater
-    #endif
 
     return ONS_SUCCESS;
 } // one_net_master_create_network //
@@ -398,8 +558,7 @@ one_net_status_t one_net_master_create_network(
     subset of the parameters.  The calls must preserve the byte order of the
     parameters.
 
-    \param[in] PARAM The parameters (or part) that were saved.  If NULL, then
-                     the caller has already initialized the base memory.
+    \param[in] PARAM The parameters (or part) that were saved.
     \param[in] PARAM_LEN The size in bytes of the parameters being loaded.
 
     \return ONS_SUCCESS If loading all of the parameters have completed
@@ -411,255 +570,591 @@ one_net_status_t one_net_master_create_network(
               too long).  Initialization is reset and the parameters must be
               passed in from the beginning.
 */
-one_net_status_t one_net_master_init(const UInt8 * PARAM,
-  UInt16 PARAM_LEN)
+one_net_status_t one_net_master_init(const UInt8 * const PARAM,
+  const UInt16 PARAM_LEN)
 {
-    UInt8 i;
-    one_net_status_t status;
-    
+	UInt8 i;
+
     // The number of bytes in the non-volatile parameter buffer that have been
     // initialized so far.
-    static UInt16 nv_param_size_initialized = 0;
-    static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-    #ifdef _PEER
-    static UInt8 peer_memory_size_initialized = 0;
-    #endif
-    
+    static UInt16 param_size_initialized = 0;
 
-    if(PARAM != NULL)
+    // The number of bytes expected to initialize the parameters
+    UInt16 param_size_expected;
+    one_net_send_single = &one_net_master_send_single;
+
+    if(!PARAM || !PARAM_LEN)
     {
-        // initialization may take place with one call to this function if all
-        // of the bytes needed for non-volatile are passed in at once or it
-        // may take more than one trip to this function.
-        
-        // we'll first check whether we have all of on_base_param and
-        // master_param.  If we have this, we have the client count and we
-        // can do some re-calculating.
-        if(nv_param_size_initialized < MIN_MASTER_NV_PARAM_SIZE_BYTES)
-        {
-            UInt16 needed_to_know_client_count = MIN_MASTER_NV_PARAM_SIZE_BYTES
-              - nv_param_size_initialized;
+        return ONS_BAD_PARAM;
+    } // if the parameters are invalid //
 
-            if(PARAM_LEN < needed_to_know_client_count)
-            {
-                one_net_memmove(&nv_param[nv_param_size_initialized],
-                  PARAM, PARAM_LEN);
-                nv_param_size_initialized += PARAM_LEN;
-                return ONS_MORE;
-            }
-            
-            // we now have enough information to determine the client count
-            one_net_memmove(&nv_param[nv_param_size_initialized],
-                PARAM, needed_to_know_client_count);
-            PARAM += needed_to_know_client_count;
-            PARAM_LEN -= needed_to_know_client_count;
-            nv_param_size_initialized = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-                
-            if(master_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
-            {
-                // Number of clients is invalid.  Reset and return "invalid"
-                nv_param_size_initialized = 0;
-                nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-                #ifdef _PEER
-                peer_memory_size_initialized = 0;
-                #endif
-                return ONS_INVALID_DATA;
-            }
-            
-            nv_param_size_needed += (sizeof(on_client_t) *
-              master_param->client_count);
-        }
+    if(sizeof(nv_param) < param_size_initialized + PARAM_LEN)
+    {
+        param_size_initialized = 0;
+        return ONS_INVALID_DATA;
+    } // if more data passed in than expected //
 
-        if(nv_param_size_initialized < nv_param_size_needed)
-        {
-            UInt16 more_needed_for_nv_param = nv_param_size_needed -
-              nv_param_size_initialized;
-              
-            if(PARAM_LEN < more_needed_for_nv_param)
-            {
-                one_net_memmove(&nv_param[nv_param_size_initialized],
-                  PARAM, PARAM_LEN);
-                nv_param_size_initialized += PARAM_LEN;
-                return ONS_MORE;
-            }
-            
-            one_net_memmove(&nv_param[nv_param_size_initialized],
-              PARAM, more_needed_for_nv_param);
-            nv_param_size_initialized = nv_param_size_needed;
-            PARAM += more_needed_for_nv_param;
-            PARAM_LEN -= more_needed_for_nv_param;
-        }
-        
-        
-        // we have all of the non-volatile parameters filled in.  Depending
-        // on whether _PEER is enabled, we'll start filling that in.
-        #ifdef _PEER
-        {
-            UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
-              peer_memory_size_initialized;
-              
-            if(PARAM_LEN <= more_needed_for_peer)
-            {
-                one_net_memmove(&peer_storage[peer_memory_size_initialized],
-                  PARAM, PARAM_LEN);
-                peer_memory_size_initialized += PARAM_LEN;
-                if(PARAM_LEN < more_needed_for_peer)
-                {
-                    return ONS_MORE;
-                }
-                
-                PARAM_LEN -= more_needed_for_peer;
-            }
-        }
-        #endif
-        
-        
-        // just in case the applciation code needs to reset again for
-        // whatever reason, we'll reset everything here.  If everything
-        // worked OK, this function won't be called again so it won't
-        // matter, but if it IS called again, that should mean that we
-        // are initializing from scratch, so we want to reset some values.
-        nv_param_size_initialized = 0;
-        nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-        #ifdef _PEER
-        peer_memory_size_initialized = 0;
-        #endif
-        
+    one_net_memmove(&(nv_param[param_size_initialized]), PARAM, PARAM_LEN);
+    param_size_initialized += PARAM_LEN;
+    param_size_expected = sizeof(on_base_param_t) + sizeof(on_master_param_t)
+      + master_param->client_count * sizeof(on_client_t);
 
-        // Last thing to check is the CRC and also make sure that PARAM_LEN
-        // is 0 (if not, we were passed too much data and we need to reject)
-        #ifndef _PEER
-        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1))
-        #else
-        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1,
-          NULL, -1))
-        #endif
-        {
-            return ONS_INVALID_DATA;
-        }
-    }
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    // check for repeater
+    // Need the base_parameters and master parameters to know how many CLIENTS
+    // are in the network (and thus the total size to be initialized)
+    if(param_size_initialized < sizeof(on_base_param_t)
+      + sizeof(on_master_param_t)
+      || param_size_initialized < param_size_expected)
+    {
+        return ONS_MORE;
+    } // if not done initializing the parameters //
+    else if(param_size_initialized > param_size_expected)
+    {
+        param_size_initialized = 0;
+        return ONS_INVALID_DATA;
+    } // if too much data was given //
+
+#ifdef _REJECT_BAD_VERSION
+    if(on_base_param->version != ON_PARAM_VERSION)
+    {
+        param_size_initialized = 0;
+        return ONS_INVALID_DATA;
+    } // if the parameter version does not match //
+#endif
+
+#ifdef _ONE_NET_MASTER_NV_DATA_CRC_CHECK
+      if(on_base_param->crc != one_net_compute_crc((UInt8 *)on_base_param
+      + sizeof(on_base_param->crc), param_size_initialized
+      - sizeof(on_base_param->crc), ON_PARAM_INIT_CRC, ON_PARAM_CRC_ORDER))
+    {
+        param_size_initialized = 0;
+        return ONS_INVALID_DATA;
+    } // if the parameter version does not match or crc's don't match //
+#endif
+
     for(i = 0; i < master_param->client_count; i++)
     {
-        if(features_mh_capable(client_list[i].device.features))
+        if((client_list[i].features & ON_MH_CAPABLE) &&
+          (client_list[i].features & ON_MH_REPEATER))
         {
-            on_base_param->num_mh_devices++;
+            mh_repeater_available = TRUE;
             break;
-        } // if client is a multi-hop client //
-        
-        if(features_mh_repeat_capable(client_list[i].device.features))
-        {
-            on_base_param->num_mh_repeaters++;
-            break;
-        } // if client is a multi-hop repeater //
-    } // loop to look for Multi-Hop and Multi-Hop repeaters //
-    #endif
-    
-    if((status = init_internal()) != ONS_SUCCESS)
-    {
-        return status;
-    } // if initializing the internals failed //
-    
+        } // if a mh repeater capable CLIENT was found //
+    } // loop to look for any Multi-Hop repeaters //
+
+    init_internal();
+
     on_state = ON_LISTEN_FOR_DATA;
+
+    // check to see if in the middle of changing the key
+    if(master_param->client_count)
+    {
+        check_key_update(FALSE);
+		#ifdef _STREAM_MESSAGES_ENABLED
+        check_stream_key_update(FALSE);
+		#endif
+    } // if there are devices in the network //
+
+    param_size_initialized = 0;
+
+	// Derek_S 10/25/2010 added call to save_param() below.  "list" command
+	// does not work without it after a "save" and power cycle.
+	// TO-DO : Is this the proper place for this call to save_param() and is
+	// the if condition below necessary (i.e. is there a downside/upside to calling
+	// save_param() when there are no clients?)
+	if(master_param->client_count > 0)
+	{
+		save_param(); // This function changes a NULL pointer to a real pointer.
+		              // "list" needs the real pointer to be accurate.
+	}
 
     return ONS_SUCCESS;
 } // one_net_master_init //
 
 
 /*!
-    \brief Resets the master to a new channel and wipes out all clients
+    \brief Returns the channel the MASTER is on.
 
-    \param[in] channel The new channel to set the network to
-    
-    \return void
+    If the MASTER has not yet picked a channel, ONE_NET_NUM_CHANNELS is
+    returned.
+
+    \param void
+
+    \return The channel the MASTER is on or ONE_NET_NUM_CHANNELS
 */
-void one_net_reset_master_with_channel(UInt8 channel)
+UInt8 one_net_master_get_channel(void)
 {
-    one_net_master_cancel_invite(&invite_key);
-    on_base_param->channel = channel;
-    one_net_set_channel(channel);
-    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-    master_param->client_count = 0;
-    on_state = ON_LISTEN_FOR_DATA;
-    one_net_init();
-}
-
-
-one_net_status_t one_net_master_change_key_fragment(
-  const one_net_xtea_key_fragment_t key_fragment)
-{
-    // TODO -- do we need these two variables?
-    one_net_xtea_key_t* key = (one_net_xtea_key_t*)on_base_param->current_key;
-    one_net_xtea_key_t* old_key = (one_net_xtea_key_t*)on_base_param->old_key;
-    
-    if(key_update_in_progress)
+    if(on_state == ON_JOIN_NETWORK || on_state == ON_INIT_STATE)
     {
-        return ONS_ALREADY_IN_PROGRESS;
-    }
-    
-    // check to make sure the new key fragment doesn't match any of the old
-    // ones.
-    {
-        UInt8 i;
-        for(i = 0; i < 4; i++)
-        {
-            if(one_net_memcmp(key_fragment,
-              &(on_base_param->current_key[i*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
-            {
-                return ONS_BAD_KEY_FRAGMENT;
-            }
-        }
-    }
-    
-    key_update_in_progress = TRUE;
-    change_key_start_time = get_tick_count();
+        return ONE_NET_NUM_CHANNELS;
+    } // if the channel has not yet been picked //
 
-    one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
-    one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-      3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), key_fragment,
-      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    
-    {
-        UInt8 i;
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            client_list[i].use_current_key = FALSE;
-        }
-    }
-      
-    return ONS_SUCCESS;
-} // one_net_master_change_key_fragment //
+    return on_base_param->channel;
+} // one_net_master_get_channel //
 
 
 /*!
-    \brief Starts the network process to invite a CLIENT to join the network.
+    \brief Sends a single data packet.
 
-    \param[in] KEY The unique key of the device to invite to join the network.
-    \param[in] timeout The length of time, in milliseconds, that the master
-                   should attempt to invite the device before giving up.
+    Queues the single transaction based on the priority of the transaction.
+    The transaction is stored in it's raw form using the location that will
+    later contain the encoded packet.  The first byte will contain whether
+    it is a single, block, or stream transaction, the next 2 bytes will contain
+    the raw destination address, while the remaining bytes will be left to
+    contain the raw data (not all bytes will be used as the raw size is less
+    than the encoded size).
 
-    \return ONS_SUCCESS if the process was successfully started
-            ONS_BAD_PARAM if the parameter is invalid
-            ONS_NOT_INIT The network has not been fully created.
-            ONS_DEVICE_LIMIT If the MASTER cannot handle adding another device.
-            ONS_RSRC_FULL if there is not an available transaction to send the
-              invite.
-            See on_encrypt & on_build_pkt for more return codes
+    This function may not use all the parameters.  The parameter list is
+    identical to the client send single function so that the application
+    layer can use function pointers.
+
+    \param[in] data The data to send.
+    \param[in] DATA_LEN The length of data (in bytes).
+    \param[in] send_to_peer_list True if this message should be sent through the
+               peer list
+    \param[in] PRIORITY The priority on the transaction.
+    \param[in] RAW_DST 0 If this device is initiating a transaction.
+      destination did if the device is sending this transaction in response to a
+      packet received from this device.
+    \param[in] SRC_UNIT The unit sending the message.
+	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
+	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
+
+    \return ONS_SUCCESS If the single data has been queued successfully.
+            ONS_BAD_PARAM If the parameters are invalid.
+            ONS_RSRC_FULL If no resources are currently available to handle the
+              request.
+            ONS_BAD_ADDR If RAW_DST is not an address that is part of this
+              network.
 */
-one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
-  UInt32 timeout)
+one_net_status_t one_net_master_send_single(UInt8 * data,
+  UInt8 DATA_LEN, const BOOL send_to_peer_list, UInt8 PRIORITY,
+  const one_net_raw_did_t *RAW_DST, UInt8 SRC_UNIT,
+  tick_t* send_time_from_now, tick_t* expire_time_from_now)
 {
     one_net_status_t status;
-    UInt8 raw_invite[ON_RAW_INVITE_SIZE];
-    on_client_t* client;
-    tick_t time_now = get_tick_count();
-    on_raw_did_t raw_invite_did;
+    UInt8 txn;
 
-    if(!KEY || timeout == 0)
+    if(!data || DATA_LEN > ONE_NET_RAW_SINGLE_DATA_LEN
+      || PRIORITY < ONE_NET_LOW_PRIORITY || PRIORITY > ONE_NET_HIGH_PRIORITY
+      #ifdef _PEER
+      || (!send_to_peer_list && !RAW_DST))
+      #else
+      || !RAW_DST)
+      #endif
+    {
+        return ONS_BAD_PARAM;
+    } // if parameters are invalid //
+
+	if(RAW_DST && (*RAW_DST)[0] == 0x00 && (*RAW_DST)[1] == 0x10)
+	{
+        // TODO - for the moment, reject any message to myself.  But this might
+        // be considered a legitimate message too, so we might wantt o allow it.
+        // Consider calling the single data handler directly. Right now we allow
+        // peer assignments from one unit to another unit on the same device.
+		return ONS_DID_FAILED;
+	}
+
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+	if(send_time_from_now != NULL && expire_time_from_now != NULL)
+	{
+		return place_in_single_queue(data, DATA_LEN, send_to_peer_list,
+		    PRIORITY, RAW_DST, SRC_UNIT, send_time_from_now, expire_time_from_now);
+	}
+    #endif
+
+    #ifdef _PEER
+    if(RAW_DST == NULL || send_to_peer_list)
+    {
+        return master_send_to_peer_list(data, DATA_LEN, PRIORITY, SRC_UNIT);
+    }
+    #endif
+
+    if((txn = get_free_txn(ON_SINGLE, TRUE)) >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_RSRC_FULL;
+    } // if there are no available resources //
+
+    if((status = on_encode(txn_list[txn].did, *RAW_DST, ON_ENCODED_DID_LEN))
+      == ONS_SUCCESS)
+    {
+        // make sure the address is valid //
+        if(client_info((const on_encoded_did_t * const)&(txn_list[txn].did))
+          == 0)
+        {
+            status = ONS_BAD_ADDR;
+        } // the client is not part of the network //
+        else
+        {
+            txn_list[txn].type = ON_SINGLE;
+            txn_list[txn].txn.data_len = DATA_LEN;
+            txn_list[txn].txn.msg_type = ON_APP_MSG;
+
+            one_net_memmove(&(txn_list[txn].txn.pkt[ON_DATA_IDX]), data,
+              DATA_LEN);
+            txn_list[txn].txn.priority = PRIORITY;
+            enqueue_txn(txn);
+        } // else successfully found the CLIENT //
+    } // if encoding the packet was successful //
+
+    if(status != ONS_SUCCESS)
+    {
+        free_txn(txn);
+    } // else encoding failed //
+
+    return status;
+} // one_net_master_send_single //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Interface to start a block transaction.
+
+    Starts a block transaction (send or receive) if the resources are available.
+
+    \param[in] TYPE The type of transaction to be requested.  This can be either
+                    ON_BLOCK or ON_STREAM.
+    \param[in] SEND TRUE if this device is sending the data.
+                    FALSE if this device is requesting to receive the data.
+    \param[in] DATA_TYPE The type of data to transfer.
+    \param[in] LEN The total number of bytes to transfer (if a block txn).
+    \param[in] DID The device id of the other device involved in the transaction
+    \param[in] SRC_UNIT The unit sending the message.
+    \param[in] DST_UNIT The unit receiving the message.
+
+    \return ONS_SUCCESS If there are resources available and the request will be
+                    made.
+            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_RSRC_FULL If the resources are unavailable.
+            ONS_BAD_ADDR If DID does not point to an address of a device in the
+                    network.
+            ONS_ALREADY_IN_PROGRESS If a transaction of this type with the
+                    device is already in progress.
+*/
+one_net_status_t one_net_master_block_stream_request(UInt8 TYPE, BOOL SEND,
+  UInt8 DATA_TYPE, UInt16 LEN, UInt8 PRIORITY, const one_net_raw_did_t * DID,
+  UInt8 SRC_UNIT, UInt8 DST_UNIT)
+{
+    one_net_status_t status;
+    on_encoded_did_t dst;
+
+    if(!DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    if((status = on_encode(dst, *DID, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the destination (of the admin packet) was not successful //
+
+    // make sure the address is valid //
+    if(client_info((const on_encoded_did_t * const)&dst) == 0)
+    {
+        return ONS_BAD_ADDR;
+    } // the client is not part of the network //
+
+    return b_s_request(TYPE, ON_ADMIN_MSG, SEND, DATA_TYPE, LEN, PRIORITY,
+      (const on_encoded_did_t * const)&dst, SRC_UNIT, DST_UNIT);
+} // one_net_master_block_stream_request //
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Ends a stream transaction with a given device
+
+    \param[in] DID The device to end the stream with.
+
+    \return ONS_SUCCESS if the end stream is scheduled
+            ONS_BAD_PARAM if DID is invalid.
+            ONS_TXN_DOES_NOT_EXIST if the transaction does not exist.
+*/
+one_net_status_t one_net_master_end_stream(const one_net_raw_did_t * const DID)
+{
+    one_net_status_t rv;
+
+    on_encoded_did_t encoded_did;
+    UInt8 stream;
+
+    if(!DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((rv = on_encode(encoded_did, (*DID), sizeof(encoded_did)))
+      != ONS_SUCCESS)
+    {
+        return rv;
+    } // if encoding the did was not successful //
+
+    // don't go through the active list since the stream may be active and
+    // will not be in the list
+    for(stream = 0; stream < ONE_NET_MASTER_MAX_TXN; stream++)
+    {
+        if(txn_list[stream].type == ON_STREAM && on_encoded_did_equal(
+          (const on_encoded_did_t * const)&encoded_did,
+          (const on_encoded_did_t * const)&(txn_list[stream].did)))
+        {
+            break;
+        } // if the stream address matches //
+    } // loop to find the stream //
+
+    if(stream >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_TXN_DOES_NOT_EXIST;
+    } // if the transaction does not exist //
+
+    // indicate that the stream is to end by setting remaining to 0.
+    txn_list[stream].txn.remaining = 0;
+    return rv;
+} // one_net_master_end_stream //
+#endif
+
+
+/*!
+    \brief Changes the data rate a CLIENT device receives at.
+
+    \param[in] RAW_DID The device whose data rate is to be changed.
+    \param[in] DATA_RATE The data rate to change to.
+
+    \return ONS_SUCCESS If the transaction was successfully queued
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If the address is for a device not on this
+              network.
+            ONS_INVALID_DATA If the CLIENT does not support the given data rate
+              See encoded, and send_change_settings for more possible return
+              results.
+*/
+one_net_status_t one_net_master_change_client_data_rate(
+  const one_net_raw_did_t * const RAW_DID, const UInt8 DATA_RATE)
+{
+    const on_client_t * CLIENT = 0;
+
+    on_encoded_did_t dst;
+    one_net_status_t status;
+
+    if(!RAW_DID || DATA_RATE > ONE_NET_MAX_DATA_RATE)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    if((status = on_encode(dst, *RAW_DID, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if((CLIENT = client_info((const on_encoded_did_t * const)&dst)) == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+    if(DATA_RATE > CLIENT->max_data_rate)
+    {
+        return ONS_INVALID_DATA;
+    } // if the data rate is higher than the CLIENT supports //
+
+    return send_change_settings((const on_encoded_did_t * const)&dst, DATA_RATE,
+      CLIENT->flags);
+} // one_net_master_change_client_data_rate //
+
+
+/*!
+    \brief Changes a CLIENT's keep alive interval.
+
+    \param[in] RAW_DST The CLIENT to update.
+    \param[in] KEEP_ALIVE The new keep alive interval (in ms) the CLIENT should
+      report at.
+
+    \return ONS_SUCCESS if queueing the transaction was successful
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If the address is for a device not in the
+              network.
+*/
+one_net_status_t one_net_master_change_client_keep_alive(
+  const one_net_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE)
+{
+    on_encoded_did_t dst;
+    one_net_status_t status;
+
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    if(!RAW_DST)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(!client_info((const on_encoded_did_t * const)&dst))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+    one_net_int32_to_byte_stream(KEEP_ALIVE, pld);
+
+    return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)&dst, ONE_NET_HIGH_PRIORITY, pld,
+      sizeof(pld));
+} // one_net_master_change_client_keep_alive //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Changes the fragment delay of the MASTER or a CLIENT device depending
+      on RAW_DST.
+
+    \param[in] RAW_DST The device to update
+    \param[in] PRIORITY The fragment delay priority to update (high or low).
+    \param[in] DELAY The new [low/high] fragment delay (in ms)
+
+    \return ONS_SUCCESS if queueing the transaction was successful
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If the address is for a device not in the
+              network.
+            ONS_INVALID_DATA If the data is not valid (such as the high priority
+              having a delay longer than the low priority, or vise-versa).
+*/
+one_net_status_t one_net_master_change_frag_dly(
+  const one_net_raw_did_t * const RAW_DST, const UInt8 PRIORITY,
+  const UInt32 DELAY)
+{
+    const UInt8 admin_type = PRIORITY == ONE_NET_HIGH_PRIORITY
+      ? ON_CHANGE_HIGH_FRAGMENT_DELAY : ON_CHANGE_LOW_FRAGMENT_DELAY;
+
+    on_encoded_did_t dst;
+    one_net_status_t status;
+
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    if(!RAW_DST || PRIORITY < ONE_NET_LOW_PRIORITY
+      || PRIORITY > ONE_NET_HIGH_PRIORITY)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(on_encoded_did_equal((const on_encoded_did_t * const)&dst,
+      (const on_encoded_did_t * const)
+      &(on_base_param->sid[ON_ENCODED_NID_LEN])))
+    {
+        // change the MASTER's fragment delay
+        if(PRIORITY == ONE_NET_LOW_PRIORITY
+          && DELAY > on_base_param->fragment_delay_high)
+        {
+            on_base_param->fragment_delay_low = DELAY;
+            save_param();
+            return ONS_SUCCESS;
+        } // if setting the low priority fragment delay //
+        else if(PRIORITY == ONE_NET_HIGH_PRIORITY
+          && DELAY < on_base_param->fragment_delay_low)
+        {
+            on_base_param->fragment_delay_high = DELAY;
+            save_param();
+            return ONS_SUCCESS;
+        } // else if setting the high priority fragment delay //
+
+        return ONS_INVALID_DATA;
+    } // if the MASTER device //
+
+    if(!client_info((const on_encoded_did_t * const)&dst))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+    one_net_int32_to_byte_stream(DELAY, pld);
+
+    return send_admin_pkt(admin_type, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)&dst, ONE_NET_HIGH_PRIORITY, pld,
+      sizeof(pld));
+} // one_net_master_change_frag_dly //
+#endif
+
+
+/*!
+    \brief Changes the key.
+
+    The key is changed by removing the most significant 32 bits of the key and
+    appending the 32 bits passed in.
+
+    \param[in] KEY_FRAGMENT The new key fragment.
+
+    \return ONS_SUCCESS If the key was accepted
+            ONS_NOT_INIT If the network has not been initialized.
+            ONS_ALREADY_IN_PROGRESS If still changing the key from the last
+              time it was updated.
+*/
+one_net_status_t one_net_master_change_key(
+  const one_net_xtea_key_fragment_t KEY_FRAGMENT)
+{
+    UInt16 i;
+
+    if(on_state == ON_INIT_STATE || on_state == ON_JOIN_NETWORK)
+    {
+        return ONS_NOT_INIT;
+    } // if the network has not been created yet //
+
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(!client_list[i].use_current_key)
+        {
+            return ONS_ALREADY_IN_PROGRESS;
+        } // if still updating the key //
+    } // loop to see if still updating keys //
+
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        client_list[i].use_current_key = FALSE;
+    } // loop to clear all the flags //
+
+    one_net_memmove(master_param->old_key, on_base_param->current_key,
+      sizeof(master_param->old_key));
+    one_net_memmove(on_base_param->current_key,
+      &(on_base_param->current_key[sizeof(one_net_xtea_key_fragment_t)]),
+      sizeof(on_base_param->current_key) - sizeof(one_net_xtea_key_fragment_t));
+    one_net_memmove(
+      &(on_base_param->current_key[sizeof(on_base_param->current_key)
+      - sizeof(one_net_xtea_key_fragment_t)]), KEY_FRAGMENT,
+      sizeof(one_net_xtea_key_fragment_t));
+
+    save_param();
+
+    if(!master_param->client_count)
+    {
+        one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, 0, TRUE);
+    } // if there are no CLIENTs //
+    else
+    {
+        check_key_update(FALSE);
+    } // else there are CLIENTS //
+
+    return ONS_SUCCESS;
+} // one_net_master_change_key //
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Changes the stream key.
+
+    \param[in] NEW_STREAM_KEY The new stream key.
+
+    \return ONS_SUCCESS If the key was accepted
+            ONS_NOT_INIT If the network has not been initialized.
+            ONS_ALREADY_IN_PROGRESS If still changing the key from the last
+              time it was updated.
+*/
+one_net_status_t one_net_master_change_stream_key(
+  const one_net_xtea_key_t * const NEW_STREAM_KEY)
+{
+    UInt16 i;
+
+    if(!NEW_STREAM_KEY)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
@@ -669,646 +1164,39 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
         return ONS_NOT_INIT;
     } // if the network has not been created yet //
 
-    if(invite_txn.priority != ONE_NET_NO_PRIORITY)
-    {
-        return ONS_ALREADY_IN_PROGRESS;
-    } // if already in the process of inviting //
-
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
-    {
-        return ONS_DEVICE_LIMIT;
-    } // if the MASTER has reached it's device limit //
-
-    one_net_memmove(invite_key, *KEY, sizeof(invite_key));
-    raw_invite[ON_INVITE_VERSION_IDX] = ON_INVITE_PKT_VERSION;
-    one_net_int16_to_byte_stream(master_param->next_client_did,
-      &(raw_invite[ON_INVITE_ASSIGNED_DID_IDX]));
-    one_net_memmove(&(raw_invite[ON_INVITE_KEY_IDX]),
-      on_base_param->current_key, sizeof(on_base_param->current_key));
-    one_net_memmove(&raw_invite[ON_INVITE_FEATURES_IDX],
-      &THIS_DEVICE_FEATURES, sizeof(on_features_t));
-
-    raw_invite[ON_INVITE_CRC_IDX] = (UInt8)one_net_compute_crc(
-      &raw_invite[ON_INVITE_CRC_START_IDX],
-      ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-
-    status = on_encrypt(ON_INVITE, raw_invite,
-      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE);
-
-
-    if(status != ONS_SUCCESS)
-    {
-        one_net_master_cancel_invite(
-          (const one_net_xtea_key_t * const)&invite_key);
-        return status;
-    } // if the invite was not created successfully //
-
-
-    // so far, so good.  Start building the packet.
-    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_pkt,
-      &data_pkt_ptrs))
-    {
-        return ONS_INTERNAL_ERR;
-    }
-
-    // pick a random message id
-    data_pkt_ptrs.msg_id = one_net_prand(time_now, ON_MAX_MSG_ID);
-
-    // fill in the addresses
-    if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
-      (on_encoded_did_t*) ON_ENCODED_BROADCAST_DID,
-      (on_encoded_did_t*) MASTER_ENCODED_DID)) != ONS_SUCCESS)
-    {
-        return status;
-    }
-    
-    // encode the payload
-    if(status = on_encode(data_pkt_ptrs.payload, raw_invite,
-      ON_ENCODED_INVITE_SIZE) != ONS_SUCCESS)
-    {
-        return status;
-    }
-    
-    // now finish building the packet.
-    if(status = on_complete_pkt_build(&data_pkt_ptrs,
-      data_pkt_ptrs.msg_id, ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
-      != ONS_SUCCESS)
-    {
-        return status;                          
-    }
-
-    // everything worked out fine.  Set the transactions and timers
-    invite_txn.data_len = ON_ENCODED_INVITE_SIZE;
-    invite_txn.response_timeout = one_net_master_invite_send_time;
-    invite_txn.priority = ONE_NET_LOW_PRIORITY;
-    ont_set_timer(invite_txn.next_txn_timer, 0);
-    ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
-    
-    
-    // now set up the next unused position in client_list for this client
-    client = &client_list[master_param->client_count];
-    client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
-    client->use_current_key = TRUE;
-    client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-    client->device.data_rate = ONE_NET_DATA_RATE_38_4;
-    client->device.expected_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
-    client->device.last_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
-    client->device.send_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
-    client->device.msg_id = data_pkt_ptrs.msg_id;
-    one_net_int16_to_byte_stream(master_param->next_client_did,
-      raw_invite_did);
-    on_encode(client->device.did, raw_invite_did,
-      ON_ENCODED_DID_LEN);
-    client->device.features = FEATURES_UNKNOWN;
-    
-    one_net_memmove(add_device_did, client->device.did, ON_ENCODED_DID_LEN);
-    
-    return ONS_SUCCESS;
-} // one_net_master_invite //
-
-
-/*!
-    \brief Cancels an invite request
-
-    Even though there can only be 1 outstanding invite request at a time, pass
-    in the KEY in case later on there can be multiple outstanding invite
-    requests.  This will prevent the interface from changing later on if the
-    implementation is changed.
-
-    \param[in] KEY The unique key of the device to cancel the invite request for
-
-    \return ONS_SUCCESS if the invite request was canceled.
-*/
-one_net_status_t one_net_master_cancel_invite(
-  const one_net_xtea_key_t* const KEY)
-{
-    UInt8 i;
-    invite_txn.priority = ONE_NET_NO_PRIORITY;
-    ont_stop_timer(invite_txn.next_txn_timer);
-    ont_stop_timer(ONT_INVITE_TIMER);
-    
-    // zero out invite_key_for good measure    
-    one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
-    return ONS_SUCCESS;
-} // one_net_master_cancel_invite //
-
-
-/*!
-    \brief Starts the process to remove a device from the network.
-
-    \param[in] RAW_DID The device to remove from the network
-
-    \return ONS_SUCCESS If the process to remove the device was started
-            ONS_BAD_PARAM If the parameter was invalid
-*/
-one_net_status_t one_net_master_remove_device(
-  const on_raw_did_t * const RAW_DID)
-{
-    one_net_status_t status;
-    UInt8 i;
-    on_client_t* client;
-    UInt8 admin_pld[4];
-    
-    
-    if(remove_device_update_in_progress)
-    {
-        return ONS_ALREADY_IN_PROGRESS;
-    }
-
-    if(!RAW_DID)
-    {
-        return ONS_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    // first check if we're in the middle of a transaction.  If so, we're
-    // busy and can't do this.
-    // TODO - we want a better solution?
-    if(single_txn.priority != ONE_NET_NO_PRIORITY || response_txn.priority !=
-      ONE_NET_NO_PRIORITY)
-    {
-        return ONS_BUSY;
-    }
-    
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    if(block_txn.priority != ONE_NET_NO_PRIORITY)
-    {
-        return ONS_BUSY;
-    }
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(stream_txn.priority != ONE_NET_NO_PRIORITY)
-    {
-        return ONS_BUSY;
-    }
-    #endif
-    
-    if((status = on_encode(remove_device_did, *RAW_DID, ON_ENCODED_DID_LEN))
-      != ONS_SUCCESS)
-    {
-        return status;
-    } // if encoding the dst did failed //
-
-    if(!(client = client_info((const on_encoded_did_t * const)
-      &remove_device_did)))
-    {
-        return ONS_INCORRECT_ADDR;
-    } // the CLIENT is not part of the network //
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    if(features_mh_capable(client->device.features))
-    {
-        on_base_param->num_mh_devices--;
-    }
-    if(features_mh_repeat_capable(client->device.features))
-    {
-        on_base_param->num_mh_repeaters--;
-    }
-    #endif
-    
-    remove_device_update_in_progress = TRUE;
-    remove_device_start_time = get_tick_count();
-
-    
     for(i = 0; i < master_param->client_count; i++)
     {
-        client_list[i].send_remove_device_message = TRUE;
-    }
-    
-    #ifdef _PEER
-    // remove any peers of this device.
-    one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL, &remove_device_did,
-      ONE_NET_DEV_UNIT);
-    #endif
-    
-    admin_pld[0] = remove_device_did[0];
-    admin_pld[1] = remove_device_did[1];
-    #ifdef _ONE_NET_MULTI_HOP
-    admin_pld[2] = on_base_param->num_mh_devices;
-    admin_pld[3] = on_base_param->num_mh_repeaters;
-    #else
-    // TODO -- should we ban multi-hop just because the master isn't capable?
-    admin_pld[2] = 0;
-    admin_pld[3] = 0;
-    #endif
-
-    // all client peer assignments to this did are removed.  Now remove the device itself.
-    // When that's done, the other devices will also be informed of this deletion.
-    return send_admin_pkt(ON_RM_DEV, (const on_encoded_did_t * const)&remove_device_did,
-      admin_pld, 0);
-} // one_net_master_remove_device //
-
-
-/*!
-    \brief Returns the encryption key used by a client(or by the master
-      itself).  This is a master-specific function added so that one_net.c
-      can get the correct key for a client.  It is declared in one_net.h
-      rather than one_net_master.h so that one_net.h does not have to
-      include one_net_master.h
-
-    \param[in] did of the device
-
-    \return The key to use.  NULL if type is invalid or the device is not
-            part of the network
-*/
-one_net_xtea_key_t* master_get_encryption_key(
-  const on_encoded_did_t* const did)
-{
-    on_client_t* client;
-    
-    if(!did)
-    {
-        return NULL;
-    }
-    
-    if(on_encoded_did_equal(did, &MASTER_ENCODED_DID))
-    {
-        // the device is this master device.  Master is using the current key.
-        return (one_net_xtea_key_t*)(on_base_param->current_key);
-    }
-    
-    client = client_info(did);
-    if(client == NULL)
-    {
-        if(is_invite_did(did))
+        if(!client_list[i].use_current_stream_key)
         {
-            return (one_net_xtea_key_t*)(on_base_param->current_key);
-        }
-        return NULL; // not in the network
-    }
-    
-    return client->use_current_key ?
-      (one_net_xtea_key_t*)(on_base_param->current_key) :
-      (one_net_xtea_key_t*)(on_base_param->old_key);
-} // master_get_encryption_key //
+            return ONS_ALREADY_IN_PROGRESS;
+        } // if still updating the key //
+    } // loop to see if still updating stream keys //
 
-
-/*! \brief Determines whether a DID is a DID that is currently being
-
-    \param[in] encoded_did The did to check
-    
-    \return TRUE if there is an invite pending and this is the DID
-            FALSE if no invite is pending or the DIDs do not match
-*/
-static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
-{
-    on_raw_did_t raw_did;
-    if(!encoded_did || on_decode(raw_did, *encoded_did, ON_ENCODED_DID_LEN)
-      != ONS_SUCCESS || invite_txn.priority == ONE_NET_NO_PRIORITY)
+    for(i = 0; i < master_param->client_count; i++)
     {
-        return FALSE;
-    }
-    if(did_to_u16((on_raw_did_t*) raw_did) ==
-      (master_param->next_client_did >> RAW_DID_SHIFT))
+        client_list[i].use_current_stream_key = FALSE;
+    } // loop to clear all the flags //
+
+    one_net_memmove(master_param->old_stream_key,
+      on_base_param->stream_key, sizeof(master_param->old_stream_key));
+    one_net_memmove(on_base_param->stream_key, *NEW_STREAM_KEY,
+      sizeof(on_base_param->stream_key));
+
+    save_param();
+    if(!master_param->client_count)
     {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-
-/*!
-    \brief Determines whether a device may be in the middle of a key change
-           and it is therefore worth trying both the old and new keys.
-
-    This is a master-specific function added so that one_net.c
-      can get the correct key for a client.  It is declared in one_net.h
-      rather than one_net_master.h so that one_net.h does not have to
-      include one_net_master.h.
-      
-    When a key change is made, the master sends a new key and the client
-    will respond with the new key.  However, the master still has in its
-    file the belief that the client is still using the old key, so that
-    old key will not work anymore when decrypting in rx_packet().  This
-    function is called as a second attempt to decruypt a packet during a
-    key change.  If the client is not undergoing a key change, this function
-    will return FALSE.  Otherwise it will return true.
-
-    \param[in] did of the device
-
-    \return TRUE if this client is in the middle of a key change
-            FALSE otherwise
-*/
-BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did)
-{
-    one_net_status_t status;
-    on_client_t* client;
-    
-    if(!did)
+        one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY, 0, TRUE);
+    } // if there are no CLIENTs //
+    else
     {
-        return FALSE;
-    }
-    
-    client = client_info(did);
-    
-    if(client == NULL || client->use_current_key || !key_update_in_progress)
-    {
-        return FALSE;
-    }
-    
-    return TRUE;
-}
-
-
-/*!
-    \brief The main function for the ONE-NET MASTER.
-
-    \param void
-
-    \return void
-*/
-void one_net_master(void)
-{
-    // The current transaction
-    static on_txn_t * txn = 0;
-    tick_t queue_sleep_time;
-    
-
-    // Do the appropriate action for the state the device is in.
-    switch(on_state)
-    {
-#ifdef _IDLE
-		case ON_IDLE:
-		{
-			break;
-		}
-#endif
-
-        case ON_JOIN_NETWORK:
-        {
-            // If we are in ON_JOIN_NETWORK state, we aren't doing anything
-            // except cruising for channels.  Nothing else occurs until we
-            // find one.  We don't check transactions and we don't check any
-            // timers except for timers involved in finding the clear channel.
-            // Therefore we don't need to create a new timer for this process.
-            // Instead we'll just use two that we already have since we know
-            // that they aren't currently being used for their normal purposes.
-            // We'll use the general timer and the update timer.  Note that
-            // they were initially set in the one_net_master_create_network()
-            // function.
-            if(one_net_channel_is_clear())
-            {
-                if(ont_expired(ONT_GENERAL_TIMER))
-                {
-                    on_state = ON_LISTEN_FOR_DATA;
-                    ont_stop_timer(ONT_UPDATE_TIMER);
-                } // if channel has been clear for enough time //
-            } // if channel is clear //
-            else
-            {
-                // TODO - should this be random or should we simply increment?
-                on_base_param->channel++;
-                if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
-                {
-                    on_base_param->channel = 0;
-                }
-
-                one_net_set_channel(on_base_param->channel);
-                ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
-
-                // check if it's been long enough where the device thinks that
-                // there is traffic on all the channels.  If that is the case
-                // lower the time in hopes of finding the least busy channel.
-                if(ont_inactive_or_expired(ONT_UPDATE_TIMER))
-                {
-                    new_channel_clear_time_out >>= 1;
-                    ont_set_timer(ONT_UPDATE_TIMER,
-                      ONE_NET_MASTER_CHANNEL_SCAN_TIME);
-                } // if time to lower the channel clear time //
-            } // else channel is not clear //
-            break;
-        } // ON_JOIN_NETWORK case //
-        
-        case ON_LISTEN_FOR_DATA:
-        {
-            if(invite_txn.priority != ONE_NET_NO_PRIORITY &&
-              ont_inactive_or_expired(invite_txn.next_txn_timer))
-            {
-                UInt8 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT;
-                
-                if(ont_expired(ONT_INVITE_TIMER))
-                {
-                    one_net_master_invite_result(ONS_TIME_OUT, &invite_key, 0);
-                    one_net_master_cancel_invite(
-                      (const one_net_xtea_key_t * const)&invite_key);
-                    break;
-                } // if trying to add device timed out //
-                
-                txn = &invite_txn;
-                
-                #ifdef _ONE_NET_MULTI_HOP
-                txn->retry++;
-                if(on_base_param->num_mh_repeaters &&
-                  txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
-                {
-                    txn->retry = 0;
-                    raw_pid = ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT;
-                } // if time to send a multi hop packet //
-                #endif
-
-                if(!setup_pkt_ptr(raw_pid, invite_pkt, &data_pkt_ptrs))
-                {
-                    break; // we should never get here
-                }
-                
-                #ifdef _ONE_NET_MULTI_HOP
-                if(raw_pid == ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT)
-                {
-                    on_build_hops(data_pkt_ptrs.enc_hops_field, 0,
-                      features_max_hops(THIS_DEVICE_FEATURES));
-                }
-                if(txn->retry < 2)
-                {
-                    // we're either switching from multi-hop to non-multi-hop
-                    // or vice-versa, so we need to re-calculate the message
-                    // crc.
-                    data_pkt_ptrs.msg_crc = calculate_msg_crc(&data_pkt_ptrs);
-                    *(data_pkt_ptrs.enc_msg_crc) = decoded_to_encoded_byte(
-                      data_pkt_ptrs.msg_crc, TRUE);
-                }
-                #endif
-
-                on_state = ON_SEND_INVITE_PKT;
-                break;
-            }
-        }
-
-        default:
-        {
-            one_net(&txn);
-            break;
-        } // default case //
-    } // switch(on_state) //
-    
-    // one_net() has had a chance to load any messages it wanted from the
-    // queue.  If we are in state ON_LISTEN_FOR_DATA and there are no messages
-    // ready to send within a second and there is no active message,
-    // we'll try doing some admin stuff like checking for any key changes.
-    if(on_state == ON_LISTEN_FOR_DATA && single_msg_ptr == NULL &&
-      single_data_queue_ready_to_send(&queue_sleep_time) == -1 &&
-      queue_sleep_time < MS_TO_TICK(500))
-    {
-        check_updates_in_progress();
-    }
-    
-} // one_net_master //
-
-
-/*!
-    \brief Add a client to the current network.
-
-    This function can be used when you need to add a client
-    to the current network and you do not want to use the normal
-    invite/join process. A client is added with the information
-    supplied and the information that the client will need to
-    communicate on the current network is returned.  It is also used by the
-    master in the ONE-NET invite process
-
-    \param[in] features The client's features / capabilities.
-    \param[out] out_base_param Pointer to the base parameters the new client should use.
-    \param[out] out_master_param Pointer to the master parameters the new client should use.
-    \param[in] send_update_to_network If true, the network should be notified
-               of the addition of this client.
-
-    \return ONS_SUCCESS if the client was added.
-            ONS_BAD_PARAM if the parameter was invalid.
-            ONS_DEVICE_LIMIT if there is no room to hold another client.
-*/
-one_net_status_t one_net_master_add_client(const on_features_t features,
-  on_base_param_t* out_base_param, on_master_t* out_master_param,
-  BOOL send_update_to_network)
-{
-    // instead of separate arguments for values returned.
-    one_net_status_t status;
-    on_raw_did_t raw_did;
-
-    on_client_t * client;
-    
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
-    {
-        return ONS_DEVICE_LIMIT;
-    }
-
-    // a device is being added, place it in the next available client_t
-    // structure
-    client = &client_list[master_param->client_count];
-
-    //
-    // initialize the fields in the client_t structure for this new client
-    //    
-    client->device.msg_id = one_net_prand(get_tick_count(),
-      ON_MAX_MSG_ID);
-    client->device.expected_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    client->device.last_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    client->device.send_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
-    client->flags |= ON_JOINED;
-    client->device.data_rate = ONE_NET_DATA_RATE_38_4;
-    client->device.features = features;
-    client->send_remove_device_message = FALSE;
-    client->use_current_key = TRUE;
-    client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-    // give it 5 extra seconds.
-    client->next_check_in_time = get_tick_count() +
-      MS_TO_TICK(5000 + client->keep_alive_interval);
-    client->last_admin_update_time = 0;
-      
-    #ifdef _ONE_NET_MULTI_HOP
-    client->device.max_hops = features_max_hops(features);
-    client->device.hops = 0;
-    #endif
-    one_net_int16_to_byte_stream(master_param->next_client_did, raw_did);
-    on_encode(client->device.did, raw_did, ON_ENCODED_DID_LEN);
-    
-    
-    // if these are not NULL, the master is passing these parameters to the
-    // client somehow, most likely as part of a process which is NOT part of
-    // a ONE-NET protocol invite (an example of this might be if a device is
-    // temporarily plugged in / attached to the master in a way that the
-    // master is in direct communication with the client rather than
-    // communicating through ONE-NET messages.  Note that this very often
-    // means that the client is directly attached to the master physically
-    // through a physical plug, but the two devices could also be on opposite
-    // sides of the world and each side is attached to a computer via the
-    // serial port and the information is transmitted via the internet.
-    // Regardless, the point is that this function can be used for any invite
-    // process that is not using a ONE-NET message protocol.  If this is the
-    // case, out_base_param and out_master_param must be non-NULL.  For ONE-NET
-    // invite processes, they should be NULL.
-    if(out_base_param && out_master_param)
-    {
-        one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
-          client->device.did, ON_ENCODED_DID_LEN);
-        one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
-        out_master_param->device.features = THIS_DEVICE_FEATURES;
-        out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-        out_master_param->device.last_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-        out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-        out_master_param->device.msg_id = one_net_prand(get_tick_count(),
-          ON_MAX_MSG_ID);
-        #ifdef _ONE_NET_MULTI_HOP
-        out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
-        out_master_param->device.hops = 0;
-        #endif
-        one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
-          ON_ENCODED_DID_LEN);
-        one_net_memmove(out_base_param->current_key, on_base_param->current_key,
-          sizeof(one_net_xtea_key_t));    
-        out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-        out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
-        out_base_param->channel = on_base_param->channel;
-        #ifdef _STREAM_MESSAGES_ENABLED
-        out_base_param->stream_encrypt = on_base_param->stream_encrypt;
-        #endif
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
-        out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;
-        #endif
-    }
-
-    master_param->client_count++;
-    master_param->next_client_did = find_lowest_vacant_did();
-    
-    if(send_update_to_network)
-    {
-        UInt8 i;
-        add_device_update_in_progress = TRUE;
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            client_list[i].send_add_device_message = TRUE;
-            device_to_update = client; // update the device being added
-                                       // first.
-            add_device_start_time = get_tick_count();
-            add_device_did[0] = client->device.did[0];
-            add_device_did[1] = client->device.did[1];
-        }
-    }
-
-    #ifdef _ONE_NET_MULTI_HOP
-    if(features_mh_capable(features))
-    {
-        on_base_param->num_mh_devices++;
-    }
-    
-    if(features_mh_repeat_capable(features))
-    {
-        on_base_param->num_mh_repeaters++;
-    }
-    #endif
+        check_stream_key_update(FALSE);
+    } // else there are CLIENTS //
 
     return ONS_SUCCESS;
-} // one_net_master_add_client //
+} // one_net_master_change_stream_key //
+#endif
 
 
-#ifdef _PEER
 /*!
     \brief (Un)Assigns a peer for a given client.
 
@@ -1330,240 +1218,93 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
               part of the network.
             See send_admin_pkt for more return values.
 */
+#ifdef _PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
-  const on_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
-  const on_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
+  const one_net_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
+  const one_net_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
     on_client_t * src_client = 0, * peer_client = 0;
     on_encoded_did_t enc_src_did;
-    UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
-    on_encoded_did_t* enc_dst_did = (on_encoded_did_t*)&pld[ON_PEER_DID_IDX];
-    
-    // note -- broadcast peer did indicates wildcard
-    BOOL src_is_master, dst_is_master, dst_is_broadcast;
-    
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+    UInt8 admin_type;
+
+    BOOL master_is_peer = FALSE;
+	BOOL did_is_broadcast;
 
     if(!SRC_DID || !PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
-    
+
     if(on_encode(enc_src_did, *SRC_DID, sizeof(enc_src_did)) != ONS_SUCCESS
-      || on_encode(*enc_dst_did, *PEER_DID, ON_ENCODED_DID_LEN)
+      || on_encode(&(pld[ON_PEER_DID_IDX]), *PEER_DID, ON_ENCODED_DID_LEN)
       != ONS_SUCCESS)
     {
         return ONS_INCORRECT_ADDR;
     } // if the encode failed //
-    
-    src_is_master = is_my_did(&enc_src_did);
-    dst_is_master = is_my_did(enc_dst_did);
-    dst_is_broadcast = is_broadcast_did(enc_dst_did);
-    
-    // make sure that the devices are both part of the network and are
-    // not the same device
-    if(!src_is_master && !client_info(&enc_src_did))
-    {
-        // source devices is in the network.
-        return ONS_INCORRECT_ADDR;
-    }
-    if(!dst_is_master && !dst_is_broadcast && !client_info(enc_dst_did))
-    {
-        // dest. device is not part of the network.
-        return ONS_INCORRECT_ADDR;
-    }
-    if(on_encoded_did_equal(&enc_src_did, enc_dst_did))
-    {
-        // devices are the same.
-        return ONS_INCORRECT_ADDR;
-    }
-    
-    // one last check -- broadcast dids are valid for unassigning but not
-    // assigning
-    if(dst_is_broadcast && ASSIGN)
-    {
-        return ONS_INCORRECT_ADDR;
-    }
 
-    
-    // first see if we're assigning to ourself, in which case no ONE-NET
-    // message will be needed.
-    if(src_is_master)
-    {
-        if(ASSIGN)
-        {
-            return one_net_add_peer_to_list(SRC_UNIT, NULL, enc_dst_did,
-                PEER_UNIT);
-        }
-        else
-        {
-            return one_net_remove_peer_from_list(SRC_UNIT, NULL, enc_dst_did,
-                PEER_UNIT);
-        }
-    }
+    master_is_peer = on_encoded_did_equal(
+      (const on_encoded_did_t * const)&(pld[ON_PEER_DID_IDX]),
+      (const on_encoded_did_t * const)
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]));
 
+    // if we're unassigning and the encoded peer did is BROADCAST, flag it here.  We
+    // don't want a broadcast did rejected because it is now a legitimate message.  It
+    // will be checked below.
+    did_is_broadcast = (!ASSIGN) && on_encoded_did_equal(
+      (const on_encoded_did_t *const) (&(&pld[ON_PEER_DID_IDX])), &ON_ENCODED_BROADCAST_DID);
+
+    // verify peer did
+    if((!master_is_peer && (!did_is_broadcast && (peer_client
+      = client_info((const on_encoded_did_t * const)&(pld[ON_PEER_DID_IDX])))
+        == 0)) || (src_client
+      = client_info((const on_encoded_did_t * const)&enc_src_did))
+        == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if the peer or dst is not part of the network //
+
+    if(ASSIGN)
+    {
+        admin_type = ON_ASSIGN_PEER;
+    } // if assigning the peer //
+    else
+    {
+        admin_type = ON_UNASSIGN_PEER;
+    } // else unassigning the peer //
 
     pld[ON_PEER_SRC_UNIT_IDX] = SRC_UNIT;
     pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
 
-    return send_admin_pkt(ASSIGN ? ON_ASSIGN_PEER : ON_UNASSIGN_PEER,
-        &enc_src_did, pld, 0);
+    return send_admin_pkt(admin_type, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)&enc_src_did, ONE_NET_LOW_PRIORITY, pld,
+      sizeof(pld));
 } // one_net_master_peer_assignment //
-#endif
-
-
-/*!
-    \brief Changes a CLIENT's keep alive interval.
-
-    \param[in] RAW_DST The CLIENT to update.
-    \param[in] KEEP_ALIVE The new keep alive interval (in ms) the CLIENT should
-      report at.
-
-    \return ONS_SUCCESS if queueing the transaction was successful
-            ONS_BAD_PARAM If any of the parameters are invalid
-            ONS_INCORRECT_ADDR If the address is for a device not in the
-              network.
-*/
-one_net_status_t one_net_master_change_client_keep_alive(
-  const on_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE)
-{
-    on_encoded_did_t dst;
-    one_net_status_t status;
-
-    UInt8 pld[4];
-
-    if(!RAW_DST)
-    {
-        return ONS_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
-    {
-        return status;
-    } // if encoding the dst did failed //
-
-    if(!client_info((const on_encoded_did_t * const)&dst))
-    {
-        return ONS_INCORRECT_ADDR;
-    } // the CLIENT is not part of the network //
-
-    one_net_int32_to_byte_stream(KEEP_ALIVE, pld);
-
-    return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, 
-      (const on_encoded_did_t * const)&dst, pld, 0);
-} // one_net_master_change_client_keep_alive //
-
-
-#ifdef _BLOCK_MESSAGES_ENABLED
-/*!
-    \brief Changes the fragment delay of a device.
-
-    \param[in] RAW_DST The device to update
-    \param[in] LOW_DELAY The fragment delay for low-priority (0 means irrelevant)
-    \param[in] HIGH_DELAY The fragment delay for high-priority (0 means irrelevant)
-    \param[in] DELAY The new [low/high] fragment delay (in ms)
-
-    \return ONS_SUCCESS if queueing the transaction was successful
-            ONS_BAD_PARAM If any of the parameters are invalid
-            ONS_INCORRECT_ADDR If the address is for a device not in the
-              network.
-            ONS_INVALID_DATA If the data is not valid (such as the high priority
-              having a delay longer than the low priority, or vise-versa).
-            see ONE-NET status codes for other return values.
-*/
-one_net_status_t one_net_master_change_frag_dly(
-  const on_raw_did_t * const RAW_DST, const UInt16 LOW_DELAY,
-  const UInt16 HIGH_DELAY)
-{
-    on_encoded_did_t dst;
-    one_net_status_t status;
-    on_client_t* client;
-    UInt8 pld[4];
-    
-    
-    if(!RAW_DST)
-    {
-        return ONS_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    if(LOW_DELAY != 0 && HIGH_DELAY != 0 && LOW_DELAY < HIGH_DELAY)
-    {
-        return ONS_INVALID_DATA; // low priority delay cannot be less than
-                                 // high priority delay.
-    }
-
-    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS)
-    {
-        return status;
-    } // if encoding the dst did failed //
-
-    if(is_my_did((const on_encoded_did_t * const)&dst))
-    {
-        // change the MASTER's fragment delay        
-        UInt16 new_low = on_base_param->fragment_delay_low;
-        UInt16 new_high = on_base_param->fragment_delay_high;
-
-        if(LOW_DELAY != 0)
-        {
-            new_low = LOW_DELAY;
-        }
-        if(HIGH_DELAY != 0)
-        {
-            new_high = HIGH_DELAY;
-        }
-        
-        if(new_low < new_high)
-        {
-            return ONS_INVALID_DATA; // low priority delay cannot be less than
-                                     // high priority delay.
-        }
-        
-        on_base_param->fragment_delay_low = new_low;
-        on_base_param->fragment_delay_high = new_high;
-        return ONS_SUCCESS;
-    } // if the MASTER device //
-    
-    client = client_info((const on_encoded_did_t * const)&dst);
-
-    if(!client)
-    {
-        return ONS_INCORRECT_ADDR;
-    } // the CLIENT is not part of the network //
-    
-    if(!features_block_capable(client->device.features))
-    {
-        return ONS_DEVICE_NOT_CAPABLE;
-    }
-
-    one_net_int16_to_byte_stream(LOW_DELAY, &pld[ON_FRAG_LOW_IDX]);
-    one_net_int16_to_byte_stream(HIGH_DELAY, &pld[ON_FRAG_HIGH_IDX]);
-
-    return send_admin_pkt(ON_CHANGE_FRAGMENT_DELAY,
-      (const on_encoded_did_t * const)&dst, pld, 0);
-} // one_net_master_change_frag_dly //
 #endif
 
 
 /*!
     \brief Sets the update MASTER flag in the CLIENT.
 
-    \param[in] UPDATE_MASTER TRUE if the device should update the MASTER
-                    when a status change occurs.  FALSE otherwise
+    \param[in] UPDATE_MASTER TRUE if the device should update the MASTER when an
+                               event or status change occurs.
+                             FALSE if the MASTER should not be notified when an
+                               event or status change occurs when a peer has
+                               been defined.
     \param[in] DST_DID The CLIENT to update.
 
     \return ONS_SUCCESS if the command has successfully been queued.
             ONS_BAD_PARAM if any of the parameters are invalid.
             ONS_INCORRECT_ADDR if the device does not exist.
-            See the ONE-NET status codes for other possibilities for more
-            return codes.
+            See encode and send_change_settings for more return codes.
 */
 one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
-  const on_raw_did_t * const DST_DID)
+  const one_net_raw_did_t * const DST_DID)
 {
     on_encoded_did_t did;
     one_net_status_t status;
     on_client_t * client;
-    UInt8 flags = client->flags;
-
+    UInt8 flags = 0x00;
 
     if(!DST_DID)
     {
@@ -1589,596 +1330,1015 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
         flags &= ~ON_SEND_TO_MASTER;
     } // else the MASTER does not want to be updated //
 
-    return send_admin_pkt(ON_CHANGE_SETTINGS,
-      (const on_encoded_did_t * const)&did, &flags, 0);
+    return send_change_settings((const on_encoded_did_t * const)&did,
+      client->data_rate, flags);
 } // one_net_master_set_update_master_flag //
 
 
+#if !defined(_ONE_NET_EVAL) && defined(_PEER)
 /*!
-    \brief Calculate CRC over the master parameters.
-    
-    \param[in] param pointer to non-volatile parameters.  If NULL,
-               on_base_param is used.
-    \param[in] param_len Length of non-volatile parameters.  If negative, this
-               is disregarded.
-    \param[in] peer_param pointer to peer parameters.  If NULL,
-               peer is used.
-    \param[in] peer_param_len Length of peer parameters.  If negative, this
-               is disregarded.
-    \return 8-bit CRC of the master parameters if valid
-            -1 if invalid
+    \brief Updates a CLIENT that the data rate for one of it's peer devices
+      has changed.
+
+    \param[in] RAW_DST The CLIENT to update the peer data rate setting in.
+    \param[in] RAW_PEER The peer device whose data rate has been updated.
+    \param[in] DATA_RATE The data rate RAW_PEER receives at.
+
+    \return ONS_SUCCESS if the command has successfully been queued
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_INCORRECT_ADDR If RAW_DST or RAW_PEER are not part of the
+              network.
+            ONS_INVALID_DATA If the peer is not operating at the data rate
+              passed in or the destination device
 */
-#ifndef _PEER
-int master_nv_crc(const UInt8* param, int param_len)
-#else
-int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len)
+one_net_status_t one_net_master_change_peer_data_rate(
+  const one_net_raw_did_t * const RAW_DST,
+  const one_net_raw_did_t * const RAW_PEER, const UInt8 DATA_RATE)
+{
+    const on_client_t * DST_CLIENT = 0, * PEER_CLIENT = 0;
+    on_encoded_did_t dst, peer;
+    one_net_status_t status;
+
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    if(!RAW_DST || !RAW_PEER || DATA_RATE > ONE_NET_MAX_DATA_RATE)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    if((status = on_encode(dst, *RAW_DST, sizeof(dst))) != ONS_SUCCESS
+      || (status = on_encode(peer, *RAW_PEER, sizeof(peer))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if((DST_CLIENT = client_info((const on_encoded_did_t * const)&dst)) == 0
+      || (PEER_CLIENT = client_info((const on_encoded_did_t * const)&peer))
+      == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+    if(DATA_RATE != PEER_CLIENT->data_rate
+      || DATA_RATE > DST_CLIENT->max_data_rate)
+    {
+        return ONS_INVALID_DATA;
+    } // if the data rate is higher than the CLIENT supports //
+
+    one_net_memmove(&(pld[ON_PEER_DID_IDX]), peer, sizeof(peer));
+    pld[ON_PEER_SETTING_DATA_RATE_IDX] = DATA_RATE;
+
+    return send_admin_pkt(ON_CHANGE_PEER_DATA_RATE, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)dst, ONE_NET_HIGH_PRIORITY, pld,
+      sizeof(pld));
+} // one_net_master_change_peer_data_rate //
 #endif
+
+
+/*!
+    \brief Starts the data rate test between 2 devices.
+
+    \param[in] SENDER The device that is to send the data rate test.  Pass in 0
+      if the MASTER is to send the data rate test.
+    \param[in] RECEIVER The device receiving the data rate test.  This must be
+      a CLIENT device.
+    \param[in] DATA_RATE The data rate to perform the test at.
+
+    \return ONS_SUCCESS If the data rate test has been set up.
+            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_INCORRECT_ADDR If the address is for a device not on this
+              network.
+            ONS_INVALID_DATA If the data rate is beyond the max data rate that
+              either device supports
+            See encode, send_admin_pkt for more return results.
+*/
+one_net_status_t one_net_master_start_data_rate_test(
+  const one_net_raw_did_t * const SENDER,
+  const one_net_raw_did_t * const RECEIVER, const UInt8 DATA_RATE)
 {
-    UInt16 starting_crc = ON_PLD_INIT_CRC;
-    const UInt8 CRC_LEN = sizeof(UInt8);
-    on_master_param_t* mast_param;
-    UInt16 expected_param_len;
-    
-    #ifdef _PEER
-    if(!peer_param)
+    const on_client_t * SENDING_DEVICE = 0;
+    const on_client_t * RECEIVING_DEVICE = 0;
+
+    on_encoded_did_t sender, receiver;
+    one_net_status_t status;
+
+    BOOL mh = FALSE;
+
+    if(!RECEIVER)
     {
-        peer_param = peer_storage;
-    }
-    if(peer_param_len >= 0 && peer_param_len != PEER_STORAGE_SIZE_BYTES)
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    if(SENDER)
     {
-        return -1;
-    }
-    #endif
-    
-    if(!param)
+        if((status = on_encode(sender, *SENDER, sizeof(sender))) != ONS_SUCCESS)
+        {
+            return status;
+        } // if encodeding the sender failed //
+    } // if sender is specified //
+    else
     {
-        param = nv_param;
-    }
-    
-    mast_param = (on_master_param_t*) (param + sizeof(on_base_param_t));
+        one_net_memmove(sender, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
+          sizeof(sender));
+    } // else the MASTER is going to be the sender //
 
-    if(mast_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
-    {
-        return -1;
-    }
-    
-    expected_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES +
-      mast_param->client_count * sizeof(on_client_t);
-      
-    if(param_len >= 0 && expected_param_len != param_len)
-    {
-        return -1;
-    }
-    
-    #ifdef _PEER
-    // crc over peer parameters
-    starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
-      starting_crc, ON_PLD_CRC_ORDER);
-    #endif
-    
-    return one_net_compute_crc(&param[CRC_LEN],
-      expected_param_len - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
-} // master_nv_crc //
-
-
-
-//! @} ONE-NET_MASTER_pub_func
-//                      PUBLIC FUNCTION IMPLEMENTATION END
-//=============================================================================
-
-//=============================================================================
-//                      PRIVATE FUNCTION IMPLEMENTATION
-//! \defgroup ONE-NET_MASTER_pri_func
-//! \ingroup ONE-NET_MASTER
-//! @{
-
-
-
-// TODO -- document
-static on_message_status_t on_master_single_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    BOOL stay_awake;
-    on_message_status_t msg_status;
-    on_msg_hdr_t msg_hdr;
-    on_raw_did_t raw_src_did, raw_repeater_did;
-    UInt8 response_pid;
-    on_sending_device_t* device;
-    on_client_t* client;
-    client = client_info(pkt->enc_src_did);
-
-    on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
-    on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
-    
-    msg_hdr.msg_type = *msg_type;
-    msg_hdr.raw_pid = pkt->raw_pid;
-    msg_hdr.msg_id = pkt->msg_id;
-    
-    // we'll be sending it back to the source
-    if(!(device = sender_info(pkt->enc_src_did)))
-    {
-        // I think we should have solved this problem before now, but abort if
-        // we have not.
-        
-        // TODO -- solve this better or confirm it is in fact solved earlier.
-        *txn = 0;
-        return ON_MSG_ABORT;
-    }
-    
-    if(ack_nack->nack_reason)
-    {
-        // an error has already been set.  That means we don't need to do
-        // anything but build the proper response packet.
-        goto omsdh_build_resp;
-    }
-    
-    switch(*msg_type)
-    {
-        case ON_ADMIN_MSG:
-            msg_status = handle_admin_pkt(pkt->enc_src_did,
-            &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
-            break;
-        default:   
-            #ifndef _ONE_NET_MULTI_HOP
-            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
-            #else
-            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
-              &((*txn)->max_hops));
-            #endif
-            break;
-    }
-            
-
-    if(msg_status != ON_MSG_CONTINUE)
-    {
-        *txn = 0;
-        return msg_status;
-    }
-    
-    
-    // change the nonce we want.
-    device->last_nonce = device->expected_nonce;
-    device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-    
-    
-    // if this was a normal query response, we'll send a message in addition
-    // to the ACK.
-    if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
-      ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
-    {
-        one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
-            ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-            ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
-        #ifdef _PEER
-            , FALSE,
-            get_src_unit(ack_nack->payload->status_resp)
-        #endif
-            , 0
-        #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	        , 0
-        #endif
-        );
-        
-        // now change the handle to ON_ACK
-        ack_nack->handle = ON_ACK;
-    }
-    
-
-// normally we try not to use goto statements but this is embedded programming
-// and it may save us a few bytes?
-omsdh_build_resp:
-    stay_awake = FALSE;
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-    {
-        // device has checked in, so reset the next check-in time
-        // give it 5 extra seconds.
-        client->next_check_in_time = get_tick_count() +
-          MS_TO_TICK(5000 + client->keep_alive_interval);
-        stay_awake = one_net_master_device_is_awake(FALSE,
-          (const on_raw_did_t * const)&raw_src_did);
-    }
-    
-    stay_awake = stay_awake || device_should_stay_awake(
-      (const on_encoded_did_t* const) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
-      
-    // now check to make sure we're not in the middle of a key change
-    if(!(client->use_current_key))
-    {
-        stay_awake = TRUE;
-        // TODO -- actually queue the key change?
-    }
-
-
-    response_pid = get_single_response_pid(pkt->raw_pid,
-      ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
-
-    if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
-    {
-        *txn = 0;
-        return ON_MSG_INTERNAL_ERR;
-    }
-    
-    // the response destination will be the transaction's source
-    if(on_build_my_pkt_addresses(&response_pkt_ptrs,
-      (const on_encoded_did_t* const)
-      &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]), NULL) != ONS_SUCCESS)
-    {
-        *txn = 0;
-        return ON_MSG_INTERNAL_ERR;
-    }
-
-    response_txn.key = (*txn)->key;
-    #ifdef _ONE_NET_MULTI_HOP
-    response_txn.hops = (*txn)->hops;
-    response_txn.max_hops = (*txn)->max_hops;
-    #endif
-    *txn = &response_txn;
-
-    if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
-      FALSE) != ONS_SUCCESS)
-    {
-        *txn = 0;
-        return ON_MSG_INTERNAL_ERR;
-    }
-    
-    if(on_complete_pkt_build(&response_pkt_ptrs, msg_hdr.msg_id, response_pid)
+    if((status = on_encode(receiver, *RECEIVER, sizeof(receiver)))
       != ONS_SUCCESS)
     {
-        *txn = 0;
-        return ON_MSG_INTERNAL_ERR;
-    }
-    
-    return ON_MSG_RESPOND;
-}
-
-  
-// TODO -- document  
-static on_message_status_t on_master_handle_single_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    on_raw_did_t src_did;
-    UInt8 raw_hops_field;
-    on_message_status_t status = ON_MSG_DEFAULT_BHVR;
-    on_msg_hdr_t msg_hdr;
-    
-    if(!ack_nack || !txn)
-    {
-        // not sure how we got here, but we can't do anything
         return status;
-    }    
+    } // if encodeding failed //
 
-    msg_hdr.raw_pid = pkt->raw_pid;
-    msg_hdr.msg_id = pkt->msg_id;
-    msg_hdr.msg_type = *msg_type;
-
-    on_decode(src_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
-    
-    #ifndef _ONE_NET_MULTI_HOP
-    status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &(txn->retry));
-    #else
-    status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
-    #endif    
-    
-    if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
+    if(on_encoded_did_equal((const on_encoded_did_t * const)&sender,
+      (const on_encoded_did_t * const)&receiver))
     {
-        txn->response_timeout = ack_nack->payload->nack_time_ms;
-        
-        if(txn->retry >= ON_MAX_RETRY)
-        {
-            #ifdef _ONE_NET_MULTI_HOP
-            // we may be able to re-send with a higher max hops if there are
-            // any multi-hop clients.
-            if(on_base_param->num_mh_repeaters && txn->max_hops <
-              txn->device->max_hops)
-            {
-                on_raw_did_t raw_did;
-                on_decode(raw_did, *(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
-                
-                if(txn->max_hops == 0)
-                {
-                    txn->max_hops = 1;
-                }
-                else
-                {
-                    (txn->max_hops) *= 2;
-                }
-                
-                if(txn->max_hops > txn->device->max_hops)
-                {
-                    txn->max_hops = txn->device->max_hops;
-                }
-                
-                // give the application code a chance to override if it
-                // wants to.
-                switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
-                {
-                    case ON_MSG_ABORT: return ON_MSG_ABORT;
-                }             
-                
-                txn->hops = 0;
-                txn->retry = 0;
-                pkt->hops = txn->hops;
-                pkt->max_hops = txn->max_hops;
+        return ONS_INCORRECT_ADDR;
+    }  // if addrs are equal //
 
-                return ON_MSG_CONTINUE;
-            }
-            #endif
-            return ON_MSG_TIMEOUT;
-        }
-    }
+    if(!(RECEIVING_DEVICE = client_info(
+      (const on_encoded_did_t * const)&receiver))
+      || (!on_encoded_did_equal((const on_encoded_did_t * const)&sender,
+      (const on_encoded_did_t * const)&(on_base_param->sid[ON_ENCODED_NID_LEN]))
+      && !(SENDING_DEVICE
+      = client_info((const on_encoded_did_t * const)&sender))))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if one of the devices does not exist //
+
+    if(DATA_RATE > RECEIVING_DEVICE->max_data_rate
+      || ((SENDING_DEVICE && DATA_RATE > SENDING_DEVICE->max_data_rate)
+      || DATA_RATE > ONE_NET_MAX_DATA_RATE))
+    {
+        return ONS_INVALID_DATA;
+    } // if one of the devices can't support the data rate //
+
+    mh = FALSE;
+
+    return setup_data_rate_test((const on_encoded_did_t * const)&sender,
+      (const on_encoded_did_t * const)&receiver, DATA_RATE, mh);
+} // one_net_master_start_data_rate_test //
+
+
+/*!
+    \brief Starts the network process to invite a CLIENT to join the network.
+
+    \param[in] KEY The unique key of the device to invite to join the network.
+
+    \return ONS_SUCCESS if the process was successfully started
+            ONS_BAD_PARAM if the parameter is invalid
+            ONS_NOT_INIT The network has not been fully created.
+            ONS_DEVICE_LIMIT If the MASTER cannot handle adding another device.
+            ONS_RSRC_FULL if there is not an available transaction to send the
+              invite.
+            See on_encrypt & on_build_pkt for more return codes
+*/
+one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY)
+{
+    one_net_status_t status;
+    UInt8 raw_invite[ON_RAW_INVITE_SIZE];
+
+    if(!KEY)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if(on_state == ON_INIT_STATE || on_state == ON_JOIN_NETWORK)
+    {
+        return ONS_NOT_INIT;
+    } // if the network has not been created yet //
+
+    if(invite_idx < ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_ALREADY_IN_PROGRESS;
+    } // if already in the process of inviting //
+
+    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    {
+        return ONS_DEVICE_LIMIT;
+    } // if the MASTER has reached it's device limit //
+
+    invite_idx = get_free_txn(ON_INVITE, TRUE);
+    if(invite_idx >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_RSRC_FULL;
+    } // if a transaction resource is not available //
+
+    one_net_memmove(invite_key, *KEY, sizeof(invite_key));
+
+    raw_invite[ON_INVITE_VERSION_IDX] = ON_INVITE_PKT_VERSION;
+    one_net_int16_to_byte_stream(master_param->next_client_did,
+      &(raw_invite[ON_INVITE_ASSIGNED_DID_IDX]));
+    one_net_memmove(&(raw_invite[ON_INVITE_KEY_IDX]),
+      on_base_param->current_key, sizeof(on_base_param->current_key));
+    one_net_int32_to_byte_stream(ONE_NET_MASTER_DEFAULT_KEEP_ALIVE,
+      &raw_invite[ON_INVITE_KEEP_ALIVE_IDX]);
+    raw_invite[ON_INVITE_CRC_IDX] = (UInt8)one_net_compute_crc(raw_invite,
+      ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+
+    if((status = on_encrypt(ON_INVITE, raw_invite,
+      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE))
+      == ONS_SUCCESS)
+    {
+        txn_list[invite_idx].txn.data_len = txn_list[invite_idx].txn.pkt_size;
+        status = on_build_pkt(txn_list[invite_idx].txn.pkt,
+          &(txn_list[invite_idx].txn.data_len),
+          ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT, &ON_ENCODED_BROADCAST_DID,
+          raw_invite, ON_ENCODED_INVITE_SIZE);
+    } // if encrypting was not successful //
+
+    if(status == ONS_SUCCESS)
+    {
+        txn_list[invite_idx].type = ON_INVITE;
+        txn_list[invite_idx].txn.priority = ONE_NET_HIGH_PRIORITY;
+        ont_set_timer(txn_list[invite_idx].txn.next_txn_timer,
+          ONE_NET_MASTER_INVITE_SEND_TIME);
+        ont_set_timer(ONT_INVITE_TIMER, one_net_master_invite_duration);
+    } // if the invite has successfully been created //
+
+    if(status != ONS_SUCCESS)
+    {
+        one_net_master_cancel_invite(
+          (const one_net_xtea_key_t * const)&invite_key);
+    } // if the invite was not created successfully //
 
     return status;
-}
+} // one_net_master_invite //
 
 
 /*!
-    \brief Handles the end of an admin transaction.
+    \brief Cancels an invite request
 
-    \param[in] raw_pld The raw payload of the packet that was sent.
-    \param[in] raw_did The raw did of the CLIENT the packet was sent to.
-    \param[in] status The status of the transaction.
-    \param[in] ack_nack The CLIENT the pkt was sent to.
-    \param[out] client the client that was the recipient of this packet.
+    Even though there can only be 1 outstanding invite request at a time, pass
+    in the KEY in case later on there can be multiple outstanding invite
+    requests.  This will prevent the interface from changing later on if the
+    implementation is changed.
+
+    \param[in] KEY The unique key of the device to cancel the invite request for
+
+    \return ONS_SUCCESS if the invite request was canceled.
+            ONS_BAD_PARAM if the parameter is invalid.
 */
-static void admin_txn_hdlr(const UInt8* const raw_pld,
-  const on_raw_did_t* const raw_did, on_message_status_t status,
-  const on_ack_nack_t* const ack_nack, on_client_t* client)
+one_net_status_t one_net_master_cancel_invite(
+  const one_net_xtea_key_t * const KEY)
 {
-    UInt8 admin_type = raw_pld[0];
-    const UInt8* admin_data_payload = raw_pld + 1;
-    one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
-    on_encoded_did_t enc_did;
-    on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN);
-    
-    switch(admin_type)
+    UInt8 i;
+
+    if(!KEY)
     {
-#ifdef _PEER
-        case ON_ASSIGN_PEER:
-        {
-            update = ONE_NET_UPDATE_ASSIGN_PEER;
-            break;
-        } // assign peer case //
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
 
-        case ON_UNASSIGN_PEER:
-        {
-            update = ONE_NET_UPDATE_UNASSIGN_PEER;
-            break;
-        } // unassign peer case //
-#endif
+    free_txn(invite_idx);
+    ont_stop_timer(ONT_INVITE_TIMER);
+    invite_idx = ONE_NET_MASTER_MAX_TXN;
 
-        case ON_CHANGE_KEEP_ALIVE:
-        {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                client->keep_alive_interval = ack_nack->payload->ack_time_ms;
-            }           
-            update = ONE_NET_UPDATE_KEEP_ALIVE;
-            break;
-        } // change keep-alive case //
-        
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ONE_NET_UPDATE_FRAGMENT_DELAY:
-        {
-            update = ONE_NET_UPDATE_FRAGMENT_DELAY;
-            break;
-        } // change one or both fragment delays case //
-        #endif
-
-        case ON_CHANGE_SETTINGS:
-        {
-            update = ONE_NET_UPDATE_SETTINGS;
-            break;
-        } // change keep-alive case //
-        
-        case ON_ADD_DEV:
-        {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                client->send_add_device_message = FALSE;
-            }
-            update = ONE_NET_UPDATE_ADD_DEVICE;
-            break;
-        } // add device case //
-        
-        case ON_RM_DEV:
-        {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                client->send_remove_device_message = FALSE;
-            }
-            update = ONE_NET_UPDATE_REMOVE_DEVICE;
-            break;
-        } // remove device case //
-        
-        case ON_NEW_KEY_FRAGMENT:
-        {
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                if(one_net_memcmp(&(on_base_param->current_key[3 *
-                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), ack_nack->payload->key_frag,
-                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
-                {
-                    client->use_current_key = TRUE;
-                }
-                update = ONE_NET_UPDATE_NETWORK_KEY;
-            }
-            break;
-        }
-
-        default: return;
-    }
-    
-    one_net_master_update_result(update, raw_did, ack_nack);
-}
-
-
-// TODO -- document 
-static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack)
-{
-    on_msg_hdr_t msg_hdr;
-    on_raw_did_t dst;
-    on_client_t* client = client_info(pkt->enc_dst_did);
-    
-    if(!client)
+    for(i = 0; i < ONE_NET_XTEA_KEY_LEN; i++)
     {
-        return ON_MSG_INTERNAL_ERR;
-    }
-    
+        invite_key[i] = 0x00;
+    } // loop to clear key for good security measure //
 
-    msg_hdr.raw_pid = pkt->raw_pid;
-    msg_hdr.msg_id = pkt->msg_id;
-    msg_hdr.msg_type = *msg_type;
-    on_decode(dst ,*(pkt->enc_dst_did), ON_ENCODED_DID_LEN);
-    
-    
-    if(*msg_type == ON_ADMIN_MSG)
-    {
-        admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
-    }
-
-    #ifndef _ONE_NET_MULTI_HOP
-    one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack);
-    #else
-    one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack, pkt->hops);
-    #endif
-    
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-    {
-        // device has checked in, so reset the next check-in time
-        // give it 5 extra seconds.
-        client->next_check_in_time = get_tick_count() +
-          MS_TO_TICK(5000 + client->keep_alive_interval);
-        one_net_master_device_is_awake(TRUE,
-          (const on_raw_did_t * const)&dst);
-    }
-    
-    return ON_MSG_DEFAULT_BHVR;
-}
-
-
-
-
-#ifdef _BLOCK_MESSAGES_ENABLED
-// TODO -- document
-static on_message_status_t on_master_block_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-
-
-// TODO -- document  
-static on_message_status_t on_master_handle_block_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-
-
-// TODO -- document 
-static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-#endif
-
-
-
-
-#ifdef _STREAM_MESSAGES_ENABLED
-// TODO -- document
-static on_message_status_t on_master_stream_data_hdlr(
-  on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-
-
-// TODO -- document  
-static on_message_status_t on_master_handle_stream_ack_nack_response(
-  on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
-  on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-  
-
-// TODO -- document 
-static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_CONTINUE;
-}
-#endif
-
+    return ONS_SUCCESS;
+} // one_net_master_cancel_invite //
 
 
 /*!
-    \brief Initializes internal data structures.
+    \brief Starts the process to remove a device from the network.
 
-    This will also initialize the base one_net functionality.
+    \param[in] RAW_PEER_DID The device to remove from the network
+
+    \return ONS_SUCCESS If the process to remove the device was started
+            ONS_BAD_PARAM If the parameter was invalid
+*/
+one_net_status_t one_net_master_remove_device(
+  const one_net_raw_did_t * const RAW_PEER_DID)
+{
+    // Derek_s 11/4/2010
+	UInt8 i;
+	on_encoded_did_t*  client_enc_did;
+	one_net_raw_did_t client_raw_did;
+    on_encoded_did_t encoded_peer_did;
+    one_net_status_t status;
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    if(!RAW_PEER_DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if((status = on_encode(encoded_peer_did, *RAW_PEER_DID,
+      sizeof(encoded_peer_did))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if encoding the dst did failed //
+
+    if(!client_info((const on_encoded_did_t * const)&encoded_peer_did))
+    {
+        return ONS_INCORRECT_ADDR;
+    } // the CLIENT is not part of the network //
+
+#ifdef _ONE_NET_EVAL
+#ifdef _PEER
+	oncli_send_msg("Deleting did %03x.  First removing all relevant peer assignments to did %03x.\n",
+	    did_to_u16(RAW_PEER_DID), did_to_u16(RAW_PEER_DID));
+#else
+	oncli_send_msg("Deleting did %03x.\n", did_to_u16(RAW_PEER_DID));
+#endif
+#endif
+
+#ifdef _PEER
+	for(i = 0; i < master_param->client_count; i++)
+	{
+		client_enc_did = &(client_list[i].did);
+
+		if(on_encoded_did_equal(client_enc_did, &encoded_peer_did))
+		{
+			// it's the device we're removing anyway, so don't bother with any peer un-assignments
+			continue;
+		}
+
+		if(on_decode(client_raw_did, *client_enc_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+		{
+			// error.  couldn't decode.  Skip this one.
+			continue;
+		}
+
+		// send out an unassign peer message to the client.  For the unit numbers, use ONE_NET_DEV_UNIT,
+		// which will remove ALL peeer assignments where the did we are deleting is the target.
+		one_net_master_peer_assignment(FALSE, &client_raw_did, ONE_NET_DEV_UNIT, RAW_PEER_DID,
+		    ONE_NET_DEV_UNIT);
+	}
+
+    // Now remove any master peer assignments to the device being deleted.
+    master_unassigned_peer(ONE_NET_DEV_UNIT, &encoded_peer_did, ONE_NET_DEV_UNIT, TRUE);
+#endif
+
+    // all client peer assignments to this did are removed.  Now remove the device itself
+    return send_admin_pkt(ON_RM_DEV, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)&encoded_peer_did, ONE_NET_LOW_PRIORITY, pld,
+      sizeof(pld));
+} // one_net_master_remove_device //
+
+
+/*!
+    \brief The main function for the ONE-NET MASTER.
 
     \param void
 
-    \return ONS_SUCCESS upon success.
+    \return void
 */
-static one_net_status_t init_internal(void)
+void one_net_master(void)
 {
-    pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
-    pkt_hdlr.single_ack_nack_hdlr =
-      &on_master_handle_single_ack_nack_response;
-    pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
-    pkt_hdlr.adj_recip_list_hdlr = &on_master_adjust_recipient_list;
-    
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    pkt_hdlr.block_data_hdlr = &on_master_block_data_hdlr;
-    pkt_hdlr.block_ack_nack_hdlr =
-      &on_master_handle_block_ack_nack_response;
-    pkt_hdlr.block_txn_hdlr = &on_master_block_txn_hdlr;
+    // The current transaction
+    static on_txn_t * txn = 0;
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+	tick_t queue_sleep_time;
     #endif
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    pkt_hdlr.stream_data_hdlr = &on_master_stream_data_hdlr;
-    pkt_hdlr.stream_ack_nack_hdlr =
-      &on_master_handle_stream_ack_nack_response;
-    pkt_hdlr.stream_txn_hdlr = &on_master_stream_txn_hdlr;
-    #endif    
 
-    one_net_send_single = &one_net_master_send_single;
-    get_sender_info = &sender_info;
-    device_is_master = TRUE;
-    one_net_init();
+    // Derek_S 11/10/2010 - Call to save_param() seems to now be commented
+	// out.  Not sure what happened, but apparently there was a change and
+	// things seem to work.
+
+	// TO-DO : Find out what replaced the call to save_param() and if the
+	// comment below is truly obsolete, as it appears to be, delete it so
+	// it doesn't confuse things.
+
+	// Derek_S 10/25/2010 - fixing problem with CLI "list" command
+	// force a "save" (note that "save" DOES NOT save to non-volatile
+	// memory.  It is separate from the CLI "save" command) so that
+	// the "list" command will have an appropriate flag.  If you type
+	// in "list" before anything "interesting" happens(i.e. key change, new
+	// client, etc., "list" won't perform properly upon a power cycle after
+	// a save.  So we call save_param() as sort of a memory jog, not because
+	// we are saving things.  "list" requires things to be "saved" at least once
+	// to work
+	//#ifdef _ONE_NET_EVAL
+	//    save_param();
+    //#endif
+
+    // Do the appropriate action for the state the device is in.
+    switch(on_state)
+    {
+#ifdef _IDLE
+		case ON_IDLE:
+		{
+			break;
+		}
+#endif
+
+        case ON_LISTEN_FOR_DATA:
+        {
+            if(invite_idx < ONE_NET_MASTER_MAX_TXN
+              && ont_inactive_or_expired(
+              txn_list[invite_idx].txn.next_txn_timer))
+            {
+                if(ont_expired(ONT_INVITE_TIMER))
+                {
+                    one_net_master_invite_result(ONS_TIME_OUT, invite_key, 0);
+                    one_net_master_cancel_invite(
+                      (const one_net_xtea_key_t * const)&invite_key);
+                    break;
+                } // if trying to add device timed out //
+
+                txn = &(txn_list[invite_idx].txn);
+                txn->retry++;
+
+                ont_set_timer(txn_list[invite_idx].txn.next_txn_timer,
+                  ONE_NET_MASTER_INVITE_SEND_TIME);
+                one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
+                on_state = ON_SEND_PKT;
+                break;
+            } // if time to send an invite //
+            else if(txn_head < ONE_NET_MASTER_MAX_TXN
+              && ont_inactive_or_expired(ONT_GENERAL_TIMER))
+            {
+                txn = &(txn_list[txn_head].txn);
+
+                // update head of the list since the transaction is being sent
+                cur_txn_info = txn_head;
+                txn_head = txn_list[txn_head].next;
+                txn_list[cur_txn_info].next = ONE_NET_MASTER_MAX_TXN;
+
+                if(txn_list[cur_txn_info].type == ON_DATA_RATE_TXN)
+                {
+                    on_state = ON_INIT_SEND_DATA_RATE;
+                    break;
+                } // if the MASTER is performing a data rate test //
+
+                else
+                {
+                    if(txn_list[cur_txn_info].txn.send
+                      && (txn_list[cur_txn_info].type == ON_SINGLE ||
+                      ont_inactive_or_expired(
+                      txn_list[cur_txn_info].txn.next_txn_timer)))
+                    {
+                        switch(txn_list[cur_txn_info].type)
+                        {
+                            case ON_SINGLE:
+                            {
+                                #ifdef _BLOCK_MESSAGES_ENABLED
+                                check_b_s_req();
+                                #endif
+                                on_state = ON_SEND_SINGLE_DATA_PKT;
+                                break;
+                            } // ON_SINGLE CASE //
+
+                            #ifdef _BLOCK_MESSAGES_ENABLED
+                            case ON_BLOCK:
+                            {
+                                if(txn_list[cur_txn_info].txn.retry == 0)
+                                {
+                                    on_nack_rsn_t nack_reason;
+
+                                    if((nack_reason = get_next_b_s_pld(cur_txn_info)) !=
+                                       ON_NACK_RSN_NO_ERROR)
+                                    {
+                                        one_net_raw_did_t raw_did;
+
+                                        if(on_decode(raw_did,
+                                          txn_list[cur_txn_info].did,
+                                          sizeof(txn_list[cur_txn_info].did))
+                                          == ONS_SUCCESS)
+                                        {
+                                            one_net_master_block_txn_status(
+                                              ONS_BLOCK_FAIL,
+                                              (const one_net_raw_did_t * const)
+                                              &raw_did);
+                                        } // if decoding was successful //
+                                        else
+                                        {
+                                            one_net_master_block_txn_status(
+                                              ONS_INTERNAL_ERR,
+                                              (const one_net_raw_did_t * const)
+                                              &raw_did);
+                                        } // if decoding failed //
+
+                                        cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                                        break;
+                                    } // if getting next payload unsuccessful //
+                                } // if a block transaction & retry == 0 //
+
+                                on_state = ON_SEND_BLOCK_DATA_PKT;
+                                break;
+                            } // ON_BLOCK case //
+                            #endif
+
+                            #ifdef _STREAM_MESSAGES_ENABLED
+                            case ON_STREAM:
+                            {
+                                if(txn_list[cur_txn_info].txn.remaining)
+                                {
+                                    if(!get_next_b_s_pld(cur_txn_info))
+                                    {
+                                        break;
+                                    } // if getting next payload unsuccessful //
+
+                                    on_state = ON_SEND_STREAM_DATA_PKT;
+                                } // if continuing with stream //
+                                else
+                                {
+                                    // send 0's since field is not used
+                                    UInt8 data[ON_MAX_ADMIN_PLD_LEN] = {0};
+
+                                    // Send the single to end the stream
+                                    txn_list[cur_txn_info].type = ON_SINGLE;
+                                    txn_list[cur_txn_info].txn.data_len
+                                      = sizeof(data);
+                                    txn_list[cur_txn_info].txn.msg_type
+                                      = ON_ADMIN_MSG;
+                                    txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+                                      = ON_END_STREAM;
+                                    one_net_memmove(
+                                      &(txn_list[cur_txn_info].txn.pkt[ON_DATA_IDX]),
+                                      data, sizeof(data));
+                                    single_txn_data_count++;
+
+                                    on_state = ON_SEND_SINGLE_DATA_PKT;
+                                } // else ending the stream //
+                                break;
+                            } // ON_STREAM case //
+							#endif
+
+                            default:
+                            {
+                                return;
+                                break;
+                            } // default case //
+                        } // switch(txn type) //
+
+                        if(build_txn_data_pkt(cur_txn_info) == ONS_SUCCESS)
+                        {
+                            // get the device to set the data rate the device
+                            // receives at
+                            const on_client_t * CLIENT = 0;
+
+                            one_net_raw_did_t raw_dst;
+                            one_net_status_t status = ONS_INTERNAL_ERR;
+
+                            if((status = on_decode(raw_dst,
+                              &(txn_list[cur_txn_info].txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
+                              ON_ENCODED_DID_LEN)) != ONS_SUCCESS || (CLIENT =
+                              client_info((const on_encoded_did_t * const)
+                              &(txn_list[cur_txn_info].txn.pkt[ONE_NET_ENCODED_DST_DID_IDX])))
+                              == 0)
+                            {
+                                #ifdef _BLOCK_MESSAGES_ENABLED
+                                if(txn_list[cur_txn_info].type == ON_BLOCK
+                                  || b_s_req.type == ON_BLOCK)
+                                {
+                                    one_net_master_block_txn_status(
+                                      ONS_INTERNAL_ERR,
+                                      (const one_net_raw_did_t * const)
+                                      &raw_dst);
+                                } // if a block (or block request) //
+								#ifdef _STREAM_MESSAGES_ENABLED
+                                else if(txn_list[cur_txn_info].type
+                                  == ON_STREAM || b_s_req.type == ON_STREAM)
+                                {
+                                    one_net_master_stream_txn_status(
+                                      ONS_INTERNAL_ERR,
+                                      (const one_net_raw_did_t * const)
+                                      &raw_dst);
+                                } // else if a stream (or stream request) //
+								#endif
+                                else
+                                {
+                                    #endif
+                                    one_net_master_single_txn_status(
+                                      ONS_INTERNAL_ERR, 0, 0,
+                                      (const one_net_raw_did_t * const)
+                                      &raw_dst);
+                                    #ifdef _BLOCK_MESSAGES_ENABLED
+                                } // else it's a single transaction //
+
+                                b_s_req.type = ON_NO_TXN;
+                                #endif
+                                free_txn(cur_txn_info);
+                                cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                            } // if getting the client info failed //
+                            else
+                            {
+                                one_net_set_data_rate(CLIENT->data_rate);
+                                break;
+                            } // else getting the CLIENT info was successful //
+                        } // if building the packet was successful //
+                        else
+                        {
+                            one_net_raw_did_t raw_dst;
+
+                            on_decode(raw_dst,
+                              &(txn_list[cur_txn_info].txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
+                              ON_ENCODED_DID_LEN);
+
+                            #ifdef _BLOCK_MESSAGES_ENABLED
+                            if(txn_list[cur_txn_info].type == ON_BLOCK
+                              || b_s_req.type == ON_BLOCK)
+                            {
+                                one_net_master_block_txn_status(
+                                  ONS_INTERNAL_ERR,
+                                  (const one_net_raw_did_t * const)&raw_dst);
+                            } // if a block (or block request) //
+							#ifdef _STREAM_MESSAGES_ENABLED
+                            else if(txn_list[cur_txn_info].type
+                              == ON_STREAM || b_s_req.type == ON_STREAM)
+                            {
+                                one_net_master_stream_txn_status(
+                                  ONS_INTERNAL_ERR,
+                                  (const one_net_raw_did_t * const)&raw_dst);
+                            } // else if a stream (or stream request) //
+							#endif
+                            else
+                            {
+                                #endif
+                                one_net_master_single_txn_status(
+                                  ONS_INTERNAL_ERR, 0, 0,
+                                  (const one_net_raw_did_t * const)&raw_dst);
+                                #ifdef _BLOCK_MESSAGES_ENABLED
+                            } // else it's a single transaction //
+
+                            b_s_req.type = ON_NO_TXN;
+                            #endif
+                            free_txn(cur_txn_info);
+                            cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                        } // else building the txn was not successful //
+
+                        on_state = ON_LISTEN_FOR_DATA;
+                    } // if sending the transaction and it's time to send //
+                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    else if(!txn_list[cur_txn_info].txn.send)
+                    {
+                        if(ont_inactive_or_expired(
+                          txn_list[cur_txn_info].txn.next_txn_timer))
+                        {
+                            txn_list[cur_txn_info].txn.retry++;
+                            if(txn_list[cur_txn_info].txn.retry >= ON_MAX_RETRY)
+                            {
+                                one_net_raw_did_t did;
+
+                                if(on_decode(did, txn_list[cur_txn_info].did,
+                                  sizeof(txn_list[cur_txn_info].did))
+                                  == ONS_SUCCESS)
+                                {
+									#ifdef _STREAM_MESSAGES_ENABLED
+                                    if(txn_list[cur_txn_info].type == ON_STREAM)
+                                    {
+                                        one_net_master_stream_txn_status(
+                                          ONS_STREAM_FAIL,
+                                          (const one_net_raw_did_t * const)
+                                          &did);
+                                    } // if a stream transaction //
+                                    else if(
+									#else
+									if(
+									#endif
+                                      txn_list[cur_txn_info].txn.remaining)
+                                    {
+                                        one_net_master_block_txn_status(
+                                          ONS_BLOCK_FAIL,
+                                          (const one_net_raw_did_t * const)
+                                          &did);
+                                    } // else if blocks remain //
+                                    else
+                                    {
+                                        // no blocks remaining to be received
+                                        // so the ONE_NET_ENCODED_BLOCK_TXN_ACK
+                                        // must have been missed.
+                                        one_net_master_block_txn_status(
+                                          ONS_BLOCK_END,
+                                          (const one_net_raw_did_t * const)
+                                          &did);
+                                    } // else receiving & no blocks remained //
+                                } // if decoding did was successful //
+
+                                free_txn(cur_txn_info);
+                            } // if the transaction failed //
+                            else
+                            {
+                                on_update_next_txn_time(
+                                  &(txn_list[cur_txn_info].txn));
+                                enqueue_txn(cur_txn_info);
+                            } // queue it to try again //
+                        } // if the transaction time passed //
+                        else
+                        {
+                            // it is not time for the txn yet
+                            enqueue_txn(cur_txn_info);
+                        } // else the transaction time has not passed //
+                    } // else if receiving the transaction //
+                    else
+                    {
+                        // not time for the txn yet, so put it back in the q
+                        enqueue_txn(cur_txn_info);
+                    } // else must not be time for the txn //
+                    #endif
+                } // else it is a single/block/stream transaction //
+            } // else if a transaction is queued //
+
+
+            // not carrying out a transaction at this time
+            cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+
+            switch(on_rx_data_pkt(&ON_ENCODED_BROADCAST_DID, &txn))
+            {
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONS_BLOCK_FAIL:
+                {
+                    if(cur_txn_info < ONE_NET_MASTER_MAX_TXN
+                      && txn_list[cur_txn_info].type == ON_BLOCK)
+                    {
+                        free_txn(cur_txn_info);
+                        cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                    } // if the txn was set in the call //
+                    break;
+                } // block fail case //
+				#endif
+
+                #ifdef _STREAM_MESSAGES_ENABLED
+                case ONS_STREAM_END:                    // fall through
+                case ONS_STREAM_FAIL:
+                {
+                    if(cur_txn_info < ONE_NET_MASTER_MAX_TXN
+                      && txn_list[cur_txn_info].type == ON_STREAM
+                      && on_state != ON_SEND_SINGLE_DATA_PKT)
+                    {
+                        free_txn(cur_txn_info);
+                        cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                    } // if the txn should be freed //
+                    break;
+                } // stream end/fail case //
+				#endif
+
+                default:
+                {
+                    break;
+                } // default case //
+            } // switch on on_rx_data_pkt result //
+
+            if(ont_active(data_rate_test.timer)
+              && ont_expired(data_rate_test.timer))
+            {
+                report_data_rate_result(data_rate_test.rate, 0, 0);
+            } // if the data rate timer expired //
+
+            check_key_update(TRUE);
+			#ifdef _STREAM_MESSAGES_ENABLED
+            check_stream_key_update(TRUE);
+			#endif
+            break;
+        } // listen_for_data case //
+
+        case ON_JOIN_NETWORK:
+        {
+            if(one_net_channel_is_clear())
+            {
+                if(ont_expired(ONT_GENERAL_TIMER))
+                {
+                    on_state = ON_LISTEN_FOR_DATA;
+                    ont_stop_timer(ONT_CHANGE_KEY_TIMER);
+                    save_param();
+                } // if channel has been clear for enough time //
+            } // if channel is clear //
+            else
+            {
+                on_base_param->channel++;
+                #if defined(_ONE_NET_EVAL) && defined(_US_CHANNELS)
+                    // the eval board contains both US and European channels,
+                    // but the MASTER defaults to creating the network on the
+                    // US channel.
+                    on_base_param->channel %= (ONE_NET_MAX_US_CHANNEL + 1);
+                #else // if picking only a U.S. Channel //
+                    on_base_param->channel %= ONE_NET_NUM_CHANNELS;
+                #endif // else picking any channel //
+                ont_set_timer(ONT_GENERAL_TIMER, new_channel_clear_time_out);
+
+                // check if it's been long enough where the device thinks that
+                // there is traffic on all the channels.  If that is the case
+                // lower the time in hopes of finding the least busy channel.
+                if(ont_inactive_or_expired(ONT_CHANGE_KEY_TIMER))
+                {
+                    new_channel_clear_time_out >>= 1;
+                    ont_set_timer(ONT_CHANGE_KEY_TIMER,
+                      ONE_NET_MASTER_CHANNEL_SCAN_TIME);
+                } // if time to lower the channel clear time //
+            } // else channel is not clear //
+            break;
+        } // ON_JOIN_NETWORK case //
+
+        default:
+        {
+            if(one_net(&txn) && cur_txn_info < ONE_NET_MASTER_MAX_TXN
+              && txn_list[cur_txn_info].type != ON_INVITE)
+            {
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                if(txn_list[cur_txn_info].type == ON_SINGLE
+				#ifdef _STREAM_MESSAGES_ENABLED
+                  && (b_s_req.type == ON_BLOCK || b_s_req.type == ON_STREAM))
+				#else
+                  && (b_s_req.type == ON_BLOCK))
+				#endif
+                {
+                    // reusing the txn_list element for the block transaction.
+                    txn_list[cur_txn_info].type = b_s_req.type;
+                    txn_list[cur_txn_info].txn.remaining = b_s_req.len;
+                    txn_list[cur_txn_info].txn.send = b_s_req.send;
+                    txn_list[cur_txn_info].txn.retry = 0;
+
+                    if(!txn_list[cur_txn_info].txn.send)
+                    {
+                        // receiving the transaction, so release the
+                        // transaction data back to the pool
+                        txn_list[cur_txn_info].txn.data_len = 0;
+                        txn_list[cur_txn_info].txn.pkt_size = 0;
+                        txn_list[cur_txn_info].txn.pkt = 0;
+
+                        if(txn_list[cur_txn_info].pkt_idx
+                          < ONE_NET_MASTER_MAX_SEND_TXN)
+                        {
+                            pkt_list[txn_list[cur_txn_info].pkt_idx].in_use
+                              = FALSE;
+                            txn_list[cur_txn_info].pkt_idx
+                              = ONE_NET_MASTER_MAX_SEND_TXN;
+                        } // if the pkt_idx is valid //
+
+                        txn_data_count--;
+                    } // if receiving the transaction //
+
+                    single_txn_data_count--;
+                    b_s_req.type = ON_NO_TXN;
+
+                    if(txn_list[cur_txn_info].txn.msg_type == ON_ADMIN_MSG)
+                    {
+                        // if an admin message was used to set up the
+                        // transaction, then the transaction was set up to send
+                        // block or stream data.
+                        txn_list[cur_txn_info].txn.msg_type = ON_APP_MSG;
+                    } // if an admin message //
+
+                    on_update_next_txn_time(&(txn_list[cur_txn_info].txn));
+                    enqueue_txn(cur_txn_info);
+                } // if a block request was made //
+                else
+                {
+                    free_txn(cur_txn_info);
+                } // else not an admin request for a block transaction //
+				#else  // if block messages are enabled. //
+				    free_txn(cur_txn_info);
+				#endif // if block messages are not enabled. //
+                cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+
+            } // if the transaction was completed successfully //
+
+            break;
+        } // default case //
+    } // switch(on_state) //
+
+   // check to see if we need to save parameters
+    if(save)
+    {
+        save = FALSE;
+        save_param();
+    } // if the parameters should be saved //
+
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+	// we don't care about the sleep time for a master, but the function wants it.
+	adjust_single_data_queue(&queue_sleep_time);
+    #endif
+} // one_net_master //
+
+
+/*!
+    \brief Add a client to the current network.
+
+    This function can be used when you need to add a client
+    to the current network and you do not want to use the normal
+    invite/join process. A client is added with the information
+    supplied and the information that the client will need to
+    communicate on the current network is returned.
+
+    \param[in] CAPABILITIES Pointer to a structure holding the client's capabilities.
+    \param[out] config Pointer to a structure used to return networl configuration information.
+
+    \return ONS_SUCCESS if the client was added.
+            ONS_BAD_PARAM if the parameter was invalid.
+            ONS_DEVICE_LIMIT if there is no room to hold another client.
+            See on_decode error returns for the other values that may
+            be returned.
+*/
+// Derek_S 11/3/2010 - this function is a bit hard to test since we've been testing it by
+// inviting/deleting it the normal way.
+// TO -DO : test this to make sure nothing was missed.
+one_net_status_t one_net_master_add_client(
+  const one_net_master_add_client_in_t * CAPABILITIES,
+  one_net_master_add_client_out_t * config)
+{
+    // instead of separate arguments for values returned.
+    one_net_status_t status;
+
+    on_client_t * client;
+    UInt16 new_client_did;
+    UInt16 raw_master_did;
+    UInt8 features = 0;
+
+    new_client_did = master_param->next_client_did;
+
+    // a device is being added, find the next available client_t
+    // structure
+    client = one_net_master_add_new_client_to_list();
+
+    if(!client)
+    {
+        // the master can't handle any more devices
+        status = ONS_DEVICE_LIMIT;
+        return status;
+    } // if the pointer is 0 //
+
+    //
+    // initialize the fields in the client_t structure for this new client
+    //
+    client->expected_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
+    client->last_nonce = ON_MAX_NONCE + 1;
+    client->send_nonce = 0;
+    client->data_rate = on_base_param->data_rate;
+    client->max_data_rate = CAPABILITIES->max_data_rate;
+    client->use_current_key = TRUE;
+
+    //
+    // fill in the network configuration values this new client
+    // will need to operate in this ONE-NET network.
+    //
+
+    // the master's DID is just past the NID within the encoded SID, copy it to master_did
+    one_net_memmove(config->master_did, on_base_param->sid+ON_ENCODED_NID_LEN, sizeof(on_encoded_did_t));
+
+    // decode the SID to get a raw SID for the master
+    if((status = on_decode(config->raw_sid, on_base_param->sid, sizeof(on_encoded_sid_t)))
+      != ONS_SUCCESS)
+    {
+        return status;
+    }
+
+    // extract the raw master DID from the end of the raw SID, before replacing it
+    raw_master_did = config->raw_sid[ONE_NET_RAW_NID_LEN-1]<<8;// pick up the two byte DID
+    raw_master_did |= config->raw_sid[ONE_NET_RAW_NID_LEN];
+    raw_master_did <<= 4;                                   // and shift out the end of the NID
+    config->master_did[0] = (raw_master_did>>8) & 0xff;     // store DID as a big endian
+    config->master_did[1] = raw_master_did & 0xff;          // 16 bit value left justified
+
+    // replace the DID field in this raw SID with this new client's DID
+    config->raw_sid[ONE_NET_RAW_NID_LEN-1] &= 0xf0;
+    config->raw_sid[ONE_NET_RAW_NID_LEN-1] |= (new_client_did>>12) & 0x0f; //TODO: MR2: is there a ONE-NET const for 12?
+    config->raw_sid[ONE_NET_RAW_NID_LEN] = (new_client_did>>4) & 0xff; //TODO: MR2: is there a ONE-NET const for 0xff?
+
+    one_net_memmove(config->current_key, on_base_param->current_key, sizeof(one_net_xtea_key_t));
+    config->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
+    config->single_block_encrypt_method = on_base_param->single_block_encrypt;
+    config->master_data_rate = on_base_param->data_rate;
+    config->data_rate = on_base_param->data_rate;
+    config->channel = on_base_param->channel;
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_memmove(config->stream_key, on_base_param->stream_key, sizeof(one_net_xtea_key_t));
+    config->stream_encrypt_method = on_base_param->stream_encrypt;
+#endif
+#ifdef _BLOCK_MESSAGES_ENABLED
+    config->fragment_delay_low = on_base_param->fragment_delay_low;
+    config->fragment_delay_high = on_base_param->fragment_delay_high;
+#endif
+
+    // save the new client
+    save = TRUE;
+
     return ONS_SUCCESS;
-} // init_internal //
+} // one_net_master_add_client //
+
+
+/*!
+    \brief Delete a client.
+
+    This function has been retained for historiacal purposes.  There is no attempt made
+    to ensure that the DID provided is the LAST client added.
+
+    \param[in] raw_client_did Pointer to the raw DID of the client to be deleted.
+
+    \return ONS_SUCCESS if the client was deleted.
+            ONS_INVALID_DATA if the client was not deleted.
+*/
+one_net_status_t one_net_master_delete_last_client (one_net_raw_did_t * raw_client_did)
+{
+    on_encoded_did_t encoded_client_did;
+
+    on_encode(encoded_client_did, (UInt8 *)raw_client_did, sizeof(on_encoded_did_t));
+    return rm_client(&encoded_client_did);
+} // one_net_master_delete_last_client //
 
 
 /*!
     \brief Returns the CLIENT information for the given CLIENT.
 
-    \param[in] CLIENT_DID The encoded device id of the CLIENT to retrieve the
+    \param[in] CLIENT_DID The enocded device id of the CLIENT to retrieve the
       information for.
 
     \return The CLIENT information if the information was found
             0 If an error occured.
 */
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
+on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 {
     UInt16 i;
 
@@ -2190,493 +2350,1801 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
     for(i = 0; i < master_param->client_count; i++)
     {
         if(on_encoded_did_equal(CLIENT_DID,
-          (const on_encoded_did_t * const)&client_list[i].device.did))
+          (const on_encoded_did_t * const)&client_list[i].did))
         {
             return &(client_list[i]);
         } // if the CLIENT was found //
     } // loop to find the CLIENT //
-
-    // check to see if this is a device currently accepting an invite.
-    // If it is, then assign it the next DID
-    if(is_invite_did(CLIENT_DID))
-    {
-        return &client_list[master_param->client_count];
-    }
 
     return 0;
 } // client_info //
 
 
 /*!
-    \brief Removes the CLIENT from the network (by removing it from the table) 
+    \brief Returns the CLIENT information for the given CLIENT.
 
-    \param[in] DID The device ID of the CLIENT to remove
+    \param[in] current_key TRUE if the function should return the current key,
+	                   FALSE if the function should return the old key
+    \param[in] stream_key TRUE if the function should return the stream key,
+	                   FALSE if the function should return the single/block key
 
-    \return ONS_SUCCESS if the client was deleted.
-            ONS_NOT_JOINED if the client to delete is not in the network
-            ONS_INVALID_DATA if the client was not deleted.
-            ONS_INTERNAL_ERR if some other problem occurred
+    \return The encryption key that matches the parameters
 */
-static one_net_status_t rm_client(const on_encoded_did_t * const DID)
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key, const BOOL stream_key)
+#else
+    one_net_xtea_key_t* get_encryption_key(const BOOL current_key)
+#endif
 {
-    UInt16 index;
-    on_client_t* client;
-    BOOL found = FALSE;
-    
-    if(!DID)
-    {
-        return ONS_INVALID_DATA;
-    } // if the parameter is invalid //
-    
-    sort_client_list_by_encoded_did(); // sort the list if it isn't already
-                                       // sorted.  This is probably not
-                                       // necessary.
+    const one_net_xtea_key_t* new_key = &(on_base_param->current_key);
+    const one_net_xtea_key_t* old_key = &(master_param->old_key);
 
-    client = client_info(DID);
-    if(!client)
-    {
-        return ONS_NOT_JOINED; // there's no client to delete.  This may be an
-                               // error or it may just be that the device has
-                               // already been deleted.
-    }
-    
-    // now loop through and find the index of the client in the client_list.
-    for(index = 0; index < master_param->client_count; index++)
-    {
-        if(&client_list[index] == client)
-        {
-            found = TRUE;
-            break;
-        }
-    }
-    
-    if(!found)
-    {
-        return ONS_INTERNAL_ERR; // we shouild never get here
-    }
-    
-    // move everything below up one.
-    one_net_memmove(&client_list[index], &client_list[index + 1],
-      (master_param->client_count - index - 1) * sizeof(on_client_t));
-      
-    // subtract 1 from the count
-    (master_param->client_count)--;
-    
-    // now fill in the next client did to assign
-    master_param->next_client_did = find_lowest_vacant_did();
+    #ifdef _STREAM_MESSAGES_ENABLED
+	    if(stream_key)
+		{
+            new_key = &(on_base_param->stream_key);
+            old_key = &(master_param->old_stream_key);
+		}
+	#endif
 
-	return ONS_SUCCESS;
-} // rm_client //
+	if(current_key)
+	{
+		return new_key;
+	}
 
-
-/*!
-    \brief Sorts the client list by did for a cleaner printout.
-*/
-static void sort_client_list_by_encoded_did(void)
-{
-    UInt16 i;
-    on_raw_did_t raw_did1;
-    on_raw_did_t raw_did2;
-    
-    // the client list will almost always be in order already.  When it's not,
-    // generally only one element will be out of order, so instead of having a
-    // nested loop, if we ever find an element out of order, we'll just iterate
-    // through the whole list again.
-    for(i = 1; i < master_param->client_count; i++)
-    {
-        on_decode(raw_did1, client_list[i-1].device.did,
-          ON_ENCODED_DID_LEN);
-        on_decode(raw_did2, client_list[i].device.did,
-          ON_ENCODED_DID_LEN);
-          
-        if(one_net_byte_stream_to_int16(raw_did1) >
-          one_net_byte_stream_to_int16(raw_did2))
-        {
-            // swap.
-            on_client_t temp = client_list[i-1];
-            client_list[i-1] = client_list[i];
-            client_list[i] = temp;
-            i = 0; // make it 0, not 1 because the loop increments i.
-        }
-    }
+	return old_key;
 }
 
 
 /*!
-    \brief Find the lowest vacant did that can be assigned to the next client.
+    \brief Returns the CLIENT information for the given CLIENT.
 
-    \return the next available client did that can be assigned in raw form
-            stored as a UInt16 (i.e. 0020, 0030, 0040, etc.).  Returns 0
-            if the list is full.
+    \param[in] client pointer to a client's settings in the network
+    \param[in] stream_key TRUE if the function should return the stream key,
+	                   FALSE if the function should return the single/block key
+
+    \return The encryption key that this client uses
 */
-static UInt16 find_lowest_vacant_did(void)
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client, const BOOL stream_key)
+#else
+    one_net_xtea_key_t* get_client_encryption_key(const on_client_t* const client)
+#endif
 {
-    UInt16 i;
-    on_raw_did_t raw_did;
-    UInt16 vacant_did = ONE_NET_INITIAL_CLIENT_DID;
-    
-    sort_client_list_by_encoded_did();
-    
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
-    {
-        return 0; // list is full.
-    }
-    
-    // Note that the list is already sorted.  We'll go through it and see if
-    // there are any gaps.  If not, we'll add ONE_NET_INITIAL_CLIENT_DID to
-    // the last client and return that.
-    for(i = 0; i < master_param->client_count; i++)
-    {
-        on_decode(raw_did, client_list[i].device.did,
-          ON_ENCODED_DID_LEN);
-        if(one_net_byte_stream_to_int16(raw_did) != vacant_did)
-        {
-            // a vacant did has been found
-            return vacant_did;
-        }
-        
-        vacant_did += ON_CLIENT_DID_INCREMENT;
-    }
-    
-    // no gaps were found.
-    return vacant_did;
-}
+    BOOL current_key;
 
-
-/*!
-    \brief Sends a single data message.
-    
-    The message is either sent to the peer list or only to the specific device
-    that is passed in.
-    
-    \param[in] raw_pid The raw pid of the message.
-    \param[in] msg_type The message type of the message(admin, application, etc.)
-    \param[in] data The data to send.
-    \param[in] data_len The length of DATA (in bytes).
-    \param[in] priority The priority of the transaction.
-    \param[in] src_did The source of the message (if NULL, the source will be
-      assumed to be this device).
-    \param[in] enc_dst The device the message is destined for.  This can be
-      NULL if the message is to be sent to the peer list.
-    \param[in] send_to_peer_list If true, the message will be sent to.
-    \param[in] src_unit The unit that the message originated from.  Relevant
-      only if sending to the peer list.
-	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
-	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
-    
-    \return ONS_SUCCESS If the single data has been queued successfully.
-            ONS_BAD_PARAM If the parameters are invalid.
-            ONS_RSRC_FULL If no resources are currently available to handle the
-              request.
-*/
-static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  , tick_t send_time_from_now
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  )
-{    
-    if(push_queue_element(raw_pid, msg_type, raw_data, data_len, priority,
-      src_did, enc_dst
-      #ifdef _PEER
-          , send_to_peer_list, src_unit
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , send_time_from_now
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , expire_time_from_now
-      #endif
-      ) == NULL)
-    {
-        return ONS_RSRC_FULL;
-    }
-
-    return ONS_SUCCESS;
-}
-
-
-/*!
-    \brief Finds the sender info.
-
-    The return value should be checked for 0.  The expected_nonce and last nonce
-    should then be compared.  If these two values are equal, then it is a new
-    location so a NACK should be sent to the sender, and the new nonce filled
-    out.  The last nonce value should not be a valid nonce value and should be
-    left unchanged for the time being.
-
-    \param[in] DID The device id of the device.
-
-    \return Pointer to location that holds the sender information (should be
-      checked for 0, and should be checked if a new location).
-*/
-static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
-{
-    on_client_t* client = client_info(DID);
     if(client == NULL)
-    {
-        return NULL;
-    }
-    
-    return &(client->device);
+	{
+		return NULL;
+	}
+
+	current_key = client->use_current_key;
+    #ifdef _STREAM_MESSAGES_ENABLED
+        if(stream_key)
+		{
+			current_key = client->use_current_stream_key;
+		}
+		return get_encryption_key(current_key, stream_key);
+    #else
+	    return get_encryption_key(current_key);
+    #endif
 }
 
 
-static void check_updates_in_progress(void)
+#ifdef _PEER
+UInt8 master_get_num_free_send_txn(void)
 {
-    static tick_t last_send_time = 0;
-    tick_t time_now = get_tick_count();
-    const tick_t SEND_INTERVAL = MS_TO_TICK(5000);
-    
-    // The time to stop trying to update any devices which have not been updated
-    // TODO -- should this be a port constant?  Should it exist at all?
-    // Note -- Does NOT apply to devices that sleep with key changes
-    // And should this value be defined locally or globally.
-    // located here?
-    const tick_t UPDATE_TIME_LIMIT = MS_TO_TICK(60000);
+    UInt8 i;
+    UInt8 num_free_txn = 0;
 
-    UInt16 i;
-    on_client_t* client;
-    UInt8 admin_payload[4];
-    on_ack_nack_t ack;
-    UInt8 admin_msg_id = 0xFF; // garbage argument.  Will be written over if
-                               // any real message is to be sent.
-
-    ack.nack_reason = ON_NACK_RSN_NO_ERROR;
-
-    // now go through the update types and see if any messages need sending
-    if(remove_device_update_in_progress)
+    for(i = 0; i < ONE_NET_MASTER_MAX_TXN; i++)
     {
-        if(time_now > remove_device_start_time + UPDATE_TIME_LIMIT)
+        if(i != invite_idx && txn_list[i].type == ON_NO_TXN)
         {
-            // time's up.  Set everyone's flag to "sent" even if they have not
-            // sent.  This includes devices that sleep.
-            for(i = 0; i < master_param->client_count; i++)
-            {
-                client_list[i].send_remove_device_message = FALSE;
-            }
-        }        
-        
-        remove_device_update_in_progress = FALSE;
-        
-        // now check if we're done with this update.
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            if(client_list[i].send_remove_device_message)
-            {
-                admin_msg_id = ON_RM_DEV;
-                admin_payload[0] = remove_device_did[0];
-                admin_payload[1] = remove_device_did[1];
-                #ifdef _ONE_NET_MULTI_HOP
-                admin_payload[2] = on_base_param->num_mh_devices;
-                admin_payload[3] = on_base_param->num_mh_repeaters;
-                #else
-                // TODO -- should we ban multi-hop just because the master
-                // isn't capable.
-                admin_payload[2] = 0;
-                admin_payload[3] = 0;
-                #endif
-                remove_device_update_in_progress = TRUE;
-                break; // we have one.
-            }
-        }
-        
-        if(!remove_device_update_in_progress)
-        {
-            // we don't have any more updates for this, so notify the
-            // application code
-            one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE, NULL,
-              &ack);
-            // now actually remove the client
-            rm_client(&remove_device_did);
-            return;
-        }
-    }
+            num_free_txn++;
+        } // if a free transaction was found //
+    } // loop through to find free transactions //
 
-    else if(add_device_update_in_progress)
+    return num_free_txn;
+}
+#endif
+
+//! @} ONE-NET_MASTER_pub_func
+//                      PUBLIC FUNCTION IMPLEMENTATION END
+//=============================================================================
+
+//=============================================================================
+//                      PRIVATE FUNCTION IMPLEMENTATION
+//! \defgroup ONE-NET_MASTER_pri_func
+//! \ingroup ONE-NET_MASTER
+//! @{
+
+/*!
+    \brief Initializes internal data structures.
+
+    This will also initialize the base one_net functionality.
+
+    \param void
+
+    \return void
+*/
+static void init_internal(void)
+{
+    on_pkt_hdlr_set_t pkt_hdlr;
+
+    UInt8 i;
+
+    data_rate_test.recv_idx = ONE_NET_MASTER_MAX_TXN;
+    data_rate_test.send_idx = ONE_NET_MASTER_MAX_TXN;
+    one_net_memmove(data_rate_test.recv_did, ON_ENCODED_BROADCAST_DID,
+      sizeof(data_rate_test.recv_did));
+    one_net_memmove(data_rate_test.send_did, ON_ENCODED_BROADCAST_DID,
+      sizeof(data_rate_test.send_did));
+    data_rate_test.timer = ONT_DATA_RATE_TEST_TIMER;
+
+    txn_head = ONE_NET_MASTER_MAX_TXN;
+    invite_idx = ONE_NET_MASTER_MAX_TXN;
+    new_channel_clear_time_out = 0;
+
+    // Assign the timers that each transaction uses
+    for(i = 0; i < ONE_NET_MASTER_MAX_TXN; i++)
     {
-        if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
-        {
-            // time's up.  Set everyone's flag to "sent" even if they have not
-            // sent.  This includes devices that sleep.
-            for(i = 0; i < master_param->client_count; i++)
-            {
-                client_list[i].send_add_device_message = FALSE;
-            }
-        }
-        
-        
-        add_device_update_in_progress = FALSE;
-        
-        // now check if we're done with this update.
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            if(client_list[i].send_add_device_message)
-            {
-                admin_msg_id = ON_ADD_DEV;
-                admin_payload[0] = add_device_did[0];
-                admin_payload[1] = add_device_did[1];
-                #ifdef _ONE_NET_MULTI_HOP
-                admin_payload[2] = on_base_param->num_mh_devices;
-                admin_payload[3] = on_base_param->num_mh_repeaters;
-                #else
-                // TODO -- should we ban multi-hop just because the master
-                // isn't capable.
-                admin_payload[2] = 0;
-                admin_payload[3] = 0;
-                #endif
-                add_device_update_in_progress = TRUE;
-                break; // we have one.
-            }
-        }
+        txn_list[i].txn.next_txn_timer = ONT_FIRST_TXN_TIMER + i;
+    } // loop to assign timers to transactions //
 
-        if(!add_device_update_in_progress)
-        {
-            // we don't have any more updates for this, so notify the
-            // application code
-            one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE, NULL,
-              &ack);
-            one_net_memmove(add_device_did, ON_ENCODED_BROADCAST_DID,
-              ON_ENCODED_DID_LEN);
-            return;
-        }
-    }
+    pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
+    pkt_hdlr.single_ack_nack_hdlr = &on_master_handle_ack_nack_response;
+    pkt_hdlr.status_msg_hdlr = &one_net_master_handle_status_msg;
+    pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
+    pkt_hdlr.data_rate_hdlr = &on_master_data_rate_hdlr;
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    pkt_hdlr.block_data_hdlr = &on_master_b_s_data_hdlr;
+    pkt_hdlr.block_txn_hdlr = &on_master_b_s_txn_hdlr;
+	#endif
+	#ifdef _STREAM_MESSAGES_ENABLED
+    pkt_hdlr.stream_data_hdlr = &on_master_b_s_data_hdlr;
+    pkt_hdlr.stream_txn_hdlr = &on_master_b_s_txn_hdlr;
+	#endif
 
-    else if(key_update_in_progress)
+    deviceIsMaster = TRUE;
+
+    one_net_init(&pkt_hdlr);
+
+    #ifdef _PEER
+    on_base_param->features += NUM_MASTER_PEER;
+    #endif
+} // init_internal //
+
+
+/*!
+    \brief Parses a single data packet.
+
+    If the device is unable to parse the packet (or does not want to send a
+    response), it clears *txn.  If the device is sending an ACK or NACK,
+    it sets up a txn, and returns the pointer through txn.
+
+    \param[in] PID The PID of the received packet.  Either
+      ONE_NET_ENCODED_SINGLE_DATA or ONE_NET_ENCODED_REPEAT_SINGLE_DATA.
+    \param[in] SRC_DID The encoded did of the sender of the packet.
+    \param[in/out] pld The payload of the single data packet
+    \param[out] txn If not 0, the transaction that contains the response to the
+      single data packet.
+
+    \return ONS_SUCCESS if the payload was successfully parsed.
+            ONS_BAD_PARAM if any of the parameters are invalid.
+            ONS_INTERNAL_ERR if something unexpected occured.
+            ONS_BAD_PKT If data in the packet is invalid.
+            See on_parse_pld for more possible return values.
+*/
+one_net_status_t on_master_single_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn)
+{
+    one_net_status_t status = ONS_INTERNAL_ERR;
+    on_client_t * client;
+    one_net_raw_did_t raw_src_did;
+    UInt8 txn_nonce, resp_nonce;
+	UInt8 single_msg_type; // Application message, Admin message, extended admin message
+    BOOL tried_new_key = FALSE;
+    const one_net_xtea_key_t* key = 0;
+
+    ona_msg_class_t msg_class;
+	ona_msg_type_t msg_type; // ONA_QUERY, ONA_COMMAND, etc.
+	BOOL useDefaultHandling = TRUE;
+	UInt8 src_unit;
+	UInt8 dst_unit;
+	UInt16 msg_data;
+    on_nack_rsn_t nack_reason = ON_NACK_RSN_NO_ERROR;
+	on_pid_t resp_pid  = ONE_NET_ENCODED_SINGLE_DATA_ACK;
+	on_ack_nack_handle_t ack_nack_handle = ON_ACK; // also corresponds to ON_NACK;
+	ack_nack_payload_t ack_nack_payload;
+
+	UInt8 response_payload[ONA_SINGLE_PACKET_PAYLOAD_LEN]; // for status responses to query
+	UInt8* resp_pld_ptr = response_payload; // for status responses to query
+    tick_t time_from_now = 0; // for status responses to query
+
+
+
+	// June 2, 2011 - Ignoring all Block and Stream Code.
+	// Also ignoring all key update code.
+	// TODO - Go back to Version 1.5 and put that back in when we get everything
+	// sorted out.
+
+
+    if((PID != ONE_NET_ENCODED_SINGLE_DATA
+      && PID != ONE_NET_ENCODED_REPEAT_SINGLE_DATA)
+      || !SRC_DID || !pld || !txn)
     {
-        if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
+        if(txn)
         {
-            // time's up.  Set everyone's flag to "sent" even if they have not
-            // sent.  This does not include devices that sleep.
-            for(i = 0; i < master_param->client_count; i++)
+            *txn = 0;               // not responding
+        } // if txn //
+
+        return ONS_BAD_PARAM;
+    } // if any parameter is invalid //
+
+    *txn = &response_txn;
+
+    if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
+      != ONS_SUCCESS)
+    {
+        return ONS_INTERNAL_ERR;
+    } // if decoding failed //
+
+    if((client = client_info(SRC_DID)) != NULL)
+    {
+        one_net_master_device_is_awake(
+          (const one_net_raw_did_t * const)&raw_src_did);
+    } // if the CLIENT exists //
+
+    if(!client || client->use_current_key)
+    {
+        key = &(on_base_param->current_key);
+        status = on_parse_pld(&txn_nonce, &resp_nonce, &single_msg_type, pld,
+          ON_SINGLE, key);
+
+        if(!client)
+        {
+            if(single_msg_type != ON_ADMIN_MSG)
             {
-                if(!features_device_sleeps(client[i].device.features))
+                status = ONS_INTERNAL_ERR;
+            } // if it is not an admin message //
+        } // if the device is not part of the network //
+    } // if null client using current key //
+
+
+    // June 2, 2011 - TODO - The entire key change protocol will very likely
+    // be changed.  I'm commenting out the code in for now, but ignoring it since it
+    // will be revisited.  For now, this will be unhandled.  See the new temporary "else"
+	// below.  No key changes allowed till we get the new scheme.
+	// TODO - update this.
+	else
+	{
+		*txn = 0;
+		return ONS_BAD_PKT;
+	}
+
+// TODO - Keeping the code below for when we come back to key changes.
+//        Go back to 1.5. and 1.6 and see what was happening.
+#if 0
+    else
+    {
+
+        // copy the payload just in case the CLIENT really is using the
+        // current key (since on_parse_pld modifies the data)
+        UInt8 pld_cpy[ON_RAW_BLOCK_STREAM_PLD_SIZE];
+
+        one_net_memmove(pld_cpy, pld, sizeof(pld_cpy));
+        key = &(master_param->old_key);
+        if((status = on_parse_pld(&txn_nonce, &resp_nonce, &single_msg_type, pld,
+          ON_SINGLE, key)) != ONS_SUCCESS)
+        {
+            key = &(on_base_param->current_key);
+            // try the new key
+            one_net_memmove(pld, pld_cpy, ON_RAW_BLOCK_STREAM_PLD_SIZE);
+            status = on_parse_pld(&txn_nonce, &resp_nonce, &single_msg_type, pld,
+              ON_SINGLE, key);
+            tried_new_key = TRUE;
+        } // if decoding with the old key is not successful //
+    } // else try the old key //
+#endif
+
+
+	// if we've made it this far, we might possibly send back a response.
+	// The most likely error is a bad nonce.  At least three possibilities.
+	// 1) txn_nonce is equal to client->expected_nonce -->  This is the good case.
+	//        Nonces check out.  We'll handle the packet.
+	// 2) txn_nonce is equal to client->last_nonce and the pid is
+	//        ONE_NET_ENCODED_REPEAT_SINGLE_DATA.  Something went wrong here and
+	//        there was a packet sent with a good nonce, but it was an expired
+	//        good nonce.  Maybe it just got here a little late, so we should
+	//        handle this packet anyway.
+	//
+	// TODO: Look at Multi-Hop, Block, Stream, and make this adjustment.
+	//
+	// 3) Neither 1 or 2.  Give a NACK here and adjust the nonces
+	//        so they'll hopefully repeat things correctly next time.
+
+
+	// We also want to check whether we've already ACK'd this recently.  If so, just ACK
+	// it again.
+	if(client != 0 && single_data_is_repeat(&raw_src_did, &(pld[ON_PLD_DATA_IDX])))
+	{
+		// send another ACK.  Skip all other handling.
+		goto omsdh_build_resp;
+	}
+
+	// If we have a null client, we'll skip the nonces check.
+	if(client != 0 && (txn_nonce != client->expected_nonce)  &&
+	       !(PID == ONE_NET_ENCODED_REPEAT_SINGLE_DATA && txn_nonce == client->last_nonce))
+	{
+		// bad nonce error.
+		nack_reason = ON_NACK_RSN_NONCE_ERR;
+        resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+		status = ONS_INCORRECT_NONCE;
+		goto omsdh_build_resp;
+	}
+
+
+    // if the client is 0, then the packet must be an admin packet which we
+    // want to handle in case it is a Status Response for a CLIENT joining
+    // the network.  If it is a new CLIENT, client will be returned from
+    // handle_admin_pkt so the proper response can be sent.
+    switch(single_msg_type)
+    {
+        case ON_APP_MSG:
+        {
+			#ifdef _STREAM_MESSAGES_ENABLED
+            // only handle if we're not waiting for a stream response
+            if(on_state == ON_WAIT_FOR_STREAM_DATA_RESP)
+            {
+				*txn = 0;
+                return ONS_BAD_PKT_TYPE;
+            } // if waiting for the stream data response //
+			#endif
+
+            nack_reason = on_parse_single_app_pld(&(pld[ON_PLD_DATA_IDX]), &src_unit,
+                &dst_unit, &msg_class, &msg_type, &msg_data);
+
+			if(nack_reason != ON_NACK_RSN_NO_ERROR)
+			{
+                resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+		        status = ONS_TX_NACK;
+				goto omsdh_build_resp;
+			}
+
+
+            // I've been debating how to handle status messages and whether we need a status
+			// message handler at all and whether and when to call it.  For now I think we should
+			// call not call it here.  Instead we'll call the regular old single data handler
+			// and IT can call the status message handler if it likes.  The status manager will
+			// be called directly from ONE-NET only in responses to fast queries.  I may take
+			// that out and have that handled in the single handler as well.
+			// TODO - revisit this.  For now, commenting out the call.
+
+            /*if(msg_class == ONA_STATUS_QUERY_RESP)
+			{
+				if(!one_net_master_handle_status_msg(&(pld[ON_PLD_DATA_IDX]), msg_class, msg_type, src_unit, dst_unit,
+				    msg_data, &raw_src_did, &nack_reason, &ack_nack_handle, &ack_nack_payload))
                 {
-                    client_list[i].send_add_device_message = FALSE;
+				    // application layer code does not want to send a response.
+                    *txn = 0;
+				    return ONS_SINGLE_CANCELED;
+                } // if application code layer wants to cancel handling //
+			}	*/
+
+
+			// set useDefaultHandling to true.  Application code can set it to false
+			// if it wishes.  Note: There could already be a nack reason.  Send it to
+			// the application code to handle anyway.  Chances are that it will decide to
+			// keep it as is, but we'll give it the opportunity to change it or see it if
+			// it wants to.  But if there's still a nack reason when we get BACK from the function,
+			// we'll still handle it.
+			useDefaultHandling = TRUE;
+
+            if(!one_net_master_handle_single_pkt(&(pld[ON_PLD_DATA_IDX]), msg_class,
+			       &msg_type, src_unit, dst_unit, &msg_data, &raw_src_did,
+				   &useDefaultHandling, &nack_reason, &ack_nack_handle, &ack_nack_payload))
+            {
+				// application layer code does not want to send a response.
+                *txn = 0;
+				return ONS_SINGLE_CANCELED;
+            } // if application code layer wants to cancel handling //
+
+
+			if(nack_reason != ON_NACK_RSN_NO_ERROR)
+			{
+				resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+				status = ONS_TX_NACK;
+				goto omsdh_build_resp;
+			}
+
+			else if(useDefaultHandling)
+			{
+				// see if there is any default handling we need to do
+				// Note: If we're using default handling, any changes the application code
+				// made to ack_nack_handle and ack_nack_payload will be have no effect
+				// since we're re-initializing.  If the application code needs to make
+				// changes to these values, it should set useDefaultHandling to false.
+				ona_msg_class_t resp_msg_class = ONA_STATUS_QUERY_RESP;
+				ack_nack_handle =  ON_ACK;
+
+                // if this was a query or a command, send back a response
+				switch(msg_class)
+				{
+					case ONA_POLL: case ONA_COMMAND:// these cases fall through
+					    resp_msg_class = ((msg_class == ONA_POLL)? ONA_STATUS_FAST_QUERY_RESP
+						                                         : ONA_STATUS_ACK_RESP);
+						resp_pld_ptr = ack_nack_payload.status_resp; // status will be part of the ACK
+					case ONA_QUERY:
+					    put_msg_hdr(resp_msg_class | msg_type, resp_pld_ptr);
+						put_src_unit(dst_unit, resp_pld_ptr); // source and destination units are reversed
+						put_dst_unit(src_unit, resp_pld_ptr); // source and destination units are reversed
+						put_msg_data(msg_data, resp_pld_ptr); // msg_data was filled in by application code
+
+						if(resp_msg_class == ONA_STATUS_QUERY_RESP)
+						{
+							// stick this in the queue to be sent.  Note: dest and source are reversed
+							// so the parameters below are correct.  raw_src_did is not OUR did, it is
+							// the did that the query came from.  We are not sending to the peer list
+                            // so the third parameter is false.
+							status = one_net_master_send_single(resp_pld_ptr, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+                                FALSE, ONE_NET_SEND_SINGLE_PRIORITY, &raw_src_did, dst_unit,
+						        &time_from_now, &time_from_now);
+
+						    if(status != ONS_SUCCESS)
+							{
+								// Can't send a status response.  we're sending a NACK
+								resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+								nack_reason = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
+								ack_nack_handle = ON_NACK;
+								status = ONS_UNHANDLED_PKT; // TODO:change this to "send nack" or something
+							}
+						}
+				}
+			}
+
+            break;
+        } // application message case //
+
+        case ON_ADMIN_MSG:
+        {
+            status = handle_admin_pkt(SRC_DID, &(pld[ON_PLD_DATA_IDX]),
+              ONE_NET_RAW_SINGLE_DATA_LEN, &client, &nack_reason,
+              &ack_nack_handle, &ack_nack_payload);
+
+            if(status != ONS_SUCCESS)
+            {
+
+                if(nack_reason == ON_NACK_RSN_NO_ERROR)
+                {
+                    nack_reason = ON_NACK_RSN_GENERAL_ERR;
                 }
             }
-        }        
-        
-        key_update_in_progress = FALSE;
-
-        // now check if we're done with this update.
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            if(!client_list[i].use_current_key)
+            if(nack_reason != ON_NACK_RSN_NO_ERROR)
             {
-                admin_msg_id = ON_NEW_KEY_FRAGMENT;
-                one_net_memmove(admin_payload, &(on_base_param->current_key[
-                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                key_update_in_progress = TRUE;
-                break; // we have one.
+                resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
             }
-        }
+            break;
+        } // admin message case //
 
-        if(!key_update_in_progress)
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_EXTENDED_ADMIN_MSG:
         {
-            // we don't have any more updates for this, so notify the
-            // application code
-            one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL,
-              &ack);
-            return;
-        }
-    }
+            // MASTER does not currently receive any extended admin packets
+            status = ONS_UNHANDLED_PKT;
+			resp_pid = resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+			nack_reason = ON_NACK_RSN_GENERAL_ERR;
+            break;
+        } // extended admin message case //
+		#endif
+
+        default:
+        {
+            status = ONS_BAD_PKT;
+            break;
+        } // default case //
+    } // switch(single_msg_type) //
+
+    if(status == ONS_SUCCESS || status == ONS_TXN_QUEUED)
+    {
+        if(status == ONS_TXN_QUEUED)
+        {
+            resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE;
+        } // if a transaction is queued //
+        else
+        {
+            resp_pid = ONE_NET_ENCODED_SINGLE_DATA_ACK;
+        } // else a transaction is not queued //
+    } // if successful so far //
+	else
+	{
+		resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+	}
 
 
-    if(time_now < last_send_time + SEND_INTERVAL || admin_msg_id == 0xFF)
-    {
-        return; // nothing is being updated.
-    }
-    
-    // don't worry about filling in any destination addresses.  This message's
-    // recipient list will be adjusted when the message is actually popped.
-    if(send_admin_pkt(admin_msg_id, NULL, admin_payload,
-      MS_TO_TICK(2500)) == ONS_SUCCESS)
-    {
-        last_send_time = time_now;
-    }
-}
+    // build the response(if txn is still non-NULL)
+    // TODO - Look at 1.5 and Multi-Hop, as well as Stream and Block.
+    // particularly look for statuses like ON_WAIT_FOR_STREAM_DATA_RESP,
+    // make sure all is well.  It almost certainly isn't, but look at 1.5
+    // to try to get a grip on things.
+omsdh_build_resp:
+    if(*txn == 0)
+	{
+		return status;
+	}
+
+	// these three checks hopefully aren't necessary, but we'll do them anyway.
+	// TODO - verify that they AREN'T necessary and take them out or if they are
+	// necessary, see if they should have been caught before here.
+
+	// make sure the client isn't still null
+	if(!client)
+	{
+		*txn = 0;
+		return ONS_BAD_PKT;
+	}
+
+	// stick a nack reason if it's a nack and we don't have a reason
+	if(resp_pid == ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN &&
+	    nack_reason == ON_NACK_RSN_NO_ERROR)
+	{
+		nack_reason = ON_NACK_RSN_GENERAL_ERR;
+	}
+
+	// if there is a nack reason filled in, make sure we're sending a nack
+	if(nack_reason != ON_NACK_RSN_NO_ERROR)
+	{
+		resp_pid = ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN;
+	}
+
+	// update nonces
+	client->last_nonce = client->expected_nonce;
+	client->expected_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
+
+	// now build the response packet
+    response_txn.data_len = response_txn.pkt_size;
+	*txn = &response_txn;
+	status = on_build_response_pkt(response_txn.pkt,
+        &(response_txn.data_len), resp_pid,
+        resp_pid == ONE_NET_ENCODED_SINGLE_DATA_ACK ? NULL : &nack_reason,
+		&ack_nack_handle, &ack_nack_payload, SRC_DID, resp_nonce, client->expected_nonce,
+	    key, ON_SINGLE);
+
+    // if this is an ACK, we want to make sure that if for some reason the other device
+	// continues to send the message not realizing we've already received and ACK'd it,
+	// we don't interpret that repeated message as a NEW instance of the same message.
+	// Thus we'll set a timer.  If we see the same message from the same device, we'll
+	// ACK it even if it has bad nonces and we won't "handle" it since we already have
+	// handled it.  Note: Since we're doing away with the transaction ACK, we can't wait
+	// for it.
+	if(resp_pid == ONE_NET_ENCODED_SINGLE_DATA_ACK)
+	{
+	    single_ack_queued(&raw_src_did, &(pld[ON_PLD_DATA_IDX]));
+	}
+
+    return status;
+} // on_master_single_data_hdlr //
 
 
 /*!
-    \brief Sends an admin packet (single transaction).
+    \brief Callback for the application to handle an ack or a nack.
 
-    Sets up an admin packet and queues the transaction to send it.
+    This function is application dependent.  It is called by ONE-NET when a
+    MASTER receives an ACK or a NACK.  ONE-NET provides default handling for
+	query responses.  In addition, the application code can change a NACK reason or
+	change an ACK to a NACK or vice versa.  It can also change the number of retries
+	to either prolong the number of retries or decrease them.  The application can
+	provide its own handling by returning ONS_CANCELED.  If it wants to abort the transaction
+	for whatever reason, either because it has its own handling or because it does not
+	want to handle the message at all, it should return ONS_CANCELED.
 
-    \param[in] admin_msg_id the type of admin message being sent.
-    \param[in] did The device to send to.  NULL means broadcast.
-    \param[in] pld The  admin data to be sent.
-    \param[in] send_time_from_now The time to pause before sending.
 
-    \return ONS_SUCCESS If the packet was built and queued successfully
-            ONS_BAD_PARAM If any of the parameters are invalid
-            ONS_RSRC_FULL If there are no resources available
+    \param[in/out] txn The current transaction
+	\param[in] src_did the did of the device we received this ACK or NACK from.
+	\param[in/out] nack_reason The reason for the NACK.  If this is null or equals ON_NACK_RSN_NO_ERROR
+	               then we received an ACK, not a NACK.
+	\param[in/out] ack_nack_handle The way the data(if any) provided by the ACk or NACK should be
+	               interpreted.
+	\param[in/out] ack_nack_payload The data(if any) sent with the ACK/NACK message.
+
+    \return ONS_SUCCESS If ONE-NET should proceed with any further handling of the transaction
+            ONS_CANCELED If ONE-NET should consider the transaction complete for whatever reason.
+			See one_net_status_t for error codes
 */
-static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
-  const on_encoded_did_t* const did, const UInt8* const pld,
-  tick_t send_time_from_now)
+one_net_status_t on_master_handle_ack_nack_response(on_txn_t* const txn,
+	const one_net_raw_did_t* const src_did, on_nack_rsn_t* const nack_reason,
+	on_ack_nack_handle_t* const ack_nack_handle,
+	ack_nack_payload_t* const ack_nack_payload)
 {
-    #ifndef _EXTENDED_SINGLE
-    UInt8 admin_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-    #else
-    UInt8 admin_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
-    UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
-    UInt8 raw_pid = ONE_NET_RAW_SINGLE_DATA;
-    #endif
+	one_net_status_t rv = ONS_SUCCESS;
+	UInt8 i;
 
-    switch(admin_msg_id)
+	ona_msg_type_t msg_type, orig_msg_type;
+
+	#if _ACK_NACK_LEVEL >= 200
+	UInt8 raw_pld[ON_RAW_SINGLE_PLD_SIZE]; // payload of 9
+	UInt8 orig_raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN]; // payload of 5
+	#endif
+
+	BOOL abort_txn, need_txn_payload;
+
+	on_encoded_did_t enc_src_did;
+	on_client_t* client;
+	one_net_xtea_key_t* key;
+
+	on_encode(enc_src_did, *src_did, ON_ENCODED_DID_LEN);
+
+	// first assume that one_net_master_ack_nack_response does not need the raw payload.  If it does,
+	// it will set a flag and we'll re-send with that payload.
+    abort_txn = !one_net_master_handle_ack_nack_response(txn->msg_type, NULL, 0,
+        &need_txn_payload, &(txn->retry), src_did, nack_reason, ack_nack_handle,
+		ack_nack_payload);
+
+	if(abort_txn)
+	{
+		return ONS_CANCELED;
+	}
+
+	#if _ACK_NACK_LEVEL >= 200
+	// check the flag
+	if(need_txn_payload)
+	{
+		// we'll need the key and we'll have to extract the 5 bit raw payload
+	    client = client_info(&enc_src_did);
+	    if(client == 0)
+	    {
+		    return ONS_DID_FAILED; // bad did.  We should never get this far if the did is bad.
+	    }
+
+	    key = (client->use_current_key) ? (&(on_base_param->current_key)) :
+                  (&(master_param->old_key));
+
+		// we have the key.  Let's get the raw payload of 9.  Bytes 3 through 7 are
+		// what are relevant to the application code.
+        if((rv = on_parse_txn_pld(txn, raw_pld, ON_SINGLE, key)) != ONS_SUCCESS)
+	    {
+		    return rv;
+	    }
+
+		// we'll need to know whether the application code changes this, so make a
+		// copy so we can compare later
+		one_net_memmove(orig_raw_pld, &(raw_pld[ON_PLD_DATA_IDX]), ONA_SINGLE_PACKET_PAYLOAD_LEN);
+
+		// now call the application code and see if it wants to change anything
+        abort_txn = !one_net_master_handle_ack_nack_response(txn->msg_type,
+		  &(raw_pld[ON_PLD_DATA_IDX]), ONA_SINGLE_PACKET_PAYLOAD_LEN, NULL,
+		  &(txn->retry), src_did, nack_reason, ack_nack_handle, ack_nack_payload);
+
+		if(abort_txn)
+		{
+			return ONS_CANCELED;
+		}
+
+		// let's see if it changed the raw payload.  If it did, we need to re-build.
+		if(one_net_memcmp(&(raw_pld[ON_PLD_DATA_IDX]), orig_raw_pld, ON_RAW_SINGLE_PLD_SIZE) != 0)
+		{
+			// the application code changed the raw payload, so we'll re-build.
+			// We don't care if we screw up when building the response nonce
+			// because if it needs to be re-sent, the other device has already
+			// sent us what needs to be used so it'll be overwritten.  We have the
+			// same nonce twice in the packet build below, which is wrong, but
+			// it's going to get re-built with the right one.  We're only re-building
+			// because the raw payload changed.
+
+			// TODO - we're alreaady taking apart and rebuilding this packet here
+			// and we may do it again later too.  For efficiency sake, we may
+			// be able to do this once instead of twice.  Right now it's a bit
+			// inefficient.
+            rv = on_build_data_pkt(txn->pkt, &(txn->data_len), txn->msg_type,
+	          ONE_NET_ENCODED_REPEAT_SINGLE_DATA, &enc_src_did, txn->expected_nonce,
+              txn->expected_nonce, &(raw_pld[ON_PLD_DATA_IDX]),
+			  ONE_NET_RAW_SINGLE_DATA_LEN, key);
+
+			if(rv != ONS_SUCCESS)
+			{
+				return rv;
+			}
+		}
+	}
+	#endif
+
+    return ONS_SUCCESS;
+} // on_master_handle_ack_nack_response
+
+
+
+/*!
+    \brief Handles the response to a sent single data transaction.
+
+    \param[in] txn The transaction whose status is being reported.
+    \param[in] NEXT_NONCE ON_MAX_NONCE + 1 if this field is to be ignored,
+                otherwise the next nonce for the receiving device.
+    \param[in] STATUS The result of the transaction.
+    \param[in] HOPS_TAKEN The number of hops it took the packet to reach the
+      MASTER
+
+    \return ONS_SUCCESS If handling the transaction was successful
+            ONS_BAD_PARAM if any of the parameters are invalid.
+            ONS_INCORRECT_ADDR If the address is for a device not on this
+              network.
+            ONS_TXN_QUEUED If there is another transaction queued for this
+              client.
+            ONS_INTERNAL_ERR If the transaction was not handled.
+*/
+one_net_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
+  const UInt8 NEXT_NONCE, const one_net_status_t STATUS)
+{
+    on_client_t * client;
+    one_net_raw_did_t raw_did;
+    one_net_status_t rv = ONS_INTERNAL_ERR;
+
+    UInt8 txn_nonce;
+    UInt8 msg_type;
+    UInt8 pld[ON_RAW_SINGLE_PLD_SIZE];
+
+    one_net_status_t parameter_status;
+
+	tick_t send_time_from_now;
+	tick_t expire_time_from_now = 0;
+
+
+    if(!txn || !*txn || !(*txn)->pkt)
     {
-        case ON_CHANGE_SETTINGS:
-            admin_pld_data_len = 1;
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if(cur_txn_info >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_INTERNAL_ERR;
+    } // if an internal error occured //
+
+    // use the dst address since txn has the single data packet sent to the
+    // device (it is not the packet just received).
+    if((rv = on_decode(raw_did, &((*txn)->pkt[ONE_NET_ENCODED_DST_DID_IDX]),
+      ON_ENCODED_DID_LEN)) != ONS_SUCCESS)
+    {
+        return rv;
+    } // if decoding the CLIENT did was not successful //
+
+    if((client = client_info((const on_encoded_did_t * const)
+      &((*txn)->pkt[ONE_NET_ENCODED_DST_DID_IDX]))) == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if the CLIENT could not be found //
+
+    if(NEXT_NONCE <= ON_MAX_NONCE)
+    {
+        client->send_nonce = NEXT_NONCE;
+    } // if the next nonce is valid //
+
+    if((rv = on_parse_txn_pld(*txn, pld, ON_SINGLE, client->use_current_key
+      ? (const one_net_xtea_key_t * const)&(on_base_param->current_key)
+      : (const one_net_xtea_key_t * const)&(master_param->old_key)))
+      != ONS_SUCCESS)
+	{
+		return rv;
+	}
+    // if parsing the payload is not successful //
+
+	msg_type = (*txn)->msg_type;
+
+    switch(STATUS)
+    {
+        case ONS_SUCCESS:
+        case ONS_RX_STAY_AWAKE:
+        case ONS_SINGLE_FAIL:
+		case ONS_SINGLE_CANCELED:
+        {
+			parameter_status = STATUS;
+			if(STATUS == ONS_RX_STAY_AWAKE)
+			{
+				parameter_status = ONS_SUCCESS;
+			}
+
+            if(msg_type == ON_APP_MSG)
+            {
+                one_net_master_single_txn_status(STATUS, (*txn)->retry,
+                  &(pld[ON_PLD_DATA_IDX]),
+                  (const one_net_raw_did_t * const)&raw_did);
+            } // if an application message //
+            else if(msg_type == ON_ADMIN_MSG)
+            {
+                rv = admin_txn_hdlr(pld[ON_PLD_DATA_IDX + ON_ADMIN_MSG_ID_IDX],
+                  &(pld[ON_PLD_DATA_IDX + ON_ADMIN_DATA_IDX]), txn,
+                  parameter_status, client,
+                  (const one_net_raw_did_t * const)&raw_did);
+            } // else if an admin message //
+			#ifdef _STREAM_MESSAGES_ENABLED
+            else if(msg_type == ON_EXTENDED_ADMIN_MSG)
+            {
+                rv = extended_admin_single_txn_hdlr(
+                  pld[ON_PLD_DATA_IDX + ON_ADMIN_MSG_ID_IDX],
+                  &(pld[ON_PLD_DATA_IDX + ON_ADMIN_DATA_IDX]), txn,
+                  parameter_status, client,
+                  (const one_net_raw_did_t * const)&raw_did);
+            } // else if an extended admin message //
+			#endif
+            else
+            {
+                rv = ONS_INVALID_DATA;
+                break;
+            } // else the data is invalid //
+
+            // The pid may have changed to ONE_NET_ENCODED_DATA_RATE_TEST in the
+            // admin_txn_hdlr function if the MASTER is supposed to send a data
+            // rate test, in which case, don't send any queued packets since the
+            // CLIENT is listening for the data rate test.
+            if(rv == ONS_SUCCESS && STATUS == ONS_SUCCESS
+              && (*txn)->pkt[ONE_NET_ENCODED_PID_IDX]
+              != ONE_NET_ENCODED_DATA_RATE_TEST)
+            {
+                // check to see if there is another packet queued for this
+                // device (with priority == to the highest queued priority)
+                if(next_txn_queued_for_client((const on_encoded_did_t * const)
+                  &((*txn)->pkt[ONE_NET_ENCODED_DST_DID_IDX]))
+                  == TRUE)
+                {
+                    rv = ONS_TXN_QUEUED;
+                } // if there is another transaction for the CLIENT //
+            } // if txn was successful & data rate test not being sent //
             break;
+        } // ONS_SUCCESS, ONS_RX_STAY_AWAKE, ONS_SINGLE_FAIL, ONS_SINGLE_CANCELED cases //
+
+        #if _ACK_NACK_LEVEL >= 225
+        case ONS_RETRY:
+		    (*txn)->retry = 0;  // do we really want to reset this to 0?
+			send_time_from_now = (*txn)->time;
+			(*txn)->time = 0;
+
+			on_state = ON_SEND_SINGLE_DATA_PKT;
+
+			if(send_time_from_now <= ONE_NET_RESPONSE_TIME_OUT)
+			{
+				// keep this transaction, set the timer, and fall through to the case
+				// below to build the packet
+				ont_set_timer(ONT_GENERAL_TIMER, send_time_from_now);
+				// TODO - don't we need to rebuild the transaction with the new nonce here?
+				// Maybe don't bother since there's a delay and the nonces may change?
+				// Come back tho this and make sure we're doing the same in the client.
+			}
+			else
+			{
+				// delay time is too long.  Cancel this transaction and add the
+				// payload to the single queue.  Don't send it through peer?
+
+				// we need to set a few flags here too.  They may be set elsewhere
+				// and overridden or they may not.  We'll set them again anyway.
+				(*txn)->priority = ONE_NET_NO_PRIORITY;
+				ont_set_timer(ONT_GENERAL_TIMER, 0);
+				on_state = ON_LISTEN_FOR_DATA;
+
+                if(ONS_SUCCESS != one_net_master_send_single(&(pld[ON_PLD_DATA_IDX]),
+			         ONE_NET_RAW_SINGLE_DATA_LEN, 0, ONE_NET_HIGH_PRIORITY,
+                     &raw_did, ONE_NET_DEV_UNIT, &send_time_from_now,
+				     &expire_time_from_now))
+			    {
+					// OK, we've failed.  Just make this a failure and abort
+					return on_master_single_txn_hdlr(txn, NEXT_NONCE, ONS_SINGLE_FAIL);
+			    }
+				else
+				{
+					// New request is in the queue for later.  Cancel the current one.
+					return on_master_single_txn_hdlr(txn, NEXT_NONCE, ONS_SINGLE_CANCELED);
+				}
+			}
+		#endif
+        case ONS_RX_NACK: case ONS_REBUILD_PKT:
+        {
+            // need to rebuild the packet, so take apart the current one to
+            // rebuild with differect nonces
+            on_encoded_did_t dst;
+
+            // rebuild the packet
+            one_net_memmove(dst, &((*txn)->pkt[ONE_NET_ENCODED_DST_DID_IDX]),
+              sizeof(dst));
+            (*txn)->expected_nonce = one_net_prand(one_net_tick(),
+              ON_MAX_NONCE);
+            (*txn)->data_len = (*txn)->pkt_size;
+
+            rv = on_build_data_pkt((*txn)->pkt, &((*txn)->data_len), (*txn)->msg_type,
+              ONE_NET_ENCODED_REPEAT_SINGLE_DATA,
+              (const on_encoded_did_t * const)&dst, NEXT_NONCE,
+              (*txn)->expected_nonce, &(pld[ON_PLD_DATA_IDX]),
+              ONE_NET_RAW_SINGLE_DATA_LEN, client->use_current_key
+              ? (const one_net_xtea_key_t * const)&(on_base_param->current_key)
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+            break;
+        } // ONS_RX_NACK, and ONS_REBUILD_PKT cases //
+
+        default:
+        {
+            rv = ONS_INTERNAL_ERR;
+            break;
+        } // default case //
+    } // switch(STATUS) //
+
+    return rv;
+} // on_master_single_txn_hdlr //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Interface to start a block transaction.
+
+    Starts a block or stream transaction (send or receive) if the resources are
+    available.
+
+    \param[in] TYPE The type of transaction to be requested.  This can be either
+                    ON_BLOCK or ON_STREAM.
+    \param[in] MSG_TYPE The message type (msg_type_t).  This can be
+      ON_ADMIN_MSG, or ON_EXTENDED_ADMIN_MSG.
+    \param[in] SEND TRUE if this device is sending the data.
+                    FALSE if this device is requesting to receive the data.
+    \param[in] DATA_TYPE The type of data to transfer.
+    \param[in] LEN The total number of bytes to transfer (if a block txn).
+    \param[in] DID The device id of the other device involved in the transaction
+    \param[in] SRC_UNIT The unit sending the message.
+    \param[in] DST_UNIT The unit receiving the message.
+
+    \return ONS_SUCCESS If there are resources available and the request will be
+                    made.
+            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_RSRC_FULL If the resources are unavailable.
+            ONS_BAD_ADDR If DID does not point to an address of a device in the
+                    network.
+            ONS_ALREADY_IN_PROGRESS If a transaction of this type with the
+                    device is already in progress.
+*/
+static one_net_status_t b_s_request(const UInt8 TXN_TYPE, const UInt8 MSG_TYPE,
+  const BOOL SEND, const UInt8 DATA_TYPE, const UInt16 LEN,
+  const UInt8 PRIORITY, const on_encoded_did_t * const DID,
+  const UInt8 SRC_UNIT, UInt8 DST_UNIT)
+{
+    on_nack_rsn_t nack_reason = ON_NACK_RSN_NO_ERROR;
+    on_ack_nack_handle_t ack_nack_handle;
+    ack_nack_payload_t ack_nack_payload;
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    const UInt8 SEND_LOW_TYPE = TXN_TYPE == ON_BLOCK ? ON_SEND_BLOCK_LOW
+      : ON_SEND_STREAM_LOW;
+    const UInt8 RECV_LOW_TYPE = TXN_TYPE == ON_BLOCK ? ON_RECV_BLOCK_LOW
+      : ON_RECV_STREAM_LOW;
+    const UInt8 SEND_HIGH_TYPE = TXN_TYPE == ON_BLOCK ? ON_SEND_BLOCK_HIGH
+      : ON_SEND_STREAM_HIGH;
+    const UInt8 RECV_HIGH_TYPE = TXN_TYPE == ON_BLOCK ? ON_RECV_BLOCK_HIGH
+      : ON_RECV_STREAM_HIGH;
+	#endif
+
+    one_net_status_t status;
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+    UInt8 txn_type;
+
+	#ifdef _STREAM_MESSAGES_ENABLED
+    if((TXN_TYPE != ON_BLOCK && TXN_TYPE != ON_STREAM) || !LEN
+      || (MSG_TYPE != ON_ADMIN_MSG && MSG_TYPE != ON_EXTENDED_ADMIN_MSG)
+	#else
+    if((TXN_TYPE != ON_BLOCK) || !LEN  || (MSG_TYPE != ON_ADMIN_MSG)
+	#endif
+      || PRIORITY < ONE_NET_LOW_PRIORITY || PRIORITY > ONE_NET_HIGH_PRIORITY
+      || !DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if any parameters are invalid //
+
+    if(b_s_in_progress(TXN_TYPE, DID))
+    {
+        return ONS_ALREADY_IN_PROGRESS;
+    } // if the transaction is already in progress with DID //
+
+    if(MSG_TYPE == ON_BLOCK && SEND)
+    {
+        if(!one_net_master_txn_requested(ON_BLOCK, TRUE,
+          DATA_TYPE, LEN, DID, SRC_UNIT, DST_UNIT,
+          &nack_reason, &ack_nack_handle, &ack_nack_payload) || nack_reason)
+        {
+            return ONS_RSRC_FULL;
+        }
     }
 
-    
-    // TODO -- use named constants
-    admin_pld[0] = admin_msg_id;
-    
-    #ifndef _EXTENDED_SINGLE
-    one_net_memmove(&admin_pld[1], pld, ONA_SINGLE_PACKET_PAYLOAD_LEN - 1);
+    pld[ON_BLOCK_STREAM_SRC_DST_IDX] =
+      ((SRC_UNIT << ONA_BLK_DATA_HDR_SRC_UNIT_SHIFT) &
+        ONA_BLK_DATA_HDR_SRC_UNIT_MASK) + (DST_UNIT &
+        ONA_BLK_DATA_HDR_DST_UNIT_MASK);
+    pld[ON_BLOCK_STREAM_DATA_TYPE_IDX] = DATA_TYPE;
+    one_net_int16_to_byte_stream(LEN, &(pld[ON_BLOCK_LEN_IDX]));
+
+    // if this device is sending, then the other device is receiving (that is
+    // why the admin types are reversed from what might be expected).
+	#ifdef _STREAM_MESSAGES_ENABLED
+    if(SEND)
+    {
+        if(PRIORITY == ONE_NET_HIGH_PRIORITY)
+        {
+            txn_type = RECV_HIGH_TYPE;
+        } // if high priority transaction
+        else
+        {
+            txn_type = RECV_LOW_TYPE;
+        } // else low priority txn //
+    } // if sending //
+    else
+    {
+        if(PRIORITY == ONE_NET_HIGH_PRIORITY)
+        {
+            txn_type = SEND_HIGH_TYPE;
+        } // if high priority transaction
+        else
+        {
+            txn_type = SEND_LOW_TYPE;
+        } // else low priority txn //
+    } // else receiving //
+	#else
+    if(SEND)
+    {
+        if(PRIORITY == ONE_NET_HIGH_PRIORITY)
+        {
+            txn_type = ON_RECV_BLOCK_HIGH;
+        } // if high priority transaction
+        else
+        {
+            txn_type = ON_RECV_BLOCK_LOW;
+        } // else low priority txn //
+    } // if sending //
+    else
+    {
+        if(PRIORITY == ONE_NET_HIGH_PRIORITY)
+        {
+            txn_type = ON_SEND_BLOCK_HIGH;
+        } // if high priority transaction
+        else
+        {
+            txn_type = ON_SEND_BLOCK_LOW;
+        } // else low priority txn //
+    } // else receiving //
+	#endif
+
+    // SEND represents whether this device should send or receive.  SEND_TYPE
+    // & RECV_TYPE represent what the other device should do, meaning if this
+    // device is sending the txn, then RECV_TYPE is sent to the other device
+    // since it will be receiving the transaction.
+    return send_admin_pkt(txn_type, MSG_TYPE, DID, PRIORITY, pld, sizeof(pld));
+} // b_s_request //
+
+
+/*!
+    \brief handles receiving a block or stream data packet
+
+    \param[in] PID The received packet id.
+    \param[in] SRC_DID The device ID of the sender.
+    \param[in] pld The data that was sent.
+    \param[out] txn If responding, the response transaction to send, 0
+      otherwise.
+    \param[in] HOPS_TAKEN The number of hops it took the packet to reach the
+      MASTER
+
+    \return ONS_SUCCESS if handling the packet was successful
+            ONS_BAD_PARAM If any of the parameters are not valid.
+            ONS_TXN_DOES_NOT_EXIST a transaction with the sending device does
+              not exist.
+*/
+one_net_status_t on_master_b_s_data_hdlr(const UInt8 PID,
+  const on_encoded_did_t * const SRC_DID, UInt8 * const pld, on_txn_t ** txn)
+{
+    const one_net_xtea_key_t * KEY = 0;
+	on_nack_rsn_t nack_reason;
+    on_ack_nack_handle_t ack_nack_handle;
+    ack_nack_payload_t ack_nack_payload;
+
+    one_net_raw_did_t raw_src_did;
+    one_net_status_t status;
+    on_client_t * client = 0;
+    UInt8 type, txn_nonce, resp_nonce, msg_type, pid;
+    UInt16 byte_position_rcvd = 0;
+    UInt16 num_bytes_rcvd = 0;
+
+	UInt16 LEN;
+
+    if(!SRC_DID || !pld || !txn)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are not valid //
+
+    *txn = 0;
+
+    // If the packet is not a Multi-Hop packet, then HOPS_TAKEN must == 0
+    if(PID == ONE_NET_ENCODED_BLOCK_DATA
+      || PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA)
+    {
+        type = ON_BLOCK;
+        KEY = &(on_base_param->current_key);
+    } // if a block transaction //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(PID == ONE_NET_ENCODED_STREAM_DATA)
+    {
+        type = ON_STREAM;
+        KEY = &(on_base_param->stream_key);
+    } // else if a stream transaction //
+	#endif
+    else
+    {
+        return ONS_BAD_PARAM;
+    } // else the parameter is invalid //
+
+    // decode the address
+    if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
+      != ONS_SUCCESS)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if decoding the address was successful //
+
+    if((client = client_info(SRC_DID)) == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if not able to get sender info //
+
+    if((cur_txn_info = dequeue_b_s_txn(type, SRC_DID))
+      >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_TXN_DOES_NOT_EXIST;
+    } // if the transaction was not found //
+
+    status = on_parse_pld(&txn_nonce, &resp_nonce, &msg_type, pld, type,
+      type != ON_BLOCK || client->use_current_key
+      ? KEY : (const one_net_xtea_key_t * const)&(master_param->old_key));
+
+    if(status == ONS_SUCCESS && txn_nonce == client->expected_nonce)
+    {
+		#ifdef _STREAM_MESSAGES_ENABLED
+        if(type == ON_STREAM && !txn_list[cur_txn_info].txn.remaining)
+        {
+            // send 0's since field is not used
+            UInt8 data[ONE_NET_RAW_SINGLE_DATA_LEN] = {0};
+
+            if((txn_nonce = txn_nonce_for_client(
+              (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did)))
+              > ON_MAX_NONCE)
+            {
+                return ONS_INVALID_DATA;
+            } // if the nonce is not valid //
+
+            data[0] = ON_END_STREAM;
+            response_txn.data_len = response_txn.pkt_size;
+            response_txn.expected_nonce = one_net_prand(one_net_tick(),
+              ON_MAX_NONCE);
+
+            KEY = (client->use_current_key
+              ? (const one_net_xtea_key_t * const)&(on_base_param->current_key)
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+
+            if((status = on_build_data_pkt(response_txn.pkt,
+              &(response_txn.data_len), ON_ADMIN_MSG,
+              ONE_NET_ENCODED_SINGLE_DATA,
+              (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did),
+              txn_nonce, response_txn.expected_nonce, data, sizeof(data),
+              KEY)) == ONS_SUCCESS)
+            {
+                // using the response transaction to send a single data pkt
+                // since we know that it has the necessary space & is available
+                status = ONS_STREAM_END;
+            } // if building the end stream packet was successful //
+        } // if the stream is marked to end //
+        else if(type == ON_BLOCK && !txn_list[cur_txn_info].txn.remaining)
+		#else
+        if(type == ON_BLOCK && !txn_list[cur_txn_info].txn.remaining)
+		#endif
+        {
+            // Received new data for a block transaction that should have ended.
+            // Something went wrong, so fail the transaction
+            status = ONS_BLOCK_FAIL;
+            one_net_master_block_txn_status(status,
+              (const one_net_raw_did_t * const)&raw_src_did);
+            free_txn(cur_txn_info);
+            return status;
+        } // if block transaction that should have ended //
+
+        else if(type == ON_BLOCK && !one_net_master_handle_block_pkt(
+          num_bytes_rcvd, (const one_net_raw_did_t * const)&raw_src_did,
+          &nack_reason, &ack_nack_handle, &ack_nack_payload))
+        {
+            status = ONS_UNHANDLED_PKT;
+        } // else if a block packet that is not being handled //
+		#ifdef _STREAM_MESSAGES_ENABLED
+        else if(type == ON_STREAM
+          && !one_net_master_handle_stream_pkt(&(pld[ON_PLD_DATA_IDX]),
+          ONE_NET_RAW_BLOCK_STREAM_DATA_LEN,
+          (const one_net_raw_did_t * const)&raw_src_did))
+        {
+            status = ONS_UNHANDLED_PKT;
+        } // if a stream packet and it is not being handled //
+		#endif
+        else
+        {
+			#ifdef _STREAM_MESSAGES_ENABLED
+            if(type == ON_BLOCK)
+            {
+                pid = ONE_NET_ENCODED_BLOCK_DATA_ACK;
+            } // if it's a block transaction //
+            else
+            {
+               pid = ONE_NET_ENCODED_STREAM_KEEP_ALIVE;
+            } // else it's a stream transaction;
+			#else
+			pid = ONE_NET_ENCODED_BLOCK_DATA_ACK;
+			#endif
+
+            client->last_nonce = client->expected_nonce;
+
+            // loop to make sure the expected nonce and last nonce don't match
+            do
+            {
+                client->expected_nonce = one_net_prand(one_net_tick(),
+                  ON_MAX_NONCE);
+            } while(client->expected_nonce == client->last_nonce);
+
+            response_txn.data_len = response_txn.pkt_size;
+
+            status = on_build_response_pkt(response_txn.pkt,
+              &(response_txn.data_len), pid, NULL, NULL, NULL, SRC_DID, resp_nonce,
+              client->expected_nonce, KEY, type);
+
+            txn_list[cur_txn_info].txn.retry = 0;
+        } // else the packet was handled //
+    } // if it's a new packet //
+    else if(type == ON_BLOCK && status == ONS_SUCCESS)
+    {
+        txn_list[cur_txn_info].txn.retry++;
+        if(txn_list[cur_txn_info].txn.retry >= ON_MAX_RETRY)
+        {
+            status = ONS_BLOCK_FAIL;
+            one_net_master_block_txn_status(status,
+              (const one_net_raw_did_t * const)&raw_src_did);
+            free_txn(cur_txn_info);
+            return status;
+        } // if the transaction failed //
+
+        response_txn.data_len = response_txn.pkt_size;
+
+        if(PID == ONE_NET_ENCODED_REPEAT_BLOCK_DATA
+          && txn_nonce == client->last_nonce)
+        {
+            status = on_build_response_pkt(response_txn.pkt,
+              &(response_txn.data_len), ONE_NET_ENCODED_BLOCK_DATA_ACK,
+              NULL, NULL, NULL, SRC_DID, resp_nonce, client->expected_nonce,
+			  KEY, ON_BLOCK);
+        } // if it is a repeat packet //
+    } // else if the block packet was successfully parsed //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(status == ONS_SUCCESS)
+    {
+        if(!txn_list[cur_txn_info].txn.remaining)
+        {
+            // send 0's since field is not used
+            UInt8 data[ONE_NET_RAW_SINGLE_DATA_LEN] = {0};
+
+            if((txn_nonce = txn_nonce_for_client(
+              (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did)))
+              > ON_MAX_NONCE)
+            {
+                return ONS_INVALID_DATA;
+            } // if the nonce is not valid //
+
+            data[0] = ON_END_STREAM;
+            response_txn.data_len = response_txn.pkt_size;
+            response_txn.expected_nonce = one_net_prand(one_net_tick(),
+              ON_MAX_NONCE);
+
+            KEY = (client->use_current_key
+              ? (const one_net_xtea_key_t * const)&(on_base_param->current_key)
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+
+            if((status = on_build_data_pkt(response_txn.pkt,
+              &(response_txn.data_len), ON_ADMIN_MSG, ONE_NET_ENCODED_SINGLE_DATA,
+              (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did),
+              txn_nonce, response_txn.expected_nonce, data, sizeof(data),
+              KEY)) == ONS_SUCCESS)
+            {
+                // using the response transaction to send a single data pkt
+                // since we know that it has the necessary space & is available
+                status = ONS_STREAM_END;
+                *txn = &response_txn;
+            } // if building the end stream packet was successful //
+        } // if the transaction has been marked to end //
+        else
+        {
+            // It's possible the ONE_NET_ENCODED_STREAM_KEEP_ALIVE did not make
+            // it back, so check the last nonce.  Send the
+            // ONE_NET_ENCODED_STREAM_KEEP_ALIVE even if the last nonce does not
+            // match since it is possible that several
+            // ONE_NET_ENCODED_STREAM_KEEP_ALIVE packets in a row have been lost.
+            // Only do this the max number of retries before failing the
+            // transaction.
+            txn_list[cur_txn_info].txn.retry++;
+            if(txn_list[cur_txn_info].txn.retry >= ON_MAX_RETRY)
+            {
+                status = ONS_STREAM_FAIL;
+                one_net_master_stream_txn_status(status,
+                  (const one_net_raw_did_t * const)&raw_src_did);
+                free_txn(cur_txn_info);
+                return status;
+            } // if the transaction failed //
+
+            status = on_build_response_pkt(response_txn.pkt,
+              &(response_txn.data_len), ONE_NET_ENCODED_STREAM_KEEP_ALIVE,
+	          NULL, NULL, NULL, SRC_DID, resp_nonce, client->expected_nonce, KEY,
+			  ON_STREAM);
+        } // else process as normal //
+    } // else if the stream packet was successfully parsed //
+	#endif
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(status == ONS_SUCCESS || status == ONS_STREAM_END)
     #else
-    one_net_memmove(&admin_pld[1], pld, admin_pld_data_len);
-    #endif
-    
-    #ifndef _EXTENDED_SINGLE
-    return one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
-      admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
-      NULL, did
-      #ifdef _PEER
-      , FALSE,
-      ONE_NET_DEV_UNIT
-      #endif
-      , send_time_from_now
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , 0
-      #endif
-      );
+    if(status == ONS_SUCCESS)
+	#endif
+    {
+        *txn = &response_txn;
+
+        on_update_next_txn_time(&(txn_list[cur_txn_info].txn));
+
+        if(txn_list[cur_txn_info].type == ON_BLOCK
+          && !txn_list[cur_txn_info].txn.retry)
+        {
+            if(txn_list[cur_txn_info].txn.remaining
+              <= ONE_NET_RAW_BLOCK_STREAM_DATA_LEN)
+            {
+                txn_list[cur_txn_info].txn.remaining = 0;
+                status = ONS_BLOCK_END;
+            } // if the block transaction is complete //
+            else
+            {
+                txn_list[cur_txn_info].txn.remaining
+                  -= ONE_NET_RAW_BLOCK_STREAM_DATA_LEN;
+            } // else more blocks remain //
+        } // if block transaction //
+    } // if building the response was successful //
+
+    if(!client->use_current_key && (status == ONS_SUCCESS
+    #ifdef _STREAM_MESSAGES_ENABLED
+      || status == ONS_BLOCK_END || status == ONS_STREAM_END))
+	#else
+      || status == ONS_BLOCK_END))
+	#endif
+    {
+        send_key_update(SRC_DID);
+    } // if a key update should be sent //
+
+    enqueue_txn(cur_txn_info);
+	#ifdef _STREAM_MESSAGES_ENABLED
+    if(status != ONS_BLOCK_END && status != ONS_STREAM_END)
+	#else
+    if(status != ONS_BLOCK_END)
+	#endif
+    {
+        // no longer current txn
+        cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+    } // if the transactin has not completed //
+
+    return status;
+} // on_master_b_s_data_hdlr //
+
+
+/*!
+    \brief Handles the status of a block or stream transaction.
+
+    This is called whenever there is a status event for a block or stream
+    transaction (sending or receiving).
+
+    \param[in] txn The transaction whose status is being reported.
+    \param[in] NEXT_NONCE ON_MAX_NONCE + 1 if this field is to be ignored,
+                otherwise the next nonce for the receiving device.
+    \param[in] STATUS The result of the transaction.
+    \param[in] HOPS_TAKEN The number of hops it took the packet to reach the
+      MASTER
+
+    \return ONS_SUCCESS If handling the transaction was successful
+            ONS_BAD_PARAM if any of the parameters are invalid.
+            ONS_INCORRECT_ADDR If the address is for a device not on this
+              network.
+            ONS_BLOCK_END If the block transaction is complete.
+            ONS_INTERNAL_ERR If the transaction was not handled.
+*/
+one_net_status_t on_master_b_s_txn_hdlr(on_txn_t ** txn, const UInt8 NEXT_NONCE,
+  const one_net_status_t STATUS, const UInt8 HOPS_TAKEN)
+{
+    #ifdef _STREAM_MESSAGES_ENABLED
+    const BOOL SEND_TXN = (STATUS == ONS_SUCCESS || STATUS == ONS_TIME_OUT
+      || STATUS == ONS_RX_NACK || STATUS == ONS_BLOCK_FAIL
+      || STATUS == ONS_STREAM_FAIL);
     #else
-    return one_net_master_send_single(raw_pid, ON_ADMIN_MSG,
-      admin_pld, admin_pld_data_len + 1, ONE_NET_LOW_PRIORITY,
-      NULL, did
-      #ifdef _PEER
-      , FALSE,
-      ONE_NET_DEV_UNIT
-      #endif
-      , send_time_from_now
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-	  , 0
-      #endif
-      );
+    const BOOL SEND_TXN = (STATUS == ONS_SUCCESS || STATUS == ONS_TIME_OUT
+      || STATUS == ONS_RX_NACK || STATUS == ONS_BLOCK_FAIL);
     #endif
-} // send_admin_pkt //
+
+    on_client_t * client;
+    one_net_raw_did_t raw_did;
+    one_net_status_t rv = ONS_INTERNAL_ERR;
+    const one_net_xtea_key_t* KEY = 0;
+
+    if(SEND_TXN && (!txn || !*txn || !(*txn)->pkt))
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    if(cur_txn_info >= ONE_NET_MASTER_MAX_TXN || (SEND_TXN
+      && (!txn_list[cur_txn_info].txn.send
+      || *txn != &(txn_list[cur_txn_info].txn)))
+      || (!SEND_TXN && txn_list[cur_txn_info].txn.send))
+    {
+        return ONS_INTERNAL_ERR;
+    } // if the txn not correct //
+
+    // use the dst address since txn has the single data packet sent to the
+    // device (it is not the packet just received).
+    if((rv = on_decode(raw_did, txn_list[cur_txn_info].did, ON_ENCODED_DID_LEN))
+      != ONS_SUCCESS)
+    {
+        return rv;
+    } // if decoding the CLIENT did was not successful //
+
+    if((client = client_info((const on_encoded_did_t * const)
+      &(txn_list[cur_txn_info].did))) == 0)
+    {
+        return ONS_INCORRECT_ADDR;
+    } // if the CLIENT could not be found //
+
+    if(NEXT_NONCE <= ON_MAX_NONCE)
+    {
+        client->send_nonce = NEXT_NONCE;
+    } // if the next nonce is not valid //
+
+    switch(STATUS)
+    {
+        case ONS_SUCCESS:
+        {
+            (*txn)->retry = 0;
+            if(txn_list[cur_txn_info].type == ON_BLOCK
+              && txn_list[cur_txn_info].txn.remaining == 0)
+            {
+                if((*txn)->msg_type == ON_APP_MSG)
+                {
+                    one_net_master_block_txn_status(ONS_BLOCK_END,
+                      (const one_net_raw_did_t * const)&raw_did);
+                } // if an app message //
+				#ifdef _STREAM_MESSAGES_ENABLED
+                else if((*txn)->msg_type == ON_EXTENDED_ADMIN_MSG)
+                {
+                    // Only have 1 exteneded admin message, so handle it here
+                    stream_key_update_confirmed(client);
+                } // else if an extended admin message //
+				#endif
+                else
+                {
+                    one_net_master_block_txn_status(ONS_INTERNAL_ERR,
+                      (const one_net_raw_did_t * const)&raw_did);
+                } // else invalid message type //
+
+                return ONS_BLOCK_END;
+            } // if that was the last block //
+
+            on_update_next_txn_time(*txn);
+            enqueue_txn(cur_txn_info);
+            break;
+        } // ONS_SUCCESS case //
+
+        case ONS_TIME_OUT:                              // fall through
+        case ONS_RX_NACK:
+        {
+            if(txn_list[cur_txn_info].type == ON_BLOCK)
+            {
+                // Need to resend the message
+                UInt8 txn_nonce;
+                UInt8 msg_type;
+                UInt8 pld[ON_RAW_BLOCK_STREAM_PLD_SIZE];
+
+                on_decode(pld, &((*txn)->pkt[ON_PLD_IDX]),
+                  ON_ENCODED_BLOCK_STREAM_PLD_SIZE);
+
+                KEY = (client->use_current_key ?
+				  (const one_net_xtea_key_t * const) &(on_base_param->current_key)
+                  : (const one_net_xtea_key_t * const)&(master_param->old_key));
+
+                if((rv = on_parse_pld(&txn_nonce, &((*txn)->expected_nonce),
+                  &msg_type, pld, ON_BLOCK, KEY)) != ONS_SUCCESS)
+                {
+                    return rv;
+                } // if parsing the payload is not successful //
+
+                // store only the app part of the message
+                (*txn)->data_len = ONE_NET_RAW_BLOCK_STREAM_DATA_LEN;
+                one_net_memmove(&((*txn)->pkt[ON_DATA_IDX]),
+                  &(pld[ON_PLD_DATA_IDX]), (*txn)->data_len);
+            } // if a block transaction //
+
+            on_update_next_txn_time(&(txn_list[cur_txn_info].txn));
+            enqueue_txn(cur_txn_info);
+            break;
+        } // ONS_TIME_OUT / ONS_RX_NACK case //
+
+        case ONS_BLOCK_END:                             // fall through
+        case ONS_BLOCK_FAIL:
+        {
+            if(txn_list[cur_txn_info].type != ON_BLOCK)
+            {
+                return ONS_INTERNAL_ERR;
+            } // if not sending //
+
+            one_net_master_block_txn_status(STATUS,
+              (const one_net_raw_did_t * const)&raw_did);
+            break;
+        } // ONS_BLOCK_END/ONS_BLOCK_FAIL case //
+
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ONS_STREAM_END:                            // fall through
+        case ONS_STREAM_FAIL:
+        {
+            if(txn_list[cur_txn_info].type != ON_STREAM)
+            {
+                return ONS_INTERNAL_ERR;
+            } // if not sending //
+
+            one_net_master_stream_txn_status(STATUS,
+              (const one_net_raw_did_t * const)&raw_did);
+            break;
+        } // ONS_STREAM_END/ONS_STREAM_FAIL case //
+		#endif
+
+        default:
+        {
+            rv = ONS_INTERNAL_ERR;
+            break;
+        } // default case //
+    } // switch(STATUS) //
+
+    return rv;
+} // on_master_b_s_txn_hdlr //
+#endif
+
+
+/*!
+    \brief Handles the end of the data rate test.
+
+    \param[in] RATE The data rate that was tested.
+    \param[in] DID The device the MASTER tested the data rate with.
+    \param[in] RESULT The number of successful response the MASTER heard.
+
+    \return void
+*/
+void on_master_data_rate_hdlr(const UInt8 RATE,
+  const on_encoded_did_t * const DID, const UInt8 RESULT)
+{
+    if(!ont_active(data_rate_test.timer) || !DID || !on_encoded_did_equal(DID,
+      (const on_encoded_did_t * const)&(data_rate_test.recv_did)))
+    {
+        return;
+    } // if not carrying out a data rate test //
+
+    report_data_rate_result(RATE, RESULT, ON_MAX_DATA_RATE_TRIES);
+} // on_master_data_rate_hdlr //
+
+
+/*!
+    \brief Sets up the data rate test between 2 devices.
+
+    \param[in] SENDER The device that is to send the data rate test.  Pass in 0
+      if the MASTER is to send the data rate test.
+    \param[in] RECEIVER The device receiving the data rate test.  This must be
+      a CLIENT device.
+    \param[in] DATA_RATE The data rate to perform the test at.
+    \param[in] MH TRUE if it is a Multi-Hop data rate test.
+                  FALSE if it is a normal data rate test (no hops).
+
+    \return ONS_SUCCESS If the data rate test has been set up.
+            ONS_BAD_PARAM If any of the parameters are invalid.
+            ONS_INCORRECT_ADDR If the address is for a device not on this
+              network.
+            See encode, send_admin_pkt for more return results.
+*/
+static one_net_status_t setup_data_rate_test(
+  const on_encoded_did_t * const SENDER,
+  const on_encoded_did_t * const RECEIVER, const UInt8 DATA_RATE, const BOOL MH)
+{
+    one_net_status_t status;
+
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    if(!SENDER || !RECEIVER || DATA_RATE > ONE_NET_MAX_DATA_RATE)
+    {
+        return ONS_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    if(ont_active(data_rate_test.timer))
+    {
+        return ONS_ALREADY_IN_PROGRESS;
+    } // if the MASTER is already sending a data rate test //
+
+    one_net_memmove(data_rate_test.recv_did, *RECEIVER,
+      sizeof(data_rate_test.recv_did));
+    one_net_memmove(data_rate_test.send_did, *SENDER,
+      sizeof(data_rate_test.send_did));
+
+    data_rate_test.rate = DATA_RATE;
+    pld[ON_DATA_RATE_DATA_RATE_IDX] = DATA_RATE;
+
+    // set up the single txn to set up the receiver of the data rate test
+    one_net_memmove(&(pld[ON_DATA_RATE_DID_IDX]), ON_ENCODED_BROADCAST_DID,
+      ON_ENCODED_DID_LEN);
+    pld[ON_DATA_RATE_FLAG_IDX] = MH ? ON_MH_DATA_RATE_TEST_FLAG : 0x00;
+
+    if((status = send_admin_pkt(ON_INIT_DATA_RATE_TEST, ON_ADMIN_MSG,
+      (const on_encoded_did_t * const)&(data_rate_test.recv_did),
+      ONE_NET_HIGH_PRIORITY, pld, sizeof(pld))) != ONS_SUCCESS)
+    {
+        return status;
+    } // if sending the receiver admin pkt not successful //
+
+    // need to find txn the initiate recv data rate admin pkt got assigned
+    data_rate_test.recv_idx = txn_head;
+    data_rate_txn(&(data_rate_test.recv_idx));
+    if(data_rate_test.recv_idx >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_INTERNAL_ERR;
+    } // if the txn could not be found //
+
+    // set up sender
+    if(on_validate_dst_DID(SENDER) != ONS_SUCCESS)
+    {
+        one_net_memmove(&(pld[ON_DATA_RATE_DID_IDX]), data_rate_test.recv_did,
+          ON_ENCODED_DID_LEN);
+
+        if((status = send_admin_pkt(ON_INIT_DATA_RATE_TEST, ON_ADMIN_MSG,
+          (const on_encoded_did_t * const)&data_rate_test.send_did,
+          ONE_NET_HIGH_PRIORITY, pld, sizeof(pld))) != ONS_SUCCESS)
+        {
+            return status;
+        } // if sending the sender admin pkt not successful //
+
+        // Since the receiver transaction is queued first, start looking at
+        // the transaction queued after the receiver.
+        data_rate_test.send_idx = txn_list[data_rate_test.recv_idx].next;
+        data_rate_txn(&(data_rate_test.send_idx));
+        if(data_rate_test.send_idx >= ONE_NET_MASTER_MAX_TXN)
+        {
+            free_txn(data_rate_test.recv_idx);
+            data_rate_test.recv_idx = ONE_NET_MASTER_MAX_TXN;
+            return ONS_INTERNAL_ERR;
+        } // if the txn could not be found //
+    } // if the master is not the sender of the data rate test //
+    else
+    {
+        data_rate_test.send_idx = ONE_NET_MASTER_MAX_TXN;
+    } // else the MASTER is the sender //
+
+    data_rate_test.multi_hop = MH;
+    ont_set_timer(data_rate_test.timer, ONE_NET_STAY_AWAKE_TIME << 1);
+    return ONS_SUCCESS;
+} // setup_data_rate_test //
+
+
+/*!
+    \brief Tries a different variation of the data rate test.
+
+    If the data rate test failed, will try sending a Multi-Hop data rate test.
+    If that fails, will check if the receiver is a repeater, and if the MASTER
+    sends Multi-Hop packets to the sender.  If that is the case, the MASTER will
+    try the test again with the roles reversed.
+
+    \note This should only be called if the data rate test failed with no
+      successful transactions.
+
+    \param[in] RATE The data rate that was tested.
+
+    \return TRUE if the test was attempted again.
+            FALSE If the test was not attempted again.
+*/
+static BOOL retry_data_rate_test(const UInt8 RATE)
+{
+    on_encoded_did_t sender, receiver;
+    on_client_t * send_client = 0, * recv_client = 0;
+
+    if(!mh_repeater_available || data_rate_test.multi_hop)
+    {
+        return FALSE;
+    } // if no repeater in the network or the variants had been tried //
+
+    if(!(recv_client = client_info((const on_encoded_did_t * const)
+      &(data_rate_test.recv_did))) || !(recv_client->features & ON_MH_CAPABLE))
+    {
+        return FALSE;
+    } // if the CLIENT can't be found or doesn't support Multi-Hop //
+
+    if(on_validate_dst_DID((const on_encoded_did_t * const)
+      &(data_rate_test.send_did)) != ONS_SUCCESS && (!(send_client
+      = client_info((const on_encoded_did_t * const)&(data_rate_test.send_did)))
+      || !(send_client->features & ON_MH_CAPABLE)))
+    {
+        return FALSE;
+    } // if the SENDER could not be found or doesn't support Multi-Hop //
+
+    if(!data_rate_test.multi_hop)
+    {
+        one_net_memmove(sender, data_rate_test.send_did, sizeof(sender));
+        one_net_memmove(receiver, data_rate_test.recv_did, sizeof(receiver));
+    } // if a Multi-Hop data rate test should be tried //
+    else
+    {
+        return FALSE;
+    } // else noting else to try //
+
+    if(setup_data_rate_test((const on_encoded_did_t * const)&sender,
+      (const on_encoded_did_t * const)&receiver, RATE,
+      !data_rate_test.multi_hop) == ONS_SUCCESS)
+    {
+        if(data_rate_test.recv_idx == txn_head)
+        {
+            // need to wait for the CLIENT to timeout listening for the
+            // failed data rate test before trying to set up the new test.
+            const UInt32 DELAY = ONE_NET_STAY_AWAKE_TIME >> 1;
+
+            ont_set_timer(ONT_GENERAL_TIMER, DELAY);
+
+            // add the ONE_NET_STAY_AWAKE_TIME to the data rate timer since the
+            // start of the test is being delayed
+            ont_set_timer(data_rate_test.timer,
+              ont_get_timer(data_rate_test.timer) + DELAY);
+        } // if the data rate test is the only queued txn //
+
+        return TRUE;
+    } // if setting up the data rate test was successful //
+
+    return FALSE;
+} // retry_data_rate_test //
+
+
+/*!
+    \brief Reports the results of the data rate test to the application.
+
+    \param[in] DATA_RATE The data rate the test was performed at.
+    \param[in] RESULT The number of successful data rate test transactions.
+    \param[in] ATTEMPTS The number of data rate transactions that were attempted
+
+    \return void
+*/
+static void report_data_rate_result(const UInt8 DATA_RATE, const UInt8 RESULT,
+  const UInt8 ATTEMPTS)
+{
+    one_net_raw_did_t raw_sender, raw_receiver;
+
+    if(DATA_RATE > ONE_NET_MAX_DATA_RATE)
+    {
+        return;
+    } // if the parameters are invalid //
+
+    ont_stop_timer(data_rate_test.timer);
+    if(!RESULT && retry_data_rate_test(DATA_RATE))
+    {
+        return;
+    } // check to see if the test should be tried in a different way //
+
+    if(on_decode(raw_sender, data_rate_test.send_did, ON_ENCODED_DID_LEN)
+      != ONS_SUCCESS
+      || on_decode(raw_receiver, data_rate_test.recv_did, ON_ENCODED_DID_LEN)
+      != ONS_SUCCESS)
+    {
+        on_decode(raw_sender, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+        on_decode(raw_receiver, ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+
+        one_net_master_data_rate_result(
+          (const one_net_raw_did_t * const)&raw_sender,
+          (const one_net_raw_did_t * const)&raw_receiver, DATA_RATE, 0, 0);
+    } // if decoding an address failed //
+    else
+    {
+        one_net_master_data_rate_result(
+          (const one_net_raw_did_t * const)&raw_sender,
+          (const one_net_raw_did_t * const)&raw_receiver, DATA_RATE, RESULT,
+          ATTEMPTS);
+    } // else decoding addresses successful //
+} // report_data_rate_result //
 
 
 /*!
@@ -2684,438 +4152,2097 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 
     \param[in] SRC The sender of the admin packet.
     \param[in] DATA The admin packet.
-    \param[in/out] txn The transaction of the admin packet.
+    \param[in] DATA_LEN The length of the admin packet.
     \param[in/out] client The CLIENT the message is from if the CLIENT is
       already part of the network.  If the CLIENT is not yet part of the
       network and it is a new CLIENT being added to the network, the new CLIENT
       will be returned in client.
-    \param[out] acknowledgement or negative acknowledgement of a message
+	\param[out] nack_reason The "reason" that should be given if a NACK needs to be sent
+	\param[out] Filled in if sending data with the ACK/NACK message
+	\param[out] ack_nack_payload Filled in if sending data with the ACK/NACK message
 
-    \return ON_MSG_CONTINUE if processing should continue
-            ON_MSG_IGNORE if the message should be ignored
+
+    \return ONS_SUCCESS If the packet was successfully parsed.
+            ONS_BAD_PARAM If the parameters are invalid.
+            ONS_INTERNAL_ERR If an internal error occured.
+            ONS_UNHANDLED_VER If the version in the packet is not handled by
+              this device.
+            ONS_RSRC_FULL If the resources to send an appropriate response are
+              full.
+            ONS_UNHANDLED_PKT If the admin message type is not handled by the
+              device or the packet is being ignored.
+            ONS_INVALID_DATA If the received data is not valid.
+            ONS_INCORRECT_ADDR If a packet was received from an unexpected
+              sender.
 */
-static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
-  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
-  on_client_t ** client, on_ack_nack_t* ack_nack)
+static one_net_status_t handle_admin_pkt(const on_encoded_did_t * const SRC_DID,
+  const UInt8 * const DATA, const UInt8 DATA_LEN, on_client_t ** client,
+  on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+  ack_nack_payload_t* const ack_nack_payload)
 {
-    on_message_status_t status;
-    on_raw_did_t raw_did;
+    one_net_status_t status;
 
-    // TODO -- we need some named constants
-    if(!SRC_DID || !DATA || !client || (DATA[1] != ON_FEATURES_RESP &&
-      !(*client)))
+    if(!SRC_DID || !DATA || !nack_reason || !ack_nack_handle ||
+      !ack_nack_payload || DATA_LEN != ONE_NET_RAW_SINGLE_DATA_LEN || !client
+      || (DATA[ON_ADMIN_MSG_ID_IDX] != ON_STATUS_RESP && !(*client)))
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
 
-    on_decode(raw_did, *SRC_DID, ON_ENCODED_DID_LEN);
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK;
+    #ifdef _ONE_NET_EVAL
+        oncli_print_admin_msg(ON_ADMIN_MSG, ON_SINGLE,
+          DATA[ON_ADMIN_MSG_ID_IDX], &(DATA[ON_ADMIN_DATA_IDX]),
+          ON_MAX_ADMIN_PLD_LEN);
+    #endif // ifdef ONE_NET_EVAL //
 
-
-    switch(DATA[0])
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(on_state == ON_WAIT_FOR_STREAM_DATA_RESP
+      && DATA[ON_ADMIN_MSG_ID_IDX] != ON_END_STREAM)
     {
-        case ON_ADD_DEV_RESP:
-        {
-            // this is sent when a client has received a message that a device
-            // has been added.
-            if((*client)->send_add_device_message)
-            {
-                one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
-                  &raw_did, ack_nack);
-            }
-            
-            (*client)->send_add_device_message = FALSE;
-            break;
-        }
-        
-        case ON_REMOVE_DEV_RESP:
-        {
-            // this is sent when a client has received a message that a device
-            // has been removed.
-            if((*client)->send_remove_device_message)
-            {
-                one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
-                  &raw_did, ack_nack);
-            }
-            
-            (*client)->send_remove_device_message = FALSE;
-            break;
-        }
-        
-        case ON_CHANGE_SETTINGS_RESP:
-        {
-            if(is_invite_did(SRC_DID))
-            {
-                settings_sent = TRUE;
-            }
-            break;
-        }
-        
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ON_CHANGE_FRAGMENT_DELAY_RESP:
-        {
-            if(is_invite_did(SRC_DID))
-            {
-                fragment_delay_sent = TRUE;
-            }
-            break;
-        }
-        #endif
-        
-        case ON_KEEP_ALIVE_RESP:
-        {
-            // Several things need to be considered here.
-            // One, we could be in the middle of an event that requires that
-            // we update all devices.  In particular, we could have added a
-            // device, we could have removed a device, or we could have
-            // changed a key.  It would be nice to simply send back an ACK
-            // with the update message, so that's what we'll do.  We can never
-            // assume, however, that the client will get this ACK (more below).
-            // It's not a big problem if the device gets extra
-            // "device removed" or "device added" messages.  It is a potential
-            // problem if it gets multiple key fragment changes and tries to
-            // change it more than once.  To rectify that problem, ONE-NET
-            // stipulates that a new key fragmet cannot match any of the 4
-            // existing key fragments.  Before a client changes key fragments,
-            // it compares the new fragment to what it has now.  If there's a
-            // match, it already has the new key fragment and there was a
-            // a missed ACK or the timing synchronization was off, or something
-            // else occurred.  In any case, in this case it will not replace
-            // the key fragment.
-            
-            // Every time a Keep-Alive message is sent, the last key fragment
-            // is sent.  The master compares the key fragments to make sure
-            // the client has the current key.  If it does not, an admin
-            // message will be sent back in the ACK containing the new key
-            // fragment.  Upon receiving this message, the client should
-            // send another keep-alive message containing the current key.
-            // The master used this to keep track of when a key change is
-            // complete.
-            
-            // If the device has the right key, the master then makes sure it
-            // is informed of any pending additions / removals of devices.
-            // when the client is informed of such an occurrence, it will
-            // send either an ON_ADD_DEV_RESP message or an ON_REMOVE_DEV_RESP
-            // message as confirmation, at which point the master will add the
-            // client to the list of devices that have been informed.
-            // The client should then send another keep-alive reponse message.
-            
-            
-            // In addition, the device might be in the middle of adding itself
-            // to the network.  In that case, it needs to be informed of the
-            // following...
-            
-            // 1. Fragment delays (if block enabled)
-            // 2. Settings / Flags
+        return ONS_BAD_PKT_TYPE;
+    } // if waiting for a stream data response, & it was not received //
+	#endif
 
-            // For a device just joining, the master's features and the key
-            // were included in the invite message.  The keep-alive time is
-            // not known yet, but will be known with the first keep-alive
-            // message AFTER the device has been fully added.
-            
-            
-            // If there are no more administrative tasks to finish up, the
-            // master will send back a new keep-alive interval.  Then and only
-            // then may a client go to sleep.  This is regardless of whether
-            // the ACK or NACK sent back was of the "keep awake" type.  A
-            // client has fulfilled its obligation to check in with the master
-            // only when it has received this new keep-alive time.  That
-            // signifies that the master has no more messages for this client.
-            on_encoded_did_t* device_change_did = NULL;
-            
-            ack_nack->handle = ON_ACK_ADMIN_MSG;
-            
-            // the client has attached its key.  We want to make sure it's
-            // using the right one.
-            if(one_net_memcmp(&DATA[1],
-              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
+    switch(DATA[ON_ADMIN_MSG_ID_IDX])
+    {
+        case ON_STATUS_RESP:
+        {
+            // Make sure the version is something the MASTER handles
+            if(DATA[ON_STATUS_VER_IDX + ON_ADMIN_DATA_IDX] != ON_VERSION)
             {
-                // they are not using the correct key.  We'll attach it.
-                ack_nack->payload->admin_msg[0] = ON_NEW_KEY_FRAGMENT;
-                one_net_memmove(&(ack_nack->payload->admin_msg[1]),
-                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                key_update_in_progress = TRUE;
-                (*client)->use_current_key = FALSE;
+                status = ONS_UNHANDLED_VER;
                 break;
-            }
+            } // if the version did not match //
+
+            if(!(*client))
+            {
+                one_net_raw_did_t raw_src_did;
+
+                // The raw source address to be used as an index
+                UInt16 src;
+
+                if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
+                  != ONS_SUCCESS)
+                {
+                    break;
+                } // if decoding the did failed //
+
+                src = one_net_byte_stream_to_int16(raw_src_did);
+
+                if(invite_idx >= ONE_NET_MASTER_MAX_TXN
+                  || src != master_param->next_client_did)
+                {
+                    status = ONS_INCORRECT_ADDR;
+                    break;
+                } // if not inviting a CLIENT //
+
+                // the device was added
+
+                *client = one_net_master_add_new_client_to_list();
+
+                if(!(*client))
+                {
+                    status = ONS_INTERNAL_ERR;
+                    break;
+                } // if the pointer is 0 //
+
+                one_net_master_invite_result(ONS_SUCCESS, invite_key,
+                  &raw_src_did);
+                one_net_master_cancel_invite(
+                  (const one_net_xtea_key_t * const)&invite_key);
+
+                // the step below isn't necessary because it was already handled
+                // in one_net_master_add_new_client_to_list().  Commenting out.
+                /*one_net_memmove((*client)->did, *SRC_DID,
+                  sizeof(on_encoded_did_t));*/
+
+                (*client)->expected_nonce = one_net_prand(one_net_tick(),
+                  ON_MAX_NONCE);
+                (*client)->last_nonce = ON_MAX_NONCE + 1;
+                (*client)->send_nonce = 0;
+                (*client)->data_rate = on_base_param->data_rate;
+                (*client)->use_current_key = TRUE;
+
+                // save the new client
+                save = TRUE;
+            } // if the client was not found in the list //
+
+            (*client)->max_data_rate
+              = DATA[ON_STATUS_MAX_DATA_RATE_IDX + ON_ADMIN_DATA_IDX];
+            (*client)->features = DATA[ON_STATUS_FEATURES_IDX
+              + ON_ADMIN_DATA_IDX];
+
+            if(((*client)->features & ON_MH_CAPABLE)
+              && ((*client)->features & ON_MH_REPEATER))
+            {
+                mh_repeater_available = TRUE;
+            } // if the CLIENT is a Multi-Hop Repeater //
+
+            status = ONS_SUCCESS;
+            break;
+        } // status response case //
+
+        case ON_SETTINGS_RESP:
+        {
+            if((*client)->data_rate
+              != DATA[ON_SETTINGS_DATA_RATE_IDX + ON_ADMIN_DATA_IDX]
+              || (*client)->flags != DATA[ON_SETTINGS_FLAG_IDX
+              + ON_ADMIN_DATA_IDX])
+            {
+                (*client)->data_rate
+                  = DATA[ON_SETTINGS_DATA_RATE_IDX + ON_ADMIN_DATA_IDX];
+                (*client)->flags = DATA[ON_SETTINGS_FLAG_IDX
+                  + ON_ADMIN_DATA_IDX];
+                save = TRUE;
+            } // if the settings have changed //
+
+            if(DATA[ON_SETTINGS_MASTER_DATA_RATE_IDX + ON_ADMIN_DATA_IDX]
+              != on_base_param->data_rate)
+            {
+                if((status = send_change_settings(
+                  SRC_DID, (*client)->data_rate,
+                  DATA[ON_SETTINGS_FLAG_IDX + ON_ADMIN_DATA_IDX]))
+                  == ONS_SUCCESS)
+                {
+                    status = ONS_TXN_QUEUED;
+                } // if sending the change was successful //
+            } // if data rate CLIENT thinks the MASTER is at is not correct //
             else
             {
-                if(!((*client)->use_current_key))
-                {
-                    one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
-                        &raw_did, ack_nack);
-                }
-                (*client)->use_current_key = TRUE;
-            }
-            
-            if(is_invite_did(SRC_DID))
-            {
-                // the settings_sent and fragment_delay_sent flags
-                // will be set to true when the joining client sends an
-                // admin message confirming it got these values.
-                
-                if(!settings_sent)
-                {
-                    ack_nack->payload->admin_msg[0] = ON_CHANGE_SETTINGS;
-                    ack_nack->payload->admin_msg[1] = (*client)->flags;
-                    break;
-                }                
-                #ifdef _BLOCK_MESSAGES_ENABLED
-                else if(!fragment_delay_sent)
-                {
-                    ack_nack->payload->admin_msg[0] = ON_CHANGE_FRAGMENT_DELAY;
-                    one_net_int16_to_byte_stream(
-                      on_base_param->fragment_delay_low,
-                      &(ack_nack->payload->admin_msg[1]));
-                    one_net_int16_to_byte_stream(
-                      on_base_param->fragment_delay_low,
-                      &(ack_nack->payload->admin_msg[3]));
-                    break;
-                }
-                #endif
-                else
-                {
-                    // device is now added.  Adjust the client count,
-                    // next Device DID, and notify everyone.
-                    one_net_master_cancel_invite(&invite_key);
-                    // TODO -- check return value.  What do we do if this
-                    // is not a success?
-                    one_net_master_add_client((*client)->device.features,
-                      NULL, NULL, TRUE);
-                }
-            }
-            
-            if(remove_device_update_in_progress && 
-              (*client)->send_remove_device_message)
-            {
-                device_change_did = &remove_device_did;
-                ack_nack->payload->admin_msg[0] = ON_RM_DEV;
-            }
-            
-            if(add_device_update_in_progress && 
-              (*client)->send_add_device_message)
-            {
-                device_change_did = &add_device_did;
-                ack_nack->payload->admin_msg[0] = ON_ADD_DEV;
-            }
-            
-            if(device_change_did)
-            {
-                ack_nack->payload->admin_msg[1] = (*device_change_did)[0];
-                ack_nack->payload->admin_msg[2] = (*device_change_did)[1];
-                #ifdef _ONE_NET_MULTI_HOP
-                ack_nack->payload->admin_msg[3] = on_base_param->num_mh_devices;
-                ack_nack->payload->admin_msg[4] = on_base_param->num_mh_repeaters;
-                #else
-                // TODO - should we ban multi-hop just because the master
-                // isn't multi-hop?
-                ack_nack->payload->admin_msg[3] = 0;
-                ack_nack->payload->admin_msg[4] = 0;
-                #endif
-                break;
-            }
-            
-            // they have the right key and no other admin messages need to
-            // go out.  We'll send back the keep-alive interval they should
-            // use.
-            (*client)->use_current_key = TRUE;
-            ack_nack->handle = ON_ACK_TIME_MS;
-            ack_nack->payload->ack_time_ms = (*client)->keep_alive_interval;
+                status = ONS_SUCCESS;
+            } // else everything is ok //
             break;
-        }
-        
-        case ON_FEATURES_RESP:
+        } // settings response case //
+
+        case ON_KEEP_ALIVE_RESP:
         {
-            one_net_memmove(&((*client)->device.features),
-              &DATA[1], sizeof(on_features_t));
-            #ifdef _ONE_NET_MULTI_HOP
-            (*client)->device.max_hops = features_max_hops(
-              (*client)->device.features);
-            #endif
-            ack_nack->handle = ON_ACK_FEATURES;
-            ack_nack->payload->features = THIS_DEVICE_FEATURES;
+            // do nothing for now
+            status = ONS_SUCCESS;
             break;
-        } // features response case //
+        } // keep alive response case //
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_FRAGMENT_DELAY_RESP:
+        {
+            // do nothing for now
+            status = ONS_SUCCESS;
+            break;
+        } // fragment delay response case //
+
+        case ON_SEND_BLOCK_LOW:                         // fall through
+        case ON_RECV_BLOCK_LOW:                         // fall through
+        case ON_SEND_BLOCK_HIGH:                        // fall through
+        case ON_RECV_BLOCK_HIGH:
+        {
+            const BOOL SEND = (DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_BLOCK_LOW
+              || DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_BLOCK_HIGH);
+
+            one_net_raw_did_t raw_src_did;
+            UInt8 data_type, src_dst_unit, src_unit, dst_unit;
+            UInt8 txn;
+
+            if(b_s_in_progress(ON_BLOCK, SRC_DID))
+            {
+                status = ONS_ALREADY_IN_PROGRESS;
+                break;
+            } // if the transaction is already in progress //
+
+            if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
+              != ONS_SUCCESS)
+            {
+                break;
+            } // if decoding the did failed //
+
+            // getting the resource, and checking with the app is a catch 22.
+            // If the rsrc is checked first, and the app does not want to
+            // honor the txn, then checking the rsrc was a waste.  If the
+            // app was checked, and the rsrc is unavailable, then the app
+            // needs to be notified, and checking with the app in the first
+            // place was a waste.  Since we won't have to notify the app if the
+            // resource is not available, check the resource first.
+            txn = get_free_txn(ON_BLOCK, SEND);
+
+            if(txn >= ONE_NET_MASTER_MAX_TXN)
+            {
+                status = ONS_RSRC_FULL;
+                break;
+            } // if the resource is not available //
+
+            txn_list[txn].type = ON_BLOCK;
+            txn_list[txn].txn.remaining = one_net_byte_stream_to_int16(
+              &(DATA[ON_BLOCK_LEN_IDX + ON_ADMIN_DATA_IDX]));
+            one_net_memmove(txn_list[txn].did, *SRC_DID, sizeof(*SRC_DID));
+            txn_list[txn].txn.send = SEND;
+            txn_list[txn].txn.priority =
+              (DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_BLOCK_HIGH
+              || DATA[ON_ADMIN_MSG_ID_IDX] == ON_RECV_BLOCK_HIGH)
+              ? ONE_NET_HIGH_PRIORITY : ONE_NET_LOW_PRIORITY;
+
+            src_dst_unit = DATA[ON_BLOCK_STREAM_SRC_DST_IDX +
+              ON_ADMIN_DATA_IDX];
+            src_unit = (src_dst_unit & ONA_BLK_DATA_HDR_SRC_UNIT_MASK) >>
+              ONA_BLK_DATA_HDR_SRC_UNIT_SHIFT;
+            dst_unit = (src_dst_unit & ONA_BLK_DATA_HDR_DST_UNIT_MASK);
+
+            data_type = DATA[ON_BLOCK_STREAM_DATA_TYPE_IDX + ON_ADMIN_DATA_IDX];
+
+            if(one_net_master_txn_requested(ON_BLOCK, txn_list[txn].txn.send,
+              data_type, txn_list[txn].txn.remaining,
+              (const one_net_raw_did_t * const)&raw_src_did, src_unit, dst_unit,
+              nack_reason, ack_nack_handle, ack_nack_payload))
+            {
+                on_update_next_txn_time(&(txn_list[txn].txn));
+                enqueue_txn(txn);
+                status = ONS_SUCCESS;
+            } // if request is granted //
+            else
+            {
+                free_txn(txn);
+                status = ONS_UNHANDLED_PKT;
+            } // else request is not granted //
+            break;
+        } // SEND_BLOCK, RECV_BLOCK case //
+		#endif
+
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_SEND_STREAM_LOW:                        // fall through
+        case ON_RECV_STREAM_LOW:                        // fall through
+        case ON_SEND_STREAM_HIGH:                       // fall through
+        case ON_RECV_STREAM_HIGH:
+        {
+            const BOOL SEND = (DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_STREAM_LOW
+              || DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_STREAM_HIGH);
+
+            one_net_raw_did_t raw_src_did;
+            UInt16 cmd_and_data_type;
+            UInt8 txn;
+
+            if(b_s_in_progress(ON_STREAM, SRC_DID))
+            {
+                status = ONS_ALREADY_IN_PROGRESS;
+                break;
+            } // if the transaction is already in progress //
+
+            if((status = on_decode(raw_src_did, *SRC_DID, sizeof(*SRC_DID)))
+              != ONS_SUCCESS)
+            {
+                break;
+            } // if decoding the did failed //
+
+            // getting the resource, and checking with the app is a catch 22.
+            // If the rsrc is checked first, and the app does not want to
+            // honor the txn, then checking the rsrc was a waste.  If the
+            // app was checked, and the rsrc is unavailable, then the app
+            // needs to be notified, and checking with the app in the first
+            // place was a waste.  Since we won't have to notify the app if the
+            // resource is not available, check the resource first.
+            txn = get_free_txn(ON_STREAM, SEND);
+
+            if(txn >= ONE_NET_MASTER_MAX_TXN)
+            {
+                status = ONS_RSRC_FULL;
+                break;
+            } // if the resource is not available //
+
+            txn_list[txn].type = ON_STREAM;
+            // mark that the stream is to continue (this is set to 0 when the
+            // stream is ended
+            txn_list[txn].txn.remaining = 1;
+            one_net_memmove(txn_list[txn].did, *SRC_DID, sizeof(*SRC_DID));
+            txn_list[txn].txn.send = SEND;
+            txn_list[txn].txn.priority =
+              (DATA[ON_ADMIN_MSG_ID_IDX] == ON_SEND_STREAM_HIGH
+              || DATA[ON_ADMIN_MSG_ID_IDX] == ON_RECV_STREAM_HIGH)
+              ? ONE_NET_HIGH_PRIORITY : ONE_NET_LOW_PRIORITY;
+
+            cmd_and_data_type = one_net_byte_stream_to_int16(
+              &(DATA[ON_BLOCK_STREAM_DATA_TYPE_IDX + ON_ADMIN_DATA_IDX]));
+            if(one_net_master_txn_requested(ON_STREAM, txn_list[txn].txn.send,
+              cmd_and_data_type, 0, (const one_net_raw_did_t * const)
+              &raw_src_did))
+            {
+                on_update_next_txn_time(&(txn_list[txn].txn));
+                enqueue_txn(txn);
+                status = ONS_SUCCESS;
+            } // if request is granted //
+            else
+            {
+                free_txn(txn);
+                status = ONS_UNHANDLED_PKT;
+            } // else request is not granted //
+            break;
+        } // send/recv stream case //
+
+        case ON_END_STREAM:
+        {
+            one_net_raw_did_t raw_did;
+
+            // decode the address
+            if((status = on_decode(raw_did, *SRC_DID, sizeof(*SRC_DID)))
+              != ONS_SUCCESS)
+            {
+                break;
+            } // if decoding the address was not successful //
+
+            if((txn_list[cur_txn_info].type != ON_STREAM
+              || !txn_list[cur_txn_info].txn.send
+              || !on_encoded_did_equal(
+              (const on_encoded_did_t * const)&(txn_list[cur_txn_info].did),
+              SRC_DID)) && (cur_txn_info = dequeue_b_s_txn(ON_STREAM, SRC_DID))
+              >= ONE_NET_MASTER_MAX_TXN)
+            {
+                status = ONS_TXN_DOES_NOT_EXIST;
+            } // if the transaction was not found //
+            else
+            {
+                free_txn(cur_txn_info);
+                one_net_master_stream_txn_status(ONS_STREAM_END,
+                  (const one_net_raw_did_t * const)&raw_did);
+                status = ONS_STREAM_END;
+            } // else the transaction was found //
+            break;
+        } // end stream case //
+		#endif
+
+        case ON_DATA_RATE_RESULT:
+        {
+            if(DATA[ON_DATA_RATE_DATA_RATE_IDX + ON_ADMIN_DATA_IDX]
+              != data_rate_test.rate
+              || !on_encoded_did_equal(SRC_DID,
+              (const on_encoded_did_t * const)data_rate_test.send_did)
+              || !on_encoded_did_equal((const on_encoded_did_t * const)
+              &(DATA[ON_DATA_RATE_DID_IDX + ON_ADMIN_DATA_IDX]),
+              (const on_encoded_did_t * const)data_rate_test.recv_did)
+              || DATA[ON_DATA_RATE_RESULT_IDX + ON_ADMIN_DATA_IDX]
+              > ON_MAX_DATA_RATE_TRIES)
+            {
+                // The data does not match what it should be, so ignore
+                // the pkt
+                status = ONS_INVALID_DATA;
+            } // if any of the data is invalid //
+            else
+            {
+                report_data_rate_result(data_rate_test.rate,
+                  DATA[ON_DATA_RATE_RESULT_IDX + ON_ADMIN_DATA_IDX],
+                  ON_MAX_DATA_RATE_TRIES);
+
+                status = ONS_SUCCESS;
+            } // else the data is valid //
+            break;
+        } // data rate response case //
+
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_STREAM_KEY_QUERY:
+        {
+            status = send_stream_key_update(SRC_DID);
+            break;
+        } // stream key query case //
+		#endif
+
+        case ON_STATUS_QUERY:                           // fall through
+        case ON_SETTINGS_QUERY:                         // fall through
+        case ON_CHANGE_SETTINGS:                        // fall through
+        case ON_FRAGMENT_DELAY_QUERY:                   // fall through
+        case ON_CHANGE_LOW_FRAGMENT_DELAY:              // fall through
+        case ON_KEEP_ALIVE_QUERY:                       // fall through
+        case ON_CHANGE_KEEP_ALIVE:                      // fall through
+        case ON_NEW_KEY_FRAGMENT:                       // fall through
+#ifdef _PEER
+        case ON_ASSIGN_PEER:                            // fall through
+        case ON_UNASSIGN_PEER:                          // fall through
+#endif
+        case ON_INIT_DATA_RATE_TEST:                    // fall through
+        case ON_RM_DEV:
+        {
+            status = ONS_UNHANDLED_PKT;
+            break;
+        } // unhandled cases //
 
         default:
         {
-            ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-            ack_nack->handle = ON_NACK_FEATURES;
-            ack_nack->payload->features = THIS_DEVICE_FEATURES;
+            status = ONS_BAD_PKT_TYPE;
+            break;
         } // default case //
     } // switch(DATA[ON_ADMIN_MSG_ID_IDX]) //
 
-    return ON_MSG_CONTINUE;
-}
+    return status;
+} // handle_admin_pkt //
 
 
-#ifndef _ONE_NET_SIMPLE_DEVICE
 /*!
-    \brief Allows for adjustment of the recipient list for a message
+    \brief Handles the end of an admin transaction.
 
-    This function is called after a single message has been popped
-    from the queue and ready to send.  ONE-NET has set up a list of
-    destination dids and destination units that the message will be sent to.
-    The destination units are relevant only if the message type is ON_APP_MSG.
-    
-    This code can do one of four things.
-    
-    1) Do nothing.  In this instance the list remains unchanged and this will
-       be the list that is sent.
-    2) Cancel the message.  If this is desired, *recipient_list should be set
-       to NULL.
-    3) A new list can replace the old list.  In this case the appliation code
-       should change *recipient_list to point to the list it wants to have
-       sent.
-    4) The existing list can be used, but the code can add to it,
-       remove from it, or reorder it.
-   
+    \param[in] ADMIN_ID The type of admin transaction that just ended.
+    \param[in] DATA The admin data that was sent.
+    \param[in/out] txn The transaction that just ended.
+    \param[in] STATUS The status of the transaction.  This should only be
+      ONS_SUCCESS or ONS_SINGLE_FAIL.  All other values will return an error.
+    \param[in] client The CLIENT the pkt was sent to.
+    \param[in] DID The raw did of the CLIENT the packet was sent to.
 
-    Lists can be emptied by setting the "num_recipients" field to 0.  Elements
-    can be added using the add_recipient_to_recipient_list function.  Elements
-    can be removed using the "remove_recipient_from_recipient_list" function.
-
-    
-    \param[in] msg The message that is to be sent.
-    \param[in/out] A pointer to a pointer to a list of recipients.  The list
-                   itself can be changed by changing the pointer.  Change the
-                   pointer to NULL to cancel the message.  See the main
-                   description for how to adjust lists.
+    \return ONS_SUCCESS if the processing was successful.
+            ONS_BAD_PARAM if any of the parameters are invalid
+            ONS_INTERNAL_ERR if something unexpected happened
 */
-static void on_master_adjust_recipient_list(const on_single_data_queue_t*
-  const msg, on_recipient_list_t** recipient_send_list)
+static one_net_status_t admin_txn_hdlr(const UInt8 ADMIN_ID,
+  const UInt8 * const DATA, on_txn_t ** txn, const one_net_status_t STATUS,
+  on_client_t * const client, const one_net_raw_did_t * const DID)
 {
-    int i, index;
-    on_did_unit_t did_unit;
-    on_client_t* client;
-    
-    
-    // it's possible that this message was queued at a time when we had
-    // clients, but we no longer have any.  If that's the case, cancel this
-    // message.
-    
-    // TODO -- is this really possible?  Perhaps during a deletion?  Is this
-    // checked anywhere else?
-    if(master_param->client_count == 0)
+    one_net_status_t rv = ONS_INTERNAL_ERR;
+    one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
+
+    if(!txn || !(*txn) || !(*txn)->pkt || (STATUS != ONS_SUCCESS
+      && STATUS != ONS_SINGLE_FAIL) || !client || !DID)
     {
-        *recipient_send_list = NULL;
-        return;
-    }
-    
-    // first see if this is an admin message of type ON_NEW_KEY_FRAGMENT,
-    // ON_ADD_DEV, or ON_RM_DEV.  If not, we aren't interested in it here, but
-    // the application code might be.
-    if(msg->msg_type != ON_ADMIN_MSG || (msg->payload[0] != ON_NEW_KEY_FRAGMENT
-      && msg->payload[0] != ON_ADD_DEV && msg->payload[0] != ON_RM_DEV))
+        return ONS_BAD_PARAM;
+    } // if the parameters are invalid //
+
+    switch(ADMIN_ID)
     {
-        one_net_adjust_recipient_list(msg, recipient_send_list);
-        return;
-    }
-    
-    did_unit.unit = ONE_NET_DEV_UNIT; // all of these updates go to the device
-                                      // as a whole.
-    
-    // we may already have a destination queued.  If so, override the
-    // random index with that one.
-    client = NULL;
-    if((*recipient_send_list)->num_recipients)
-    {
-        client = client_info(
-          &(*recipient_send_list)->recipient_list[0].did);
-          
-        if(client)
+        case ON_CHANGE_SETTINGS:
         {
-            // iterate through the clients till we find the one we're queued
-            // to send.
-            for(index = 0; index < master_param->client_count; index++)
+            if(client->flags != DATA[ON_SETTINGS_FLAG_IDX + ON_ADMIN_DATA_IDX])
             {
-                if(client == &client_list[index])
+                client->flags = DATA[ON_SETTINGS_FLAG_IDX + ON_ADMIN_DATA_IDX];
+                save = TRUE;
+            } // if the flags have changed //
+
+            if(client->data_rate != DATA[ON_SETTINGS_DATA_RATE_IDX])
+            {
+                update = ONE_NET_UPDATE_DATA_RATE;
+
+                if(STATUS == ONS_SUCCESS)
                 {
-                    break; // found it.
-                }
-                client = NULL;
-            }
-        }
-    }
-    
-    
-    // clear the list.  If there was something on it and it still needs to be
-    // sent, we'll add it back in
-    (*recipient_send_list)->num_recipients = 0;
-    
-    // if we don't have an index already, pick a random one.
+                    client->data_rate = DATA[ON_SETTINGS_DATA_RATE_IDX];
+                    save = TRUE;
+                } // if the txn was successful //
+            } // if the data rate was being updated //
+            else
+            {
+                update = ONE_NET_UPDATE_REPORT_TO_MASTER;
+            } // else update report status changes to the MASTER //
+            break;
+        } // change settings case //
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_CHANGE_LOW_FRAGMENT_DELAY:
+        {
+            update = ONE_NET_UPDATE_LOW_FRAGMENT_DELAY;
+            break;
+        } // change low fragment delay case //
+
+        case ON_CHANGE_HIGH_FRAGMENT_DELAY:
+        {
+            update = ONE_NET_UPDATE_HIGH_FRAGMENT_DELAY;
+            break;
+        } // change high fragment delay case //
+		#endif
+
+        case ON_CHANGE_KEEP_ALIVE:
+        {
+            update = ONE_NET_UPDATE_KEEP_ALIVE;
+            break;
+        } // change keep alive case //
+
+        case ON_NEW_KEY_FRAGMENT:
+        {
+            if(STATUS == ONS_SUCCESS)
+            {
+                key_update_confirmed(client);
+                save = TRUE;
+            } // if changing the key fragment was successful //
+
+            rv = ONS_SUCCESS;
+            break;
+        } // new key fragment case //
+
+#ifdef _PEER
+        case ON_ASSIGN_PEER:        // fall through
+        {
+            update = ONE_NET_UPDATE_ASSIGN_PEER;
+            rv = ONS_SUCCESS;
+            break;
+        } // assign peer case //
+
+        case ON_UNASSIGN_PEER:
+        {
+            update = ONE_NET_UPDATE_UNASSIGN_PEER;
+            rv = ONS_SUCCESS;
+            break;
+        } // unassign peer case //
+#endif
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_SEND_BLOCK_LOW:     // fall through
+        case ON_RECV_BLOCK_LOW:     // fall through
+        case ON_SEND_BLOCK_HIGH:    // fall through
+        case ON_RECV_BLOCK_HIGH:
+        {
+            if(STATUS == ONS_SINGLE_FAIL && b_s_req.type == ON_BLOCK)
+            {
+                one_net_master_block_txn_status(ONS_BLOCK_FAIL, DID);
+
+                b_s_req.type = ON_NO_TXN;
+            } // if setting up the block txn failed //
+            rv = ONS_SUCCESS;
+            break;
+        } // send/receive block low case //
+		#endif
+
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_SEND_STREAM_LOW:    // fall through
+        case ON_RECV_STREAM_LOW:    // fall through
+        case ON_SEND_STREAM_HIGH:   // fall through
+        case ON_RECV_STREAM_HIGH:
+        {
+            if(STATUS == ONS_SINGLE_FAIL && b_s_req.type == ON_STREAM)
+            {
+                one_net_master_stream_txn_status(ONS_STREAM_FAIL, DID);
+            } // if setting up the stream txn failed //
+            rv = ONS_SUCCESS;
+            break;
+        } // send/receive stream low case //
+		#endif
+
+        case ON_INIT_DATA_RATE_TEST:
+        {
+            if(cur_txn_info == data_rate_test.recv_idx)
+            {
+                if(STATUS == ONS_SINGLE_FAIL)
+                {
+                    if(data_rate_test.send_idx < ONE_NET_MASTER_MAX_TXN)
+                    {
+                        free_txn(data_rate_test.send_idx);
+                    } // if the MASTER is not the sender //
+
+                    ont_stop_timer(data_rate_test.timer);
+                    report_data_rate_result(data_rate_test.rate, 0, 0);
+                } // if setting up the receiver failed //
+                else if(STATUS == ONS_SUCCESS
+                  && data_rate_test.send_idx >= ONE_NET_MASTER_MAX_TXN)
+                {
+                    (*txn)->data_len = (*txn)->pkt_size;
+                    if((rv = on_build_data_rate_pkt((*txn)->pkt,
+                      &((*txn)->data_len), (const on_encoded_did_t * const)
+                      &(data_rate_test.recv_did), data_rate_test.rate))
+                      == ONS_SUCCESS)
+                    {
+                        txn_list[cur_txn_info].type = ON_DATA_RATE_TXN;
+                        single_txn_data_count--;
+                        enqueue_txn(cur_txn_info);
+                        // don't clr the txn when complete, since it is now
+                        // used to send the data rate test
+                        cur_txn_info = ONE_NET_MASTER_MAX_TXN;
+                        *txn = &response_txn;
+                    } // if building the data rate pkt was successful //
+                    else
+                    {
+                        report_data_rate_result(data_rate_test.rate, 0, 0);
+                    }
+                    break;
+                } // else if txn successful && MASTER is the sender //
+
+                rv = ONS_SUCCESS;
+            } // if status is for setting up receiver in a data rate test //
+            else if(cur_txn_info == data_rate_test.send_idx)
+            {
+                if(STATUS == ONS_SINGLE_FAIL)
+                {
+                    report_data_rate_result(data_rate_test.rate, 0, 0);
+                } // if setting up the data rate test sender failed //
+
+                rv = ONS_SUCCESS;
+            } // if txn successfully set up a data rate test //
+            else
+            {
+                rv = ONS_INTERNAL_ERR;
+            } // else an internal error occured //
+            break;
+        } // init data rate case //
+
+        case ON_CHANGE_PEER_DATA_RATE:
+        {
+            update = ONE_NET_UPDATE_PEER_DATA_RATE;
+            break;
+        } // change peer data rate //
+
+        case ON_RM_DEV:
+        {
+            if(one_net_master_remove_device_result(DID,
+              STATUS == ONS_SUCCESS ? TRUE : FALSE))
+            {
+                rm_client((const on_encoded_did_t * const)client->did);
+            } // if the app wants the device removed from the table //
+            break;
+        } // remove device case //
+
+        default:
+        {
+            // handling of this type is not needed
+            rv = ONS_SUCCESS;
+            break;
+        } // default case //
+    } // switch(ADMIN_ID) //
+
+    if(update < ONE_NET_UPDATE_NOTHING)
+    {
+        one_net_master_update_result(update, DID, STATUS == ONS_SUCCESS ? TRUE
+          : FALSE);
+        rv = ONS_SUCCESS;
+    } // if reporting the results of a device update //
+
+    return rv;
+} // admin_txn_hdlr //
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Handles the end of a single data extended admin transaction.
+
+    \param[in] ADMIN_ID The type of admin transaction that just ended.  Only
+
+    \param[in] DATA The admin data that was sent.
+    \param[in/out] txn The transaction that just ended.
+    \param[in] STATUS The status of the transaction.  This should only be
+      ONS_SUCCESS or ONS_SINGLE_FAIL.  All other values will return an error.
+    \param[in] client The CLIENT the pkt was sent to.
+    \param[in] DID The raw did of the CLIENT the packet was sent to.
+
+    \return ONS_SUCCESS if the processing was successful.
+            ONS_BAD_PARAM if any of the parameters are invalid
+            ONS_INTERNAL_ERR if something unexpected happened
+*/
+static one_net_status_t extended_admin_single_txn_hdlr(const UInt8 ADMIN_ID,
+  const UInt8 * const DATA, on_txn_t ** txn, const one_net_status_t STATUS,
+  on_client_t * const client, const one_net_raw_did_t * const DID)
+{
+    one_net_status_t rv = ONS_INTERNAL_ERR;
+
+    if(!txn || !(*txn) || !(*txn)->pkt || (STATUS != ONS_SUCCESS
+      && STATUS != ONS_SINGLE_FAIL) || !client || !DID)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameters are invalid //
+
+    switch(ADMIN_ID)
+    {
+        case ON_RECV_BLOCK_LOW:
+        {
+            if(STATUS == ONS_SINGLE_FAIL && b_s_req.type == ON_BLOCK)
+            {
+                b_s_req.type = ON_NO_TXN;
+            } // if setting up the block txn failed //
+            rv = ONS_SUCCESS;
+            break;
+        } // send/receive block low case //
+
+        default:
+        {
+            // Should not have gotten here
+            break;
+        } // default case //
+    } // switch(ADMIN_ID) //
+
+    return rv;
+} // one_net_status_t extended_admin_single_txn_hdlr //
+#endif
+
+
+/*!
+    \brief Send an Admin packet to change a CLIENT's settings.
+
+    \param[in] DST The encoded did of the CLIENT whose settings are being
+      changed.
+    \param[in] DATA_RATE The data rate to set the CLIENT to receive at.
+    \param[in] FLAGS The flags the CLIENT should have set.
+
+    \return See send_admin_pkt for possible return values.
+*/
+static one_net_status_t send_change_settings(const on_encoded_did_t * const DST,
+  const UInt8 CLIENT_DATA_RATE, const UInt8 FLAGS)
+{
+    UInt8 pld[ON_MAX_ADMIN_PLD_LEN];
+
+    pld[ON_SETTINGS_DATA_RATE_IDX] = CLIENT_DATA_RATE;
+    pld[ON_SETTINGS_MASTER_DATA_RATE_IDX] = on_base_param->data_rate;
+    pld[ON_SETTINGS_FLAG_IDX] = FLAGS;
+
+    return send_admin_pkt(ON_CHANGE_SETTINGS, ON_ADMIN_MSG, DST,
+      ONE_NET_HIGH_PRIORITY, pld, sizeof(pld));
+} // send_change_settings //
+
+
+/*!
+    \brief Checks to see if a key update needs to be sent.
+
+    \param[in] ONLY_IF_ACTIVE TRUE if the check should be done only if the
+      key update process is already active.
+
+    \return void
+*/
+static void check_key_update(const BOOL ONLY_IF_ACTIVE)
+{
+    const BOOL ACTIVE = ont_active(ONT_CHANGE_KEY_TIMER);
+
+    if(!master_param->client_count || (ONLY_IF_ACTIVE && !ACTIVE)
+      || (ACTIVE && !ont_expired(ONT_CHANGE_KEY_TIMER)))
+    {
+        // timer hasn't expired, so don't try the next CLIENT yet
+        return;
+    } // if the timer is active and has not expired //
+
+    if(txn_data_count < ONE_NET_MASTER_LOW_LOAD_LIMIT)
+    {
+        UInt16 start = key_change_idx;
+
+        BOOL loop = TRUE;
+
+        // find a CLIENT that has not had it's key updated
+        do
+        {
+            key_change_idx++;
+            if(key_change_idx >= master_param->client_count)
+            {
+                key_change_idx = 0;
+            } // if beyond the last CLIENT //
+
+            if(!client_list[key_change_idx].use_current_key)
+            {
+                one_net_raw_did_t raw_did;
+                on_encoded_did_t dst;
+
+                one_net_int16_to_byte_stream((key_change_idx
+                  << ON_INIT_CLIENT_SHIFT) + ONE_NET_INITIAL_CLIENT_DID,
+                  raw_did);
+                if(on_encode(dst, raw_did, sizeof(dst)) == ONS_SUCCESS)
+                {
+                    send_key_update((const on_encoded_did_t * const)&dst);
+                } // if encoding was successful //
+
+                loop = FALSE;
+                break;
+            } // if using the old key //
+        } while(loop && key_change_idx != start);
+
+        if(!loop)
+        {
+            ont_set_timer(ONT_CHANGE_KEY_TIMER,
+              ONE_NET_MASTER_CHANGE_KEY_TIMEOUT);
+        } // if sending a key change //
+        else if(ACTIVE)
+        {
+            // everyone's key is updated
+            ont_stop_timer(ONT_CHANGE_KEY_TIMER);
+            one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, 0, TRUE);
+        } // else if the key was being updated //
+    } // if the load is low //
+    else
+    {
+        // keep checking
+        ont_set_timer(ONT_CHANGE_KEY_TIMER, 0);
+    } // else too many queued transactions //
+} // check_key_update //
+
+
+/*!
+    \brief Finishes up a key update for the given device id.
+
+    Removes any queued key updates since the device just confirmed the update
+    being sent.
+
+    \param[in] client The CLIENT whose key has been confirmed
+
+    \return void
+*/
+static void key_update_confirmed(on_client_t * const client)
+{
+    // current pointer
+    UInt8 cur;
+
     if(!client)
     {
-        index = one_net_prand(get_tick_count(), master_param->client_count - 1);
+        return;
+    } // if the parameter is invalid //
+
+    client->use_current_key = TRUE;
+
+    // It is possible the change key got through to the CLIENT but the ack did
+    // not make it back to update the nonce.  The CLIENT transaction to validate
+    // that it received the new key may still succeed, so the next time the
+    // MASTER sends a packet, it will be with the last nonce.  This may cause
+    // the CLIENT to believe that it had already received the next packet and
+    // send a false ack, thus never receiving the new data.  To avoid this,
+    // change to an incorrect nonce.
+    cur = client->send_nonce;
+    do
+    {
+        client->send_nonce = one_net_prand(one_net_tick(), ON_MAX_NONCE);
+    }while(cur == client->send_nonce);
+
+    cur = txn_head;
+    while(cur != ONE_NET_MASTER_MAX_TXN)
+    {
+        if(txn_list[cur].type == ON_SINGLE
+          && txn_list[cur].txn.msg_type == ON_ADMIN_MSG
+          && txn_list[cur].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_NEW_KEY_FRAGMENT
+          && on_encoded_did_equal(
+          (const on_encoded_did_t * const)&(txn_list[cur].did),
+          (const on_encoded_did_t * const)&(client->did)))
+        {
+            UInt8 txn_to_free = cur;
+
+            cur = txn_list[cur].next;
+            free_txn(txn_to_free);
+            continue;
+        } // if a new key fragment msg to DID was queued //
+
+        cur = txn_list[cur].next;
+    } // loop through the queued transactions //
+
+    // move on to another device
+    ont_set_timer(ONT_CHANGE_KEY_TIMER, 0);
+} // key_update_confirmed //
+
+
+/*!
+    \brief Queues the txn to send a ON_NEW_KEY_FRAGMENT to DST.
+
+    This sends the 32 least significant bits of the new key which is contained
+    in on_base_param->current_key.
+
+    \param[in] DST The device to send the new key fragment to.
+
+    \return ONS_SUCCESS if the transaction was successfully queued.
+            ONS_BAD_PARAM If the parameter is invalid
+*/
+static one_net_status_t send_key_update(const on_encoded_did_t * const DST)
+{
+    if(!DST)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter is invalid //
+
+    return send_admin_pkt(ON_NEW_KEY_FRAGMENT, ON_ADMIN_MSG, DST,
+      ONE_NET_HIGH_PRIORITY,
+      &(on_base_param->current_key[sizeof(on_base_param->current_key)
+      - ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+} // send_key_update //
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Checks to see if a stream key update needs to be sent.
+
+    \param[in] ONLY_IF_ACTIVE TRUE if the check should be done only if the
+      key update process is already active.
+
+    \return void
+*/
+static void check_stream_key_update(const BOOL ONLY_IF_ACTIVE)
+{
+    const BOOL ACTIVE = ont_active(ONT_CHANGE_STREAM_KEY_TIMER);
+
+    #ifdef _DISABLE_BLOCK_STREAM
+	return;
+	#endif
+
+    if(!master_param->client_count || (ONLY_IF_ACTIVE && !ACTIVE)
+      || (ACTIVE && !ont_expired(ONT_CHANGE_STREAM_KEY_TIMER)))
+    {
+        // timer hasn't expired, so don't try the next CLIENT yet
+        return;
+    } // if the timer is active and has not expired //
+
+    if(txn_data_count < ONE_NET_MASTER_LOW_LOAD_LIMIT)
+    {
+        UInt16 start = stream_key_change_idx;
+
+        BOOL loop = TRUE;
+
+        // find a CLIENT that has not had it's key updated
+        do
+        {
+            stream_key_change_idx++;
+            if(stream_key_change_idx >= master_param->client_count)
+            {
+                stream_key_change_idx = 0;
+            } // if beyond the last CLIENT //
+
+            // if bits 4 and 7 are both 1, then client is stream capable,
+            // so do a mask with ON_STREAM_CAPABLE, which is 10010000
+            // to see if they are -- note high-order bit is considered bit 7.
+            if((client_list[stream_key_change_idx].features &
+                    ON_STREAM_CAPABLE == ON_STREAM_CAPABLE)
+              && !client_list[stream_key_change_idx].use_current_stream_key)
+            {
+                one_net_raw_did_t raw_did;
+                on_encoded_did_t dst;
+
+                one_net_int16_to_byte_stream((key_change_idx
+                  << ON_INIT_CLIENT_SHIFT) + ONE_NET_INITIAL_CLIENT_DID,
+                  raw_did);
+                if(on_encode(dst, raw_did, sizeof(dst)) == ONS_SUCCESS)
+                {
+                    send_stream_key_update((const on_encoded_did_t * const)&dst);
+                } // if encoding was successful //
+
+                loop = FALSE;
+                break;
+            } // if using the old key //
+        } while(loop && stream_key_change_idx != start);
+
+        if(!loop)
+        {
+            ont_set_timer(ONT_CHANGE_STREAM_KEY_TIMER,
+              ONE_NET_MASTER_CHANGE_KEY_TIMEOUT);
+        } // if sending a key change //
+        else if(ACTIVE)
+        {
+            // everyone's key is updated
+            ont_stop_timer(ONT_CHANGE_STREAM_KEY_TIMER);
+            one_net_master_update_result(ONE_NET_UPDATE_STREAM_KEY, 0, TRUE);
+        } // else if the key was being updated //
+    } // if the load is low //
+    else
+    {
+        // keep checking
+        ont_set_timer(ONT_CHANGE_STREAM_KEY_TIMER, 0);
+    } // else too many queued transactions //
+} // check_stream_key_update //
+
+
+/*!
+    \brief Finishes up a stream key update for the given device id.
+
+    \param[in] client The CLIENT whose key has been confirmed
+
+    \return void
+*/
+static void stream_key_update_confirmed(on_client_t * const client)
+{
+    if(!client)
+    {
+        return;
+    } // if the parameter is invalid //
+
+    client->use_current_stream_key = TRUE;
+
+    // move on to another device
+    ont_set_timer(ONT_CHANGE_STREAM_KEY_TIMER, 0);
+} // stream_key_update_confirmed //
+
+
+/*!
+    \brief Queues the txn to send a ON_CHANGE_STREAM_KEY to DST.
+
+    \param[in] DST The device to send the stream key to.
+
+    \return ONS_SUCCESS if the transaction was successfully queued.
+            ONS_BAD_PARAM If the parameter is invalid
+*/
+static one_net_status_t send_stream_key_update(
+  const on_encoded_did_t * const DST)
+{
+    return b_s_request(ON_BLOCK, ON_EXTENDED_ADMIN_MSG, TRUE,
+      ON_CHANGE_STREAM_KEY, sizeof(on_base_param->stream_key),
+      ONE_NET_LOW_PRIORITY, DST, ONE_NET_DEV_UNIT);
+} // send_stream_key_update //
+#endif
+
+
+/*!
+    \brief Sends an admin packet (single transaction).
+
+    Finds the available resource, sets it up, and queues the transaction to
+    send an admin packet.
+
+    \param[in] ADMIN_MSG_ID The type of admin message being sent.
+    \param[in] MSG_TYPE The type of message being sent.  Valid values are
+      ON_ADMIN_MSG, and ON_EXTENDED_ADMIN_MSG
+    \param[in] DST The packet destination.
+    \param[in] PRIORITY The priority of the transaction.
+    \param[in] PLD The  admin data to be sent.
+    \param[in] PLD_LEN The number of bytes in PLD
+
+    \return ONS_SUCCESS If the packet was built and queued successfully
+            ONS_BAD_PARAM If any of the parameters are invalid
+            ONS_RSRC_FULL If there are no resources available
+*/
+static one_net_status_t send_admin_pkt(const UInt8 ADMIN_MSG_ID,
+  const UInt8 MSG_TYPE, const on_encoded_did_t * const DST,
+  const UInt8 PRIORITY, const UInt8 * const PLD, const UInt8 PLD_LEN)
+{
+    UInt8 txn;
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if((MSG_TYPE != ON_ADMIN_MSG && MSG_TYPE != ON_EXTENDED_ADMIN_MSG)
+    #else
+    if((MSG_TYPE != ON_ADMIN_MSG)
+	#endif
+	|| !DST || !PLD || PLD_LEN != ON_MAX_ADMIN_PLD_LEN)
+    {
+        return ONS_BAD_PARAM;
+    } // the parameter is invalid //
+
+    txn = get_free_txn(ON_SINGLE, TRUE);
+
+    if(txn >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_RSRC_FULL;
+    } // if the resource is not available //
+
+    txn_list[txn].type = ON_SINGLE;
+    txn_list[txn].txn.data_len = PLD_LEN;
+    txn_list[txn].txn.msg_type = MSG_TYPE;
+    txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] = ADMIN_MSG_ID;
+    one_net_memmove(txn_list[txn].did, *DST, sizeof(*DST));
+    one_net_memmove(&(txn_list[txn].txn.pkt[ON_DATA_IDX]), PLD, PLD_LEN);
+    txn_list[txn].txn.priority = PRIORITY;
+
+    enqueue_txn(txn);
+
+    return ONS_SUCCESS;
+} // send_admin_pkt //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Handles retrieving the next payload for block or stream transactions.
+
+    \param[in] TXN_INFO The transaction to get the next payload for.
+
+    \return TRUE if the next payload was retrieved.
+            FALSE if the parameter was invalid, or the transaction was aborted.
+*/
+static BOOL get_next_b_s_pld(const UInt8 TXN_INFO)
+{
+    if(TXN_INFO >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return FALSE;
+    } // if the parameter is invalid //
+
+    if(txn_list[TXN_INFO].txn.msg_type == ON_APP_MSG)
+    {
+        return get_b_s_app_data(TXN_INFO);
+    } // if an admin message //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(txn_list[TXN_INFO].txn.msg_type == ON_EXTENDED_ADMIN_MSG)
+    {
+        return get_b_s_extended_admin_data(TXN_INFO);
+    } // else if an extended admin message //
+	#endif
+
+    // Should not get here.
+    return FALSE;
+} // get_next_b_s_pld //
+
+
+/*!
+    \brief Handles retrieving the next payload for application block or stream
+      transactions.
+
+    This verifies the address is valid, and that the application returns a
+    valid pointer.  If the address or pointer returned by the app is invalid
+    (or the app returns too much data), the transaction will be aborted (the
+    app will be notified).
+
+    \param[in] TXN_INFO The transaction to get the next payload for.
+
+    \return A non-Error nack reason if the block transaction should proceed
+            An error nack reason if the block transaction should not proceed.
+*/
+on_nack_rsn_t get_b_s_app_data(const UInt8 TXN_INFO)
+{
+    one_net_raw_did_t dst;
+    const UInt8 * DATA_PTR = 0;
+    UInt16 len = 0;
+    BOOL block = FALSE;
+    on_nack_rsn_t nack_reason;
+    UInt16 position_to_send = 0;
+
+    if(txn_list[TXN_INFO].type == ON_BLOCK)
+    {
+        block = TRUE;
+    } // if a block transaction //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(txn_list[TXN_INFO].type == ON_STREAM)
+    {
+        block = FALSE;
+    } // else if a stream transaction //
+	#endif
+    else
+    {
+        return ON_NACK_RSN_BAD_DATA_ERR;
+    } // else not a block or stream transaction //
+
+    // decode address
+    if(on_decode(dst, txn_list[TXN_INFO].did, sizeof(txn_list[TXN_INFO].did))
+      != ONS_SUCCESS
+      || client_info((const on_encoded_did_t * const)&(txn_list[TXN_INFO].did))
+      == 0)
+    {
+        // since the address is not valid, alert the app and free the txn.
+		#ifdef _STREAM_MESSAGES_ENABLED
+        if(block)
+        {
+            one_net_master_block_txn_status(ONS_BAD_ADDR,
+              (const one_net_raw_did_t * const)&dst);
+        } // if a block transaction //
+        else
+        {
+            one_net_master_stream_txn_status(ONS_BAD_ADDR,
+              (const one_net_raw_did_t * const)&dst);
+        } // else a stream transaction //
+		#else
+        one_net_master_block_txn_status(ONS_BAD_ADDR,
+          (const one_net_raw_did_t * const)&dst);
+		#endif
+
+        free_txn(TXN_INFO);
+        return ON_NACK_RSN_BAD_ADDRESS_ERR;
+    } // if the address is not valid //
+
+    // get data from app
+    if((nack_reason = one_net_master_next_payload(txn_list[TXN_INFO].type, &len,
+      (const one_net_raw_did_t * const)&dst)) != ON_NACK_RSN_NO_ERROR
+      || len > ON_MAX_RAW_PLD_LEN
+      || (block && len > txn_list[TXN_INFO].txn.remaining))
+    {
+		#ifdef _STREAM_MESSAGES_ENABLED
+        if(block)
+        {
+            one_net_master_block_txn_status(ONS_INVALID_DATA,
+              (const one_net_raw_did_t * const)&dst);
+        } // if a block transaction //
+        else
+        {
+            one_net_master_stream_txn_status(ONS_INVALID_DATA,
+              (const one_net_raw_did_t * const)&dst);
+        } // else a stream transaction //
+		#else
+            one_net_master_block_txn_status(ONS_INVALID_DATA,
+              (const one_net_raw_did_t * const)&dst);
+        #endif
+
+        free_txn(TXN_INFO);
+        return FALSE;
+    } // if the data returned from the app is not valid //
+
+    // adjust length if it is too long.
+    if(block && len > txn_list[TXN_INFO].txn.remaining)
+    {
+        len = txn_list[TXN_INFO].txn.remaining;
     }
-    
-    
+    if(len > ONE_NET_RAW_BLOCK_STREAM_DATA_LEN - 4)
+    {
+        len = ONE_NET_RAW_BLOCK_STREAM_DATA_LEN - 4;
+    }
+
+    if(block_data_pos >= block_data_len)
+    {
+        len = 0;
+        position_to_send = 0;
+    }
+    else
+    {
+        position_to_send = block_data_pos + 1;
+        one_net_memmove(&(txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX + 4]),
+            block_data, len);
+    }
+
+    txn_list[TXN_INFO].txn.data_len = len + 4;
+    txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX] =
+        (UInt8) ((position_to_send & 0xFF00) >> 8);
+    txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX + 1] =
+        (UInt8) (position_to_send & 0x00FF);
+    txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX + 2] =
+        (UInt8) ((len & 0xFF00) >> 8);
+    txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX + 3] =
+        (UInt8) (len & 0x00FF);
+
+    return ON_NACK_RSN_NO_ERROR;
+} // get_b_s_app_data //
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Handles retrieving the next payload for extended admin block or
+      stream transactions.
+
+    \param[in] TXN_INFO The transaction to get the next payload for.
+
+    \return TRUE if the next payload was retrieved.
+            FALSE if the parameter was invalid, or the transaction was aborted.
+*/
+static BOOL get_b_s_extended_admin_data(const UInt8 TXN_INFO)
+{
+    // Currently, there is only 1 extended admin message - Update Stream Key.
+    // For now, this function sets up the block fragment to send the new stream
+    // key.  When more extended admin messages are added later, this function
+    // will need to be refactored.
+    txn_list[TXN_INFO].txn.data_len = sizeof(one_net_xtea_key_t);
+    txn_list[TXN_INFO].txn.remaining -= txn_list[TXN_INFO].txn.data_len;
+    one_net_memmove(&(txn_list[TXN_INFO].txn.pkt[ON_DATA_IDX]),
+      on_base_param->stream_key, txn_list[TXN_INFO].txn.data_len);
+
+    return TRUE;
+} // get_b_s_extended_admin_data //
+#endif
+
+
+/*!
+    \brief Checks if a block or stream transaction is being requested.
+
+    \param void
+
+    \return void
+*/
+static void check_b_s_req(void)
+{
+	#ifdef _STREAM_MESSAGES_ENABLED
+    if(txn_list[cur_txn_info].txn.msg_type != ON_ADMIN_MSG
+      && txn_list[cur_txn_info].txn.msg_type != ON_EXTENDED_ADMIN_MSG)
+	#else
+    if(txn_list[cur_txn_info].txn.msg_type != ON_ADMIN_MSG)
+	#endif
+    {
+        return;
+    } // if not an admin message //
+
+    if(txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_SEND_BLOCK_LOW
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_RECV_BLOCK_LOW
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_SEND_BLOCK_HIGH
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+      == ON_RECV_BLOCK_HIGH)
+    {
+        b_s_req.type = ON_BLOCK;
+        // this device sends (b_s_req.send == TRUE) if the other device receives
+        b_s_req.send = txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+          == ON_RECV_BLOCK_LOW
+          || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+          == ON_RECV_BLOCK_HIGH;
+        b_s_req.len = one_net_byte_stream_to_int16(
+          &(txn_list[cur_txn_info].txn.pkt[ON_BLOCK_LEN_IDX + ON_DATA_IDX]));
+    } // if sending a block admin request //
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+      == ON_SEND_STREAM_LOW
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_RECV_STREAM_LOW
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_SEND_STREAM_HIGH
+      || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_RECV_STREAM_HIGH)
+    {
+        b_s_req.type = ON_STREAM;
+        // this device sends (b_s_req.send == TRUE) if the other device receives
+        b_s_req.send = txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+          == ON_RECV_STREAM_LOW
+          || txn_list[cur_txn_info].txn.pkt[ON_ADMIN_TYPE_IDX]
+          == ON_RECV_STREAM_HIGH;
+        // mark for the stream to continue
+        b_s_req.len = 1;
+    } // else if sending a stream admin request //
+	#endif
+    else
+    {
+        b_s_req.type = ON_NO_TXN;
+        return;
+    } // else not a block or stream request //
+} // check_b_s_req //
+
+
+/*!
+    \brief Checks if a block or stream transaction is already in progress with
+      DID.
+
+    \param[in] TYPE The type of transaction to check for (ON_BLOCK or
+      ON_STREAM).
+    \param[in] DID The device to check if a block or stream is already in
+      progress with it.
+
+    \return TRUE if a transaction of TYPE is already in progress with DID.
+            FALSE if there is no transaction of TYPE in progress with DID.
+*/
+static BOOL b_s_in_progress(const UInt8 TYPE,
+  const on_encoded_did_t * const DID)
+{
+    #ifdef _STREAM_MESSAGES_ENABLED
+    const UInt8 SEND_LOW_TYPE = TYPE == ON_BLOCK ? ON_SEND_BLOCK_LOW
+      : ON_SEND_STREAM_LOW;
+    const UInt8 RECV_LOW_TYPE = TYPE == ON_BLOCK ? ON_RECV_BLOCK_LOW
+      : ON_RECV_STREAM_LOW;
+    const UInt8 SEND_HIGH_TYPE = TYPE == ON_BLOCK ? ON_SEND_BLOCK_HIGH
+      : ON_SEND_STREAM_HIGH;
+    const UInt8 RECV_HIGH_TYPE = TYPE == ON_BLOCK ? ON_RECV_BLOCK_HIGH
+      : ON_RECV_STREAM_HIGH;
+	#endif
+
+    UInt8 txn;
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if((TYPE != ON_BLOCK && TYPE != ON_STREAM) || !DID)
+	#else
+    if((TYPE != ON_BLOCK) || !DID)
+	#endif
+    {
+        // Return TRUE since we don't want to assume there is no transaction
+        // when the parameters are invalid.  Deny allowing a transaction since
+        // there is no gaurantee the txn is not being carried out.
+        return TRUE;
+    } // if one of the parameters is invalid //
+
+    // loop through all queued transactions and make sure a block transaction
+    // with this device is not already in progress
+    for(txn = txn_head; txn < ONE_NET_MASTER_MAX_TXN; txn = txn_list[txn].next)
+    {
+        if(txn_list[txn].type == TYPE && on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)&(txn_list[txn].did)))
+        {
+            return TRUE;
+        } // if a block transaction w/DID is already in progress //
+        else if(txn_list[txn].type == ON_SINGLE && on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)&(txn_list[txn].did)))
+        {
+            // make sure a request for a block txn is not already being made
+            // Transactions in the queue are not built until they are sent.
+			#ifdef _STREAM_MESSAGES_ENABLED
+            if((txn_list[txn].txn.msg_type == ON_ADMIN_MSG
+              || txn_list[txn].txn.msg_type == ON_EXTENDED_ADMIN_MSG)
+              && (txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == SEND_LOW_TYPE
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == RECV_LOW_TYPE
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == SEND_HIGH_TYPE
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == RECV_HIGH_TYPE))
+			#else
+            if((txn_list[txn].txn.msg_type == ON_ADMIN_MSG)
+              && (txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_SEND_BLOCK_LOW
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_RECV_BLOCK_LOW
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_SEND_BLOCK_HIGH
+              || txn_list[txn].txn.pkt[ON_ADMIN_TYPE_IDX] == ON_RECV_BLOCK_HIGH))
+			#endif
+            {
+                return TRUE;
+            } // if a block transaction request is already queued //
+        } // if single transaction to dst device //
+    } // loop through the queued transactions //
+
+    return FALSE;
+} // b_s_in_progress //
+#endif // if block messages are enabled //
+
+
+/*!
+    \brief Builds the data packet for the given transaction.
+
+    The raw data is stored in the pkt field of the transaction.  It is copied
+    out of that field, the client info is found for the destination, and the
+    packet is built.  This should be called when the transaction is actually
+    being sent.
+
+    \param[in] TXN  The transaction to build the data packet for.
+
+    \return ONS_SUCCESS If the transaction was successfully built.
+            ONS_BAD_PARAM If the parameter was invalid
+            ONS_INTERNAL_ERR If there was a problem with the data size or
+              msg_type
+            ONS_BAD_ADDR If the CLIENT address was invalid.
+            See on_build_data_pkt for more possible return values.
+*/
+static one_net_status_t build_txn_data_pkt(const UInt8 TXN)
+{
+    const on_client_t * CLIENT = 0;
+    const one_net_xtea_key_t * KEY = 0;
+
+    one_net_raw_did_t raw_did;
+    one_net_status_t status;
+    UInt8 pid, admin_type, txn_nonce, data_len;
+    UInt8 data[ON_MAX_RAW_PLD_LEN];
+
+    if(TXN >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return ONS_BAD_PARAM;
+    } // if the parameter was invalid //
+
+    if(txn_list[TXN].txn.data_len > sizeof(data))
+    {
+        return ONS_INTERNAL_ERR;
+    } // if an internal error occured //
+
+    if(on_decode(raw_did, txn_list[TXN].did, ON_ENCODED_DID_LEN) != ONS_SUCCESS
+      || (CLIENT = client_info((const on_encoded_did_t * const)
+      &(txn_list[TXN].did))) == 0)
+    {
+        return ONS_INTERNAL_ERR;
+    } // if decoding the did failed || the CLIENT could not be found //
+
+    // get the information & raw fields that were stored in the packet
+    switch(txn_list[TXN].type)
+    {
+        case ON_SINGLE:
+        {
+            pid = ONE_NET_ENCODED_SINGLE_DATA;
+            KEY = &(on_base_param->current_key);
+            break;
+        } // ON_SINGLE case //
+
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BLOCK:
+        {
+            if(!txn_list[TXN].txn.retry)
+            {
+                pid = ONE_NET_ENCODED_BLOCK_DATA;
+            } // if first time the block is sent //
+            else
+            {
+                pid = ONE_NET_ENCODED_REPEAT_BLOCK_DATA;
+            } // else this is a repeat block //
+
+            KEY = &(on_base_param->current_key);
+            break;
+        } // ON_BLOCK case //
+        #endif
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_STREAM:
+        {
+            pid = ONE_NET_ENCODED_STREAM_DATA;
+            KEY = &(on_base_param->stream_key);
+            break;
+        } // ON_STREAM case //
+		#endif
+
+        default:
+        {
+            return ONS_INTERNAL_ERR;
+            break;
+        } // default case //
+    } // switch on transactin type //
+
+    admin_type = txn_list[TXN].txn.pkt[ON_ADMIN_TYPE_IDX];
+    data_len = txn_list[TXN].txn.data_len;
+    one_net_memmove(data, &(txn_list[TXN].txn.pkt[ON_DATA_IDX]), data_len);
+
+    txn_nonce = CLIENT->send_nonce;
+
+    txn_list[TXN].txn.data_len = txn_list[TXN].txn.pkt_size;
+    txn_list[TXN].txn.expected_nonce = one_net_prand(one_net_tick(),
+      ON_MAX_NONCE);
+
+    switch(txn_list[TXN].txn.msg_type)
+    {
+        case ON_APP_MSG:
+        {
+            status = on_build_data_pkt(txn_list[TXN].txn.pkt,
+              &(txn_list[TXN].txn.data_len), txn_list[TXN].txn.msg_type, pid,
+              (const on_encoded_did_t * const)&(txn_list[TXN].did), txn_nonce,
+              txn_list[TXN].txn.expected_nonce, data, data_len,
+			  #ifdef _STREAM_MESSSAGES_ENABLED
+              txn_list[TXN].type == ON_STREAM || CLIENT->use_current_key ? KEY
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+			  #else
+              CLIENT->use_current_key ? KEY
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+			  #endif
+            break;
+        } // ON_APP_MSG case //
+
+        case ON_ADMIN_MSG:
+        {
+            status = on_build_admin_pkt(txn_list[TXN].txn.pkt,
+              &(txn_list[TXN].txn.data_len), txn_list[TXN].txn.msg_type,
+              admin_type, (const on_encoded_did_t * const)&(txn_list[TXN].did),
+              txn_nonce, txn_list[TXN].txn.expected_nonce, data, data_len,
+			  #ifdef _STREAM_MESSAGES_ENABLED
+              txn_list[TXN].type == ON_STREAM || CLIENT->use_current_key ? KEY
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+			  #else
+              CLIENT->use_current_key ? KEY
+              : (const one_net_xtea_key_t * const)&(master_param->old_key));
+			  #endif
+            break;
+        } // ON_ADMIN_MSG case //
+
+        #ifdef _STREAM_MESSAGES_ENABLED
+        case ON_EXTENDED_ADMIN_MSG:
+        {
+            if(txn_list[TXN].type == ON_SINGLE)
+            {
+                status = on_build_admin_pkt(txn_list[TXN].txn.pkt,
+                  &(txn_list[TXN].txn.data_len), txn_list[TXN].txn.msg_type,
+                  admin_type,
+                  (const on_encoded_did_t * const)&(txn_list[TXN].did),
+                  txn_nonce, txn_list[TXN].txn.expected_nonce, data, data_len,
+                  CLIENT->use_current_key ? KEY
+                  : (const one_net_xtea_key_t * const)&(master_param->old_key));
+            } // if a single transaction //
+            else if(txn_list[TXN].type == ON_BLOCK)
+            {
+                status = on_build_data_pkt(txn_list[TXN].txn.pkt,
+                  &(txn_list[TXN].txn.data_len), txn_list[TXN].txn.msg_type,
+                  pid, (const on_encoded_did_t * const)&(txn_list[TXN].did),
+                  txn_nonce, txn_list[TXN].txn.expected_nonce, data, data_len,
+                  CLIENT->use_current_key ? KEY
+                  : (const one_net_xtea_key_t * const)&(master_param->old_key));
+            } // else if a block transaction //
+            else
+            {
+                status = ONS_INTERNAL_ERR;
+            } // else an internal error //
+            break;
+        } // ON_EXTENDED_ADMIN_MSG case //
+		#endif
+
+        default:
+        {
+            status = ONS_INTERNAL_ERR;
+            break;
+        } // default case //
+    } // switch(msg_type) //
+
+    return status;
+} // build_txn_data_pkt //
+
+
+/*!
+    \brief Removes the CLIENT from the network (by removing it from the table)
+
+    \param[in] DID The device ID of the CLIENT to remove
+
+    \return ONS_SUCCESS if the client was deleted.
+            ONS_INVALID_DATA if the client was not deleted.
+*/
+static one_net_status_t rm_client(const on_encoded_did_t * const DID)
+{
+    UInt16 i;
+
+    if(!DID)
+    {
+        return ONS_INVALID_DATA;
+    } // if the parameter is invalid //
+
     for(i = 0; i < master_param->client_count; i++)
     {
-        if(index >= master_param->client_count)
+        if(on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)&client_list[i].did))
         {
-            index = 0; // wraparound.
-        }
-        client = &client_list[index];
-        index++;
-        
-        // see if we need to send this message fo this client.  We don't need
-        // to send it if...
-        // 1) It's already been sent and the device has verified that it has
-        //    been sent.
-        // 2) The device sleeps.  Sleeping devices don't receive outgoing
-        //    messages for these particular updates.  They get them when they
-        //    check in with keep-alive messages.
-        
-        // TODO -- do we need to check this one?  Presumably it was checked
-        //         before it was queued in the first place?
-        if(features_device_sleeps(client->device.features))
+            one_net_memmove(client_list[i].did, ON_ENCODED_BROADCAST_DID,
+                ON_ENCODED_DID_LEN);
+			adjust_client_list();
+
+			return ONS_SUCCESS;
+        } // if the CLIENT was found //
+    } // loop to find the CLIENT //
+
+	return ONS_INVALID_DATA;
+} // rm_client //
+
+
+
+/*!
+    \brief Cleans up client list
+
+    \return the index in the client list where the new client's settings should
+    be stored.  -1 means no room left.
+*/
+static int adjust_client_list()
+{
+    on_encoded_did_t enc_did;
+    int i, index;
+    one_net_raw_did_t raw_next_did;
+    BOOL found_next_did = FALSE;
+
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    index = 0;
+
+	// go through and look for the first hole(if any) in the list
+	for(i = 0; i < master_param->client_count; i++)
+    {
+        if(on_encoded_did_equal(&ON_ENCODED_BROADCAST_DID, &client_list[i].did))
         {
-            continue;
-        }
-        
-        if(msg->payload[0] == ON_NEW_KEY_FRAGMENT && client->use_current_key)
+            // found an empty spot
+            (master_param->client_count)--;
+            if(i < master_param->client_count)
+            {
+                one_net_memmove(&(client_list[i]), &(client_list[i + 1]),
+                  sizeof(on_client_t) * (master_param->client_count - i));
+            }
+
+            return adjust_client_list();
+		}
+
+        one_net_int16_to_byte_stream(master_param->next_client_did, raw_next_did);
+        on_encode(enc_did, raw_next_did, ONE_NET_RAW_DID_LEN);
+
+        if(!on_encoded_did_equal(&enc_did, &client_list[i].did))
         {
-            // already sent
-            continue;
-        }
-        if(msg->payload[0] == ON_ADD_DEV &&
-          !(client->send_add_device_message))
+			found_next_did = TRUE;
+		}
+
+		if(!found_next_did)
         {
-            // already sent
-            continue;
-        }
-        if(msg->payload[0] == ON_RM_DEV &&
-          !(client->send_remove_device_message))
-        {
-            // already sent
-            continue;
-        }
-        
-        
-        // looks like we should send this one.
-        did_unit.did[0] = client->device.did[0];
-        did_unit.did[1] = client->device.did[1];
-        add_recipient_to_recipient_list(*recipient_send_list, &did_unit);
-        return;
+			master_param->next_client_did += ON_CLIENT_DID_INCREMENT;
+            index++;
+		}
     }
-    
-    // looks like nothing should be sent.  Abort this message.
-    *recipient_send_list = NULL;
+
+	if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    {
+		index = -1;
+    }
+
+    return index;
 }
+
+
+/*!
+    \brief Returns an unused location to store CLIENT information.
+
+    \return an unused location to store CLIENT information if there is room
+            NULL if there is no room.
+*/
+static on_client_t* one_net_master_add_new_client_to_list()
+{
+    one_net_raw_did_t new_raw_did;
+
+    int index = adjust_client_list();
+
+    if(index == -1)
+    {
+        return 0;
+    }
+
+    if(index < master_param->client_count)
+    {
+        one_net_memmove(&client_list[index+1], &client_list[index],
+            (master_param->client_count - index) * sizeof(on_client_t));
+    }
+
+    one_net_int16_to_byte_stream(master_param->next_client_did, new_raw_did);
+    on_encode(client_list[index].did, new_raw_did, ONE_NET_RAW_DID_LEN);
+    (master_param->client_count)++;
+    adjust_client_list();
+    return &client_list[index];
+}
+
+
+/*!
+    \brief Returns a pointer to a free transaction.
+
+    \param[in] TYPE The type of transaction.
+    \param[in] SEND TRUE if sending
+                        FALSE if not sending
+
+    \return A pointer to a free transaction.
+*/
+static UInt8 get_free_txn(const UInt8 TYPE, const BOOL SEND)
+{
+    UInt8 free_txn_info;
+
+    if(SEND && TYPE != ON_SINGLE &&
+      (ONE_NET_MASTER_MAX_SEND_TXN - txn_data_count + single_txn_data_count)
+      <= ONE_NET_MASTER_MIN_SINGLE_TXN)
+    {
+        return ONE_NET_MASTER_MAX_TXN;
+    } // if the resources are full //
+
+    for(free_txn_info = 0; free_txn_info < ONE_NET_MASTER_MAX_TXN;
+      free_txn_info++)
+    {
+        if(free_txn_info != invite_idx
+          && txn_list[free_txn_info].type == ON_NO_TXN)
+        {
+            break;
+        } // if a free transaction was found //
+    } // loop through to find a free transaction //
+
+    if(free_txn_info < ONE_NET_MASTER_MAX_TXN && SEND)
+    {
+        if(SEND)
+        {
+            UInt8 free_txn_data;
+
+            for(free_txn_data = 0; free_txn_data < ONE_NET_MASTER_MAX_SEND_TXN;
+              free_txn_data++)
+            {
+                if(!pkt_list[free_txn_data].in_use)
+                {
+                    break;
+                } // if a free data txn was found //
+            } // loop to find a free transaction //
+
+            if(free_txn_data >= ONE_NET_MASTER_MAX_SEND_TXN)
+            {
+                return ONE_NET_MASTER_MAX_TXN;
+            } // if a free txn data element was not found //
+
+            pkt_list[free_txn_data].in_use = TRUE;
+            txn_list[free_txn_info].txn.pkt = pkt_list[free_txn_data].pkt_data;
+            txn_list[free_txn_info].txn.pkt_size
+              = sizeof(pkt_list[free_txn_data].pkt_data);
+            txn_list[free_txn_info].pkt_idx = free_txn_data;
+
+            if(TYPE == ON_SINGLE)
+            {
+                single_txn_data_count++;
+            } // if it's a single transaction //
+
+            txn_data_count++;
+        } // if SENDing //
+
+        txn_list[free_txn_info].txn.send = SEND;
+    } // if there is a free txn info, and the txn needs memory for a pkt //
+
+    txn_list[free_txn_info].txn.retry = 0;
+    return free_txn_info;
+} // get_free_txn //
+
+
+/*!
+    \brief Frees a transaction.
+
+    \param[in] TXN The transaction to be freed
+
+    \return void
+*/
+static void free_txn(const UInt8 TXN)
+{
+    if(TXN >= ONE_NET_MASTER_MAX_TXN || txn_list[TXN].type == ON_NO_TXN)
+    {
+        return;
+    } // if the parameter is not valid //
+
+    dequeue_txn(TXN);
+
+    if(txn_list[TXN].txn.send)
+    {
+        txn_data_count--;
+
+        if(txn_list[TXN].type == ON_SINGLE)
+        {
+            single_txn_data_count--;
+        } // if single //
+
+        if(txn_list[TXN].pkt_idx < ONE_NET_MASTER_MAX_SEND_TXN)
+        {
+            pkt_list[txn_list[TXN].pkt_idx].in_use = FALSE;
+        } // if the idx is valid //
+
+        txn_list[TXN].pkt_idx = ONE_NET_MASTER_MAX_SEND_TXN;
+        txn_list[TXN].txn.pkt_size = 0;
+        txn_list[TXN].txn.pkt = 0;
+    } // if sending //
+
+    txn_list[TXN].txn.priority = ONE_NET_NO_PRIORITY;
+    txn_list[TXN].type = ON_NO_TXN;
+} // free_txn //
+
+
+/*!
+    \brief Adds a transaction to the queue.
+
+    Transactions are added to the queue based on priority.
+
+    \param[in] TXN The transaction to enqueue.
+
+    \return TRUE if adding the transaction to the queue was successful.
+            FALSE if unable to add the transaction to the queue.
+*/
+static BOOL enqueue_txn(const UInt8 TXN)
+{
+    const UInt8 NEW_PRIORITY = txn_list[TXN].txn.priority;
+
+    UInt8 queued_priority;
+    UInt8 cur, prev;
+
+    if(TXN >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return FALSE;
+    } // if the parameter is invalid //
+
+    for(prev = ONE_NET_MASTER_MAX_TXN, cur = txn_head;
+      cur < ONE_NET_MASTER_MAX_TXN; prev = cur, cur = txn_list[cur].next)
+    {
+        queued_priority = txn_list[txn_head].txn.priority;
+
+        // if the new transaction has a greater priority the the queued
+        // transaction or if the 2 transactions have the same priority and
+        // the queued transaction is not a single transaction, and the new
+        // transaction is a single transaction or the new transaction is
+        // scheduled before the queued transaction.
+        if(NEW_PRIORITY > queued_priority
+          || (NEW_PRIORITY == queued_priority
+          && txn_list[cur].type != ON_SINGLE
+          && (txn_list[TXN].type == ON_SINGLE
+          || ont_get_timer(txn_list[TXN].txn.next_txn_timer)
+          < ont_get_timer(txn_list[cur].txn.next_txn_timer))))
+        {
+            break;
+        } // if the slot in the queue for the new transaction was found //
+    } // loop through the queued transactions //
+
+    txn_list[TXN].next = cur;
+    if(prev < ONE_NET_MASTER_MAX_TXN && prev != TXN)
+    {
+        txn_list[prev].next = TXN;
+    } // if prev points to a valid transaction //
+
+    if(txn_head >= ONE_NET_MASTER_MAX_TXN || cur == txn_head)
+    {
+        txn_head = TXN;
+    } // if the queue is empty or the new txn was put at the head //
+
+    return TRUE;
+} // enqueue_txn //
+
+
+/*!
+    \brief Removes a transaction from the queue
+
+    \param[in] TXN The transaction to remove from the queue.
+
+    \return void
+*/
+static void dequeue_txn(const UInt8 TXN)
+{
+    UInt8 ptr = txn_head;
+
+    if(TXN >= ONE_NET_MASTER_MAX_TXN)
+    {
+        return;
+    } // if the parameter is invalid //
+
+    if(ptr == TXN)
+    {
+        txn_head = txn_list[ptr].next;
+        txn_list[ptr].next = ONE_NET_MASTER_MAX_TXN;
+        return;
+    } // if the head is the TXN to be removed //
+
+    for(; ptr < ONE_NET_MASTER_MAX_TXN; ptr = txn_list[ptr].next)
+    {
+        if(txn_list[ptr].next == TXN)
+        {
+            txn_list[ptr].next = txn_list[TXN].next;
+            txn_list[TXN].next = ONE_NET_MASTER_MAX_TXN;
+            return;
+        } // if a match was found //
+    } // loop through the queued transactions //
+} // dequeue_txn //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Dequeues a block or stream transaction.
+
+    Dequeues a block or stream transaction based on the type and the DID of the
+    other device involved in the transaction.
+
+    \param[in] TYPE The type of transaction (either ON_BLOCK or ON_STREAM).
+    \param[in] DID Device ID of the other device involved in the transaction.
+
+    \return The transaction that was dequeued if found.
+            ONE_NET_MASTER_MAX_TXN if the transaction was not found.
+*/
+static UInt8 dequeue_b_s_txn(const UInt8 TYPE,
+  const on_encoded_did_t * const DID)
+{
+    UInt8 ptr;
+
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if((TYPE != ON_BLOCK && TYPE != ON_STREAM) || !DID)
+	#else
+    if((TYPE != ON_BLOCK) || !DID)
+	#endif
+    {
+        return ONE_NET_MASTER_MAX_TXN;
+    } // if the parameter is invalid //
+
+    for(ptr = txn_head; ptr < ONE_NET_MASTER_MAX_TXN; ptr = txn_list[ptr].next)
+    {
+        if(TYPE == txn_list[ptr].type && on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)&(txn_list[ptr].did)))
+        {
+            break;
+        } // if the transaction matches //
+    } // loop through the queued transactions
+
+    return ptr;
+} // dequeue_b_s_txn //
 #endif
-      
 
 
+/*!
+    \brief Returns TRUE if there are more single transactions queued for DID.
+
+    TRUE is only returned if there is not a transaction of higher priority.
+    If a valid transaction is found, it is moved to the head of the list.
+
+    \param[in] DID The destinatin device id to search for.
+
+    \return TRUE if there are more transactions for DID.  These transactions
+                 must be of the highest priority level in the list.
+            FALSE if there are no more queued transactions for DID or the
+                  queued transactions are not at the highest priority level
+                  in the list.
+*/
+static BOOL next_txn_queued_for_client(const on_encoded_did_t * const DID)
+{
+    // previous and current pointers
+    UInt8 prev, cur;
+
+    UInt8 head_priority, cur_priority;
+
+    if(!DID || txn_head == ONE_NET_MASTER_MAX_TXN)
+    {
+        return FALSE;
+    } // if the parameter is invalid or there are no queued transactions //
+
+    cur = txn_head;
+    prev = ONE_NET_MASTER_MAX_TXN;
+
+    head_priority = txn_list[txn_head].txn.priority;
+
+    while(cur != ONE_NET_MASTER_MAX_TXN)
+    {
+        cur_priority = txn_list[cur].txn.priority;
+
+        // make sure a lower priority transaction is not being bumped in front
+        // of higher priority transactions.
+        if(cur_priority != head_priority)
+        {
+            return FALSE;
+        } // if the priority is less than the transactions that preceed it //
+
+        if(txn_list[cur].type == ON_SINGLE && txn_list[cur].txn.send
+          && on_encoded_did_equal(
+          (const on_encoded_did_t * const)&(txn_list[cur].did), DID))
+        {
+            if(cur != txn_head)
+            {
+                txn_list[prev].next = txn_list[cur].next;
+                txn_list[cur].next = txn_head;
+                txn_head = cur;
+            } // if it is at the head of the queue //
+
+            return TRUE;
+        } // if another transaction was found //
+
+        prev = cur;
+        cur = txn_list[cur].next;
+    } // loop through the queued transactions //
+
+    return FALSE;
+} // next_txn_queued_for_client //
+
+
+/*!
+    \brief Returns the index to the transaction for the Initiate Data Rate admin
+      packet being sent.
+
+    \param[in/out] txn_idx On input, contains the location of where to start
+      looking for the transaction.  On output, contains the transaction if
+      found, else contains ONE_NET_MASTER_MAX_TXN.
+
+    \return void
+*/
+static void data_rate_txn(UInt8 * const txn_idx)
+{
+    if(!txn_idx)
+    {
+        return;
+    } // if the parameter is invalid //
+
+    for(; *txn_idx < ONE_NET_MASTER_MAX_TXN; *txn_idx = txn_list[*txn_idx].next)
+    {
+        if(txn_list[*txn_idx].type == ON_SINGLE
+          && txn_list[*txn_idx].txn.msg_type == ON_ADMIN_MSG
+          && txn_list[*txn_idx].txn.pkt[ON_ADMIN_TYPE_IDX]
+          == ON_INIT_DATA_RATE_TEST)
+        {
+            return;
+        } // if the pkt was found //
+    } // loop to find initiate data rate test pkt //
+
+    *txn_idx = ONE_NET_MASTER_MAX_TXN;
+} // data_rate_txn //
+
+
+/*!
+    \brief Returns the next nonce to use when sending to a specific device.
+
+    \param[in] DID The device ID of the device being sent the txn.
+
+    \return ON_MAX_NONCE + 1 if the parameter is invalid or the DID is not a
+      valid device, otherwise the next nonce to use when sending to DID.
+*/
+static UInt8 txn_nonce_for_client(const on_encoded_did_t * const DID)
+{
+    const on_client_t * CLIENT;
+
+    if(!DID)
+    {
+        return ON_MAX_NONCE + 1;
+    } // if the parameter is invalid //
+
+    if(on_encoded_did_equal(DID, &ON_ENCODED_BROADCAST_DID))
+    {
+        // make up a random nonce since it is a broadcast //
+        return one_net_prand(one_net_tick(), ON_MAX_NONCE);
+    } // if the packet is being sent to the broadcast address //
+
+    // make sure the address is valid //
+    if((CLIENT = client_info(DID) ) == 0)
+    {
+        return ON_MAX_NONCE + 1;
+    } // the CLIENT is not part of the network //
+
+    return CLIENT->send_nonce;
+} // txn_nonce_for_client //
+
+
+/*!
+    \brief Saves the parameters that need it to non-volatile storage.
+
+    \param void
+
+    \return void
+*/
+static void save_param(void)
+{
+    on_base_param->crc = one_net_compute_crc((UInt8 *)on_base_param
+      + sizeof(on_base_param->crc), sizeof(on_base_param_t)
+      + sizeof(on_master_param_t) + master_param->client_count
+      * sizeof(on_client_t) - sizeof(on_base_param->crc), ON_PARAM_INIT_CRC,
+      ON_PARAM_CRC_ORDER);
+
+	// Derek_S 10/25/2010 - The call to one_net_master_save_settings()
+	// changes a UInt8* called ONE_NET_PARAM from NULL (when uninitialized)
+	// to a data block containing some master settings, including client count.
+	// The CLI "list" command needs this pointer to be accurate, so that is one
+	// reason to call one_net_master_save_settings, but not the only reason.
+	// note that the call to the one_net_save_master_save_settings does
+	// NOT actually save the settings to non-volatile memory.  That is done
+	// with the "save" command.
+    one_net_master_save_settings(nv_param, sizeof(on_base_param_t)
+      + sizeof(on_master_param_t) + master_param->client_count
+      * sizeof(on_client_t));
+} // save_param //
+
+
+#ifdef _ONE_NET_EVAL
+    /*!
+        \brief Forces the MASTER to save its parameters.
+
+        This is a "protected" function used only by the eval project to force
+        the MASTER to save it's parameters.  It is not even declared in the
+        ONE-NET files.
+
+        \param void
+
+        \return void
+    */
+    void on_master_force_save(void)
+    {
+        save_param();
+    } // on_master_force_save //
+#endif // ifdef _ONE_NET_EVAL //
 
 //! @} ONE-NET_MASTER_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //=============================================================================
 
 //! @} ONE-NET_MASTER
-
-
-#endif // if _ONE_NET_MASTER defined //

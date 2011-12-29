@@ -1,6 +1,7 @@
 #ifndef _CB_H 
 #define _CB_H 
 
+#include "config_options.h"
 
 //! \defgroup cb Circular Buffer functionality.
 //! @{
@@ -127,11 +128,11 @@ typedef struct
 
 UInt16 cb_dequeue(cb_rec_t * const, UInt8 *, const UInt16);
 UInt16 cb_enqueue(cb_rec_t * const, const UInt8 *, const UInt16);
+UInt16 cb_getqueue(cb_rec_t *, UInt8 *);
+UInt16 cb_putqueue(cb_rec_t *, UInt8);
 UInt16 cb_size(const cb_rec_t * const);
 UInt16 cb_bytes_queued(const cb_rec_t * const);
 UInt16 cb_bytes_free(const cb_rec_t * const);
-UInt8 cb_getqueue(cb_rec_t *, UInt8 *);
-UInt8 cb_putqueue(cb_rec_t *, UInt8);
 
 //! @} cb_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END

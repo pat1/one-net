@@ -1,0 +1,17 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_eval_hal.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,640,1,17,JSR,$delay_ms
+W,658,1,3c,JSR,$delay_ms
+W,677,1,58,JSR,$delay_ms
+W,828,1,8d,JSR,$dfi_delete_segments_except_for
+W,899,1,b8,JSR,$dfi_find_last_segment_of_type
+W,968,1,d6,JSR,_device_type
+W,975,1,de,JSR,_on_master_force_save
+W,987,1,e8,JSR,_device_type
+W,994,1,f0,JSR,_on_client_force_save
+W,1031,1,10e,JSR,$dfi_write_segment_of_type
+W,1048,1,11e,JSR,$get_user_pin_type
+W,1057,1,12f,JSR,$dfi_write_segment_of_type

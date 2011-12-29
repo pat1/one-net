@@ -1,0 +1,4514 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:30 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\oncli_str.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\oncli_str.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str.c", "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str.h", "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str"
+	._inspect	'V', 'e', "ONCLI_STARTUP_FMT", 'G', 83, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_STARTUP_REV_FMT", 'G', 84, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_DEVICE_ADD_FMT", 'G', 87, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ADD_DEVICE_FAILED_FMT", 'G', 88, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_JOINED_FMT", 'G', 89, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RX_DATA_FMT", 'G', 90, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RX_TXT_FMT", 'G', 91, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SINGLE_RESULT_FMT", 'G', 92, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_BLOCK_RESULT_FMT", 'G', 93, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_UPDATE_RESULT_FMT", 'G', 94, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT", 'G', 95, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_UNKNOWN_UPDATE_RESULT_FMT", 'G', 96, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_DATA_RATE_TEST_RESULT_FMT", 'G', 97, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_GET_CHANNEL_RESPONSE_FMT", 'G', 98, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CMD_SUCCESS_STR", 'G', 121, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SUCCEEDED_STR", 'G', 122, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_FAILED_STR", 'G', 123, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CLR_INPUT_STR", 'G', 124, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_M_RM_DEV_ANYWAY_STR", 'G', 125, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CHANNEL_NOT_SELECTED_STR", 'G', 126, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVALID_CMD_FMT", 'G', 129, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CMD_FAIL_FMT", 'G', 130, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVALID_CMD_FOR_DEVICE_FMT", 'G', 131, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INTERNAL_ERR_FMT", 'G', 132, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_GENERAL_ERROR_FMT", 'G', 133, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RX_INVALID_CH_FMT", 'G', 134, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_OUTPUT_STR_TOO_SHORT_FMT", 'G', 135, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_IN_PROGRESS_STR", 'G', 138, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RSRC_UNAVAILABLE_STR", 'G', 139, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_UNSUPPORTED_STR", 'G', 140, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVALID_FORMAT_STR", 'G', 141, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SNGH_STR", 'G', 142, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ONS_NOT_INIT_ERR_STR", 'G', 143, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INTERNAL_ERR_STR", 'G', 144, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVALID_DST_STR", 'G', 145, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_NEED_TO_JOIN_STR", 'G', 146, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVALID_CMD_LEN_STR", 'G', 147, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_LOAD_FAIL_STR", 'G', 148, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_DISPLAY_INVITE_STR", 'G', 149, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_FATAL_ERR_1_STR", 'G', 150, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SINGLE_TXT_CMD_STR", 'G', 160, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SINGLE_CMD_STR", 'G', 161, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SET_PIN_CMD_STR", 'G', 164, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SET_VALUE_CMD_STR", 'G', 165, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_STATUS_CMD_STR", 'G', 166, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_QUERY_RESPONSE_CMD_STR", 'G', 167, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_QUERY_CMD_STR", 'G', 168, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_FAST_QUERY_CMD_STR", 'G', 169, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_BLOCK_CMD_STR", 'G', 173, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_BLOCK_TXT_CMD_STR", 'G', 174, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ERASE_CMD_STR", 'G', 176, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SAVE_CMD_STR", 'G', 177, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_LIST_CMD_STR", 'G', 200, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_AUTO_MODE_STR", 'G', 214, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SERIAL_MODE_STR", 'G', 216, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_MASTER_STR", 'G', 219, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CLIENT_STR", 'G', 220, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SNIFFER_STR", 'G', 222, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INVITE_CMD_STR", 'G', 226, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CANCEL_INVITE_CMD_STR", 'G', 227, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_UPDATE_MASTER_CMD_STR", 'G', 234, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CHANGE_KEEP_ALIVE_CMD_STR", 'G', 235, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR", 'G', 236, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CHANGE_KEY_CMD_STR", 'G', 237, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RM_DEV_CMD_STR", 'G', 238, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_DATA_RATE_TEST_CMD_STR", 'G', 239, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_GET_CHANNEL_CMD_STR", 'G', 240, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_USER_PIN_CMD_STR", 'G', 243, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_JOIN_CMD_STR", 'G', 246, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CHANNEL_CMD_STR", 'G', 247, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SETNI_CMD_STR", 'G', 248, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SNIFF_CMD_STR", 'G', 250, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_MODE_CMD_STR", 'G', 253, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ECHO_CMD_STR", 'G', 255, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SINGLE_TXN_STR", 'G', 258, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_BLOCK_TXN_STR", 'G', 259, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SET_STR", 'G', 262, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_CLR_STR", 'G', 263, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_LOW_STR", 'G', 264, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_HIGH_STR", 'G', 265, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_TOGGLE_STR", 'G', 266, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_INPUT_STR", 'G', 267, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_OUTPUT_STR", 'G', 268, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_DISABLE_STR", 'G', 269, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_QUIET_STR", 'G', 270, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_VERBOSE_STR", 'G', 271, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ON_STR", 'G', 272, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_OFF_STR", 'G', 273, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_US_STR", 'G', 275, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_EUR_STR", 'G', 278, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_SINGLE_STR", 'G', 282, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_BLOCK_STR", 'G', 283, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_RX_ADMIN_FMT", 'G', 286, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ADMIN_MSG_STR", 'G', 289, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_EXTENDED_ADMIN_MSG_STR", 'G', 290, 2, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ADMIN_STR", 'G', 293, 0, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_EXTENDED_ADMIN_STR", 'G', 296, 0, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_M_UPDATE_STR", 'G', 299, 0, 0, 0, 00h
+	._inspect	'V', 'e', "ONCLI_ONS_STR", 'G', 302, 0, 0, 0, 00h
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str.c", "C:/HEWProj/2_0_trunk/one_net/cli/oncli_str"
+	._inspect	'V', 'd', "ONCLI_STARTUP_FMT", "_ONCLI_STARTUP_FMT", 'G', 56, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_STARTUP_REV_FMT", "_ONCLI_STARTUP_REV_FMT", 'G', 61, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_DEVICE_ADD_FMT", "_ONCLI_DEVICE_ADD_FMT", 'G', 67, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ADD_DEVICE_FAILED_FMT", "_ONCLI_ADD_DEVICE_FAILED_FMT", 'G', 71, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_JOINED_FMT", "_ONCLI_JOINED_FMT", 'G', 74, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RX_DATA_FMT", "_ONCLI_RX_DATA_FMT", 'G', 78, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RX_TXT_FMT", "_ONCLI_RX_TXT_FMT", 'G', 82, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SINGLE_RESULT_FMT", "_ONCLI_SINGLE_RESULT_FMT", 'G', 86, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_BLOCK_RESULT_FMT", "_ONCLI_BLOCK_RESULT_FMT", 'G', 89, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_UPDATE_RESULT_FMT", "_ONCLI_UPDATE_RESULT_FMT", 'G', 92, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT", "_ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT", 'G', 96, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_UNKNOWN_UPDATE_RESULT_FMT", "_ONCLI_UNKNOWN_UPDATE_RESULT_FMT", 'G', 101, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_DATA_RATE_TEST_RESULT_FMT", "_ONCLI_DATA_RATE_TEST_RESULT_FMT", 'G', 105, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_GET_CHANNEL_RESPONSE_FMT", "_ONCLI_GET_CHANNEL_RESPONSE_FMT", 'G', 108, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CMD_SUCCESS_STR", "_ONCLI_CMD_SUCCESS_STR", 'G', 137, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SUCCEEDED_STR", "_ONCLI_SUCCEEDED_STR", 'G', 140, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_FAILED_STR", "_ONCLI_FAILED_STR", 'G', 143, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CLR_INPUT_STR", "_ONCLI_CLR_INPUT_STR", 'G', 146, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_M_RM_DEV_ANYWAY_STR", "_ONCLI_M_RM_DEV_ANYWAY_STR", 'G', 151, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CHANNEL_NOT_SELECTED_STR", "_ONCLI_CHANNEL_NOT_SELECTED_STR", 'G', 154, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVALID_CMD_FMT", "_ONCLI_INVALID_CMD_FMT", 'G', 159, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CMD_FAIL_FMT", "_ONCLI_CMD_FAIL_FMT", 'G', 162, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVALID_CMD_FOR_DEVICE_FMT", "_ONCLI_INVALID_CMD_FOR_DEVICE_FMT", 'G', 166, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INTERNAL_ERR_FMT", "_ONCLI_INTERNAL_ERR_FMT", 'G', 171, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_GENERAL_ERROR_FMT", "_ONCLI_GENERAL_ERROR_FMT", 'G', 176, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RX_INVALID_CH_FMT", "_ONCLI_RX_INVALID_CH_FMT", 'G', 180, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_OUTPUT_STR_TOO_SHORT_FMT", "_ONCLI_OUTPUT_STR_TOO_SHORT_FMT", 'G', 184, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_IN_PROGRESS_STR", "_ONCLI_IN_PROGRESS_STR", 'G', 189, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RSRC_UNAVAILABLE_STR", "_ONCLI_RSRC_UNAVAILABLE_STR", 'G', 193, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_UNSUPPORTED_STR", "_ONCLI_UNSUPPORTED_STR", 'G', 196, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVALID_FORMAT_STR", "_ONCLI_INVALID_FORMAT_STR", 'G', 199, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SNGH_STR", "_ONCLI_SNGH_STR", 'G', 202, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ONS_NOT_INIT_ERR_STR", "_ONCLI_ONS_NOT_INIT_ERR_STR", 'G', 205, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INTERNAL_ERR_STR", "_ONCLI_INTERNAL_ERR_STR", 'G', 208, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVALID_DST_STR", "_ONCLI_INVALID_DST_STR", 'G', 212, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_NEED_TO_JOIN_STR", "_ONCLI_NEED_TO_JOIN_STR", 'G', 216, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVALID_CMD_LEN_STR", "_ONCLI_INVALID_CMD_LEN_STR", 'G', 220, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_LOAD_FAIL_STR", "_ONCLI_LOAD_FAIL_STR", 'G', 225, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_FATAL_ERR_1_STR", "_ONCLI_FATAL_ERR_1_STR", 'G', 228, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_DISPLAY_INVITE_STR", "_ONCLI_DISPLAY_INVITE_STR", 'G', 233, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_AUTO_MODE_STR", "_ONCLI_AUTO_MODE_STR", 'G', 238, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SERIAL_MODE_STR", "_ONCLI_SERIAL_MODE_STR", 'G', 242, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_MASTER_STR", "_ONCLI_MASTER_STR", 'G', 247, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CLIENT_STR", "_ONCLI_CLIENT_STR", 'G', 250, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SNIFFER_STR", "_ONCLI_SNIFFER_STR", 'G', 254, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SINGLE_TXT_CMD_STR", "_ONCLI_SINGLE_TXT_CMD_STR", 'G', 260, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SINGLE_CMD_STR", "_ONCLI_SINGLE_CMD_STR", 'G', 265, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SET_PIN_CMD_STR", "_ONCLI_SET_PIN_CMD_STR", 'G', 271, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SET_VALUE_CMD_STR", "_ONCLI_SET_VALUE_CMD_STR", 'G', 274, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_STATUS_CMD_STR", "_ONCLI_STATUS_CMD_STR", 'G', 277, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_QUERY_RESPONSE_CMD_STR", "_ONCLI_QUERY_RESPONSE_CMD_STR", 'G', 280, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_QUERY_CMD_STR", "_ONCLI_QUERY_CMD_STR", 'G', 283, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_FAST_QUERY_CMD_STR", "_ONCLI_FAST_QUERY_CMD_STR", 'G', 286, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_BLOCK_CMD_STR", "_ONCLI_BLOCK_CMD_STR", 'G', 298, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_BLOCK_TXT_CMD_STR", "_ONCLI_BLOCK_TXT_CMD_STR", 'G', 303, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ERASE_CMD_STR", "_ONCLI_ERASE_CMD_STR", 'G', 308, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SAVE_CMD_STR", "_ONCLI_SAVE_CMD_STR", 'G', 313, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_LIST_CMD_STR", "_ONCLI_LIST_CMD_STR", 'G', 345, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INVITE_CMD_STR", "_ONCLI_INVITE_CMD_STR", 'G', 363, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CANCEL_INVITE_CMD_STR", "_ONCLI_CANCEL_INVITE_CMD_STR", 'G', 368, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_UPDATE_MASTER_CMD_STR", "_ONCLI_UPDATE_MASTER_CMD_STR", 'G', 383, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CHANGE_KEEP_ALIVE_CMD_STR", "_ONCLI_CHANGE_KEEP_ALIVE_CMD_STR", 'G', 388, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR", "_ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR", 'G', 394, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CHANGE_KEY_CMD_STR", "_ONCLI_CHANGE_KEY_CMD_STR", 'G', 399, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RM_DEV_CMD_STR", "_ONCLI_RM_DEV_CMD_STR", 'G', 404, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_DATA_RATE_TEST_CMD_STR", "_ONCLI_DATA_RATE_TEST_CMD_STR", 'G', 409, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_GET_CHANNEL_CMD_STR", "_ONCLI_GET_CHANNEL_CMD_STR", 'G', 414, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_USER_PIN_CMD_STR", "_ONCLI_USER_PIN_CMD_STR", 'G', 421, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_JOIN_CMD_STR", "_ONCLI_JOIN_CMD_STR", 'G', 428, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CHANNEL_CMD_STR", "_ONCLI_CHANNEL_CMD_STR", 'G', 434, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SETNI_CMD_STR", "_ONCLI_SETNI_CMD_STR", 'G', 439, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SNIFF_CMD_STR", "_ONCLI_SNIFF_CMD_STR", 'G', 445, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_MODE_CMD_STR", "_ONCLI_MODE_CMD_STR", 'G', 451, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ECHO_CMD_STR", "_ONCLI_ECHO_CMD_STR", 'G', 456, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SINGLE_TXN_STR", "_ONCLI_SINGLE_TXN_STR", 'G', 462, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_BLOCK_TXN_STR", "_ONCLI_BLOCK_TXN_STR", 'G', 465, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SET_STR", "_ONCLI_SET_STR", 'G', 470, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_CLR_STR", "_ONCLI_CLR_STR", 'G', 473, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_LOW_STR", "_ONCLI_LOW_STR", 'G', 476, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_HIGH_STR", "_ONCLI_HIGH_STR", 'G', 479, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_TOGGLE_STR", "_ONCLI_TOGGLE_STR", 'G', 482, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_INPUT_STR", "_ONCLI_INPUT_STR", 'G', 485, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_OUTPUT_STR", "_ONCLI_OUTPUT_STR", 'G', 488, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_DISABLE_STR", "_ONCLI_DISABLE_STR", 'G', 491, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_QUIET_STR", "_ONCLI_QUIET_STR", 'G', 494, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_VERBOSE_STR", "_ONCLI_VERBOSE_STR", 'G', 497, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ON_STR", "_ONCLI_ON_STR", 'G', 500, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_OFF_STR", "_ONCLI_OFF_STR", 'G', 503, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_US_STR", "_ONCLI_US_STR", 'G', 507, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_EUR_STR", "_ONCLI_EUR_STR", 'G', 512, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_SINGLE_STR", "_ONCLI_SINGLE_STR", 'G', 518, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_BLOCK_STR", "_ONCLI_BLOCK_STR", 'G', 521, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_RX_ADMIN_FMT", "_ONCLI_RX_ADMIN_FMT", 'G', 526, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ADMIN_MSG_STR", "_ONCLI_ADMIN_MSG_STR", 'G', 529, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_EXTENDED_ADMIN_MSG_STR", "_ONCLI_EXTENDED_ADMIN_MSG_STR", 'G', 532, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ADMIN_STR", "_ONCLI_ADMIN_STR", 'G', 573, 70, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_EXTENDED_ADMIN_STR", "_ONCLI_EXTENDED_ADMIN_STR", 'G', 580, 2, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_M_UPDATE_STR", "_ONCLI_M_UPDATE_STR", 'G', 597, 20, 0, 0, 00h
+	._inspect	'V', 'd', "ONCLI_ONS_STR", "_ONCLI_ONS_STR", 'G', 645, 84, 0, 0, 00h
+
+	.SECTION	rom_NE,ROMDATA,align
+	._inspect	'U', 4, "rom_NE", "rom_NE", 0
+	.glb	_ONCLI_STARTUP_FMT
+_ONCLI_STARTUP_FMT:
+	.word	(___T0 ) & 0FFFFH
+	.glb	_ONCLI_STARTUP_REV_FMT
+_ONCLI_STARTUP_REV_FMT:
+	.word	(___T1 ) & 0FFFFH
+	.glb	_ONCLI_DEVICE_ADD_FMT
+_ONCLI_DEVICE_ADD_FMT:
+	.word	(___T2 ) & 0FFFFH
+	.glb	_ONCLI_ADD_DEVICE_FAILED_FMT
+_ONCLI_ADD_DEVICE_FAILED_FMT:
+	.word	(___T3 ) & 0FFFFH
+	.glb	_ONCLI_JOINED_FMT
+_ONCLI_JOINED_FMT:
+	.word	(___T4 ) & 0FFFFH
+	.glb	_ONCLI_RX_DATA_FMT
+_ONCLI_RX_DATA_FMT:
+	.word	(___T5 ) & 0FFFFH
+	.glb	_ONCLI_RX_TXT_FMT
+_ONCLI_RX_TXT_FMT:
+	.word	(___T6 ) & 0FFFFH
+	.glb	_ONCLI_SINGLE_RESULT_FMT
+_ONCLI_SINGLE_RESULT_FMT:
+	.word	(___T7 ) & 0FFFFH
+	.glb	_ONCLI_BLOCK_RESULT_FMT
+_ONCLI_BLOCK_RESULT_FMT:
+	.word	(___T8 ) & 0FFFFH
+	.glb	_ONCLI_UPDATE_RESULT_FMT
+_ONCLI_UPDATE_RESULT_FMT:
+	.word	(___T9 ) & 0FFFFH
+	.glb	_ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT
+_ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT:
+	.word	(___T10 ) & 0FFFFH
+	.glb	_ONCLI_UNKNOWN_UPDATE_RESULT_FMT
+_ONCLI_UNKNOWN_UPDATE_RESULT_FMT:
+	.word	(___T11 ) & 0FFFFH
+	.glb	_ONCLI_DATA_RATE_TEST_RESULT_FMT
+_ONCLI_DATA_RATE_TEST_RESULT_FMT:
+	.word	(___T12 ) & 0FFFFH
+	.glb	_ONCLI_GET_CHANNEL_RESPONSE_FMT
+_ONCLI_GET_CHANNEL_RESPONSE_FMT:
+	.word	(___T13 ) & 0FFFFH
+	.glb	_ONCLI_CMD_SUCCESS_STR
+_ONCLI_CMD_SUCCESS_STR:
+	.word	(___T14 ) & 0FFFFH
+	.glb	_ONCLI_SUCCEEDED_STR
+_ONCLI_SUCCEEDED_STR:
+	.word	(___T15 ) & 0FFFFH
+	.glb	_ONCLI_FAILED_STR
+_ONCLI_FAILED_STR:
+	.word	(___T16 ) & 0FFFFH
+	.glb	_ONCLI_CLR_INPUT_STR
+_ONCLI_CLR_INPUT_STR:
+	.word	(___T17 ) & 0FFFFH
+	.glb	_ONCLI_M_RM_DEV_ANYWAY_STR
+_ONCLI_M_RM_DEV_ANYWAY_STR:
+	.word	(___T18 ) & 0FFFFH
+	.glb	_ONCLI_CHANNEL_NOT_SELECTED_STR
+_ONCLI_CHANNEL_NOT_SELECTED_STR:
+	.word	(___T19 ) & 0FFFFH
+	.glb	_ONCLI_INVALID_CMD_FMT
+_ONCLI_INVALID_CMD_FMT:
+	.word	(___T20 ) & 0FFFFH
+	.glb	_ONCLI_CMD_FAIL_FMT
+_ONCLI_CMD_FAIL_FMT:
+	.word	(___T21 ) & 0FFFFH
+	.glb	_ONCLI_INVALID_CMD_FOR_DEVICE_FMT
+_ONCLI_INVALID_CMD_FOR_DEVICE_FMT:
+	.word	(___T22 ) & 0FFFFH
+	.glb	_ONCLI_INTERNAL_ERR_FMT
+_ONCLI_INTERNAL_ERR_FMT:
+	.word	(___T23 ) & 0FFFFH
+	.glb	_ONCLI_GENERAL_ERROR_FMT
+_ONCLI_GENERAL_ERROR_FMT:
+	.word	(___T24 ) & 0FFFFH
+	.glb	_ONCLI_RX_INVALID_CH_FMT
+_ONCLI_RX_INVALID_CH_FMT:
+	.word	(___T25 ) & 0FFFFH
+	.glb	_ONCLI_OUTPUT_STR_TOO_SHORT_FMT
+_ONCLI_OUTPUT_STR_TOO_SHORT_FMT:
+	.word	(___T26 ) & 0FFFFH
+	.glb	_ONCLI_IN_PROGRESS_STR
+_ONCLI_IN_PROGRESS_STR:
+	.word	(___T27 ) & 0FFFFH
+	.glb	_ONCLI_RSRC_UNAVAILABLE_STR
+_ONCLI_RSRC_UNAVAILABLE_STR:
+	.word	(___T28 ) & 0FFFFH
+	.glb	_ONCLI_UNSUPPORTED_STR
+_ONCLI_UNSUPPORTED_STR:
+	.word	(___T29 ) & 0FFFFH
+	.glb	_ONCLI_INVALID_FORMAT_STR
+_ONCLI_INVALID_FORMAT_STR:
+	.word	(___T30 ) & 0FFFFH
+	.glb	_ONCLI_SNGH_STR
+_ONCLI_SNGH_STR:
+	.word	(___T31 ) & 0FFFFH
+	.glb	_ONCLI_ONS_NOT_INIT_ERR_STR
+_ONCLI_ONS_NOT_INIT_ERR_STR:
+	.word	(___T32 ) & 0FFFFH
+	.glb	_ONCLI_INTERNAL_ERR_STR
+_ONCLI_INTERNAL_ERR_STR:
+	.word	(___T33 ) & 0FFFFH
+	.glb	_ONCLI_INVALID_DST_STR
+_ONCLI_INVALID_DST_STR:
+	.word	(___T34 ) & 0FFFFH
+	.glb	_ONCLI_NEED_TO_JOIN_STR
+_ONCLI_NEED_TO_JOIN_STR:
+	.word	(___T35 ) & 0FFFFH
+	.glb	_ONCLI_INVALID_CMD_LEN_STR
+_ONCLI_INVALID_CMD_LEN_STR:
+	.word	(___T36 ) & 0FFFFH
+	.glb	_ONCLI_LOAD_FAIL_STR
+_ONCLI_LOAD_FAIL_STR:
+	.word	(___T37 ) & 0FFFFH
+	.glb	_ONCLI_DISPLAY_INVITE_STR
+_ONCLI_DISPLAY_INVITE_STR:
+	.word	(___T39 ) & 0FFFFH
+	.glb	_ONCLI_FATAL_ERR_1_STR
+_ONCLI_FATAL_ERR_1_STR:
+	.word	(___T38 ) & 0FFFFH
+	.glb	_ONCLI_SINGLE_TXT_CMD_STR
+_ONCLI_SINGLE_TXT_CMD_STR:
+	.word	(___T45 ) & 0FFFFH
+	.glb	_ONCLI_SINGLE_CMD_STR
+_ONCLI_SINGLE_CMD_STR:
+	.word	(___T46 ) & 0FFFFH
+	.glb	_ONCLI_SET_PIN_CMD_STR
+_ONCLI_SET_PIN_CMD_STR:
+	.word	(___T47 ) & 0FFFFH
+	.glb	_ONCLI_SET_VALUE_CMD_STR
+_ONCLI_SET_VALUE_CMD_STR:
+	.word	(___T48 ) & 0FFFFH
+	.glb	_ONCLI_STATUS_CMD_STR
+_ONCLI_STATUS_CMD_STR:
+	.word	(___T49 ) & 0FFFFH
+	.glb	_ONCLI_QUERY_RESPONSE_CMD_STR
+_ONCLI_QUERY_RESPONSE_CMD_STR:
+	.word	(___T50 ) & 0FFFFH
+	.glb	_ONCLI_QUERY_CMD_STR
+_ONCLI_QUERY_CMD_STR:
+	.word	(___T51 ) & 0FFFFH
+	.glb	_ONCLI_FAST_QUERY_CMD_STR
+_ONCLI_FAST_QUERY_CMD_STR:
+	.word	(___T52 ) & 0FFFFH
+	.glb	_ONCLI_BLOCK_CMD_STR
+_ONCLI_BLOCK_CMD_STR:
+	.word	(___T53 ) & 0FFFFH
+	.glb	_ONCLI_BLOCK_TXT_CMD_STR
+_ONCLI_BLOCK_TXT_CMD_STR:
+	.word	(___T54 ) & 0FFFFH
+	.glb	_ONCLI_ERASE_CMD_STR
+_ONCLI_ERASE_CMD_STR:
+	.word	(___T55 ) & 0FFFFH
+	.glb	_ONCLI_SAVE_CMD_STR
+_ONCLI_SAVE_CMD_STR:
+	.word	(___T56 ) & 0FFFFH
+	.glb	_ONCLI_LIST_CMD_STR
+_ONCLI_LIST_CMD_STR:
+	.word	(___T57 ) & 0FFFFH
+	.glb	_ONCLI_AUTO_MODE_STR
+_ONCLI_AUTO_MODE_STR:
+	.word	(___T40 ) & 0FFFFH
+	.glb	_ONCLI_SERIAL_MODE_STR
+_ONCLI_SERIAL_MODE_STR:
+	.word	(___T41 ) & 0FFFFH
+	.glb	_ONCLI_MASTER_STR
+_ONCLI_MASTER_STR:
+	.word	(___T42 ) & 0FFFFH
+	.glb	_ONCLI_CLIENT_STR
+_ONCLI_CLIENT_STR:
+	.word	(___T43 ) & 0FFFFH
+	.glb	_ONCLI_SNIFFER_STR
+_ONCLI_SNIFFER_STR:
+	.word	(___T44 ) & 0FFFFH
+	.glb	_ONCLI_INVITE_CMD_STR
+_ONCLI_INVITE_CMD_STR:
+	.word	(___T58 ) & 0FFFFH
+	.glb	_ONCLI_CANCEL_INVITE_CMD_STR
+_ONCLI_CANCEL_INVITE_CMD_STR:
+	.word	(___T59 ) & 0FFFFH
+	.glb	_ONCLI_UPDATE_MASTER_CMD_STR
+_ONCLI_UPDATE_MASTER_CMD_STR:
+	.word	(___T60 ) & 0FFFFH
+	.glb	_ONCLI_CHANGE_KEEP_ALIVE_CMD_STR
+_ONCLI_CHANGE_KEEP_ALIVE_CMD_STR:
+	.word	(___T61 ) & 0FFFFH
+	.glb	_ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
+_ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR:
+	.word	(___T62 ) & 0FFFFH
+	.glb	_ONCLI_CHANGE_KEY_CMD_STR
+_ONCLI_CHANGE_KEY_CMD_STR:
+	.word	(___T63 ) & 0FFFFH
+	.glb	_ONCLI_RM_DEV_CMD_STR
+_ONCLI_RM_DEV_CMD_STR:
+	.word	(___T64 ) & 0FFFFH
+	.glb	_ONCLI_DATA_RATE_TEST_CMD_STR
+_ONCLI_DATA_RATE_TEST_CMD_STR:
+	.word	(___T65 ) & 0FFFFH
+	.glb	_ONCLI_GET_CHANNEL_CMD_STR
+_ONCLI_GET_CHANNEL_CMD_STR:
+	.word	(___T66 ) & 0FFFFH
+	.glb	_ONCLI_USER_PIN_CMD_STR
+_ONCLI_USER_PIN_CMD_STR:
+	.word	(___T67 ) & 0FFFFH
+	.glb	_ONCLI_JOIN_CMD_STR
+_ONCLI_JOIN_CMD_STR:
+	.word	(___T68 ) & 0FFFFH
+	.glb	_ONCLI_CHANNEL_CMD_STR
+_ONCLI_CHANNEL_CMD_STR:
+	.word	(___T69 ) & 0FFFFH
+	.glb	_ONCLI_SETNI_CMD_STR
+_ONCLI_SETNI_CMD_STR:
+	.word	(___T70 ) & 0FFFFH
+	.glb	_ONCLI_SNIFF_CMD_STR
+_ONCLI_SNIFF_CMD_STR:
+	.word	(___T71 ) & 0FFFFH
+	.glb	_ONCLI_MODE_CMD_STR
+_ONCLI_MODE_CMD_STR:
+	.word	(___T72 ) & 0FFFFH
+	.glb	_ONCLI_ECHO_CMD_STR
+_ONCLI_ECHO_CMD_STR:
+	.word	(___T73 ) & 0FFFFH
+	.glb	_ONCLI_SINGLE_TXN_STR
+_ONCLI_SINGLE_TXN_STR:
+	.word	(___T74 ) & 0FFFFH
+	.glb	_ONCLI_BLOCK_TXN_STR
+_ONCLI_BLOCK_TXN_STR:
+	.word	(___T75 ) & 0FFFFH
+	.glb	_ONCLI_SET_STR
+_ONCLI_SET_STR:
+	.word	(___T76 ) & 0FFFFH
+	.glb	_ONCLI_CLR_STR
+_ONCLI_CLR_STR:
+	.word	(___T77 ) & 0FFFFH
+	.glb	_ONCLI_LOW_STR
+_ONCLI_LOW_STR:
+	.word	(___T78 ) & 0FFFFH
+	.glb	_ONCLI_HIGH_STR
+_ONCLI_HIGH_STR:
+	.word	(___T79 ) & 0FFFFH
+	.glb	_ONCLI_TOGGLE_STR
+_ONCLI_TOGGLE_STR:
+	.word	(___T80 ) & 0FFFFH
+	.glb	_ONCLI_INPUT_STR
+_ONCLI_INPUT_STR:
+	.word	(___T81 ) & 0FFFFH
+	.glb	_ONCLI_OUTPUT_STR
+_ONCLI_OUTPUT_STR:
+	.word	(___T82 ) & 0FFFFH
+	.glb	_ONCLI_DISABLE_STR
+_ONCLI_DISABLE_STR:
+	.word	(___T83 ) & 0FFFFH
+	.glb	_ONCLI_QUIET_STR
+_ONCLI_QUIET_STR:
+	.word	(___T84 ) & 0FFFFH
+	.glb	_ONCLI_VERBOSE_STR
+_ONCLI_VERBOSE_STR:
+	.word	(___T85 ) & 0FFFFH
+	.glb	_ONCLI_ON_STR
+_ONCLI_ON_STR:
+	.word	(___T86 ) & 0FFFFH
+	.glb	_ONCLI_OFF_STR
+_ONCLI_OFF_STR:
+	.word	(___T87 ) & 0FFFFH
+	.glb	_ONCLI_US_STR
+_ONCLI_US_STR:
+	.word	(___T88 ) & 0FFFFH
+	.glb	_ONCLI_EUR_STR
+_ONCLI_EUR_STR:
+	.word	(___T89 ) & 0FFFFH
+	.glb	_ONCLI_SINGLE_STR
+_ONCLI_SINGLE_STR:
+	.word	(___T74 ) & 0FFFFH
+	.glb	_ONCLI_BLOCK_STR
+_ONCLI_BLOCK_STR:
+	.word	(___T75 ) & 0FFFFH
+	.glb	_ONCLI_RX_ADMIN_FMT
+_ONCLI_RX_ADMIN_FMT:
+	.word	(___T90 ) & 0FFFFH
+	.glb	_ONCLI_ADMIN_MSG_STR
+_ONCLI_ADMIN_MSG_STR:
+	.word	(___T91 ) & 0FFFFH
+	.glb	_ONCLI_EXTENDED_ADMIN_MSG_STR
+_ONCLI_EXTENDED_ADMIN_MSG_STR:
+	.word	(___T92 ) & 0FFFFH
+	.glb	_ONCLI_ADMIN_STR
+_ONCLI_ADMIN_STR:
+	.word	(___T93 ) & 0FFFFH
+	.word	(___T94 ) & 0FFFFH
+	.word	(___T95 ) & 0FFFFH
+	.word	(___T96 ) & 0FFFFH
+	.word	(___T97 ) & 0FFFFH
+	.word	(___T98 ) & 0FFFFH
+	.word	(___T99 ) & 0FFFFH
+	.word	(___T100 ) & 0FFFFH
+	.word	(___T101 ) & 0FFFFH
+	.word	(___T102 ) & 0FFFFH
+	.word	(___T103 ) & 0FFFFH
+	.word	(___T104 ) & 0FFFFH
+	.word	(___T105 ) & 0FFFFH
+	.word	(___T106 ) & 0FFFFH
+	.word	(___T107 ) & 0FFFFH
+	.word	(___T108 ) & 0FFFFH
+	.word	(___T109 ) & 0FFFFH
+	.word	(___T110 ) & 0FFFFH
+	.word	(___T111 ) & 0FFFFH
+	.word	(___T112 ) & 0FFFFH
+	.word	(___T113 ) & 0FFFFH
+	.word	(___T114 ) & 0FFFFH
+	.word	(___T115 ) & 0FFFFH
+	.word	(___T116 ) & 0FFFFH
+	.word	(___T117 ) & 0FFFFH
+	.word	(___T118 ) & 0FFFFH
+	.word	(___T119 ) & 0FFFFH
+	.word	(___T120 ) & 0FFFFH
+	.word	(___T121 ) & 0FFFFH
+	.word	(___T122 ) & 0FFFFH
+	.word	(___T123 ) & 0FFFFH
+	.word	(___T124 ) & 0FFFFH
+	.word	(___T125 ) & 0FFFFH
+	.word	(___T126 ) & 0FFFFH
+	.word	(___T127 ) & 0FFFFH
+	.glb	_ONCLI_EXTENDED_ADMIN_STR
+_ONCLI_EXTENDED_ADMIN_STR:
+	.word	(___T128 ) & 0FFFFH
+	.glb	_ONCLI_M_UPDATE_STR
+_ONCLI_M_UPDATE_STR:
+	.word	(___T129 ) & 0FFFFH
+	.word	(___T130 ) & 0FFFFH
+	.word	(___T131 ) & 0FFFFH
+	.word	(___T105 ) & 0FFFFH
+	.word	(___T106 ) & 0FFFFH
+	.word	(___T132 ) & 0FFFFH
+	.word	(___T133 ) & 0FFFFH
+	.word	(___T134 ) & 0FFFFH
+	.word	(___T135 ) & 0FFFFH
+	.word	(___T127 ) & 0FFFFH
+	.glb	_ONCLI_ONS_STR
+_ONCLI_ONS_STR:
+	.word	(___T136 ) & 0FFFFH
+	.word	(___T137 ) & 0FFFFH
+	.word	(___T138 ) & 0FFFFH
+	.word	(___T139 ) & 0FFFFH
+	.word	(___T140 ) & 0FFFFH
+	.word	(___T141 ) & 0FFFFH
+	.word	(___T142 ) & 0FFFFH
+	.word	(___T143 ) & 0FFFFH
+	.word	(___T144 ) & 0FFFFH
+	.word	(___T145 ) & 0FFFFH
+	.word	(___T146 ) & 0FFFFH
+	.word	(___T147 ) & 0FFFFH
+	.word	(___T148 ) & 0FFFFH
+	.word	(___T149 ) & 0FFFFH
+	.word	(___T150 ) & 0FFFFH
+	.word	(___T151 ) & 0FFFFH
+	.word	(___T152 ) & 0FFFFH
+	.word	(___T153 ) & 0FFFFH
+	.word	(___T154 ) & 0FFFFH
+	.word	(___T155 ) & 0FFFFH
+	.word	(___T156 ) & 0FFFFH
+	.word	(___T157 ) & 0FFFFH
+	.word	(___T158 ) & 0FFFFH
+	.word	(___T159 ) & 0FFFFH
+	.word	(___T160 ) & 0FFFFH
+	.word	(___T161 ) & 0FFFFH
+	.word	(___T162 ) & 0FFFFH
+	.word	(___T163 ) & 0FFFFH
+	.word	(___T164 ) & 0FFFFH
+	.word	(___T165 ) & 0FFFFH
+	.word	(___T166 ) & 0FFFFH
+	.word	(___T167 ) & 0FFFFH
+	.word	(___T168 ) & 0FFFFH
+	.word	(___T169 ) & 0FFFFH
+	.word	(___T170 ) & 0FFFFH
+	.word	(___T171 ) & 0FFFFH
+	.word	(___T172 ) & 0FFFFH
+	.word	(___T173 ) & 0FFFFH
+	.word	(___T174 ) & 0FFFFH
+	.word	(___T175 ) & 0FFFFH
+	.word	(___T176 ) & 0FFFFH
+	.word	(___T177 ) & 0FFFFH
+
+	.SECTION	rom_NO,ROMDATA
+	._inspect	'U', 4, "rom_NO", "rom_NO", 0
+___T177:
+	.byte	57H	;  'W'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	00H
+___T176:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	00H
+___T175:
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	56H	;  'V'
+	.byte	49H	;  'I'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	4fH	;  'O'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	4aH	;  'J'
+	.byte	4fH	;  'O'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	57H	;  'W'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	4bH	;  'K'
+	.byte	00H
+___T174:
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	56H	;  'V'
+	.byte	49H	;  'I'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	4dH	;  'M'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	00H
+___T173:
+	.byte	44H	;  'D'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T172:
+	.byte	4eH	;  'N'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T171:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	44H	;  'D'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T170:
+	.byte	42H	;  'B'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	4dH	;  'M'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	00H
+___T169:
+	.byte	42H	;  'B'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	43H	;  'C'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	44H	;  'D'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T168:
+	.byte	4dH	;  'M'
+	.byte	55H	;  'U'
+	.byte	4cH	;  'L'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	43H	;  'C'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	44H	;  'D'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T167:
+	.byte	55H	;  'U'
+	.byte	4eH	;  'N'
+	.byte	49H	;  'I'
+	.byte	43H	;  'C'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	44H	;  'D'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T166:
+	.byte	55H	;  'U'
+	.byte	4eH	;  'N'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	00H
+___T165:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	00H
+___T164:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	00H
+___T163:
+	.byte	42H	;  'B'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	44H	;  'D'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	00H
+___T162:
+	.byte	42H	;  'B'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	00H
+___T161:
+	.byte	42H	;  'B'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T160:
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	4fH	;  'O'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	4fH	;  'O'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	58H	;  'X'
+	.byte	49H	;  'I'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	00H
+___T159:
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T158:
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T157:
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	4dH	;  'M'
+	.byte	50H	;  'P'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T156:
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T155:
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	4dH	;  'M'
+	.byte	50H	;  'P'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T154:
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T153:
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	4dH	;  'M'
+	.byte	50H	;  'P'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T152:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	00H
+___T151:
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	4dH	;  'M'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	00H
+___T150:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	4eH	;  'N'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	00H
+___T149:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	57H	;  'W'
+	.byte	41H	;  'A'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	00H
+___T148:
+	.byte	43H	;  'C'
+	.byte	52H	;  'R'
+	.byte	43H	;  'C'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T147:
+	.byte	55H	;  'U'
+	.byte	4eH	;  'N'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T146:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	4eH	;  'N'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	00H
+___T145:
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4fH	;  'O'
+	.byte	55H	;  'U'
+	.byte	54H	;  'T'
+	.byte	00H
+___T144:
+	.byte	43H	;  'C'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T143:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	4fH	;  'O'
+	.byte	55H	;  'U'
+	.byte	52H	;  'R'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	55H	;  'U'
+	.byte	4eH	;  'N'
+	.byte	41H	;  'A'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	49H	;  'I'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	00H
+___T142:
+	.byte	43H	;  'C'
+	.byte	4fH	;  'O'
+	.byte	4dH	;  'M'
+	.byte	50H	;  'P'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T141:
+	.byte	4dH	;  'M'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	58H	;  'X'
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T140:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	00H
+___T139:
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	47H	;  'G'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T138:
+	.byte	4eH	;  'N'
+	.byte	4fH	;  'O'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	5aH	;  'Z'
+	.byte	45H	;  'E'
+	.byte	44H	;  'D'
+	.byte	00H
+___T137:
+	.byte	42H	;  'B'
+	.byte	41H	;  'A'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T136:
+	.byte	53H	;  'S'
+	.byte	55H	;  'U'
+	.byte	43H	;  'C'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	00H
+___T135:
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	50H	;  'P'
+	.byte	2dH	;  '-'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	00H
+___T134:
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T133:
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T132:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	50H	;  'P'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	4fH	;  'O'
+	.byte	20H	;  ' '
+	.byte	4dH	;  'M'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T131:
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	57H	;  'W'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T130:
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T129:
+	.byte	43H	;  'C'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T128:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T127:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	4dH	;  'M'
+	.byte	4fH	;  'O'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	56H	;  'V'
+	.byte	49H	;  'I'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	00H
+___T126:
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T125:
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	4dH	;  'M'
+	.byte	55H	;  'U'
+	.byte	4cH	;  'L'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	2dH	;  '-'
+	.byte	48H	;  'H'
+	.byte	4fH	;  'O'
+	.byte	50H	;  'P'
+	.byte	20H	;  ' '
+	.byte	43H	;  'C'
+	.byte	41H	;  'A'
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T124:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T123:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T122:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T121:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T120:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	48H	;  'H'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	48H	;  'H'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T119:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	5fH	;  '_'
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	5fH	;  '_'
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	5fH	;  '_'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	00H
+___T118:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	34H	;  '4'
+	.byte	00H
+___T117:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	33H	;  '3'
+	.byte	00H
+___T116:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	32H	;  '2'
+	.byte	00H
+___T115:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	31H	;  '1'
+	.byte	00H
+___T114:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	56H	;  'V'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	30H	;  '0'
+	.byte	00H
+___T113:
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	55H	;  'U'
+	.byte	4cH	;  'L'
+	.byte	54H	;  'T'
+	.byte	00H
+___T112:
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	00H
+___T111:
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	00H
+___T110:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T109:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	41H	;  'A'
+	.byte	4dH	;  'M'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T108:
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	43H	;  'C'
+	.byte	45H	;  'E'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T107:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	42H	;  'B'
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	43H	;  'C'
+	.byte	4bH	;  'K'
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	41H	;  'A'
+	.byte	43H	;  'C'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	00H
+___T106:
+	.byte	55H	;  'U'
+	.byte	4eH	;  'N'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T105:
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	53H	;  'S'
+	.byte	49H	;  'I'
+	.byte	47H	;  'G'
+	.byte	4eH	;  'N'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T104:
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	00H
+___T103:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	50H	;  'P'
+	.byte	2dH	;  '-'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	00H
+___T102:
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	50H	;  'P'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	50H	;  'P'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	00H
+___T101:
+	.byte	4bH	;  'K'
+	.byte	45H	;  'E'
+	.byte	45H	;  'E'
+	.byte	50H	;  'P'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	56H	;  'V'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T100:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	4cH	;  'L'
+	.byte	4fH	;  'O'
+	.byte	57H	;  'W'
+	.byte	20H	;  ' '
+	.byte	50H	;  'P'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	54H	;  'T'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T99:
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	50H	;  'P'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	00H
+___T98:
+	.byte	46H	;  'F'
+	.byte	52H	;  'R'
+	.byte	41H	;  'A'
+	.byte	47H	;  'G'
+	.byte	4dH	;  'M'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	4cH	;  'L'
+	.byte	41H	;  'A'
+	.byte	59H	;  'Y'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T97:
+	.byte	43H	;  'C'
+	.byte	48H	;  'H'
+	.byte	41H	;  'A'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	45H	;  'E'
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	53H	;  'S'
+	.byte	00H
+___T96:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	50H	;  'P'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	00H
+___T95:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	54H	;  'T'
+	.byte	49H	;  'I'
+	.byte	4eH	;  'N'
+	.byte	47H	;  'G'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T94:
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	55H	;  'U'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	52H	;  'R'
+	.byte	45H	;  'E'
+	.byte	53H	;  'S'
+	.byte	50H	;  'P'
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	00H
+___T93:
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	55H	;  'U'
+	.byte	53H	;  'S'
+	.byte	20H	;  ' '
+	.byte	51H	;  'Q'
+	.byte	55H	;  'U'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	59H	;  'Y'
+	.byte	00H
+___T92:
+	.byte	45H	;  'E'
+	.byte	78H	;  'x'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	41H	;  'A'
+	.byte	64H	;  'd'
+	.byte	6dH	;  'm'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T91:
+	.byte	41H	;  'A'
+	.byte	64H	;  'd'
+	.byte	6dH	;  'm'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T90:
+	.byte	52H	;  'R'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	6dH	;  'm'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T89:
+	.byte	45H	;  'E'
+	.byte	55H	;  'U'
+	.byte	52H	;  'R'
+	.byte	00H
+___T88:
+	.byte	55H	;  'U'
+	.byte	53H	;  'S'
+	.byte	00H
+___T87:
+	.byte	6fH	;  'o'
+	.byte	66H	;  'f'
+	.byte	66H	;  'f'
+	.byte	00H
+___T86:
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T85:
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	62H	;  'b'
+	.byte	6fH	;  'o'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	00H
+___T84:
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	69H	;  'i'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	00H
+___T83:
+	.byte	64H	;  'd'
+	.byte	69H	;  'i'
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	00H
+___T82:
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	74H	;  't'
+	.byte	70H	;  'p'
+	.byte	75H	;  'u'
+	.byte	74H	;  't'
+	.byte	00H
+___T81:
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	70H	;  'p'
+	.byte	75H	;  'u'
+	.byte	74H	;  't'
+	.byte	00H
+___T80:
+	.byte	74H	;  't'
+	.byte	6fH	;  'o'
+	.byte	67H	;  'g'
+	.byte	67H	;  'g'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	00H
+___T79:
+	.byte	68H	;  'h'
+	.byte	69H	;  'i'
+	.byte	67H	;  'g'
+	.byte	68H	;  'h'
+	.byte	00H
+___T78:
+	.byte	6cH	;  'l'
+	.byte	6fH	;  'o'
+	.byte	77H	;  'w'
+	.byte	00H
+___T77:
+	.byte	63H	;  'c'
+	.byte	6cH	;  'l'
+	.byte	72H	;  'r'
+	.byte	00H
+___T76:
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	00H
+___T75:
+	.byte	42H	;  'B'
+	.byte	6cH	;  'l'
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	6bH	;  'k'
+	.byte	00H
+___T74:
+	.byte	53H	;  'S'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	00H
+___T73:
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	6fH	;  'o'
+	.byte	00H
+___T72:
+	.byte	6dH	;  'm'
+	.byte	6fH	;  'o'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	00H
+___T71:
+	.byte	73H	;  's'
+	.byte	6eH	;  'n'
+	.byte	69H	;  'i'
+	.byte	66H	;  'f'
+	.byte	66H	;  'f'
+	.byte	00H
+___T70:
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	6eH	;  'n'
+	.byte	69H	;  'i'
+	.byte	00H
+___T69:
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	00H
+___T68:
+	.byte	6aH	;  'j'
+	.byte	6fH	;  'o'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T67:
+	.byte	75H	;  'u'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T66:
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	00H
+___T65:
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	00H
+___T64:
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	6dH	;  'm'
+	.byte	6fH	;  'o'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	00H
+___T63:
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6bH	;  'k'
+	.byte	65H	;  'e'
+	.byte	79H	;  'y'
+	.byte	00H
+___T62:
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	67H	;  'g'
+	.byte	6dH	;  'm'
+	.byte	65H	;  'e'
+	.byte	6eH	;  'n'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	61H	;  'a'
+	.byte	79H	;  'y'
+	.byte	00H
+___T61:
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6bH	;  'k'
+	.byte	65H	;  'e'
+	.byte	65H	;  'e'
+	.byte	70H	;  'p'
+	.byte	2dH	;  '-'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	00H
+___T60:
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	75H	;  'u'
+	.byte	70H	;  'p'
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	6cH	;  'l'
+	.byte	61H	;  'a'
+	.byte	67H	;  'g'
+	.byte	00H
+___T59:
+	.byte	63H	;  'c'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	20H	;  ' '
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	00H
+___T58:
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	00H
+___T57:
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	00H
+___T56:
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	00H
+___T55:
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	00H
+___T54:
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	6bH	;  'k'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	78H	;  'x'
+	.byte	74H	;  't'
+	.byte	00H
+___T53:
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	6bH	;  'k'
+	.byte	00H
+___T52:
+	.byte	66H	;  'f'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	79H	;  'y'
+	.byte	00H
+___T51:
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	79H	;  'y'
+	.byte	00H
+___T50:
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	79H	;  'y'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	70H	;  'p'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	00H
+___T49:
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	75H	;  'u'
+	.byte	73H	;  's'
+	.byte	00H
+___T48:
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	75H	;  'u'
+	.byte	65H	;  'e'
+	.byte	00H
+___T47:
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T46:
+	.byte	73H	;  's'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	00H
+___T45:
+	.byte	73H	;  's'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	78H	;  'x'
+	.byte	74H	;  't'
+	.byte	00H
+___T44:
+	.byte	53H	;  'S'
+	.byte	4eH	;  'N'
+	.byte	49H	;  'I'
+	.byte	46H	;  'F'
+	.byte	46H	;  'F'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T43:
+	.byte	43H	;  'C'
+	.byte	4cH	;  'L'
+	.byte	49H	;  'I'
+	.byte	45H	;  'E'
+	.byte	4eH	;  'N'
+	.byte	54H	;  'T'
+	.byte	00H
+___T42:
+	.byte	4dH	;  'M'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	00H
+___T41:
+	.byte	53H	;  'S'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	49H	;  'I'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	20H	;  ' '
+	.byte	4dH	;  'M'
+	.byte	4fH	;  'O'
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	00H
+___T40:
+	.byte	41H	;  'A'
+	.byte	55H	;  'U'
+	.byte	54H	;  'T'
+	.byte	4fH	;  'O'
+	.byte	20H	;  ' '
+	.byte	4dH	;  'M'
+	.byte	4fH	;  'O'
+	.byte	44H	;  'D'
+	.byte	45H	;  'E'
+	.byte	00H
+___T39:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	3aH	;  ':'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	2dH	;  '-'
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T38:
+	.byte	0aH
+	.byte	46H	;  'F'
+	.byte	41H	;  'A'
+	.byte	54H	;  'T'
+	.byte	41H	;  'A'
+	.byte	4cH	;  'L'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	52H	;  'R'
+	.byte	4fH	;  'O'
+	.byte	52H	;  'R'
+	.byte	3aH	;  ':'
+	.byte	20H	;  ' '
+	.byte	31H	;  '1'
+	.byte	0aH
+	.byte	00H
+___T37:
+	.byte	4cH	;  'L'
+	.byte	6fH	;  'o'
+	.byte	61H	;  'a'
+	.byte	64H	;  'd'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	6cH	;  'l'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	68H	;  'h'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	61H	;  'a'
+	.byte	69H	;  'i'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	21H	;  '!'
+	.byte	20H	;  ' '
+	.byte	20H	;  ' '
+	.byte	53H	;  'S'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	72H	;  'r'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	77H	;  'w'
+	.byte	20H	;  ' '
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	2eH	;  '.'
+	.byte	20H	;  ' '
+	.byte	20H	;  ' '
+	.byte	54H	;  'T'
+	.byte	68H	;  'h'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	6cH	;  'l'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	68H	;  'h'
+	.byte	20H	;  ' '
+	.byte	73H	;  's'
+	.byte	68H	;  'h'
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	6cH	;  'l'
+	.byte	64H	;  'd'
+	.byte	62H	;  'b'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	0aH
+	.byte	00H
+___T36:
+	.byte	54H	;  'T'
+	.byte	68H	;  'h'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	28H	;  '('
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	61H	;  'a'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	6dH	;  'm'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	73H	;  's'
+	.byte	29H	;  ')'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	78H	;  'x'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	68H	;  'h'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	78H	;  'x'
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	6fH	;  'o'
+	.byte	73H	;  's'
+	.byte	73H	;  's'
+	.byte	69H	;  'i'
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	74H	;  't'
+	.byte	68H	;  'h'
+	.byte	0aH
+	.byte	00H
+___T35:
+	.byte	44H	;  'D'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	6fH	;  'o'
+	.byte	20H	;  ' '
+	.byte	6aH	;  'j'
+	.byte	6fH	;  'o'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	77H	;  'w'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	6bH	;  'k'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	69H	;  'i'
+	.byte	72H	;  'r'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	00H
+___T34:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	44H	;  'D'
+	.byte	49H	;  'I'
+	.byte	44H	;  'D'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	2fH	;  '/'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	75H	;  'u'
+	.byte	6eH	;  'n'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	00H
+___T33:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	6eH	;  'n'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	00H
+___T32:
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	7aH	;  'z'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	70H	;  'p'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	2cH	;  ','
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	72H	;  'r'
+	.byte	79H	;  'y'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	67H	;  'g'
+	.byte	61H	;  'a'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	00H
+___T31:
+	.byte	73H	;  's'
+	.byte	68H	;  'h'
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	6cH	;  'l'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	67H	;  'g'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	68H	;  'h'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	00H
+___T30:
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	00H
+___T29:
+	.byte	55H	;  'U'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	75H	;  'u'
+	.byte	70H	;  'p'
+	.byte	70H	;  'p'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	00H
+___T28:
+	.byte	52H	;  'R'
+	.byte	65H	;  'e'
+	.byte	71H	;  'q'
+	.byte	75H	;  'u'
+	.byte	69H	;  'i'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	72H	;  'r'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	69H	;  'i'
+	.byte	6cH	;  'l'
+	.byte	61H	;  'a'
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	00H
+___T27:
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	61H	;  'a'
+	.byte	64H	;  'd'
+	.byte	79H	;  'y'
+	.byte	20H	;  ' '
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	70H	;  'p'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	67H	;  'g'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	73H	;  's'
+	.byte	00H
+___T26:
+	.byte	42H	;  'B'
+	.byte	75H	;  'u'
+	.byte	66H	;  'f'
+	.byte	66H	;  'f'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	69H	;  'i'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	62H	;  'b'
+	.byte	69H	;  'i'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	67H	;  'g'
+	.byte	68H	;  'h'
+	.byte	3bH	;  ';'
+	.byte	20H	;  ' '
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	2cH	;  ','
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	0aH
+	.byte	00H
+___T25:
+	.byte	41H	;  'A'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	63H	;  'c'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	28H	;  '('
+	.byte	30H	;  '0'
+	.byte	78H	;  'x'
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	32H	;  '2'
+	.byte	58H	;  'X'
+	.byte	29H	;  ')'
+	.byte	20H	;  ' '
+	.byte	77H	;  'w'
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	0aH
+	.byte	00H
+___T24:
+	.byte	45H	;  'E'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	63H	;  'c'
+	.byte	75H	;  'u'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	38H	;  '8'
+	.byte	58H	;  'X'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T23:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	6eH	;  'n'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	20H	;  ' '
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	63H	;  'c'
+	.byte	75H	;  'u'
+	.byte	72H	;  'r'
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	38H	;  '8'
+	.byte	58H	;  'X'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T22:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T21:
+	.byte	54H	;  'T'
+	.byte	68H	;  'h'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	22H	;  '"'
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	22H	;  '"'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	61H	;  'a'
+	.byte	69H	;  'i'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	2dH	;  '-'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T20:
+	.byte	49H	;  'I'
+	.byte	6eH	;  'n'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	69H	;  'i'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	63H	;  'c'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	6dH	;  'm'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	22H	;  '"'
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	22H	;  '"'
+	.byte	0aH
+	.byte	00H
+___T19:
+	.byte	63H	;  'c'
+	.byte	68H	;  'h'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	73H	;  's'
+	.byte	65H	;  'e'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T18:
+	.byte	52H	;  'R'
+	.byte	65H	;  'e'
+	.byte	6dH	;  'm'
+	.byte	6fH	;  'o'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	20H	;  ' '
+	.byte	4dH	;  'M'
+	.byte	41H	;  'A'
+	.byte	53H	;  'S'
+	.byte	54H	;  'T'
+	.byte	45H	;  'E'
+	.byte	52H	;  'R'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	62H	;  'b'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	79H	;  'y'
+	.byte	68H	;  'h'
+	.byte	6fH	;  'o'
+	.byte	77H	;  'w'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T17:
+	.byte	43H	;  'C'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	61H	;  'a'
+	.byte	72H	;  'r'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	70H	;  'p'
+	.byte	75H	;  'u'
+	.byte	74H	;  't'
+	.byte	0aH
+	.byte	00H
+___T16:
+	.byte	66H	;  'f'
+	.byte	61H	;  'a'
+	.byte	69H	;  'i'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	00H
+___T15:
+	.byte	73H	;  's'
+	.byte	75H	;  'u'
+	.byte	63H	;  'c'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	00H
+___T14:
+	.byte	4fH	;  'O'
+	.byte	4bH	;  'K'
+	.byte	0aH
+	.byte	00H
+___T13:
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	0aH
+	.byte	00H
+___T12:
+	.byte	44H	;  'D'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	75H	;  'u'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	66H	;  'f'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	6dH	;  'm'
+	.byte	69H	;  'i'
+	.byte	73H	;  's'
+	.byte	73H	;  's'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	0aH
+	.byte	00H
+___T11:
+	.byte	55H	;  'U'
+	.byte	70H	;  'p'
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	32H	;  '2'
+	.byte	58H	;  'X'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	32H	;  '2'
+	.byte	58H	;  'X'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T10:
+	.byte	55H	;  'U'
+	.byte	70H	;  'p'
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T9:
+	.byte	55H	;  'U'
+	.byte	70H	;  'p'
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	2eH	;  '.'
+	.byte	0aH
+	.byte	00H
+___T8:
+	.byte	42H	;  'B'
+	.byte	6cH	;  'l'
+	.byte	6fH	;  'o'
+	.byte	63H	;  'c'
+	.byte	6bH	;  'k'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	63H	;  'c'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	77H	;  'w'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	68H	;  'h'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	3bH	;  ';'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	75H	;  'u'
+	.byte	72H	;  'r'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	75H	;  'u'
+	.byte	73H	;  's'
+	.byte	3aH	;  ':'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T7:
+	.byte	53H	;  'S'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	67H	;  'g'
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	63H	;  'c'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	77H	;  'w'
+	.byte	69H	;  'i'
+	.byte	74H	;  't'
+	.byte	68H	;  'h'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	3bH	;  ';'
+	.byte	20H	;  ' '
+	.byte	72H	;  'r'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	75H	;  'u'
+	.byte	72H	;  'r'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	73H	;  's'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	75H	;  'u'
+	.byte	73H	;  's'
+	.byte	3aH	;  ':'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T6:
+	.byte	52H	;  'R'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	65H	;  'e'
+	.byte	78H	;  'x'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	3aH	;  ':'
+	.byte	0aH
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	2aH	;  '*'
+	.byte	73H	;  's'
+	.byte	0aH
+	.byte	00H
+___T5:
+	.byte	52H	;  'R'
+	.byte	65H	;  'e'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	76H	;  'v'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	74H	;  't'
+	.byte	72H	;  'r'
+	.byte	61H	;  'a'
+	.byte	6eH	;  'n'
+	.byte	73H	;  's'
+	.byte	61H	;  'a'
+	.byte	63H	;  'c'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	64H	;  'd'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	61H	;  'a'
+	.byte	20H	;  ' '
+	.byte	66H	;  'f'
+	.byte	72H	;  'r'
+	.byte	6fH	;  'o'
+	.byte	6dH	;  'm'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	2cH	;  ','
+	.byte	20H	;  ' '
+	.byte	6cH	;  'l'
+	.byte	65H	;  'e'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	75H	;  'u'
+	.byte	0aH
+	.byte	00H
+___T4:
+	.byte	53H	;  'S'
+	.byte	75H	;  'u'
+	.byte	63H	;  'c'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	73H	;  's'
+	.byte	73H	;  's'
+	.byte	66H	;  'f'
+	.byte	75H	;  'u'
+	.byte	6cH	;  'l'
+	.byte	6cH	;  'l'
+	.byte	79H	;  'y'
+	.byte	20H	;  ' '
+	.byte	6aH	;  'j'
+	.byte	6fH	;  'o'
+	.byte	69H	;  'i'
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	65H	;  'e'
+	.byte	74H	;  't'
+	.byte	77H	;  'w'
+	.byte	6fH	;  'o'
+	.byte	72H	;  'r'
+	.byte	6bH	;  'k'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	0aH
+	.byte	00H
+___T3:
+	.byte	44H	;  'D'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	2dH	;  '-'
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	6eH	;  'n'
+	.byte	6fH	;  'o'
+	.byte	74H	;  't'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	64H	;  'd'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	0aH
+	.byte	00H
+___T2:
+	.byte	44H	;  'D'
+	.byte	65H	;  'e'
+	.byte	76H	;  'v'
+	.byte	69H	;  'i'
+	.byte	63H	;  'c'
+	.byte	65H	;  'e'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	2dH	;  '-'
+	.byte	25H	;  '%'
+	.byte	2eH	;  '.'
+	.byte	34H	;  '4'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	64H	;  'd'
+	.byte	64H	;  'd'
+	.byte	65H	;  'e'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	61H	;  'a'
+	.byte	73H	;  's'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	58H	;  'X'
+	.byte	0aH
+	.byte	00H
+___T1:
+	.byte	2eH	;  '.'
+	.byte	25H	;  '%'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	28H	;  '('
+	.byte	42H	;  'B'
+	.byte	75H	;  'u'
+	.byte	69H	;  'i'
+	.byte	6cH	;  'l'
+	.byte	64H	;  'd'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	30H	;  '0'
+	.byte	33H	;  '3'
+	.byte	64H	;  'd'
+	.byte	29H	;  ')'
+	.byte	0aH
+	.byte	00H
+___T0:
+	.byte	4fH	;  'O'
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	2dH	;  '-'
+	.byte	4eH	;  'N'
+	.byte	45H	;  'E'
+	.byte	54H	;  'T'
+	.byte	20H	;  ' '
+	.byte	45H	;  'E'
+	.byte	76H	;  'v'
+	.byte	61H	;  'a'
+	.byte	6cH	;  'l'
+	.byte	75H	;  'u'
+	.byte	61H	;  'a'
+	.byte	74H	;  't'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	56H	;  'V'
+	.byte	65H	;  'e'
+	.byte	72H	;  'r'
+	.byte	73H	;  's'
+	.byte	69H	;  'i'
+	.byte	6fH	;  'o'
+	.byte	6eH	;  'n'
+	.byte	20H	;  ' '
+	.byte	25H	;  '%'
+	.byte	64H	;  'd'
+	.byte	2eH	;  '.'
+	.byte	25H	;  '%'
+	.byte	64H	;  'd'
+	.byte	00H
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	256,'N','_oncli_gen_err'
+	._type	256,'m','ONCLI_GEN_ERR_WRONG_BLOCK_DATA_TYPE',3
+	._type	256,'m','ONCLI_GEN_ERR_PAYLOAD',2
+	._type	256,'m','ONCLI_GEN_ERR_BAD_PARAMETER',1
+	._type	257,'T','oncli_gen_err_t',256
+	._type	258,'O',3
+	._var	'ONCLI_STARTUP_FMT','G',258,_ONCLI_STARTUP_FMT
+	._type	259,'O',3
+	._var	'ONCLI_STARTUP_REV_FMT','G',259,_ONCLI_STARTUP_REV_FMT
+	._type	260,'O',3
+	._var	'ONCLI_DEVICE_ADD_FMT','G',260,_ONCLI_DEVICE_ADD_FMT
+	._type	261,'O',3
+	._var	'ONCLI_ADD_DEVICE_FAILED_FMT','G',261,_ONCLI_ADD_DEVICE_FAILED_FMT
+	._type	262,'O',3
+	._var	'ONCLI_JOINED_FMT','G',262,_ONCLI_JOINED_FMT
+	._type	263,'O',3
+	._var	'ONCLI_RX_DATA_FMT','G',263,_ONCLI_RX_DATA_FMT
+	._type	264,'O',3
+	._var	'ONCLI_RX_TXT_FMT','G',264,_ONCLI_RX_TXT_FMT
+	._type	265,'O',3
+	._var	'ONCLI_SINGLE_RESULT_FMT','G',265,_ONCLI_SINGLE_RESULT_FMT
+	._type	266,'O',3
+	._var	'ONCLI_BLOCK_RESULT_FMT','G',266,_ONCLI_BLOCK_RESULT_FMT
+	._type	267,'O',3
+	._var	'ONCLI_UPDATE_RESULT_FMT','G',267,_ONCLI_UPDATE_RESULT_FMT
+	._type	268,'O',3
+	._var	'ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT','G',268,_ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT
+	._type	269,'O',3
+	._var	'ONCLI_UNKNOWN_UPDATE_RESULT_FMT','G',269,_ONCLI_UNKNOWN_UPDATE_RESULT_FMT
+	._type	270,'O',3
+	._var	'ONCLI_DATA_RATE_TEST_RESULT_FMT','G',270,_ONCLI_DATA_RATE_TEST_RESULT_FMT
+	._type	271,'O',3
+	._var	'ONCLI_GET_CHANNEL_RESPONSE_FMT','G',271,_ONCLI_GET_CHANNEL_RESPONSE_FMT
+	._type	272,'O',3
+	._var	'ONCLI_CMD_SUCCESS_STR','G',272,_ONCLI_CMD_SUCCESS_STR
+	._type	273,'O',3
+	._var	'ONCLI_SUCCEEDED_STR','G',273,_ONCLI_SUCCEEDED_STR
+	._type	274,'O',3
+	._var	'ONCLI_FAILED_STR','G',274,_ONCLI_FAILED_STR
+	._type	275,'O',3
+	._var	'ONCLI_CLR_INPUT_STR','G',275,_ONCLI_CLR_INPUT_STR
+	._type	276,'O',3
+	._var	'ONCLI_M_RM_DEV_ANYWAY_STR','G',276,_ONCLI_M_RM_DEV_ANYWAY_STR
+	._type	277,'O',3
+	._var	'ONCLI_CHANNEL_NOT_SELECTED_STR','G',277,_ONCLI_CHANNEL_NOT_SELECTED_STR
+	._type	278,'O',3
+	._var	'ONCLI_INVALID_CMD_FMT','G',278,_ONCLI_INVALID_CMD_FMT
+	._type	279,'O',3
+	._var	'ONCLI_CMD_FAIL_FMT','G',279,_ONCLI_CMD_FAIL_FMT
+	._type	280,'O',3
+	._var	'ONCLI_INVALID_CMD_FOR_DEVICE_FMT','G',280,_ONCLI_INVALID_CMD_FOR_DEVICE_FMT
+	._type	281,'O',3
+	._var	'ONCLI_INTERNAL_ERR_FMT','G',281,_ONCLI_INTERNAL_ERR_FMT
+	._type	282,'O',3
+	._var	'ONCLI_GENERAL_ERROR_FMT','G',282,_ONCLI_GENERAL_ERROR_FMT
+	._type	283,'O',3
+	._var	'ONCLI_RX_INVALID_CH_FMT','G',283,_ONCLI_RX_INVALID_CH_FMT
+	._type	284,'O',3
+	._var	'ONCLI_OUTPUT_STR_TOO_SHORT_FMT','G',284,_ONCLI_OUTPUT_STR_TOO_SHORT_FMT
+	._type	285,'O',3
+	._var	'ONCLI_IN_PROGRESS_STR','G',285,_ONCLI_IN_PROGRESS_STR
+	._type	286,'O',3
+	._var	'ONCLI_RSRC_UNAVAILABLE_STR','G',286,_ONCLI_RSRC_UNAVAILABLE_STR
+	._type	287,'O',3
+	._var	'ONCLI_UNSUPPORTED_STR','G',287,_ONCLI_UNSUPPORTED_STR
+	._type	288,'O',3
+	._var	'ONCLI_INVALID_FORMAT_STR','G',288,_ONCLI_INVALID_FORMAT_STR
+	._type	289,'O',3
+	._var	'ONCLI_SNGH_STR','G',289,_ONCLI_SNGH_STR
+	._type	290,'O',3
+	._var	'ONCLI_ONS_NOT_INIT_ERR_STR','G',290,_ONCLI_ONS_NOT_INIT_ERR_STR
+	._type	291,'O',3
+	._var	'ONCLI_INTERNAL_ERR_STR','G',291,_ONCLI_INTERNAL_ERR_STR
+	._type	292,'O',3
+	._var	'ONCLI_INVALID_DST_STR','G',292,_ONCLI_INVALID_DST_STR
+	._type	293,'O',3
+	._var	'ONCLI_NEED_TO_JOIN_STR','G',293,_ONCLI_NEED_TO_JOIN_STR
+	._type	294,'O',3
+	._var	'ONCLI_INVALID_CMD_LEN_STR','G',294,_ONCLI_INVALID_CMD_LEN_STR
+	._type	295,'O',3
+	._var	'ONCLI_LOAD_FAIL_STR','G',295,_ONCLI_LOAD_FAIL_STR
+	._type	296,'O',3
+	._var	'ONCLI_DISPLAY_INVITE_STR','G',296,_ONCLI_DISPLAY_INVITE_STR
+	._type	297,'O',3
+	._var	'ONCLI_FATAL_ERR_1_STR','G',297,_ONCLI_FATAL_ERR_1_STR
+	._type	298,'O',3
+	._var	'ONCLI_SINGLE_TXT_CMD_STR','G',298,_ONCLI_SINGLE_TXT_CMD_STR
+	._type	299,'O',3
+	._var	'ONCLI_SINGLE_CMD_STR','G',299,_ONCLI_SINGLE_CMD_STR
+	._type	300,'O',3
+	._var	'ONCLI_SET_PIN_CMD_STR','G',300,_ONCLI_SET_PIN_CMD_STR
+	._type	301,'O',3
+	._var	'ONCLI_SET_VALUE_CMD_STR','G',301,_ONCLI_SET_VALUE_CMD_STR
+	._type	302,'O',3
+	._var	'ONCLI_STATUS_CMD_STR','G',302,_ONCLI_STATUS_CMD_STR
+	._type	303,'O',3
+	._var	'ONCLI_QUERY_RESPONSE_CMD_STR','G',303,_ONCLI_QUERY_RESPONSE_CMD_STR
+	._type	304,'O',3
+	._var	'ONCLI_QUERY_CMD_STR','G',304,_ONCLI_QUERY_CMD_STR
+	._type	305,'O',3
+	._var	'ONCLI_FAST_QUERY_CMD_STR','G',305,_ONCLI_FAST_QUERY_CMD_STR
+	._type	306,'O',3
+	._var	'ONCLI_BLOCK_CMD_STR','G',306,_ONCLI_BLOCK_CMD_STR
+	._type	307,'O',3
+	._var	'ONCLI_BLOCK_TXT_CMD_STR','G',307,_ONCLI_BLOCK_TXT_CMD_STR
+	._type	308,'O',3
+	._var	'ONCLI_ERASE_CMD_STR','G',308,_ONCLI_ERASE_CMD_STR
+	._type	309,'O',3
+	._var	'ONCLI_SAVE_CMD_STR','G',309,_ONCLI_SAVE_CMD_STR
+	._type	310,'O',3
+	._var	'ONCLI_LIST_CMD_STR','G',310,_ONCLI_LIST_CMD_STR
+	._type	311,'O',3
+	._var	'ONCLI_AUTO_MODE_STR','G',311,_ONCLI_AUTO_MODE_STR
+	._type	312,'O',3
+	._var	'ONCLI_SERIAL_MODE_STR','G',312,_ONCLI_SERIAL_MODE_STR
+	._type	313,'O',3
+	._var	'ONCLI_MASTER_STR','G',313,_ONCLI_MASTER_STR
+	._type	314,'O',3
+	._var	'ONCLI_CLIENT_STR','G',314,_ONCLI_CLIENT_STR
+	._type	315,'O',3
+	._var	'ONCLI_SNIFFER_STR','G',315,_ONCLI_SNIFFER_STR
+	._type	316,'O',3
+	._var	'ONCLI_INVITE_CMD_STR','G',316,_ONCLI_INVITE_CMD_STR
+	._type	317,'O',3
+	._var	'ONCLI_CANCEL_INVITE_CMD_STR','G',317,_ONCLI_CANCEL_INVITE_CMD_STR
+	._type	318,'O',3
+	._var	'ONCLI_UPDATE_MASTER_CMD_STR','G',318,_ONCLI_UPDATE_MASTER_CMD_STR
+	._type	319,'O',3
+	._var	'ONCLI_CHANGE_KEEP_ALIVE_CMD_STR','G',319,_ONCLI_CHANGE_KEEP_ALIVE_CMD_STR
+	._type	320,'O',3
+	._var	'ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR','G',320,_ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
+	._type	321,'O',3
+	._var	'ONCLI_CHANGE_KEY_CMD_STR','G',321,_ONCLI_CHANGE_KEY_CMD_STR
+	._type	322,'O',3
+	._var	'ONCLI_RM_DEV_CMD_STR','G',322,_ONCLI_RM_DEV_CMD_STR
+	._type	323,'O',3
+	._var	'ONCLI_DATA_RATE_TEST_CMD_STR','G',323,_ONCLI_DATA_RATE_TEST_CMD_STR
+	._type	324,'O',3
+	._var	'ONCLI_GET_CHANNEL_CMD_STR','G',324,_ONCLI_GET_CHANNEL_CMD_STR
+	._type	325,'O',3
+	._var	'ONCLI_USER_PIN_CMD_STR','G',325,_ONCLI_USER_PIN_CMD_STR
+	._type	326,'O',3
+	._var	'ONCLI_JOIN_CMD_STR','G',326,_ONCLI_JOIN_CMD_STR
+	._type	327,'O',3
+	._var	'ONCLI_CHANNEL_CMD_STR','G',327,_ONCLI_CHANNEL_CMD_STR
+	._type	328,'O',3
+	._var	'ONCLI_SETNI_CMD_STR','G',328,_ONCLI_SETNI_CMD_STR
+	._type	329,'O',3
+	._var	'ONCLI_SNIFF_CMD_STR','G',329,_ONCLI_SNIFF_CMD_STR
+	._type	330,'O',3
+	._var	'ONCLI_MODE_CMD_STR','G',330,_ONCLI_MODE_CMD_STR
+	._type	331,'O',3
+	._var	'ONCLI_ECHO_CMD_STR','G',331,_ONCLI_ECHO_CMD_STR
+	._type	332,'O',3
+	._var	'ONCLI_SINGLE_TXN_STR','G',332,_ONCLI_SINGLE_TXN_STR
+	._type	333,'O',3
+	._var	'ONCLI_BLOCK_TXN_STR','G',333,_ONCLI_BLOCK_TXN_STR
+	._type	334,'O',3
+	._var	'ONCLI_SET_STR','G',334,_ONCLI_SET_STR
+	._type	335,'O',3
+	._var	'ONCLI_CLR_STR','G',335,_ONCLI_CLR_STR
+	._type	336,'O',3
+	._var	'ONCLI_LOW_STR','G',336,_ONCLI_LOW_STR
+	._type	337,'O',3
+	._var	'ONCLI_HIGH_STR','G',337,_ONCLI_HIGH_STR
+	._type	338,'O',3
+	._var	'ONCLI_TOGGLE_STR','G',338,_ONCLI_TOGGLE_STR
+	._type	339,'O',3
+	._var	'ONCLI_INPUT_STR','G',339,_ONCLI_INPUT_STR
+	._type	340,'O',3
+	._var	'ONCLI_OUTPUT_STR','G',340,_ONCLI_OUTPUT_STR
+	._type	341,'O',3
+	._var	'ONCLI_DISABLE_STR','G',341,_ONCLI_DISABLE_STR
+	._type	342,'O',3
+	._var	'ONCLI_QUIET_STR','G',342,_ONCLI_QUIET_STR
+	._type	343,'O',3
+	._var	'ONCLI_VERBOSE_STR','G',343,_ONCLI_VERBOSE_STR
+	._type	344,'O',3
+	._var	'ONCLI_ON_STR','G',344,_ONCLI_ON_STR
+	._type	345,'O',3
+	._var	'ONCLI_OFF_STR','G',345,_ONCLI_OFF_STR
+	._type	346,'O',3
+	._var	'ONCLI_US_STR','G',346,_ONCLI_US_STR
+	._type	347,'O',3
+	._var	'ONCLI_EUR_STR','G',347,_ONCLI_EUR_STR
+	._type	348,'O',3
+	._var	'ONCLI_SINGLE_STR','G',348,_ONCLI_SINGLE_STR
+	._type	349,'O',3
+	._var	'ONCLI_BLOCK_STR','G',349,_ONCLI_BLOCK_STR
+	._type	350,'O',3
+	._var	'ONCLI_RX_ADMIN_FMT','G',350,_ONCLI_RX_ADMIN_FMT
+	._type	351,'O',3
+	._var	'ONCLI_ADMIN_MSG_STR','G',351,_ONCLI_ADMIN_MSG_STR
+	._type	352,'O',3
+	._var	'ONCLI_EXTENDED_ADMIN_MSG_STR','G',352,_ONCLI_EXTENDED_ADMIN_MSG_STR
+	._type	353,'O',3
+	._type	354,'Z',35,353
+	._var	'ONCLI_ADMIN_STR','G',354,_ONCLI_ADMIN_STR
+	._type	355,'O',3
+	._type	356,'Z',1,355
+	._var	'ONCLI_EXTENDED_ADMIN_STR','G',356,_ONCLI_EXTENDED_ADMIN_STR
+	._type	357,'O',3
+	._type	358,'Z',10,357
+	._var	'ONCLI_M_UPDATE_STR','G',358,_ONCLI_M_UPDATE_STR
+	._type	359,'O',3
+	._type	360,'Z',42,359
+	._var	'ONCLI_ONS_STR','G',360,_ONCLI_ONS_STR
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "oncli_gen_err_t", 'O', 256
+	._inspect	'V', 't', "ONCLI_STARTUP_FMT", 'G', 258
+	._inspect	'V', 't', "ONCLI_STARTUP_REV_FMT", 'G', 259
+	._inspect	'V', 't', "ONCLI_DEVICE_ADD_FMT", 'G', 260
+	._inspect	'V', 't', "ONCLI_ADD_DEVICE_FAILED_FMT", 'G', 261
+	._inspect	'V', 't', "ONCLI_JOINED_FMT", 'G', 262
+	._inspect	'V', 't', "ONCLI_RX_DATA_FMT", 'G', 263
+	._inspect	'V', 't', "ONCLI_RX_TXT_FMT", 'G', 264
+	._inspect	'V', 't', "ONCLI_SINGLE_RESULT_FMT", 'G', 265
+	._inspect	'V', 't', "ONCLI_BLOCK_RESULT_FMT", 'G', 266
+	._inspect	'V', 't', "ONCLI_UPDATE_RESULT_FMT", 'G', 267
+	._inspect	'V', 't', "ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT", 'G', 268
+	._inspect	'V', 't', "ONCLI_UNKNOWN_UPDATE_RESULT_FMT", 'G', 269
+	._inspect	'V', 't', "ONCLI_DATA_RATE_TEST_RESULT_FMT", 'G', 270
+	._inspect	'V', 't', "ONCLI_GET_CHANNEL_RESPONSE_FMT", 'G', 271
+	._inspect	'V', 't', "ONCLI_CMD_SUCCESS_STR", 'G', 272
+	._inspect	'V', 't', "ONCLI_SUCCEEDED_STR", 'G', 273
+	._inspect	'V', 't', "ONCLI_FAILED_STR", 'G', 274
+	._inspect	'V', 't', "ONCLI_CLR_INPUT_STR", 'G', 275
+	._inspect	'V', 't', "ONCLI_M_RM_DEV_ANYWAY_STR", 'G', 276
+	._inspect	'V', 't', "ONCLI_CHANNEL_NOT_SELECTED_STR", 'G', 277
+	._inspect	'V', 't', "ONCLI_INVALID_CMD_FMT", 'G', 278
+	._inspect	'V', 't', "ONCLI_CMD_FAIL_FMT", 'G', 279
+	._inspect	'V', 't', "ONCLI_INVALID_CMD_FOR_DEVICE_FMT", 'G', 280
+	._inspect	'V', 't', "ONCLI_INTERNAL_ERR_FMT", 'G', 281
+	._inspect	'V', 't', "ONCLI_GENERAL_ERROR_FMT", 'G', 282
+	._inspect	'V', 't', "ONCLI_RX_INVALID_CH_FMT", 'G', 283
+	._inspect	'V', 't', "ONCLI_OUTPUT_STR_TOO_SHORT_FMT", 'G', 284
+	._inspect	'V', 't', "ONCLI_IN_PROGRESS_STR", 'G', 285
+	._inspect	'V', 't', "ONCLI_RSRC_UNAVAILABLE_STR", 'G', 286
+	._inspect	'V', 't', "ONCLI_UNSUPPORTED_STR", 'G', 287
+	._inspect	'V', 't', "ONCLI_INVALID_FORMAT_STR", 'G', 288
+	._inspect	'V', 't', "ONCLI_SNGH_STR", 'G', 289
+	._inspect	'V', 't', "ONCLI_ONS_NOT_INIT_ERR_STR", 'G', 290
+	._inspect	'V', 't', "ONCLI_INTERNAL_ERR_STR", 'G', 291
+	._inspect	'V', 't', "ONCLI_INVALID_DST_STR", 'G', 292
+	._inspect	'V', 't', "ONCLI_NEED_TO_JOIN_STR", 'G', 293
+	._inspect	'V', 't', "ONCLI_INVALID_CMD_LEN_STR", 'G', 294
+	._inspect	'V', 't', "ONCLI_LOAD_FAIL_STR", 'G', 295
+	._inspect	'V', 't', "ONCLI_DISPLAY_INVITE_STR", 'G', 296
+	._inspect	'V', 't', "ONCLI_FATAL_ERR_1_STR", 'G', 297
+	._inspect	'V', 't', "ONCLI_SINGLE_TXT_CMD_STR", 'G', 298
+	._inspect	'V', 't', "ONCLI_SINGLE_CMD_STR", 'G', 299
+	._inspect	'V', 't', "ONCLI_SET_PIN_CMD_STR", 'G', 300
+	._inspect	'V', 't', "ONCLI_SET_VALUE_CMD_STR", 'G', 301
+	._inspect	'V', 't', "ONCLI_STATUS_CMD_STR", 'G', 302
+	._inspect	'V', 't', "ONCLI_QUERY_RESPONSE_CMD_STR", 'G', 303
+	._inspect	'V', 't', "ONCLI_QUERY_CMD_STR", 'G', 304
+	._inspect	'V', 't', "ONCLI_FAST_QUERY_CMD_STR", 'G', 305
+	._inspect	'V', 't', "ONCLI_BLOCK_CMD_STR", 'G', 306
+	._inspect	'V', 't', "ONCLI_BLOCK_TXT_CMD_STR", 'G', 307
+	._inspect	'V', 't', "ONCLI_ERASE_CMD_STR", 'G', 308
+	._inspect	'V', 't', "ONCLI_SAVE_CMD_STR", 'G', 309
+	._inspect	'V', 't', "ONCLI_LIST_CMD_STR", 'G', 310
+	._inspect	'V', 't', "ONCLI_AUTO_MODE_STR", 'G', 311
+	._inspect	'V', 't', "ONCLI_SERIAL_MODE_STR", 'G', 312
+	._inspect	'V', 't', "ONCLI_MASTER_STR", 'G', 313
+	._inspect	'V', 't', "ONCLI_CLIENT_STR", 'G', 314
+	._inspect	'V', 't', "ONCLI_SNIFFER_STR", 'G', 315
+	._inspect	'V', 't', "ONCLI_INVITE_CMD_STR", 'G', 316
+	._inspect	'V', 't', "ONCLI_CANCEL_INVITE_CMD_STR", 'G', 317
+	._inspect	'V', 't', "ONCLI_UPDATE_MASTER_CMD_STR", 'G', 318
+	._inspect	'V', 't', "ONCLI_CHANGE_KEEP_ALIVE_CMD_STR", 'G', 319
+	._inspect	'V', 't', "ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR", 'G', 320
+	._inspect	'V', 't', "ONCLI_CHANGE_KEY_CMD_STR", 'G', 321
+	._inspect	'V', 't', "ONCLI_RM_DEV_CMD_STR", 'G', 322
+	._inspect	'V', 't', "ONCLI_DATA_RATE_TEST_CMD_STR", 'G', 323
+	._inspect	'V', 't', "ONCLI_GET_CHANNEL_CMD_STR", 'G', 324
+	._inspect	'V', 't', "ONCLI_USER_PIN_CMD_STR", 'G', 325
+	._inspect	'V', 't', "ONCLI_JOIN_CMD_STR", 'G', 326
+	._inspect	'V', 't', "ONCLI_CHANNEL_CMD_STR", 'G', 327
+	._inspect	'V', 't', "ONCLI_SETNI_CMD_STR", 'G', 328
+	._inspect	'V', 't', "ONCLI_SNIFF_CMD_STR", 'G', 329
+	._inspect	'V', 't', "ONCLI_MODE_CMD_STR", 'G', 330
+	._inspect	'V', 't', "ONCLI_ECHO_CMD_STR", 'G', 331
+	._inspect	'V', 't', "ONCLI_SINGLE_TXN_STR", 'G', 332
+	._inspect	'V', 't', "ONCLI_BLOCK_TXN_STR", 'G', 333
+	._inspect	'V', 't', "ONCLI_SET_STR", 'G', 334
+	._inspect	'V', 't', "ONCLI_CLR_STR", 'G', 335
+	._inspect	'V', 't', "ONCLI_LOW_STR", 'G', 336
+	._inspect	'V', 't', "ONCLI_HIGH_STR", 'G', 337
+	._inspect	'V', 't', "ONCLI_TOGGLE_STR", 'G', 338
+	._inspect	'V', 't', "ONCLI_INPUT_STR", 'G', 339
+	._inspect	'V', 't', "ONCLI_OUTPUT_STR", 'G', 340
+	._inspect	'V', 't', "ONCLI_DISABLE_STR", 'G', 341
+	._inspect	'V', 't', "ONCLI_QUIET_STR", 'G', 342
+	._inspect	'V', 't', "ONCLI_VERBOSE_STR", 'G', 343
+	._inspect	'V', 't', "ONCLI_ON_STR", 'G', 344
+	._inspect	'V', 't', "ONCLI_OFF_STR", 'G', 345
+	._inspect	'V', 't', "ONCLI_US_STR", 'G', 346
+	._inspect	'V', 't', "ONCLI_EUR_STR", 'G', 347
+	._inspect	'V', 't', "ONCLI_SINGLE_STR", 'G', 348
+	._inspect	'V', 't', "ONCLI_BLOCK_STR", 'G', 349
+	._inspect	'V', 't', "ONCLI_RX_ADMIN_FMT", 'G', 350
+	._inspect	'V', 't', "ONCLI_ADMIN_MSG_STR", 'G', 351
+	._inspect	'V', 't', "ONCLI_EXTENDED_ADMIN_MSG_STR", 'G', 352
+	._inspect	'V', 't', "ONCLI_ADMIN_STR", 'G', 354
+	._inspect	'V', 't', "ONCLI_EXTENDED_ADMIN_STR", 'G', 356
+	._inspect	'V', 't', "ONCLI_M_UPDATE_STR", 'G', 358
+	._inspect	'V', 't', "ONCLI_ONS_STR", 'G', 360
+
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:31 2011
+
+

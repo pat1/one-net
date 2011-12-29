@@ -45,16 +45,16 @@
       updated.
 */
 
-
-// Nov. 28, 2011 -- temporarily reverting JMR's timer changes.  Will
-// re-implement them again when I get more of a chance to look at them
-// and everything else is working.
-
-
 #include "one_net_timer.h"
 #include "one_net_timer_port_const.h"
+
 #include "one_net_port_specific.h"
 
+
+#include "config_options.h"
+#ifdef _PAUSE_TIMER
+    BOOL pause_timer = FALSE;
+#endif
 
 //==============================================================================
 //                                  CONSTANTS
@@ -72,75 +72,18 @@
 //! \ingroup ONE-NET_TIMER
 //! @{
 
+/*!
+    \brief Represents a timer
+*/
+typedef struct
+{
+    BOOL active;                    //!< Flag to indicate if active(TRUE).
+    tick_t tick;                    //!< number of ticks remaining
+} ont_timer_t;
 
 //! @} ONE-NET_TIMER_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
-
-
-//==============================================================================
-//                              PUBLIC VARIABLES
-//! \defgroup ONE-NET_TIMER_pub_var
-//! \ingroup ONE-NET_TIMER
-//! @{
-    
-    
-//! Array to keep track of the timers.
-ont_timer_t timer[ONT_NUM_TIMERS] = {0};
-
-
-
-#ifdef _DEBUGGING_TOOLS
-#include "one_net_port_const.h"
-#include "one_net_master_port_const.h"
-
-
-UInt32 one_net_response_time_out = ONE_NET_RESPONSE_TIME_OUT;
-UInt32 write_pause = 0;
-UInt32 one_net_master_invite_send_time = ONE_NET_MASTER_INVITE_SEND_TIME;
-tick_t one_net_master_channel_scan_time = ONE_NET_MASTER_CHANNEL_SCAN_TIME;
-
-
-
-UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
-{
-    &one_net_response_time_out, // 0
-    &write_pause, // 1
-    #ifdef _ONE_NET_MASTER
-    &one_net_master_invite_send_time, // 2
-    &one_net_master_channel_scan_time, // 3
-    #endif
-};
-
-
-const char* const debug_interval_strs[NUM_DEBUG_INTERVALS] =
-{
-    "Resp. Timeout",
-    "Write Pause",
-    #ifdef _ONE_NET_MASTER
-    "Invite Send Time",
-    "Channel Scan Time",
-    #endif
-};
-
-
-
-
-
-BOOL pause = FALSE;
-BOOL proceed = FALSE;
-BOOL ratchet = FALSE;
-BOOL pausing = FALSE;
-#endif
-
-
-
-//! @} ONE-NET_TIMER_pub_var
-//                              PUBLIC VARIABLES END
-//==============================================================================
-
-
-
 
 //==============================================================================
 //                              PRIVATE VARIABLES
@@ -148,10 +91,15 @@ BOOL pausing = FALSE;
 //! \ingroup ONE-NET_TIMER
 //! @{
 
-
 //! The last time the tick count was read and the timers were updated.
 static tick_t last_tick = 0;
 
+//! Array to keep track of the timers.
+static ont_timer_t timer[ONT_NUM_TIMERS] = {0};
+
+#ifdef _DEBUG_DELAY
+tick_t time_zero = 0;
+#endif
 
 //! @} ONE-NET_TIMER_pri_var
 //                              PRIVATE VARIABLES END
@@ -320,41 +268,41 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
 } // ont_inactive_or_expired //
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef _DEBUG_DELAY
 #include "oncli.h"
-void print_intervals(void)
+void set_time_zero(void)
 {
-    UInt8 i;
-    for(i = 0; i < NUM_DEBUG_INTERVALS; i++)
-    {
-        oncli_send_msg("Interval %d(%s):\t%ld\n", i,
-        debug_interval_strs[i], *(debug_intervals[i]));
-        delay_ms(10);
-    }
+    time_zero = one_net_tick();
 }
 
 
-void print_timers(void)
+tick_t get_time_expired(void)
 {
-    UInt8 i;
-    const char* const active_state_str = "active\t";
-    const char* const inactive_state_str = "inactive";
-    for(i = 0; i < ONT_NUM_TIMERS; i++)
-    {
-        const char* const state_str = timer[i].active ? active_state_str :
-            inactive_state_str;
-        oncli_send_msg("Timer %d:\t%s\t%ld\n", i, state_str, timer[i].tick);
-        delay_ms(10);
-    }
+    if(time_zero == 0)
+	{
+		set_time_zero();
+		return 0;
+	}
+	return one_net_tick() - time_zero;
 }
 
 
-void synchronize_last_tick(void)
+void debug_time_expired(void)
 {
-    last_tick = get_tick_count();
+	UInt8 i;
+	UInt8 bytes[4];
+	tick_t time_expired = get_time_expired();
+    for(i = 0; i < 4; i++)
+	{
+		bytes[3-i] = time_expired & 0xFF;
+		time_expired = time_expired >> 8;
+	}
+	for(i = 0; i < 4; i++)
+	{
+		debug_delay("%02X", bytes[i]);
+	}
 }
 #endif
-
 
 //! @} ONE-NET_TIMER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -379,8 +327,8 @@ static void update_timers(void)
 
     UInt8 i;
     
-    tick_now = get_tick_count();
-    
+    tick_now = one_net_tick();
+	
     if(tick_now < last_tick)
     {
         // Subtract from 0 since going from all 1s to 0 takes a tick
@@ -400,19 +348,18 @@ static void update_timers(void)
     
     for(i = 0; i < ONT_NUM_TIMERS; i++)
     {
-        #ifdef _DEBUGGING_TOOLS
-        if(pausing && i != WRITE_PAUSE_TIMER && i >= ONT_NUM_APP_TIMERS)
-        {
-            // pausing everything but the APP timers
-            continue;
-        }
-        #endif
-        
         if(timer[i].active)
         {
             if(timer[i].tick > tick_diff)
             {
+				#ifndef _PAUSE_TIMER
                 timer[i].tick -= tick_diff;
+				#else
+		        if(!pause_timer || timer[i].tick < 150)
+			    {
+					timer[i].tick -= tick_diff;
+				}
+				#endif
             } // if more time remains //
             else
             {
@@ -422,9 +369,9 @@ static void update_timers(void)
     } // loop to adjust the timers //
 } // update_timers //
 
-
 //! @} ONE-NET_TIMER_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
 
 //! @} ONE-NET_TIMER
+

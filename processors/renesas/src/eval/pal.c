@@ -1,9 +1,9 @@
-//! \defgroup PAL Processor abstraction layer.
+//! \defgroup PAL_EVAL Processor abstraction layer for ONE-NET switch example.
 //! \ingroup PAL
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -33,87 +33,115 @@
 */
 
 /*!
-    \file pal.c
-    \brief Contains common hardware declarations.  Implementation will be
-        processor-specific and possibly hardware-specific.  Not all ports will
-        implement all functions here.
+    \file pal.c (for switch example)
+    \brief Contains implementation of R8C23 specific functions.
+
+    Hardware specific functions for the R8C23.  Despite being specific for the
+    processor, these functions are also specific based on the hardware.  For
+    example, some boards may use an external clock as the main clock while
+    others may use one of the internal oscillators (for the R8C series).
 */
 
 
-#include "pal.h"
-#include "sfr_r823.h"
-#include "io_port_mapping.h"
-#include "tick.h"
-#include "one_net_application.h" // for "INPUT" and "OUTPUT"
+#include "config_options.h"
 
+
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif 
+
+
+#include "pal.h"
+#include "tal.h"
 
 
 //==============================================================================
 //                                  CONSTANTS
-//! \defgroup PAL_const
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_const
+//! \ingroup PAL_EVAL
 //! @{
-
+    
 //! The rate the low speed oscillator runs at (in Hz)
 #define LOW_SPEED_OSCILLATOR 125000
 
-//! @} PAL_const
+//! @} PAL_EVAL_const
 //                                  CONSTANTS END
 //==============================================================================
 
 //==============================================================================
 //                                  TYPEDEFS
-//! \defgroup PAL_typedefs
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_typedefs
+//! \ingroup PAL_EVAL
 //! @{
 
-
-
-//! @} PAL_typedefs
+//! @} PAL_EVAL_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
 
 //==============================================================================
 //                              PRIVATE VARIABLES
-//! \defgroup PAL_pri_var
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_pri_var
+//! \ingroup PAL_EVAL
 //! @{
 
-//! @} PAL_pri_var
+//! @} PAL_EVAL_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
 
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
-//! \defgroup PAL_pri_func
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_pri_func
+//! \ingroup PAL_EVAL
 //! @{
 
-//! @} PAL_pri_func
+// In tick.c
+extern void update_tick_count(const tick_t UPDATE);
+
+//! @} PAL_EVAL_pri_func
 //!                     PRIVATE FUNCTION DECLARATIONS END
 //==============================================================================
 
 //==============================================================================
 //                      PUBLIC FUNCTION IMPLEMENTATION
-//! \defgroup PAL_pub_func
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_pub_func
+//! \ingroup PAL_EVAL
 //! @{
 
 /*!
     \brief Initializes the ports that MUST be initialized before anything else.
-
+    
     \param void
-
+    
     \return void
 */
-void pal_init_ports(void)
+void init_ports(void)
 {
     //pu00 = 1;
     //pu14 = 1;
     //Pull-ups on all inputs
     pur0  = 0xff;
     pur1  = 0x33;
+    INIT_PORTS_LEDS();
 } // init_ports //
+
+
+/*!
+    \brief Initializes the ports used by LEDs
+
+    \param void
+
+    \return void
+*/
+void init_ports_leds(void)
+{
+    prc2 = 1;
+    LED2_DIR = OUTPUT;
+    LED3_DIR = OUTPUT;
+    prc2 = 0;
+
+    TURN_OFF(LED2);
+    TURN_OFF(LED3);
+} // init_ports_leds //
 
 
 /*!
@@ -127,11 +155,11 @@ void pal_init_ports(void)
 
     \return void
 */
-void pal_high_speed_mode(void)
+void high_speed_mode(void)
 {
     prc0 = 1;                       // protect off
     fra00 = 1;                      // enable high speed oscillator
-
+    
     // delay 1 ms to make sure the oscillator settles.  Since we are not
     // running at the speed used to calculate the constants for the delay, this
     // will actually take longer than 1ms running on the low speed internal
@@ -143,11 +171,11 @@ void pal_high_speed_mode(void)
     asm("nop");
     asm("nop");
 
-    cm06 = 0;                       // enable CM16, CM17
+    cm06 = 0;                       // enable CM16, CM17    
     // no system clock division
     cm16 = 0;
     cm17 = 0;
-
+    
     // divide the high speed oscillator by 2
     fra20 = 0;
     fra21 = 0;
@@ -165,39 +193,13 @@ void pal_high_speed_mode(void)
 
     \return void
 */
-void pal_low_speed_mode(void)
+void low_speed_mode(void)
 {
     prc0 = 1;                       // protect off
     ocd2 = 1;                       // select internal oscillator
     cm05 = 1;                       // main clock stops
     prc0 = 0;                       // protoect on
 } // low_speed_mode //
-
-
-/*!
-    \brief Enable global interrupts
-
-    \param void
-
-    \return void
-*/
-void pal_enable_global_interrupts(void)
-{
-    asm("FSET I");
-}
-
-
-/*!
-    \brief Disables global interrupts
-
-    \param void
-
-    \return void
-*/
-void pal_disable_global_interrupts(void)
-{
-    asm("FCLR I");
-}
 
 
 /*!
@@ -212,80 +214,23 @@ void pal_disable_global_interrupts(void)
 
     \return void
 */
-void pal_processor_sleep(UInt32 MS)
+void processor_sleep(const UInt32 MS)
 {
-    // TODO - write this function, if necessary
 } // processor_sleep //
 
-
-/*!
-    \brief Exits the program.
-
-    Disables global interrupts & stops program execution.
-
-    \param void
-
-    \return void
-*/
-void pal_exit(void)
-{
-    pal_disable_global_interrupts();
-    asm("WAIT");
-}
-
-
-/*!
-    \brief Initializes the processor
-
-    Initializes the processor.
-
-    \param high_speed If TRUE, directs the processor to start in high_speed.
-         Otherwise the proocessor should start in low speed.
-
-    \return void
-*/
-void pal_init_processor(BOOL high_speed)
-{
-    if(high_speed)
-    {
-        pal_high_speed_mode();
-    }
-    else
-    {
-        pal_low_speed_mode();
-    }
-}
-
-
-//! @} PAL_pub_func
+//! @} PAL_EVAL_pub_func
 //!                     PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
 
 //==============================================================================
 //                      PRIVATE FUNCTION IMPLEMENTATION
-//! \defgroup PAL_pri_func
-//! \ingroup PAL
+//! \defgroup PAL_EVAL_pri_func
+//! \ingroup PAL_EVAL
 //! @{
 
-//! @} PAL_pri_func
+//! @} PAL_EVAL_pri_func
 //!                     PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
 
-
-//==============================================================================
-//                      PUBLIC FUNCTION IMPLEMENTATION
-//! \defgroup PAL_pub_func
-//! \ingroup PAL
-//! @{
-
-
-
-
-
-//! @} PAL_pub_func
-//                      PUBLIC FUNCTION IMPLEMENTATION END
-//==============================================================================
-
-
-//! @} PAL
+//! @} PAL_EVAL
 

@@ -8,7 +8,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,9 @@
     \brief ONE-NET Command Line Interface port specific constants.
 
     These are constants that are specific to each device that implements the
-    ONE-NET Command Line Interface.
-
+    ONE-NET Command Line Interface.  This file is only a base file and should
+    be copied to a port specific location and renamed to oncli_port_const.h.
+    
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
@@ -68,10 +69,20 @@ enum
     //! The maximum command string length, including the NULL termination
     //! (needs to be big enough to handle the longest command string in
     //! oncli_str.h).
-    ONCLI_MAX_INPUT_STR_LEN = 128,
+    ONCLI_MAX_INPUT_STR_LEN = 280,
     
     //! Max length for the output string, including byte for NULL termination
-    ONCLI_MAX_OUTPUT_STR_LEN = 128
+    ONCLI_MAX_OUTPUT_STR_LEN = 128,
+    
+    //! The size of buffers used to build error messages
+    ONCLI_ERR_MSG_SIZE = 64,
+
+    //! The maximum length (in bytes) block transaction that will be handled.
+    ONCLI_MAX_BLOCK_TXN_LEN = 128,
+    
+    //! Time in ticks from last character entered before determining the input
+    //! stream is idle. 1s
+    ONCLI_IDLE_INPUT_TIME = MS_TO_TICK(1000)
 };
 
 //! @} oncli_port_const_const

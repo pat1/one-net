@@ -3,6 +3,10 @@
 
 #include "config_options.h"
 
+#ifndef _R8C_TINY
+#include <stdint.h>
+#endif
+
 
 //! \defgroup ONE-NET_Types Type declarations for ONE-NET.
 //! \ingroup ONE-NET
@@ -67,14 +71,25 @@
 //! \ingroup ONE-NET_Types
 //! @{
 
+
+#ifdef _R8C_TINY
 typedef unsigned char   UInt8;
 typedef signed char     SInt8;
 typedef unsigned int    UInt16;
 typedef int             SInt16;
 typedef unsigned long   UInt32;
 typedef long            SInt32;
-typedef float           Float32;
+#else
+typedef uint8_t         UInt8;
+typedef int8_t          SInt8;
+typedef uint16_t        UInt16;
+typedef int16_t         SInt16;
+typedef uint32_t        UInt32;
+typedef int32_t         SInt32;
+#endif
 
+
+typedef float           Float32;
 typedef UInt32			tick_t;
 
 enum

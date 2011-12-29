@@ -1,12 +1,12 @@
 ;***************************************************************************
 ; C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
-; and Renesas Solutions Corporation. All rights reserved.
+; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
+; and Renesas Solutions Corp., All rights reserved.
 ;
 ; sect30.inc : section definition for R8C/Tiny
 ;
-; $Date: 2007/11/29 09:02:11 $
-; $Revision: 1.1.14.1 $
+; $Date: 2006/09/06 04:54:05 $
+; $Revision: 1.1 $
 ;***************************************************************************
 
 ;=====================================================================
@@ -50,12 +50,11 @@ bss_NO_top:
 ;---------------------------------------------------------------------
 ; Stack area
 ;---------------------------------------------------------------------
-		.section	istack,DATA,ALIGN
+		.section	stack,DATA,ALIGN
 		.blkb		__ISTACKSIZE__
 istack_top:
 
 .if __STACKSIZE__ != 0
-		.section	stack,DATA,ALIGN
 		.blkb		__STACKSIZE__
 stack_top:
 .endif
@@ -262,7 +261,7 @@ N_BCOPY .macro		FROM_,TO_,SECT_
 
 ;***************************************************************************
 ;	C Compiler for R8C/Tiny, M16C/60,30,20,10
-; Copyright (C) 1999 (2000 - 2010) Renesas Renesas Electronics Corporation.
-; and Renesas Solutions Corporation. All rights reserved.
+; Copyright(C) 1999(2000-2006). Renesas Technology Corp.
+; and Renesas Solutions Corp., All rights reserved.
 ;***************************************************************************
 

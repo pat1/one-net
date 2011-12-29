@@ -1,0 +1,29 @@
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\mac"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\utility"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\port_specific"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\app"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\src\eval"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\src\common"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\one_net\cli"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\src\eval\adi"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\transceivers\adi"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\common"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\common\string"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\..\..\applications\eval_boards"
+-I"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\..\..\src\r8c23"
+-c
+-finfo
+-dir "C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"
+-O5
+-OR -O5OA
+-OGJ
+-fD32
+-fNA
+-fNC
+-fNROM
+-fS16 -fP16
+-fSA
+-fUD
+-Wall
+-R8CE
+"C:\HEWProj\2_0_trunk\applications\eval_boards\master_eval.c"

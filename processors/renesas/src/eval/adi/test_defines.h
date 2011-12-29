@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,230 @@
 //! @{
 
 
+
+// Tests below check for any incompatible #define values.
+// TO-DO : Add more tests.  Some of this should probably go in the port_specific
+// directories.  You can always override any tests by placing a file called
+// test_defines.h earlier in the include path, which has the effect of over-riding
+// these tests.
+
+
+// First test the version.
+#ifdef _ONE_NET_VERSION_1_X
+	#ifdef _ONE_NET_VERSION_2_X
+		#error "ERROR : _ONE_NET_VERSION_1_X and _ONE_NET_VERSION_2_X are both defined. Exactly one should be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#elif !defined(_ONE_NET_VERSION_2_X)
+	#error "ERROR : Neither _ONE_NET_VERSION_1_X nor _ONE_NET_VERSION_2_X are defined. Exactly one should be defined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// Now make sure that either master or client is defined
+#if !defined(_ONE_NET_MASTER) && !defined(_ONE_NET_CLIENT)
+	#error "ERROR : Neither _ONE_NET_MASTER nor _ONE_NET_CLIENT are defined. At least one must be defined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// Test channels.  At least one locale must be defined.
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+	#error "ERROR : At least one locale must be defined.  Both _US_CHANNELS and _EUROPE_CHANNELS are currently undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// Now make sure that _ONE_NET_SIMPLE_DEVICE and related defines are properly defined
+#if defined(_ONE_NET_MULTI_HOP) || defined(_BLOCK_MESSAGES_ENABLED) || defined(_STREAM_MESSAGES_ENABLED)
+    #ifdef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : Either _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, or _STREAM_MESSAGES_ENABLED is defined.  Therefore _ONE_NET_SIMPLE_DEVICE should not be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#else
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+        #error "ERROR : _ONE_NET_MULTI_HOP, _BLOCK_MESSAGES_ENABLED, and _STREAM_MESSAGES_ENABLED are all undefined.  Therefore _ONE_NET_SIMPLE_DEVICE should be defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_DEVICE
+	#ifdef _ONE_NET_CLIENT
+		#ifndef _ONE_NET_SIMPLE_CLIENT
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_CLIENT are both defined.  Therefore _ONE_NET_SIMPLE_CLIENT should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+	#ifdef _ONE_NET_MASTER
+		#ifndef _ONE_NET_SIMPLE_MASTER
+			#error "ERROR: _ONE_NET_SIMPLE_DEVICE and _ONE_NET_MASTER are both defined.  Therefore _ONE_NET_SIMPLE_MASTER should be defined.  Please adjust the #define values in the config_options.h file."
+		#endif
+	#endif
+#else
+    #ifdef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+    #ifdef _ONE_NET_SIMPLE_MASTER
+		#error "ERROR: _ONE_NET_SIMPLE_DEVICE must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _ONE_NET_CLIENT
+		#error "ERROR: _ONE_NET_CLIENT must be defined if _ONE_NET_SIMPLE_CLIENT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#ifdef _ONE_NET_SIMPLE_MASTER
+    #ifndef _ONE_NET_MASTER
+		#error "ERROR: _ONE_NET_MASTER must be defined if _ONE_NET_SIMPLE_MASTER is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+
+// Check Enhanced Invite Option
+#if defined(_ENHANCED_INVITE) && !defined(_IDLE)
+	#error "ERROR : _IDLE must be defined if _ENHANCED_INVITE is defined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// Check polling option
+#if defined(_POLL) && !defined(_ONE_NET_VERSION_2_X)
+	#error "ERROR : _ONE_NET_VERSION_2_X is not defined and _POLL is defined.  Polling is only available in ONE-NET Version 2.0 and higher.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+// More multi-hop testing
+#ifdef _ONE_NET_MULTI_HOP
+	#ifndef _PEER
+        #error "ERROR : _PEER must be defined if _ONE_NET_MULTI_HOP is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#if defined(_ONE_NET_MH_CLIENT_REPEATER) && !defined(_ONE_NET_MULTI_HOP)
+    #error "Need to define _ONE_NET_MULTI_HOP if _ONE_NET_MH_CLIENT_REPEATER is defined!  Please adjust the #define values in the config_options.h file."
+#endif
+
+#if defined(_STREAM_MESSAGES_ENABLED) && !defined(_BLOCK_MESSAGES_ENABLED)
+	#error "_STREAM_MESSAGES_ENABLED cannot be defined unless _BLOCK_MESSAGES_ENABLED is also enabled.  Please adjust the values in the config_options.h file."
+#endif
+
+// 2/10/2010 - At the moment, Eval Boards without both master and client enabled should be considered unstable
+//             I am therefore disallowing this combination for now.  This is temporary.
+#ifdef _ONE_NET_EVAL
+    #if !defined(_ONE_NET_MASTER) || !defined(_ONE_NET_CLIENT)
+    	#error "Feb. 10, 2011 - Eval Boards without both the master and client enabled are currently unstable.  This is a temporary restriction.  Please make sure that both _ONE_NET_MASTER and _ONE_NET_CLIENT are defined in the config_options.h file."
+	#endif
+#endif
+
+
+// Block/Stream Tests
+
+// Right now it appears that either both Stream and Block should be enabled or neither should be enabled
+// I'm not positive this is true, but I'm going on that assumption for now.
+
+#if defined(_ONE_NET_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_STREAM_MESSAGES_ENABLED)
+    #error "ERROR : _ONE_NET_BLOCK_MESSAGES_ENABLED and _ONE_NET_STREAM_MESSAGES_ENABLED should either both be defined or both should be undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+#if !defined(_ONE_NET_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_STREAM_MESSAGES_ENABLED)
+    #error "ERROR : _ONE_NET_BLOCK_MESSAGES_ENABLED and _ONE_NET_STREAM_MESSAGES_ENABLED should either both be defined or both should be undefined.  Please adjust the #define values in the config_options.h file."
+#endif
+
+
+
+// I/O Board
+#ifdef _QUAD_OUTPUT
+	#ifdef _ONE_NET_MASTER
+		#error "ERROR : _QUAD_OUTPUT and _ONE_NET_MASTER should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifdef _DUAL_OUTPUT
+		#error "ERROR : _QUAD_OUTPUT and _DUAL_OUTPUT should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifdef _QUAD_INPUT
+		#error "ERROR : _QUAD_OUTPUT and _QUAD_INPUT should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifndef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _QUAD_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+#ifdef _DUAL_OUTPUT
+	#ifdef _ONE_NET_MASTER
+		#error "ERROR : _DUAL_OUTPUT and _ONE_NET_MASTER should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifdef _QUAD_INPUT
+		#error "ERROR : _DUAL_OUTPUT and _QUAD_INPUT should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifndef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _DUAL_OUTPUT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif	
+
+#ifdef _QUAD_INPUT
+	#ifdef _ONE_NET_MASTER
+		#error "ERROR : _QUAD_INPUT and _ONE_NET_MASTER should not both be defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+	#ifndef _ONE_NET_SIMPLE_CLIENT
+		#error "ERROR : _ONE_NET_SIMPLE_CLIENT must be defined if _QUAD_INPUT is defined.  Please adjust the #define values in the config_options.h file."
+	#endif
+#endif
+
+
+// test command compatibility
+
+
+#ifndef _ENABLE_SEND_SINGLE_COMMANDS
+	#ifdef _ENABLE_SINGLE_COMMAND
+		#error "ERROR : _ENABLE_SEND_SINGLE_COMMANDS must be defined if _ENABLE_SINGLE_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifdef _ENABLE_SINGLE_TEXT_COMMAND
+		#error "ERROR : _ENABLE_SEND_SINGLE_COMMANDS must be defined if _ENABLE_SINGLE_TEXT_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifdef _ENABLE_SINGLE_APP_COMMANDS
+		#error "ERROR : _ENABLE_SEND_SINGLE_COMMANDS must be defined if _ENABLE_SINGLE_APP_COMMANDS is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+
+#ifndef _PEER
+	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+		#error "ERROR : _PEER must be defined if _ENABLE_ASSIGN_PEER_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+		#error "ERROR : _PEER must be defined if _ENABLE_UNASSIGN_PEER_COMMAND is defined.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+
+// test queue levels
+#if _ACK_NACK_LEVEL >= 225
+    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+		#error "ERROR : _SINGLE_QUEUE_LEVEL must be defined as at least MED_SINGLE_QUEUE_LEVEL if _ACK_NACK_LEVEL is defined as >= 225.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _DATA_RATE
+        #error "ERROR : _DATA_RATE must be defined for all devices which are not simple clients(i.e. any devices where _ONE_NET_MASTER, _ONE_NET_MULTI_HOP, or _BLOCK_MESSAGES+_ENABLED is defined).  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+
+// Poll, Queue Level, and ACK-NACK level tests
+#ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef _POLL
+        error "_POLL must be defined for devices that are not simple clients.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+#ifdef _POLL
+    #if _ACK_NACK_LEVEL < 80
+        error "_ACK_NACK_LEVEL must have a value of at least 80 for devices that implement polling.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+#if _ACK_NACK_LEVEL == 255
+    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+        error "_SINGLE_QUEUE_LEVEL must have a value of at least MED_SINGLE_QUEUE_LEVEL for devices with the maximum _ACK_NACK_LEVEL of 255.  Please adjust the #define values in the config_options.h file."
+    #endif
+#endif
+
+
 //! @} one_net_test_defines_const
 //                                  CONSTANTS END
 //==============================================================================
@@ -55,29 +279,6 @@
 //                                  TYPEDEFS
 //! \defgroup one_net_test_defines_typedefs
 //! \ingroup one_net_test_defines
-
-
-// Dec. 16, 2011 -- testing defines.  This will change.  Some combinations are
-// unstable and so are disabled.  Not all bad combinatiions have been detected.
-#ifdef _BLOCK_MESSAGES_ENABLED
-    #error "Dec. 16, 2011 -- Block and stream are not currently available."
-#endif
-
-#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(_EXTENDED_SINGLE)
-    #error "_EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
-#endif
-
-#if defined(_ONE_NET_SIMPLE_CLIENT) || defined(_ONE_NET_SIMPLE_MASTER) || defined(_ONE_NET_SIMPLE_DEVICE)
-    #error "Dec. 16, 2011 -- Simple devices are not currently available."
-#endif
-
-#ifdef _ONE_NET_MASTER
-    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
-        #error "Dec. 16, 2011 -- Masters must have queue levels of at least MED_SINGLE_QUEUE_LEVEL."
-    #endif
-#endif
-
-
 //! @{
 
 //! @} one_net_test_defines_typedefs

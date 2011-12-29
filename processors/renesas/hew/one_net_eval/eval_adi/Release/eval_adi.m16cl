@@ -1,7 +1,0 @@
--L "nc30lib"
--G
--MS
--O "C:\HEWProj\2_dev\processors\renesas\hew\one_net_eval\eval_adi\Release\eval_adi.x30"
--R8CE
-"C:\HEWProj\2_dev\processors\renesas\hew\one_net_eval\eval_adi\Release\ncrt0.r30"
-"C:\HEWProj\2_dev\processors\renesas\hew\one_net_eval\eval_adi\Release\one_net_eval.r30"

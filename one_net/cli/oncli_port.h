@@ -7,7 +7,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -51,10 +51,14 @@
     ONE-NET protocol (MAC layer).
 */
 
-
 #include "config_options.h"
-#include "one_net_types.h"
+
+#ifdef _ENABLE_CLI
+
+#include "oncli_port_const.h"
 #include "one_net_application.h"
+
+#include "pal.h"
 
 
 //==============================================================================
@@ -73,27 +77,37 @@
 //! \ingroup oncli_port
 //! @{
 
+typedef enum
+{
+    ONCLI_INPUT_PIN = INPUT,        //!< Value when setting a pin as an input
+    ONCLI_OUTPUT_PIN = OUTPUT,      //!< Value when setting a pin as an output
+    ONCLI_DISABLE_PIN = 2           //!< Indicates the pin is not being used
+} oncli_pin_t;
+
 
 //! Return codes for oncli handler functions
 typedef enum
 {
     ONCLI_SUCCESS,                  //!< The command was handled successfully
+
     ONCLI_BAD_PARAM,                //!< A param passed to the hdlr was invalid
     ONCLI_INTERNAL_ERR,             //!< An internal error occured
+
     ONCLI_ALREADY_IN_PROGRESS,      //!< The action is already in progress
     ONCLI_RSRC_UNAVAILABLE,         //!< The resource is unavailable
     ONCLI_UNSUPPORTED,              //!< If a request is not supported
+
     ONCLI_INVALID_CMD,              //!< The command is invalid
     ONCLI_CMD_FAIL,                 //!< If the command was not successful
     ONCLI_INVALID_DST,              //!< The destination did.unit is invalid
     ONCLI_NOT_JOINED,               //!< The device needs to join a network.
+	#ifdef _AUTO_MODE
+    	ONCLI_INVALID_CMD_FOR_MODE,     //!< cmd is unavailable in the current mode
+	#endif
+    ONCLI_INVALID_CMD_FOR_NODE,     //!< cmd is unavailable for current node
     ONCLI_PARSE_ERR,                //!< The cli data is not formatted properly
     ONCLI_SNGH_INTERNAL_ERR,        //!< Encountered a "Should Not Get Here" error.
-    ONCLI_ONS_NOT_INIT_ERR,         //!< Encountered a ONS_NOT_INIT return code from ONE-NET.
-    ONCLI_INVALID_CMD_FOR_MODE,     //!< Command is not allowed in the current mode of operation
-    ONCLI_INVALID_CMD_FOR_NODE,     //!< Command is invalid for this device type.  Generally
-                                    //!< this is a master versus client type of thing.
-    ONCLI_BAD_KEY_FRAGMENT          //!< Key fragment is invalid or is already part of the key
+    ONCLI_ONS_NOT_INIT_ERR          //!< Encountered a ONS_NOT_INIT return code from ONE-NET.
 } oncli_status_t;
 
 
@@ -103,7 +117,6 @@ typedef enum
     ONCLI_QUIET,                    //!< quiet mode
     ONCLI_VERBOSE                   //!< verbose mode
 } oncli_verbose_t;
-
 
 //! @} oncli_port_typedefs
 //								TYPEDEFS END
@@ -125,28 +138,377 @@ typedef enum
 //! \ingroup oncli_port
 //! @{
 
-
 /*!
-    \brief Sets the verbosity level.
+    \brief Returns the function to use to send a single data packet.
     
-    \param[in] VERBOSITY The verbosity level (see oncli_verbose_t).
-    
-    \return ONCLI_SUCCESS if the action was successful
-            ONCLI_BAD_PARAM if the parameter was invalid
-            ONCLI_INVALID_CMD_FOR_NODE if the command is not valid for the node
-              type
-*/
-oncli_status_t oncli_set_verbosity(const UInt8 VERBOSITY);
-
-
-/*!
-    \brief Outputs the prompt
+    This function is application specific and will need to be implemented in
+    the application layer.
     
     \param void
     
-    \return void
+    \return The function to use to send a single data packet, or 0 if a single
+      data packet should not be sent.
 */
-void oncli_print_prompt(void);
+one_net_send_single_func_t oncli_get_send_single_txn_func(void);
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Queues a block data request and saves the data to be sent.
+    
+    Sets the block data passed in from the command line so the application can
+    return it during calls to get_next_payload.
+
+    \param[in] SEND TRUE if this device is going to send the data.
+                    FALSE if this device is going to receive the data
+    \param[in] DATA_TYPE The type of block data to be transferred.
+    \param[in] PRIORITY The priority of the block transaction.
+    \param[in] DID The other device involved in the transaction.
+    \param[in] SRC_UNIT The unit originating the request.
+    \param[in] DATA The data to set.
+    \param[in] LEN The size of DATA in bytes.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
+              because the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_q_block_request(BOOL SEND, UInt8 DATA_TYPE,
+  UInt8 PRIORITY, const one_net_raw_did_t *DID,
+  UInt8 SRC_UNIT, UInt8 DST_UNIT, const UInt8 * DATA, UInt16 LEN);
+#endif
+
+
+/*!
+    \brief Invites a CLIENT to join the network.
+    
+    This function is only valid if the device is in MASTER mode.
+    
+    \param[in] KEY The unique key of the device being added to the network.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_invite(const one_net_xtea_key_t *KEY);
+
+
+/*!
+    \brief Cancels an invite request.
+    
+    This command is only valid if the device is in MASTER mode.
+    
+    \return ONCLI_SUCCESS If the invite was canceled
+            ONCLI_INTERNAL_ERR If something unexpected occured
+            ONCLI_INVALID_CMD_FOR_NODE if the command is not valid for the node type
+*/
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+oncli_status_t oncli_cancel_invite(void);
+#endif
+
+
+/*!
+    \brief Assigns a peer device.
+    
+    This command is only valid if the device is in MASTER mode.
+
+    \param[in] SRC_DID The device being assigned the peer.
+    \param[in] SRC_UNIT The unit on the device being assigned the peer.
+    \param[in] PEER_DID The peer device being assigned.
+    \param[in] PEER_UNIT The unit on the peer device being assigned.
+
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_assign_peer(const one_net_raw_did_t* const SRC_DID,
+  UInt8 SRC_UNIT, const one_net_raw_did_t* const PEER_DID,
+  UInt8 PEER_UNIT);
+
+/*!
+    \brief Unassigns a peer device.
+    
+    This command is only valid if the device is in MASTER mode.
+
+    \param[in] PEER_DID The peer device being unassigned.
+    \param[in] PEER_UNIT The unit on the peer device being unassigned.
+    \param[in] SRC_DID The device being unassigned the peer.
+    \param[in] SRC_UNIT The unit on the device being unassigned the peer.
+
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_unassign_peer(const one_net_raw_did_t *PEER_DID,
+  UInt8 PEER_UNIT, const one_net_raw_did_t *SRC_DID,
+  UInt8 SRC_UNIT);
+
+
+/*!
+    \brief Sets (or clears) the update MASTER flag for a given device.
+    
+    This command is valid only when the device is in MASTER mode.
+    
+    \param[in] SET TRUE to set the flag.
+                   FALSE to clear the flag
+    \param[in] DST The device to update.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_set_update_master_flag(BOOL SET,
+  const one_net_raw_did_t *DST);
+
+
+/*!
+    \brief Changes the keep alive interval for a given CLIENT
+    
+    This command is valid only when the device is in MASTER mode.
+    
+    \param[in] KEEP_ALIVE The interval to set (in ms)
+    \param[in] DST The device to update.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_change_keep_alive(UInt32 KEEP_ALIVE,
+  const one_net_raw_did_t *DST);
+
+
+#if defined(_ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND) && defined(_BLOCK_MESSAGES_ENABLED)
+/*!
+    \brief Sets the fragment delay at a given priority for a device.
+    
+    This command is only valid in MASTER mode.
+    
+    \param[in] DID The device whose fragment delay is being updated.
+    \param[in] PRIORITY The priority of the fragment delay that is being updated
+    \param[in] DLY The new fragment delay (in ms).
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_change_frag_dly(const one_net_raw_did_t *DID,
+  UInt8 PRIORITY, UInt32 DLY);
+#endif
+
+
+/*!
+    \brief Changes the key.
+    
+    This command is only valid if the device is in MASTER mode
+    
+    \param[in] FRAGMENT The new key fragment to append to the old key.
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_change_key(
+  const one_net_xtea_key_fragment_t *FRAGMENT);
+
+
+/*!
+    \brief Sent to a device to remove it from the network.
+    
+    This command is valid only when the device is in MASTER mode.
+    
+    \param[in] DST The device being removed
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_remove_device(const one_net_raw_did_t *DST);
+
+
+/*!
+    \brief Starts a data rate test between two devices.
+    
+    This command is valid only when the device is in MASTER mode.
+    
+    \param[in] SENDER The sending device of the data rate test.
+    \param[in] RECEIVER The receiving device of the data rate test.
+    \param[in] DATA_RATE The data rate being tested (see data_rate_t for values)
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+*/
+oncli_status_t oncli_start_data_rate_test(
+  const one_net_raw_did_t *SENDER,
+  const one_net_raw_did_t *RECEIVER, UInt8 DATA_RATE);
+
+
+/*!
+    \brief Prints the channel the MASTER is on.
+    
+    If the MASTER has not yet chosen a channel, prints "Channel not selected."
+    
+    \param[in] prompt_flag If TRUE print a prompt, otherwise don't.
+    
+    \return ONCLI_SUCCESS If the message was successfully output.
+            ONCLI_INVALID_CMD_FOR_DEVICE if the command is not valid for the
+              current mode of the device.
+*/
+oncli_status_t oncli_print_channel(BOOL prompt_flag);
+
+
+/*!
+    \brief Prints the invite code.
+    
+    
+    \param[in] prompt_flag If TRUE print a prompt, otherwise don't.
+    
+    \return ONCLI_SUCCESS If the message was successfully output.
+            ONCLI_INVALID_CMD_FOR_DEVICE if the command is not valid for the
+              current mode of the device.
+*/
+oncli_status_t oncli_print_invite(BOOL prompt_flag);
+
+
+/*!
+    \brief Prints the NID.
+    
+    
+    \param[in] prompt_flag If TRUE print a prompt, otherwise don't.
+    
+    \return ONCLI_SUCCESS If the message was successfully output.
+            ONCLI_INVALID_CMD_FOR_DEVICE if the command is not valid for the
+              current mode of the device.
+*/
+oncli_status_t oncli_print_nid(BOOL prompt_flag);
+
+
+/*!
+    \brief Changes a user pin function.
+    
+    This command is only valid if the device is in CLIENT mode.
+    
+    \param[in] PIN The user pin number (between 1 & 255) to change.
+    \param[in] PIN_TYPE The functionality for the pin.  See direction_t for
+      values.
+    
+    \return ONCLI_SUCCESS if the command was successful
+            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
+            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
+              current mode of the device.
+            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out because
+              the resource is full or doesn't exist.
+            ONCLI_CMD_FAILED If the command failed.
+*/
+oncli_status_t oncli_set_user_pin_type(const UInt8 PIN, const UInt8 PIN_TYPE);
+
+
+/*!
+    \brief Resets the device to CLIENT mode.
+    
+    When the device is reset to CLIENT mode, it is not part of the network, and
+    will need to be added to a network using it's unique key.
+    
+    \param void
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_INTERNAL_ERR If something unexpected occured
+            ONCLI_INVALID_CMD_FOR_MODE If the command is not valid in the
+              given mode
+*/
+oncli_status_t oncli_reset_client(void);
+
+
+
+/*!
+    \brief Resets the device to MASTER mode.
+    
+    When the device is reset to MASTER mode, the network is empty and CLIENT
+    will need to be added to the network using their unique key.
+    
+    \return ONCLI_SUCCESS If reseting to MASTER mode was successful
+            ONCLI_BAD_PARAM If any of the parameters were invalid
+            ONCLI_CMD_FAIL If the command failed
+            See set_device_t for more return values.
+*/
+oncli_status_t oncli_reset_master(void);
+
+
+/*!
+    \brief Resets the device to MASTER mode on the given channel.
+    
+    When the device is reset to MASTER mode, the network is empty and CLIENT
+    will need to be added to the network using their unique key.
+    
+    \param[in] SID The system ID to use.  If this value is NULL, a SID is
+      chosen for the caller.
+    \param[in] CHANNEL The channel for the MASTER to run on.
+    
+    \return ONCLI_SUCCESS If reseting to MASTER mode was successful
+            ONCLI_BAD_PARAM If any of the parameters were invalid
+            See set_device_t for more return values.
+*/
+oncli_status_t oncli_reset_master_with_channel(
+  const one_net_raw_sid_t *SID, UInt8 CHANNEL);
 
 
 /*!
@@ -165,83 +527,77 @@ void oncli_print_prompt(void);
 
 
 /*!
-    \brief Changes a user pin function.
+    \brief Sets the verbosity level.
     
-    \param[in] pin The user pin number (between 1 & 255) to change.
-    \param[in] pin_type The functionality for the pin.  Input, output, or
-      disable -- see on_pin_state_t for options
+    \param[in] VERBOSITY The verbosity level (see oncli_verbose_t).
     
-    \return ONCLI_SUCCESS if the command was successful
-            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
-            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
-              current mode of the device.
-            ONCLI_CMD_FAIL If the command failed.
+    \return ONCLI_SUCCESS if the action was successful
+            ONCLI_BAD_PARAM if the parameter was invalid
+            ONCLI_INVALID_CMD_FOR_NODE if the command is not valid for the node
+              type
 */
-oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
+oncli_status_t oncli_set_verbosity(const UInt8 VERBOSITY);
 
 
 /*!
-      \brief Print the current configuration of the user pins.
- 
-      For each user pin, print the pin number and whether it is 
-      configured as an input, an output, or disabled.
-
-      \return void
-*/
-void oncli_print_user_pin_cfg(void);
-
-#if _DEBUG_VERBOSE_LEVEL > 0
-
-#if _DEBUG_VERBOSE_LEVEL > 1
-/*!
-    \brief Displays a DID in verbose fashion.
-
-    \param[in] description The description to prepend in front of the DID
-    \param[in] enc_did The encioded DID to display.
+    \brief Returns the devices current raw SID.
     
-    \return void
+    \param void
+    
+    \return The devices current SID
 */
-void debug_display_did(const char* const description,
-  const on_encoded_did_t* const enc_did);
+const one_net_raw_sid_t * oncli_get_sid(void);
 
 
 /*!
-    \brief Displays an NID in verbose fashion.
+    \brief Returns the string representation of the node type the device is
+      currently set to.
 
-    \param[in] description The description to prepend in front of the NID
-    \param[in] enc_nid The encioded NID to display.
+    \param void
     
-    \return void
+    \return The string representing the node type.  0 if an error occured.
 */
-void debug_display_nid(const char* const description,
-  const on_encoded_nid_t* const enc_nid);
+const char * oncli_node_type_str(void);
+
+
+/*!
+    \brief Returns the string representation of the mode type the device
+      is currently operating at.
+
+    \param void
+
+    \return The string representing the mode type.  0 if an error occured.
+*/
+#ifdef _AUTO_MODE
+	const char * oncli_mode_type_str(void);
 #endif
 
 
-/*!
-    \brief Parses and displays a packet
 
-    \param[in] packet_bytes The bytes that make up the packet.
-    \param[in] num_bytes The number of bytes in the packet.
-    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
-                 NULL and set num_keys to 0.
-    \param[in] num_enc_keys the number of block / single keys to check.
-    \param[in] invite_keys the invite keys to check.  If not relevant, set to
-                 NULL and set num_invite_keys to 0.
-    \param[in] num_invite_keys the number of invite keys to check.
+/*!
+    \brief Outputs the prompt
+    
+    \param void
     
     \return void
 */
-#if _DEBUG_VERBOSE_LEVEL < 3
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
-#else
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
-  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
-  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys);
-#endif
+void oncli_print_prompt(void);
 
-#endif
 
+/*!
+ *     \brief Print the current configuration of the user pins.
+ *
+ *     For easc user pin, print the pin number and whether it is 
+ *     configured as an input, an output, or disabled.
+ *     \param 
+ *     \return 
+ */
+oncli_print_user_pin_cfg(void);
+
+// TODO: RWM: add function comment
+#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
+oncli_status_t oncli_print_master_peer(BOOL prompt_flag);
+#endif
 
 
 //! @} oncli_port_pub_func
@@ -250,5 +606,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 
 //! @} oncli_port
 
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_PORT_H //
+

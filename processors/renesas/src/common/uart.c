@@ -44,10 +44,14 @@
 
 #include "config_options.h"
 
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
+
+
 #include "uart.h"
-#include "sfr_r823.h"
+
 #include "cb.h"
-#include "one_net_port_const.h"
 
 
 //==============================================================================
@@ -79,11 +83,18 @@ const char HEX_DIGIT[] = "0123456789ABCDEF";
 //! @{
 
 //! uart receive buffer
+#ifndef _SNIFFER_FRONT_END
 static UInt8 uart_rx_buf[UART_RX_BUF_SIZE];
+#else
+static UInt8 uart_rx_buf[10];
+#endif
 
 //! uart transmit buffer
+#ifndef _SNIFFER_FRONT_END
 static UInt8 uart_tx_buf[UART_TX_BUF_SIZE];
-
+#else
+static UInt8 uart_tx_buf[1];
+#endif
 
 //! uart receive circular buffer
 cb_rec_t uart_rx_cb = {0, 0, sizeof(uart_rx_buf) - 1, 0x00, uart_rx_buf};
@@ -141,7 +152,7 @@ cb_rec_t uart_tx_cb = {0, 0, sizeof(uart_tx_buf) - 1, 0x00, uart_tx_buf};
 /*!
     \brief Initialize the Renesas serial port.
 
-    Port direction initialization is handled by uart_init_ports. This function
+    Port direction initialization is handled by init_ports_uart. This function
     sets the baud rate, stop bits, data bits, and parity.
 
     \param[in] BAUD_RATE The baud rate to set the port to.  This should be on of
@@ -278,44 +289,33 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
 {
     UInt16 bytes_written = 0;
     UInt16 i;
-    UInt8 byte;
-    char* end_of_line = "\r\n";   
-    
-    #ifdef _BLOCKING_UART
-    // add 15 for a little bit of a buffer
-    while(cb_bytes_free(&uart_tx_cb) < (LEN + 15))
-    {
-    }
-    #endif
-    
-    for (i = 0; i < LEN; i++) 
-    {
-        if (DATA[i]== '\r') 
-        {
-            continue;
-        }
-        else if (DATA[i]== '\n') 
-        {
-            // silently send a newline
-            if(cb_enqueue(&uart_tx_cb, end_of_line, 2) != 2)
-            {
+    UInt8 temp;
+    for (i = 0; i < LEN; i++) {
+        temp = DATA[i];
+        if (DATA[i]== '\n') { // silently send a carriage return
+            temp = cb_putqueue(&uart_tx_cb, '\r');
+            if (!temp) { // can't send it; we are done
                 break;
             }
-            bytes_written += 2;
         }
-        else
-        {
-            if(cb_enqueue(&uart_tx_cb, &DATA[i], 1) != 1)
-            {
+        else if (DATA[i]== '\r') { // silently send a newline
+            temp = cb_putqueue(&uart_tx_cb, '\n');
+            if (!temp) { // can't send it; we are done
                 break;
             }
-            ++bytes_written;
         }
+        cb_putqueue(&uart_tx_cb, DATA[i]);
+        if (!temp) {
+            break;
+        }
+        ++bytes_written;
     }
     
     if(TX_BUFFER_EMPTY())
     {
-        if(cb_dequeue(&uart_tx_cb, &byte, 1) == 1)
+        UInt8 byte;
+
+        if(cb_getqueue(&uart_tx_cb, &byte))
         {
             ENABLE_TX_INTR();
             u0tbl = byte;
@@ -338,32 +338,6 @@ void uart_write_int8_hex(const UInt8 DATA)
     cb_putqueue(&uart_tx_cb, (HEX_DIGIT[(DATA >> 4) & 0x0F]));
     cb_putqueue(&uart_tx_cb, (HEX_DIGIT[DATA & 0x0F]));
 } // uart_write_int8_hex //
-
-
-/*!
-    \brief Write an array of bytes in hex format out of the serial port
-    
-    \param[in] DATA The byte to be written in hex
-    \param[in] separate If TRUE, add a space between each byte
-    \param[in] len The number of bytes to write
-    
-    \return void
-*/
-void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
-{
-    UInt8 i;
-    for(i = 0; i < len; i++)
-    {
-        if(separate && i > 0)
-        {
-            cb_putqueue(&uart_tx_cb, ' ');
-        }
-        uart_write_int8_hex(DATA[i]);
-    }
-} // uart_write_int8_hex_array //
-
-
-
 
 //! @} uart_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
@@ -388,6 +362,7 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
 #pragma interrupt uart_tx_isr
 void uart_tx_isr( void )
 {
+#ifndef _SNIFFER_FRONT_END
     UInt8 byte;
 
     // if there was a TX interrupt and the cb is not empty, get a byte
@@ -411,6 +386,7 @@ void uart_tx_isr( void )
 
     // clear interrupt flag
     ir_s0tic = 0;
+#endif
 } // uart_transmit_isr //
 
 

@@ -54,6 +54,12 @@
 //! \ingroup uart_hal
 //! @{
 
+enum
+{
+    UART_RX_BUF_SIZE = 32,          //!< Size of the uart receive buffer
+    UART_TX_BUF_SIZE = 200          //!< Size of the uart transmit buffer
+};
+
 
 enum
 {

@@ -8,54 +8,26 @@
     This is the application that runs on the ONE-NET evaluation boards.
 */
 
-
-
 #include "config_options.h"
-#include "oncli_port.h"
-#include "one_net_encode.h"
-#include "one_net_port_specific.h"
-#include "tick.h"
-#include "pal.h"
-#include "hal.h"
-#include "tal.h"
-#include "nv_hal.h"
-#include "uart.h"
-#include "io_port_mapping.h"
-#include "oncli.h"
-#include "one_net_constants.h"
-#include "one_net_xtea.h"
-#include "oncli_str.h"
-#include "one_net.h"
+
 #include "one_net_eval.h"
-#include "one_net_prand.h"
-#ifdef _HAS_LEDS
-    #include "one_net_led.h"
-#endif
+#include "one_net_peer.h"
+#include "oncli.h"
+#include "oncli_port.h"
+#include "oncli_str.h"
+#include "one_net_application.h"
+#include "one_net_client.h"
+#include "one_net_encode.h"
+#include "one_net_eval_hal.h"
+#include "one_net_master.h"
+#include "one_net_port_specific.h"
+#include "one_net_timer.h"
+#include "pal.h"
+#include "tal.h"
+#include "uart.h"
+#include "dfi.h"
 
-
-#include "one_net_crc.h" // for displaying packets
-#ifdef _ONE_NET_MASTER
-#include "one_net_master.h" // for keys
-#endif
-
-
-#ifdef _ONE_NET_CLIENT
-    #include "one_net_client_port_specific.h"
-#endif
-
-
-
-//=============================================================================
-//                                  TYPEDEFS
-//! \defgroup ONE-NET_eval_typedefs
-//! \ingroup ONE-NET_eval
-//! @{
-
-
-
-//! @} ONE-NET_eval_typedefs
-//                                  TYPEDEFS END
-//=============================================================================
+#pragma section program program_high_rom
 
 
 //=============================================================================
@@ -64,76 +36,93 @@
 //! \ingroup ONE-NET_eval
 //! @{
 
+//! The default keep alive interval (in ticks).
+#define DEFAULT_KEEP_ALIVE_INTERVAL 300000
+
+#ifdef _SNIFFER_FRONT_END
+    void look_for_all_packets(void);
+#endif
+
+// used by oncli_print_nid, defined in uart.c
+extern const char HEX_DIGIT[];
+
+enum
+{
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    //! The maximum size of a block transaction (in bytes) for the eval.
+    EVAL_MAX_BLOCK_LEN = ONCLI_MAX_BLOCK_TXN_LEN,
+	#endif
+    
+    //! The time in ticks to leave the LEDs on. 50ms
+    EVAL_LED_ON_TIME = MS_TO_TICK(50)
+};
+
+//! ONE-NET initialization constants
+enum
+{
+    //! The evaluation channel
+    EVAL_CHANNEL = 2,
+
+    //! The evaulation data rate.  The MASTER must remain at 38400
+    DATA_RATE = ONE_NET_DATA_RATE_38_4,
+
+    //! The encryption method to use during the evaluation for single and
+    //! block packets.
+    EVAL_SINGLE_BLOCK_ENCRYPTION = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
+    
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    //! The encryption method to use during the evaluation for stream packets
+    EVAL_STREAM_ENCRYPTION = ONE_NET_STREAM_ENCRYPT_XTEA8,
+    
+    //! The low priority fragment delay to use in the evaluation
+    EVAL_LOW_PRIORITY_FRAG_DLY = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY,
+    
+    //! The high priority fragment delay to use in the evaluation
+    EVAL_HIGH_PRIORITY_FRAG_DLY = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY
+	#endif
+};
 
 
 #ifdef _AUTO_MODE
-//! The raw CLIENT DIDs for auto mode
-const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
-{
-    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
-};
-
-//! The encoded CLIENT DIDs for auto mode
-const on_encoded_did_t ENC_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
-{
-    {0xB4, 0xB3}, {0xB4, 0xBA}, {0xB4, 0xB5}
-};
+	//! The raw CLIENT DIDs for auto mode
+	static const one_net_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
+	{
+	    {0x00, 0x20}, {0x00, 0x30}, {0x00, 0x40}
+	};
 #endif
 
-
-#ifdef _AUTO_MODE
-//! The default keep alive for Eval Boards
-const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS = 1800000; // TODO -- replace
-                           // with ONE_NET_MASTER_DEFAULT_KEEP_ALIVE?
-#endif
-
-//! The key used in the evaluation network
+//! The key used in the evaluation network ("protected")
 const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
   0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! The key to use for stream transactions in the eval network ("protected")
+const one_net_xtea_key_t EVAL_STREAM_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
+  0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+#endif
 
 //! Default invite key to use if no manufacturing data (SID and invite key) segment
 //! is found in data flash.
 const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
                                      '2', '2', '2', '2',   '2', '2', '2', '2'};
-                                     
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
-//! Default NID to use if no NID is found in the manufacturing data segment
-//! of data flash.
-const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
 
-//! Default SID to use if no NID is found in the manufacturing data segment
-//! of data flash.
-const on_raw_sid_t DEFAULT_RAW_SID = {0x00, 0x00, 0x00, 0x00, 0x10, 0x01};
-#endif
-
-
-//! Master prompt
-static const char* const master_prompt = "-m";
-
-//! Client prompt
-static const char* const client_prompt = "-c";
-
-#ifdef _AUTO_MODE
-//! Auto Client prompts
-static const char* const auto_client_prompts[] = {"-c1", "-c2", "-c3"};
-#endif
-
-#ifdef _SNIFFER_MODE
-//! Sniffer prompt
-static const char* const sniffer_prompt = "-s";
-#endif
-
-
-#if _DEBUG_VERBOSE_LEVEL > 0
-extern const char HEX_DIGIT[]; // for displaying packets
-#endif
-
+//! Default SID to use if no manufacturing data (SID and invite key) segment
+//! is found in data flash.
+const UInt8 DEFAULT_RAW_SID[] =        { 0x00, 0x00, 0x00, 0x00, 0x10, 0x01 };
 
 //! @} ONE-NET_eval_const
 //                                  CONSTANTS END
 //=============================================================================
 
+//=============================================================================
+//                                  TYPEDEFS
+//! \defgroup ONE-NET_eval_typedefs
+//! \ingroup ONE-NET_eval
+//! @{
 
+//! @} ONE-NET_eval_typedefs
+//                                  TYPEDEFS END
+//=============================================================================
 
 //==============================================================================
 //                              PUBLIC VARIABLES
@@ -141,35 +130,8 @@ extern const char HEX_DIGIT[]; // for displaying packets
 //! \ingroup ONE-NET_eval
 //! @{
 
-
-#ifdef _AUTO_MODE
-//! True if in Auto Mode
-BOOL in_auto_mode = FALSE;
-
-//! If in auto mode and a client, the index number of the client
-UInt8 auto_client_index;
-#endif
-
-//! the pins on the eval board.
-user_pin_t user_pin[NUM_USER_PINS];
-
-#ifdef _SNIFFER_MODE
-//! True if in Sniffer Mode
-BOOL in_sniffer_mode = FALSE;
-#endif
-
-//! Pointer to the device dependent (MASTER, CLIENT, SNIFF) function that
-//! should be called in the main loop
-void(*node_loop_func)(void) = 0;
-
-
-//! The state of handling the user pins the device is in
-UInt8 user_pin_state;
-
-//! The source unit of the user pin that has changed
-UInt8 user_pin_src_unit;
-
-
+//! The base parameters for the device.  From one_net.c
+extern on_base_param_t * on_base_param;
 	
 //! @} ONE-NET_eval_pub_var
 //                              PUBLIC VARIABLES END
@@ -181,8 +143,42 @@ UInt8 user_pin_src_unit;
 //! \defgroup ONE-NET_eval_pri_var
 //! \ingroup ONE-NET_eval
 //! @{
-  
 
+// this doesn't seem to be stored anywhere and we need a variable that stores
+// the raw sid for us (we need it for the get_sid() function)
+// TO-DO : This is a kludge, so redesign it to make more sense and does not waste space.
+static eval_sid_t sid_info;
+
+
+//! The status of the user pins.  These are considered "protected" and are
+//! shared with master_eval & client_eval.
+user_pin_t user_pin[NUM_USER_PINS];
+
+//! The index of the sid to use in the evaluation network.
+static UInt8 eval_sid_idx = 0;
+
+#ifdef _AUTO_MODE
+	//! The value the mode switch is set to
+	static UInt8 mode_value;
+#endif
+
+//! The node type the device is operating at
+static UInt8 node_type;
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! Buffer to store the data for the entire block transaction
+static UInt8 block_data_array[EVAL_MAX_BLOCK_LEN];
+#endif
+
+//! Pointer to the device dependent (MASTER, CLIENT, SNIFF) function that
+//! should be called in the main loop
+static void(*node_loop_func)(void) = 0;
+
+#ifdef _ENABLE_CLIENT_PING_RESPONSE
+    UInt8 client_send_ping_response = FALSE;
+    const UInt8 CLIENT_PING_REQUEST[2] = { 'p', 'i' };
+    const UInt8 CLIENT_PING_REPONSE[2] = { 'n', 'g' };
+#endif
 
 //! @} ONE-NET_eval_pri_var
 //                              PRIVATE VARIABLES END
@@ -194,16 +190,38 @@ UInt8 user_pin_src_unit;
 //! \ingroup ONE-NET_eval
 //! @{
 
+// forward declare functions
+void init_processor(void);
+void init_ports(void);
+void tal_init_ports(void);
+void init_tick_timer(void);
+void init_rf_interrupts(void);
+void tal_init_transceiver(void);
 
+void init_serial_master(void);
+#ifdef _AUTO_MODE
+    void init_auto_master(void);
+	void init_auto_client(node_select_t CLIENT);
+#endif
 
-static const char* get_prompt_string(void);
-static void eval_set_modes_from_switch_positions(void);
+void master_eval(void);
+void client_eval(void);
 
+#ifdef _SNIFFER_MODE
+	void sniff_eval(void);
+#endif
 
+// "protected" functions
+oncli_status_t set_device_type(UInt8 device_type);
+BOOL get_raw_master_did(one_net_raw_did_t *did);
+
+void disable_user_pins(void);
+BOOL get_user_pin_type(UInt8 * user_pin_type, UInt8 NUM_PINS);
+
+static void print_data_packet(const UInt8 *txn_str, const UInt8 *RX_PLD,
+  UInt16 len, const one_net_raw_did_t *src_addr);
 static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
-  UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR);
-
-
+  UInt16 TXT_LEN, const one_net_raw_did_t *SRC_ADDR);
 
 //! @} ONE-NET_eval_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
@@ -215,413 +233,1665 @@ static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
 //! \ingroup ONE-NET_eval
 //! @{
 
+/*!
+    \brief Returns the node type of the device.
+    
+    \param void
+    
+    \return The node type of the device (see node_select_t)
+*/
+UInt8 device_type(void)
+{
+    return node_type;
+} // device_type //
 
 
 /*!
-    \brief Checks to see if the state of any of the user pins changed
+    \brief Returns the mode (auto or serial)
+    
+    \param void
+    
+    \return The mode the device is operating at (see mode_select_t)
+*/
+#ifdef _AUTO_MODE
+	UInt8 mode_type(void)
+	{
+	    return mode_value;
+	} // mode_type //
+#endif
+
+/*!
+    \brief Turns on the transmit LED
     
     \param void
     
     \return void
 */
-void check_user_pins(void)
+void turn_on_tx_led(void)
 {
-    if(user_pin[0].pin_type == ON_INPUT_PIN
-      && USER_PIN0 != user_pin[0].old_state)
+    TURN_ON(TX_LED);
+    ont_set_timer(TX_LED_TIMER, EVAL_LED_ON_TIME);
+} // turn_on_tx_led //
+
+
+/*!
+    \brief Turns on the receive LED
+    
+    \param void
+    
+    \return void
+*/
+void turn_on_rx_led(void)
+{
+    TURN_ON(RX_LED);
+    ont_set_timer(RX_LED_TIMER, EVAL_LED_ON_TIME);
+} // turn_on_rx_led //
+
+
+/*!
+    \brief Compares LEN bytes of memory
+    
+    \param[in] LHS The left hand side of the comparison
+    \param[in] RHS The right hand side of the comparison
+    \param[in] LEN The number of bytes to compare
+    
+    \return TRUE if the dids match
+            FALSE otherwise
+*/
+BOOL mem_equal(const UInt8 *LHS, const UInt8 *RHS, UInt16 LEN)
+{
+    UInt16 i;
+    
+    for(i = 0;  i < LEN; i++)
     {
-        user_pin_state = SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 0;
-        user_pin[0].old_state = USER_PIN0;
-    } // if the user0 pin has been toggled //
-    else if(user_pin[1].pin_type == ON_INPUT_PIN
-      && USER_PIN1 != user_pin[1].old_state)
+        if(LHS[i] != RHS[i])
+        {
+            return FALSE;
+        } // if the bytes are not equal //
+    } // loop to compare bytes //
+
+    return TRUE;
+} // mem_equal //
+
+
+/*!
+    \brief Returns the encoded NID to use for the evaluation network.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param[out] nid Returns the encoded NID to use in the evaluation network.
+    
+    \return TRUE if the operation was successful.
+            FALSE if the nid was not returned.
+*/
+BOOL get_eval_encoded_nid(on_encoded_nid_t *nid)
+{
+    one_net_raw_sid_t * ptr_raw_sid;
+    on_encoded_nid_t encoded_nid;
+
+    if(!nid)
     {
-        user_pin_state = SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 1;
-        user_pin[1].old_state = USER_PIN1;
-    } // if the user1 pin has been toggled //
-    else if(user_pin[2].pin_type == ON_INPUT_PIN
-      && USER_PIN2 != user_pin[2].old_state)
+        return FALSE;
+    } // if the parameter is invalid //
+
+    // get the current raw sid
+#ifdef _AUTO_MODE
+    if (mode_value == SERIAL_MODE)
     {
-        user_pin_state = SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 2;
-        user_pin[2].old_state = USER_PIN2;
-    } // if the user2 pin has been toggled //
-    else if(user_pin[3].pin_type == ON_INPUT_PIN
-      && USER_PIN3 != user_pin[3].old_state)
+        //
+        // for serial mode, get a board specific NID
+        //
+        ptr_raw_sid = get_raw_sid();
+    }
+
+    else
     {
-        user_pin_state = SEND_USER_PIN_INPUT;
-        user_pin_src_unit = 3;
-        user_pin[3].old_state = USER_PIN3;
-    } // if the user3 pin has been toggled //
-} // check_user_pins //
+        //
+        // for auto mode, get a fixed NID
+        //
+        ptr_raw_sid = (one_net_raw_sid_t *) &DEFAULT_RAW_SID[0];
+    }
+#else
+    ptr_raw_sid = get_raw_sid();
+#endif
+
+    // encode the raw sid to obtain an encoded sid
+    if (on_encode(&encoded_nid[0], (UInt8 *)ptr_raw_sid, sizeof(on_encoded_nid_t)) != ONS_SUCCESS)
+    {
+        return FALSE;
+    }
+
+    // copy the encoded sid to the buffer provided by the caller
+    one_net_memmove(nid, &encoded_nid[0], sizeof(on_encoded_nid_t));
+
+    return TRUE;
+} // get_eval_encoded_nid //
+
+
+/*!
+    \brief Returns the encoded did for the given device in the evaluation
+      network.
+
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param[in] NODE The device to get the evaluation did for.
+    
+    \return TRUE if the the did was returned.
+            FALSE if an error occurred and the did was not returned.
+*/
+BOOL get_eval_encoded_did(node_select_t node, on_encoded_did_t *did)
+{
+    one_net_raw_sid_t * ptr_raw_sid;
+    on_encoded_sid_t encoded_sid;
+
+#ifdef _AUTO_MODE
+    if((node != MASTER_NODE && node != AUTO_CLIENT1_NODE
+      && node != AUTO_CLIENT2_NODE && node != AUTO_CLIENT3_NODE) || !did)
+#else
+    if(node != MASTER_NODE || !did)
+#endif
+    {
+        return FALSE;
+    } // if any of the parameters are invalid //
+
+#ifdef _AUTO_MODE 
+    if(node == MASTER_NODE)
+    {
+#endif
+        // get the current raw sid
+        ptr_raw_sid = get_raw_sid();
+
+        // encode the raw sid to obtain an encoded sid
+        if (on_encode(&encoded_sid[0], (UInt8 *) ptr_raw_sid, sizeof(on_encoded_sid_t)) != ONS_SUCCESS)
+        {
+            return FALSE;
+        }
+
+        one_net_memmove(*did, &encoded_sid[ON_ENCODED_NID_LEN], sizeof(on_encoded_did_t));
+		
+#ifdef _AUTO_MODE
+    } // if the MASTER device //
+    else
+    {
+        on_encode(*did, RAW_AUTO_CLIENT_DID[node - AUTO_CLIENT1_NODE],
+          sizeof(on_encoded_did_t));
+    } // else it's a CLIENT device //
+#endif
+    
+    return TRUE;
+} // get_eval_encoded_did //
+
+
+/*!
+    \brief Returns the key to use in the evaluation network.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param[out] key Returns the key to use in the evaluation network.
+    
+    \return TRUE if the operation was successful
+            FALSE if the key was not returned.
+*/
+BOOL get_eval_key(one_net_xtea_key_t *key)
+{
+    if(!key)
+    {
+        return FALSE;
+    } // if the parameter is invalid //
+    
+    one_net_memmove(*key, EVAL_KEY, sizeof(one_net_xtea_key_t));
+    
+    return TRUE;
+} // get_eval_key //
+
+
+/*!
+    \brief Returns a pointer to the invite key to use in for joining a network.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \return A pointer to the invite key to use.
+*/
+UInt8 * get_invite_key(void)
+{
+    UInt8 * invite_key;
+
+    invite_key = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
+    if (invite_key == (UInt8 *) 0)
+    {
+        //
+        // no manufacturing data was found use a default invite key
+        //
+        return(&DEFAULT_INVITE_KEY[0]); 
+    }
+    else
+    {
+        //
+        // there is an invite key in data flash, return a pointer to it.
+        //
+        return(invite_key+sizeof(dfi_segment_hdr_t)+EVAL_DF_INVITE_KEY_OFFSET);
+    }
+    
+} // get_invite_key //
+
+
+/*!
+    \brief Returns a pointer to the SID of this board.
+    
+    \return A pointer to the invite key to use.
+*/
+one_net_raw_sid_t * get_raw_sid(void)
+{
+    UInt8 * ptr_raw_sid;
+	
+#if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_EVAL)
+    // if this is a client and it's part of a network, we want to use the network SID
+	// instead of checking the non-volatile memory
+    if(!deviceIsMaster && client_joined_network && on_base_param != 0)
+	{
+		// if "sid_info" hasn't been initialized, do it now.
+		// TO-DO.  This should be filled in when the client joins, or earlier.
+		one_net_memmove(sid_info.encoded, on_base_param->sid, ON_ENCODED_SID_LEN);
+		on_decode(sid_info.raw, sid_info.encoded, ON_ENCODED_SID_LEN);
+		return &sid_info.raw;
+	}
+#endif
+	
+    ptr_raw_sid = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
+    if (ptr_raw_sid == (UInt8 *) 0)
+    {
+        //
+        // no manufacturing data was found use a default invite key
+        //
+        return((one_net_raw_sid_t *) &DEFAULT_RAW_SID[0]); 
+    }
+    else
+    {
+        //
+        // there is SID in data flash, return a pointer to it.
+        //
+        return((one_net_raw_sid_t *)(ptr_raw_sid+sizeof(dfi_segment_hdr_t)+EVAL_DF_SID_OFFSET));
+    }
+    
+} // get_raw_sid //
+
+
+oncli_status_t oncli_print_channel(BOOL prompt_flag)
+{
+    UInt8 channel;
+
+#if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
+    if(deviceIsMaster)
+    {
+        channel = one_net_master_get_channel();
+    } // if not a MASTER device //
+	else
+	{     
+        channel = one_net_client_get_channel();
+	}
+#elif defined(_ONE_NET_MASTER)
+    channel = one_net_master_get_channel();
+#else
+    channel = one_net_client_get_channel();
+#endif
+
+#ifdef _US_CHANNELS
+    // dje: Cast to eliminate compiler warning UInt8 >= 0
+    if((SInt8)channel >= ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR, channel
+          - ONE_NET_MIN_US_CHANNEL + 1);
+    } // if a US channel //
+#endif
+#ifdef _EUROPE_CHANNELS
+#ifdef _US_CHANNELS
+    else if(channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#else
+    // Derek_S: Cast to eliminate compiler warning UInt8 >= 0
+    if((SInt8) channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
+#endif
+#endif
+    {
+        // +1 since channels are stored 0 based, but output 1 based
+        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR, channel
+          - ONE_NET_MIN_EUR_CHANNEL + 1);
+    } // else if a European channel //
+    else
+    {
+        oncli_send_msg(ONCLI_CHANNEL_NOT_SELECTED_STR);
+    } // else the channel is not selected //
+
+    if (prompt_flag == TRUE)
+    {
+        oncli_print_prompt();
+    }
+    return ONCLI_SUCCESS;
+} // oncli_print_channel //
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Returns the key to use for stream transactions.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param[out] stream_key Returns the key to use for stream transactions
+    
+    \return TRUE if the operation was successful
+            FALSE if the key was not returned.
+*/
+BOOL get_eval_stream_key(one_net_xtea_key_t *stream_key)
+{
+    if(!stream_key)
+    {
+        return FALSE;
+    } // if the parameter is invalid //
+    
+    one_net_memmove(*stream_key, EVAL_STREAM_KEY, sizeof(one_net_xtea_key_t));
+    
+    return TRUE;
+} // get_eval_stream_key //
+#endif
+
+
+/*!
+    \brief Returns the encryption method to use for the given transfer type.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param[in] ENCRYPT_TYPE The type of transfer to return the encryption
+      method for (single/block or stream).
+
+    \return The encryption method to use for the given transfer type.
+      ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE is returned if there was an error.
+*/
+UInt8 eval_encryption(on_data_t ENCRYPT_TYPE)
+{
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    if(ENCRYPT_TYPE == ON_SINGLE || ENCRYPT_TYPE == ON_BLOCK)
+    {
+        return EVAL_SINGLE_BLOCK_ENCRYPTION;
+    } // if single or block transfer //
+	#else
+    if(ENCRYPT_TYPE == ON_SINGLE)
+    {
+        return EVAL_SINGLE_BLOCK_ENCRYPTION;
+    } // if single or block transfer //
+	#endif
+	#ifdef _STREAM_MESSAGES_ENABLED
+    else if(ENCRYPT_TYPE == ON_STREAM)
+    {
+        return EVAL_STREAM_ENCRYPTION;
+    } // else if stream transaction //
+	#endif
+    
+    return ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE;
+} // eval_encryption //
+
+
+/*!
+    \brief Returns the channel the evaluation network should use.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param void
+    
+    \return The channel the evaluation network uses.
+*/
+UInt8 eval_channel(void)
+{
+    return EVAL_CHANNEL;
+} // eval_channel //
+
+
+/*!
+    \brief Returns the default data rate the given device receives at in the
+      evaluation network.
+
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+
+    \param[in] NODE The device to get the default data rate for.
+    
+    \return The default data rate for the given device.
+*/
+UInt8 eval_data_rate(node_select_t node)
+{
+    return DATA_RATE;
+} // eval_data_rate //
+
+
+/*!
+    \brief Returns the default keep alive interval CLIENTS should use in the
+      evaluation network.
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+    
+    \param void
+    
+    \return The default keep alive interval
+*/
+UInt32 eval_keep_alive(void)
+{
+    return DEFAULT_KEEP_ALIVE_INTERVAL;
+} // eval_keep_alive //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Returns the default fragment delay at the given priority
+    
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+
+    \param[in] PRIORITY The priority of the requested fragment delay
+    
+    \return The fragment delay for the given priority
+*/
+UInt32 eval_fragment_delay(UInt8 PRIORITY)
+{
+    if(PRIORITY == ONE_NET_HIGH_PRIORITY)
+    {
+        return EVAL_HIGH_PRIORITY_FRAG_DLY;
+    } // if high priority //
+    
+    return EVAL_LOW_PRIORITY_FRAG_DLY;
+} // eval_fragment_delay //
+#endif
+
+
+/*!
+    \brief Returns the features field for the given CLIENT in the evaluation
+      network.
+      
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+
+    \param[in] CLIENT The evaluation client to get the features for.
+    
+    \return The features for the given CLIENT.
+*/
+UInt8 eval_client_features(node_select_t CLIENT)
+{
+#ifdef _AUTO_MODE
+    if(CLIENT == AUTO_CLIENT1_NODE || CLIENT == AUTO_CLIENT2_NODE
+      || CLIENT == AUTO_CLIENT3_NODE)
+    {
+        // copied from one_net_client
+        enum
+        {
+            //! The features this client supports
+            #if defined(_STREAM_MESSAGES_ENABLED)
+                ON_BLOCK_STREAM_DATA_RATE_FEATURES = ON_STREAM_CAPABLE,
+            #elif defined(_BLOCK_MESSAGES_ENABLED)
+                ON_BLOCK_STREAM_DATA_RATE_FEATURES = ON_BLOCK_CAPABLE,
+            #elif defined(_DATA_RATE)
+                ON_BLOCK_STREAM_DATA_RATE_FEATURES = ON_DATA_RATE_CAPABLE,
+            #else
+                ON_BLOCK_STREAM_DATA_RATE_FEATURES = 0,
+            #endif
+    
+            #if defined(_ONE_NET_MH_CLIENT_REPEATER)
+                ON_MULTI_FEATURES = ON_MH_REPEATER | ON_MH_CAPABLE,
+            #elif defined(_ONE_NET_MULTI_HOP)
+                ON_MULTI_FEATURES = ON_MH_CAPABLE,
+            #else
+                ON_MULTI_FEATURES = 0,
+            #endif
+    
+            #ifdef _PEER
+                ON_PEER_FEATURES = ONE_NET_MAX_PEER_UNIT,
+            #else
+                ON_PEER_FEATURES = 0,
+            #endif
+        };
+    
+        return ON_BLOCK_STREAM_DATA_RATE_FEATURES | ON_MULTI_FEATURES |
+                  ON_PEER_FEATURES;
+    } // if AUTO CLIENT 1, 2, or 3 //
+#endif
+    
+    return 0x00;
+} // eval_client_features //
+
+
+/*!
+    \brief Returns the flags field for the given CLIENT in the evaluation
+      network.
+
+    This is a "protected" function.  This should be called when the evaluation
+    network is first set up.
+
+    \param[in] The evaluation client to get the flags for.
+    
+    \return The flags for the given CLIENT.
+*/
+UInt8 eval_client_flag(node_select_t CLIENT)
+{
+#ifdef _AUTO_MODE
+    if(CLIENT == AUTO_CLIENT1_NODE)
+    {
+        return ON_JOINED | ON_SEND_TO_MASTER;
+    } // if CLIENT 1 //
+    else if(CLIENT == AUTO_CLIENT2_NODE || CLIENT == AUTO_CLIENT3_NODE)
+    {
+        return ON_JOINED;
+    } // if CLIENT 2 or 3 //
+#endif
+    
+    return 0x00;
+} // eval_client_flag //
+
+
+/*!
+    \brief Converts a raw did to a U16 value.
+    
+    \param[in] DID The device id to convert
+    
+    \return The U16 value corresponding to the DID.
+*/
+UInt16 did_to_u16(const one_net_raw_did_t *DID)
+{
+    if(!DID)
+    {
+        return 0;
+    } // if the parameter is invalid //
+    
+    return one_net_byte_stream_to_int16(*DID) >> RAW_DID_SHIFT;
+} // did_to_u16 //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Callback to check if device should grant the requested transaction
+    
+    \param[in] TYPE The type of transaction being requested.  Currently only
+      handles ON_BLOCK
+    \param[in] SEND TRUE if this device is the sender of the data.
+    \param[in] DATA_TYPE The type of data being requested
+    \param[in] DATA_LEN The number of bytes to be transferred.  If the
+                   application rejects this value, it can set this value
+                   to one tht it WILL accept if re-requested.  However,
+                   it should not change THIS variable, but instead
+                   place the new value in the ack_nack_payload.
+    \param[in] DID The other end of the transaction.
+    \param[in] src_unit The source unit for this transaction.
+    \param[in] dst_unit The destination unit for this transaction.
+    \param[in/out] nack_reason Reason for rejection, if any.
+    \param[in/out] ack_nack_handle "Handle" of the ack_nack_payload, if any.
+    \param[in/out] ack_nack_payload Payload contained in the ACK or NACK,
+                   if any.
+    
+    \return TRUE if the transaction should be ACK'd or NACK'd.
+            FALSE if the transaction should not be ACK'd or NACK'd.
+*/
+BOOL eval_txn_requested(const UInt8 TYPE, const BOOL SEND,
+  const UInt8 DATA_TYPE, const UInt16 DATA_LEN,
+  const one_net_raw_did_t * const DID, const UInt8 src_unit,
+  const UInt8 dst_unit, on_nack_rsn_t* const nack_reason,
+  on_ack_nack_handle_t* const ack_nack_handle,
+  ack_nack_payload_t* const ack_nack_payload)
+{
+    // block_data_len is non-0 if there is an outstanding transaction
+    if(TYPE != ON_BLOCK || !DID || block_data_len)
+    {
+        return FALSE;
+    } // if the transaction should not be handled //
+    
+    if(!nack_reason || *nack_reason)
+    {
+        return TRUE;
+    }
+    
+    if(DATA_LEN > EVAL_MAX_BLOCK_LEN)
+    {
+        *nack_reason = ON_NACK_RSN_INVALID_LENGTH_ERR;
+        *ack_nack_handle = ON_NACK_VALUE;
+        // fill in a valid length in case the requesting device wants to
+        // re-submit the request.
+        ack_nack_payload->nack_value = EVAL_MAX_BLOCK_LEN;
+        return TRUE;
+    }
+    
+    if(SEND)
+    {
+        block_data = block_data_array;
+        return TRUE;
+    }
+
+    one_net_memmove(block_did, *DID, sizeof(block_did));
+    block_data_len = DATA_LEN;
+    send_block = FALSE;
+    block_data_type = DATA_TYPE & ONA_MSG_TYPE_MASK;
+    block_data = &(block_data_array[0]);
+    clear_debug_delay();
+    debug_delay("DID=%02X%02X:Src Unit=%d:Dst Unit=%d\nPacket=", block_did[0],
+        block_did[1], src_unit, dst_unit);
+    return TRUE;
+} // eval_txn_requested //
+
+
+/*!
+    \brief Returns the next payload to send for the given transaction by
+           adjusting a pointer visible to the ONE-NET code to the start
+           of the block.  Also sets the length to be sent.
+
+    \param[in] TYPE The type of transaction.  Must be ON_BLOCK.
+    \param[out] len The number of bytes to be sent
+      (must be <= ONE_NET_RAW_BLOCK_STREAM_DATA_LEN minus the header size)
+    \param[in] DST The device receiving the next payload.
+
+    \return A non-Error nack reason if the block transaction should proceed
+            An error nack reason if the block transaction should not proceed.
+*/
+on_nack_rsn_t eval_next_payload(UInt8 TYPE, UInt16 *len,
+                                const one_net_raw_did_t *DST)
+{
+    if(TYPE != ON_BLOCK || !len || !DST || !block_data_len
+      || !send_block || !mem_equal(*DST, block_did, ONE_NET_RAW_DID_LEN))
+    {
+        return ON_NACK_RSN_BAD_DATA_ERR;
+    } // if the parameters are invalid //
+    
+    *len = block_data_len - block_data_pos < ONE_NET_RAW_BLOCK_STREAM_DATA_LEN - 4
+      ? block_data_len - block_data_pos : ONE_NET_RAW_BLOCK_STREAM_DATA_LEN - 4;
+      
+    block_data = &block_data_array[block_data_pos];    
+    return ON_NACK_RSN_NO_ERROR;
+} // eval_next_payload //
+
+
+/*!
+    \brief Reports the status of the block transaction
+    
+    This will be called in the case of an extended admin transaction as well
+    (meaning the app doesn't know about the transaction).
+    
+    \param[in] STATUS The results of the block transaction
+    \param[in] DID The device at the other end of the block transaction.
+
+    \return void
+*/
+void eval_block_txn_status(one_net_status_t STATUS, 
+                           const one_net_raw_did_t *DID)
+{
+    if(!DID)
+    {
+        return;
+    } // if the parameters are invalid //
+
+    if(block_byte_transfer_complete)
+    {
+        STATUS = ONS_BLOCK_END; // just in case it isn't already.
+    }
+
+    oncli_send_msg(ONCLI_BLOCK_RESULT_FMT, did_to_u16(DID),
+      oncli_status_str(STATUS));
+    oncli_print_prompt();
+
+    if(mem_equal(*DID, block_did, ONE_NET_RAW_DID_LEN))
+    {
+        block_data_len = 0;
+        block_data_type = NO_BLOCK_TXN;
+    } // if there was an outstanding transaction //
+    
+    if(STATUS == ONS_BLOCK_END)
+    {
+        print_debug_delay();
+    }
+    clear_debug_delay();
+} // eval_block_txn_status //
+#endif
+
+
+/*!
+    \brief Callback for the application to handle status messages.
+
+    This function is application dependent.  It is called by ONE-NET when a
+    device receives a status message, either alone or as a response to a query
+	for the current status of a unit on another device.
+	
+
+    \param[in] raw_pld the raw un-parsed 5 byte single payload 
+    \param[in] msg_class ONA_STATUS or ONA_STATUS_QUERY_RESP or ONA_STATUS_FAST_QUERY_RESP
+    \param[in] msg_type the unit type of the destination unit
+    \param[in] src_unit the source unit number(this is the unit that the msg_data value correspons to
+	\param[in] dst_unit the destination unit
+	\param[in] msg_data the data in the incoming message and possibly in the outgoing message
+	\param[in] src_addr the raw address of the device sending the status message
+	\param[in/out] nack_reason Any nack reason than has occurred already or that will be set by this function
+	\param[in/out] ack_nack_handle If a payload is to be set, this denotes how it should be interpreted.
+	\param[in/out] ack_nack_payload Any information beyond a nack reason that is either passed to this function
+	               or is returned from it.
+	
+	\return TRUE if the transaction should be "handled" further.
+	        FALSE if any ahndling should be cancelled and the applciation code plans to take
+			      over all handling of the packet.
+*/
+BOOL eval_handle_status_msg(const UInt8* const raw_pld, const ona_msg_class_t msg_class,
+       const ona_msg_type_t msg_type, const UInt8 src_unit,
+       const UInt8 dst_unit, const UInt16 msg_data,
+	   const one_net_raw_did_t* const src_addr,
+	   on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+	   ack_nack_payload_t* const ack_nack_payload)
+{
+	if(nack_reason != NULL && *nack_reason != ON_NACK_RSN_NO_ERROR)
+	{
+		return TRUE;
+	}
+
+	switch(msg_class)
+	{
+		case ONA_STATUS_QUERY_RESP: case ONA_STATUS_FAST_QUERY_RESP:
+		    oncli_send_msg("In response to a ");
+			if(msg_class == ONA_STATUS_FAST_QUERY_RESP)
+			{
+				oncli_send_msg("fast ");
+			}
+			oncli_send_msg("query, unit");
+			break;
+		case ONA_STATUS_ACK_RESP:
+		    oncli_send_msg("In response to some message, possibly a command, unit ");
+			break;
+		
+		default:
+		    oncli_send_msg("Unit");
+	}
+	oncli_send_msg(" %d received status update from %03X:Unit %d -->Type=%d Value=%d\n",
+	    dst_unit, did_to_u16(src_addr), src_unit, msg_type, msg_data);
+	return TRUE;
+} // eval handle_status_msg //
+
+
+/*!
+    \brief Handles the received single transaction.
+	
+    \param[in] raw_pld the raw un-parsed 5 byte single payload 
+    \param[in] msg_class the type of the payload (ONA_STATUS, ONA_QUERY, ONA_POLL or ONA_COMMAND)
+    \param[in] msg_type the unit type of the destination unit
+    \param[in] src_unit the source unit number
+	\param[in] dst_unit the destination unit
+	\param[in/out] msg_data the data in the incoming message and possibly in the outgoing message
+	\param[in] SRC_ADDR the raw address of the source
+	\param[out] useDefaultHandling flag set that is read by ONE-NET.  If true, then ONE-NET will use
+	            its default handling for 
+	            If false, the application provides its own handling
+	\param[in/out] nack_reason The "reason" that should be given if a NACK needs to be sent
+	\param[out] ack_nack_handle Filled in by application code if sending data with the ACK/NACK message
+	\param[out] ack_nack_payload Filled in by application code if sending data with the ACK/NACK message
+	
+    \return TRUE If it there should be an ACK or NACK sent back
+            FALSE If no ACK or NACK should be sent back
+*/
+BOOL eval_handle_single(const UInt8* const raw_pld, const ona_msg_class_t msg_class, ona_msg_type_t* const msg_type, 
+         const UInt8 src_unit, const UInt8 dst_unit, UInt16* const msg_data,
+         const one_net_raw_did_t* const SRC_ADDR, BOOL* const useDefaultHandling,
+		 on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+	     ack_nack_payload_t* const ack_nack_payload)
+{
+	// Note: ONA_STATUS_FAST_QUERY_RESP and ONA_STATUS_ACK_RESP messages are currently rejected since they should be
+	//       handled elsewhere.  This may change.
+	// TODO - decide for sure when, where, how all status messages are handled
+    
+    if(!nack_reason || *nack_reason != ON_NACK_RSN_NO_ERROR)
+	{
+		return TRUE;
+	}
+	
+    if(!msg_type || !msg_data || !SRC_ADDR || !useDefaultHandling)
+    {
+        oncli_send_msg(ONCLI_GENERAL_ERROR_FMT, ONCLI_GEN_ERR_BAD_PARAMETER, eval_handle_single);
+        *nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+        return TRUE;
+    } // if any of the parameters are invalid //
+
+    if(*msg_type == ONA_SIMPLE_TEXT && msg_class == ONA_COMMAND &&
+           *nack_reason == ON_NACK_RSN_NO_ERROR)
+    {
+        *useDefaultHandling = FALSE;
+        print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_MSG_DATA_IDX]), ONA_MSG_DATA_LEN, SRC_ADDR);
+        return TRUE;
+    }
+
+	*useDefaultHandling = TRUE;
+
+	// bad destination unit number should have been handled already?  TODO - verify this
+	if(*msg_type != ONA_SWITCH)
+	{
+		*nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+		return TRUE;
+	}
+	
+	if(msg_class == ONA_COMMAND && user_pin[dst_unit].pin_type != ONCLI_OUTPUT_PIN)
+	{
+		*nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+		return TRUE;		
+	}
+	
+    print_single_app_data_pkt(msg_class, *msg_type, src_unit, dst_unit,
+	    *msg_data, SRC_ADDR);
+
+    if(msg_class == ONA_COMMAND)
+    {
+		switch(dst_unit)
+		{
+			case 0: USER_PIN0 = (*msg_data == ONA_TOGGLE) ? !USER_PIN0 : ((*msg_data == ONA_ON) ? 1 : 0); *msg_data = USER_PIN0; break;
+			case 1: USER_PIN1 = (*msg_data == ONA_TOGGLE) ? !USER_PIN1 : ((*msg_data == ONA_ON) ? 1 : 0); *msg_data = USER_PIN1; break;
+			case 2: USER_PIN2 = (*msg_data == ONA_TOGGLE) ? !USER_PIN2 : ((*msg_data == ONA_ON) ? 1 : 0); *msg_data = USER_PIN2; break;
+			case 3: USER_PIN3 = (*msg_data == ONA_TOGGLE) ? !USER_PIN3 : ((*msg_data == ONA_ON) ? 1 : 0); *msg_data = USER_PIN3; break;
+		}
+    } // if a switch command message //
+	else if(msg_class == ONA_STATUS || msg_class == ONA_STATUS_QUERY_RESP)
+	{
+        eval_handle_status_msg(raw_pld, msg_class, *msg_type, src_unit, dst_unit,
+            *msg_data, SRC_ADDR, NULL, NULL, NULL);
+	} // if a status message.  If it's a fast query response or any other status message in the ACK, it'll be handled
+	  // elsewhere.  eval_handle_status_msg will be called directly, so we should
+	  // never get a fast query response here, so reject it.  These two handlers can
+	  // call each otehr if desired.  Just pick one place or the other to handle it.
+	else if(msg_class == ONA_QUERY || ONA_POLL)
+	{
+		// fill in msg_data.  ONE-NET will take it from there.  No need to fill in
+		// the message type.  It's already ONA_SWITCH.
+		switch(dst_unit)
+		{
+			case 0: *msg_data = USER_PIN0; break;
+			case 1: *msg_data = USER_PIN1; break;
+			case 2: *msg_data = USER_PIN2; break;
+			case 3: *msg_data = USER_PIN3; break;
+		}
+	}
+	else
+	{
+        *nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;		
+	}
+
+	return TRUE;
+} // eval_handle_single //
+
+
+/*!
+    \brief Callback for the application to handle an ack or a nack.
+
+    This function is application dependent.  It is called by ONE-NET when a
+    device receives an ACK or a NACK.  ONE-NET provides default handling for
+	query responses.  In addition, the application code can change a NACK reason or
+	change an ACK to a NACK or vice versa.  It can also change the number of retries
+	to either prolong the number of retries or decrease them.  The application can
+	provide its own handling by returning false.  If it wants to abort the transaction
+	for whatever reason, either because it has its own handling or because it does not
+	want to handle the message at all, it should return false.
+	
+
+    \param[in] msg_type The type of message(application, admin, or extended admin)
+    \param[in/out] The payload that was originally sent and which will possibly be sent again.
+    \param[in] payload_len length of the payload
+	\param[out] need_txn_payload TRUE if the function needs the raw original transaction payload
+	            FALSE if it does not.  This function will originally be called WITHOUT being
+				provided the raw original transaction payload.  Due to the overhead of encrypting
+				and decrypting, this will not be done if it's not necessary.  If the function is
+				passed a NULL payload and it needs that payload, it should set the need_txn_payload
+				to true and return true.  ONE-NET will re-call the function, providing the raw
+				transaction payload.
+    \param[in/out] retries the number of times this message has been sent
+	\param[in] src_did the did of the device we received this ACK or NACK from.
+	\param[in/out] The reason for the NACK.  If this is null or equals ON_NACK_RSN_NO_ERROR
+	               then we received an ACK, not a NACK.
+	\param[in/out] ack_nack_handle The way the data(if any) provided by the ACk or NACK should be
+	               interpreted.
+	\param[in/out] ack_nack_payload The data(if any) sent with the ACK/NACK message.
+	
+    \return TRUE If ONE-NET should proceed with any further handling of the transaction
+            FALSE If ONE-NET should consider the transaction complete for whatever reason.
+*/
+BOOL eval_handle_ack_nack_response(const ona_msg_type_t msg_type,
+    UInt8* const payload, const UInt8 payload_len, BOOL* const need_txn_payload,
+    UInt8* const retries,
+	const one_net_raw_did_t* const src_did, on_nack_rsn_t* const nack_reason,
+	on_ack_nack_handle_t* const ack_nack_handle,
+	ack_nack_payload_t* const ack_nack_payload)
+{
+	return TRUE;
+}
+
+
+
+// Added to handle the new parameters of eval_handle_single
+void print_single_app_data_pkt(const ona_msg_class_t msg_class, const ona_msg_type_t msg_type, 
+         const UInt8 src_unit, const UInt8 dst_unit, const UInt16 msg_data,
+         const one_net_raw_did_t* const SRC_ADDR)
+{
+    oncli_send_msg("Rcv'd Single App Data: %03X %01X %01X %01X %03X %04X\n",
+	    did_to_u16(SRC_ADDR), src_unit, dst_unit, (msg_class >> 12), msg_type, msg_data);
+}
+
+
+/*!
+    \brief Prints the contents of the received data packet.
+
+    This function needs to handle two types of message payloads
+    (single data and block data) and for each message type, two
+    different paylaod types (text and binary data). We have to 
+    look inside the payload in each case to determine whether
+    the payload contains text or binary data.
+
+    NOTE: The static variables block_data_type and block_data_length
+    are set in the function eval_txn_requested which is called when
+    we receive the single data basic admin message that sets up
+    the block data message.
+
+    NOTE: This function uses the "==" operator to compare two strings
+    rather than using strcmp() because it relies on the fact that
+    pointers will only be assigned values from limited set of pointers
+    to strings defined in oncli_strs.[ch]. 
+    
+    \param[in] TXN_STR String representing the transaction type that was
+      received.  This can only be ONCLI_SINGLE_TXN_STR, or ONCLI_BLOCK_TXN_STR.
+    \param[in] TX_PLD The payload that was received.
+    \param[in] RX_PLD_LEN The number of bytes that was received.
+    \param[in] SRC_ADDR The sender of the data packet
+
+    \return void
+*/
+void print_packet(const UInt8 *txn_str, const UInt8 *rx_pld,
+                  UInt16 len, const one_net_raw_did_t *src_addr)
+{
+
+    if(!txn_str || !rx_pld || !src_addr ||
+	#ifdef _BLOCK_MESSAGES_ENABLED
+       (txn_str != ONCLI_SINGLE_TXN_STR && txn_str != ONCLI_BLOCK_TXN_STR))
+	#else
+       (txn_str != ONCLI_SINGLE_TXN_STR))
+	#endif
+    {
+        oncli_send_msg(ONCLI_GENERAL_ERROR_FMT, ONCLI_GEN_ERR_BAD_PARAMETER, print_packet);
+        return;
+    } // if any of the parameters are invalid //
+    
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    if(txn_str == ONCLI_SINGLE_TXN_STR)
+	#endif
+    {
+        //
+        // handle the single data message case by first
+        // extracting the message class and type
+        //
+        UInt16 class_and_data_type;
+        
+        class_and_data_type = get_msg_hdr(rx_pld);
+        
+        if((class_and_data_type & ONA_MSG_CLASS_MASK) == ONA_COMMAND
+          && (class_and_data_type & ONA_MSG_TYPE_MASK) == ONA_SIMPLE_TEXT)
+        {
+            //
+            // handle single data text payload
+            //
+            print_text_packet(txn_str, &(rx_pld[ONA_MSG_DATA_IDX]), ONA_MSG_DATA_LEN, src_addr);
+        } // if text command //
+        else
+        {
+            //
+            // handle single data binary payload
+            //
+            print_data_packet(txn_str, rx_pld, len, src_addr);
+        } // else not a text command packet //
+    } // if a single data packet //
+	#ifdef _BLOCK_MESSAGES_ENABLED
+    else 
+    {
+        UInt16 msg_type;
+        UInt16 blk_length;
+
+        //
+        // handle the block data message case by first extracting the 
+        // message type from the payload
+        //
+        get_block_data_payload_hdr(&msg_type, &blk_length, NULL, NULL, rx_pld);
+
+        if (block_data_type != msg_type)
+        {
+            oncli_send_msg(ONCLI_GENERAL_ERROR_FMT, ONCLI_GEN_ERR_WRONG_BLOCK_DATA_TYPE, print_packet);
+        }
+
+        if(msg_type == ONA_BLOCK_TEXT)
+        {
+            print_text_packet(txn_str, &(rx_pld[ONA_BLK_DATA_HDR_DATA_IDX]),
+              blk_length-ONA_BLK_DATA_HDR_DATA_LEN, src_addr);
+        } // if text command //
+        else
+        {
+            print_data_packet(txn_str, rx_pld, blk_length, src_addr);
+        } // else not a text command packet //
+    
+    } // else if a block data packet //
+	#endif
+
+    oncli_print_prompt();
+} // print_packet //
+
+
+/*!
+    \brief Outputs the results of a single transaction
+    
+    \param[in] STATUS The results of the transaction.
+    \param[in] DATA The data sent in the transaction
+    \param[in] DST The destination device for the transaction
+    
+    \return void
+*/
+void eval_single_txn_status(one_net_status_t STATUS, const UInt8 *DATA, 
+                            const one_net_raw_did_t *DST)
+{
+    if(!DATA && !DST)
+    {
+        return;
+    } // if the parameters are invalid //
+	
+	if(STATUS == ONS_CANCELED || STATUS == ONS_SINGLE_CANCELED)
+	{
+		return; // don't bother displaying anything
+	}
+    
+    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(DST),
+      oncli_status_str(STATUS));
+    oncli_print_prompt();
+} // eval_single_txn_status //
+
+
+one_net_send_single_func_t oncli_get_send_single_txn_func(void)
+{
+    if(deviceIsMaster)
+    {
+        return &one_net_master_send_single;
+    } // if a master device //
+#ifdef _AUTO_MODE
+    else if(node_type >= CLIENT_NODE && node_type <= AUTO_CLIENT3_NODE)
+#else
+    else if(node_type == CLIENT_NODE)
+#endif
+    {
+        return &one_net_client_send_single;
+    } // else if a CLIENT device //
+    
+    return 0;
+} // oncli_get_send_single_func //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+oncli_status_t oncli_q_block_request(BOOL SEND, UInt8 DATA_TYPE,
+              UInt8 PRIORITY, const one_net_raw_did_t *DID,
+              UInt8 SRC_UNIT, UInt8 DST_UNIT, const UInt8 *DATA, UInt16 LEN)
+{
+    // The result of queuing the block request
+    one_net_status_t request_status;
+
+    if(!DID || !DATA)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if any of the parameters are invalid //
+    
+    // check to see if a transaction is already queued
+    if(block_data_len)
+    {
+        return ONCLI_ALREADY_IN_PROGRESS;
+    } // if a block transaction is already in progress //
+    
+    // make the appropriate request for the device
+    if(deviceIsMaster)
+    {
+        request_status = one_net_master_block_stream_request(ON_BLOCK, SEND,
+          DATA_TYPE, LEN, PRIORITY, DID, SRC_UNIT, DST_UNIT);
+    } // if MASTER //
+    else
+    {
+        return ONCLI_INVALID_CMD_FOR_NODE;
+    } // else command invalid for the node type //
+    
+    // parse the return value from the request
+    switch(request_status)
+    {
+        case ONS_SUCCESS:
+        {
+            one_net_memmove(block_data_array, DATA, LEN);
+            block_data_len = LEN;
+            send_block = TRUE;
+            block_data_pos = 0;
+            block_byte_transfer_complete = FALSE;
+            block_txn_ack_rcvd = FALSE;
+            one_net_memmove(block_did, *DID, sizeof(block_did));                              
+            
+            return ONCLI_SUCCESS;
+            break;
+        } // success case //
+
+        case ONS_BAD_PARAM:
+        {
+            return ONCLI_PARSE_ERR;
+            break;
+        } // bad parameter case //
+
+        case ONS_RSRC_FULL:
+        {
+            return ONCLI_RSRC_UNAVAILABLE;
+            break;
+        } // resource full case //
+        
+        case ONS_BAD_ADDR:
+        {
+            return ONCLI_INVALID_DST;
+            break;
+        } // invalid destination case //
+        
+        case ONS_ALREADY_IN_PROGRESS:
+        {
+            return ONCLI_ALREADY_IN_PROGRESS;
+            break;
+        } // already in progress case //
+
+        case ONS_NOT_JOINED:
+        {
+            return ONCLI_NOT_JOINED;
+            break;
+        } // device needs to join a network first //
+
+        default:
+        {
+            break;
+        } // default case //
+    } // switch(request_status) //
+    
+    // all return types should have been handled
+    return ONCLI_INTERNAL_ERR;
+} // oncli_q_block_request //
+#endif
+
+
+
+oncli_status_t oncli_set_user_pin_type(UInt8 PIN, UInt8 PIN_TYPE)
+{
+    if(PIN_TYPE > ONCLI_DISABLE_PIN)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if any of the parameters are invalid //
+
+    switch(PIN)
+    {
+        case 0:
+        {
+            user_pin[0].old_state = USER_PIN0;
+            USER_PIN0_DIR = PIN_TYPE == ONCLI_DISABLE_PIN ? ONCLI_INPUT_PIN
+              : PIN_TYPE;
+            break;
+        } // pin 1 case //
+
+        case 1:
+        {
+            user_pin[1].old_state = USER_PIN1;
+            USER_PIN1_DIR = PIN_TYPE == ONCLI_DISABLE_PIN ? ONCLI_INPUT_PIN
+              : PIN_TYPE;
+            break;
+        } // pin 2 case //
+
+        case 2:
+        {
+            user_pin[2].old_state = USER_PIN2;
+            prc2 = 1;
+            USER_PIN2_DIR = PIN_TYPE == ONCLI_DISABLE_PIN ? ONCLI_INPUT_PIN
+              : PIN_TYPE;
+            prc2 = 0;
+            break;
+        } // pin 3 case //
+
+        case 3:
+        {
+            user_pin[3].old_state = USER_PIN3;
+            prc2 = 1;
+            USER_PIN3_DIR = PIN_TYPE == ONCLI_DISABLE_PIN ? ONCLI_INPUT_PIN
+              : PIN_TYPE;
+            prc2 = 0;
+            break;
+        } // pin 4 case //
+
+        default:
+        {
+            return ONCLI_RSRC_UNAVAILABLE;
+            break;
+        } // default case //
+    } // switch(PIN) //
+
+    user_pin[PIN].pin_type = PIN_TYPE;
+    return ONCLI_SUCCESS;
+} // oncli_set_user_pin_type //
+
+
+one_net_raw_sid_t * oncli_get_sid()
+{
+
+    return get_raw_sid();
+
+} // oncli_get_sid //
+
+
+UInt8 *oncli_node_type_str()
+{
+    switch(node_type)
+    {
+        case MASTER_NODE:
+        {
+            return ONCLI_MASTER_STR;
+            break;
+        } // MASTER case //
+		
+#ifdef _SNIFFER_MODE
+        case SNIFFER_NODE:
+        {
+            return ONCLI_SNIFFER_STR;
+            break;
+        } // sniffer case //
+#endif
+        
+        default:
+        {
+            // must be a CLIENT
+            break;
+        } // default case //
+    } // switch(node_type) //
+    
+    return ONCLI_CLIENT_STR;
+} // oncli_node_type_str //
+
+
+#ifdef _AUTO_MODE
+UInt8 * oncli_mode_type_str(void)
+{
+    switch(mode_value)
+    {
+        case AUTO_MODE:
+        {
+            return ONCLI_AUTO_MODE_STR;
+            break;
+        } // auto_mode case //
+
+        case SERIAL_MODE:
+        {
+            return ONCLI_SERIAL_MODE_STR;
+            break;
+        } // serial mode case //
+
+        default:
+        {
+            break;
+        } // default case //
+    } // switch(mode_value) //
+    
+    return 0;
+} // oncli_mode_type_str //
+#endif
 
 
 void oncli_print_prompt(void)
-{   
-    oncli_send_msg("ocm%s> ", get_prompt_string());
+{
+    // None of the strings are declared as constants since this should be the
+    // only place they are used, and by not declaring them, we are ensuring
+    // that this is the only placed they are used.
+    switch(device_type())
+    {
+#ifdef _SNIFFER_MODE
+        case SNIFFER_NODE:
+        {
+            oncli_send_msg("ocm-s> ");
+            break;
+        } // sniffer case //
+#endif
+        
+        case MASTER_NODE:
+        {
+            oncli_send_msg("ocm-m> ");
+            break;
+        } // master case //
+        
+        case CLIENT_NODE:
+        {
+            oncli_send_msg("ocm-c> ");
+            break;
+        } // client case //
+#ifdef _AUTO_MODE        
+        case AUTO_CLIENT1_NODE:
+        {
+            oncli_send_msg("ocm-c1> ");
+            break;
+        } // auto client1 case //
+        
+        case AUTO_CLIENT2_NODE:
+        {
+            oncli_send_msg("ocm-c2> ");
+            break;
+        } // auto client2 case //
+        
+        case AUTO_CLIENT3_NODE:
+        {
+            oncli_send_msg("ocm-c3> ");
+            break;
+        } // auto client3 case //
+#endif
+        default:
+        {
+            oncli_send_msg("ocm> ");
+            break;
+        } // default case //
+    } // switch(device_type()) //
 } // oncli_print_prompt //
 
 
-int main(void)
+/*!
+    \brief Sends a switch command message for the given source unit.
+    
+    \param[in] SWITCH_STATUS The status of the switch being sent to DST.
+    \param[in] SRC_UNIT The unit in this device the message pertains to.
+    \param[in] DST_UNIT The unit in the receiving device that is to receive
+      this message.  Only relevant if DST is not null
+    \param[in] DST The device that is to receive this message.  NULL if sending
+                   to peer list.
+    
+    \return ONS_SUCCESS if the message was successfully queued.
+            ONS_INTERNAL_ERR If the send single function could not be retrieved.
+            See one_net_client_send_single & one_net_master_send_single for
+            more return values.
+*/
+
+
+/* dje: Changed for new message data stuff */
+one_net_status_t send_switch_status(UInt8 SWITCH_STATUS, UInt8 SRC_UNIT, 
+        UInt8 DST_UNIT, const one_net_raw_did_t *DST)
 {
-    INIT_PORTS();
-    TAL_INIT_TRANSCEIVER();
-    INIT_PROCESSOR(TRUE);
+	tick_t time_from_now = 0;
+    one_net_send_single_func_t send_single_func;
+    UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0}; // Initialize to all zeros
 
-    #ifdef _HAS_LEDS
-        initialize_leds();
-    #endif
+    put_msg_hdr(ONA_STATUS|ONA_SWITCH, payload);
+    put_src_unit(SRC_UNIT, payload);
+    put_dst_unit(DST_UNIT, payload);
+    put_msg_data(SWITCH_STATUS, payload);
     
-    INIT_TICK();
-    #ifdef _NON_VOLATILE_MEMORY
-    FLASH_ERASE_CHECK();
-    #endif
-
-    uart_init(BAUD_38400/*BAUD_115200*/, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
-    disable_user_pins();
-    ENABLE_GLOBAL_INTERRUPTS();
-    
-    // startup greeting
-    oncli_send_msg("\n\n");
-    oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
-      ONE_NET_VERSION_MINOR);
-    oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
-      ONE_NET_VERSION_BUILD);   
-    oncli_send_msg("\n\n");
-
-    eval_set_modes_from_switch_positions();
-    
-    // do some initialization here.  It may get written over later, but
-    // that's OK.
-    on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
-    one_net_memmove(on_base_param->current_key, EVAL_KEY,
-      ONE_NET_XTEA_KEY_LEN);
-    #ifdef _ONE_NET_MASTER  
-    one_net_memmove(&on_base_param->sid[ON_ENCODED_NID_LEN],
-      MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
-    #endif
-    
-    on_base_param->single_block_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
-    on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
-    on_base_param->features = THIS_DEVICE_FEATURES;
-    
-    #ifdef _AUTO_MODE
-    on_base_param->channel = DEFAULT_EVAL_CHANNEL;
-    #endif
-    
-    #ifdef _BLOCK_MASSGES_ENABLED
-    on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
-    on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
-    #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    on_base_param->stream_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
-    #endif
-    
-    
-#ifdef _AUTO_MODE
-	if(in_auto_mode)
-	{
-        #ifdef _ONE_NET_MASTER
-        if(device_is_master)
-        {
-            init_auto_master();
-        }
-        #endif
-        #ifdef _ONE_NET_CLIENT
-        if(!device_is_master)
-        {
-            init_auto_client(auto_client_index);
-        }
-        #endif
-        
-		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
-	} // if auto mode //
-	else
-	{
-        #ifdef _ONE_NET_MASTER
-        if(device_is_master)
-        {
-            init_serial_master();
-        }
-        #endif
-        #ifdef _ONE_NET_CLIENT
-        if(!device_is_master)
-        {
-            init_serial_client();
-        }
-        #endif
-   		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
-	} // else serial //
-#else
-    #ifdef _ONE_NET_MASTER
-    if(device_is_master)
+    if(!(send_single_func = oncli_get_send_single_txn_func()))
     {
-        init_serial_master();
-    }
-    #endif
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        init_serial_client();
-    }
-    #endif
-	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
-#endif
- 
-    oncli_print_prompt();    
-    while(1)
-    {
-        (*node_loop_func)();
-        oncli();
-    }
+        return ONS_INTERNAL_ERR;
+    } // if getting the single function failed //
 
-    EXIT();
-	return 0;
-} // main //
+    // third argument TRUE means that it will go through peer list
+    return send_single_func(payload, sizeof(payload),
+                            DST == NULL, ONE_NET_SEND_SINGLE_PRIORITY, DST, SRC_UNIT,
+							&time_from_now, &time_from_now);
+} // send_switch_status //
 
-
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t eval_handle_single(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
-#else
-on_message_status_t eval_handle_single(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
-  UInt8 hops, UInt8* const max_hops)
-#endif
+#ifdef _ENABLE_CLIENT_PING_RESPONSE
+/*!
+    \brief Sends a simple text command message.
+    
+    \param[in] TEXT Pointer to the two characters to send.
+    \param[in] SRC_UNIT The unit in this device the message pertains to.
+    \param[in] DST The device that is to receive this message.  NULL if sending
+                   to peer list.
+    \param[in] DST The device that is to receive this message.
+    
+    \return ONS_SUCCESS if the message was successfully queued.
+            ONS_INTERNAL_ERR If the send single function could not be retrieved.
+            See one_net_client_send_single & one_net_master_send_single for
+            more return values.
+*/
+one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT, 
+        UInt8 DST_UNIT, const one_net_raw_did_t *DST)
 {
-    UInt8 src_unit, dst_unit;
-    ona_msg_class_t msg_class;
-    UInt16 msg_type, msg_data;
+	tick_t time_from_now = 0;
+    one_net_send_single_func_t send_single_func;
+    UInt8 payload[ONE_NET_RAW_SINGLE_DATA_LEN] = {0}; // Initialize to all zeros
 
-
-    #ifndef _ONE_NET_MULTI_HOP
-    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
-      !ack_nack->payload || ack_nack->payload !=
-      (ack_nack_payload_t*) raw_pld)
-    #else
-    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
-      !ack_nack->payload || ack_nack->payload !=
-      (ack_nack_payload_t*) raw_pld || !max_hops)
-    #endif
+    put_msg_hdr(ONA_COMMAND|ONA_SIMPLE_TEXT, payload);
+    put_src_unit(SRC_UNIT, payload);
+    put_dst_unit(DST_UNIT, payload);
+    put_second_msg_byte(TEXT[0], payload);
+    put_third_msg_byte(TEXT[1], payload);
+    
+    if(!(send_single_func = oncli_get_send_single_txn_func()))
     {
-        return ON_MSG_INTERNAL_ERR;
-    }
-    
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK;
-    
-    if(msg_hdr->msg_type != ON_APP_MSG)
-    {
-        return ON_MSG_IGNORE;
-    }
-    
-    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
-      &msg_data);
+        return ONS_INTERNAL_ERR;
+    } // if getting the single function failed //
 
-    #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("eval_hdl_sng: ");
-    print_app_payload(raw_pld, 5);
+    // If DST is NULL, send through peer list (3rd parameter)
+    return send_single_func(payload, sizeof(payload),
+                            DST == NULL, ONE_NET_SEND_SINGLE_PRIORITY, DST, SRC_UNIT,
+							&time_from_now, &time_from_now);
+} // send_send_simple_text_command //
+#endif
+
+
+
+oncli_status_t oncli_print_nid(BOOL prompt_flag)
+{
+    UInt8 * ptr_nid;
+    UInt8 i, nibble;
+
+    ptr_nid = (UInt8 *) get_raw_sid();
+
+    oncli_send_msg("NID: 0x");
+    for (i=0; i<ONE_NET_RAW_NID_LEN; i++)
+    {
+        // 
+        // print the high order nibble
+        //
+        nibble = (ptr_nid[i] >> 4) & 0x0f;
+        oncli_send_msg("%c", HEX_DIGIT[nibble]);
+
+        //
+        // if this is the not the last byte, print the low order nibble also
+        //
+        if (i < ONE_NET_RAW_NID_LEN-1)
+        {
+            nibble = ptr_nid[i] & 0x0f;
+            oncli_send_msg("%c", HEX_DIGIT[nibble]);
+        }
+    }
     oncli_send_msg("\n");
-    #endif
-
-    if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
+    if (prompt_flag == TRUE)
     {
-        ack_nack->nack_reason = ON_NACK_RSN_INVALID_UNIT_ERR;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
+        oncli_print_prompt();
     }
+    return ONCLI_SUCCESS;
+} // oncli_print_nid //
+
+
+
+//! @} ONE-NET_eval_pub_func
+//                      PUBLIC FUNCTION IMPLEMENTATION END
+//=============================================================================
+
+//=============================================================================
+//                      PRIVATE FUNCTION IMPLEMENTATION
+//! \addtogroup ONE-NET_eval_pri_func
+//! \ingroup ONE-NET_eval
+//! @{
+
+/*!
+    \brief Sets the node type this device operates at.
     
+    This is a "protected" function.
     
-    #ifdef _EXTENDED_SINGLE
-    if(msg_type == ONA_SIMPLE_TEXT || msg_type == ONA_TEXT)
-    #else
-    if(msg_type == ONA_SIMPLE_TEXT)
-    #endif
-    {
-        UInt8 text_len = 2;
-        
-        #ifdef _EXTENDED_SINGLE
-        if(msg_type == ONA_TEXT)
-        {
-            // this is a NULL-terminated string, so find out how long it is;
-            const UInt8* ptr = &raw_pld[ONA_MSG_DATA_IDX];
-            text_len = 0;
-            while(*ptr != 0)
-            {
-                ptr++;
-                text_len++;
-            }
-        }
-        #endif
-        
-        print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_MSG_DATA_IDX]),
-          text_len, src_did);
-        return ON_MSG_CONTINUE;
-    }
+    \param[in] device_type The node type to operate at (see node_select_t)
     
-    #ifndef _ONE_NET_MULTI_HOP
-    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA)
-    #else
-    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA &&
-       msg_hdr->raw_pid != ONE_NET_RAW_MH_SINGLE_DATA)
-    #endif
-    {
-        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
-    }
-
-    if(ONA_IS_STATUS_MESSAGE(msg_class))
-    {
-        oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(src_did),
-          msg_data);
-        if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
-          (msg_data == ONA_ON || msg_data == ONA_OFF))
-        {
-            // interpret ONA_STATUS_CHANGE as ONA_COMMAND
-            msg_class = ONA_COMMAND;
-        }
-        else
-        {
-            return ON_MSG_CONTINUE;
-        }
-    }
-
-    if(msg_type != ONA_SWITCH || (msg_data != ONA_ON && msg_data != ONA_OFF
-      && msg_data != ONA_TOGGLE) || (msg_data == ONA_TOGGLE && msg_class !=
-      ONA_COMMAND))
-    {
-        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
-    }
-
-    if(dst_unit == ONE_NET_DEV_UNIT)
-    {
-        ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
-    }
-    
-    if(msg_class == ONA_COMMAND)
-    {
-        if(user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
-        {
-            // we'll use a user-defined fatal error for the reason            
-            ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
-            ack_nack->handle = ON_NACK;
-            return ON_MSG_CONTINUE;
-        }
-        
-        switch(dst_unit)
-        {
-            case 0: USER_PIN0 = (msg_data == ONA_TOGGLE) ? !USER_PIN0 : 
-                    msg_data; break;
-            case 1: USER_PIN1 = (msg_data == ONA_TOGGLE) ? !USER_PIN1 : 
-                    msg_data; break;
-            case 2: USER_PIN2 = (msg_data == ONA_TOGGLE) ? !USER_PIN2 : 
-                    msg_data; break;
-            case 3: USER_PIN3 = (msg_data == ONA_TOGGLE) ? !USER_PIN3 : 
-                    msg_data; break;
-        }
-    }
-   
-    switch(dst_unit)
-	{
-		case 0: msg_data = USER_PIN0; break;
-		case 1: msg_data = USER_PIN1; break;
-		case 2: msg_data = USER_PIN2; break;
-		case 3: msg_data = USER_PIN3; break;
-
-        default:
-            oncli_send_msg("Invalid dest. unit.\n");
-            ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
-            ack_nack->handle = ON_NACK;
-            return ON_MSG_CONTINUE;
-	}
-        
-    switch(msg_class)
-    {
-        // note : Status message have already been handled.
-        case ONA_COMMAND:
-            msg_class = ONA_STATUS_COMMAND_RESP;
-            oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
-            break;
-        case ONA_QUERY:
-            msg_class = ONA_STATUS_QUERY_RESP;
-            break;
-        case ONA_FAST_QUERY:
-            msg_class = ONA_STATUS_FAST_QUERY_RESP;
-            break;
-        default:
-            ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
-            ack_nack->handle = ON_NACK;
-            return ON_MSG_CONTINUE;
-    }
-
-    ack_nack->handle = ON_ACK_STATUS;
-
-    // source and destination are reversed in the response.
-    put_src_unit(dst_unit, ack_nack->payload->status_resp);
-    put_dst_unit(src_unit, ack_nack->payload->status_resp);
-    put_msg_class(msg_class, ack_nack->payload->status_resp);
-
-    // we don't need to fill in the type.  It's already there since this is
-    // the same memory as the raw payload!
-
-    put_msg_data(msg_data, ack_nack->payload->status_resp);
-    return ON_MSG_CONTINUE;
-}
-
-
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t eval_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries)
-#else
-on_message_status_t eval_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries,
-  UInt8 hops, UInt8* const max_hops)
-#endif
+    \return ONCLI_SUCCESS if the device has been set to operate as device_type
+            ONCLI_BAD_PARAM if the parameter is invalid
+            ONCLI_INVALID_CMD_FOR_MODE if the current mode does not allow changing
+              the device type.
+*/
+oncli_status_t set_device_type(UInt8 device_type)
 {
-    #if 0
-    // just to prove we can pause and change the response timeout.
-    if(resp_ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE)
+#ifdef _AUTO_MODE
+    if(device_type > AUTO_CLIENT3_NODE)
+#else
+    if(device_type > CLIENT_NODE)
+#endif
     {
-        if(one_net_prand(get_tick_count(), 2))
-        {
-            resp_ack_nack->handle = ON_NACK_PAUSE_TIME_MS;
-            resp_ack_nack->payload->nack_time_ms =
-              one_net_prand(get_tick_count(), 250);
-        }
-        else
-        {
-            resp_ack_nack->handle = ON_NACK_SLOW_DOWN_TIME_MS;
-            resp_ack_nack->payload->nack_time_ms =
-              one_net_prand(get_tick_count(), 250);
-        }
-    }
-    #endif
-    
-    #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ehanr : ");
-    print_ack_nack(resp_ack_nack, 5);
-    delay_ms(10);
-    #endif
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
 
-    return ON_MSG_CONTINUE;
-}
+#ifdef _AUTO_MODE
+    if(mode_value == AUTO_MODE)
+    {
+        return ONCLI_INVALID_CMD_FOR_MODE;
+    } // if not setting the node type to device_type //
+#endif
+    
+    node_type = device_type;
+    
+    switch(node_type)
+    {
+#ifdef _SNIFFER_MODE
+        case SNIFFER_NODE:
+        {
+            node_loop_func = &sniff_eval;
+            break;
+        } // sniffer case //
+#endif
+        case MASTER_NODE:
+        {   
+            node_loop_func = &master_eval;
+            break;
+        } // MASTER case //
+
+        default:
+        {
+            node_loop_func = &client_eval;
+            break;
+        } // default case //
+    } // switch(node_type) //
+    
+    return ONCLI_SUCCESS;
+} // set_device_type //
+
+
+/*!
+    \brief Returns the raw did for this device.
+    
+    This is a "protected" function.
+    
+    \param[out] did Location to return the raw did.
+    
+    \return TRUE if retrieving the raw did was successful
+            FALSE if retrieving the raw did was not successful
+*/
+BOOL get_raw_master_did(one_net_raw_did_t * did)
+{
+    one_net_raw_sid_t * ptr_raw_sid;
+
+    if(!did)
+    {
+        return FALSE;
+    } // if the parameter is invalid //
+    
+    // The last nibble of the NID, and first nibble of the did share the same
+    // byte, so part of the NID is returned and masked out.  The did is also
+    // shifted to be in the top 3 nibbles of did
+
+    ptr_raw_sid = get_raw_sid();
+
+    one_net_memmove(*did, &(*ptr_raw_sid)[ONE_NET_RAW_NID_LEN - 1], sizeof(one_net_raw_did_t));
+    (*did)[0] &= 0x0F;
+
+    (*did)[0] <<= 4;
+    (*did)[0] |= ((*did)[1] >> 4 & 0x0F);
+    (*did)[1] <<= 4;
+
+    return TRUE;
+} // get_raw_master_did //
+
+
+/*!
+    \brief Prints the contents of the received data packet.
+    
+    \param[in] TXN_STR String representing the transaction type that was
+      received.  This can only be ONCLI_SINGLE_TXN_STR, or ONCLI_BLOCK_TXN_STR.
+    \param[in] TX_PLD The payload that was received.
+    \param[in] RX_PLD_LEN The number of bytes that was received.
+    \param[in] SRC_ADDR The sender of the data packet
+
+    \return void
+*/
+static void print_data_packet(const UInt8 *txn_str, const UInt8 *RX_PLD,
+  UInt16 len, const one_net_raw_did_t *src_addr)
+{
+    UInt16 i;
+
+#ifdef _ONE_NET_DEBUG_STACK 
+    uart_write("\nIn print_data_packet, stack is ", 32);
+    uart_write_int8_hex( (((UInt16)(&i))>>8) & 0xff );
+    uart_write_int8_hex( ((UInt16)(&i)) & 0xff );
+    uart_write("\n", 1);
+#endif
+
+    oncli_send_msg(ONCLI_RX_DATA_FMT, txn_str, did_to_u16(src_addr), len);
+
+    for(i = 0; i < len; i++)
+    {
+        oncli_send_msg("%02X ", RX_PLD[i]);
+        if((i % 16) == 15)
+        {
+            oncli_send_msg("\n");
+        } // if the line has been filled //
+    } // loop to output the bytes //
+    
+    if((i % 16) != 15)
+    {
+        oncli_send_msg("\n");
+    } // if need to end the line //
+} // print_data_packet //
+
+
+/*!
+    \brief Prints the contents of the received text packet.
+    
+    \param[in] TXN_STR String representing the transaction type that was
+      received.  This can only be ONCLI_SINGLE_TXN_STR, or ONCLI_BLOCK_TXN_STR.
+    \param[in] TXT The text that was received.
+    \param[in] TXT_LEN The number of characters received
+    \param[in] SRC_ADDR The sender of the data packet
+
+    \return void
+*/
+static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
+  UInt16 TXT_LEN, const one_net_raw_did_t *SRC_ADDR)
+{
+#ifdef _ONE_NET_DEBUG_STACK 
+    UInt8 tmp;
+    uart_write("\nIn print_text_packet, stack is ", 32);
+    uart_write_int8_hex( (((UInt16)(&tmp))>>8) & 0xff );
+    uart_write_int8_hex( ((UInt16)(&tmp)) & 0xff );
+    uart_write("\n", 1);
+#endif
+
+    oncli_send_msg(ONCLI_RX_TXT_FMT, did_to_u16(SRC_ADDR), TXT_LEN, TXT);
+
+#ifdef _ENABLE_CLIENT_PING_RESPONSE
+    //
+    // see if this simple text message is a ping request from the master
+    //
+    if ((TXT[0] == CLIENT_PING_REQUEST[0]) && (TXT[1] == CLIENT_PING_REQUEST[1]))
+    {
+        client_send_ping_response = TRUE;
+    }
+#endif
+
+} // print_text_packet //
 
 
 /*!
@@ -637,84 +1907,38 @@ void disable_user_pins(void)
     
     for(i = 0; i < NUM_USER_PINS; i++)
     {
-        user_pin[i].pin_type = ON_DISABLE_PIN;
+        user_pin[i].pin_type = ONCLI_DISABLE_PIN;
     } // loop to clear user pins //
 } // disable_user_pins //
 
 
 /*!
-    \brief Sends the user pin state to the assigned peers
+    \brief Returns the settings for the user pins.
     
-    \param void
+    \param[out] user_pin_type Array containing the user pin settings
+    \param[in] NUM_PINS The number of user pins in user_pin_type
     
-    \return void
+    \return TRUE if returning the user pin settings was successful
+            FALSE if returning the user pin settings was not successful
 */
-void send_user_pin_input(void)
+BOOL get_user_pin_type(UInt8 * user_pin_type, UInt8 NUM_PINS)
 {
-    oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
-      user_pin[user_pin_src_unit].old_state);
-      
-    send_switch_status_change_msg(user_pin_src_unit, 
-      user_pin[user_pin_src_unit].old_state, ONE_NET_DEV_UNIT, NULL);
+    UInt8 i;
 
-    user_pin_state = CHECK_USER_PIN;
-} // send_user_pin_input //
-
-
-oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type)
-{
-    if(pin_type > ON_DISABLE_PIN)
+    if(!user_pin_type || NUM_PINS != NUM_USER_PINS)
     {
-        return ONCLI_BAD_PARAM;
+        return FALSE;
     } // if any of the parameters are invalid //
-
-    switch(pin)
+    
+    for(i = 0; i < NUM_PINS; i++)
     {
-        case 0:
-        {
-            user_pin[0].old_state = USER_PIN0;
-            USER_PIN0_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
-              : pin_type;
-            break;
-        } // pin 0 case //
+        user_pin_type[i] = user_pin[i].pin_type;
+    } // loop to get the settings //
+    
+    return TRUE;
+} // get_user_pin_type //
 
-        case 1:
-        {
-            user_pin[1].old_state = USER_PIN1;
-            USER_PIN1_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
-              : pin_type;
-            break;
-        } // pin 1 case //
-
-        case 2:
-        {
-            user_pin[2].old_state = USER_PIN2;
-            USER_PIN2_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
-              : pin_type;
-            break;
-        } // pin 2 case //
-
-        case 3:
-        {
-            user_pin[3].old_state = USER_PIN3;
-            USER_PIN3_DIR = pin_type == ON_DISABLE_PIN ? ON_INPUT_PIN
-              : pin_type;
-            break;
-        } // pin 3 case //
-
-        default:
-        {
-            return ONCLI_BAD_PARAM;
-            break;
-        } // default case //
-    } // switch(PIN) //
-
-    user_pin[pin].pin_type = pin_type;
-    return ONCLI_SUCCESS;
-} // oncli_set_user_pin_type //
-
-
-void oncli_print_user_pin_cfg(void)
+oncli_print_user_pin_cfg(void)
 {
     UInt8 i;
     UInt8 state;
@@ -724,7 +1948,7 @@ void oncli_print_user_pin_cfg(void)
     for(i = 0; i < NUM_USER_PINS; i++)
     {
         //
-        // collect the state of the user pin, so we can print it
+        // collect the state of the user pin, so we can pront it
         //
         switch (i)
         {
@@ -758,12 +1982,12 @@ void oncli_print_user_pin_cfg(void)
             }
         }
         type_string = ONCLI_DISABLE_STR;
-        if (user_pin[i].pin_type == ON_INPUT_PIN)
+        if (user_pin[i].pin_type == ONCLI_INPUT_PIN)
         {
             type_string = ONCLI_INPUT_STR;
             oncli_send_msg("  %d %s state: %d\n", i, type_string, state); 
         }
-        else if (user_pin[i].pin_type == ON_OUTPUT_PIN)
+        else if (user_pin[i].pin_type == ONCLI_OUTPUT_PIN)
         {
             type_string = ONCLI_OUTPUT_STR;
             oncli_send_msg("  %d %s state: %d\n", i, type_string, state); 
@@ -772,690 +1996,211 @@ void oncli_print_user_pin_cfg(void)
         {
             oncli_send_msg("  %d %s\n", i, type_string); 
         }
+        delay_ms(100);
     }
 } // oncli_print_user_pin_cfg //
 
-
-#ifdef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
-  UInt8* const max_hops)
+void main(void)
 {
-    return ON_MSG_DEFAULT_BHVR;
-}
+#ifdef _ONE_NET_DEBUG_STACK 
+    UInt8 tmp; // should be close to the top of the normal stack
 #endif
+    INIT_PORTS();
+    TAL_INIT_TRANSCEIVER();
 
+    // initialize the processor speed
+    INIT_PROCESSOR();
 
-#ifndef _ONE_NET_MULTI_HOP
-void eval_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
+    INIT_PORTS_LEDS();
+    INIT_TICK();
+    FLASH_ERASE_CHECK();
+
+#if defined(_ONE_NET_DEBUG) || defined(_SNIFFER_FRONT_END)
+    uart_init(BAUD_115200, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
 #else
-void eval_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
+    uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
 #endif
-{
-    if(!dst)
-    {
-        return;
-    } // if the parameters are invalid //
-    
-    #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ests start:");
-    oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
-      data[0], data[1], data[2], data[3], data[4]);
-    oncli_send_msg("Hdr-->");
-    print_msg_hdr(&msg_hdr);
-    #ifndef _ONE_NET_MULTI_HOP
-    oncli_send_msg("retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
-      (*dst)[0], (*dst)[1]);
-    #else
-    oncli_send_msg("retry=%d,hops=%d,dst=%02X%02X\nack_nack-->", retry_count,
-      hops, (*dst)[0], (*dst)[1]);
-    #endif
+    disable_user_pins();
+    ENABLE_GLOBAL_INTERRUPTS();
 
-    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
-      ON_PLD_DATA_IDX);
-    #endif
-
-    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
-      oncli_msg_status_str(status));
-
-    #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ests end\n");
-    #endif
-    
-    if(ack_nack->handle == ON_ACK_STATUS)
-    {
-        UInt8 src_unit = get_src_unit(ack_nack->payload->status_resp);
-        UInt16 msg_data = get_msg_data(ack_nack->payload->status_resp);
-        oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(dst),
-          msg_data);
-    }
-}
-
-
-
-// Packet Display Funcitonality
-// TODO -- Should these functions be in oncli.c instead of here?
-#if _DEBUG_VERBOSE_LEVEL > 0
-
-#if _DEBUG_VERBOSE_LEVEL > 1
-/*!
-    \brief Displays a DID in verbose fashion.
-
-    \param[in] description The description to prepend in front of the DID
-    \param[in] enc_did The encioded DID to display.
-    
-    \return void
-*/
-void debug_display_did(const char* const description,
-  const on_encoded_did_t* const enc_did)
-{
-    #if _DEBUG_VERBOSE_LEVEL > 2
-    on_raw_did_t raw_did;
-    BOOL valid = (on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) ==
-      ONS_SUCCESS);
-    #endif
-    
-    oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
-    #if _DEBUG_VERBOSE_LEVEL > 2
-    if(valid)
-    {
-        oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
-    }
-    else
-    {
-        oncli_send_msg(" -- Invalid");
-    }
-    #endif
-    oncli_send_msg("\n");
-}
-
-
-/*!
-    \brief Displays an NID in verbose fashion.
-
-    \param[in] description The description to prepend in front of the NID
-    \param[in] enc_nid The encioded NID to display.
-    
-    \return void
-*/
-void debug_display_nid(const char* const description,
-  const on_encoded_nid_t* const enc_nid)
-{
-    #if _DEBUG_VERBOSE_LEVEL > 2
-    on_raw_nid_t raw_nid;
-    BOOL valid = (on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) ==
-      ONS_SUCCESS);
-    #endif
-    
-    oncli_send_msg("%s : 0x", description);
-    uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
-    #if _DEBUG_VERBOSE_LEVEL > 2
-    if(valid)
-    {
-        oncli_send_msg(" -- Decoded : 0x");
-        uart_write_int8_hex_array(raw_nid, FALSE, ON_RAW_NID_LEN-1);
-        oncli_send_msg("%c", HEX_DIGIT[(raw_nid[ON_RAW_NID_LEN-1] >> 4)
-          & 0x0F]);
-    }
-    else
-    {
-        oncli_send_msg(" -- Invalid");
-    }
-    #endif
-    oncli_send_msg("\n");
-}
+#ifdef _DEBUG_DELAY
+set_time_zero();
 #endif
 
-
-/*!
-    \brief Parses and displays a packet
-
-    \param[in] packet_bytes The bytes that make up the packet.
-    \param[in] num_bytes The number of bytes in the packet.
-    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
-                 NULL and set num_keys to 0.
-    \param[in] num_enc_keys the number of block / single keys to check.
-    \param[in] invite_keys the invite keys to check.  If not relevant, set to
-                 NULL and set num_invite_keys to 0.
-    \param[in] num_invite_keys the number of invite keys to check.
-    
-    \return void
-*/
-#if _DEBUG_VERBOSE_LEVEL < 3
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
+#ifdef _SNIFFER_FRONT_END
+#ifdef _AUTO_MODE
+    mode_value = SERIAL_MODE;
+#endif
+    oncli_reset_master();
+    oncli_reset_master_with_channel(oncli_get_sid(), 21);
+    while (1)
+    {
+        look_for_all_packets();
+    }
 #else
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
-  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
-  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys)
-#endif
-{
-    UInt8 i;
-    for(i = 0; i < num_bytes; i++)
-    {
-        oncli_send_msg("%02X ", packet_bytes[i]);
-    
-        if((i % 16) == 15)
-        {
-            oncli_send_msg("\n");
-        } // if need to output a new line //
-    } // loop to output the bytes that were read //
-    oncli_send_msg("\n\n");   
 
-    #if _DEBUG_VERBOSE_LEVEL > 1
-    {
-        UInt8 raw_pid = encoded_to_decoded_byte(
-            packet_bytes[ONE_NET_ENCODED_PID_IDX], FALSE);
-        on_pkt_t debug_pkt_ptrs;
-        oncli_send_msg("Raw PID=%02X", raw_pid);
+    oncli_send_msg("\n");
+    oncli_send_msg(ONCLI_STARTUP_FMT, MAJOR_VER, MINOR_VER);
+    oncli_send_msg(ONCLI_STARTUP_REV_FMT, REVISION_NUM, BUILD_NUM);
 
-        if(!setup_pkt_ptr(raw_pid, packet_bytes, &debug_pkt_ptrs))
-        {
-            oncli_send_msg(" is invalid\n");
-        }
-        else
-        {
-            if(get_encoded_packet_len(raw_pid, TRUE) != num_bytes)
-            {
-                oncli_send_msg(" -- Invalid number of bytes for raw pid %02X, "
-                  "Expected=%d, Actual=%d\n\n", raw_pid,
-                  get_encoded_packet_len(raw_pid, TRUE), num_bytes);
-                return;
-            }
-            
-            oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
-            #if _DEBUG_VERBOSE_LEVEL > 2
-            {
-                oncli_send_msg(" -- Decoded : ");
-                if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
-                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
-                {
-                    oncli_send_msg("Not decodable");
-                }
-                else
-                {
-                    oncli_send_msg("0x%02X", debug_pkt_ptrs.msg_id >> 2);
-                }
-            }
-            #else
-            oncli_send_msg("\n");
-            #endif
-            
-            oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg CRC : 0x%02X", *(debug_pkt_ptrs.enc_msg_crc));
-            #if _DEBUG_VERBOSE_LEVEL > 2
-            {
-                UInt8 calculated_msg_crc;
-
-                oncli_send_msg(" -- Decoded Msg. CRC : ");
-                if(on_decode(&debug_pkt_ptrs.msg_crc, debug_pkt_ptrs.enc_msg_crc,
-                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
-                {
-                    oncli_send_msg("Not decodable\n");
-                }
-                else
-                {
-                    oncli_send_msg("0x%02X\n", debug_pkt_ptrs.msg_crc);
-                }
-                
-                calculated_msg_crc = calculate_msg_crc(&debug_pkt_ptrs);
-                oncli_send_msg("Calculated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
-                
-                if(calculated_msg_crc != debug_pkt_ptrs.msg_crc)
-                {
-                    oncli_send_msg("Calc. msg. CRC does not match packet "
-                      "CRC!\n");
-                } 
-            }
-            #else
-            oncli_send_msg("\n");
-            #endif
-            
-            debug_display_did("Repeater DID",
-              debug_pkt_ptrs.enc_repeater_did);
-            debug_display_did("Dest. DID",
-              debug_pkt_ptrs.enc_dst_did);
-            debug_display_nid("NID",
-              debug_pkt_ptrs.enc_nid);
-            debug_display_did("Source DID",
-              debug_pkt_ptrs.enc_src_did);
-              
-            oncli_send_msg("Encoded Payload Length : %d\n",
-              debug_pkt_ptrs.payload_len);
-            for(i = 0; i < debug_pkt_ptrs.payload_len; i++)
-            {
-                oncli_send_msg("%02X ", debug_pkt_ptrs.payload[i]);
-    
-                if((i % 16) == 15)
-                {
-                    oncli_send_msg("\n");
-                } // if need to output a new line //
-            } // loop to output the bytes that were read //
-            
-            #if _DEBUG_VERBOSE_LEVEL > 2
-            {
-                UInt8 raw_pld_len = get_raw_payload_len(raw_pid);
-                oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
-                  raw_pld_len);
-                if(on_decode(raw_payload_bytes, debug_pkt_ptrs.payload,
-                  debug_pkt_ptrs.payload_len) != ONS_SUCCESS)
-                {
-                    oncli_send_msg("Not Decodable\n\n");
-                    return;
-                }
-                
-                for(i = 0; i < raw_pld_len; i++)
-                {
-                    oncli_send_msg("%02X ", raw_payload_bytes[i]);
-    
-                    if((i % 16) == 15)
-                    {
-                        oncli_send_msg("\n");
-                    } // if need to output a new line //
-                } // loop to output the raw payload //
-                oncli_send_msg("\n");
-                
-                {
-                    UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
-                    UInt8 j;
-                    UInt8* encrypted = (UInt8*) raw_payload_bytes;
-                    on_data_t data_type;
-                    
-                    #ifndef _ONE_NET_MASTER
-                    one_net_xtea_key_t alternate_keys[1];
-                    #else
-                    one_net_xtea_key_t alternate_keys[2];
-                    #endif
-
-                    UInt8 num_keys;
-                    const one_net_xtea_key_t* keys =
-                      (const one_net_xtea_key_t*) &alternate_keys[0];
-
-                    if(packet_is_invite(raw_pid))
-                    {
-                        if(num_invite_keys > 0)
-                        {
-                            num_keys = num_invite_keys;
-                            keys = (const one_net_xtea_key_t*) &invite_keys[0];
-                        }
-                        else
-                        {
-                            #ifdef _ONE_NET_CLIENT
-                            if(!device_is_master)
-                            {
-                                one_net_memmove(alternate_keys[0],
-                                  one_net_client_get_invite_key(),
-                                  sizeof(one_net_xtea_key_t));
-                                num_keys = 1;
-                            }
-                            else
-                            {
-                                num_keys = 0;
-                            }
-                            #else
-                            num_keys = 0;
-                            #endif
-                        }
-
-                        data_type = ON_INVITE;
-                    }
-                    else
-                    {
-                        if(num_enc_keys > 0)
-                        {
-                            num_keys = num_enc_keys;
-                            keys = (const one_net_xtea_key_t*)
-                              &enc_keys[0];
-                        }
-                        else
-                        {
-                            one_net_memmove(alternate_keys[0],
-                              on_base_param->current_key,
-                              sizeof(one_net_xtea_key_t));
-                            num_keys = 1;
-                            #ifdef _ONE_NET_MASTER
-                            if(device_is_master)
-                            {
-                                one_net_memmove(alternate_keys[1],
-                                  on_base_param->old_key,
-                                  sizeof(one_net_xtea_key_t));
-                                num_keys = 2;
-                            }
-                            #endif
-                        }
-                        
-                        data_type = ON_SINGLE;
-                        #ifdef _BLOCK_MESSAGES_ENABLED
-                        if(packet_is_block(raw_pid))
-                        {
-                            data_type = ON_BLOCK;
-                        }
-                        #endif
-                        #ifdef _STREAM_MESSAGES_ENABLED
-                        else if(packet_is_stream(raw_pid))
-                        {
-                            data_type = ON_STREAM;
-                        }
-                        #endif
-                    }
-                    
-                    for(j = 0; j < num_keys; j++)
-                    {
-                        UInt8 calc_payload_crc;
-                        BOOL crc_match;
-                        oncli_send_msg("Decrypted using key ");
-                        oncli_print_xtea_key(&keys[j]);
-                        oncli_send_msg("\n");
-                        one_net_memmove(decrypted, encrypted, raw_pld_len);
-                        
-                        if(on_decrypt(data_type, decrypted,
-                          (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
-                          ONS_SUCCESS)
-                        {
-                            oncli_send_msg("Not decryptable\n");
-                            break;
-                        }
-                        
-                        for(i = 0; i < raw_pld_len -  1; i++)
-                        {
-                            oncli_send_msg("%02X ", decrypted[i]);
-    
-                            if((i % 16) == 15)
-                            {
-                                oncli_send_msg("\n");
-                            } // if need to output a new line //
-                        } // loop to output the raw payload //
-                        oncli_send_msg("\n");
-
-                        calc_payload_crc = (UInt8)one_net_compute_crc(
-                          &decrypted[ON_PLD_CRC_SIZE], raw_pld_len - 1 -
-                          ON_PLD_CRC_SIZE, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-
-                        crc_match = (calc_payload_crc == decrypted[0]);
-                        oncli_send_msg("Payload CRC = 0x%02X, Calculated "
-                          "Payload CRC = 0x%02X, CRCs%s match.\n",
-                          decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
-                        #ifdef _ONE_NET_MULTI_HOP
-                        {
-                            if(packet_is_multihop(raw_pid))
-                            {
-                                oncli_send_msg("Encoded Hops Field : %02X  ",
-                                  *(debug_pkt_ptrs.enc_hops_field));
-                                if(on_parse_hops(
-                                  *(debug_pkt_ptrs.enc_hops_field),
-                                  &(debug_pkt_ptrs.hops),
-                                  &(debug_pkt_ptrs.max_hops)) != ONS_SUCCESS)
-                                {
-                                    oncli_send_msg("Not Decodable\n");
-                                }
-                                else
-                                {
-                                    oncli_send_msg("Hops : %d Max Hops : %d\n",
-                                      debug_pkt_ptrs.hops,
-                                      debug_pkt_ptrs.max_hops);
-                                }
-                            }
-                        }
-                        #endif
-                    }
-                }
-            }
-            #endif
-        }
-    }
-    #endif
-}
+#ifdef _ONE_NET_DEBUG_STACK 
+    uart_write("\nIn main, stack is ", 19);
+    uart_write_int8_hex( (((UInt16)(&tmp))>>8) & 0xff );
+    uart_write_int8_hex( ((UInt16)(&tmp)) & 0xff );
+    uart_write("\n", 1);
 #endif
 
-
-#ifndef _ONE_NET_SIMPLE_DEVICE
-void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
-  on_recipient_list_t** recipient_send_list)
-{
-}
-#endif
-
-
-/*!
-    \brief Initializes the pins of the master to the default directions and values
-    
-    Masters have even pins as outputs and odd pins and inputs, clients have
-    the reverse, which allows for quick commands between master and clients
-    without having to change pin directions on the Eval Board manually.
-    
-    \param[in] is_master If true, the device is a master.  If false, the
-               device is a client.
-
-    \return void
-*/
-void initialize_default_pin_directions(BOOL is_master)
-{
-    UInt8 i;
-    for(i = 0; i < NUM_USER_PINS; i++)
-    {
-        oncli_set_user_pin_type(i, (is_master == (i % 2)) ? ON_INPUT_PIN :
-          ON_OUTPUT_PIN);
-    }
-    user_pin_state = CHECK_USER_PIN;
-}
-
-
-
-
-
-//! @} ONE-NET_eval_pub_func
-//                      PUBLIC FUNCTION IMPLEMENTATION END
-//=============================================================================
-
-//=============================================================================
-//                      PRIVATE FUNCTION IMPLEMENTATION
-//! \addtogroup ONE-NET_eval_pri_func
-//! \ingroup ONE-NET_eval
-//! @{
-
-
-
-/*!
-    \brief returns the string to use as part of the Command-line-interface
-           prompt
-        
-    \return string to use as part of the Command-line-interface prompt
-*/
-static const char* get_prompt_string(void)
-{
-    #ifdef _SNIFFER_MODE
-    if(in_sniffer_mode)
-    {
-        return sniffer_prompt;
-    }
-    #endif
-    
-    #ifdef _ONE_NET_MASTER
-        #ifdef _ONE_NET_CLIENT
-        if(device_is_master)
-        {
-            return master_prompt;
-        }
-        #else
-        return master_prompt;
-        #endif
-    #endif
-    
-    #ifndef _AUTO_MODE
-    return client_prompt;
-    #else
-        if(!in_auto_mode)
-        {
-            return client_prompt;
-        }
-        
-        return auto_client_prompts[auto_client_index];
-    #endif
-}
-
-
-/*!
-    \brief Sends a switch command message when a switch is flipped.
-    
-    \param[in] src_unit The source unit 
-    \param[in] status The status of the pin
-    \param[in] dst_unit The destination unit
-    \param[in] enc_dst The device that is to receive this message.
-    
-    \return ONS_SUCCESS if the message was successfully queued.
-            ONS_INTERNAL_ERR If the send single function could not be retrieved.
-            See one_net_client_send_single & one_net_master_send_single for
-            more return values.
-*/
-one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
-  UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
-{
-    // source is this device
-    on_encoded_did_t* src_did = (on_encoded_did_t*)
-      (&(on_base_param->sid[ON_ENCODED_NID_LEN]));    
-    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-
-    put_src_unit(src_unit, raw_pld);
-    put_msg_hdr(ONA_STATUS_CHANGE | ONA_SWITCH, raw_pld);
-    put_msg_data(status, raw_pld);
-    put_dst_unit(dst_unit, raw_pld);
-
-    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
-      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, src_did, enc_dst
-      #ifdef _PEER
-          , TRUE, src_unit
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , 0
-      #endif
-      );    
-} // send_switch_status_change_msg //
-
-
-/*!
-    \brief Checks the three switches to see whether the device boots in
-        auto mode, whether the device is a master or a client, and,
-        if in auto mode and a client, which client the device should
-        be assigned.
-        
-    \return none
-*/
-static void eval_set_modes_from_switch_positions(void)
-{
-    #ifdef _ONE_NET_CLIENT
-        // note : this includes devices which are both master and clients
-        // If that is the case and we are in master mode, it will be set
-        // below
-        device_is_master = FALSE;
-        node_loop_func = &client_eval;
-    #else
-        device_is_master = TRUE;
-        node_loop_func = &master_eval;    
-    #endif
-    
-    #ifdef _AUTO_MODE
+#ifdef _AUTO_MODE
 	// check mode switch (Auto/Serial)
 	if(SW_MODE_SELECT == 0)
 	{
-		in_auto_mode = TRUE;
-    }
-    #endif
+		mode_value = AUTO_MODE;
+		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
+	} // if auto mode //
+	else
+	{
+		mode_value = SERIAL_MODE;
+		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+	} // else serial //
+#else
+	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
+#endif
 
-    #ifdef _ONE_NET_MASTER
-    if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))  
+    // Get the node type
+    if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))
     {
-        device_is_master = TRUE;
+        node_type = MASTER_NODE;
+        // might as well set deviceIsMaster here.  It will be set elsewhere
+        // too.
+        deviceIsMaster = TRUE;
+        
         node_loop_func = &master_eval;
-    }
-    #endif
-    
-    #ifdef _AUTO_MODE
-    if(!device_is_master && in_auto_mode)
-    {
-        if((SW_ADDR_SELECT1 == 1) && (SW_ADDR_SELECT2 == 0))
-        {
-            auto_client_index = 0;
-        }
-        else if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 1))        
-        {
-            auto_client_index = 1;
-        }
-        else       
-        {
-            auto_client_index = 2;
-        }
-    }
-    #endif
-}
-
-
+		
+		one_net_send_single = &one_net_master_send_single; // Derek_S May 30, 2011 - did this get filled in anywhere?
+		
 #ifdef _AUTO_MODE
-/*!
-    \brief Sends a simple text command message.
-    
-    \param[in] text Pointer to the two characters to send.
-    \param[in] src_unit The unit in this device the message pertains to.
-    \param[in] dst_unit The device that is to receive this message.
-    \param[in] enc_dst The device that is to receive this message.
-    
-    \return ONS_SUCCESS if the message was successfully queued.
-            ONS_INTERNAL_ERR If the send single function could not be retrieved.
-            See one_net_client_send_single & one_net_master_send_single for
-            more return values.
-*/
-one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
-  UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
-{
-    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
+        if(mode_value == AUTO_MODE)
+        {
+            init_auto_master();
+        } // if auto mode //
+        else
+        {
+#endif
+            init_serial_master();
+#ifdef _AUTO_MODE
+        } // else not auto mode //
+#endif
+    } // if MASTER //
+#ifdef _AUTO_MODE
+    else if(mode_value != AUTO_MODE)
+#else
+    else
+#endif
+    {
+        UInt8 *PARAM;
+        UInt16 len;
+        
+        #ifdef _PEER
+        UInt8* CLIENT_PEERS;
+        UInt16 client_peer_len;
+        #endif
 
-    put_src_unit(src_unit, raw_pld);
-    put_dst_unit(dst_unit, raw_pld);
-    put_msg_hdr(ONA_COMMAND | ONA_SIMPLE_TEXT, raw_pld);    
-    // we won't use the put_msg_data function here due to
-    // endianness.  Instead use one_net_memmove
-    one_net_memmove(&raw_pld[ONA_MSG_DATA_IDX], text, ONA_MSG_DATA_LEN);
-      
-    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
-      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, NULL, enc_dst
-      #ifdef _PEER
-          , FALSE, ONE_NET_DEV_UNIT
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , 0
-      #endif
-      );    
-} // send_send_simple_text_command //
+        // if not auto mode, then the device is a CLIENT, and we don't
+        // need to distinguish between it and other CLIENTS.
+        node_type = CLIENT_NODE;
+        node_loop_func = &client_eval;
+		
+		one_net_send_single = &one_net_client_send_single; // Derek_S May 30, 2011 - did this get filled in anywhere?
+		
+        
+        if(eval_load(DFI_ST_ONE_NET_CLIENT_SETTINGS, &len, &PARAM))
+        {
+			// Derek_S 11/3/2010 - harness the return value.  If any problems (i.e. not in
+			// a network, reset the client).  Any pin assignments will be lost.  Client will
+			// not be in a network and will look for an invite.
+            if(one_net_client_init(PARAM, len) != ONS_SUCCESS)
+			{
+				oncli_reset_client();
+				goto initialize_done;
+			}
+			
+            one_net_copy_to_nv_param(PARAM, len);
+            
+            #ifdef _PEER
+            if(eval_load(DFI_ST_APP_DATA_2, &client_peer_len, &CLIENT_PEERS)
+              && client_peer_len == CLIENT_PEER_SIZE_BYTES)
+            {
+                one_net_memmove(peer, CLIENT_PEERS, CLIENT_PEER_SIZE_BYTES);
+            }
+            else
+            {
+                oncli_reset_client();
+                goto initialize_done;
+            }
+            #endif
+            
+			
+            if(eval_load(DFI_ST_APP_DATA_1, &len, &PARAM))
+            {
+                UInt8 i;
+
+                for(i = 0; i < len; i++)
+                {
+                    oncli_set_user_pin_type(i, PARAM[i]);
+                } // loop to set the user pin type //
+            } // if there is user pin data //
+			
+        } // if previous settings were stored //
+        else
+        {
+            oncli_reset_client();
+        } // else look to join a network //
+    } // else if not auto mode //
+#ifdef _AUTO_MODE
+    else if((SW_ADDR_SELECT1 == 1) && (SW_ADDR_SELECT2 == 0))
+    {
+        node_type = AUTO_CLIENT1_NODE;
+        node_loop_func = &client_eval;
+        init_auto_client(node_type);
+    } // else if CLIENT1 //
+    else if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 1))
+    {
+        node_type = AUTO_CLIENT2_NODE;
+        node_loop_func = &client_eval;
+        init_auto_client(node_type);
+    } // else if CLIENT2 //
+    else
+    {
+        node_type = AUTO_CLIENT3_NODE;
+        node_loop_func = &client_eval;
+        init_auto_client(node_type);
+    } // else CLIENT3 //
+#endif
 #endif
 
 
-/*!
-    \brief Prints the contents of the received text packet.
-    
-    \param[in] TXN_STR String representing the transaction type that was rcv'd
-    \param[in] TXT The text that was received.
-    \param[in] TXT_LEN The number of characters received
-    \param[in] SRC_ADDR The sender of the data packet
+// Derek_S 11/3/2010 - added label for goto statement.
+initialize_done:
+    oncli_print_prompt();
+    while(1)
+    {
+        if(ont_active(TX_LED_TIMER) && ont_expired(TX_LED_TIMER))
+        {
+            TURN_OFF(TX_LED);
+            ont_stop_timer(TX_LED_TIMER);
+        } // if time to turn off the tx led //
+        
+        if(ont_active(RX_LED_TIMER) && ont_expired(RX_LED_TIMER))
+        {
+            TURN_OFF(RX_LED);
+            ont_stop_timer(RX_LED_TIMER);
+        } // if time to turn off the rx led //
 
-    \return void
-*/
-static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
-  UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR)
-{
-    oncli_send_msg(ONCLI_RX_TXT_FMT, did_to_u16(SRC_ADDR), TXT_LEN, TXT);
-} // print_text_packet //
+        (*node_loop_func)();
+        oncli();
 
-
+    } // main loop //
+} // main //
 
 //! @} ONE-NET_eval_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END

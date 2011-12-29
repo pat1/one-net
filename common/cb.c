@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,16 @@
     Contains the implementation of functions for accessing circular buffers.
 */
 
+#include "config_options.h"
+
+
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 
 #include "cb.h"
+
 #include "one_net_port_specific.h"
 
 
@@ -90,7 +97,6 @@
 //! \ingroup cb
 //! @{
 
-
 /*!
     \brief Dequeues bytes from the buffer
 
@@ -102,6 +108,7 @@
 
     \return The number of bytes read from the buffer.
 */
+#ifdef _NEED_CB_DEQUEUE
 UInt16 cb_dequeue(cb_rec_t * cb, UInt8 * buffer, const UInt16 LEN)
 {
     UInt16 bytes_read = 0;
@@ -149,6 +156,24 @@ UInt16 cb_dequeue(cb_rec_t * cb, UInt8 * buffer, const UInt16 LEN)
 
     return bytes_read;
 } // cb_dequeue //
+#else
+//
+// Get one byte from the queue
+// If it's empty, return zero, else return 1;
+//
+UInt16 cb_getqueue(cb_rec_t *cb, UInt8 *data)
+{
+    // bad parameters or buffer empty: return 0
+    if (!cb || !data || (cb->head == cb->tail)) {
+        return 0;
+    }
+    *data = cb->buffer[cb->tail];
+    if (++cb->tail > cb->wrap) {
+        cb->tail = 0;
+    }
+    return 1;
+}
+#endif
 
 
 /*!
@@ -162,6 +187,7 @@ UInt16 cb_dequeue(cb_rec_t * cb, UInt8 * buffer, const UInt16 LEN)
     \return TRUE if the byte was added to the circular
             FALSE if the byte was not added
  */
+#ifdef _NEED_CB_ENQUEUE
 UInt16 cb_enqueue(cb_rec_t * const cb, const UInt8 * DATA, const UInt16 LEN)
 {
     UInt16 bytes_written = 0;
@@ -172,11 +198,6 @@ UInt16 cb_enqueue(cb_rec_t * const cb, const UInt8 * DATA, const UInt16 LEN)
     {
         return FALSE;
     } // if any of the parameters are invalid //
-    
-    if(cb->head == cb->tail)
-    {
-        cb->head = cb->tail = 0;
-    }
 
     last_free_position = cb->tail ? cb->tail - 1 : cb->wrap;
 
@@ -216,6 +237,54 @@ UInt16 cb_enqueue(cb_rec_t * const cb, const UInt8 * DATA, const UInt16 LEN)
     return bytes_written;
 } // cb_enqueue //
 
+//
+// Try to put a single char into the queue. If there is room,
+// put it into the buffer and return 1. 
+//
+// If the queue is already full, set overflow flag and return 0.
+//
+UInt16 cb_putqueue(cb_rec_t *cb , UInt8 data)
+{
+    cb_enqueue(cb, &data, 1);
+}
+#else
+UInt16 cb_putqueue(cb_rec_t *cb , UInt8 data)
+{
+    UInt8  bytes_written = 0;
+    UInt16 next_head_position; // The next free position if after
+                               // this write
+
+    // Trap illegal values
+    if(!cb || !cb->buffer)
+    {
+        return 0;
+    }
+    // The "head" points to the next position to be written;
+    //
+    // We calculate what the new value will be after this byte
+    // goes into ghe buffer.
+    //
+    // Note that tail==head if and only if it's empty, so we
+    // never let head get equal to tail when writing. 
+    // In other words, if the next position of the head would
+    // be equal to the tail, it's a no-go.
+    //
+    next_head_position = cb->head + 1;
+    if (next_head_position > cb->wrap) {
+        next_head_position = 0;
+    }
+
+    if(next_head_position != cb->tail) {// can put a byte
+        cb->buffer[cb->head] = data;
+        cb->head = next_head_position;
+        ++bytes_written;
+    }
+    if(bytes_written == 0) { // couldn't write: It's an overflow
+        cb->flags |= CB_FLAG_OVERFLOW;
+    }
+    return bytes_written;
+}
+#endif
 
 /*!
     \brief Return the capacity of the referenced circular buffer.
@@ -296,38 +365,6 @@ UInt16 cb_bytes_free(const cb_rec_t * const CB)
 
     return CB->wrap - cb_bytes_queued(CB);
 } // cb_bytes_free //
-
-
-/*!
-    \brief Dequeues a single byte from the circular buffer
-
-    \param[in/out] cb Pointer to the circular buffer record (cb_rec_t) to 
-      be accessed.
-    \param[out] byte Pointer to a UInt8 to store the byte obtained from
-      the circular buffer.
-
-    \return The number of bytes read from the buffer (0 or 1).
-*/
-UInt8 cb_getqueue(cb_rec_t *cb, UInt8 *byte)
-{
-    return (UInt8) (cb_dequeue(cb, byte, 1));
-}
-
-
-/*!
-    \brief Enqueues a single byte onto the circular buffer
-
-    \param[in/out] cb Pointer to the circular buffer record (cb_rec_t) to 
-      be accessed.
-    \param[out] byte Pointer to a UInt8 to store the byte obtained from
-      the circular buffer.
-
-    \return The number of bytes read from the buffer (0 or 1).
-*/
-UInt8 cb_putqueue(cb_rec_t *cb , UInt8 byte)
-{
-    return (UInt8) (cb_enqueue(cb, &byte, 1));
-}
 
 //! @} cb_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END

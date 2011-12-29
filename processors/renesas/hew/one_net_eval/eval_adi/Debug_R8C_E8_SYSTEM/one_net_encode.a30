@@ -1,0 +1,1031 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:42 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_encode.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\one_net_encode.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode.c", "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../src/common/one_net_types.h", "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode.h", "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode"
+	._inspect	'F', 'p', "on_encode", "$on_encode", 'G', 101, 0, 00h, 0
+	._inspect	'F', 'p', "on_decode", "$on_decode", 'G', 103, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode.c", "C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode"
+	._inspect	'V', 'd', "RAW_TO_ENCODED", "_RAW_TO_ENCODED", 'S', 68, 64, 0, 0, 00h
+	._inspect	'V', 'd', "ENCODED_TO_RAW_H_NIB", "_ENCODED_TO_RAW_H_NIB", 'S', 85, 16, 0, 0, 00h
+	._inspect	'V', 'd', "ENCODED_TO_RAW_L_NIB", "_ENCODED_TO_RAW_L_NIB", 'S', 102, 16, 0, 0, 00h
+
+;## #	FUNCTION on_encode
+;## #	FRAME	AUTO	(encoded_idx)	size  2,	offset -6
+;## #	FRAME	AUTO	(     RAW)	size  2,	offset -4
+;## #	FRAME	AUTO	( encoded)	size  2,	offset -2
+;## #  FRAME   ARG (ENCODED_SIZE)  size   2,    offset 5
+;## #  REGISTER ARG    ( encoded)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (     RAW)   size   2,   REGISTER R2
+;## #	ARG Size(2)	Auto Size(6)	Context Size(5)
+
+
+	.SECTION	program,CODE
+	._inspect	'U', 2, "program", "program", 0
+	._file	'C:/HEWProj/2_0_trunk/one_net/utility/one_net_encode.c'
+	._type	256,'N',''
+	._type	256,'m','ONS_SNGH_INTERNAL_ERR',47
+	._type	256,'m','ONS_RETRY',46
+	._type	256,'m','ONS_STREAM_CANCELED',45
+	._type	256,'m','ONS_BLOCK_CANCELED',44
+	._type	256,'m','ONS_SINGLE_CANCELED',43
+	._type	256,'m','ONS_REBUILD_PKT',42
+	._type	256,'m','ONS_WRITE_ERR',41
+	._type	256,'m','ONS_READ_ERR',40
+	._type	256,'m','ONS_NOT_JOINED',39
+	._type	256,'m','ONS_DEVICE_LIMIT',38
+	._type	256,'m','ONS_DID_FAILED',37
+	._type	256,'m','ONS_NID_FAILED',36
+	._type	256,'m','ONS_INCORRECT_ADDR',35
+	._type	256,'m','ONS_BAD_ADDR',34
+	._type	256,'m','ONS_BROADCAST_ADDR',33
+	._type	256,'m','ONS_MULTICAST_ADDR',32
+	._type	256,'m','ONS_UNICAST_ADDR',31
+	._type	256,'m','ONS_UNHANDLED_PKT',30
+	._type	256,'m','ONS_BAD_PKT',29
+	._type	256,'m','ONS_BAD_PKT_TYPE',28
+	._type	256,'m','ONS_BAD_ENCODING',27
+	._type	256,'m','ONS_BAD_RAW_DATA',26
+	._type	256,'m','ONS_BAD_RAW_PKT_LEN',25
+	._type	256,'m','ONS_TXN_DOES_NOT_EXIST',24
+	._type	256,'m','ONS_TXN_QUEUED',23
+	._type	256,'m','ONS_STREAM_FAIL',22
+	._type	256,'m','ONS_STREAM_END',21
+	._type	256,'m','ONS_BLOCK_FAIL',20
+	._type	256,'m','ONS_BLOCK_END',19
+	._type	256,'m','ONS_SINGLE_FAIL',18
+	._type	256,'m','ONS_SINGLE_END',17
+	._type	256,'m','ONS_INCORRECT_NONCE',16
+	._type	256,'m','ONS_TX_NACK',15
+	._type	256,'m','ONS_RX_NACK',14
+	._type	256,'m','ONS_RX_STAY_AWAKE',13
+	._type	256,'m','ONS_CRC_FAIL',12
+	._type	256,'m','ONS_UNHANDLED_VER',11
+	._type	256,'m','ONS_INTERNAL_ERR',10
+	._type	256,'m','ONS_TIME_OUT',9
+	._type	256,'m','ONS_CANCELED',8
+	._type	256,'m','ONS_RSRC_FULL',7
+	._type	256,'m','ONS_END',6
+	._type	256,'m','ONS_MORE',5
+	._type	256,'m','ONS_INVALID_DATA',4
+	._type	256,'m','ONS_ALREADY_IN_PROGRESS',3
+	._type	256,'m','ONS_NOT_INIT',2
+	._type	256,'m','ONS_BAD_PARAM',1
+	._type	256,'m','ONS_SUCCESS',0
+	._type	257,'T','one_net_status_t',256
+	._type	258,'T','UInt8',3
+	._type	259,'O',258
+	._type	260,'O',258
+	._type	261,'T','UInt16',18
+	._type	262,'x',257,3
+	._type	262,'m','encoded',0,259
+	._type	262,'m','RAW',0,260
+	._type	262,'m','ENCODED_SIZE',0,261
+	._func	'on_encode','G',6,262,$on_encode,0
+	._inspect	'F', 's', "on_encode", "$on_encode", 'G', 11
+	._block
+	._line	158
+;## # C_SRC :	{
+	.glb	$on_encode
+$on_encode:
+	enter	#06H
+	._block
+	._type	263,'O',258
+	._var	'encoded','R',263,6
+	mov.w	R1,-2[FB]	;  encoded  encoded 
+	._eblock
+	._block
+	._type	264,'O',258
+	._var	'RAW','R',264,7
+	mov.w	R2,-4[FB]	;  RAW  RAW 
+	._eblock
+	._block
+	._type	265,'O',258
+	._var	'encoded','A',265,-2
+	._type	266,'O',258
+	._var	'RAW','A',266,-4
+	._var	'ENCODED_SIZE','A',261,5
+	._var	'encoded_idx','A',261,-6
+	._line	161
+;## # C_SRC :	    if(!encoded || !RAW || !ENCODED_SIZE)
+	cmp.w	#0000H,-2[FB]	;  encoded 
+	jeq	L89
+	cmp.w	#0000H,-4[FB]	;  RAW 
+	jeq	L89
+	cmp.w	#0000H,5[FB]	;  ENCODED_SIZE 
+	jne	L1
+L89:
+	._line	162
+	._block
+	._line	163
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L1:
+	._line	166
+;## # C_SRC :	    val = 0;
+	mov.w	#0000H,R0	;  val 
+	._line	167
+;## # C_SRC :	    raw_idx = 0;
+	mov.w	#0000H,A0	;  raw_idx 
+	._block
+	._var	'raw_idx','R',261,9
+	._line	168
+;## # C_SRC :	    step = 0;
+	mov.w	#0000H,R0	;  step 
+	._eblock
+	._block
+	._var	'step','R',261,5
+	._var	'raw_idx','R',261,9
+	._line	182
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	mov.w	#0000H,-6[FB]	;  encoded_idx 
+L41:
+	._line	182
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	cmp.w	5[FB],-6[FB]	;  ENCODED_SIZE  encoded_idx 
+	jgeu	L45
+	._eblock
+	._line	183
+	._block
+	._block
+	._var	'step','R',261,5
+	._var	'raw_idx','R',261,9
+	._line	184
+;## # C_SRC :	        switch(step)
+	mov.w	R0,R1	;  step  step 
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	jeq	L55
+	cmp.w	#0001H,R0
+	jeq	L57
+	cmp.w	#0002H,R0
+	jeq	L59
+	._eblock
+	._block
+	._var	'raw_idx','R',261,9
+	cmp.w	#0003H,R0
+	jeq	L61
+	._eblock
+	._line	217
+	._block
+	._line	219
+;## # C_SRC :	                return ONS_INTERNAL_ERR;
+	mov.w	#000aH,R0
+	exitd	
+	._eblock
+	._line	185
+	._block
+	._line	186
+;## # C_SRC :	            case 0:
+L55:
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._eblock
+	._line	187
+	._block
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._line	188
+;## # C_SRC :	                val = (RAW[raw_idx] >> 2) & 0x3F;
+	mov.w	A0,R0	;  raw_idx  raw_idx 
+	._eblock
+	add.w	-4[FB],A0	;  RAW 
+	._block
+	._var	'raw_idx','R',261,5
+	._var	'step','R',261,6
+	mov.w	R0,R2	;  raw_idx  raw_idx 
+	._eblock
+	mov.b	[A0],R0L
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	shl.b	#-2,R0L
+	and.b	#3fH,R0L
+	mov.b	R0L,A0
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	._line	189
+;## # C_SRC :	                step++;
+L87:
+	add.w	#0001H,R1	;  step 
+	._line	190
+;## # C_SRC :	                break;
+	jmp	L53
+	._eblock
+	._eblock
+	._line	193
+;## # C_SRC :	            case 1:
+L57:
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._eblock
+	._line	194
+	._block
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._line	195
+;## # C_SRC :	                val = (RAW[raw_idx++] << 4) & 0x30;
+	._eblock
+	._block
+	._var	'step','R',261,6
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	shl.b	#04H,R0L
+	and.b	#30H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._line	196
+;## # C_SRC :	                val |= (RAW[raw_idx] >> 4) & 0x0F;
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,8
+	shl.b	#-4,R0L
+	and.b	#0fH,R0L
+L91:
+	._eblock
+	mov.b	#00H,R0H
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,8
+	or.w	R0,R3	;  val 
+	._line	197
+;## # C_SRC :	                step++;
+	mov.w	R3,A0	;  val  val 
+	._eblock
+	jmp	L87
+	._eblock
+	._line	201
+;## # C_SRC :	            case 2:
+L59:
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._eblock
+	._line	202
+	._block
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._line	203
+;## # C_SRC :	                val = (RAW[raw_idx++] << 2) & 0x3C;
+	._eblock
+	._block
+	._var	'step','R',261,6
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	shl.b	#02H,R0L
+	and.b	#3cH,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,9
+	._line	204
+;## # C_SRC :	                val |= (RAW[raw_idx] >> 6) & 0x03;
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,8
+	shl.b	#-6,R0L
+	and.b	#03H,R0L
+	jmp	L91
+	._eblock
+	._eblock
+	._line	209
+;## # C_SRC :	            case 3:
+L61:
+	._block
+	._var	'raw_idx','R',261,9
+	._eblock
+	._line	210
+	._block
+	._block
+	._var	'raw_idx','R',261,9
+	._line	211
+;## # C_SRC :	                val = RAW[raw_idx++] & 0x3F;
+	._eblock
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._block
+	._var	'raw_idx','R',261,9
+	and.b	#3fH,R0L
+	mov.b	R0L,A1
+	._eblock
+	._block
+	._var	'raw_idx','R',261,9
+	._var	'val','R',261,10
+	._line	212
+;## # C_SRC :	                step = 0;
+	mov.w	#0000H,R0	;  step 
+	._eblock
+	._block
+	._var	'step','R',261,5
+	._var	'raw_idx','R',261,9
+	._var	'val','R',261,10
+	._line	213
+;## # C_SRC :	                break;
+	mov.w	A0,R1	;  raw_idx  raw_idx 
+	._eblock
+	mov.w	A1,A0	;  val  val 
+	mov.w	R1,R2	;  raw_idx  raw_idx 
+	mov.w	R0,R1	;  step  step 
+	._eblock
+	._eblock
+	._line	222
+;## # C_SRC :	        } // switch (step)
+L53:
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	._line	225
+;## # C_SRC :	        encoded[encoded_idx] = RAW_TO_ENCODED[val];
+	mov.w	-2[FB],A1	;  encoded 
+	add.w	-6[FB],A1	;  encoded_idx 
+	mov.b	_RAW_TO_ENCODED[A0],[A1]	;  val 
+	._eblock
+	._block
+	._var	'step','R',261,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	add.w	#0001H,-6[FB]	;  encoded_idx 
+	mov.w	R2,A0	;  raw_idx  raw_idx 
+	._eblock
+	mov.w	R1,R0	;  step  step 
+	jmp	L41
+L45:
+	._line	231
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.w	#0000H,R0
+	exitd	
+E1:
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_2:
+	mov.b	#00H,R0H
+	mov.w	A0,R2
+	add.w	-4[FB],A0
+	mov.w	R0,R3
+	mov.b	[A0],R0L
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_2:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_1:
+	mov.w	A0,A1
+	inc.w	A0
+	add.w	-4[FB],A1
+	mov.b	[A1],R0L
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_1:
+
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "on_encode", "$on_encode", 'G', 158, 0, 00h, 0
+	._inspect	'F', 't', "on_encode", 'G', 262
+	._inspect	'V', 'r', "RAW_TO_ENCODED", 'S', 225, 64, 0, 0, 00h
+	._inspect	'F', 'e', "on_encode", "$on_encode", 'G', 0, 0
+
+
+;## #	FUNCTION on_decode
+;## #	FRAME	AUTO	(encoded_idx)	size  2,	offset -6
+;## #	FRAME	AUTO	(    step)	size  2,	offset -4
+;## #	FRAME	AUTO	( ENCODED)	size  2,	offset -2
+;## #  FRAME   ARG (ENCODED_SIZE)  size   2,    offset 5
+;## #  REGISTER ARG    (     raw)   size   2,   REGISTER R1
+;## #  REGISTER ARG    ( ENCODED)   size   2,   REGISTER R2
+;## #	ARG Size(2)	Auto Size(6)	Context Size(5)
+
+	._type	267,'O',258
+	._type	268,'O',258
+	._type	269,'x',257,3
+	._type	269,'m','raw',0,267
+	._type	269,'m','ENCODED',0,268
+	._type	269,'m','ENCODED_SIZE',0,261
+	._func	'on_decode','G',6,269,$on_decode,0
+	._inspect	'F', 's', "on_decode", "$on_decode", 'G', 11
+	._line	249
+;## # C_SRC :	{
+	.glb	$on_decode
+$on_decode:
+	enter	#06H
+	mov.w	R2,-2[FB]	;  ENCODED  ENCODED 
+	._block
+	._type	270,'O',258
+	._var	'raw','A',270,0
+	._type	271,'O',258
+	._var	'ENCODED','A',271,-2
+	._var	'ENCODED_SIZE','A',261,5
+	._var	'encoded_idx','A',261,-6
+	._var	'step','A',261,-4
+	._line	252
+;## # C_SRC :	    if(!ENCODED || !raw || !ENCODED_SIZE)
+	._block
+	._type	272,'O',258
+	._var	'raw','R',272,6
+	jeq	L193
+	cmp.w	#0000H,R1	;  raw 
+	jeq	L193
+	cmp.w	#0000H,5[FB]	;  ENCODED_SIZE 
+	jne	L93
+	._eblock
+L193:
+	._line	253
+	._block
+	._line	254
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L93:
+	._block
+	._type	273,'O',258
+	._var	'raw','R',273,6
+	._line	257
+;## # C_SRC :	    val = 0;
+	mov.w	#0000H,R0	;  val 
+	._line	258
+;## # C_SRC :	    raw_idx = 0;
+	mov.w	#0000H,R0	;  raw_idx 
+	._eblock
+	._block
+	._var	'raw_idx','R',261,5
+	._type	274,'O',258
+	._var	'raw','R',274,6
+	._line	259
+;## # C_SRC :	    step = 0;
+	mov.w	#0000H,-4[FB]	;  step 
+	._line	264
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	mov.w	#0000H,-6[FB]	;  encoded_idx 
+L133:
+	._line	264
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	cmp.w	5[FB],-6[FB]	;  ENCODED_SIZE  encoded_idx 
+	jgeu	L137
+	._eblock
+	._line	265
+	._block
+	._block
+	._var	'raw_idx','R',261,5
+	._type	275,'O',258
+	._var	'raw','R',275,6
+	._line	268
+;## # C_SRC :	         + ENCODED_TO_RAW_L_NIB[ENCODED[encoded_idx] & 0x0F];
+	mov.w	-2[FB],A0	;  ENCODED 
+	add.w	-6[FB],A0	;  encoded_idx 
+	mov.w	R0,R2	;  raw_idx  raw_idx 
+	._eblock
+	mov.b	[A0],R0L
+	._block
+	._type	276,'O',258
+	._var	'raw','R',276,6
+	._var	'raw_idx','R',261,7
+	shl.b	#-4,R0L
+	and.b	#0fH,R0L
+	mov.b	R0L,A1
+	mov.b	_ENCODED_TO_RAW_H_NIB[A1],R0L
+	mov.b	[A0],R0H
+	and.b	#0fH,R0H
+	mov.b	R0H,A0
+	add.b	_ENCODED_TO_RAW_L_NIB[A0],R0L
+	mov.b	#00H,R0H
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._type	277,'O',258
+	._var	'raw','R',277,6
+	._var	'raw_idx','R',261,7
+	._line	274
+;## # C_SRC :	        if(val >= 0x40)
+	cmp.w	#0040H,R0	;  val 
+	jltu	L145
+	._eblock
+	._line	275
+	._block
+	._line	276
+;## # C_SRC :	            return ONS_BAD_ENCODING;
+	mov.w	#001bH,R0
+	exitd	
+	._eblock
+L145:
+	._block
+	._var	'val','R',261,5
+	._type	278,'O',258
+	._var	'raw','R',278,6
+	._var	'raw_idx','R',261,7
+	._line	279
+;## # C_SRC :	        switch(step)
+	mov.w	-4[FB],R3	;  step 
+	jeq	L157
+	cmp.w	#0001H,R3
+	jeq	L159
+	cmp.w	#0002H,R3
+	jeq	L161
+	cmp.w	#0003H,R3
+	jeq	L163
+	._eblock
+	._line	312
+	._block
+	._line	314
+;## # C_SRC :	                return ONS_INTERNAL_ERR;
+	mov.w	#000aH,R0
+	exitd	
+	._eblock
+	._line	280
+	._block
+	._line	281
+;## # C_SRC :	            case 0:
+L157:
+	._block
+	._var	'val','R',261,5
+	._type	279,'O',258
+	._var	'raw','R',279,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._line	282
+	._block
+	._block
+	._var	'val','R',261,5
+	._type	280,'O',258
+	._var	'raw','R',280,6
+	._var	'raw_idx','R',261,7
+	._line	283
+;## # C_SRC :	                raw[raw_idx] = (val << 2) & 0xFC;
+	._eblock
+	._block
+	._type	281,'O',258
+	._var	'raw','R',281,6
+	._var	'raw_idx','R',261,7
+	shl.b	#02H,R0L
+	and.b	#0fcH,R0L
+	mov.w	R1,A0	;  raw  raw 
+	._eblock
+	add.w	R2,A0	;  raw_idx 
+	._block
+	._type	282,'O',258
+	._var	'raw','R',282,6
+	._var	'raw_idx','R',261,7
+	mov.b	R0L,[A0]
+	._line	284
+;## # C_SRC :	                step++;
+L191:
+	add.w	#0001H,-4[FB]	;  step 
+	._line	285
+;## # C_SRC :	                break;
+	jmp	L155
+	._eblock
+	._eblock
+	._line	288
+;## # C_SRC :	            case 1:
+L159:
+	._block
+	._var	'val','R',261,5
+	._type	283,'O',258
+	._var	'raw','R',283,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._line	289
+	._block
+	._block
+	._var	'val','R',261,5
+	._type	284,'O',258
+	._var	'raw','R',284,6
+	._var	'raw_idx','R',261,7
+	._line	290
+;## # C_SRC :	                raw[raw_idx++] |= (val >> 4) & 0x03;
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._type	285,'O',258
+	._var	'raw','R',285,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',261,5
+	._type	286,'O',258
+	._var	'raw','R',286,6
+	._var	'raw_idx','R',261,7
+	mov.w	R0,A0	;  val  val 
+	._eblock
+	shl.w	#-04H,R0
+	._block
+	._type	287,'O',258
+	._var	'raw','R',287,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	and.b	#03H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_3
+	.stk	-3
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	._type	288,'O',258
+	._var	'raw','R',288,10
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,8
+	._type	289,'O',258
+	._var	'raw','R',289,10
+	._line	291
+;## # C_SRC :	                raw[raw_idx] = (val << 4) & 0xF0;
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._type	290,'O',258
+	._var	'raw','R',290,10
+	shl.b	#04H,R0L
+	and.b	#0f0H,R0L
+L195:
+	._eblock
+	mov.w	A1,R1	;  raw  raw 
+	add.w	R2,A1	;  raw_idx 
+	._block
+	._type	291,'O',258
+	._var	'raw','R',291,6
+	._var	'raw_idx','R',261,7
+	mov.b	R0L,[A1]
+	._line	292
+;## # C_SRC :	                step++;
+	jmp	L191
+	._eblock
+	._eblock
+	._line	296
+;## # C_SRC :	            case 2:
+L161:
+	._block
+	._var	'val','R',261,5
+	._type	292,'O',258
+	._var	'raw','R',292,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._line	297
+	._block
+	._block
+	._var	'val','R',261,5
+	._type	293,'O',258
+	._var	'raw','R',293,6
+	._var	'raw_idx','R',261,7
+	._line	298
+;## # C_SRC :	                raw[raw_idx++] |= (val >> 2) & 0x0F;
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._type	294,'O',258
+	._var	'raw','R',294,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',261,5
+	._type	295,'O',258
+	._var	'raw','R',295,6
+	._var	'raw_idx','R',261,7
+	mov.w	R0,A0	;  val  val 
+	._eblock
+	shl.w	#-02H,R0
+	._block
+	._type	296,'O',258
+	._var	'raw','R',296,6
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	and.b	#0fH,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_3
+	.stk	-3
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,9
+	._type	297,'O',258
+	._var	'raw','R',297,10
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._var	'val','R',261,8
+	._type	298,'O',258
+	._var	'raw','R',298,10
+	._line	299
+;## # C_SRC :	                raw[raw_idx] = (val << 6) & 0xC0;
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._type	299,'O',258
+	._var	'raw','R',299,10
+	shl.b	#06H,R0L
+	and.b	#0c0H,R0L
+	jmp	L195
+	._eblock
+	._eblock
+	._line	304
+;## # C_SRC :	            case 3:
+L163:
+	._block
+	._var	'val','R',261,5
+	._type	300,'O',258
+	._var	'raw','R',300,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	._line	305
+	._block
+	._block
+	._var	'val','R',261,5
+	._type	301,'O',258
+	._var	'raw','R',301,6
+	._var	'raw_idx','R',261,7
+	._line	306
+;## # C_SRC :	                raw[raw_idx++] |= val & 0x3F;
+	._eblock
+	._block
+	._var	'val','R',261,5
+	._type	302,'O',258
+	._var	'raw','R',302,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',261,5
+	._type	303,'O',258
+	._var	'raw','R',303,6
+	._var	'raw_idx','R',261,7
+	mov.w	R1,A0	;  raw  raw 
+	._eblock
+	add.w	R3,R1
+	._block
+	._var	'val','R',261,5
+	._var	'raw_idx','R',261,7
+	._type	304,'O',258
+	._var	'raw','R',304,9
+	._eblock
+	._block
+	._var	'raw_idx','R',261,7
+	._type	305,'O',258
+	._var	'raw','R',305,9
+	and.b	#3fH,R0L
+	mov.w	R1,A1
+	._eblock
+	or.b	R0L,[A1]
+	._block
+	._var	'raw_idx','R',261,7
+	._type	306,'O',258
+	._var	'raw','R',306,9
+	._line	307
+;## # C_SRC :	                step = 0;
+	mov.w	#0000H,-4[FB]	;  step 
+	._line	308
+;## # C_SRC :	                break;
+	mov.w	A0,R1	;  raw  raw 
+	._eblock
+	._eblock
+	._eblock
+	._line	317
+;## # C_SRC :	        } // switch (step)
+L155:
+	._block
+	._type	307,'O',258
+	._var	'raw','R',307,6
+	._var	'raw_idx','R',261,7
+	._eblock
+	add.w	#0001H,-6[FB]	;  encoded_idx 
+	mov.w	R2,R0	;  raw_idx  raw_idx 
+	._eblock
+	jmp	L133
+L137:
+	._line	320
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.w	#0000H,R0
+	exitd	
+E2:
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_3:
+	mov.w	R1,A1
+	add.w	R3,R1
+	mov.w	A0,R3
+	mov.w	R1,A0
+	or.b	R0L,[A0]
+	mov.w	R3,A0
+	mov.b	A0,R0L
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMonenetencode_3:
+
+	._eblock
+M2:
+	._efunc	M2
+	._inspect	'F', 'd', "on_decode", "$on_decode", 'G', 249, 0, 00h, 0
+	._inspect	'F', 't', "on_decode", 'G', 269
+	._inspect	'V', 'r', "ENCODED_TO_RAW_H_NIB", 'S', 268, 16, 0, 0, 00h
+	._inspect	'V', 'r', "ENCODED_TO_RAW_L_NIB", 'S', 268, 16, 0, 0, 00h
+	._inspect	'F', 'e', "on_decode", "$on_decode", 'G', 0, 0
+
+
+	.SECTION	rom_NE,ROMDATA,align
+	._inspect	'U', 4, "rom_NE", "rom_NE", 0
+_RAW_TO_ENCODED:
+	.byte	0b4H
+	.byte	0bcH
+	.byte	0b3H
+	.byte	0baH
+	.byte	0b5H
+	.byte	0b9H
+	.byte	0b6H
+	.byte	0b2H
+	.byte	0c4H
+	.byte	0ccH
+	.byte	0c3H
+	.byte	0caH
+	.byte	0c5H
+	.byte	0c9H
+	.byte	0c6H
+	.byte	0c2H
+	.byte	34H	;  '4'
+	.byte	3cH	;  '<'
+	.byte	33H	;  '3'
+	.byte	3aH	;  ':'
+	.byte	35H	;  '5'
+	.byte	39H	;  '9'
+	.byte	36H	;  '6'
+	.byte	32H	;  '2'
+	.byte	0a4H
+	.byte	0acH
+	.byte	0a3H
+	.byte	0aaH
+	.byte	0a5H
+	.byte	0a9H
+	.byte	0a6H
+	.byte	0a2H
+	.byte	54H	;  'T'
+	.byte	5cH	;  '\'
+	.byte	53H	;  'S'
+	.byte	5aH	;  'Z'
+	.byte	55H	;  'U'
+	.byte	59H	;  'Y'
+	.byte	56H	;  'V'
+	.byte	52H	;  'R'
+	.byte	94H
+	.byte	9cH
+	.byte	93H
+	.byte	9aH
+	.byte	95H
+	.byte	99H
+	.byte	96H
+	.byte	92H
+	.byte	64H	;  'd'
+	.byte	6cH	;  'l'
+	.byte	63H	;  'c'
+	.byte	6aH	;  'j'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	66H	;  'f'
+	.byte	62H	;  'b'
+	.byte	0d4H
+	.byte	0dcH
+	.byte	0d3H
+	.byte	0daH
+	.byte	0d5H
+	.byte	0d9H
+	.byte	0d6H
+	.byte	0d2H
+_ENCODED_TO_RAW_H_NIB:
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	10H
+	.byte	40H	;  '@'
+	.byte	20H	;  ' '
+	.byte	30H	;  '0'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	28H	;  '('
+	.byte	18H
+	.byte	00H
+	.byte	08H
+	.byte	38H	;  '8'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+_ENCODED_TO_RAW_L_NIB:
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	07H
+	.byte	02H
+	.byte	00H
+	.byte	04H
+	.byte	06H
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	05H
+	.byte	03H
+	.byte	40H	;  '@'
+	.byte	01H
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	308,'T','SInt8',19
+	._type	309,'T','SInt16',16
+	._type	310,'T','UInt32',7
+	._type	311,'T','SInt32',20
+	._type	312,'T','Float32',10
+	._type	313,'T','tick_t',310
+	._type	314,'T','BOOL',258
+	._type	315,'Z',64,258
+	._var	'RAW_TO_ENCODED','S',315,_RAW_TO_ENCODED
+	._type	316,'Z',16,258
+	._var	'ENCODED_TO_RAW_H_NIB','S',316,_ENCODED_TO_RAW_H_NIB
+	._type	317,'Z',16,258
+	._var	'ENCODED_TO_RAW_L_NIB','S',317,_ENCODED_TO_RAW_L_NIB
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "one_net_status_t", 'O', 256
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 310
+	._inspect	'V', 't', "BOOL", 'O', 258
+	._inspect	'V', 't', "RAW_TO_ENCODED", 'S', 315
+	._inspect	'V', 't', "ENCODED_TO_RAW_H_NIB", 'S', 316
+	._inspect	'V', 't', "ENCODED_TO_RAW_L_NIB", 'S', 317
+
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:42 2011
+
+

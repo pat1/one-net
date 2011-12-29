@@ -1,6 +1,7 @@
 #ifndef _ONE_NET_MASTER_PORT_CONST_H
 #define _ONE_NET_MASTER_PORT_CONST_H
 
+#include "config_options.h"
 
 
 //! \defgroup on_master_port_const ONE-NET MASTER port specific constants
@@ -41,12 +42,16 @@
     \file one_net_master_port_const.h
     \brief ONE-NET MASTER specific constants.
 
-    These are constants that are specific to each ONE-NET MASTER device.
+    These are constants that are specific to each ONE-NET MASTER device.  This
+    file should be copied to a project specific location and renamed to
+    master_port_const.h.
     
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
 */
+
+#include "tick.h"
 
 
 //==============================================================================
@@ -55,38 +60,64 @@
 //! \ingroup on_master_port_const
 //! @{
 
+enum
+{
+    //! The number of CLIENTS the MASTER keeps track of.
+    ONE_NET_MASTER_MAX_CLIENTS = 5,
+
+    //! Frequency to send new CLIENT Invite
+    ONE_NET_MASTER_INVITE_SEND_TIME = MS_TO_TICK(250),
+
+    //! Timeout period (in ticks)to wait for keep alive in response to a
+    //! CHANGE KEY before moving on to try the next device.
+    ONE_NET_MASTER_CHANGE_KEY_TIMEOUT = MS_TO_TICK(10000),
+    
+    //! The number of ticks to poll a given channel to see if it is clear when a
+    //! network is created for the first time.
+    ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME = MS_TO_TICK(5000),
+    
+    //! The number of ticks to wait before deciding all channels viewed so far
+    //! are busy and to lower the channel clear time to try and find the least
+    //! busy channel.
+    ONE_NET_MASTER_CHANNEL_SCAN_TIME = MS_TO_TICK(10000)
+};
+
+//! The default keep alive interval in ticks to assign to new clients.  This is
+//! not an enum since a 16-bit value may not be big enough.
+#define ONE_NET_MASTER_DEFAULT_KEEP_ALIVE MS_TO_TICK(1800000)
+
+//! Duration the MASTER sends the new CLIENT invite.  This is not an enum since
+//! a 16-bit value is not big enough.
+#define ONE_NET_MASTER_INVITE_DURATION MS_TO_TICK(600000)
 
 
 enum
 {
-    //! The number of CLIENTS the MASTER keeps track of.
-    ONE_NET_MASTER_MAX_CLIENTS = /*5*/3,
+    //! The number of transactions the MASTER can queue to send
+    ONE_NET_MASTER_MAX_SEND_TXN = 6,
+
+    //! The minimum number of transactions that must be kept for single
+    //! transactions
+    ONE_NET_MASTER_MIN_SINGLE_TXN = 2,
+
+    //! The maximum number of transactions that are kept track of.  Note that
+    //! block/stream receive transactions do not need packet data
+    //! associated with them.
+    ONE_NET_MASTER_MAX_TXN = 10,
+
+    //! The maximum number (+1) of transactions that can be queued and
+    //! considered a low load
+    ONE_NET_MASTER_LOW_LOAD_LIMIT = 3 + 1
 };
 
 
-// timers
-//! Frequency in ms to send new CLIENT Invite
-#define ONE_NET_MASTER_INVITE_SEND_TIME 250
-
-//! The number of ms to poll a given channel to see if it is clear when a
-//! network is created for the first time.
-#define ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME 5000
-
-//! The number of ticks to wait before deciding all channels viewed so far
-//! are busy and to lower the channel clear time to try and find the least
-//! busy channel.
-#define ONE_NET_MASTER_CHANNEL_SCAN_TIME 10000
-
-//! The default keep alive interval in ticks to assign to new clients.
-#define ONE_NET_MASTER_DEFAULT_KEEP_ALIVE 1800000
-
-//! Duration the MASTER sends the new CLIENT invite.
-#define ONE_NET_MASTER_INVITE_DURATION 600000
-
-//! Default of whether the master wants to the client to inform it when
-//! status is changed.  Should be TRUE or FALSE
-#define ONE_NET_MASTER_SEND_TO_MASTER TRUE
-
+#ifdef _PEER
+enum
+{   
+    //! Number of peers the MASTER keeps track of
+    NUM_MASTER_PEER = 8
+};
+#endif
 
 
 //! @} on_master_port_const_const
@@ -126,3 +157,4 @@ enum
 //! @} on_master_port_const
 
 #endif // _ONE_NET_MASTER_PORT_CONST_H //
+

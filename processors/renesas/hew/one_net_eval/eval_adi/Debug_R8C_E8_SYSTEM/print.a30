@@ -1,0 +1,3879 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:45 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\print.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\print.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print.c", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/stdio.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+	._inspect	'V', 'e', "_iob", 'G', 78, 0, 0, 0, 00h
+	._inspect	'F', 'p', "getc", "_getc", 'G', 121, 0, 00h, 0
+	._inspect	'F', 'p', "getchar", "_getchar", 'G', 122, 0, 00h, 0
+	._inspect	'F', 'p', "putc", "$putc", 'G', 123, 0, 00h, 0
+	._inspect	'F', 'p', "putchar", "$putchar", 'G', 124, 0, 00h, 0
+	._inspect	'F', 'p', "feof", "_feof", 'G', 125, 0, 00h, 0
+	._inspect	'F', 'p', "ferror", "_ferror", 'G', 126, 0, 00h, 0
+	._inspect	'F', 'p', "fgetc", "_fgetc", 'G', 127, 0, 00h, 0
+	._inspect	'F', 'p', "fgets", "$fgets", 'G', 128, 0, 00h, 0
+	._inspect	'F', 'p', "fputc", "$fputc", 'G', 129, 0, 00h, 0
+	._inspect	'F', 'p', "fputs", "_fputs", 'G', 130, 0, 00h, 0
+	._inspect	'F', 'p', "fread", "$fread", 'G', 131, 0, 00h, 0
+	._inspect	'F', 'p', "fwrite", "$fwrite", 'G', 132, 0, 00h, 0
+	._inspect	'F', 'p', "gets", "_gets", 'G', 133, 0, 00h, 0
+	._inspect	'F', 'p', "puts", "_puts", 'G', 134, 0, 00h, 0
+	._inspect	'F', 'p', "ungetc", "$ungetc", 'G', 135, 0, 00h, 0
+	._inspect	'F', 'p', "printf", "_printf", 'G', 136, 0, 00h, 0
+	._inspect	'F', 'p', "fprintf", "_fprintf", 'G', 137, 0, 00h, 0
+	._inspect	'F', 'p', "sprintf", "_sprintf", 'G', 138, 0, 00h, 0
+	._inspect	'F', 'p', "vprintf", "$vprintf", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'p', "vfprintf", "_vfprintf", 'G', 140, 0, 00h, 0
+	._inspect	'F', 'p', "vsprintf", "_vsprintf", 'G', 141, 0, 00h, 0
+	._inspect	'F', 'p', "fscanf", "_fscanf", 'G', 142, 0, 00h, 0
+	._inspect	'F', 'p', "scanf", "_scanf", 'G', 143, 0, 00h, 0
+	._inspect	'F', 'p', "sscanf", "_sscanf", 'G', 144, 0, 00h, 0
+	._inspect	'F', 'p', "fflush", "_fflush", 'G', 145, 0, 00h, 0
+	._inspect	'F', 'p', "clearerr", "_clearerr", 'G', 146, 0, 00h, 0
+	._inspect	'F', 'p', "perror", "_perror", 'G', 147, 0, 00h, 0
+	._inspect	'F', 'p', "init_dev", "$init_dev", 'G', 163, 0, 00h, 0
+	._inspect	'F', 'p', "speed", "$speed", 'G', 164, 0, 00h, 0
+	._inspect	'F', 'p', "init_prn", "_init_prn", 'G', 165, 0, 00h, 0
+	._inspect	'F', 'p', "_sget", "__sget", 'G', 166, 0, 00h, 0
+	._inspect	'F', 'p', "_sput", "$_sput", 'G', 167, 0, 00h, 0
+	._inspect	'F', 'p', "_pput", "$_pput", 'G', 168, 0, 00h, 0
+	._inspect	'F', 'p', "_print", "__print", 'G', 169, 0, 00h, 0
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/ctype.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+	._inspect	'V', 'e', "_ctype", 'G', 34, 0, 0, 0, 00h
+	._inspect	'F', 'p', "isalnum", "$isalnum", 'G', 50, 0, 00h, 0
+	._inspect	'F', 'p', "isalpha", "$isalpha", 'G', 51, 0, 00h, 0
+	._inspect	'F', 'p', "iscntrl", "$iscntrl", 'G', 52, 0, 00h, 0
+	._inspect	'F', 'p', "isdigit", "$isdigit", 'G', 53, 0, 00h, 0
+	._inspect	'F', 'p', "isgraph", "$isgraph", 'G', 54, 0, 00h, 0
+	._inspect	'F', 'p', "islower", "$islower", 'G', 55, 0, 00h, 0
+	._inspect	'F', 'p', "isprint", "$isprint", 'G', 56, 0, 00h, 0
+	._inspect	'F', 'p', "ispunct", "$ispunct", 'G', 57, 0, 00h, 0
+	._inspect	'F', 'p', "isspace", "$isspace", 'G', 58, 0, 00h, 0
+	._inspect	'F', 'p', "isupper", "$isupper", 'G', 59, 0, 00h, 0
+	._inspect	'F', 'p', "isxdigit", "$isxdigit", 'G', 60, 0, 00h, 0
+	._inspect	'F', 'p', "toupper", "$toupper", 'G', 61, 0, 00h, 0
+	._inspect	'F', 'p', "tolower", "$tolower", 'G', 62, 0, 00h, 0
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/math.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+	._inspect	'V', 'e', "__huge_val", 'G', 38, 4, 0, 0, 00h
+	._inspect	'V', 'e', "__huge_valf", 'G', 39, 4, 0, 0, 00h
+	._inspect	'F', 'p', "acos", "_acos", 'G', 47, 0, 00h, 0
+	._inspect	'F', 'p', "asin", "_asin", 'G', 48, 0, 00h, 0
+	._inspect	'F', 'p', "atan", "_atan", 'G', 49, 0, 00h, 0
+	._inspect	'F', 'p', "atan2", "_atan2", 'G', 50, 0, 00h, 0
+	._inspect	'F', 'p', "ceil", "_ceil", 'G', 51, 0, 00h, 0
+	._inspect	'F', 'p', "cos", "_cos", 'G', 52, 0, 00h, 0
+	._inspect	'F', 'p', "cosh", "_cosh", 'G', 53, 0, 00h, 0
+	._inspect	'F', 'p', "exp", "_exp", 'G', 54, 0, 00h, 0
+	._inspect	'F', 'p', "fabs", "_fabs", 'G', 55, 0, 00h, 0
+	._inspect	'F', 'p', "floor", "_floor", 'G', 56, 0, 00h, 0
+	._inspect	'F', 'p', "fmod", "_fmod", 'G', 57, 0, 00h, 0
+	._inspect	'F', 'p', "frexp", "_frexp", 'G', 58, 0, 00h, 0
+	._inspect	'F', 'p', "ldexp", "$ldexp", 'G', 59, 0, 00h, 0
+	._inspect	'F', 'p', "log", "_log", 'G', 60, 0, 00h, 0
+	._inspect	'F', 'p', "log10", "_log10", 'G', 61, 0, 00h, 0
+	._inspect	'F', 'p', "modf", "$modf", 'G', 62, 0, 00h, 0
+	._inspect	'F', 'p', "pow", "_pow", 'G', 63, 0, 00h, 0
+	._inspect	'F', 'p', "sin", "_sin", 'G', 64, 0, 00h, 0
+	._inspect	'F', 'p', "sinh", "_sinh", 'G', 65, 0, 00h, 0
+	._inspect	'F', 'p', "sqrt", "_sqrt", 'G', 66, 0, 00h, 0
+	._inspect	'F', 'p', "tan", "_tan", 'G', 67, 0, 00h, 0
+	._inspect	'F', 'p', "tanh", "_tanh", 'G', 68, 0, 00h, 0
+	._inspect	'F', 'p', "acosf", "_acosf", 'G', 70, 0, 00h, 0
+	._inspect	'F', 'p', "asinf", "_asinf", 'G', 71, 0, 00h, 0
+	._inspect	'F', 'p', "atanf", "_atanf", 'G', 72, 0, 00h, 0
+	._inspect	'F', 'p', "atan2f", "_atan2f", 'G', 73, 0, 00h, 0
+	._inspect	'F', 'p', "ceilf", "_ceilf", 'G', 74, 0, 00h, 0
+	._inspect	'F', 'p', "cosf", "_cosf", 'G', 75, 0, 00h, 0
+	._inspect	'F', 'p', "coshf", "_coshf", 'G', 76, 0, 00h, 0
+	._inspect	'F', 'p', "expf", "_expf", 'G', 77, 0, 00h, 0
+	._inspect	'F', 'p', "fabsf", "_fabsf", 'G', 78, 0, 00h, 0
+	._inspect	'F', 'p', "floorf", "_floorf", 'G', 79, 0, 00h, 0
+	._inspect	'F', 'p', "fmodf", "_fmodf", 'G', 80, 0, 00h, 0
+	._inspect	'F', 'p', "frexpf", "_frexpf", 'G', 81, 0, 00h, 0
+	._inspect	'F', 'p', "ldexpf", "$ldexpf", 'G', 82, 0, 00h, 0
+	._inspect	'F', 'p', "logf", "_logf", 'G', 83, 0, 00h, 0
+	._inspect	'F', 'p', "log10f", "_log10f", 'G', 84, 0, 00h, 0
+	._inspect	'F', 'p', "modff", "$modff", 'G', 85, 0, 00h, 0
+	._inspect	'F', 'p', "powf", "_powf", 'G', 86, 0, 00h, 0
+	._inspect	'F', 'p', "sinf", "_sinf", 'G', 87, 0, 00h, 0
+	._inspect	'F', 'p', "sinhf", "_sinhf", 'G', 88, 0, 00h, 0
+	._inspect	'F', 'p', "sqrtf", "_sqrtf", 'G', 89, 0, 00h, 0
+	._inspect	'F', 'p', "tanf", "_tanf", 'G', 90, 0, 00h, 0
+	._inspect	'F', 'p', "tanhf", "_tanhf", 'G', 91, 0, 00h, 0
+	._inspect	'F', 'p', "_tan", "$_tan", 'G', 102, 0, 00h, 0
+	._inspect	'F', 'p', "_tanf", "$_tanf", 'G', 103, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../src/common/float.h", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+	._inspect	'F', 'p', "_f4add", "__f4add", 'G', 244, 0, 00h, 0
+	._inspect	'F', 'p', "_f4sub", "__f4sub", 'G', 245, 0, 00h, 0
+	._inspect	'F', 'p', "_f4mul", "__f4mul", 'G', 246, 0, 00h, 0
+	._inspect	'F', 'p', "_f4div", "__f4div", 'G', 247, 0, 00h, 0
+	._inspect	'F', 'p', "_f4eq", "__f4eq", 'G', 250, 0, 00h, 0
+	._inspect	'F', 'p', "_f4ne", "__f4ne", 'G', 251, 0, 00h, 0
+	._inspect	'F', 'p', "_f4ge", "__f4ge", 'G', 252, 0, 00h, 0
+	._inspect	'F', 'p', "_f4gt", "__f4gt", 'G', 253, 0, 00h, 0
+	._inspect	'F', 'p', "_f4le", "__f4le", 'G', 254, 0, 00h, 0
+	._inspect	'F', 'p', "_f4lt", "__f4lt", 'G', 255, 0, 00h, 0
+	._inspect	'F', 'p', "_i4tof4", "__i4tof4", 'G', 258, 0, 00h, 0
+	._inspect	'F', 'p', "_i4Utof4", "__i4Utof4", 'G', 259, 0, 00h, 0
+	._inspect	'F', 'p', "_f4toi4", "__f4toi4", 'G', 260, 0, 00h, 0
+	._inspect	'F', 'p', "_f4toi4U", "__f4toi4U", 'G', 261, 0, 00h, 0
+	._inspect	'F', 'p', "_f4tof8", "__f4tof8", 'G', 262, 0, 00h, 0
+	._inspect	'F', 'p', "_i8tof4", "__i8tof4", 'G', 263, 0, 00h, 0
+	._inspect	'F', 'p', "_i8Utof4", "__i8Utof4", 'G', 264, 0, 00h, 0
+	._inspect	'F', 'p', "_f4toi8", "__f4toi8", 'G', 265, 0, 00h, 0
+	._inspect	'F', 'p', "_f4toi8U", "__f4toi8U", 'G', 266, 0, 00h, 0
+	._inspect	'F', 'p', "_f4rtol", "$_f4rtol", 'G', 269, 0, 00h, 0
+	._inspect	'F', 'p', "_f4ltor", "$_f4ltor", 'G', 270, 0, 00h, 0
+	._inspect	'F', 'p', "_f4mpy", "$_f4mpy", 'G', 271, 0, 00h, 0
+	._inspect	'F', 'p', "_f4round", "$_f4round", 'G', 272, 0, 00h, 0
+	._inspect	'F', 'p', "_f4dvs", "$_f4dvs", 'G', 273, 0, 00h, 0
+	._inspect	'F', 'p', "_f4cmp", "$_f4cmp", 'G', 274, 0, 00h, 0
+	._inspect	'F', 'p', "_f8add", "__f8add", 'G', 281, 0, 00h, 0
+	._inspect	'F', 'p', "_f8sub", "__f8sub", 'G', 282, 0, 00h, 0
+	._inspect	'F', 'p', "_f8mul", "__f8mul", 'G', 283, 0, 00h, 0
+	._inspect	'F', 'p', "_f8div", "__f8div", 'G', 284, 0, 00h, 0
+	._inspect	'F', 'p', "_f8eq", "__f8eq", 'G', 287, 0, 00h, 0
+	._inspect	'F', 'p', "_f8ne", "__f8ne", 'G', 288, 0, 00h, 0
+	._inspect	'F', 'p', "_f8ge", "__f8ge", 'G', 289, 0, 00h, 0
+	._inspect	'F', 'p', "_f8gt", "__f8gt", 'G', 290, 0, 00h, 0
+	._inspect	'F', 'p', "_f8le", "__f8le", 'G', 291, 0, 00h, 0
+	._inspect	'F', 'p', "_f8lt", "__f8lt", 'G', 292, 0, 00h, 0
+	._inspect	'F', 'p', "_i4tof8", "__i4tof8", 'G', 295, 0, 00h, 0
+	._inspect	'F', 'p', "_i4Utof8", "__i4Utof8", 'G', 296, 0, 00h, 0
+	._inspect	'F', 'p', "_f8toi4", "__f8toi4", 'G', 297, 0, 00h, 0
+	._inspect	'F', 'p', "_f8toi4U", "__f8toi4U", 'G', 298, 0, 00h, 0
+	._inspect	'F', 'p', "_f8tof4", "__f8tof4", 'G', 299, 0, 00h, 0
+	._inspect	'F', 'p', "_i8tof8", "__i8tof8", 'G', 300, 0, 00h, 0
+	._inspect	'F', 'p', "_i8Utof8", "__i8Utof8", 'G', 301, 0, 00h, 0
+	._inspect	'F', 'p', "_f8toi8", "__f8toi8", 'G', 302, 0, 00h, 0
+	._inspect	'F', 'p', "_f8toi8U", "__f8toi8U", 'G', 303, 0, 00h, 0
+	._inspect	'F', 'p', "_f8rtol", "$_f8rtol", 'G', 306, 0, 00h, 0
+	._inspect	'F', 'p', "_f8ltor", "$_f8ltor", 'G', 307, 0, 00h, 0
+	._inspect	'F', 'p', "_f8addmant", "$_f8addmant", 'G', 308, 0, 00h, 0
+	._inspect	'F', 'p', "_f8mpy", "$_f8mpy", 'G', 309, 0, 00h, 0
+	._inspect	'F', 'p', "_f8round", "$_f8round", 'G', 310, 0, 00h, 0
+	._inspect	'F', 'p', "_f8dvs", "$_f8dvs", 'G', 311, 0, 00h, 0
+	._inspect	'F', 'p', "_f8cmp", "$_f8cmp", 'G', 312, 0, 00h, 0
+	._inspect	'F', 'p', "_chkdata", "$_chkdata", 'G', 318, 0, 00h, 0
+	._inspect	'F', 'p', "_cmpexp", "$_cmpexp", 'G', 319, 0, 00h, 0
+	._inspect	'F', 'p', "_ngt", "$_ngt", 'G', 320, 0, 00h, 0
+	._inspect	'F', 'p', "_asr", "$_asr", 'G', 321, 0, 00h, 0
+	._inspect	'F', 'p', "_nor", "$_nor", 'G', 322, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print.c", "C:/HEWProj/2_0_trunk/processors/renesas/src/common/print"
+	._inspect	'F', 'p', "_f8prn", "__f8prn", 'G', 279, 0, 00h, 0
+	._inspect	'F', 'p', "henkan1", "$henkan1", 'G', 280, 0, 00h, 0
+	._inspect	'F', 'p', "henkan2", "$henkan2", 'G', 281, 0, 00h, 0
+	._inspect	'F', 'p', "_pri", "__pri", 'G', 282, 0, 00h, 0
+	._inspect	'F', 'p', "_f8geti", "$_f8geti", 'G', 283, 0, 00h, 0
+	._inspect	'F', 'p', "_inmod", "$_inmod", 'G', 284, 0, 00h, 0
+
+;## #	FUNCTION _local_print
+;## #	FRAME	AUTO	(     str)	size 31,	offset -88
+;## #	FRAME	AUTO	(  __REG3)	size  8,	offset -57
+;## #	FRAME	AUTO	(  __REG2)	size  8,	offset -49
+;## #	FRAME	AUTO	(  __REG1)	size  8,	offset -41
+;## #	FRAME	AUTO	( data_ll)	size  8,	offset -33
+;## #	FRAME	AUTO	(  get_ll)	size  8,	offset -41
+;## #	FRAME	AUTO	(     get)	size  4,	offset -49
+;## #	FRAME	AUTO	(    data)	size  4,	offset -25
+;## #	FRAME	AUTO	(     num)	size  2,	offset -21
+;## #	FRAME	AUTO	(   t_num)	size  2,	offset -19
+;## #	FRAME	AUTO	(       i)	size  2,	offset -17
+;## #	FRAME	AUTO	(    pres)	size  2,	offset -15
+;## #	FRAME	AUTO	(   width)	size  2,	offset -13
+;## #	FRAME	AUTO	(    flag)	size  2,	offset -11
+;## #	FRAME	AUTO	(     arg)	size  2,	offset -9
+;## #	FRAME	AUTO	(     top)	size  2,	offset -7
+;## #	FRAME	AUTO	(  format)	size  2,	offset -5
+;## #	FRAME	AUTO	(  __TMP1)	size  1,	offset -3
+;## #	FRAME	AUTO	(   p_flg)	size  1,	offset -2
+;## #	FRAME	AUTO	(     pad)	size  1,	offset -1
+;## #  FRAME   ARG (    func)  size   4,    offset 5
+;## #  FRAME   ARG (      ap)  size   2,    offset 9
+;## #  FRAME   ARG (   total)  size   2,    offset 11
+;## #  REGISTER ARG    (  format)   size   2,   REGISTER R2
+;## #	ARG Size(8)	Auto Size(88)	Context Size(5)
+
+
+	.SECTION	program_high_rom,CODE
+	._inspect	'U', 2, "program_high_rom", "program", 1
+	._file	'C:/HEWProj/2_0_trunk/processors/renesas/src/common/print.c'
+	._type	256,'O',3
+	._type	257,'x',16,1
+	._type	257,'m','',0,16
+	._type	258,'P',257
+	._type	259,'O',3
+	._type	260,'O',16
+	._type	261,'O',260
+	._type	262,'O',16
+	._type	263,'x',256,4
+	._type	263,'m','func',5,258
+	._type	263,'m','format',-5,259
+	._type	263,'m','ap',9,261
+	._type	263,'m','total',11,262
+	._func	'_local_print','G',88,263,$_local_print,0
+	._inspect	'F', 's', "_local_print", "$_local_print", 'G', 93
+	._block
+	._line	288
+;## # C_SRC :	{
+	.glb	$_local_print
+$_local_print:
+	enter	#058H
+	._block
+	._type	264,'O',3
+	._var	'format','R',264,7
+	mov.w	R2,-5[FB]	;  format  format 
+	._eblock
+	._block
+	._type	265,'x',16,1
+	._type	265,'m','',0,16
+	._type	266,'P',265
+	._var	'func','A',266,5
+	._type	267,'O',3
+	._var	'format','A',267,-5
+	._type	268,'O',16
+	._type	269,'O',268
+	._var	'ap','A',269,9
+	._type	270,'O',16
+	._var	'total','A',270,11
+	._var	'i','A',16,-17
+	._type	272,'O',16
+	._type	273,'O',20
+	._type	274,'O',8
+	._type	275,'O',10
+	._type	276,'O',16
+	._type	277,'O',276
+	._type	278,'O',20
+	._type	279,'O',278
+	._type	280,'O',8
+	._type	281,'O',280
+	._type	282,'O',3
+	._type	283,'O',282
+	._type	271,'U','ptr',2
+	._type	271,'m','i_p',272,0
+	._type	271,'m','l_p',273,0
+	._type	271,'m','ll_p',274,0
+	._type	271,'m','d_p',275,0
+	._type	271,'m','i_pp',277,0
+	._type	271,'m','l_pp',279,0
+	._type	271,'m','ll_pp',281,0
+	._type	271,'m','c_pp',283,0
+	._type	284,'T','UNIONPTR',271
+	._type	285,'O',284
+	._var	'arg','A',285,-9
+	._type	286,'T','u_int',18
+	._var	'flag','A',286,-11
+	._var	'p_flg','A',3,-2
+	._var	'pad','A',3,-1
+	._var	'width','A',16,-13
+	._var	'pres','A',16,-15
+	._var	'get','A',20,-49
+	._var	'get_ll','A',8,-41
+	._type	287,'T','u_long',7
+	._var	'data','A',287,-25
+	._var	'data_ll','A',9,-33
+	._type	288,'Z',31,3
+	._var	'str','A',288,-88
+	._type	289,'O',3
+	._var	'top','A',289,-7
+	._var	'num','A',16,-21
+	._var	't_num','A',16,-19
+	._var	'cnt','A',16,0
+	._var	'ret','A',16,0
+	._line	302
+;## # C_SRC :		u_long data = 0L;		/*       			*/
+	mov.w	#0000H,-25[FB]	;  data 
+	mov.w	#0000H,-25+2[FB]	;  data 
+	._line	306
+;## # C_SRC :		char *top = 0;		/*               	*/
+	mov.w	#0000H,-7[FB]	;  top 
+	._line	322
+;## # C_SRC :		_asm("	.call	$_pc,G");
+;#### ASM START
+	.call	$_pc,G
+	._line	323
+;## # C_SRC :		_asm("	.call	$_sp,G");
+	.call	$_sp,G
+	._line	324
+;## # C_SRC :		_asm("	.call	$_fp,G");
+	.call	$_fp,G
+;#### ASM END
+	._line	326
+;## # C_SRC :		arg = (UNIONPTR *)ap;
+	mov.w	9[FB],-9[FB]	;  ap  arg 
+	._line	327
+;## # C_SRC :		flag = lh_flg = 0;
+	mov.w	#0000H,R0
+	mov.w	R0,R1
+	._block
+	._var	'lh_flg','R',16,5
+	mov.w	R1,-11[FB]	;  flag 
+	._line	329
+;## # C_SRC :	         || *format == ' ' || *format == '#' ) {
+L1:
+	mov.w	-5[FB],A0	;  format 
+	mov.b	[A0],R1L
+	cmp.b	#2dH,R1L
+	jeq	L1391
+	cmp.b	#2bH,R1L
+	jeq	L1391
+	cmp.b	#20H,R1L
+	jeq	L1391
+	cmp.b	#23H,R1L
+	jne	L3
+L1391:
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	331
+;## # C_SRC :			switch ( *format++ ) {
+	mov.w	-5[FB],A0	;  format 
+	mov.b	[A0],R1L
+	add.w	#0001H,-5[FB]	;  format 
+	cmp.b	#2dH,R1L
+	jeq	L67
+	cmp.b	#2bH,R1L
+	jeq	L69
+	cmp.b	#23H,R1L
+	jeq	L71
+	cmp.b	#20H,R1L
+	jeq	L73
+	jmp	L1
+	._eblock
+	._block
+	._line	332
+;## # C_SRC :			case '-': SET_LEFT;
+L67:
+	._block
+	._var	'lh_flg','R',16,5
+	bset	0,-11[FB]	;  flag 
+	._line	333
+;## # C_SRC :				  break;
+	jmp	L1
+	._eblock
+	._line	334
+;## # C_SRC :			case '+': SET_SIGN;
+L69:
+	._block
+	._var	'lh_flg','R',16,5
+	bset	1,-11[FB]	;  flag 
+	._line	335
+;## # C_SRC :				  break;
+	jmp	L1
+	._eblock
+	._line	336
+;## # C_SRC :			case '#': SET_SHRP;
+L71:
+	._block
+	._var	'lh_flg','R',16,5
+	bset	2,-11[FB]	;  flag 
+	._line	337
+;## # C_SRC :				  break;
+	jmp	L1
+	._eblock
+	._line	338
+;## # C_SRC :			case ' ': SET_BLNK;
+L73:
+	._block
+	._var	'lh_flg','R',16,5
+	bset	3,-11[FB]	;  flag 
+	._line	339
+;## # C_SRC :				  break;
+	jmp	L1
+	._eblock
+	._eblock
+	._eblock
+	._line	341
+;## # C_SRC :		}
+L3:
+	._block
+	._var	'lh_flg','R',16,5
+	._line	349
+;## # C_SRC :		pad = ' ';			/*          */
+	mov.b	#20H,-1[FB]	;  pad 
+	._line	350
+;## # C_SRC :		width = 0;			/*              */
+	mov.w	#0000H,-13[FB]	;  width 
+	._line	351
+;## # C_SRC :		if ( isdigit(*format) ) {	/*             */
+	mov.b	[A0],A0
+	lde.b	__ctype+1[A0],R1H
+	btst	0aH,R1
+	jz	L109
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	352
+;## # C_SRC :			if ( *format == '0' ) {
+	cmp.b	#30H,R1L
+	jne	L75
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	354
+;## # C_SRC :				format++;
+	add.w	#0001H,-5[FB]	;  format 
+	._line	355
+;## # C_SRC :				pad = '0';
+	mov.b	#30H,-1[FB]	;  pad 
+	._eblock
+L75:
+	._line	357
+;## # C_SRC :			if( *format == '*' ){
+	mov.w	-5[FB],A0	;  format 
+	cmp.b	#2aH,[A0]
+	jeq	L1453
+	._line	367
+;## # C_SRC :			else{
+L95:
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	369
+;## # C_SRC :				while ( isdigit( *format ) )
+	mov.w	-5[FB],A0	;  format 
+	mov.w	A0,R1
+	._eblock
+	mov.b	[A0],A0
+	._block
+	._var	'lh_flg','R',16,5
+	mov.w	R0,R2	;  lh_flg  lh_flg 
+	._eblock
+	lde.b	__ctype+1[A0],R0L
+	._block
+	._var	'lh_flg','R',16,7
+	btst	02H,R0
+	jz	L1395
+	._line	370
+;## # C_SRC :					width = ( width * 10 ) + ( *format++ & 0xf );
+	mov.w	R1,A0
+	._eblock
+	mov.b	[A0],R0L
+	and.b	#0fH,R0L
+	._block
+	._var	'lh_flg','R',16,7
+	mov.b	#00H,R0H
+	mov.w	-13[FB],R1	;  width 
+	mul.w	#000aH,R1
+	add.w	R0,R1
+	mov.w	R1,-13[FB]	;  width 
+	add.w	#0001H,-5[FB]	;  format 
+	mov.w	R2,R0	;  lh_flg  lh_flg 
+	._eblock
+	jmp	L95
+	._block
+	._var	'lh_flg','R',16,7
+	._eblock
+	._eblock
+	._line	372
+;## # C_SRC :		} else if ( *format == '*' ) {
+L109:
+	._eblock
+	._block
+	._var	'lh_flg','R',16,5
+	mov.w	-5[FB],A0	;  format 
+	cmp.b	#2aH,[A0]
+	jne	L1393
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	374
+;## # C_SRC :			format++;
+L1453:
+	._eblock
+	add.w	#0001H,-5[FB]	;  format 
+	._block
+	._var	'lh_flg','R',16,5
+	._line	375
+;## # C_SRC :			width = *(arg->i_p)++;		/*           */
+	mov.w	-9[FB],A0	;  arg 
+	mov.w	[A0],R1
+	mov.w	R1,A1
+	._eblock
+	add.w	#0002H,R1
+	._block
+	._var	'lh_flg','R',16,5
+	mov.w	R1,[A0]
+	mov.w	[A1],-13[FB]	;  width 
+	._line	376
+;## # C_SRC :			if ( width < 0 ) {
+	jpz	L1393
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,5
+	._line	378
+;## # C_SRC :				SET_LEFT;		/*          */
+	bset	0,-11[FB]	;  flag 
+	._line	379
+;## # C_SRC :				width = -width;		/*           */
+	neg.w	-13[FB]	;  width 
+	._eblock
+	._eblock
+L1393:
+	mov.w	R0,R2	;  lh_flg  lh_flg 
+	._eblock
+	._block
+	._var	'lh_flg','R',16,7
+L1395:
+	._line	389
+;## # C_SRC :		pres = -1;			/*        */
+	mov.w	#0ffffH,-15[FB]	;  pres 
+	._line	390
+;## # C_SRC :		if ( *format == '.' ) {		/*         */
+	mov.w	-5[FB],A0	;  format 
+	cmp.b	#2eH,[A0]
+	jne	L155
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,7
+	._line	391
+;## # C_SRC :			format++;
+	add.w	#0001H,-5[FB]	;  format 
+	._line	392
+;## # C_SRC :			if ( *format == '*' ) {
+	mov.w	-5[FB],A0	;  format 
+	cmp.b	#2aH,[A0]
+	jne	L143
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,7
+	._line	394
+;## # C_SRC :				format++;
+	add.w	#0001H,-5[FB]	;  format 
+	._line	395
+;## # C_SRC :				pres = *(arg->i_p)++;	/*           */
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,7
+	mov.w	[A1],-15[FB]	;  pres 
+	._line	396
+;## # C_SRC :				if ( pres < 0 )		/*        */
+	jpz	L155
+	._line	397
+;## # C_SRC :					pres = -1;	/*             */
+	mov.w	#0ffffH,-15[FB]	;  pres 
+	jmp	L155
+	._eblock
+	._eblock
+	._line	398
+;## # C_SRC :			} else {
+L143:
+	._block
+	._var	'lh_flg','R',16,7
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,7
+	._line	399
+;## # C_SRC :				pres = 0;
+	mov.w	#0000H,-15[FB]	;  pres 
+	._line	400
+;## # C_SRC :				while ( isdigit( *format ) )
+L153:
+	mov.w	-5[FB],A0	;  format 
+	mov.w	A0,R0
+	._eblock
+	mov.b	[A0],A0
+	._block
+	._var	'lh_flg','R',16,7
+	lde.b	__ctype+1[A0],R1L
+	btst	02H,R1
+	jz	L155
+	._line	401
+;## # C_SRC :					pres = ( pres * 10 ) + ( *format++ & 0xf );
+	mov.w	R0,A0
+	._eblock
+	mov.b	[A0],R1L
+	and.b	#0fH,R1L
+	._block
+	._var	'lh_flg','R',16,7
+	mov.b	R1L,R0L
+	mov.b	#00H,R0H
+	mov.w	-15[FB],R1	;  pres 
+	mul.w	#000aH,R1
+	add.w	R0,R1
+	mov.w	R1,-15[FB]	;  pres 
+	add.w	#0001H,-5[FB]	;  format 
+	jmp	L153
+	._eblock
+L155:
+	._block
+	._var	'lh_flg','R',16,7
+	._eblock
+	._eblock
+	._line	411
+;## # C_SRC :		if ( *format == 'l' || *format == 'h' ){
+	mov.w	-5[FB],A0	;  format 
+	cmp.b	#6cH,[A0]
+	jeq	L1163
+	cmp.b	#68H,[A0]
+	jne	L195
+	._eblock
+L1163:
+	._block
+	._line	413
+;## # C_SRC :			lh_flg = *format++;
+	mov.w	-5[FB],A0	;  format 
+	mov.b	[A0],A0	;  lh_flg 
+	._block
+	._var	'lh_flg','R',16,9
+	add.w	#0001H,-5[FB]	;  format 
+	._line	414
+;## # C_SRC :			if ( (*(format - 1) == 'l') && (*format == 'l') ){
+	mov.w	-5[FB],A1	;  format 
+	dec.w	A1
+	cmp.b	#6cH,[A1]
+	jne	L1401
+	mov.w	-5[FB],A1	;  format 
+	cmp.b	#6cH,[A1]
+	jne	L1401
+	._eblock
+	._block
+	._line	416
+;## # C_SRC :				lh_flg = LONG_LONG;
+	mov.w	#0002H,R0	;  lh_flg 
+	._block
+	._var	'lh_flg','R',16,5
+	._line	417
+;## # C_SRC :				format++;
+	jmp	L1377
+	._eblock
+	._eblock
+	._eblock
+	._line	420
+;## # C_SRC :		else if ( *format == 'L' )
+L195:
+	._block
+	._var	'lh_flg','R',16,7
+	cmp.b	#4cH,[A0]
+	jne	L1403
+	._eblock
+	mov.w	R2,R0	;  lh_flg  lh_flg 
+	._block
+	._var	'lh_flg','R',16,5
+	._line	422
+;## # C_SRC :			*format++;
+L1377:
+	add.w	#0001H,-5[FB]	;  format 
+	._eblock
+	mov.w	R0,R2	;  lh_flg  lh_flg 
+	._block
+	._var	'lh_flg','R',16,7
+L1403:
+	._eblock
+	mov.w	R2,A0	;  lh_flg  lh_flg 
+	._block
+	._var	'lh_flg','R',16,9
+L1401:
+	._line	433
+;## # C_SRC :		p_flg = *format;
+	mov.w	-5[FB],A1	;  format 
+	mov.b	[A1],-2[FB]	;  p_flg 
+	._line	436
+;## # C_SRC :		switch ( p_flg ) {
+	mov.b	-2[FB],R0L	;  p_flg 
+	cmp.b	#64H,R0L
+	jeq	L1405
+	cmp.b	#69H,R0L
+	jeq	L1405
+	cmp.b	#75H,R0L
+	jeq	L1411
+	cmp.b	#6fH,R0L
+	jeq	L1411
+	cmp.b	#78H,R0L
+	jeq	L1411
+	cmp.b	#58H,R0L
+	jeq	L1411
+	jmp	L233
+	._eblock
+	._block
+	._line	437
+;## # C_SRC :		case 'd':
+L1405:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	439
+;## # C_SRC :			if ( lh_flg == 'l' ) {
+	cmp.w	#006cH,A0	;  lh_flg 
+	jne	L249
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	441
+;## # C_SRC :				get = *(arg->l_p)++;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	mov.w	[A1],-49[FB]	;  get 
+	mov.w	2[A1],-49+2[FB]	;  get 
+	._block
+	._var	'lh_flg','R',16,9
+	._line	442
+;## # C_SRC :				if ( get < 0L ) {
+	tst.b	#80H,-49+3[FB]	;  get 
+	jz	L239
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	443
+;## # C_SRC :	  				SET_MINUS;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_3
+	.stk	-3
+	._line	444
+;## # C_SRC :	   				get = -get;
+	._eblock
+L239:
+	._line	446
+;## # C_SRC :	   			data = ( u_long )( get );
+	mov.w	-49[FB],-25[FB]	;  get  data 
+	mov.w	-49+2[FB],-25+2[FB]	;  get  data 
+	._eblock
+	._line	447
+;## # C_SRC :			} else if ( lh_flg == LONG_LONG ) {
+	jmp	L233
+	._eblock
+L249:
+	._block
+	._var	'lh_flg','R',16,9
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L269
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	449
+;## # C_SRC :				get_ll = *(arg->ll_p)++;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_4
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	mov.w	[A1],-41[FB]	;  get_ll 
+	mov.w	2[A1],-41+2[FB]	;  get_ll 
+	mov.w	4[A1],-41+4[FB]	;  get_ll 
+	mov.w	6[A1],-41+6[FB]	;  get_ll 
+	._block
+	._var	'lh_flg','R',16,9
+	._line	450
+;## # C_SRC :				if ( get_ll < 0LL ) {
+	tst.b	#80H,-41+7[FB]	;  get_ll 
+	jz	L259
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	451
+;## # C_SRC :					SET_MINUS;
+	bset	4,-11[FB]	;  flag 
+	._line	452
+;## # C_SRC :					get_ll = -get_ll;
+	not.w	-41+6[FB]	;  get_ll 
+	not.w	-41+4[FB]	;  get_ll 
+	not.w	-41+2[FB]	;  get_ll 
+	neg.w	-41[FB]	;  get_ll 
+	adcf.w	-41+2[FB]	;  get_ll 
+	adcf.w	-41+4[FB]	;  get_ll 
+	adcf.w	-41+6[FB]	;  get_ll 
+	._eblock
+L259:
+	._line	454
+;## # C_SRC :				data_ll = ( unsigned long long )( get_ll);
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_5
+	.stk	-3
+	._eblock
+	._line	455
+;## # C_SRC :			} else {
+	jmp	L233
+	._eblock
+L269:
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	456
+;## # C_SRC :				get = ( long )( *(arg->i_p)++ );
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_6
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	mov.w	R2,-49+2[FB]	;  get 
+	mov.w	R0,-49[FB]	;  get 
+	._line	457
+;## # C_SRC :				if ( get < 0L ) {
+	tst.b	#80H,-49+3[FB]	;  get 
+	jz	L279
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	458
+;## # C_SRC :	  				SET_MINUS;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_3
+	.stk	-3
+	._line	459
+;## # C_SRC :	   				get = -get;
+	._eblock
+L279:
+	._line	461
+;## # C_SRC :	   			data = ( u_long )( get ) & 0xffffL;
+	mov.w	-49[FB],-25[FB]	;  get  data 
+	mov.w	#0000H,-23[FB]	;  data 
+	._eblock
+	._line	463
+;## # C_SRC :			break;
+	jmp	L233
+	._eblock
+	._line	464
+;## # C_SRC :		case 'u':
+L1411:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	468
+;## # C_SRC :			if ( lh_flg == 'l' )
+	cmp.w	#006cH,A0	;  lh_flg 
+	jne	L297
+	._line	470
+;## # C_SRC :				data = ( u_long )( *(arg->l_p)++ );
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	mov.w	[A1],-25[FB]	;  data 
+	mov.w	2[A1],-25+2[FB]	;  data 
+	._block
+	._var	'lh_flg','R',16,9
+	jmp	L233
+	._eblock
+	._line	471
+;## # C_SRC :			else if ( lh_flg == LONG_LONG )
+L297:
+	._block
+	._var	'lh_flg','R',16,9
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L307
+	._line	473
+;## # C_SRC :				data_ll = ( unsigned long long )( *(arg->ll_p)++ );
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_4
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	mov.w	[A1],-33[FB]	;  data_ll 
+	mov.w	2[A1],-33+2[FB]	;  data_ll 
+	mov.w	4[A1],-33+4[FB]	;  data_ll 
+	mov.w	6[A1],-33+6[FB]	;  data_ll 
+	._block
+	._var	'lh_flg','R',16,9
+	jmp	L233
+	._eblock
+	._line	474
+;## # C_SRC :			else
+L307:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	475
+;## # C_SRC :				data = ( u_long )( *(arg->i_p)++ ) & 0xffffL;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_6
+	.stk	-3
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	._eblock
+	._block
+	._var	'lh_flg','R',16,9
+	mov.w	#0000H,R2
+	and.w	#0ffffH,R0
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._eblock
+	._line	498
+;## # C_SRC :		}
+L233:
+	._line	506
+;## # C_SRC :		switch ( p_flg ) {
+	mov.b	-2[FB],R0L	;  p_flg 
+	cmp.b	#64H,R0L
+	jeq	L1419
+	cmp.b	#69H,R0L
+	jeq	L1419
+	cmp.b	#6fH,R0L
+	jeq	L1419
+	cmp.b	#75H,R0L
+	jeq	L1419
+	cmp.b	#78H,R0L
+	jeq	L1419
+	cmp.b	#58H,R0L
+	jne	L1421
+	._eblock
+	._block
+	._block
+	._var	'lh_flg','R',16,9
+	._line	507
+;## # C_SRC :		case 'd':
+L1419:
+	._line	513
+;## # C_SRC :			if ( pres != -1 || (CHK_LEFT) )
+	cmp.w	#0ffffH,-15[FB]	;  pres 
+	jne	L1197
+	btst	00H,-11[FB]	;  flag 
+	jz	L1421
+L1197:
+	._line	514
+;## # C_SRC :				pad = ' ';
+	mov.b	#20H,-1[FB]	;  pad 
+L1421:
+	._eblock
+	._line	522
+;## # C_SRC :		i = STRMAX; /*                */
+	mov.w	#001eH,-17[FB]	;  i 
+	._line	523
+;## # C_SRC :		t_num = 0; /*    0x 0X        */
+	mov.w	#0000H,-19[FB]	;  t_num 
+	._line	526
+;## # C_SRC :		switch ( p_flg ) {
+	mov.b	-2[FB],R0L	;  p_flg 
+	cmp.b	#64H,R0L
+	jeq	L1425
+	cmp.b	#69H,R0L
+	jeq	L1425
+	cmp.b	#75H,R0L
+	jeq	L1425
+	cmp.b	#78H,R0L
+	jeq	L1427
+	cmp.b	#58H,R0L
+	jeq	L1427
+	cmp.b	#6fH,R0L
+	jeq	L669
+	cmp.b	#63H,R0L
+	jeq	L795
+	cmp.b	#70H,R0L
+	jeq	L797
+	cmp.b	#6eH,R0L
+	jeq	L843
+	._eblock
+	cmp.b	#73H,R0L
+	jeq	L865
+	._block
+	._line	832
+;## # C_SRC :			return format;
+	mov.w	-5[FB],R0	;  format 
+	exitd	
+	._line	527
+;## # C_SRC :		case 'd':
+L1425:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	530
+;## # C_SRC :			if ( lh_flg == LONG_LONG ){
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L401
+	._eblock
+	._block
+	._line	532
+;## # C_SRC :				if ( pres == 0 && data_ll == ZERO_LL ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1429
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jne	L1429
+	._block
+	._line	534
+;## # C_SRC :					num = 0;
+L1387:
+	mov.w	#0000H,-21[FB]	;  num 
+	._line	535
+;## # C_SRC :					break;
+	jmp	L1441
+	._eblock
+L1429:
+	._line	538
+	._block
+	._line	539
+;## # C_SRC :					str[i--] = ( char )( data_ll % DEC_LL ) + '0';
+	._inspect	'S', 'p', 8
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#000aH
+	mov.w	-33[FB],R0	;  data_ll 
+	mov.w	-33+2[FB],R2	;  data_ll 
+	mov.w	-33+4[FB],R1	;  data_ll 
+	mov.w	-33+6[FB],R3	;  data_ll 
+	._inspect	'S', 'c', "", "__i8modU", 'G', 0, 539
+	.glb	__i8modU
+	jsr.a	__i8modU
+	add.b	#8H,SP
+	._inspect	'S', 'p', -8
+	add.b	#30H,R0L
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	R0L,[A0]
+	add.w	#-1,-17[FB]	;  i 
+	._line	541
+;## # C_SRC :					data_ll /= DEC_LL;		/* (LL) */
+	._inspect	'S', 'p', 8
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#000aH
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_7
+	.stk	-3
+	._inspect	'S', 'c', "", "__i8divU", 'G', 0, 541
+	.glb	__i8divU
+	jsr.a	__i8divU
+	add.b	#8H,SP
+	._inspect	'S', 'p', -8
+	mov.w	R0,-33[FB]	;  data_ll 
+	mov.w	R2,-33+2[FB]	;  data_ll 
+	mov.w	R1,-33+4[FB]	;  data_ll 
+	mov.w	R3,-33+6[FB]	;  data_ll 
+	._eblock
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	L1429
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jne	L1429
+	jmp	L1379
+	._eblock
+	._line	543
+;## # C_SRC :			}else{
+L401:
+	._block
+	._line	544
+;## # C_SRC :				if ( pres == 0 && data == ZERO ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1431
+	cmp.w	#0000H,-25[FB]	;  data 
+	jne	M1
+	cmp.w	#0000H,-25+2[FB]	;  data 
+	jeq	L1387
+M1:
+L1431:
+	._line	550
+	._block
+	._line	551
+;## # C_SRC :					str[i--] = ( char )( data % DEC ) + '0';
+	push.w	#0000H
+	push.w	#000aH
+	._inspect	'S', 'p', 4
+	mov.w	-25[FB],R0	;  data 
+	mov.w	-25+2[FB],R2	;  data 
+	._inspect	'S', 'c', "", "__i4modU", 'G', 0, 551
+	jsr.a	__i4modU
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_8
+	.stk	-3
+	._line	553
+;## # C_SRC :					data /= DEC;			/* (L) */
+	push.w	#0000H
+	push.w	#000aH
+	._inspect	'S', 'p', 4
+	mov.w	-25[FB],R0	;  data 
+	mov.w	-25+2[FB],R2	;  data 
+	._inspect	'S', 'c', "", "__i4divU", 'G', 0, 553
+	jsr.a	__i4divU
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._eblock
+	jne	L1431
+	cmp.w	#0000H,R0
+	jne	L1431
+L1379:
+	._eblock
+	._line	556
+;## # C_SRC :			num = STRMAX - i;
+	mov.w	#001eH,R0
+	sub.w	-17[FB],R0	;  i 
+	mov.w	R0,-21[FB]	;  num 
+	._line	557
+;## # C_SRC :			while ( num < pres ) {
+L451:
+	cmp.w	-15[FB],-21[FB]	;  pres  num 
+	jge	L453
+	._block
+	._line	559
+;## # C_SRC :				str[i--] = '0';	/*   '0'    */
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_9
+	.stk	-3
+	._line	560
+;## # C_SRC :				num++;
+	._eblock
+	._line	561
+;## # C_SRC :			}
+	jmp	L451
+L453:
+	._line	562
+;## # C_SRC :			if ( CHK_MINUS || CHK_SIGN || CHK_BLNK ){
+	tst.w	#001aH,-11[FB]	;  flag 
+	jz	L461
+	._block
+	._line	564
+;## # C_SRC :				num++;	/*        */
+	add.w	#0001H,-21[FB]	;  num 
+	._line	565
+;## # C_SRC :				t_num = 1;
+	mov.w	#0001H,-19[FB]	;  t_num 
+	._eblock
+L461:
+	._line	567
+;## # C_SRC :			if ( CHK_MINUS ) /*      */
+	btst	04H,-11[FB]	;  flag 
+	jz	L489
+	._line	568
+;## # C_SRC :				str[i] = '-';
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	#2dH,[A0]
+	jmp	L499
+	._line	569
+;## # C_SRC :			else if ( CHK_SIGN ) /*          */
+L489:
+	btst	01H,-11[FB]	;  flag 
+	jz	L493
+	._line	570
+;## # C_SRC :				str[i] = '+';
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	#2bH,[A0]
+	jmp	L499
+	._line	571
+;## # C_SRC :			else if ( CHK_BLNK ) /* blank        */
+L493:
+	btst	03H,-11[FB]	;  flag 
+	jz	L497
+	._line	572
+;## # C_SRC :				str[i] = ' ';
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	#20H,[A0]
+	jmp	L499
+	._line	573
+;## # C_SRC :			else
+L497:
+	._line	574
+;## # C_SRC :				i++;
+	add.w	#0001H,-17[FB]	;  i 
+L499:
+	._line	575
+;## # C_SRC :			top = &str[i];	/*             */
+	mova	-88[FB],R0	;  str 
+	add.w	-17[FB],R0	;  i 
+L1485:
+	mov.w	R0,-7[FB]	;  top 
+	._line	576
+;## # C_SRC :			break;
+	jmp	L1441
+	._line	577
+;## # C_SRC :		case 'x':
+L1427:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	579
+;## # C_SRC :			if ( lh_flg == LONG_LONG ){
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L573
+	._eblock
+	._block
+	._line	581
+;## # C_SRC :				if ( pres == 0 && data_ll == ZERO_LL ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1433
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	M2
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	M2
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	M2
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jeq	L1387
+M2:
+L1433:
+	._line	587
+;## # C_SRC :				if ( p_flg == 'X' )
+	cmp.b	#58H,-2[FB]	;  p_flg 
+	stzx	#41H,#61H,R0L	;  hex_char 
+	._block
+	._var	'hex_char','R',3,1
+	._line	591
+;## # C_SRC :				if ( !data_ll )
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	L543
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	L543
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	L543
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jne	L543
+	._line	593
+;## # C_SRC :					CLR_SHRP;
+	bclr	02H,-11[FB]	;  flag 
+L543:
+	._eblock
+	._line	595
+	._block
+	._block
+	._var	'hex_char','R',3,1
+	._line	596
+;## # C_SRC :					str[i] = ( char )( data_ll % HEX_LL );
+	mov.b	R0L,-3[FB]	;  hex_char  __TMP1 
+	._eblock
+	._inspect	'S', 'p', 8
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0010H
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_7
+	.stk	-3
+	._inspect	'S', 'c', "", "__i8modU", 'G', 0, 596
+	.glb	__i8modU
+	jsr.a	__i8modU
+	add.b	#8H,SP
+	._inspect	'S', 'p', -8
+	mov.w	R0,-57[FB]	;  __REG3 
+	mov.w	R2,-57+2[FB]	;  __REG3 
+	mov.w	R1,-57+4[FB]	;  __REG3 
+	mov.w	R3,-57+6[FB]	;  __REG3 
+	._block
+	._var	'hex_char','A',3,-3
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	-57[FB],[A0]	;  __REG3 
+	._line	598
+;## # C_SRC :					if( str[i] >= 0xa )
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	-3[FB],R0L	;  __TMP1  hex_char 
+	._eblock
+	cmp.b	#0aH,[A0]
+	jltu	L557
+	._block
+	._var	'hex_char','R',3,1
+	._line	599
+;## # C_SRC :						str[i] = str[i] - 0xa + hex_char;
+	mova	-88[FB],A0	;  str 
+	._eblock
+	._block
+	._var	'hex_char','R',3,1
+	add.w	-17[FB],A0	;  i 
+	mov.b	[A0],R0H
+	sub.b	#0aH,R0H
+	mov.b	R0L,R1L	;  hex_char  hex_char 
+	._eblock
+	add.b	R0H,R0L
+	._block
+	._var	'hex_char','R',3,3
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	R0L,[A0]
+	jmp	L559
+	._eblock
+	._line	600
+;## # C_SRC :					else
+L557:
+	._block
+	._var	'hex_char','R',3,1
+	._line	601
+;## # C_SRC :		   				str[i] = str[i] + '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],R0H
+	add.b	#30H,R0H
+	mov.b	R0H,[A1]
+	._eblock
+	mov.b	R0L,R1L	;  hex_char  hex_char 
+	._block
+	._var	'hex_char','R',3,3
+L559:
+	._line	602
+;## # C_SRC :					i--;
+	add.w	#-1,-17[FB]	;  i 
+	._line	603
+;## # C_SRC :					data_ll /= HEX_LL;		/* (LL) */
+	mov.b	R1L,-3[FB]	;  hex_char  __TMP1 
+	._eblock
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_11
+	.stk	-3
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12
+	.stk	-3
+	._block
+	._var	'hex_char','A',3,-3
+	mov.w	R0,-49[FB]	;  __REG2 
+	mov.w	R2,-49+2[FB]	;  __REG2 
+	mov.w	R1,-49+4[FB]	;  __REG2 
+	mov.w	R3,-49+6[FB]	;  __REG2 
+	mov.w	-49[FB],-33[FB]	;  __REG2  data_ll 
+	mov.w	-49+2[FB],-33+2[FB]	;  __REG2  data_ll 
+	mov.w	-49+4[FB],-33+4[FB]	;  __REG2  data_ll 
+	mov.w	-49+6[FB],-33+6[FB]	;  __REG2  data_ll 
+	._eblock
+	mov.b	-3[FB],R0L	;  __TMP1  hex_char 
+	._eblock
+	cmp.w	#0000H,-49[FB]	;  __REG2 
+	jne	L543
+	cmp.w	#0000H,-49+2[FB]	;  __REG2 
+	jne	L543
+	cmp.w	#0000H,-49+4[FB]	;  __REG2 
+	jne	L543
+	cmp.w	#0000H,-49+6[FB]	;  __REG2 
+	jne	L543
+	._block
+	._var	'hex_char','A',3,-3
+	jmp	L1381
+	._eblock
+	._eblock
+	._line	605
+;## # C_SRC :			}else{
+L573:
+	._block
+	._line	606
+;## # C_SRC :				if ( pres == 0 && data == ZERO ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1435
+	cmp.w	#0000H,-25[FB]	;  data 
+	jne	M3
+	cmp.w	#0000H,-25+2[FB]	;  data 
+	jeq	L1387
+M3:
+L1435:
+	._line	612
+;## # C_SRC :				if ( p_flg == 'X' )
+	cmp.b	#58H,-2[FB]	;  p_flg 
+	stzx	#41H,#61H,R0L	;  hex_char 
+	._block
+	._var	'hex_char','R',3,1
+	._line	616
+;## # C_SRC :				if ( !data )
+	cmp.w	#0000H,-25[FB]	;  data 
+	jne	L621
+	cmp.w	#0000H,-25+2[FB]	;  data 
+	jne	L621
+	._line	618
+;## # C_SRC :					CLR_SHRP;
+	bclr	02H,-11[FB]	;  flag 
+L621:
+	._eblock
+	mov.b	R0L,R1L	;  hex_char  hex_char 
+	._block
+	._var	'hex_char','R',3,3
+L629:
+	._eblock
+	._line	620
+	._block
+	._block
+	._var	'hex_char','R',3,3
+	._line	621
+;## # C_SRC :					str[i] = ( char )( data % HEX );
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_13
+	.stk	-3
+	._line	623
+;## # C_SRC :					if( str[i] >= 0xa )
+	jltu	L635
+	._line	624
+;## # C_SRC :						str[i] = str[i] - 0xa + hex_char;
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	[A0],R0L
+	sub.b	#0aH,R0L
+	mov.b	R1L,R0H	;  hex_char  hex_char 
+	._eblock
+	add.b	R0L,R1L
+	._block
+	._var	'hex_char','R',3,2
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	R1L,[A0]
+	jmp	L637
+	._eblock
+	._line	625
+;## # C_SRC :					else
+L635:
+	._block
+	._var	'hex_char','R',3,3
+	._line	626
+;## # C_SRC :			   			str[i] = str[i] + '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],R0L
+	add.b	#30H,R0L
+	mov.b	R0L,[A1]
+	._eblock
+	mov.b	R1L,R0H	;  hex_char  hex_char 
+	._block
+	._var	'hex_char','R',3,2
+L637:
+	._line	627
+;## # C_SRC :					i--;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_14
+	.stk	-3
+	._line	628
+;## # C_SRC :					data /= HEX;			/* (L) */
+	._eblock
+	mov.b	R0H,-3[FB]	;  hex_char  __TMP1 
+	._eblock
+	mov.w	R1,R0
+	mov.w	R3,R2
+	mov.b	-3[FB],R1L	;  __TMP1  hex_char 
+	cmp.w	#0000H,R2
+	jne	L629
+	cmp.w	#0000H,R0
+	jne	L629
+	._block
+	._var	'hex_char','A',3,-3
+L1381:
+	._eblock
+	._eblock
+	._line	631
+;## # C_SRC :			num = STRMAX - i;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_15
+	.stk	-3
+	._line	632
+;## # C_SRC :			if ( CHK_SHRP ) {
+	jz	L651
+	._block
+	._line	634
+;## # C_SRC :				num += 2;
+	add.w	#0002H,-21[FB]	;  num 
+	._line	635
+;## # C_SRC :				t_num = 2;
+	mov.w	#0002H,-19[FB]	;  t_num 
+	._eblock
+L651:
+	._line	637
+;## # C_SRC :			while ( num < pres ) {
+	cmp.w	-15[FB],-21[FB]	;  pres  num 
+	jge	L657
+	._block
+	._line	638
+;## # C_SRC :				str[i--] = '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_9
+	.stk	-3
+	._line	639
+;## # C_SRC :				num++;
+	._eblock
+	._line	640
+;## # C_SRC :			}
+	jmp	L651
+L657:
+	._line	641
+;## # C_SRC :			if ( CHK_SHRP ) {
+	btst	02H,-11[FB]	;  flag 
+	jz	L497
+	._block
+	._line	643
+;## # C_SRC :				str[i--] = p_flg;
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	-2[FB],[A0]	;  p_flg 
+	add.w	#-1,-17[FB]	;  i 
+	._line	644
+;## # C_SRC :				str[i] = '0';
+L1491:
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	#30H,[A0]
+	._eblock
+	._line	645
+;## # C_SRC :			} else 
+	jmp	L499
+	._line	649
+;## # C_SRC :		case 'o':
+L669:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	650
+;## # C_SRC :			if ( lh_flg == LONG_LONG ){
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L719
+	._eblock
+	._block
+	._line	652
+;## # C_SRC :				if ( pres == 0 && data_ll == ZERO_LL ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1437
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	M4
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	M4
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	M4
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jeq	L1387
+M4:
+L1437:
+	._line	657
+;## # C_SRC :				if ( !data_ll )
+	cmp.w	#0000H,-33[FB]	;  data_ll 
+	jne	L699
+	cmp.w	#0000H,-33+2[FB]	;  data_ll 
+	jne	L699
+	cmp.w	#0000H,-33+4[FB]	;  data_ll 
+	jne	L699
+	cmp.w	#0000H,-33+6[FB]	;  data_ll 
+	jne	L699
+	._line	659
+;## # C_SRC :					CLR_SHRP;
+	bclr	02H,-11[FB]	;  flag 
+L699:
+	._line	661
+	._block
+	._line	662
+;## # C_SRC :					str[i--] = ( char )( data_ll % OCT_LL ) + '0';
+	._inspect	'S', 'p', 8
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0000H
+	push.w	#0008H
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_7
+	.stk	-3
+	._inspect	'S', 'c', "", "__i8modU", 'G', 0, 662
+	.glb	__i8modU
+	jsr.a	__i8modU
+	add.b	#8H,SP
+	._inspect	'S', 'p', -8
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_8
+	.stk	-3
+	._line	664
+;## # C_SRC :					data_ll /= OCT_LL;		/* (LL) */
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_11
+	.stk	-3
+	mov.w	R0,-41[FB]	;  __REG1 
+	mov.w	R2,-41+2[FB]	;  __REG1 
+	mov.w	R1,-41+4[FB]	;  __REG1 
+	mov.w	R3,-41+6[FB]	;  __REG1 
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_5
+	.stk	-3
+	._eblock
+	cmp.w	#0000H,-41[FB]	;  __REG1 
+	jne	L699
+	cmp.w	#0000H,-41+2[FB]	;  __REG1 
+	jne	L699
+	cmp.w	#0000H,-41+4[FB]	;  __REG1 
+	jne	L699
+	cmp.w	#0000H,-41+6[FB]	;  __REG1 
+	jne	L699
+	jmp	L1383
+	._eblock
+	._line	666
+;## # C_SRC :			}else{
+L719:
+	._block
+	._line	667
+;## # C_SRC :				if ( pres == 0 && data == ZERO ) {
+	cmp.w	#0000H,-15[FB]	;  pres 
+	jne	L1439
+	cmp.w	#0000H,-25[FB]	;  data 
+	jne	M5
+	cmp.w	#0000H,-25+2[FB]	;  data 
+	jeq	L1387
+M5:
+L1439:
+	._line	672
+;## # C_SRC :				if ( !data )
+	cmp.w	#0000H,-25[FB]	;  data 
+	jne	L757
+	cmp.w	#0000H,-25+2[FB]	;  data 
+	jne	L757
+	._line	674
+;## # C_SRC :					CLR_SHRP;
+	bclr	02H,-11[FB]	;  flag 
+L757:
+	._line	676
+	._block
+	._line	677
+;## # C_SRC :					str[i--] = ( char )( data % OCT ) + '0';
+	mov.b	-25[FB],R0L	;  data 
+	and.b	#07H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_8
+	.stk	-3
+	._line	679
+;## # C_SRC :					data /= OCT;			/* (L) */
+	mov.w	-25[FB],R0	;  data 
+	mov.w	-25+2[FB],R2	;  data 
+	shl.l	#-3,R2R0
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._eblock
+	jne	L757
+	cmp.w	#0000H,R0
+	jne	L757
+L1383:
+	._eblock
+	._line	682
+;## # C_SRC :			num = STRMAX - i;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_15
+	.stk	-3
+	._line	683
+;## # C_SRC :			if ( CHK_SHRP )			
+	jz	L777
+	._line	685
+;## # C_SRC :				num++;
+L1455:
+	add.w	#0001H,-21[FB]	;  num 
+L777:
+	._line	686
+;## # C_SRC :			while ( num < pres ) {
+	cmp.w	-15[FB],-21[FB]	;  pres  num 
+	jge	L783
+	._block
+	._line	687
+;## # C_SRC :				str[i--] = '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_16
+	.stk	-3
+	._line	688
+;## # C_SRC :				num++;
+	jmp	L1455
+	._eblock
+	._line	689
+;## # C_SRC :			}
+L783:
+	._line	690
+;## # C_SRC :			if ( CHK_SHRP )
+	btst	02H,-11[FB]	;  flag 
+	jz	L497
+	._line	692
+;## # C_SRC :				str[i] = '0';
+	jmp	L1491
+	._line	779
+;## # C_SRC :		case 'c':
+L795:
+	._line	780
+;## # C_SRC :			pad = ' ';	/* c        blank */
+	mov.b	#20H,-1[FB]	;  pad 
+	._line	781
+;## # C_SRC :			str[i] = *(arg->i_p)++;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1
+	.stk	-3
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	[A1],[A0]
+	._line	782
+;## # C_SRC :			num = 1;
+	mov.w	#0001H,-21[FB]	;  num 
+	._line	783
+;## # C_SRC :			top = &str[i];
+	jmp	L499
+	._line	785
+;## # C_SRC :		case 'p':
+L797:
+	._line	786
+;## # C_SRC :			pad = ' ';	/* p        blank */
+	mov.b	#20H,-1[FB]	;  pad 
+	._line	787
+;## # C_SRC :			data = ( u_long )( *(arg->c_pp) );
+	mov.w	-9[FB],A0	;  arg 
+	mov.w	[A0],A0
+	mov.w	[A0],R0
+	mov.w	#0000H,R2
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._line	788
+;## # C_SRC :			data &= 0xffffL;	/*               */
+	mov.w	#0000H,-23[FB]	;  data 
+	._line	789
+;## # C_SRC :			for ( j = 0 ; j < 4 ; j++ ) {
+	mov.w	#0000H,R1	;  j 
+	._block
+	._var	'j','R',16,6
+	._eblock
+	mov.w	R1,R0	;  j  j 
+	._block
+	._var	'j','R',16,5
+L799:
+	._eblock
+	._line	789
+	._block
+	._block
+	._var	'j','R',16,5
+	._line	790
+;## # C_SRC :				str[i] = ( char )( data & 0xf );	/* (L) */
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_13
+	.stk	-3
+	._line	791
+;## # C_SRC :				if( str[i] >= 0xa )
+	jltu	L811
+	._line	792
+;## # C_SRC :					str[i] = str[i] - 0xa + 'A';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],[A1]
+	add.b	#37H,[A1]
+	jmp	L813
+	._eblock
+	._line	793
+;## # C_SRC :				else
+L811:
+	._block
+	._var	'j','R',16,5
+	._line	794
+;## # C_SRC :					str[i] = str[i] + '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],[A1]
+	add.b	#30H,[A1]
+L813:
+	._line	795
+;## # C_SRC :				i--;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_14
+	.stk	-3
+	._line	796
+;## # C_SRC :				data /= HEX;
+	._eblock
+	add.w	#0001H,R0	;  j 
+	cmp.w	#0004H,R0	;  j 
+	jlt	L799
+	._eblock
+	._line	798
+;## # C_SRC :			str[i--] = ':';	/*           */
+	mova	-88[FB],A0	;  str 
+	add.w	-17[FB],A0	;  i 
+	mov.b	#3aH,[A0]
+	add.w	#-1,-17[FB]	;  i 
+	._line	799
+;## # C_SRC :			data = ( u_long )( *(arg->c_pp)++ );
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1
+	.stk	-3
+	mov.w	[A1],R0
+	mov.w	#0000H,R2
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._line	800
+;## # C_SRC :			data = ( data >> 16 ) & 0xff;	/*          (L) */
+	mov.w	#0000H,R2
+	mov.w	-25+2[FB],R0	;  data 
+	mov.w	#0000H,R2
+	and.w	#00ffH,R0
+	mov.w	R0,-25[FB]	;  data 
+	mov.w	R2,-25+2[FB]	;  data 
+	._line	801
+;## # C_SRC :			for ( j = 0 ; j < 2 ; j++ ) {
+	mov.w	#0000H,R1	;  j 
+	._block
+	._var	'j','R',16,6
+	._eblock
+	mov.w	R1,R0	;  j  j 
+	._block
+	._var	'j','R',16,5
+L821:
+	._eblock
+	._line	801
+	._block
+	._block
+	._var	'j','R',16,5
+	._line	802
+;## # C_SRC :				str[i] = ( char )( data & 0xf );	/* (L) */
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_13
+	.stk	-3
+	._line	803
+;## # C_SRC :				if( str[i] >= 0xa )
+	jltu	L833
+	._line	804
+;## # C_SRC :					str[i] = str[i] - 0xa + 'A';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],[A1]
+	add.b	#37H,[A1]
+	jmp	L835
+	._eblock
+	._line	805
+;## # C_SRC :				else
+L833:
+	._block
+	._var	'j','R',16,5
+	._line	806
+;## # C_SRC :					str[i] = str[i] + '0';
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10
+	.stk	-3
+	mov.b	[A0],[A1]
+	add.b	#30H,[A1]
+L835:
+	._line	807
+;## # C_SRC :				i--;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_14
+	.stk	-3
+	._line	808
+;## # C_SRC :				data /= 16;
+	._eblock
+	add.w	#0001H,R0	;  j 
+	cmp.w	#0002H,R0	;  j 
+	jlt	L821
+	._eblock
+	._line	810
+;## # C_SRC :			num = STRMAX - i;
+	mov.w	#001eH,R0
+	sub.w	-17[FB],R0	;  i 
+	mov.w	R0,-21[FB]	;  num 
+	._line	811
+;## # C_SRC :			top = &str[i+1];
+	mova	-88[FB],R0	;  str 
+	add.w	-17[FB],R0	;  i 
+	add.w	#0001H,R0
+	jmp	L1485
+	._line	813
+;## # C_SRC :		case 'n':
+L843:
+	._block
+	._var	'lh_flg','R',16,9
+	._line	814
+;## # C_SRC :			if( lh_flg == 'l' ) {
+	cmp.w	#006cH,A0	;  lh_flg 
+	jne	L845
+	._eblock
+	._block
+	._line	815
+;## # C_SRC :				**(arg->l_pp) = *total;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_17
+	.stk	-3
+	mov.w	R2,2[A0]
+	mov.w	R0,[A0]
+	._line	816
+;## # C_SRC :				*(arg->l_pp)++ ;	
+	jmp	L1385
+	._eblock
+	._line	817
+;## # C_SRC :			} else if ( lh_flg == LONG_LONG ) {
+L845:
+	._block
+	._var	'lh_flg','R',16,9
+	cmp.w	#0002H,A0	;  lh_flg 
+	jne	L855
+	._eblock
+	._block
+	._line	818
+;## # C_SRC :				**(arg->ll_pp) = *total;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_17
+	.stk	-3
+	mov.w	#0000H,4[A0]
+	mov.w	#0000H,6[A0]
+	mov.w	R0,[A0]
+	mov.w	R2,2[A0]
+	jpz	M6
+	not.w	6[A0]
+	not.w	4[A0]
+M6:
+	._line	819
+;## # C_SRC :				*(arg->ll_pp)++;
+	jmp	L1385
+	._eblock
+	._line	820
+;## # C_SRC :			} else{
+L855:
+	._block
+	._line	821
+;## # C_SRC :				**(arg->i_pp) = *total;
+	mov.w	11[FB],A0	;  total 
+	mov.w	-9[FB],A1	;  arg 
+	mov.w	[A1],A1
+	mov.w	[A1],A1
+	mov.w	[A0],[A1]
+	._line	822
+;## # C_SRC :				*(arg->i_pp)++;
+L1385:
+	mov.w	-9[FB],A0	;  arg 
+	add.w	#0002H,[A0]
+	._eblock
+	._line	825
+;## # C_SRC :			return ( format + 1 );
+L1449:
+	mov.w	-5[FB],R0	;  format 
+	add.w	#0001H,R0
+	exitd	
+	._line	826
+;## # C_SRC :		case 's':
+L865:
+	._line	827
+;## # C_SRC :			pad = ' ';	/* s        blank */
+	mov.b	#20H,-1[FB]	;  pad 
+	._line	828
+;## # C_SRC :			top = *(arg->c_pp)++;
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1
+	.stk	-3
+	mov.w	[A1],-7[FB]	;  top 
+	._line	829
+;## # C_SRC :			for ( num = 0 ; num != pres && top[num] ; num++ ) ;
+	mov.w	#0000H,-21[FB]	;  num 
+L867:
+	._line	829
+;## # C_SRC :			for ( num = 0 ; num != pres && top[num] ; num++ ) ;
+	cmp.w	-15[FB],-21[FB]	;  pres  num 
+	jeq	L1441
+	mov.w	-7[FB],A0	;  top 
+	add.w	-21[FB],A0	;  num 
+	mov.b	[A0],R0L
+	jeq	L1441
+	add.w	#0001H,-21[FB]	;  num 
+	jmp	L867
+L1441:
+	._eblock
+	._line	841
+;## # C_SRC :		if ( !CHK_EFG ) {
+	btst	07H,-11[FB]	;  flag 
+	jnz	L1449
+	._block
+	._line	843
+;## # C_SRC :		    if ( num < width ) {
+	cmp.w	-13[FB],-21[FB]	;  width  num 
+	jge	L1073
+	._block
+	._line	845
+;## # C_SRC :			if ( CHK_LEFT ) {
+	btst	00H,-11[FB]	;  flag 
+	jz	L937
+	._block
+	._line	847
+;## # C_SRC :				for ( i = 0 ; i < num ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L893:
+	._line	847
+;## # C_SRC :				for ( i = 0 ; i < num ; i++ ) {
+	cmp.w	-21[FB],-17[FB]	;  num  i 
+	jge	L897
+	._block
+	._line	848
+;## # C_SRC :					if ( ( *func )( (int)(*top++) ) == EOF )
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18
+	.stk	-3
+	._inspect	'S', 'c', "", "", 'O', 0, 848
+	jne	L905
+	._line	849
+;## # C_SRC :						return  ( char * )FALSE;
+L1451:
+	mov.w	#0000H,R0
+	exitd	
+L905:
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L893
+L897:
+	._eblock
+	._line	851
+;## # C_SRC :				for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L915:
+	._line	851
+;## # C_SRC :				for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	-13[FB],R0	;  width 
+	sub.w	-21[FB],R0	;  num 
+	cmp.w	R0,-17[FB]	;  i 
+	jge	L1447
+	._block
+	._line	852
+;## # C_SRC :					if ( ( *func )( ' ' ) == EOF )
+	mov.w	#0020H,R1
+	._inspect	'S', 'c', "", "", 'O', 0, 852
+	jsri.a	5[FB]	;  func 
+	cmp.w	#0ffffH,R0
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L915
+	._eblock
+	._line	855
+;## # C_SRC :			} else {
+L937:
+	._block
+	._line	856
+;## # C_SRC :				if ( t_num && pad == '0' ) {
+	cmp.w	#0000H,-19[FB]	;  t_num 
+	jeq	L1445
+	cmp.b	#30H,-1[FB]	;  pad 
+	jne	L1445
+	._block
+	._line	858
+;## # C_SRC :					for ( i = 0 ; i < t_num ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L941:
+	._line	858
+;## # C_SRC :					for ( i = 0 ; i < t_num ; i++ ) {
+	cmp.w	-19[FB],-17[FB]	;  t_num  i 
+	jge	L945
+	._block
+	._line	859
+;## # C_SRC :						if ( ( *func )( (int)(*top++) ) == EOF )
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18
+	.stk	-3
+	._inspect	'S', 'c', "", "", 'O', 0, 859
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L941
+L945:
+	._line	862
+;## # C_SRC :					for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L963:
+	._line	862
+;## # C_SRC :					for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	-13[FB],R0	;  width 
+	sub.w	-21[FB],R0	;  num 
+	cmp.w	R0,-17[FB]	;  i 
+	jge	L967
+	._block
+	._line	863
+;## # C_SRC :						if ( ( *func )( '0' ) == EOF )
+	mov.w	#0030H,R1
+	._inspect	'S', 'c', "", "", 'O', 0, 863
+	jsri.a	5[FB]	;  func 
+	cmp.w	#0ffffH,R0
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L963
+L967:
+	._line	866
+;## # C_SRC :					for ( i = 0 ; i < ( num - t_num ) ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L985:
+	._line	866
+;## # C_SRC :					for ( i = 0 ; i < ( num - t_num ) ; i++ ) {
+	mov.w	-21[FB],R0	;  num 
+	sub.w	-19[FB],R0	;  t_num 
+	cmp.w	R0,-17[FB]	;  i 
+	jge	L1447
+	._block
+	._line	867
+;## # C_SRC :						if ( ( *func )( (int)(*top++) ) == EOF )
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18
+	.stk	-3
+	._inspect	'S', 'c', "", "", 'O', 0, 867
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L985
+	._eblock
+	._line	870
+;## # C_SRC :				} else {
+L1445:
+	._block
+	._line	871
+;## # C_SRC :					for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L1029:
+	._line	871
+;## # C_SRC :					for ( i = 0 ; i < ( width - num ) ; i++ ) {
+	mov.w	-13[FB],R0	;  width 
+	sub.w	-21[FB],R0	;  num 
+	cmp.w	R0,-17[FB]	;  i 
+	jge	L1033
+	._block
+	._line	872
+;## # C_SRC :						if ( ( *func )( (int)pad ) == EOF )
+	mov.b	-1[FB],R1L	;  pad 
+	mov.b	#00H,R1H
+	._inspect	'S', 'c', "", "", 'O', 0, 872
+	jsri.a	5[FB]	;  func 
+	cmp.w	#0ffffH,R0
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L1029
+L1033:
+	._line	875
+;## # C_SRC :					for ( i = 0 ; i < num ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L1051:
+	._line	875
+;## # C_SRC :					for ( i = 0 ; i < num ; i++ ) {
+	cmp.w	-21[FB],-17[FB]	;  num  i 
+	jge	L1447
+	._block
+	._line	876
+;## # C_SRC :						if ( ( *func )( (int)(*top++) ) == EOF )
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18
+	.stk	-3
+	._inspect	'S', 'c', "", "", 'O', 0, 876
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L1051
+L1447:
+	._eblock
+	._eblock
+	._line	881
+;## # C_SRC :			num = width;
+	mov.w	-13[FB],-21[FB]	;  width  num 
+	._eblock
+	._line	882
+;## # C_SRC :		    } else {
+	jmp	L1087
+L1073:
+	._block
+	._line	883
+;## # C_SRC :			for ( i = 0 ; i < num ; i++ ) {
+	mov.w	#0000H,-17[FB]	;  i 
+L1083:
+	._line	883
+;## # C_SRC :			for ( i = 0 ; i < num ; i++ ) {
+	cmp.w	-21[FB],-17[FB]	;  num  i 
+	jge	L1087
+	._block
+	._line	884
+;## # C_SRC :				if ( ( *func )( (int)(*top++) ) == EOF )
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18
+	.stk	-3
+	._inspect	'S', 'c', "", "", 'O', 0, 884
+	jeq	L1451
+	._eblock
+	add.w	#0001H,-17[FB]	;  i 
+	jmp	L1083
+L1087:
+	._eblock
+	._line	888
+;## # C_SRC :		    *total += num;
+	mov.w	11[FB],A0	;  total 
+	mov.w	-21[FB],R0	;  num 
+	add.w	R0,[A0]
+	._eblock
+	._line	890
+;## # C_SRC :		return ( format + 1 );
+	jmp	L1449
+E1:
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18:
+	mov.w	-7[FB],A0
+	mov.b	[A0],R1L
+	mov.b	#00H,R1H
+	add.w	#0001H,-7[FB]
+	jsri.a	5[FB]
+	cmp.w	#0ffffH,R0
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_18:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_17:
+	mov.w	11[FB],A0
+	mov.w	[A0],R0
+	mov.w	-9[FB],A0
+	mov.w	[A0],A0
+	mov.w	[A0],A0
+	exts.w	R0
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_17:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_16:
+	mova	-88[FB],A0
+	add.w	-17[FB],A0
+	mov.b	#30H,[A0]
+	add.w	#-1,-17[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_16:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_15:
+	mov.w	#001eH,R0
+	sub.w	-17[FB],R0
+	mov.w	R0,-21[FB]
+	btst	02H,-11[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_15:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_14:
+	add.w	#-1,-17[FB]
+	mov.w	-25[FB],R1
+	mov.w	-25+2[FB],R3
+	shl.l	#-4,R3R1
+	mov.w	R1,-25[FB]
+	mov.w	R3,-25+2[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_14:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_13:
+	mova	-88[FB],A0
+	add.w	-17[FB],A0
+	mov.b	-25[FB],[A0]
+	and.b	#0fH,[A0]
+	mova	-88[FB],A0
+	add.w	-17[FB],A0
+	cmp.b	#0aH,[A0]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_13:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12:
+	shl.w	#-1,R3
+	rorc.w	R1
+	rorc.w	R2
+	rorc.w	R0
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_11:
+	mov.w	-33+6[FB],R3
+	mov.w	-33+4[FB],R1
+	mov.w	-33+2[FB],R2
+	mov.w	-33[FB],R0
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12
+	.stk	-3
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12
+	.stk	-3
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_12
+	.stk	-3
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_11:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10:
+	mova	-88[FB],A0
+	add.w	-17[FB],A0
+	mova	-88[FB],A1
+	add.w	-17[FB],A1
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_10:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_9:
+	.stk	3
+	jsr	_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_16
+	.stk	-3
+	add.w	#0001H,-21[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_9:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_8:
+	add.b	#30H,R0L
+	mova	-88[FB],A0
+	add.w	-17[FB],A0
+	mov.b	R0L,[A0]
+	add.w	#-1,-17[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_8:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_7:
+	mov.w	-33[FB],R0
+	mov.w	-33+2[FB],R2
+	mov.w	-33+4[FB],R1
+	mov.w	-33+6[FB],R3
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_7:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_6:
+	mov.w	-9[FB],A1
+	mov.w	[A1],R0
+	mov.w	R0,R1
+	add.w	#0002H,R0
+	mov.w	R0,[A1]
+	mov.w	R1,A1
+	mov.w	[A1],R0
+	exts.w	R0
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_6:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_5:
+	mov.w	-41[FB],-33[FB]
+	mov.w	-41+2[FB],-33+2[FB]
+	mov.w	-41+4[FB],-33+4[FB]
+	mov.w	-41+6[FB],-33+6[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_5:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_4:
+	mov.w	-9[FB],A1
+	mov.w	[A1],R0
+	mov.w	R0,R1
+	add.w	#0008H,R0
+	mov.w	R0,[A1]
+	mov.w	R1,A1
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_4:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_3:
+	bset	4,-11[FB]
+	not.w	-49+2[FB]
+	neg.w	-49[FB]
+	adcf.w	-49+2[FB]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_3:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_2:
+	mov.w	-9[FB],A1
+	mov.w	[A1],R0
+	mov.w	R0,R1
+	add.w	#0004H,R0
+	mov.w	R0,[A1]
+	mov.w	R1,A1
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_2:
+
+_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1:
+	mov.w	-9[FB],A0
+	mov.w	[A0],R0
+	mov.w	R0,A1
+	add.w	#0002H,R0
+	mov.w	R0,[A0]
+	rts	
+E_Aopt_CHEWProj20trunkprocessorsrenesashewonenetevalevaladiDebugR8CE8SYSTEMprint_1:
+
+	._eblock
+	._eblock
+M7:
+	._efunc	M7
+	._inspect	'F', 'd', "_local_print", "$_local_print", 'G', 288, 0, 00h, 0
+	._inspect	'F', 't', "_local_print", 'G', 263
+	._inspect	'V', 'r', "_ctype", 'G', 351, 0, 0, 0, 00h
+	._inspect	'V', 'r', "_ctype", 'G', 369, 0, 0, 0, 00h
+	._inspect	'V', 'r', "_ctype", 'G', 400, 0, 0, 0, 00h
+	._inspect	'F', 'e', "_local_print", "$_local_print", 'G', 8, 0
+
+
+;## #	FUNCTION _inmod
+;## #	FRAME	AUTO	(      wd)	size  2,	offset -20
+;## #	FRAME	AUTO	(     ssp)	size  2,	offset -18
+;## #	FRAME	AUTO	(    blen)	size  2,	offset -16
+;## #	FRAME	AUTO	(     bfs)	size  2,	offset -14
+;## #	FRAME	AUTO	(      st)	size  2,	offset -12
+;## #	FRAME	AUTO	(     msk)	size  2,	offset -10
+;## #	FRAME	AUTO	(      wp)	size  2,	offset -8
+;## #	FRAME	AUTO	(      qp)	size  2,	offset -6
+;## #	FRAME	AUTO	(      sp)	size  2,	offset -4
+;## #	FRAME	AUTO	(      w0)	size  2,	offset -2
+;## #  FRAME   ARG (      w1)  size   2,    offset 5
+;## #  FRAME   ARG (    size)  size   2,    offset 7
+;## #  REGISTER ARG    (      w0)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (      sp)   size   2,   REGISTER R2
+;## #	ARG Size(4)	Auto Size(20)	Context Size(5)
+
+	._type	290,'T','u_short',5
+	._type	291,'T','DTYP',290
+	._type	292,'O',291
+	._type	293,'O',291
+	._type	294,'O',16
+	._type	295,'x',16,4
+	._type	295,'m','w0',0,292
+	._type	295,'m','sp',0,293
+	._type	295,'m','w1',0,291
+	._type	295,'m','size',0,294
+	._func	'_inmod','G',20,295,$_inmod,0
+	._inspect	'F', 's', "_inmod", "$_inmod", 'G', 25
+	._line	1362
+;## # C_SRC :	{
+	.glb	$_inmod
+$_inmod:
+	enter	#014H
+	mov.w	R1,-2[FB]	;  w0  w0 
+	mov.w	R2,-4[FB]	;  sp  sp 
+	._block
+	._type	296,'O',291
+	._var	'w0','A',296,-2
+	._type	297,'O',291
+	._var	'sp','A',297,-4
+	._var	'w1','A',291,5
+	._type	298,'O',16
+	._var	'size','A',298,7
+	._type	299,'Z',64,291
+	._var	'qt','S',299,___S0_qt
+	._inspect	'V', 'd', "qt", "___S0_qt", 'L', 1364, 128, 0, 0, 00h
+	._inspect	'V', 't', "qt", 'L', 299
+	._var	'st','A',16,-12
+	._var	'bfs','A',16,-14
+	._var	'blen','A',16,-16
+	._var	'msk','A',291,-10
+	._type	300,'O',291
+	._var	'wp','A',300,-8
+	._type	301,'O',291
+	._var	'qp','A',301,-6
+	._var	'ssp','A',291,-18
+	._var	'wd','A',291,-20
+	._line	1376
+;## # C_SRC :		sz = *size;
+	mov.w	7[FB],A0	;  size 
+	mov.w	[A0],R0	;  sz 
+	._block
+	._var	'sz','R',16,5
+	._line	1378
+;## # C_SRC :		qp = qt;
+	mov.w	#___S0_qt,-6[FB]	;  qp 
+	._line	1379
+;## # C_SRC :		wp = w0;
+	mov.w	-2[FB],-8[FB]	;  w0  wp 
+	._line	1380
+;## # C_SRC :		for (msk = 0, x = 0; x < sz; x++) {
+	mov.w	#0000H,-10[FB]	;  msk 
+	mov.w	#0000H,R1	;  x 
+	._eblock
+	._block
+	._var	'sz','R',16,5
+	._var	'x','R',16,6
+L1511:
+	._line	1380
+;## # C_SRC :		for (msk = 0, x = 0; x < sz; x++) {
+	cmp.w	R0,R1	;  sz  x 
+	jge	L1515
+	._eblock
+	._block
+	._block
+	._var	'sz','R',16,5
+	._var	'x','R',16,6
+	._line	1381
+;## # C_SRC :			*qp++ = 0;
+	mov.w	-6[FB],A0	;  qp 
+	mov.w	#0000H,[A0]
+	add.w	#0002H,-6[FB]	;  qp 
+	._line	1382
+;## # C_SRC :			msk |= *wp++;
+	mov.w	-8[FB],A0	;  wp 
+	or.w	[A0],-10[FB]	;  msk 
+	add.w	#0002H,-8[FB]	;  wp 
+	._eblock
+	add.w	#0001H,R1	;  x 
+	jmp	L1511
+	._eblock
+L1515:
+	._block
+	._var	'sz','R',16,5
+	._line	1384
+;## # C_SRC :		if (!msk)
+	cmp.w	#0000H,-10[FB]	;  msk 
+	jne	L1523
+	._eblock
+	._line	1385
+;## # C_SRC :			return 0;
+	mov.w	#0000H,R0
+	exitd	
+L1523:
+	._block
+	._var	'sz','R',16,5
+	._line	1388
+;## # C_SRC :		for (wp = w0, st = 0; st < sz; st++) {
+	mov.w	-2[FB],-8[FB]	;  w0  wp 
+	mov.w	#0000H,-12[FB]	;  st 
+L1531:
+	._line	1388
+;## # C_SRC :		for (wp = w0, st = 0; st < sz; st++) {
+	cmp.w	-12[FB],R0	;  st  sz 
+	jle	L1635
+	._eblock
+	._block
+	._block
+	._var	'sz','R',16,5
+	._line	1389
+;## # C_SRC :			if (*wp++)
+	mov.w	-8[FB],A0	;  wp 
+	add.w	#0002H,-8[FB]	;  wp 
+	cmp.w	#0000H,[A0]
+	jne	L1635
+	._eblock
+	add.w	#0001H,-12[FB]	;  st 
+	jmp	L1531
+	._eblock
+L1635:
+	._block
+	._var	'sz','R',16,5
+	._line	1393
+;## # C_SRC :		bfs = sz - st;
+	sub.w	-12[FB],R0	;  st 
+	._eblock
+	mov.w	R0,-14[FB]	;  bfs 
+	._line	1394
+;## # C_SRC :		blen = bfs * BLEN;
+	shl.w	#04H,R0
+	mov.w	R0,-16[FB]	;  blen 
+	._line	1397
+;## # C_SRC :		ssp = (DTYP)0;
+	mov.w	#0000H,-18[FB]	;  ssp 
+	._line	1398
+;## # C_SRC :		msk = BMSK;
+	mov.w	#8000H,-10[FB]	;  msk 
+	._line	1399
+;## # C_SRC :		wp = &w0[st];
+	mov.w	-12[FB],R0	;  st 
+	shl.w	#01H,R0
+	mov.w	-2[FB],-8[FB]	;  w0  wp 
+	add.w	R0,-8[FB]	;  wp 
+	._line	1400
+;## # C_SRC :		wd = *wp;
+	mov.w	-8[FB],A0	;  wp 
+	mov.w	[A0],-20[FB]	;  wd 
+	._line	1401
+;## # C_SRC :		seb = (DTYP)1;
+	mov.w	#0001H,R1	;  seb 
+	._block
+	._var	'seb','R',291,6
+	._line	1402
+;## # C_SRC :		qp = &qt[st];
+	mov.w	#___S0_qt,R2
+	add.w	R2,R0
+	mov.w	R0,-6[FB]	;  qp 
+	._line	1403
+;## # C_SRC :		qp--;
+	add.w	#-2,-6[FB]	;  qp 
+	._line	1405
+;## # C_SRC :		while (1) {
+L1547:
+	._eblock
+	._block
+	._block
+	._var	'seb','R',291,6
+	._line	1407
+;## # C_SRC :			c = 0;
+	mov.w	#0000H,R0	;  c 
+	._eblock
+	._block
+	._var	'c','R',291,5
+	._var	'seb','R',291,6
+	._line	1408
+;## # C_SRC :		D_LP2:
+L1553:
+	._line	1410
+;## # C_SRC :			if (c)
+	cmp.w	#0000H,R0	;  c 
+	jeq	L1555
+	._eblock
+	._block
+	._var	'seb','R',291,6
+	._line	1411
+;## # C_SRC :				*qp |= seb;
+	mov.w	-6[FB],A0	;  qp 
+	or.w	R1,[A0]	;  seb 
+L1555:
+	._line	1412
+;## # C_SRC :			if ((--blen) < 0)
+	add.w	#-1,-16[FB]	;  blen 
+	jn	L1549
+	._line	1414
+;## # C_SRC :			seb >>= 1;
+	shl.w	#-01H,R1	;  seb 
+	._line	1415
+;## # C_SRC :			if (!seb) {
+	jne	L1569
+	._eblock
+	._block
+	._line	1417
+;## # C_SRC :				seb = BMSK;
+	mov.w	#8000H,R0	;  seb 
+	._block
+	._var	'seb','R',291,5
+	._line	1418
+;## # C_SRC :				qp++;
+	add.w	#0002H,-6[FB]	;  qp 
+	._eblock
+	mov.w	R0,R1	;  seb  seb 
+	._block
+	._var	'seb','R',291,6
+	._eblock
+L1569:
+	._line	1420
+;## # C_SRC :			if (!msk) {
+	cmp.w	#0000H,-10[FB]	;  msk 
+	jne	L1577
+	._eblock
+	._block
+	._block
+	._var	'seb','R',291,6
+	._line	1422
+;## # C_SRC :				msk = BMSK;
+	mov.w	#8000H,-10[FB]	;  msk 
+	._line	1423
+;## # C_SRC :				wp++;
+	add.w	#0002H,-8[FB]	;  wp 
+	._line	1424
+;## # C_SRC :				wd = *wp;
+	mov.w	-8[FB],A0	;  wp 
+	mov.w	[A0],-20[FB]	;  wd 
+	._eblock
+L1577:
+	._line	1428
+;## # C_SRC :			c = ((wd & msk) ? 1 : 0);
+	mov.w	-20[FB],R0	;  wd 
+	and.w	-10[FB],R0	;  msk 
+	stzx	#00H,#01H,R0L
+	mov.b	#00H,R0H
+	._eblock
+	._block
+	._var	'c','R',291,5
+	._var	'seb','R',291,6
+	._line	1429
+;## # C_SRC :			msk >>= 1;
+	shl.w	#-01H,-10[FB]	;  msk 
+	._line	1432
+;## # C_SRC :			ssp <<= 1;
+	shl.w	#01H,-18[FB]	;  ssp 
+	._line	1433
+;## # C_SRC :			ssp |= c;
+	or.w	R0,-18[FB]	;  c  ssp 
+	._eblock
+	._block
+	._var	'seb','R',291,6
+	._line	1435
+;## # C_SRC :			if (w1 > ssp)
+	cmp.w	-18[FB],5[FB]	;  ssp  w1 
+	jgtu	L1547
+	._line	1438
+;## # C_SRC :			ssp = ssp - w1;
+	sub.w	5[FB],-18[FB]	;  w1  ssp 
+	._line	1440
+;## # C_SRC :			c = 1;
+	mov.w	#0001H,R0	;  c 
+	._eblock
+	._block
+	._var	'c','R',291,5
+	._var	'seb','R',291,6
+	._line	1441
+;## # C_SRC :			goto D_LP2;
+	jmp	L1553
+	._eblock
+	._eblock
+	._line	1442
+;## # C_SRC :		}
+L1549:
+	._line	1445
+;## # C_SRC :		qp = &qt[st];
+	mov.w	-12[FB],R0	;  st 
+	shl.w	#01H,R0
+	mov.w	#___S0_qt,R1
+	add.w	R1,R0
+	mov.w	R0,-6[FB]	;  qp 
+	._line	1446
+;## # C_SRC :		wp = w0;
+	mov.w	-2[FB],-8[FB]	;  w0  wp 
+	._line	1447
+;## # C_SRC :		for (x = 0; x < bfs; x++)
+	mov.w	#0000H,R0	;  x 
+	._block
+	._var	'x','R',16,5
+L1603:
+	._line	1447
+;## # C_SRC :		for (x = 0; x < bfs; x++)
+	cmp.w	-14[FB],R0	;  bfs  x 
+	jge	L1607
+	._line	1448
+;## # C_SRC :			*wp++ = *qp++;
+	mov.w	-6[FB],A0	;  qp 
+	add.w	#0002H,-6[FB]	;  qp 
+	mov.w	-8[FB],A1	;  wp 
+	mov.w	[A0],[A1]
+	add.w	#0002H,-8[FB]	;  wp 
+	add.w	#0001H,R0	;  x 
+	jmp	L1603
+	._eblock
+L1607:
+	._line	1449
+;## # C_SRC :		*size = bfs;
+	mov.w	7[FB],A0	;  size 
+	mov.w	-14[FB],[A0]	;  bfs 
+	._line	1450
+;## # C_SRC :		*sp = ssp;
+	mov.w	-4[FB],A0	;  sp 
+	mov.w	-18[FB],[A0]	;  ssp 
+	._line	1451
+;## # C_SRC :		return 1;
+	mov.w	#0001H,R0
+	exitd	
+E2:
+	._eblock
+M8:
+	._efunc	M8
+	._inspect	'F', 'd', "_inmod", "$_inmod", 'G', 1362, 0, 00h, 0
+	._inspect	'F', 't', "_inmod", 'G', 295
+	._inspect	'V', 'r', "qt", 'L', 1378, 128, 0, 0, 00h
+	._inspect	'V', 'r', "qt", 'L', 1402, 128, 0, 0, 00h
+	._inspect	'V', 'r', "qt", 'L', 1445, 128, 0, 0, 00h
+	._inspect	'F', 'e', "_inmod", "$_inmod", 'G', 0, 0
+
+	.glb	__iob
+	.glb	_getc
+	.glb	_getchar
+	.glb	$putc
+	.glb	$putchar
+	.glb	_feof
+	.glb	_ferror
+	.glb	_fgetc
+	.glb	$fgets
+	.glb	$fputc
+	.glb	_fputs
+	.glb	$fread
+	.glb	$fwrite
+	.glb	_gets
+	.glb	_puts
+	.glb	$ungetc
+	.glb	_printf
+	.glb	_fprintf
+	.glb	_sprintf
+	.glb	$vprintf
+	.glb	_vfprintf
+	.glb	_vsprintf
+	.glb	_fscanf
+	.glb	_scanf
+	.glb	_sscanf
+	.glb	_fflush
+	.glb	_clearerr
+	.glb	_perror
+	.glb	$init_dev
+	.glb	$speed
+	.glb	_init_prn
+	.glb	__sget
+	.glb	$_sput
+	.glb	$_pput
+	.glb	__print
+	.glb	__ctype
+	.glb	$isalnum
+	.glb	$isalpha
+	.glb	$iscntrl
+	.glb	$isdigit
+	.glb	$isgraph
+	.glb	$islower
+	.glb	$isprint
+	.glb	$ispunct
+	.glb	$isspace
+	.glb	$isupper
+	.glb	$isxdigit
+	.glb	$toupper
+	.glb	$tolower
+	.glb	___huge_val
+	.glb	___huge_valf
+	.glb	_acos
+	.glb	_asin
+	.glb	_atan
+	.glb	_atan2
+	.glb	_ceil
+	.glb	_cos
+	.glb	_cosh
+	.glb	_exp
+	.glb	_fabs
+	.glb	_floor
+	.glb	_fmod
+	.glb	_frexp
+	.glb	$ldexp
+	.glb	_log
+	.glb	_log10
+	.glb	$modf
+	.glb	_pow
+	.glb	_sin
+	.glb	_sinh
+	.glb	_sqrt
+	.glb	_tan
+	.glb	_tanh
+	.glb	_acosf
+	.glb	_asinf
+	.glb	_atanf
+	.glb	_atan2f
+	.glb	_ceilf
+	.glb	_cosf
+	.glb	_coshf
+	.glb	_expf
+	.glb	_fabsf
+	.glb	_floorf
+	.glb	_fmodf
+	.glb	_frexpf
+	.glb	$ldexpf
+	.glb	_logf
+	.glb	_log10f
+	.glb	$modff
+	.glb	_powf
+	.glb	_sinf
+	.glb	_sinhf
+	.glb	_sqrtf
+	.glb	_tanf
+	.glb	_tanhf
+	.glb	$_tan
+	.glb	$_tanf
+	.glb	__f4add
+	.glb	__f4sub
+	.glb	__f4mul
+	.glb	__f4div
+	.glb	__f4eq
+	.glb	__f4ne
+	.glb	__f4ge
+	.glb	__f4gt
+	.glb	__f4le
+	.glb	__f4lt
+	.glb	__i4tof4
+	.glb	__i4Utof4
+	.glb	__f4toi4
+	.glb	__f4toi4U
+	.glb	__f4tof8
+	.glb	__i8tof4
+	.glb	__i8Utof4
+	.glb	__f4toi8
+	.glb	__f4toi8U
+	.glb	$_f4rtol
+	.glb	$_f4ltor
+	.glb	$_f4mpy
+	.glb	$_f4round
+	.glb	$_f4dvs
+	.glb	$_f4cmp
+	.glb	__f8add
+	.glb	__f8sub
+	.glb	__f8mul
+	.glb	__f8div
+	.glb	__f8eq
+	.glb	__f8ne
+	.glb	__f8ge
+	.glb	__f8gt
+	.glb	__f8le
+	.glb	__f8lt
+	.glb	__i4tof8
+	.glb	__i4Utof8
+	.glb	__f8toi4
+	.glb	__f8toi4U
+	.glb	__f8tof4
+	.glb	__i8tof8
+	.glb	__i8Utof8
+	.glb	__f8toi8
+	.glb	__f8toi8U
+	.glb	$_f8rtol
+	.glb	$_f8ltor
+	.glb	$_f8addmant
+	.glb	$_f8mpy
+	.glb	$_f8round
+	.glb	$_f8dvs
+	.glb	$_f8cmp
+	.glb	$_chkdata
+	.glb	$_cmpexp
+	.glb	$_ngt
+	.glb	$_asr
+	.glb	$_nor
+	.glb	__f8prn
+	.glb	$henkan1
+	.glb	$henkan2
+	.glb	__pri
+	.glb	$_f8geti
+
+	.SECTION	bss_NE,DATA,align
+	._inspect	'U', 3, "bss_NE", "bss_NE", 0
+___S0_qt:		;### C's name is qt
+	.blkb	128
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	303,'v'
+	._type	304,'x',16,1
+	._type	304,'m','',0,303
+	._type	305,'P',304
+	._type	306,'x',16,1
+	._type	306,'m','',0,16
+	._type	307,'P',306
+	._type	302,'S','_iobuf',15
+	._type	302,'m','_buff',3,0
+	._type	302,'m','_cnt',16,1
+	._type	302,'m','_flag',16,3
+	._type	302,'m','_mod',16,5
+	._type	302,'m','_func_in',305,7
+	._type	302,'m','_func_out',307,11
+	._type	308,'T','FILE',302
+	._type	309,'T','fpos_t',20
+	._type	310,'T','size_t',18
+	._type	311,'Z',-1,308
+	._var	'_iob','E',311
+	._type	312,'O',3
+	._type	313,'T','__va_list',312
+	._type	314,'P',308
+	._type	315,'x',16,1
+	._type	315,'m','st',0,314
+	._var	'getc','F',315
+	._type	316,'v'
+	._type	317,'x',16,1
+	._type	317,'m','',0,316
+	._var	'getchar','F',317
+	._type	318,'P',308
+	._type	319,'x',16,2
+	._type	319,'m','c',0,16
+	._type	319,'m','st',0,318
+	._var	'putc','F',319
+	._type	320,'x',16,1
+	._type	320,'m','c',0,16
+	._var	'putchar','F',320
+	._type	321,'P',308
+	._type	322,'x',16,1
+	._type	322,'m','st',0,321
+	._var	'feof','F',322
+	._type	323,'P',308
+	._type	324,'x',16,1
+	._type	324,'m','st',0,323
+	._var	'ferror','F',324
+	._type	325,'P',308
+	._type	326,'x',16,1
+	._type	326,'m','st',0,325
+	._var	'fgetc','F',326
+	._type	327,'P',3
+	._type	328,'P',3
+	._type	329,'P',308
+	._type	330,'x',327,3
+	._type	330,'m','s',0,328
+	._type	330,'m','n',0,16
+	._type	330,'m','st',0,329
+	._var	'fgets','F',330
+	._type	331,'P',308
+	._type	332,'x',16,2
+	._type	332,'m','c',0,16
+	._type	332,'m','st',0,331
+	._var	'fputc','F',332
+	._type	333,'P',3
+	._type	334,'P',308
+	._type	335,'x',16,2
+	._type	335,'m','s',0,333
+	._type	335,'m','st',0,334
+	._var	'fputs','F',335
+	._type	336,'v'
+	._type	337,'P',336
+	._type	338,'P',308
+	._type	339,'x',310,4
+	._type	339,'m','ptr',0,337
+	._type	339,'m','size',0,310
+	._type	339,'m','nelem',0,310
+	._type	339,'m','st',0,338
+	._var	'fread','F',339
+	._type	340,'v'
+	._type	341,'P',340
+	._type	342,'P',308
+	._type	343,'x',310,4
+	._type	343,'m','ptr',0,341
+	._type	343,'m','size',0,310
+	._type	343,'m','nelem',0,310
+	._type	343,'m','st',0,342
+	._var	'fwrite','F',343
+	._type	344,'P',3
+	._type	345,'P',3
+	._type	346,'x',344,1
+	._type	346,'m','s',0,345
+	._var	'gets','F',346
+	._type	347,'P',3
+	._type	348,'x',16,1
+	._type	348,'m','s',0,347
+	._var	'puts','F',348
+	._type	349,'P',308
+	._type	350,'x',16,2
+	._type	350,'m','c',0,16
+	._type	350,'m','st',0,349
+	._var	'ungetc','F',350
+	._type	351,'P',3
+	._type	352,'x',16,2
+	._type	352,'m','format',0,351
+	._type	352,'m','',0,32
+	._var	'printf','F',352
+	._type	353,'P',308
+	._type	354,'P',3
+	._type	355,'x',16,3
+	._type	355,'m','st',0,353
+	._type	355,'m','format',0,354
+	._type	355,'m','',0,32
+	._var	'fprintf','F',355
+	._type	356,'P',3
+	._type	357,'P',3
+	._type	358,'x',16,3
+	._type	358,'m','s',0,356
+	._type	358,'m','format',0,357
+	._type	358,'m','',0,32
+	._var	'sprintf','F',358
+	._type	359,'P',3
+	._type	360,'x',16,2
+	._type	360,'m','format',0,359
+	._type	360,'m','ap',0,313
+	._var	'vprintf','F',360
+	._type	361,'P',308
+	._type	362,'P',3
+	._type	363,'x',16,3
+	._type	363,'m','st',0,361
+	._type	363,'m','format',0,362
+	._type	363,'m','ap',0,313
+	._var	'vfprintf','F',363
+	._type	364,'P',3
+	._type	365,'P',3
+	._type	366,'x',16,3
+	._type	366,'m','s',0,364
+	._type	366,'m','format',0,365
+	._type	366,'m','ap',0,313
+	._var	'vsprintf','F',366
+	._type	367,'P',308
+	._type	368,'P',3
+	._type	369,'x',16,3
+	._type	369,'m','st',0,367
+	._type	369,'m','format',0,368
+	._type	369,'m','',0,32
+	._var	'fscanf','F',369
+	._type	370,'P',3
+	._type	371,'x',16,2
+	._type	371,'m','format',0,370
+	._type	371,'m','',0,32
+	._var	'scanf','F',371
+	._type	372,'P',3
+	._type	373,'P',3
+	._type	374,'x',16,3
+	._type	374,'m','s',0,372
+	._type	374,'m','format',0,373
+	._type	374,'m','',0,32
+	._var	'sscanf','F',374
+	._type	375,'P',308
+	._type	376,'x',16,1
+	._type	376,'m','stream',0,375
+	._var	'fflush','F',376
+	._type	377,'v'
+	._type	378,'P',308
+	._type	379,'x',377,1
+	._type	379,'m','stream',0,378
+	._var	'clearerr','F',379
+	._type	380,'v'
+	._type	381,'P',3
+	._type	382,'x',380,1
+	._type	382,'m','s',0,381
+	._var	'perror','F',382
+	._type	383,'P',308
+	._type	384,'x',16,2
+	._type	384,'m','',0,383
+	._type	384,'m','',0,16
+	._var	'init_dev','F',384
+	._type	385,'x',16,4
+	._type	385,'m','',0,16
+	._type	385,'m','',0,16
+	._type	385,'m','',0,16
+	._type	385,'m','',0,16
+	._var	'speed','F',385
+	._type	386,'v'
+	._type	387,'x',16,1
+	._type	387,'m','',0,386
+	._var	'init_prn','F',387
+	._type	388,'v'
+	._type	389,'x',16,1
+	._type	389,'m','',0,388
+	._var	'_sget','F',389
+	._type	390,'x',16,1
+	._type	390,'m','',0,16
+	._var	'_sput','F',390
+	._type	391,'x',16,1
+	._type	391,'m','',0,16
+	._var	'_pput','F',391
+	._type	392,'P',3
+	._type	393,'x',16,0
+	._type	394,'P',393
+	._type	395,'P',3
+	._type	396,'O',16
+	._type	397,'O',396
+	._type	398,'O',16
+	._type	399,'x',392,4
+	._type	399,'m','',0,394
+	._type	399,'m','',0,395
+	._type	399,'m','',0,397
+	._type	399,'m','',0,398
+	._var	'_print','F',399
+	._type	400,'Z',-1,3
+	._var	'_ctype','E',400
+	._type	401,'x',16,1
+	._type	401,'m','c',0,16
+	._var	'isalnum','F',401
+	._type	402,'x',16,1
+	._type	402,'m','c',0,16
+	._var	'isalpha','F',402
+	._type	403,'x',16,1
+	._type	403,'m','c',0,16
+	._var	'iscntrl','F',403
+	._type	404,'x',16,1
+	._type	404,'m','c',0,16
+	._var	'isdigit','F',404
+	._type	405,'x',16,1
+	._type	405,'m','c',0,16
+	._var	'isgraph','F',405
+	._type	406,'x',16,1
+	._type	406,'m','c',0,16
+	._var	'islower','F',406
+	._type	407,'x',16,1
+	._type	407,'m','c',0,16
+	._var	'isprint','F',407
+	._type	408,'x',16,1
+	._type	408,'m','c',0,16
+	._var	'ispunct','F',408
+	._type	409,'x',16,1
+	._type	409,'m','c',0,16
+	._var	'isspace','F',409
+	._type	410,'x',16,1
+	._type	410,'m','c',0,16
+	._var	'isupper','F',410
+	._type	411,'x',16,1
+	._type	411,'m','c',0,16
+	._var	'isxdigit','F',411
+	._type	412,'x',16,1
+	._type	412,'m','c',0,16
+	._var	'toupper','F',412
+	._type	413,'x',16,1
+	._type	413,'m','c',0,16
+	._var	'tolower','F',413
+	._var	'__huge_val','E',10
+	._var	'__huge_valf','E',10
+	._type	414,'x',10,1
+	._type	414,'m','x',0,10
+	._var	'acos','F',414
+	._type	415,'x',10,1
+	._type	415,'m','x',0,10
+	._var	'asin','F',415
+	._type	416,'x',10,1
+	._type	416,'m','x',0,10
+	._var	'atan','F',416
+	._type	417,'x',10,2
+	._type	417,'m','y',0,10
+	._type	417,'m','x',0,10
+	._var	'atan2','F',417
+	._type	418,'x',10,1
+	._type	418,'m','x',0,10
+	._var	'ceil','F',418
+	._type	419,'x',10,1
+	._type	419,'m','x',0,10
+	._var	'cos','F',419
+	._type	420,'x',10,1
+	._type	420,'m','x',0,10
+	._var	'cosh','F',420
+	._type	421,'x',10,1
+	._type	421,'m','x',0,10
+	._var	'exp','F',421
+	._type	422,'x',10,1
+	._type	422,'m','x',0,10
+	._var	'fabs','F',422
+	._type	423,'x',10,1
+	._type	423,'m','x',0,10
+	._var	'floor','F',423
+	._type	424,'x',10,2
+	._type	424,'m','x',0,10
+	._type	424,'m','y',0,10
+	._var	'fmod','F',424
+	._type	425,'P',16
+	._type	426,'x',10,2
+	._type	426,'m','val',0,10
+	._type	426,'m','exp',0,425
+	._var	'frexp','F',426
+	._type	427,'x',10,2
+	._type	427,'m','x',0,10
+	._type	427,'m','exp',0,16
+	._var	'ldexp','F',427
+	._type	428,'x',10,1
+	._type	428,'m','x',0,10
+	._var	'log','F',428
+	._type	429,'x',10,1
+	._type	429,'m','x',0,10
+	._var	'log10','F',429
+	._type	430,'O',10
+	._type	431,'x',10,2
+	._type	431,'m','val',0,10
+	._type	431,'m','pd',0,430
+	._var	'modf','F',431
+	._type	432,'x',10,2
+	._type	432,'m','x',0,10
+	._type	432,'m','y',0,10
+	._var	'pow','F',432
+	._type	433,'x',10,1
+	._type	433,'m','x',0,10
+	._var	'sin','F',433
+	._type	434,'x',10,1
+	._type	434,'m','x',0,10
+	._var	'sinh','F',434
+	._type	435,'x',10,1
+	._type	435,'m','x',0,10
+	._var	'sqrt','F',435
+	._type	436,'x',10,1
+	._type	436,'m','x',0,10
+	._var	'tan','F',436
+	._type	437,'x',10,1
+	._type	437,'m','x',0,10
+	._var	'tanh','F',437
+	._type	438,'x',10,1
+	._type	438,'m','x',0,10
+	._var	'acosf','F',438
+	._type	439,'x',10,1
+	._type	439,'m','x',0,10
+	._var	'asinf','F',439
+	._type	440,'x',10,1
+	._type	440,'m','x',0,10
+	._var	'atanf','F',440
+	._type	441,'x',10,2
+	._type	441,'m','y',0,10
+	._type	441,'m','x',0,10
+	._var	'atan2f','F',441
+	._type	442,'x',10,1
+	._type	442,'m','x',0,10
+	._var	'ceilf','F',442
+	._type	443,'x',10,1
+	._type	443,'m','x',0,10
+	._var	'cosf','F',443
+	._type	444,'x',10,1
+	._type	444,'m','x',0,10
+	._var	'coshf','F',444
+	._type	445,'x',10,1
+	._type	445,'m','x',0,10
+	._var	'expf','F',445
+	._type	446,'x',10,1
+	._type	446,'m','x',0,10
+	._var	'fabsf','F',446
+	._type	447,'x',10,1
+	._type	447,'m','x',0,10
+	._var	'floorf','F',447
+	._type	448,'x',10,2
+	._type	448,'m','x',0,10
+	._type	448,'m','y',0,10
+	._var	'fmodf','F',448
+	._type	449,'P',16
+	._type	450,'x',10,2
+	._type	450,'m','val',0,10
+	._type	450,'m','exp',0,449
+	._var	'frexpf','F',450
+	._type	451,'x',10,2
+	._type	451,'m','x',0,10
+	._type	451,'m','exp',0,16
+	._var	'ldexpf','F',451
+	._type	452,'x',10,1
+	._type	452,'m','x',0,10
+	._var	'logf','F',452
+	._type	453,'x',10,1
+	._type	453,'m','x',0,10
+	._var	'log10f','F',453
+	._type	454,'O',10
+	._type	455,'x',10,2
+	._type	455,'m','val',0,10
+	._type	455,'m','pd',0,454
+	._var	'modff','F',455
+	._type	456,'x',10,2
+	._type	456,'m','x',0,10
+	._type	456,'m','y',0,10
+	._var	'powf','F',456
+	._type	457,'x',10,1
+	._type	457,'m','x',0,10
+	._var	'sinf','F',457
+	._type	458,'x',10,1
+	._type	458,'m','x',0,10
+	._var	'sinhf','F',458
+	._type	459,'x',10,1
+	._type	459,'m','x',0,10
+	._var	'sqrtf','F',459
+	._type	460,'x',10,1
+	._type	460,'m','x',0,10
+	._var	'tanf','F',460
+	._type	461,'x',10,1
+	._type	461,'m','x',0,10
+	._var	'tanhf','F',461
+	._type	462,'O',20
+	._type	463,'x',10,2
+	._type	463,'m','x',0,10
+	._type	463,'m','k',0,462
+	._var	'_tan','F',463
+	._type	464,'O',20
+	._type	465,'x',10,2
+	._type	465,'m','x',0,10
+	._type	465,'m','k',0,464
+	._var	'_tanf','F',465
+	._type	466,'T','s_char',19
+	._type	467,'T','s_short',23
+	._type	468,'T','s_int',16
+	._type	469,'T','s_long',20
+	._type	470,'T','s_llong',8
+	._type	471,'T','u_char',3
+	._type	472,'T','u_llong',9
+	._type	474,'g','mant',0,23,7
+	._type	475,'g','exp',0,8,7
+	._type	476,'g','sign',0,1,7
+	._type	473,'S','',4
+	._type	473,'m','mant',474,0
+	._type	473,'m','exp',475,23
+	._type	473,'m','sign',476,31
+	._type	477,'T','SGL_FLT',473
+	._type	479,'g','mant',0,20,7
+	._type	480,'g','exp',0,11,7
+	._type	481,'g','sign',0,1,7
+	._type	478,'S','',8
+	._type	478,'m','mant2',7,0
+	._type	478,'m','mant',479,32
+	._type	478,'m','exp',480,52
+	._type	478,'m','sign',481,63
+	._type	482,'T','DBL_FLT',478
+	._type	484,'Z',2,290
+	._type	485,'Z',4,471
+	._type	483,'U','',4
+	._type	483,'m','ml',7,0
+	._type	483,'m','ms',484,0
+	._type	483,'m','mc',485,0
+	._type	486,'T','MANT',483
+	._type	487,'S','',12
+	._type	487,'m','class',3,0
+	._type	487,'m','sign',3,1
+	._type	487,'m','exp',23,2
+	._type	487,'m','mant',486,4
+	._type	487,'m','mant2',486,8
+	._type	488,'T','FLOAT',487
+	._type	489,'O',488
+	._type	490,'T','FLOATP',489
+	._type	491,'O',477
+	._type	492,'T','SGL_FLTP',491
+	._type	493,'O',482
+	._type	494,'T','DBL_FLTP',493
+	._type	496,'Z',8,290
+	._type	497,'Z',4,287
+	._type	495,'U','',16
+	._type	495,'m','s',496,0
+	._type	495,'m','l',497,0
+	._type	498,'T','QLONG',495
+	._type	499,'O',498
+	._type	500,'T','QLONGP',499
+	._type	501,'x',10,2
+	._type	501,'m','sa',0,10
+	._type	501,'m','sw',0,10
+	._var	'_f4add','F',501
+	._type	502,'x',10,2
+	._type	502,'m','sa',0,10
+	._type	502,'m','sw',0,10
+	._var	'_f4sub','F',502
+	._type	503,'x',10,2
+	._type	503,'m','sa',0,10
+	._type	503,'m','sw',0,10
+	._var	'_f4mul','F',503
+	._type	504,'x',10,2
+	._type	504,'m','sw',0,10
+	._type	504,'m','sa',0,10
+	._var	'_f4div','F',504
+	._type	505,'x',16,2
+	._type	505,'m','sa',0,10
+	._type	505,'m','sw',0,10
+	._var	'_f4eq','F',505
+	._type	506,'x',16,2
+	._type	506,'m','sa',0,10
+	._type	506,'m','sw',0,10
+	._var	'_f4ne','F',506
+	._type	507,'x',16,2
+	._type	507,'m','sa',0,10
+	._type	507,'m','sw',0,10
+	._var	'_f4ge','F',507
+	._type	508,'x',16,2
+	._type	508,'m','sa',0,10
+	._type	508,'m','sw',0,10
+	._var	'_f4gt','F',508
+	._type	509,'x',16,2
+	._type	509,'m','sa',0,10
+	._type	509,'m','sw',0,10
+	._var	'_f4le','F',509
+	._type	510,'x',16,2
+	._type	510,'m','sa',0,10
+	._type	510,'m','sw',0,10
+	._var	'_f4lt','F',510
+	._type	511,'x',10,1
+	._type	511,'m','i4',0,20
+	._var	'_i4tof4','F',511
+	._type	512,'x',10,1
+	._type	512,'m','i4',0,287
+	._var	'_i4Utof4','F',512
+	._type	513,'x',20,1
+	._type	513,'m','f4',0,10
+	._var	'_f4toi4','F',513
+	._type	514,'x',287,1
+	._type	514,'m','f4',0,10
+	._var	'_f4toi4U','F',514
+	._type	515,'x',10,1
+	._type	515,'m','f4',0,10
+	._var	'_f4tof8','F',515
+	._type	516,'x',10,1
+	._type	516,'m','i8',0,470
+	._var	'_i8tof4','F',516
+	._type	517,'x',10,1
+	._type	517,'m','i8',0,472
+	._var	'_i8Utof4','F',517
+	._type	518,'x',470,1
+	._type	518,'m','f4',0,10
+	._var	'_f4toi8','F',518
+	._type	519,'x',472,1
+	._type	519,'m','f4',0,10
+	._var	'_f4toi8U','F',519
+	._type	520,'v'
+	._type	521,'O',10
+	._type	522,'x',520,2
+	._type	522,'m','r',0,521
+	._type	522,'m','l',0,490
+	._var	'_f4rtol','F',522
+	._type	523,'x',10,1
+	._type	523,'m','l',0,490
+	._var	'_f4ltor','F',523
+	._type	524,'v'
+	._type	525,'O',290
+	._type	526,'O',290
+	._type	527,'x',524,4
+	._type	527,'m','a',0,490
+	._type	527,'m','w',0,490
+	._type	527,'m','mp',0,525
+	._type	527,'m','dp',0,526
+	._var	'_f4mpy','F',527
+	._type	528,'v'
+	._type	529,'O',471
+	._type	530,'x',528,1
+	._type	530,'m','mp',0,529
+	._var	'_f4round','F',530
+	._type	531,'v'
+	._type	532,'O',290
+	._type	533,'x',531,2
+	._type	533,'m','mp',0,532
+	._type	533,'m','dp',0,286
+	._var	'_f4dvs','F',533
+	._type	534,'O',10
+	._type	535,'O',10
+	._type	536,'x',16,2
+	._type	536,'m','sa',0,534
+	._type	536,'m','sw',0,535
+	._var	'_f4cmp','F',536
+	._type	537,'x',10,2
+	._type	537,'m','da',0,10
+	._type	537,'m','dw',0,10
+	._var	'_f8add','F',537
+	._type	538,'x',10,2
+	._type	538,'m','da',0,10
+	._type	538,'m','dw',0,10
+	._var	'_f8sub','F',538
+	._type	539,'x',10,2
+	._type	539,'m','da',0,10
+	._type	539,'m','dw',0,10
+	._var	'_f8mul','F',539
+	._type	540,'x',10,2
+	._type	540,'m','da',0,10
+	._type	540,'m','dw',0,10
+	._var	'_f8div','F',540
+	._type	541,'x',16,2
+	._type	541,'m','da',0,10
+	._type	541,'m','dw',0,10
+	._var	'_f8eq','F',541
+	._type	542,'x',16,2
+	._type	542,'m','da',0,10
+	._type	542,'m','dw',0,10
+	._var	'_f8ne','F',542
+	._type	543,'x',16,2
+	._type	543,'m','da',0,10
+	._type	543,'m','dw',0,10
+	._var	'_f8ge','F',543
+	._type	544,'x',16,2
+	._type	544,'m','da',0,10
+	._type	544,'m','dw',0,10
+	._var	'_f8gt','F',544
+	._type	545,'x',16,2
+	._type	545,'m','da',0,10
+	._type	545,'m','dw',0,10
+	._var	'_f8le','F',545
+	._type	546,'x',16,2
+	._type	546,'m','da',0,10
+	._type	546,'m','dw',0,10
+	._var	'_f8lt','F',546
+	._type	547,'x',10,1
+	._type	547,'m','i4',0,20
+	._var	'_i4tof8','F',547
+	._type	548,'x',10,1
+	._type	548,'m','i4',0,287
+	._var	'_i4Utof8','F',548
+	._type	549,'x',20,1
+	._type	549,'m','f8',0,10
+	._var	'_f8toi4','F',549
+	._type	550,'x',287,1
+	._type	550,'m','f8',0,10
+	._var	'_f8toi4U','F',550
+	._type	551,'x',10,1
+	._type	551,'m','f8',0,10
+	._var	'_f8tof4','F',551
+	._type	552,'x',10,1
+	._type	552,'m','i8',0,470
+	._var	'_i8tof8','F',552
+	._type	553,'x',10,1
+	._type	553,'m','i8',0,472
+	._var	'_i8Utof8','F',553
+	._type	554,'x',470,1
+	._type	554,'m','f8',0,10
+	._var	'_f8toi8','F',554
+	._type	555,'x',472,1
+	._type	555,'m','f8',0,10
+	._var	'_f8toi8U','F',555
+	._type	556,'v'
+	._type	557,'O',10
+	._type	558,'x',556,2
+	._type	558,'m','r',0,557
+	._type	558,'m','l',0,490
+	._var	'_f8rtol','F',558
+	._type	559,'x',10,1
+	._type	559,'m','l',0,490
+	._var	'_f8ltor','F',559
+	._type	560,'v'
+	._type	561,'x',560,2
+	._type	561,'m','a',0,490
+	._type	561,'m','w',0,490
+	._var	'_f8addmant','F',561
+	._type	562,'v'
+	._type	563,'O',290
+	._type	564,'O',287
+	._type	565,'x',562,4
+	._type	565,'m','a',0,490
+	._type	565,'m','w',0,490
+	._type	565,'m','mp',0,563
+	._type	565,'m','dp',0,564
+	._var	'_f8mpy','F',565
+	._type	566,'v'
+	._type	567,'O',471
+	._type	568,'x',566,1
+	._type	568,'m','mp',0,567
+	._var	'_f8round','F',568
+	._type	569,'v'
+	._type	570,'O',290
+	._type	571,'O',287
+	._type	572,'x',569,2
+	._type	572,'m','mp',0,570
+	._type	572,'m','dp',0,571
+	._var	'_f8dvs','F',572
+	._type	573,'O',10
+	._type	574,'O',10
+	._type	575,'x',16,2
+	._type	575,'m','da',0,573
+	._type	575,'m','dw',0,574
+	._var	'_f8cmp','F',575
+	._type	576,'x',16,3
+	._type	576,'m','a',0,490
+	._type	576,'m','w',0,490
+	._type	576,'m','ope',0,16
+	._var	'_chkdata','F',576
+	._type	577,'O',16
+	._type	578,'x',16,3
+	._type	578,'m','a',0,490
+	._type	578,'m','w',0,490
+	._type	578,'m','ds',0,577
+	._var	'_cmpexp','F',578
+	._type	579,'v'
+	._type	580,'x',579,1
+	._type	580,'m','l',0,490
+	._var	'_ngt','F',580
+	._type	581,'v'
+	._type	582,'O',16
+	._type	583,'x',581,2
+	._type	583,'m','l',0,490
+	._type	583,'m','cf',0,582
+	._var	'_asr','F',583
+	._type	584,'v'
+	._type	585,'x',584,1
+	._type	585,'m','l',0,490
+	._var	'_nor','F',585
+	._type	586,'x',16,1
+	._type	586,'m','',0,16
+	._type	587,'P',586
+	._type	588,'O',16
+	._type	589,'x',16,9
+	._type	589,'m','',0,587
+	._type	589,'m','',0,10
+	._type	589,'m','',0,16
+	._type	589,'m','',0,3
+	._type	589,'m','',0,16
+	._type	589,'m','',0,3
+	._type	589,'m','',0,16
+	._type	589,'m','',0,588
+	._type	589,'m','',0,286
+	._var	'_f8prn','F',589
+	._type	590,'v'
+	._type	591,'O',10
+	._type	592,'x',590,2
+	._type	592,'m','',0,591
+	._type	592,'m','',0,490
+	._var	'henkan1','F',592
+	._type	593,'x',10,1
+	._type	593,'m','',0,490
+	._var	'henkan2','F',593
+	._type	594,'x',16,1
+	._type	594,'m','',0,16
+	._type	595,'P',594
+	._type	596,'O',3
+	._type	597,'O',3
+	._type	598,'O',3
+	._type	599,'x',16,11
+	._type	599,'m','',0,595
+	._type	599,'m','',0,3
+	._type	599,'m','',0,596
+	._type	599,'m','',0,597
+	._type	599,'m','',0,598
+	._type	599,'m','',0,16
+	._type	599,'m','',0,16
+	._type	599,'m','',0,16
+	._type	599,'m','',0,16
+	._type	599,'m','',0,16
+	._type	599,'m','',0,286
+	._var	'_pri','F',599
+	._type	600,'v'
+	._type	601,'O',291
+	._type	602,'x',600,2
+	._type	602,'m','',0,601
+	._type	602,'m','',0,490
+	._var	'_f8geti','F',602
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "FILE", 'O', 302
+	._inspect	'V', 't', "fpos_t", 'O', 20
+	._inspect	'V', 't', "size_t", 'O', 18
+	._inspect	'V', 't', "_iob", 'G', 311
+	._inspect	'V', 't', "__va_list", 'O', 312
+	._inspect	'F', 't', "getc", 'G', 315
+	._inspect	'F', 't', "getchar", 'G', 317
+	._inspect	'F', 't', "putc", 'G', 319
+	._inspect	'F', 't', "putchar", 'G', 320
+	._inspect	'F', 't', "feof", 'G', 322
+	._inspect	'F', 't', "ferror", 'G', 324
+	._inspect	'F', 't', "fgetc", 'G', 326
+	._inspect	'F', 't', "fgets", 'G', 330
+	._inspect	'F', 't', "fputc", 'G', 332
+	._inspect	'F', 't', "fputs", 'G', 335
+	._inspect	'F', 't', "fread", 'G', 339
+	._inspect	'F', 't', "fwrite", 'G', 343
+	._inspect	'F', 't', "gets", 'G', 346
+	._inspect	'F', 't', "puts", 'G', 348
+	._inspect	'F', 't', "ungetc", 'G', 350
+	._inspect	'F', 't', "printf", 'G', 352
+	._inspect	'F', 't', "fprintf", 'G', 355
+	._inspect	'F', 't', "sprintf", 'G', 358
+	._inspect	'F', 't', "vprintf", 'G', 360
+	._inspect	'F', 't', "vfprintf", 'G', 363
+	._inspect	'F', 't', "vsprintf", 'G', 366
+	._inspect	'F', 't', "fscanf", 'G', 369
+	._inspect	'F', 't', "scanf", 'G', 371
+	._inspect	'F', 't', "sscanf", 'G', 374
+	._inspect	'F', 't', "fflush", 'G', 376
+	._inspect	'F', 't', "clearerr", 'G', 379
+	._inspect	'F', 't', "perror", 'G', 382
+	._inspect	'F', 't', "init_dev", 'G', 384
+	._inspect	'F', 't', "speed", 'G', 385
+	._inspect	'F', 't', "init_prn", 'G', 387
+	._inspect	'F', 't', "_sget", 'G', 389
+	._inspect	'F', 't', "_sput", 'G', 390
+	._inspect	'F', 't', "_pput", 'G', 391
+	._inspect	'F', 't', "_print", 'G', 399
+	._inspect	'V', 't', "_ctype", 'G', 400
+	._inspect	'F', 't', "isalnum", 'G', 401
+	._inspect	'F', 't', "isalpha", 'G', 402
+	._inspect	'F', 't', "iscntrl", 'G', 403
+	._inspect	'F', 't', "isdigit", 'G', 404
+	._inspect	'F', 't', "isgraph", 'G', 405
+	._inspect	'F', 't', "islower", 'G', 406
+	._inspect	'F', 't', "isprint", 'G', 407
+	._inspect	'F', 't', "ispunct", 'G', 408
+	._inspect	'F', 't', "isspace", 'G', 409
+	._inspect	'F', 't', "isupper", 'G', 410
+	._inspect	'F', 't', "isxdigit", 'G', 411
+	._inspect	'F', 't', "toupper", 'G', 412
+	._inspect	'F', 't', "tolower", 'G', 413
+	._inspect	'V', 't', "__huge_val", 'G', 10
+	._inspect	'V', 't', "__huge_valf", 'G', 10
+	._inspect	'F', 't', "acos", 'G', 414
+	._inspect	'F', 't', "asin", 'G', 415
+	._inspect	'F', 't', "atan", 'G', 416
+	._inspect	'F', 't', "atan2", 'G', 417
+	._inspect	'F', 't', "ceil", 'G', 418
+	._inspect	'F', 't', "cos", 'G', 419
+	._inspect	'F', 't', "cosh", 'G', 420
+	._inspect	'F', 't', "exp", 'G', 421
+	._inspect	'F', 't', "fabs", 'G', 422
+	._inspect	'F', 't', "floor", 'G', 423
+	._inspect	'F', 't', "fmod", 'G', 424
+	._inspect	'F', 't', "frexp", 'G', 426
+	._inspect	'F', 't', "ldexp", 'G', 427
+	._inspect	'F', 't', "log", 'G', 428
+	._inspect	'F', 't', "log10", 'G', 429
+	._inspect	'F', 't', "modf", 'G', 431
+	._inspect	'F', 't', "pow", 'G', 432
+	._inspect	'F', 't', "sin", 'G', 433
+	._inspect	'F', 't', "sinh", 'G', 434
+	._inspect	'F', 't', "sqrt", 'G', 435
+	._inspect	'F', 't', "tan", 'G', 436
+	._inspect	'F', 't', "tanh", 'G', 437
+	._inspect	'F', 't', "acosf", 'G', 438
+	._inspect	'F', 't', "asinf", 'G', 439
+	._inspect	'F', 't', "atanf", 'G', 440
+	._inspect	'F', 't', "atan2f", 'G', 441
+	._inspect	'F', 't', "ceilf", 'G', 442
+	._inspect	'F', 't', "cosf", 'G', 443
+	._inspect	'F', 't', "coshf", 'G', 444
+	._inspect	'F', 't', "expf", 'G', 445
+	._inspect	'F', 't', "fabsf", 'G', 446
+	._inspect	'F', 't', "floorf", 'G', 447
+	._inspect	'F', 't', "fmodf", 'G', 448
+	._inspect	'F', 't', "frexpf", 'G', 450
+	._inspect	'F', 't', "ldexpf", 'G', 451
+	._inspect	'F', 't', "logf", 'G', 452
+	._inspect	'F', 't', "log10f", 'G', 453
+	._inspect	'F', 't', "modff", 'G', 455
+	._inspect	'F', 't', "powf", 'G', 456
+	._inspect	'F', 't', "sinf", 'G', 457
+	._inspect	'F', 't', "sinhf", 'G', 458
+	._inspect	'F', 't', "sqrtf", 'G', 459
+	._inspect	'F', 't', "tanf", 'G', 460
+	._inspect	'F', 't', "tanhf", 'G', 461
+	._inspect	'F', 't', "_tan", 'G', 463
+	._inspect	'F', 't', "_tanf", 'G', 465
+	._inspect	'V', 't', "s_char", 'O', 19
+	._inspect	'V', 't', "s_short", 'O', 23
+	._inspect	'V', 't', "s_int", 'O', 16
+	._inspect	'V', 't', "s_long", 'O', 20
+	._inspect	'V', 't', "s_llong", 'O', 8
+	._inspect	'V', 't', "u_char", 'O', 3
+	._inspect	'V', 't', "u_short", 'O', 5
+	._inspect	'V', 't', "u_int", 'O', 18
+	._inspect	'V', 't', "u_long", 'O', 7
+	._inspect	'V', 't', "u_llong", 'O', 9
+	._inspect	'V', 't', "SGL_FLT", 'O', 473
+	._inspect	'V', 't', "DBL_FLT", 'O', 478
+	._inspect	'V', 't', "MANT", 'O', 483
+	._inspect	'V', 't', "FLOAT", 'O', 487
+	._inspect	'V', 't', "FLOATP", 'O', 489
+	._inspect	'V', 't', "SGL_FLTP", 'O', 491
+	._inspect	'V', 't', "DBL_FLTP", 'O', 493
+	._inspect	'V', 't', "QLONG", 'O', 495
+	._inspect	'V', 't', "QLONGP", 'O', 499
+	._inspect	'F', 't', "_f4add", 'G', 501
+	._inspect	'F', 't', "_f4sub", 'G', 502
+	._inspect	'F', 't', "_f4mul", 'G', 503
+	._inspect	'F', 't', "_f4div", 'G', 504
+	._inspect	'F', 't', "_f4eq", 'G', 505
+	._inspect	'F', 't', "_f4ne", 'G', 506
+	._inspect	'F', 't', "_f4ge", 'G', 507
+	._inspect	'F', 't', "_f4gt", 'G', 508
+	._inspect	'F', 't', "_f4le", 'G', 509
+	._inspect	'F', 't', "_f4lt", 'G', 510
+	._inspect	'F', 't', "_i4tof4", 'G', 511
+	._inspect	'F', 't', "_i4Utof4", 'G', 512
+	._inspect	'F', 't', "_f4toi4", 'G', 513
+	._inspect	'F', 't', "_f4toi4U", 'G', 514
+	._inspect	'F', 't', "_f4tof8", 'G', 515
+	._inspect	'F', 't', "_i8tof4", 'G', 516
+	._inspect	'F', 't', "_i8Utof4", 'G', 517
+	._inspect	'F', 't', "_f4toi8", 'G', 518
+	._inspect	'F', 't', "_f4toi8U", 'G', 519
+	._inspect	'F', 't', "_f4rtol", 'G', 522
+	._inspect	'F', 't', "_f4ltor", 'G', 523
+	._inspect	'F', 't', "_f4mpy", 'G', 527
+	._inspect	'F', 't', "_f4round", 'G', 530
+	._inspect	'F', 't', "_f4dvs", 'G', 533
+	._inspect	'F', 't', "_f4cmp", 'G', 536
+	._inspect	'F', 't', "_f8add", 'G', 537
+	._inspect	'F', 't', "_f8sub", 'G', 538
+	._inspect	'F', 't', "_f8mul", 'G', 539
+	._inspect	'F', 't', "_f8div", 'G', 540
+	._inspect	'F', 't', "_f8eq", 'G', 541
+	._inspect	'F', 't', "_f8ne", 'G', 542
+	._inspect	'F', 't', "_f8ge", 'G', 543
+	._inspect	'F', 't', "_f8gt", 'G', 544
+	._inspect	'F', 't', "_f8le", 'G', 545
+	._inspect	'F', 't', "_f8lt", 'G', 546
+	._inspect	'F', 't', "_i4tof8", 'G', 547
+	._inspect	'F', 't', "_i4Utof8", 'G', 548
+	._inspect	'F', 't', "_f8toi4", 'G', 549
+	._inspect	'F', 't', "_f8toi4U", 'G', 550
+	._inspect	'F', 't', "_f8tof4", 'G', 551
+	._inspect	'F', 't', "_i8tof8", 'G', 552
+	._inspect	'F', 't', "_i8Utof8", 'G', 553
+	._inspect	'F', 't', "_f8toi8", 'G', 554
+	._inspect	'F', 't', "_f8toi8U", 'G', 555
+	._inspect	'F', 't', "_f8rtol", 'G', 558
+	._inspect	'F', 't', "_f8ltor", 'G', 559
+	._inspect	'F', 't', "_f8addmant", 'G', 561
+	._inspect	'F', 't', "_f8mpy", 'G', 565
+	._inspect	'F', 't', "_f8round", 'G', 568
+	._inspect	'F', 't', "_f8dvs", 'G', 572
+	._inspect	'F', 't', "_f8cmp", 'G', 575
+	._inspect	'F', 't', "_chkdata", 'G', 576
+	._inspect	'F', 't', "_cmpexp", 'G', 578
+	._inspect	'F', 't', "_ngt", 'G', 580
+	._inspect	'F', 't', "_asr", 'G', 583
+	._inspect	'F', 't', "_nor", 'G', 585
+	._inspect	'V', 't', "DTYP", 'O', 290
+	._inspect	'V', 't', "UNIONPTR", 'O', 271
+	._inspect	'F', 't', "_f8prn", 'G', 589
+	._inspect	'F', 't', "henkan1", 'G', 592
+	._inspect	'F', 't', "henkan2", 'G', 593
+	._inspect	'F', 't', "_pri", 'G', 599
+	._inspect	'F', 't', "_f8geti", 'G', 602
+
+	.glb	__i4divU
+	.glb	__i4modU
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:46 2011
+
+

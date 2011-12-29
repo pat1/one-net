@@ -90,4 +90,4 @@ UInt8 ascii_hex_to_nibble(const char ASCII);
 
 //! @} str
 
-#endif // ifndef _STR_H //
+#endif // ifdef _STR_H //

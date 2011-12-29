@@ -1,6 +1,7 @@
 #ifndef _ONE_NET_EVAL_H
 #define _ONE_NET_EVAL_H
 
+#include "config_options.h"
 
 
 //! \defgroup ONE-NET_eval ONE_NET Evaluation
@@ -13,11 +14,9 @@
     Declarations for the ONE-NET evaluation project.
 */
 
-
+#include "one_net.h"
+#include "one_net_types.h"
 #include "one_net_application.h"
-#include "one_net_port_const.h"
-#include "one_net_acknowledge.h"
-
 
 
 //=============================================================================
@@ -26,19 +25,49 @@
 //! \ingroup ONE-NET_eval
 //! @{
 
-
-
+enum
+{
 #ifdef _AUTO_MODE
-extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
-extern const on_encoded_did_t ENC_AUTO_CLIENT_DID[];
-extern const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS;
+    //! The number of CLIENTS in auto mode
+    NUM_AUTO_CLIENTS = 3,
 #endif
+    
+    //! Number of bits to shift a value to get the proper raw did
+    RAW_DID_SHIFT = 4
+};
 
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
-extern const UInt8 DEFAULT_RAW_NID[];
-#endif
+enum
+{
+    //! The version of the parameters being set.  This is not set to
+    //! ON_PARAM_VERSION since if the parameter version changes, we want to
+    //! make sure that the application's initialization of the structures
+    //! also change, and that would be harder to do if this was set to
+    //! ON_PARAM_VERSION since that version number is changed inside ONE-NET
+    //! when the structures change, which doesn't mean the app has changed to
+    //! handle the new structure version
+    EVAL_PARAM_VERSION = 0x0002
+};
 
+enum
+{
+    //! Offset within the data portion of the manufacturing data flash segment
+    //! of the SID.
+    EVAL_DF_SID_OFFSET =            0,
 
+    //! Size of the SID field within the manufacturing data flash segment.
+    EVAL_DF_SID_SIZE =              6,
+
+    //! Offset withing the data portion of the manufacturing data flash segment
+    //! of the invite key.
+    EVAL_DF_INVITE_KEY_OFFSET =     EVAL_DF_SID_SIZE,
+
+    //! Size of the input invite key. The user enters an 8 byte field
+    //! that is doubled to create the real invite key so that the user has
+    //! fewer characters to type when issuing the CLI invite command.
+    EVAL_DF_INVITE_INPUT_KEY_SIZE = 8,
+
+    //!
+};
 
 //! @} ONE-NET_eval_const
 //                                  CONSTANTS END
@@ -49,18 +78,66 @@ extern const UInt8 DEFAULT_RAW_NID[];
 //! \defgroup ONE-NET_eval_typedefs
 //! \ingroup ONE-NET_eval
 //! @{
-    
-    
+
+// Version
 enum
 {
-    #ifdef _AUTO_MODE
-    //! The number of clients in AUTO mode.
-    NUM_AUTO_CLIENTS = 3,
-    #endif
-    
-    //! The channel for Auto Mode
-    DEFAULT_EVAL_CHANNEL = 1,
-};    
+    MAJOR_VER = ONE_NET_VERSION_MAJOR,  //!< The major version number
+#ifndef _EVAL_0005_NO_REVISION
+    MINOR_VER = ONE_NET_VERSION_MINOR,  //!< dje: The minor version number
+#else
+    MINOR_VER = ONE_NET_VERSION_MINOR*10, //!< dje: The minor version number
+#endif
+    REVISION_NUM = ONE_NET_VERSION_REVISION,
+    BUILD_NUM = ONE_NET_VERSION_BUILD
+
+};
+
+
+#ifdef _AUTO_MODE
+	//! Mode Select switch values
+	typedef enum
+	{
+	    AUTO_MODE,                      //!< Running auto mode evaluation
+	    SERIAL_MODE                     //!< Running serial mode evaluation
+	} mode_select_t;
+#endif
+
+
+//! Node Select switch values
+typedef enum
+{
+#ifdef _SNIFFER_MODE
+    SNIFFER_NODE,                   //!< Device is a SNIFFER
+#endif
+    MASTER_NODE,                    //!< Device is a MASTER
+#ifdef _AUTO_MODE
+    CLIENT_NODE,                    //!< Device is a CLIENT device
+    AUTO_CLIENT1_NODE,              //!< Uses first CLIENT addr in auto mode
+    AUTO_CLIENT2_NODE,              //!< Uses second CLIENT addr in auto mode
+    AUTO_CLIENT3_NODE               //!< Uses third CLIENT addr in auto mode
+#else
+    CLIENT_NODE                    //!< Device is a CLIENT device
+#endif
+} node_select_t;
+
+
+//! structure to keep corresponding raw & encoded sids together.
+typedef struct
+{
+    one_net_raw_sid_t raw;          //!< Raw SID
+    on_encoded_sid_t encoded;       //!< Encoded SID.
+} eval_sid_t;
+
+
+// copied from switch.h.  Not using switch to save on size, plus the eval board
+// has both the MASTER & CLIENT, which the app doesn't handle both at once.
+typedef enum
+{
+    ONA_OFF = 0x00,                 //!< Switch Off
+    ONA_ON = 0x01,                  //!< Switch On
+    ONA_TOGGLE = 0x02               //!< Switch Toggle (on->off, off->on)
+} switch_status_t;
 
 
 /*!
@@ -68,20 +145,9 @@ enum
 */
 typedef struct
 {
-    on_pin_state_t pin_type;        //!< Functionality type
+    UInt8 pin_type;                 //!< Functionality type (see oncli_pin_t)
     UInt8 old_state;                //!< The last state of the pin
 } user_pin_t;
-
-
-//! State machine for dealing with the user pins.
-enum
-{
-    CHECK_USER_PIN,               //!< State to check user pins for changes
-    SEND_USER_PIN_INPUT           //!< State to send user pin changes to peers
-};
-
-
-
 
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
@@ -93,40 +159,6 @@ enum
 //! \ingroup ONE-NET_eval
 //! @{
 
-extern user_pin_t user_pin[NUM_USER_PINS];
-#ifdef _SNIFFER_MODE
-extern BOOL in_sniffer_mode;
-#endif
-
-
-extern UInt8 user_pin_state;
-extern UInt8 user_pin_src_unit;
-
-
-
-//! The key used in the evaluation network
-extern const one_net_xtea_key_t EVAL_KEY;
-
-//! Default invite key to use if no manufacturing data (SID and invite key) segment
-//! is found in data flash.
-extern const UInt8 DEFAULT_INVITE_KEY[];
-                                     
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
-//! Default NID to use if no NID is found in the manufacturing data segment
-//! of data flash.
-extern const UInt8 DEFAULT_RAW_NID[];
-
-//! Default SID to use if no NID is found in the manufacturing data segment
-//! of data flash.
-extern const on_raw_sid_t DEFAULT_RAW_SID;
-#endif
-
-
-
-//! Pointer to the device dependent (MASTER, CLIENT, SNIFF) function that
-//! should be called in the main loop
-extern void(*node_loop_func)(void);
-
 //! @} ONE-NET_eval_pub_var
 //                              PUBLIC VARIABLES END
 //=============================================================================
@@ -137,216 +169,86 @@ extern void(*node_loop_func)(void);
 //! \ingroup ONE-NET_eval
 //! @{
 
+UInt8 device_type(void);
+UInt8 mode_type(void);
 
+BOOL mem_equal(const UInt8 *lhs, const UInt8 *rhs, UInt16 len);
 
-#ifdef _ONE_NET_MASTER
-void master_eval(void); // in master_eval.c
-void init_serial_master(void); // in master_eval.c
-#endif
-#ifdef _ONE_NET_CLIENT
-void client_eval(void); // in client_eval.c
-void init_serial_client(void); // in client_eval.c
-#endif
-#ifdef _SNIFFER_MODE
-void sniff_eval(void); // in sniff_eval.c
-#endif
-#ifdef _AUTO_MODE
-#ifdef _ONE_NET_MASTER
-void init_auto_master(void);
-#endif
-#ifdef _ONE_NET_CLIENT
-void init_auto_client(UInt8 index);
-#endif
-#endif
+// functions for retrieving the evaluation network parameters
+BOOL get_eval_encoded_nid(on_encoded_nid_t *nid);
+BOOL get_eval_encoded_did(node_select_t NODE, on_encoded_did_t *did);
+BOOL get_raw_master_did(one_net_raw_did_t *did);
+BOOL get_eval_key(one_net_xtea_key_t *key);
+UInt8 * get_invite_key(void);
+one_net_raw_sid_t * get_raw_sid(void);
 
+#ifdef _STREAM_MESSAGES_ENABLED
+    BOOL get_eval_stream_key(one_net_xtea_key_t *stream_key);
+#endif
+UInt8 eval_encryption(on_data_t ENCRYPT_TYPE);
+UInt8 eval_channel(void);
+UInt8 eval_data_rate(node_select_t NODE);
+UInt32 eval_keep_alive(void);
+#ifdef _BLOCK_MESSAGES_ENABLED
+UInt32 eval_fragment_delay(UInt8 PRIORITY);
+#endif
+UInt8 eval_client_features(node_select_t CLIENT);
+UInt8 eval_client_flag(node_select_t CLIENT);
 
-void initialize_default_pin_directions(BOOL is_master);
-void check_user_pins(void);
-void disable_user_pins(void);
-void send_user_pin_input(void);
+UInt16 did_to_u16(const one_net_raw_did_t *DID);
 
-
-/*!
-    \brief Handles the received single packet.
-	
-    \param[in] raw_pld the raw single payload.  Note that ack_nack.ayload below
-      also points to this parameter, so the memory can be changed.  Therefore,
-      if the application code needs this payload to NOT change after sending
-      a response, it must copy it.
-    \param[in/out] msg_hdr of packet / response -- only the pid portion of
-      this parameter should be changed.  The message type is irrelevant for
-      a response message (the equivalent of a "message type" can be specified
-      in the "handle" portion of the "ack_nack" parameter below.  The message
-      id should not be changed.  The pid should be changed to the type of ACK
-      or NACK that should be sent.
-	\param[in] src_did the raw address of the source
-	\param[in] repeater_did the raw address of the repeater, if any.  This will
-               always equal the source id if 1) this is not a multi-hop message
-               and 2) this is not a "forwarded" message by either the peer
-               manager or the application code.  Most applications will ignore
-               this parameter.
-	\param[out] ack_nack: Contains three parts...
-                  nack_reason... if nacking, the reason for the NACK.  Irrelevant for ACKs
-	            handle... if including a payload, how the payload should be parsed.
-                  For example, if this is a ffast query or command response that contains
-                  a status message, the handle should be set to ON_ACK_STATUS.
-                  If the message contains a time, this should be set to
-                  ON_ACK_TIME_MS or ON_NACK_MS.  If the message contains an
-                  application-specific value, this should be set to ON_ACK_VALUE
-                  or ON_NACK_VALUE.  If simply sending an ACK or a NACK without
-                  any payload, this parameter can be ignored.
-                payload...
-                  The "payload" of the NACK or ACK.  Irrelevant if the handle
-                  is not set.  Note that this also points to raw_pld to save
-                  space.
-    \param[in] hops the number of hops it took to get here.  Can be ignored by
-                    most applications.
-    \param[in/out] max_hops in --> the maximum number of hops that was set for the message
-	                        out --> the maximum number of hops to use for a response.  Can
-                                    generally be ignored if you want the maximum number of
-                                    hops to remain unchanged.
-                 
-    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
-            ON_MSG_IGNORE if no reponse should occur.
-*/
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t eval_handle_single(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
-#else
-on_message_status_t eval_handle_single(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
-  UInt8 hops, UInt8* const max_hops);
+#ifdef _BLOCK_MESSAGES_ENABLED
+BOOL eval_txn_requested(const UInt8 TYPE, const BOOL SEND,
+  const UInt8 DATA_TYPE, const UInt16 DATA_LEN,
+  const one_net_raw_did_t * const DID, const UInt8 src_unit,
+  const UInt8 dst_unit, on_nack_rsn_t* const nack_reason,
+  on_ack_nack_handle_t* const ack_nack_handle,
+  ack_nack_payload_t* const ack_nack_payload);
+                        
+on_nack_rsn_t eval_next_payload(UInt8 TYPE, UInt16 *len,
+                                const one_net_raw_did_t *DST);                         
+                         
+void eval_block_txn_status(one_net_status_t STATUS,
+                           const one_net_raw_did_t *DID);
 #endif
 
+BOOL eval_handle_status_msg(const UInt8* const raw_pld, const ona_msg_class_t msg_class,
+       const ona_msg_type_t msg_type, const UInt8 src_unit,
+       const UInt8 dst_unit, const UInt16 msg_data,
+	   const one_net_raw_did_t* const src_addr,
+	   on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+	   ack_nack_payload_t* const ack_nack_payload);
 
-/*!
-    \brief Callback for the application to handle an ack or a nack.
+BOOL eval_handle_single(const UInt8* const raw_pld, const ona_msg_class_t msg_class,
+         ona_msg_type_t* const msg_type, const UInt8 src_unit, const UInt8 dst_unit,
+		 UInt16* const msg_data, const one_net_raw_did_t* const SRC_ADDR, BOOL* const useDefaultHandling,
+		 on_nack_rsn_t* const nack_reason, on_ack_nack_handle_t* const ack_nack_handle,
+	     ack_nack_payload_t* const ack_nack_payload);
 
-    This function is application dependent.  It is called by ONE-NET when a
-    device receives an ACK or a NACK.  For many applications, no ACK/ NACK
-    handling is needed and the application waits for the entire transaction
-    to be completed.  In this case (which is very common), the function should
-    simply be an empty function that returns ON_MSG_CONTINUE, which tells
-    ONE-NET to use its default handling.
-    
-    For NON-default handling, this function allows the application code to
-    change a nack reason, change the number of retries, change the message it
-    is sending, change the number of hops, or abort the transaction.  Even if
-    nothing is changed, it informs the application code of what is going on
-    with each individual response.  The application may be keeping tracking
-    of how many ACKs versus NACKs it gets for whatever reason.
-    
-    
-    "Fast query" messages and "command" messages or any other message which
-    involves response messages containing status messages, may wish to call
-    the one_net_master_handle_single_pkt and pass it the ACK payload as
-    the payload.  This is generally how this is handled.
-    one_net_master_handle_single_pkt should look at the message class and,
-    if it is ONA_STATUS_FAST_QUERY_RESP or ONA_STATUS_COMMAND_RESP, this
-    tells the function that the message was a response to a command or a fast
-    query.
-	
+BOOL eval_handle_ack_nack_response(const ona_msg_type_t msg_type,
+    UInt8* const payload, const UInt8 payload_len, BOOL* const need_txn_payload,
+    UInt8* const retries,
+	const one_net_raw_did_t* const src_did, on_nack_rsn_t* const nack_reason,
+	on_ack_nack_handle_t* const ack_nack_handle,
+	ack_nack_payload_t* const ack_nack_payload);
+		 
+void print_single_app_data_pkt(const ona_msg_class_t msg_class, const ona_msg_type_t msg_type, 
+         const UInt8 src_unit, const UInt8 dst_unit, const UInt16 msg_data,
+         const one_net_raw_did_t* const SRC_ADDR);
 
-    \param[in/out] raw_pld Raw payload of the ORIGINAL message so that the
-       application code can see what is being ACK'd or NACK'd.  Changable, but
-       generally is NOT changed.
-    \param[in/out] msg_hdr PID, Message ID, and Message Type(i.e. admin,
-      app, etc.) of the ORIGINAL message.  This is changable, but like the
-      raw payload, is generally NOT changed.  In particular, the message id
-      is assigned by ONE-NET, so it should only be changed by ONE-NET.  If the
-      application code needs to change the message id to a new one, it should
-      call the function get_new_message_id() and use its return value.  Again,
-      use caution when changing the message id.  There is usually no need to
-      change it.
-    \param[in] resp_msg_hdr The PID and Message ID of the response. Generally
-      the message TYPE is irrelevant in a response.  The "handle" of the ACK
-      or the NACK should be looked at instead for how to parse.
-    \param[in] resp_msg_hdr The PID and Message ID of the response. Generally
-      the message TYPE is irrelevant in a response.  The "handle" of the ACK
-      or the NACK should be looked at instead for how to parse.  The message
-      ID in the response should match the message id in the original message.
-      If it does not, the original raw payload should be considered invalid.
-      ONE-NET will consider this an invalid response if the message
-      IDs do not match.  However, this function is still called to notify
-      the application code.  If the message IDs DO NOT match, however, any
-      changes made in this function will be ignored by ONE-NET.
-    \param[in/out] resp_ack_nack The response (ACK or NACK), possibly with a
-      payload and a NACK reason.  The "handle" will describe how the payload
-      should be interpreted.  The nack reason can be changed and possibly
-      a time in the payload if the nack reason involves a time that ONE-NET
-      understands (i.e. length of time to pause).
-    \param[in] resp_ack_nack The response (ACK or NACK), possibly with a
-      payload and a NACK reason.  The "handle" will describe how the payload
-      should be interpreted.  See the description of ack_nack in the
-      one_net_master_handle_single_pkt for more details of how this should
-      be interpreted.  This function can change an ACK to a NACK or vice versa
-      and can also change the NACK reason.
-	\param[in] src_did the raw address of the source
-	\param[in] repeater_did the raw address of the repeater, if any.  This will
-               always equal the source id if 1) this is not a multi-hop message
-               and 2) this is not a "forwarded" message by either the peer
-               manager or the application code.  Most applications will ignore
-               this parameter.
-    \param[in/out] retries The number of times this message has been sent.
-      Generally this is not changed, but it can be.
-    \param[in] hops the number of hops it took to get here.  Can be ignored by
-                    most applications.
-    \param[in/out] max_hops in --> the maximum number of hops that was set for
-                                   the message
-	                       out --> the maximum number of hops to use.  Can
-                                   generally be ignored if you want the maximum
-                                   number of hops to remain unchanged.
-	
-    \return ON_MSG_CONTINUED If ONE-NET should proceed with any further handling
-              of the transaction
-            ON_MSG_IGNORE to ignore this response and treat it at as if it had
-              never been received
-            ON_MSG_SUCCESS, ON_MSG_FAIL, ON_MSG_ABORT, or an
-              application-specific code if this transaction should be
-              terminated prematurely.  The nack reason (if it is to be
-              changed), should be set here because this return code will
-              result in a call to a callback function with both the NACK
-              reason and this return code passed as parameters.
-*/
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t eval_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries);
-#else
-on_message_status_t eval_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries,
-  UInt8 hops, UInt8* const max_hops);
+void print_packet(const UInt8 *TXN_STR, const UInt8 *RX_PLD, UInt16 LEN, 
+                  const one_net_raw_did_t *SRC_ADDR);
+
+void eval_single_txn_status(one_net_status_t STATUS, const UInt8 *DATA, 
+                            const one_net_raw_did_t *DST);
+
+one_net_status_t send_switch_status(UInt8 SWITCH_STATUS, UInt8 SRC_UNIT, 
+                             UInt8 DST_UNIT, const one_net_raw_did_t *DST);
+
+#ifdef _ENABLE_CLIENT_PING_RESPONSE
+    one_net_status_t send_simple_text_command(UInt8 *TEXT, UInt8 SRC_UNIT, 
+        UInt8 DST_UNIT, const one_net_raw_did_t *DST);
 #endif
-
-
-// TODO -- document
-#ifndef _ONE_NET_MULTI_HOP
-void eval_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
-#else
-void eval_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
-#endif
-
-
-
-#ifdef _AUTO_MODE
-one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
-  UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
-#endif
-one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
-  UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 
 
 

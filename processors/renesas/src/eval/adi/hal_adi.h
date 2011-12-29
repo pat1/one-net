@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,6 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "config_options.h"
-#ifdef _HAS_LEDS
-    #include "one_net_led.h"
-#endif
-
 /*!
     \file hal_adi.h
     \brief Processor abstraction layer for the ADI ADF7025.
@@ -45,6 +40,10 @@
     the ADI transceiver.
 */
 
+#include "config_options.h"
+
+
+#include "pal.h"
 
 //=============================================================================
 //                                  CONSTANTS
@@ -82,8 +81,8 @@
 //! \ingroup HAL_ADI
 //! @{
 
-
-void tal_init_ports(void);
+extern void turn_on_tx_led(void);
+extern void turn_on_rx_led(void);
 
 
 /*!
@@ -95,11 +94,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
-#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1; set_rx_led(TRUE)
-#else
-#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1
-#endif
+#define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; int0en = 1; turn_on_rx_led()
 
 
 /*!
@@ -123,11 +118,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
-#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1; set_tx_led(TRUE)
-#else
-#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1
-#endif
+#define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tstart_tracr = 1; turn_on_tx_led()
 
 
 /*!
@@ -139,13 +130,27 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
-#define DISABLE_TX_BIT_INTERRUPTS()  tstart_tracr = 0; set_tx_led(FALSE)
-#else
 #define DISABLE_TX_BIT_INTERRUPTS()  tstart_tracr = 0
-#endif
 
 
+/*!
+    \brief Turns on the RX_LED
+
+    \param void
+
+    \return void
+*/
+#define TURN_ON_RX_LED()            // do nothing
+
+
+/*!
+    \brief Turns off the RX_LED
+
+    \param void
+
+    \return void
+*/
+#define TURN_OFF_RX_LED()           // do nothing
 
 //! @} HAL_ADI_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

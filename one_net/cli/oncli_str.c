@@ -2,7 +2,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -40,269 +40,99 @@
     These strings are to be used in a case insensitive manner.
 */
 
-#include "config_options.h"
-#include "one_net_status_codes.h"
 #include "oncli_str.h"
-#include "one_net_data_rate.h"
-
-
-#if  _DEBUG_VERBOSE_LEVEL > 3
-#include "one_net_acknowledge.h"
-#endif
 
 
 //==============================================================================
 //								CONSTANTS
-//! \defgroup oncli_str_const
+//! \defgroup oncli_str_const 
 //! \ingroup oncli_str
 //! @{
-   
-   
 
 // Application Format
-const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
+#ifdef _CLOCK_OUT_DIVIDE_BY_TWO
+    const char * const ONCLI_STARTUP_FMT = "ONE-NET Clock Test Version %d.%d";
+#else
+    const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
+#endif
 
 //! Tail end of the startup banner, because the va_args does not seem to be able to 
 //! handle more than two arguments.
-//! Oct. 31 -- This appears to no longer be true?  Keeping it as it is though.
-const char * const ONCLI_STARTUP_REV_FMT = ".%d (Build %03d)\n";   
-
-    
-
-// Mode strings
-#ifdef _AUTO_MODE
-//! Auto mode string
-const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
-#endif
-
-#ifdef _SNIFFER_MODE
-//! sniffer string
-const char * const ONCLI_SNIFFER_STR = "SNIFFER";
-#endif
-
-//! Serial mode string
-const char * const ONCLI_SERIAL_MODE_STR = "SERIAL MODE";
+const char * const ONCLI_STARTUP_REV_FMT = ".%d (Build %03d)\n";
 
 
-
-// Device strings
-//! MASTER string
-const char * const ONCLI_MASTER_STR = "MASTER";
-
-//! CLIENT string
-const char * const ONCLI_CLIENT_STR = "CLIENT";
-
-
-
-// Region Strings -- add as more regions are added (so far only US and Europe)
-#ifdef _US_CHANNELS
-//! US argument string
-const char * const ONCLI_US_STR = "US";
-#endif
-
-#ifdef _EUROPE_CHANNELS
-//! European argument string
-const char * const ONCLI_EUR_STR = "EUR";
-#endif
-
-
-
-// Argument strings
-//! set argument string
-const char * const ONCLI_SET_STR = "set";
-
-//! clear argument string
-const char * const ONCLI_CLR_STR = "clr";
-
-//! on argument string
-const char * const ONCLI_ON_STR = "on";
-
-//! off argument string
-const char * const ONCLI_OFF_STR = "off";
-
-//! low argument string
-const char * const ONCLI_LOW_STR = "low";
-
-//! high argument string
-const char * const ONCLI_HIGH_STR = "high";
-
-
-
-// Command Strings
-#ifdef _ENABLE_ECHO_COMMAND
-	//! echo command string
-	const char * const ONCLI_ECHO_CMD_STR = "echo";
-#endif
-
-#ifdef _ENABLE_LIST_COMMAND
-	//! Info command string
-	const char * const ONCLI_LIST_CMD_STR = "list";
-#ifdef _PEER
-	//! Format for printing peers in the CLI list command
-	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
-
-	//! Peer table heading string.
-	const char * const ONCLI_LIST_PEER_TABLE_HEADING = "Peer table:\n";
-
-	//! No peers in table string.
-	const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
-#endif
-#endif
-
-#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
-//! sniff command string
-const char * const ONCLI_SNIFF_CMD_STR = "sniff";
-#endif
-
-#ifdef _ENABLE_SINGLE_COMMAND
-const char* const ONCLI_SINGLE_TXT_CMD_STR = "single text";
-const char* const ONCLI_SINGLE_CMD_STR = "single";
-const char* const ONCLI_STATUS_PIN_CMD_STR = "status pin";
-const char* const ONCLI_QUERY_PIN_CMD_STR = "query pin";
-const char* const ONCLI_FAST_QUERY_PIN_CMD_STR = "fast query pin";
-const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
-#endif
-
-#ifdef _ENABLE_ERASE_COMMAND
-	//! Erase data flash command string
-	const char * const ONCLI_ERASE_CMD_STR = "erase";
-#endif
-
-#ifdef _ENABLE_SAVE_COMMAND
-	//! Save data flash command string
-	const char * const ONCLI_SAVE_CMD_STR = "save";
-#endif
-
-#ifdef _DATA_RATE
-    //! Sets the data rate of a device
-    const char * const ONCLI_SET_DATA_RATE_CMD_STR = "set data rate";
-#endif
-
-#ifdef _ENABLE_USER_PIN_COMMAND
-//! Command to enable or disable user pins
-const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
-#endif
-
-//! input argument string
-const char * const ONCLI_INPUT_STR = "input";
-
-//! output argument string
-const char * const ONCLI_OUTPUT_STR = "output";
-
-//! disable argument string
-const char * const ONCLI_DISABLE_STR = "disable";
-
-
-// Master only commands
-#ifdef _ENABLE_INVITE_COMMAND
-	//! Command to invite a specific CLIENT to join the network.
-	const char * const ONCLI_INVITE_CMD_STR = "invite";
-#endif
-
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
-	//! Cancel Invite command string
-	const char * const ONCLI_CANCEL_INVITE_CMD_STR = "cancel invite";
-#endif
-
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
-	//! Assign peer command string
-	const char * const ONCLI_ASSIGN_PEER_CMD_STR = "assign peer";
-#endif
-
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
-	//! Unassign peer command string
-	const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
-#endif
-
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-	//! Update MASTER command string
-	const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
-#endif
-
-#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-	//! Change keep alive command string
-	const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
-#endif
-
-#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-	//! Change fragment delay string
-	const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
-	  = "change fragment delay";
-#endif
-
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
-	//! Change key command string
-	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change key";
-#endif
-
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
-	//! Remove device command string
-	const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
-#endif
-
-#ifdef _ENABLE_CHANNEL_COMMAND
-	//! Command to restart in MASTER mode on the given channel
-    //! (with an empty network)
-	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
-#endif
-
-#ifdef _ENABLE_JOIN_COMMAND
-	//! Command to restart in CLIENT mode and look for an invite from a MASTER
-	const char * const ONCLI_JOIN_CMD_STR = "join";
-#endif
-
-#ifdef _ENABLE_SETNI_COMMAND
-//! SETNI command string
-const char * const ONCLI_SETNI_CMD_STR = "setni";
-#endif
-
-#ifdef _RANGE_TESTING
-    //! Command to adjust range testing
-    const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
-    
-    //! "add" argument
-    const char* const ADD_STR = "add";
-    
-    //! "remove" argument
-    const char* const REMOVE_STR = "remove";
-    
-    //! "clear" argument
-    const char* const CLEAR_STR = "clear";
-    
-    //! "display" argument
-    const char* const DISPLAY_STR = "display";
-#endif
-
-#ifdef _ONE_NET_MULTI_HOP
-	//! Command set the mh_repeater_avaialable variable true or false.
-	const char * const ONCLI_MH_REPEAT_CMD_STR = "mh_repeat";
-#endif
-
-
-
-// Response Formats
-
-//! Format output to report the channel the device is on
-const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
-
-#ifdef _ONE_NET_MASTER
+// Response formats
 //! Format output when a device successfully joined the network.
 const char * const ONCLI_DEVICE_ADD_FMT
   = "Device %.4s-%.4s added as %03X\n";
 
 //! Format output when a device is not added to the network.
-const char * const ONCLI_DEVICE_NOT_ADDED_FMT
-  = "Device %.4s-%.4s not added.  Invite %s\n";
-#endif
+const char * const ONCLI_ADD_DEVICE_FAILED_FMT
+  = "Device %.4s-%.4s not added\n";
 
-#ifdef _ONE_NET_CLIENT
 //! Format output when a CLIENT successfully joins a network
 const char * const ONCLI_JOINED_FMT = "Successfully joined network as %03X\n";
+
+//! Format output when a data transaction has been received
+const char * const ONCLI_RX_DATA_FMT
+  = "Received %s transaction data from %03X, len %u\n";
+
+//! Format output when a text transaction has been received
+const char * const ONCLI_RX_TXT_FMT
+  = "Received text from %03X:\n%.*s\n";
+
+//! Format output to report the results of a single transaction
+const char * const ONCLI_SINGLE_RESULT_FMT
+  = "Single transaction with %03X; return status: %s\n";
+
+const char * const ONCLI_BLOCK_RESULT_FMT
+  = "Block transaction with %03X; return status: %s\n";
+
+//! Format output to report the results of updating a device's parameters.
+const char * const ONCLI_UPDATE_RESULT_FMT = "Updating %s on %03X %s.\n";
+
+//! Format output to report the results of updating a device's parameters
+//! without displaying a device id.
+const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT = "Updating %s %s.\n";
+
+//! Format output to report results of updating a device's parameters where
+//! there is no string for the parameter
+const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT
+  = "Updating %02X on %032X %s.\n";
+  
+//! Format output to report the results of a data rate test
+const char * const ONCLI_DATA_RATE_TEST_RESULT_FMT
+  = "Device %03X received %u out of %u test transmissions from %03X at %u\n";
+
+//! Format output to report the channel the device is on
+const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
+
+#include "config_options.h"
+#ifdef _NONCES_MATTER
+    const char* const ONCLI_NONCES_MATTER_CMD_STR = "nonces_matter";
+#endif
+#ifdef _PAUSE_TIMER
+    const char* const ONCLI_PAUSE_TIMER_CMD_STR = "pause";
 #endif
 
 
 
-// Reponse Strings
+#ifdef _DEBUG_DELAY
+    const char* const ONCLI_PRINT_DEBUG_DELAY_CMD_STR = "print_debug_delay";
+    const char* const ONCLI_CLEAR_DEBUG_DELAY_CMD_STR = "clear_debug_delay";
+#endif
+
+#ifdef _ONE_NET_DEBUG
+    //! debug format strings
+    const char * const ONCLI_DEBUG_PREFIX_STR = "d[%04x:%02x:";
+    const char * const ONCLI_DEBUG_LENGTH_STR = "%02x:";
+    const char * const ONCLI_DEBUG_BYTE_STR = "%02x ";
+    const char * const ONCLI_DEBUG_SUFFIX_STR = "]\n";
+#endif
+
+
+
+// Response strings
 //! Response sent when the command was successfully parsed.
 const char * const ONCLI_CMD_SUCCESS_STR = "OK\n";
 
@@ -315,42 +145,13 @@ const char * const ONCLI_FAILED_STR = "failed";
 //! String sent to notify that the input is being cleared.
 const char * const ONCLI_CLR_INPUT_STR = "Clearing input\n";
 
-//! Message to output when the channel has not been set yet.
-const char * const ONCLI_CHANNEL_NOT_SELECTED_STR = "channel not selected";
+//! Message output when a MASTER is removing a device from it's table after
+//! the rermove device transaction with the device failed. 
+const char * const ONCLI_M_RM_DEV_ANYWAY_STR
+  = "Removing device from MASTER table anyhow.\n";
 
 //! Message to output when the channel has not been set yet.
-const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
-
-//! Format output to report the results of a single transaction
-const char * const ONCLI_SINGLE_RESULT_FMT
-  = "Single transaction with %03X; return status: %s\n";
-  
-const char* const ONCLI_DEVICE_STATE_FMT = "Unit %d of %003d has state %0004X.\n";
-const char* const ONCLI_CHANGE_PIN_STATE_FMT = "Pin %d has changed to state %d\n";
-
-// Text messages
-//! Format output when a text transaction has been received
-const char * const ONCLI_RX_TXT_FMT
-  = "Received text from %03X:\n%.*s\n";
-  
-
-// Message types
-//! string for a single transaction
-const char * const ONCLI_SINGLE_TXN_STR = "Single";
-
-#ifdef _BLOCK_MESSAGES_ENABLED
-//! string for a block transaction
-const char * const ONCLI_BLOCK_TXN_STR = "Block";
-#endif
-
-#ifdef _STREAM_MESSAGES_ENABLED
-//! string for a stream transaction
-const char * const ONCLI_STREAM_TXN_STR = "Stream";
-#endif
-
-
-
-
+const char * const ONCLI_CHANNEL_NOT_SELECTED_STR = "channel not selected.\n";
 
 
 // Error formats
@@ -360,9 +161,7 @@ const char * const ONCLI_INVALID_CMD_FMT = "Invalid command \"%s\"\n";
 //! Indicates why the command was invalid.
 const char * const ONCLI_CMD_FAIL_FMT = "The \"%s\" command failed - %s\n";
 
-//! String that is output when a command is not valid for a certain device
-//! (i.e. a client attempts to invoke a command reserved for masters or vice
-//! versa.
+//! String that is output when a command
 const char * const ONCLI_INVALID_CMD_FOR_DEVICE_FMT
   = "Invalid command for %s\n";
 
@@ -383,12 +182,6 @@ const char * const ONCLI_RX_INVALID_CH_FMT
 //! Format to indicate the output string is too short
 const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
   = "Buffer is not big enough; have %u, needed %u\n";
-  
-  
-#ifdef _BLOCK_MESSAGES_ENABLED
-const char* const ONCLI_FRAG_DELAY_FMT = "%s fragment delay : %d ms\n";
-#endif
-
 
 
 // Error strings
@@ -422,10 +215,6 @@ const char * const ONCLI_INVALID_DST_STR
 const char * const ONCLI_NEED_TO_JOIN_STR
   = "Device needs to join a network first";
 
-//! String to indicate an invalid key fragment
-const char * const ONCLI_BAD_KEY_FRAGMENT_STR
-  = "Key fragment invalid or already in key";
-
 //! The length of the parameters exceeds the limit.
 const char * const ONCLI_INVALID_CMD_LEN_STR
   = "The command (and parameters) exceeds the max possible length\n";
@@ -439,197 +228,436 @@ const char * const ONCLI_LOAD_FAIL_STR
 const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 
 
-#ifdef _ONE_NET_CLIENT
 //! String to display invite code
-const char * const ONCLI_DISPLAY_INVITE_STR = "Invite code: %.4s-%.4s\n";
+const char * const ONCLI_DISPLAY_INVITE_STR
+  = "Invite code: %.4s-%.4s\n";
+
+// Mode strings
+#ifdef _AUTO_MODE
+	//! Auto mode string
+	const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
+#endif
+
+//! Serial mode string
+const char * const ONCLI_SERIAL_MODE_STR = "SERIAL MODE";
+
+
+// Device strings
+//! MASTER string
+const char * const ONCLI_MASTER_STR = "MASTER";
+
+//! CLIENT string
+const char * const ONCLI_CLIENT_STR = "CLIENT";
+
+#ifdef _SNIFFER_MODE
+	//! sniffer string
+	const char * const ONCLI_SNIFFER_STR = "SNIFFER";
+#endif
+
+// Command strings
+#ifdef _ENABLE_SINGLE_TEXT_COMMAND
+	//! Single text command string
+	const char * const ONCLI_SINGLE_TXT_CMD_STR = "single text";
+#endif
+
+#ifdef _ENABLE_SINGLE_COMMAND
+	//! Single command string
+	const char * const ONCLI_SINGLE_CMD_STR = "single";
 #endif
 
 
-// Data Rate Strings
-const char* const DATA_RATE_STR[ONE_NET_DATA_RATE_LIMIT] =
-{
-    "38,400",
-    "76,800",
-    "115,200",
-    "153,600",
-    "192,000",
-    "230,400"
-};
+#ifdef _ENABLE_SINGLE_APP_COMMANDS
+	//! Set Pin string
+	const char * const ONCLI_SET_PIN_CMD_STR = "set pin";
 
-const char* const CAPABLE_STR = "Capable";
-const char* const NOT_CAPABLE_STR = "Not Capable";
-const char* const TRUE_STR = "True";
-const char* const FALSE_STR = "False";
+	//! Set Value string
+	const char * const ONCLI_SET_VALUE_CMD_STR = "set value";
 
+	//! Status string
+	const char * const ONCLI_STATUS_CMD_STR = "status";
 
-//! ONE-NET Message Status string tables
-const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
-{
-    // Note -- these should correspond to on_message_status_t.  Any
-    // user-defined strings should be added at the end of the list.
-    "", // ON_MSG_DEFAULT_BHVR
-    "", // ON_MSG_CONTINUE
-    "ABORTED", // ON_MSG_ABORT
-    "SUCCESS", // ON_MSG_SUCCESS
-    "FAILED", // ON_MSG_FAIL
-    "",       // ON_MSG_RESPOND
-    "TIMED OUT", // ON_MSG_TIMEOUT
-    "",          // ON_MSG_IGNORE
-    "Internal Error" // ON_MSG_INTERNAL_ERR
-    
-    // Add any strings for user-defined message status codes here
-};
+	//! Status Response string
+	const char * const ONCLI_QUERY_RESPONSE_CMD_STR = "query response";
+
+	//! Query string
+	const char * const ONCLI_QUERY_CMD_STR = "query";
+
+	//! Fast Query string
+	const char * const ONCLI_FAST_QUERY_CMD_STR = "fast query";
+#endif
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef _ENABLE_IDLE_COMMAND
+    //! Idle command string
+	const char * const ONCLI_IDLE_CMD_STR = "idle";
+#endif
 
-//! Format output to report that a client has missed its required check-in.
-const char* const ONCLI_CLIENT_MISS_CHECK_IN_FMT =
-  "Client %03X has missed its keep-alive check-in.\n";
 
-//! Format output to report the results of updating a device's parameters.
-const char * const ONCLI_UPDATE_RESULT_FMT = "Updating %s on %03X %s.\n";
+#ifdef _ENABLE_BLOCK_COMMAND
+	//! Block command string
+	const char * const ONCLI_BLOCK_CMD_STR = "block";
+#endif
 
-//! Format output to report the results of updating a device's parameters
-//! without displaying a device id.
-const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT = "Updating %s %s.\n";
+#ifdef _ENABLE_BLOCK_TEXT_COMMAND
+	//! Block text command string
+	const char * const ONCLI_BLOCK_TXT_CMD_STR = "block text";
+#endif
 
-//! Format output to report results of updating a device's parameters where
-//! there is no string for the parameter
-const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT
-  = "Updating %02X on %032X %s.\n";
-  
-  
-const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR = "DATA RATE";
-const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
+#ifdef _ENABLE_ERASE_COMMAND
+	//! Erase data flash command string
+	const char * const ONCLI_ERASE_CMD_STR = "erase";
+#endif
+
+#ifdef _ENABLE_SAVE_COMMAND
+	//! Save data flash command string
+	const char * const ONCLI_SAVE_CMD_STR = "save";
+#endif
+
+#ifdef _ENABLE_DUMP_COMMAND
+	//! Dump data flash command string
+	const char * const ONCLI_DUMP_CMD_STR = "dump";
+#endif
+
+#ifdef _ENABLE_MEMDUMP_COMMAND
+    const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
+#endif
+
+#ifdef _ENABLE_MEMLOAD_COMMAND
+    const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
+#endif
+
+#ifdef _ENABLE_DISPLAY_CHIP_CONSTANTS_COMMAND
+    const char* const ONCLI_DISPLAY_CHIP_CONSTANTS_CMD_STR = "display_chip_constants";
+#endif
+
+#ifdef _ENABLE_RSINGLE_COMMAND
+	//! Repeat sending messages
+	const char * const ONCLI_RSEND_CMD_STR = "rsingle";
+#endif
+
+#ifdef _ENABLE_RSSI_COMMAND
+	//! Start monitoring RSSI
+	const char * const ONCLI_RSSI_CMD_STR = "rssi";
+#endif
+
+#ifdef _ENABLE_LIST_COMMAND
+	//! Info command string
+	const char * const ONCLI_LIST_CMD_STR = "list";
 #ifdef _PEER
-const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
-const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
-#endif
-const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR = "REPORT TO MASTER";
-#ifdef _BLOCK_MESSAGES_ENABLED
-const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR = "FRAGMENT DELAY(S)";
-#endif
-const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR = "KEEP-ALIVE INTERVAL";
-const char* const ONCLI_M_UPDATE_RESULT_SETTINGS_STR = "SETTINGS";
-const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR = "REMOVE DEVICE";
-const char* const ONCLI_M_UPDATE_RESULT_ADD_DEV_STR = "ADD DEVICE";
+	//! Format for printing peers in the CLI list command
+	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
 
+	//! Peer table heading string.
+	const char * const ONCLI_LIST_PEER_TABLE_HEADING = "Peer table:\n";
+
+	//! No peers in table string.
+	const char * const ONCLI_LIST_NO_PEERS = "  No peers.\n";
+#endif
 #endif
 
 
+// MASTER only command strings
 
-#if _DEBUG_VERBOSE_LEVEL > 3
-const char* const ONCLI_ACK_STR = "ACK";
-const char* const ONCLI_NACK_STR = "NACK";
+#ifdef _ENABLE_INVITE_COMMAND
+	//! Command to invite a specific CLIENT to join the network.
+	const char * const ONCLI_INVITE_CMD_STR = "invite";
+#endif
 
+#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+	//! Cancel Invite command string
+	const char * const ONCLI_CANCEL_INVITE_CMD_STR = "cancel invite";
+#endif
 
-const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
-{
-    "",
-    "FEATURES",
-    "DATA",
-    "VALUE",
-    "TIME MS",
-    "TIMEOUT MS",
-    "SLOW DOWN TIME MS",
-    "SPEED UP TIME MS",
-    "PAUSE TIME MS",
-    "ADMIN MSG",
-    "KEY FRAG",
-    "STATUS" // note : this one isn't valid for NACKs but is included
-                     // for ease of programming.
-};
+#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+	//! Assign peer command string
+	const char * const ONCLI_ASSIGN_PEER_CMD_STR = "assign peer";
+#endif
 
+#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+	//! Unassign peer command string
+	const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
+#endif
 
-// ON_NACK_RSN_NO_RESPONSE_TXN is the largest nack reason with a name.  To add
-// strings, change the size of the array and add them here.  Make sure to
-// also change any other code that might use this array in order to avoid
-// segmentation faults and other problems.
-const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_NO_RESPONSE_TXN*/+ 1] =
-{
-    "No Err",
-    "Nonce Err",
-    "Rsrc Unav",
-    "Intern Err",
-    "Busy TA",
-    "Busy TA Time",
-    "Bad Pos",
-    "Bad Size",
-    "Bad Add",
-    "Inv Max Hop",
-    "Inv Hop",
-    "Inv Peer",
-    "Out of Range",
-    "Route Err",
-    "Inv Data Rate",
-    "No Resp",
-    "Inv Msg ID",
-    "Need Feat",
-    "Features",
-    "Bad CRC",
-    "Bad Key",
-    "",
-    "Unset",
-    "Gen Err",
-    "Inv Len",
-    "Dev Func Err",
-    "Unit Func Err",
-    "Inv Unit",
-    "Mismatch Unit",
-    "Bad Data",
-    "Txn Err",
-    "Max Fail Rch'd",
-    "Busy",
-    "Txn No Resp",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "Not an output" // Eval Board application-specific 
-    
-    // TODO -- this is the main ONE-NET code. We need to make some
-    // application-specific place to store these strings
-};
+#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+	//! Update MASTER command string
+	const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
+#endif
 
+#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	//! Change keep alive command string
+	const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR = "change keep-alive";
+#endif
 
-const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
-  "Handle-->0x%02X(%s)";
+#if defined(_ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND) && defined(_BLOCK_MESSAGES_ENABLED)
+	//! Change fragment delay string
+	const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR
+	  = "change fragment delay";
+#endif
 
+#ifdef _ENABLE_CHANGE_KEY_COMMAND
+	//! Change key command string
+	const char * const ONCLI_CHANGE_KEY_CMD_STR = "change key";
+#endif
 
+#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+	//! Remove device command string
+	const char * const ONCLI_RM_DEV_CMD_STR = "remove device";
+#endif
+
+#ifdef _ENABLE_DATA_RATE_TEST_COMMAND
+	//! Data Rate Test command string
+	const char * const ONCLI_DATA_RATE_TEST_CMD_STR = "data rate test";
+#endif
+
+#ifdef _ENABLE_GET_CHANNEL_COMMAND
+	//! Get Channel command string
+	const char * const ONCLI_GET_CHANNEL_CMD_STR = "get channel";
+#endif
+
+// CLIENT only command strings
+
+#ifdef _ENABLE_USER_PIN_COMMAND
+	//! Command to enable or disable user pins
+	const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
+#endif
+
+// Mode strings strings
+
+#ifdef _ENABLE_JOIN_COMMAND
+	//! Command to restart in CLIENT mode and look for an invite from a MASTER
+	const char * const ONCLI_JOIN_CMD_STR = "join";
+#endif
+
+#ifdef _ENABLE_CHANNEL_COMMAND
+	//! Command to restart in MASTER mode on the given channel (with an empty
+	//! netowrk)
+	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
+#endif
+
+#ifdef _ENABLE_SETNI_COMMAND
+	//! SETNI command string
+	const char * const ONCLI_SETNI_CMD_STR = "setni";
+#endif
+
+#ifdef _SNIFFER_MODE
+	#ifdef _ENABLE_SNIFF_COMMAND
+		//! sniff command string
+		const char * const ONCLI_SNIFF_CMD_STR = "sniff";
+	#endif
+#endif
+
+#ifdef _ENABLE_MODE_COMMAND
+	//! mode command string
+	const char * const ONCLI_MODE_CMD_STR = "mode";
+#endif
+
+#ifdef _ENABLE_ECHO_COMMAND
+	//! echo command string
+	const char * const ONCLI_ECHO_CMD_STR = "echo";
 #endif
 
 
-#ifdef _DEBUGGING_TOOLS
-const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
-const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
-const char* const ONCLI_MEMSET_CMD_STR = "memset";
-const char* const ONCLI_MEMORY_CMD_STR = "memory";
-const char* const ONCLI_PAUSE_CMD_STR = "pause";
-const char* const ONCLI_PROCEED_CMD_STR = "proceed";
-const char* const ONCLI_RATCHET_CMD_STR = "ratchet";
-const char* const ONCLI_INTERVAL_CMD_STR = "interval";
+// Transaction strings
+//! string for a single transaction
+const char * const ONCLI_SINGLE_TXN_STR = "Single";
+
+//! string for a block transaction
+const char * const ONCLI_BLOCK_TXN_STR = "Block";
+
+
+// Argument strings
+//! set argument string
+const char * const ONCLI_SET_STR = "set";
+
+//! clear argument string
+const char * const ONCLI_CLR_STR = "clr";
+
+//! low argument string
+const char * const ONCLI_LOW_STR = "low";
+
+//! high argument string
+const char * const ONCLI_HIGH_STR = "high";
+
+//! toggle argument string
+const char * const ONCLI_TOGGLE_STR = "toggle";
+
+//! input argument string
+const char * const ONCLI_INPUT_STR = "input";
+
+//! output argument string
+const char * const ONCLI_OUTPUT_STR = "output";
+
+//! disable argument string
+const char * const ONCLI_DISABLE_STR = "disable";
+
+//! quiet argument string
+const char * const ONCLI_QUIET_STR = "quiet";
+
+//! verbose argument string
+const char * const ONCLI_VERBOSE_STR = "verbose";
+
+//! on argument string
+const char * const ONCLI_ON_STR = "on";
+
+//! off argument string
+const char * const ONCLI_OFF_STR = "off";
+
+#ifdef _US_CHANNELS
+//! US argument string
+const char * const ONCLI_US_STR = "US";
+#endif
+
+#ifdef _EUROPE_CHANNELS
+//! European argument string
+const char * const ONCLI_EUR_STR = "EUR";
 #endif
 
 
+// Transaction type strings
+//! Single transaction string
+const char * const ONCLI_SINGLE_STR = "Single";
+
+//! Block transaction string
+const char * const ONCLI_BLOCK_STR = "Block";
 
 
-
+//! Admin message format
+const char * const ONCLI_RX_ADMIN_FMT
+  = "Received %s %s message %s\n";
   
+//! Admin string
+const char * const ONCLI_ADMIN_MSG_STR = "Admin";
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! Extended Admin string
+const char * const ONCLI_EXTENDED_ADMIN_MSG_STR = "Extended Admin";
+#endif
+
+//! Admin message string table.
+// If this is updated, need to adjust ONCLI_ADMIN_STR_COUNT
+const char * const ONCLI_ADMIN_STR[ONCLI_ADMIN_STR_COUNT] =
+{
+    "STATUS QUERY",
+    "STATUS RESPONSE",
+    "SETTINGS QUERY",
+    "SETTINGS RESPONSE",
+    "CHANGE SETTINGS",
+    "FRAGMENT DELAY QUERY",
+    "FRAGMENT DELAY RESPONSE",
+    "CHANGE LOW PRIORITY FRAGMENT DELAY",
+    "KEEP ALIVE QUERY",
+    "KEEP ALIVE RESPONSE",
+    "CHANGE KEEP-ALIVE",
+    "NEW KEY FRAGMENT",
+    "ASSIGN PEER",
+    "UNASSIGN PEER",
+    "SEND LOW PRIORITY BLOCK TRANSACTION",
+    "RECEIVE LOW PRIORITY BLOCK TRANSACTION",
+    "SEND LOW PRIORITY STREAM TRANSACTION",
+    "RECEIVE LOW PRIORITY STREAM TRANSACTION",
+    "END STREAM",
+    "INIT DATA RATE TEST",
+    "DATA RATE RESULT",
+    "INVALID PACKET 0",
+    "INVALID PACKET 1",
+    "INVALID PACKET 2",
+    "INVALID PACKET 3",
+    "INVALID PACKET 4",
+    "CHANGE_PEER_DATA_RATE",
+    "CHANGE HIGH PRIORITY FRAGMENT DELAY",
+    "SEND HIGH PRIORITY BLOCK TRANSACTION",
+    "RECEIVE HIGH PRIORITY BLOCK TRANSACTION",
+    "SEND HIGH PRIORITY STREAM TRANSACTION",
+    "RECEIVE HIGH PRIORITY STREAM TRANSACTION",
+    "ASSIGN MULTI-HOP CAPABLE PEER",
+    "STREAM KEY QUERY",
+    "REMOVE DEVICE"
+};
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+//! Extended Admin message string table.
+// If this is updated, need to adjust ONCLI_EXTENDED_ADMIN_STR_COUNT
+const char * const ONCLI_EXTENDED_ADMIN_STR[ONCLI_EXTENDED_ADMIN_STR_COUNT] =
+{
+    "CHANGE STREAM KEY"
+};
+#endif
+
+
+//! Admin message string table.
+// If this is updated, need to adjust ONCLI_M_UPDATE_STR_COUNT
+const char * const ONCLI_M_UPDATE_STR[ONCLI_M_UPDATE_STR_COUNT] =
+{
+    "CLIENT DATA RATE",
+    "PEER DATA RATE",
+    "NETWORK KEY",
+    "ASSIGN PEER",
+    "UNASSIGN PEER",
+    "REPORT TO MASTER",
+    "LOW PRIORITY FRAGMENT DELAY",
+    "HIGH PRIORITY FRAGMENT DELAY",
+    "KEEP-ALIVE INTERVAL",
+    "REMOVE DEVICE"
+};
+
+
+//! ONE-NET Status string tables
+const char * const ONCLI_ONS_STR[] =
+{
+    "SUCCESS",
+    "BAD PARAMETER",
+    "NOT INITIALIZED",
+    "ALREADY IN PROGRESS",
+    "INVALID DATA",
+    "MORE EXPECTED",
+    "COMPLETED",
+    "RESOURCE UNAVAILABLE",
+    "CANCELED",
+    "TIME OUT",
+    "INTERNAL ERROR",
+    "UNHANDLED VERSION",
+    "CRC FAILED",
+    "RECEIVED STAY AWAKE ACK",
+    "RECEIVED NACK",
+	"TRANSMITTED NACK",
+    "INCORRECT NONCE",
+    "SINGLE TRANSACTION COMPLETE",
+    "SINGLE TRANSACTION FAILED",
+    "BLOCK TRANSACTION COMPLETE",
+    "BLOCK TRANSACTION FAILED",
+    "STREAM TRANSACTION COMPLETE",
+    "STREAM TRANSACTION FAILED",
+    "TRANSACTION QUEUED",
+    "TRANSACTION DOES NOT EXIST",
+    "BAD RAW PACKET LEN",
+    "BAD RAW DATA",
+    "BAD ENCODING",
+    "INVALID PACKET TYPE",
+    "INVALID PACKET",
+    "UNHANDLED PACKET",
+    "UNICAST ADDRESS",
+    "MULTICAST ADDRESS",
+    "BROADCAST ADDRESS",
+    "BAD ADRESS FORMAT",
+    "RECEIVED INCORRECT ADDRESS",
+    "NID FAILED",
+    "DID FAILED",
+    "DEVICE LIMIT",
+    "DEVICE HAS NOT JOINED A NETWORK",
+    "READ ERROR",
+    "WRITE ERROR"
+};
 
 //! @} oncli_str_const
 //								CONSTANTS END
 //==============================================================================
 
 //==============================================================================
-//								TYPEDEFS
+//								TYPEDEFS 
 //! \defgroup oncli_str_typedefs
 //! \ingroup oncli_str
 //! @{
-
-
 
 //! @} oncli_str_typedefs
 //								TYPEDEFS END
@@ -644,23 +672,6 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 //! @} oncli_str_pri_var
 //                              PRIVATE VARIABLES END
 //==============================================================================
-
-
-//==============================================================================
-//                              PUBLIC VARIABLES
-//! \defgroup oncli_str_pub_var
-//! \ingroup oncli_str
-//! @{
-
-
-
-
-
-//! @} oncli_str_pub_var
-//                              PUBLIC VARIABLES END
-//==============================================================================
-
-
 
 //==============================================================================
 //						PRIVATE FUNCTION DECLARATIONS
@@ -678,7 +689,6 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 //! \ingroup oncli_str
 //! @{
 
-
 //! @} oncli_str_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
@@ -694,3 +704,4 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 //==============================================================================
 
 //! @} oncli_str
+

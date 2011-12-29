@@ -46,6 +46,7 @@
       updated.
 */
 
+#include "one_net.h"
 #include "one_net_port_specific.h"
 #include "one_net_xtea.h"
 
@@ -115,6 +116,7 @@
 UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN, 
   const UInt16 STARTING_CRC, const UInt8 ORDER)
 {
+#ifdef _ONE_NET_USE_CRC
     // bit by bit algorithm without augmented zero bytes.
     // does not use lookup table, suited for polynom orders between 1...16.
 
@@ -167,6 +169,9 @@ UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN,
     } // for LEN //
 
     return crc & mask;
+#else
+    return 0;
+#endif
 } // one_net_compute_crc //
 
 //! @} one_net_crc_pub_func

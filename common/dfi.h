@@ -3,14 +3,12 @@
 
 #include "config_options.h"
 
-#ifdef _NON_VOLATILE_MEMORY
-
 
 //! \defgroup dfi Data Flash Interface
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -75,8 +73,8 @@ extern UInt8 sim_data_flash[];
 #define DFI_UINT16_TO_ADDR(UINT16)     (&sim_data_flash[UINT16-DF_BLOCK_START])
 #define DFI_ADDR_TO_UINT16(ADDR)       ((ADDR-(&sim_data_flash[0]))+DF_BLOCK_START)
 #else
-#define DFI_UINT16_TO_ADDR(UINT16)     ((UInt8 *) UINT16)
-#define DFI_ADDR_TO_UINT16(ADDR)       ((UInt16) ADDR)
+#define DFI_UINT16_TO_ADDR(UINT16)     (UInt8 *) UINT16
+#define DFI_ADDR_TO_UINT16(ADDR)       (UInt16) ADDR
 #endif
 
 //! @} dfi_const
@@ -117,11 +115,6 @@ typedef enum
 
     //! ONE-NET client settings data
     DFI_ST_ONE_NET_CLIENT_SETTINGS =    0x12,
-
-    #ifdef _PEER
-    //! ONE-NET peer settings data
-    DFI_ST_ONE_NET_PEER_SETTINGS =      0x13,
-    #endif
 
     //! General application data of user defined type 1
     DFI_ST_APP_DATA_1 =                 0x21,
@@ -250,9 +243,5 @@ void dfi_delete_segments_except_for(
 //==========================================================================
 
 //! @} dfi
-
- 
-#endif // ifdef _NON_VOLATILE_MEMORY //
-
 
 #endif // #ifdef _DFI_H //

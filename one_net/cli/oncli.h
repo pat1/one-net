@@ -2,23 +2,11 @@
 #define _ONCLI_H 
 
 
-#include "one_net_types.h"
-#include "oncli_port.h"
-#include "one_net_xtea.h"
-#include "one_net_constants.h"
-#include "one_net_features.h"
-#include "one_net_status_codes.h"
-#if _DEBUG_VERBOSE_LEVEL > 3
-#include "one_net_acknowledge.h"
-#endif
-
-
-
 //! \defgroup oncli ONE-NET Command Line Interface
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -59,22 +47,20 @@
 */
 
 
+#include "config_options.h"
+
+#ifdef _ENABLE_CLI
+
+
+#include "oncli_port.h"
+#include "one_net_types.h"
+
+
 //==============================================================================
 //								CONSTANTS
 //! \defgroup oncli_const 
 //! \ingroup oncli
 //! @{
-
-//! @} oncli_const
-//								CONSTANTS END
-//==============================================================================
-
-//==============================================================================
-//								TYPEDEFS 
-//! \defgroup oncli_typedefs
-//! \ingroup oncli
-//! @{
-
 
 //! States for reading input
 enum
@@ -92,9 +78,15 @@ enum
     ONCLI_RX_PARAM_QUOTE_STATE
 };
 
+//! @} oncli_const
+//								CONSTANTS END
+//==============================================================================
 
-typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
-
+//==============================================================================
+//								TYPEDEFS 
+//! \defgroup oncli_typedefs
+//! \ingroup oncli
+//! @{
 
 //! @} oncli_typedefs
 //								TYPEDEFS END
@@ -106,10 +98,6 @@ typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 //! \ingroup oncli
 //! @{
 
-
-extern BOOL echo_on;
-
-
 //! @} oncli_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
@@ -120,47 +108,44 @@ extern BOOL echo_on;
 //! \ingroup oncli
 //! @{
 
-
-
-#ifdef _DEBUGGING_TOOLS
-void xdump(const UInt8* const ptr, UInt16 len);
-#endif
-
-
 BOOL oncli_user_input(void);
-void oncli_send_msg(const char * const FMT, ...);
-void oncli(void);
+
+void oncli_set_echo(const BOOL ECHO);
+
+const char * oncli_status_str(one_net_status_t STATUS);
+
+void oncli_print_admin_msg(const UInt8 MSG_TYPE, const UInt8 TXN_TYPE,
+  const UInt8 ADMIN_MSG_TYPE, const UInt8 * ADMIN_MSG_DATA, const UInt16 LEN);
+
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
-char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len);
-#ifdef _ONE_NET_CLIENT
-oncli_status_t oncli_print_invite(void);
-#endif
+void oncli_send_msg(const char * const FMT, ...);
 void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
-oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did);
-oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid);
-oncli_status_t oncli_print_data_rates(on_features_t features);
-#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
-oncli_status_t oncli_print_peer_list(void);
-#endif
-oncli_status_t oncli_print_features(on_features_t features);
-oncli_status_t oncli_print_channel(void);
-#ifdef _BLOCK_MESSAGES_ENABLED
-void oncli_print_fragment_delays(void);
+
+#if defined(_NEED_XDUMP) || defined(_ENABLE_DUMP_COMMAND)
+void xdump(UInt8 *pt, UInt16 len);
 #endif
 
+#ifdef _ONE_NET_DUMP
+    BOOL dump_volatile_memory(UInt8* ptr, const UInt16 length);
+#endif
+
+#ifdef _ONE_NET_LOAD
+    BOOL load_volatile_memory(UInt8* ptr);
+#endif
+
+void oncli(void);
+
+UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
+  const UInt16 NUM_ASCII_CHAR);
+  
 BOOL oncli_is_valid_unique_key_ch(const char CH);
 
-const char * oncli_msg_status_str(on_message_status_t status);
-
-#if _DEBUG_VERBOSE_LEVEL > 3
-void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
-void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
-void print_app_payload(const UInt8* const payload, UInt8 pld_len);
-void print_admin_payload(const UInt8* const pld);
-void print_recipient_list(const on_recipient_list_t* const recip_list);
+#ifdef _DEBUG_DELAY
+    void debug_delay_array(const UInt8* const ptr, const UInt16 len);
+    void debug_delay(const char * const FMT, ...);
+	void print_debug_delay(void);
+	void clear_debug_delay(void);
 #endif
-
-
 
 
 //! @} oncli_pub_func
@@ -169,5 +154,7 @@ void print_recipient_list(const on_recipient_list_t* const recip_list);
 
 //! @} oncli
 
+#endif // #ifdef _ENABLE_CLI
 
 #endif // #ifdef _ONCLI_H //
+

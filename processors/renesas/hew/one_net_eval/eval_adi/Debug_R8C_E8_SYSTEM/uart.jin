@@ -1,0 +1,18 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\uart.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,602,1,58,JMP,$cb_bytes_free
+W,624,1,60,JMP,$cb_bytes_queued
+W,646,1,68,JMP,$cb_size
+W,668,1,70,JMP,$cb_size
+W,707,1,90,JSR,$cb_getqueue
+W,779,1,d5,JSR,$cb_putqueue
+W,794,1,eb,JSR,$cb_putqueue
+W,816,1,10a,JSR,$cb_getqueue
+W,868,1,136,JSR,$cb_putqueue
+W,879,1,14a,JSR,$cb_putqueue
+W,912,1,159,JSR,$cb_bytes_queued
+W,918,1,168,JSR,$cb_getqueue
+W,994,1,1a3,JSR,$cb_putqueue

@@ -146,7 +146,7 @@ typedef enum
 */
 #define ENABLE_RX_INTR() re_u0c1 = 1
 
-void uart_init_ports(void);
+void init_ports_uart(void);
 void uart_init(const UInt8 BAUD_RATE, const UInt8 DATA_BITS,
   const UInt8 STOP_BITS, const UInt8 PARITY);
 
@@ -159,7 +159,6 @@ UInt16 uart_tx_buffer_size(void);
 UInt16 uart_read(UInt8 * const data, const UInt16 LEN);
 UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN);
 void uart_write_int8_hex(const UInt8 DATA);
-void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len);
 
 //! @} uart_pub_func
 //                  PUBLIC FUNCTION DECLARATIONS END

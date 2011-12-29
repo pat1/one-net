@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -39,39 +39,43 @@
     This file implements the communications necessary for communicating with the
     ADI ADF7025.  It abstracts the actual processor pin assignments using
     definitions found in io_port_mapping.h.  This file also contains the
-    implementation for the transceiver specific functions.
+    implementation for the transceiver specific functions (such as
+    look_for_packet, one_net_read, one_net_write) declared in
+    one_net_port_specific.h.
 */
 
 #include "config_options.h"
-#include "tal.h"
-#include "tal_adi.h"
+
 #include "hal_adi.h"
 #include "io_port_mapping.h"
-#include "one_net_status_codes.h"
-#include "one_net_channel.h"
-#include "one_net_data_rate.h"
-#include "one_net_features.h"
-#include "one_net_packet.h"
-#include "tick.h"
 #include "one_net_port_specific.h"
-#include "cb.h"
-#include "one_net_encode.h"
-#ifdef _HAS_LEDS
-    #include "one_net_led.h"
-#endif
-#ifdef _DEBUGGING_TOOLS
-    #include "one_net_timer.h"
-    #include "oncli.h"
+#include "tal.h"
+
+
+#if defined(_SNIFFER_FRONT_END)
+    #include "uart.h"
 #endif
 
+// TODO: REMOVE THIS?
+#ifndef ROM
+    #define ROM const
+#endif
+
+
+#ifdef _ENABLE_CLI
+#include "uart.h"
+#endif
+
+
+#ifndef _DATA_RATE
+extern on_base_param_t * on_base_param;
+#endif
 
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup ADI_const
 //! \ingroup ADI
 //! @{
-
-
 
 enum
 {
@@ -80,6 +84,9 @@ enum
 
     //! If the RSSI is below this level, the channel is clear
     RSSI_CLR_LEVEL = -75,
+    
+    //! The base data rate in the list (see data_rate_t in one_net.h)
+    BASE_DATA_RATE = ONE_NET_DATA_RATE_38_4
 };
 
 // transmit/receive register values
@@ -110,7 +117,8 @@ enum
     Bit Rate          =      38.400 kBaud
     Crystal Frequency =      22.118 MHz
 */
-const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
+
+ROM UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 {
 #ifdef _US_CHANNELS
     {0x79, 0x4C, 0x36, 0x40},
@@ -135,7 +143,7 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 };
 
 //! The register settings for setting the desired base frequency.
-const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
+ROM UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
 {
 #ifdef _US_CHANNELS
     {0x79, 0x46, 0x9B, 0x20},       // channel=  US1, frequency= 903.0 MHz
@@ -171,7 +179,6 @@ const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
 #endif
 };
 
-
 /*!
     \brief The register settings for setting the desired data rate.
 
@@ -179,24 +186,16 @@ const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
     data_rate_t in one_net.h for data rates.  The values to set the data rate
     are based on XTAL == 22.1184 Mhz
 */
-const UInt8 DATA_RATE_SETTING[ONE_NET_DATA_RATE_LIMIT][REG_SIZE] =
+ROM UInt8 DATA_RATE_SETTING[ONE_NET_MAX_DATA_RATE - BASE_DATA_RATE + 1][REG_SIZE] =
 {
-    {0x00, 0xdd, 0x09, 0xa3},        // 38400 bps
-    {0x00, 0xdd, 0x03, 0xe3},        // 76800 bps
-    {0x00, 0xdd, 0x03, 0xa3},        // 115200 bps
-    {0x00, 0x00, 0x00, 0x00},        // 153600  bps unachievable -- fill with 0
-    {0x00, 0x00, 0x00, 0x00},        // 192000  bps unachievable -- fill with 0
-    {0x00, 0xdd, 0x01, 0xe3},        // 230400  bps
+    {0x00, 0xdd, 0x09, 0xa3}        // 38400 kbps
 };
-
 
 //! Low battery voltage threshold.  This is used when reading the battery status
 const UInt16 BATTERY_THRESHOLD = 0x003D;
 
 //! Low voltage threshold.  This is used when reading the adcin status
 const UInt16 VOLTAGE_THRESHOLD = 0x0028;
-
-
 
 //! @} ADI_const
 //                                  CONSTANTS END
@@ -218,55 +217,53 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! \ingroup ADI
 //! @{
 
-//! @} ADI_pri_var
-//                              PRIVATE VARIABLES END
-//==============================================================================
-
-
-
-//==============================================================================
-//                              PUBLIC VARIABLES
-//! \defgroup ADI_pub_var
-//! \ingroup ADI
-//! @{
-
-
-//! The current ONE-NET channel
-UInt8 current_channel = 0;
-
 //! index into rx_rf_data
 UInt16 rx_rf_idx = 0;
 
 //! bytes currently in rx_rf_data
 UInt16 rx_rf_count = 0;
 
+#ifdef _SNIFFER_FRONT_END
+UInt16 rx_rf_sent = 0;
+#define SNIFFER_DURATION        5000
+#define SNIFFER_LOOP_START_BYTE 0xF3
+#define SNIFFER_VERSION_BYTE    0xF2
+#define SNIFFER_CHANNEL_BYTE    0xF1
+#define SNIFFER_SYNCDET_BYTE    0xF0
+#define SNIFFER_BAD_PACKET_BYTE 0xF9
+
+#define SNIFFER_VERSION_NUMBER  0x03
+#endif
+
 //! Buffer to receive data from the rf interface
-UInt8 rx_rf_data[ON_MAX_ENCODED_PKT_SIZE] = {0x00};
+#ifdef RECEIVE_TEST
+    UInt8 rx_rf_data[255] = {0x00};
+#else
+    UInt8 rx_rf_data[ONE_NET_MAX_ENCODED_PKT_LEN] = {0x00};
+#endif
 
-//! length of tx_rf_data
-UInt16 tx_rf_len = 0;
+#if ON_RF_TRANSFER == ON_INTERRUPT
+    //! length of TX_RF_DATA
+    UInt16 tx_rf_len = 0;
 
-//! index into tx_rf_data
-UInt16 tx_rf_idx = 0;
+    //! index into TX_RF_DATA
+    UInt16 tx_rf_idx = 0;
 
-//! Buffer to transmit data from the rf interface
-const UInt8 * tx_rf_data;
+    //! Buffer to transmit data from the rf interface
+    const UInt8 * TX_RF_DATA;
 
-//! Masks each bit in a byte in the interrupt routines when data is sent
-//! or received.
-UInt8 bit_mask = 0;
+    //! Masks each bit in a byte in the interrupt routines when data is sent
+    //! or received.
+    UInt8 bit_mask = 0;
+#endif // if ON_RF_TRANSFER == ON_INTERRUPT //
+
+//! The current ONE-NET channel
+static UInt8 current_channel = 0;
 
 
-//! From uart.c.  Used by tal_write_packet to check whether the uart is
-//! clear.
-extern cb_rec_t uart_tx_cb;
-
-
-//! @} ADI_pub_var
-//                              PUBLIC VARIABLES END
+//! @} ADI_pri_var
+//                              PRIVATE VARIABLES END
 //==============================================================================
-
-
 
 //==============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
@@ -274,49 +271,33 @@ extern cb_rec_t uart_tx_cb;
 //! \ingroup ADI
 //! @{
 
+// read a register.  Considered protected and is derived by adi_dbg_code.c.
+UInt16 adi_7025_read(const UInt8 * const MSG);
 
-
+// write to a register
 static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE);
+
+#if ON_RF_TRANSFER == ON_POLLED
+    // This function is actually defined in pal_adi.c since it depends on the
+    // timers and interrupts that have been assigned to the transceiver.
+    void tx_byte(const UInt8 VAL);
+#endif
+
+// calculate dBm
+static UInt16 calc_rssi(const UInt16 READBACK_CODE);
+
 static void turn_off_agc(void);
 static void turn_on_agc(void);
-static UInt16 adi_7025_read(const UInt8 * const MSG);
-static UInt16 calc_rssi(const UInt16 READBACK_CODE);
-static void tal_turn_on_receiver(void);
-static void tal_turn_on_transmitter(void);
-
-
 
 //! @} ADI_pri_func
 //                      PRIVATE FUNCTION DECLARATIONS END
 //==============================================================================
-
-
-
-//==============================================================================
-//                      PUBLIC FUNCTION DECLARATIONS
-//! \defgroup ADI_pub_func
-//! \ingroup ADI
-//! @{
-
-
-UInt16 read_rssi(void);
-
-
-//! @} ADI_pub_func
-//                      PUBLIC FUNCTION DECLARATIONS END
-//==============================================================================
-
-
-
-
 
 //==============================================================================
 //                      PUBLIC FUNCTION IMPLEMENTATION
 //! \defgroup ADI_pub_func
 //! \ingroup ADI
 //! @{
-
-
 
 /*!
     \brief Initializes the ADI transceiver.
@@ -343,9 +324,9 @@ void tal_init_transceiver(void)
     UInt8 msg_count;                   
     UInt8 calibration = 0;
     
-    tal_init_ports();
+    TAL_INIT_PORTS();
 
-    tal_enable_transceiver();
+    ENABLE_TRANSCEIVER();
 
     // write registers after register 0
     for(msg_count = 0; msg_count < NUM_INIT_REGS; msg_count++)
@@ -364,276 +345,61 @@ void tal_init_transceiver(void)
         } // if this is the calibration register //
     } // for each register (or message) //
 
-    init_rf_interrupts(ONE_NET_DATA_RATE_38_4); // initialize to lowest data
-                      // rate.  It can be changed to something higher later.
+    INIT_RF_INTERRUPTS();
 } // tal_init_transceiver //
 
 
-void tal_enable_transceiver(void)
+/*!
+    \brief Sets the transceiver to receive mode
+
+    \param void
+
+    \return void
+*/
+void tal_turn_on_receiver(void)
 {
-    CHIP_ENABLE = 1;
-} // tal_enable_transceiver //
+    UInt8 msg[REG_SIZE];
+
+    // copy register 0 values for the current channel
+    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
+
+    // set transmit/receive bit to transmit
+    // by clearing the TR1 bit
+    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
+    // set the TR1 bit to receive
+    msg[TX_RX_BYTE_IDX] |= TX_RX_RECEIVE; 
+
+    write_reg(msg, TRUE);
+    RF_DATA_DIR = 0;                // set the data line to an input
+} // tal_turn_on_receiver //
 
 
-void tal_disable_transceiver(void)
+/*!
+    \brief Sets the transceiver to transmit mode
+
+    \param void
+
+    \return void
+*/
+void tal_turn_on_transmitter(void)
 {
-    CHIP_ENABLE = 0;
-} // tal_disable_transceiver //
+    UInt8 msg[REG_SIZE];
 
+    // copy register 0 values for the current channel
+    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
 
-BOOL tal_channel_is_clear(void)
-{
-    return (SInt16)read_rssi() < RSSI_CLR_LEVEL;
-} // tal_channel_is_clear //
+    // set transmit/receive bit to transmit
+    // clear the TR1 bit
+    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
+    // set the TR1 bit to transmit
+    msg[TX_RX_BYTE_IDX] |= TX_RX_TRANSMIT; 
 
-
-UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
-{
-    BOOL uart_pause_needed = FALSE;
+    write_reg(msg, TRUE);
+    RF_DATA_DIR = 1;                // set the data line to an output
     
-    #ifdef _DEBUGGING_TOOLS
-    if(pause || ratchet || write_pause)
-    {
-        proceed = FALSE;
-        synchronize_last_tick();
-        #if _DEBUG_VERBOSE_LEVEL > 5
-        oncli_send_msg("\n\nPause : About to write...\n");
-        display_pkt(data, len, NULL, 0, NULL, 0);
-        #elif _DEBUG_VERBOSE_LEVEL > 2
-        oncli_send_msg("\n\nPause : About to write...\n");
-        xdump(data, len);
-        #elif _DEBUG_VERBOSE_LEVEL > 1
-        oncli_send_msg("\n\nWrite PID %02X\n", data[ONE_NET_ENCODED_PID_IDX]);
-        #endif
-    }
-    
-    while(pausing = (pause || (ratchet && !proceed)))
-    {
-        synchronize_last_tick();
-        oncli();
-    }
-    proceed = FALSE;
-    
-    if(write_pause > 0)
-    {
-        pausing = TRUE;
-        ont_set_timer(WRITE_PAUSE_TIMER, write_pause);
-        
-        while(!ont_inactive_or_expired(WRITE_PAUSE_TIMER))
-        {
-            oncli();  // alow the user to enter commands while pausing
-        }
-        #if _DEBUG_VERBOSE_LEVEL > 1
-        oncli_send_msg("Pause done\n");
-        #endif
-        pausing = FALSE;
-    }
-    #endif    
-    
-    
-    tx_rf_idx = 0;
-    tx_rf_data = data;
-    tx_rf_len = len;
-
-    while(cb_bytes_queued(&uart_tx_cb))
-    {
-        uart_pause_needed = TRUE;
-    }
-    if(uart_pause_needed)
-    {
-        #ifdef _DEBUGGING_TOOLS
-        pausing = TRUE;
-        #endif
-        delay_ms(2); // slight pause to let the uart clear so nothing
-                     // gets garbled.
-        #ifdef _DEBUGGING_TOOLS
-        pausing = FALSE;
-        #endif
-    }
-
-    tal_turn_on_transmitter();
-    ENABLE_TX_BIT_INTERRUPTS();
-
-    return len;
-} // tal_write_packet //
-
-
-BOOL tal_write_packet_done()
-{
-    if(tx_rf_idx < tx_rf_len)
-    {
-        return FALSE;
-    } // if not done //
-
-    DISABLE_TX_BIT_INTERRUPTS();
-    tal_turn_on_receiver();
-
-    return TRUE;
-} // tal_write_packet_done //
-
-
-UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
-{
-    UInt16 bytes_to_read;
-    
-    // check the parameters, and check to see if there is data to be read
-    if(!data || !len || rx_rf_idx >= rx_rf_count)
-    {
-        return 0;
-    } // if the parameters are invalid, or there is no more data to read //
-    
-    if(rx_rf_idx + len > rx_rf_count)
-    {
-        // more bytes have been requested than are available, so give the
-        // caller what is available
-        bytes_to_read = rx_rf_count - rx_rf_idx;
-    } // if more by requested than available //
-    else
-    {
-        bytes_to_read = len;
-    } // else read number of bytes requested //
-    
-    one_net_memmove(data, &(rx_rf_data[rx_rf_idx]), bytes_to_read);
-    rx_rf_idx += bytes_to_read;
-    
-    return bytes_to_read;
-}
-
-
-one_net_status_t tal_look_for_packet(tick_t duration)
-{
-    UInt8 blks_to_rx = ON_MAX_ENCODED_PKT_SIZE;
-
-    tick_t end = get_tick_count() + duration;
-
-    tal_turn_on_receiver();   
-
-    rx_rf_count = 0;
-    rx_rf_idx = 0;
-
-    while(!SYNCDET)
-    {   
-        if(get_tick_count() >= end)
-        {
-		    return ONS_TIME_OUT;
-        } // if done looking //
-    } // while no sync detect //
-    
-    #ifdef _HAS_LEDS
-    set_rx_led(TRUE);
-    #endif
-    ENABLE_RX_BIT_INTERRUPTS();
-
-    do
-    {
-        // the id length should be the location in the byte stream where the
-        // PID will be received.  Look for the PID so we know how many bytes
-        // to receive.
-        if(rx_rf_count ==
-          ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_RPTR_DID_IDX + 1)
-        {
-            // All packet size constants below are including the PREAMBLE &
-            // SOF.  Since these cause the sync detect, these won't be read
-            // in, so the packet size that is being read in is shorter, so
-            // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
-            // read is being started.
-            blks_to_rx = get_encoded_packet_len(
-              encoded_to_decoded_byte(rx_rf_data[ONE_NET_ENCODED_PID_IDX - 
-              ONE_NET_ENCODED_RPTR_DID_IDX], FALSE), FALSE);
-            if(blks_to_rx == 0)
-            {
-                // bad packet type
-                DISABLE_RX_BIT_INTERRUPTS();
-                #ifdef _HAS_LEDS
-                set_rx_led(FALSE);
-                #endif
-                return ONS_BAD_PKT_TYPE;
-            }
-        } // if PID read //
-    } while(rx_rf_count < blks_to_rx);
-
-    DISABLE_RX_BIT_INTERRUPTS();
-    #ifdef _HAS_LEDS
-    set_rx_led(FALSE);
-    #endif
-    return ONS_SUCCESS;
-}
-
-
-one_net_status_t tal_set_data_rate(UInt8 data_rate)
-{
-    one_net_status_t status;
-    
-    #ifndef _DATA_RATE
-    if(data_rate != ONE_NET_DATA_RATE_38_4)
-    {
-        return ONS_DEVICE_NOT_CAPABLE;;
-    }
-    #else
-    // all checking for valid data rates occurs BEFORE calling
-    // init_rf_interrupts.  TODO -- should this check happen here
-    // or in the init_rf_interrupts() function?
-    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
-    {
-        // invalid data rate.
-        return ONS_BAD_PARAM;
-    }
-    
-    if(data_rate == ONE_NET_DATA_RATE_153_6 ||
-      data_rate == ONE_NET_DATA_RATE_192_0)
-    {
-        // cannot be achieved by the ADI?
-        // TODO -- confirm this.  Also, is this ALL ADI transceivers or just
-        // one of them?  Perhaps this should not be in adi.c but rather in
-        // tal_adi.c?
-        return ONS_DEVICE_NOT_CAPABLE;
-    }
-    if(!features_data_rate_capable(THIS_DEVICE_FEATURES, data_rate))
-    {
-        return ONS_DEVICE_NOT_CAPABLE;
-    }
-    #endif
-    
-    // TODO - any other tests to do?  To we need to test any
-    // base parameters?  Perhaps the DEVICE can handle this data
-    // rate, but the network master has told it not to operate at this
-    // level for whatever reason.  There are other reasons a device might
-    // reject a request to change to a data rate that it is CAPABLE of
-    // achieving.
-    
-    // temporarily disabling till we get things working more completely.
-    #if 0
-    if((status = init_rf_interrupts(data_rate)) == ONS_SUCCESS)
-    {
-        write_reg(DATA_RATE_SETTING[data_rate], TRUE);
-    } // if the data rate is valid //
-    #else
-    status = ONS_SUCCESS;
-    #endif
-    
-    
-    return status;
-}
-
-
-one_net_status_t tal_set_channel(const UInt8 channel)
-{
-    if(channel < ONE_NET_NUM_CHANNELS)
-    {
-        // see config_options.h.  Make sure _CHANNEL_OVERRIDE and
-        // CHANNEL_OVERRIDE_CHANNEL are defined if overriding the channel
-        // parameter here.  Make sure _CHANNEL_OVERRIDE is NOT defined if
-        // NOT overriding the channel.
-        #ifdef _CHANNEL_OVERRIDE
-        current_channel = CHANNEL_OVERRIDE_CHANNEL
-        #else
-        current_channel = channel;
-        #endif
-        return ONS_SUCCESS;
-    } // if the parameter is valid //
-    
-    return ONS_BAD_PARAM;
-} // tal_set_channel //
+    // give the transmitter some time to be ready to transmit.
+    delay_100s_us(1);
+} // tal_turn_on_transmitter //
 
 
 /*!
@@ -660,7 +426,15 @@ UInt16 read_rssi(void)
 */
 UInt16 read_battery(void)
 {
-    return 0;
+    const UInt8 MSG[REG_SIZE] = {0x00, 0x00, 0x01, 0x57};
+
+    UInt16 battery;
+
+    turn_off_agc();
+    battery = adi_7025_read(MSG) & 0x007F;
+    turn_on_agc();
+
+    return battery;
 } // read_battery //
 
 
@@ -687,12 +461,683 @@ UInt16 read_adc(void)
 } // read_adc //
 
 
-UInt16 read_revision(void)
+/*!
+    \brief  Get the current ONE_NET channel.
+
+    This function is transceiver specific. The ONE-NET channel
+    number is be used to configure the frequency 
+    used by the transceiver.
+
+    \param void
+
+    \return The channel the device is operating on.  This is one of the values
+      from on_channel_t
+
+*/
+UInt8 one_net_get_channel(void)
 {
-    return 0;
-} // read_revision //
+    return current_channel;
+} // one_net_get_channel //
 
 
+/*!
+    \brief Changes the channel the device is on
+
+    \param[in] CHANNEL The channel to change to (0-based).
+
+    \return void
+*/
+void one_net_set_channel(const UInt8 CHANNEL)
+{
+    if(CHANNEL < ONE_NET_NUM_CHANNELS)
+    {
+        current_channel = CHANNEL;
+    } // if the parameter is valid //
+} // one_net_set_channel //
+
+
+// returns TRUE if the channel is clear (declared in one_net_port_specific.h).
+BOOL one_net_channel_is_clear(void)
+{
+    return (SInt16)read_rssi() < RSSI_CLR_LEVEL;
+} // one_net_channel_is_clear //
+
+
+// sets the data rate the transceiver operates at (see one_net_port_specefic.h).
+void one_net_set_data_rate(const UInt8 DATA_RATE)
+{
+    #ifdef _DATA_RATE
+    if(DATA_RATE <= ONE_NET_MAX_DATA_RATE)
+    {
+        write_reg(DATA_RATE_SETTING[DATA_RATE - BASE_DATA_RATE], TRUE);
+    } // if the data rate is valid //
+    #else
+    write_reg(DATA_RATE_SETTING[on_base_param->data_rate - BASE_DATA_RATE],
+        TRUE);
+    #endif
+} // one_net_set_data_rate //
+
+
+#if ON_RF_TRANSFER == ON_POLLED
+
+one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
+{
+    tick_t end;
+
+	UInt8 map;
+    UInt8 blks_to_rx = ONE_NET_MAX_ENCODED_PKT_LEN;
+
+    DISABLE_GLOBAL_INTERRUPTS();
+    TAL_TURN_ON_RECEIVER();
+    ENABLE_RX_BIT_INTERRUPTS();
+
+    rx_rf_idx = 0;
+    rx_rf_count = 0;
+
+    end = one_net_tick() + DURATION;
+
+    while(!SYNCDET)
+    {
+       	POLLED_TICK_UPDATE();
+
+	    if(end < one_net_tick())
+        {
+    	    DISABLE_RX_BIT_INTERRUPTS();
+            ENABLE_GLOBAL_INTERRUPTS();
+		    return ONS_TIME_OUT;
+        } // if timer expired //
+    } // while no sync detect //
+
+    for(; rx_rf_count < blks_to_rx; rx_rf_count++)
+    {
+        for(map = 0x80; map; map >>= 1)
+        {            
+            // wait for DCLK to go high to read the data
+            while(!BIT_CLK);
+
+    	    // read the data
+    	    if(RF_RX_DATA)
+            {
+                rx_rf_data[rx_rf_count] |= map;
+	        }
+	        else
+	        {
+                rx_rf_data[rx_rf_count] &= ~map;
+	        }
+
+	        // check the timer interrupt here since these loops should be a lot
+            // faster than a tick, and this is where we are doing the least
+            // between clock edges, so this would be the place were we would
+            // have the most time
+	        POLLED_TICK_UPDATE();
+	        while(BIT_CLK);
+	    }
+
+        // the id length should be the location in the byte stream where the
+        // PID will be received.  Look for the PID so we know how many bytes
+        // to receive
+        if(rx_rf_count == ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX)
+        {
+            // figure out how much to read
+            switch(rx_rf_data[rx_rf_count])
+            {
+                case MASTER_INVITE_NEW_CLIENT:
+                {
+                    blks_to_rx = ON_ENCODED_INVITE_PKT_LEN;
+                    break;
+                } // MASTER invite new CLIENT case //
+
+                case ONE_NET_ENCODED_SINGLE_DATA_ACK:
+                case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+                case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:  // fall through
+                case ONE_NET_ENCODED_SINGLE_DATA_NACK:  // fall through
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_DATA_ACK:    // fall through
+                case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:   // fall through
+                case ONE_NET_ENCODED_BLOCK_DATA_NACK:   // fall through
+				#endif
+				#ifdef _STREAM_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:	
+				#endif	
+                {
+					blks_to_rx = ON_ACK_NACK_LEN;
+                    break;
+                } // acks/nacks/keep alive case for data packets //
+
+                #ifdef _TRIPLE_HANDSHAKE
+                case ONE_NET_ENCODED_SINGLE_TXN_ACK:    // fall through
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_TXN_ACK:
+				#endif
+                {
+                    blks_to_rx = ON_TXN_ACK_LEN;
+                    break;
+                } // single/block txn ack case //
+				#endif
+
+                case ONE_NET_ENCODED_SINGLE_DATA:       // fall through
+                case ONE_NET_ENCODED_REPEAT_SINGLE_DATA:
+                {
+                    blks_to_rx = ON_ENCODED_SINGLE_DATA_LEN;
+                    break;
+                } // (repeat)single data case //
+                
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_DATA:        // fall through
+                case ONE_NET_ENCODED_REPEAT_BLOCK_DATA: // fall through
+				#ifdef _STREAM_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_STREAM_DATA:
+				#endif
+                {
+                    blks_to_rx = ON_ENCODED_BLOCK_STREAM_DATA_LEN;
+                    break;
+                } // (repeat)block, stream data case //
+				#endif
+                
+                #ifdef _DATA_RATE
+                case ONE_NET_ENCODED_DATA_RATE_TEST:
+                {
+                    blks_to_rx = ON_DATA_RATE_PKT_LEN;
+                    break;
+                } // data rate test case //
+                #endif
+
+                default:
+                {
+		            ENABLE_GLOBAL_INTERRUPTS();
+		            DISABLE_RX_BIT_INTERRUPTS();
+                    return BAD_PKT_TYPE;
+                    break;
+                } // default case //
+            } // switch(rx_rf_data[rx_rf_count]) //
+        }
+    } // while we need more bytes //
+
+    ENABLE_GLOBAL_INTERRUPTS();
+    DISABLE_RX_BIT_INTERRUPTS();
+
+    return SUCCESS;
+} // one_net_look_for_pkt //
+
+#else
+
+one_net_status_t one_net_look_for_pkt(const tick_t DURATION)
+{
+    UInt8 blks_to_rx = ONE_NET_MAX_ENCODED_PKT_LEN;
+
+    tick_t end = one_net_tick() + DURATION;
+
+    TAL_TURN_ON_RECEIVER();   
+
+    rx_rf_count = 0;
+    rx_rf_idx = 0;
+
+    while(!SYNCDET)
+    {   
+        if(one_net_tick() >= end)
+        {
+		    return ONS_TIME_OUT;
+        } // if done looking //
+    } // while no sync detect //
+
+
+
+    ENABLE_RX_BIT_INTERRUPTS();
+
+
+
+
+    do
+    {
+        // the id length should be the location in the byte stream where the
+        // PID will be received.  Look for the PID so we know how many bytes
+        // to receive.
+        if(rx_rf_count == ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX
+          + 1)
+        {
+            // All packet size constants below are including the PREAMBLE &
+            // SOF.  Since these cause the sync detect, these won't be read
+            // in, so the packet size that is being read in is shorter, so
+            // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
+            // read is being started.
+            switch(rx_rf_data[ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX])
+            {
+                case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+                {
+                    blks_to_rx = RX_INVITE_LEN;
+                    break;
+                } // MASTER invite new CLIENT case //
+
+                case ONE_NET_ENCODED_SINGLE_DATA_ACK:            // fall through
+                case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE: // fall through
+                case ONE_NET_ENCODED_SINGLE_DATA_NACK:           // fall through
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_DATA_ACK:             // fall through
+                case ONE_NET_ENCODED_BLOCK_DATA_NACK:            // fall through
+				#endif
+				#ifdef _STREAM_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:          // fall through
+				#endif
+                {
+                    blks_to_rx = RX_DATA_ACK_NACK_LEN;
+                    break;
+                } // acks/nacks/keep alive case for data packets //
+
+                #ifdef _TRIPLE_HANDSHAKE
+                case ONE_NET_ENCODED_SINGLE_TXN_ACK:            // fall through
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_TXN_ACK:
+				#endif
+                {
+                    blks_to_rx = RX_TXN_ACK_LEN;
+                    break;
+                } // single/block txn ack case //
+				#endif
+
+                case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:            // fall through
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
+				#endif
+                {
+                    blks_to_rx = RX_DATA_ACK_NACK_LEN;
+                    break;
+                } // single/block data ack case //
+
+                case ONE_NET_ENCODED_SINGLE_DATA:               // fall through
+                case ONE_NET_ENCODED_REPEAT_SINGLE_DATA:
+                {
+                    blks_to_rx = RX_SINGLE_DATA_LEN;
+                    break;
+                } // (repeat)single data case //
+                
+				#ifdef _BLOCK_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_BLOCK_DATA:                // fall through
+                case ONE_NET_ENCODED_REPEAT_BLOCK_DATA:         // fall through
+				#ifdef _STREAM_MESSAGES_ENABLED
+                case ONE_NET_ENCODED_STREAM_DATA:
+				#endif
+                {
+                    blks_to_rx = RX_BLOCK_STREAM_DATA_LEN;
+                    break;
+                } // (repeat)block, stream data case //
+				#endif
+                
+                #ifdef _DATA_RATE
+                case ONE_NET_ENCODED_DATA_RATE_TEST:
+                {
+                    blks_to_rx = RX_DATA_RATE_TEST_LEN;
+                    break;
+                } // data rate test case //
+                #endif
+
+                default:
+                {
+		            DISABLE_RX_BIT_INTERRUPTS();	
+                    return ONS_BAD_PKT_TYPE;
+                    break;
+                } // default case //
+            } // switch on PID //
+        } // if PID read //
+    } while(rx_rf_count < blks_to_rx);
+
+    DISABLE_RX_BIT_INTERRUPTS();
+    return ONS_SUCCESS;
+} // one_net_look_for_pkt //
+
+#endif // #if/elif ON_RF_TRANSFER for one_net_write_done function //
+
+#ifdef _SNIFFER_FRONT_END
+
+void look_for_all_packets(void)
+{
+    RX_LED = 0;
+    TX_LED = 0;
+
+
+    DISABLE_TX_INTR();
+    ENABLE_TX_INTR();
+
+    u0tbl = SNIFFER_LOOP_START_BYTE;
+    while(!(BOOL)ti_u0c1);
+    
+    u0tbl = SNIFFER_VERSION_BYTE;
+    while(!(BOOL)ti_u0c1);
+    u0tbl = SNIFFER_VERSION_NUMBER;
+    while(!(BOOL)ti_u0c1);
+
+    u0tbl = SNIFFER_CHANNEL_BYTE;
+    while(!(BOOL)ti_u0c1);
+    u0tbl = current_channel;
+    while(!(BOOL)ti_u0c1);
+
+    while (1)
+    {
+        UInt8 blks_to_rx = ONE_NET_MAX_ENCODED_PKT_LEN;
+		#ifdef _AUTO_MODE
+        	UInt8 sw_mode_select_state = SW_MODE_SELECT;
+		#endif
+        UInt8 sw_addr_select1_state = SW_ADDR_SELECT1;
+        UInt8 switch_channels = FALSE;
+        UInt8 send_channel = FALSE;
+
+        tick_t end = one_net_tick() + SNIFFER_DURATION;
+
+        TAL_TURN_ON_RECEIVER();   
+        TX_LED = 0;
+        RX_LED = 1;
+
+        rx_rf_count = 0;
+        rx_rf_sent = 0;
+        rx_rf_idx = 0;
+
+        while(!SYNCDET)
+        {   
+            // TODO: RWM: maybe we should just wait forever listening for the SYNCDET?
+            //if(one_net_tick() >= end)
+            //{
+            //    break;
+            //} // if done looking //
+
+#ifdef _AUTO_MODE
+	        if(SW_MODE_SELECT != sw_mode_select_state)
+            {
+                switch_channels = TRUE;
+                break;
+            }
+#endif
+            if (SW_ADDR_SELECT1 != sw_addr_select1_state)
+            {
+                send_channel = TRUE;
+                break;
+            }
+
+        } // while no sync detect //
+
+        ENABLE_RX_BIT_INTERRUPTS();
+
+        if (switch_channels == TRUE)
+        {
+            current_channel += 1;
+            if (current_channel >= ONE_NET_NUM_CHANNELS)
+            {
+                current_channel = 0;
+            }
+            switch_channels = FALSE;
+			
+			#ifdef _AUTO_MODE
+            	sw_mode_select_state = SW_MODE_SELECT;
+			#endif
+			
+            u0tbl = SNIFFER_CHANNEL_BYTE;
+            while(!(BOOL)ti_u0c1);
+            u0tbl = current_channel;
+            while(!(BOOL)ti_u0c1);
+            delay_100s_us(200);
+            continue;
+        }
+
+        if (send_channel == TRUE)
+        {
+            send_channel = FALSE;
+			#ifdef _AUTO_MODE
+            	sw_addr_select1_state = SW_MODE_SELECT;
+			#endif
+            u0tbl = SNIFFER_CHANNEL_BYTE;
+            while(!(BOOL)ti_u0c1);
+            u0tbl = current_channel;
+            while(!(BOOL)ti_u0c1);
+            delay_100s_us(200);
+            continue;
+        }
+
+        TX_LED = 1;
+        RX_LED = 0;
+        
+        //
+        // send a byte to indicate that SYNCDET 
+        //
+        u0tbl = SNIFFER_SYNCDET_BYTE;
+
+        do
+        {
+            //
+            // see if we have read a full byte
+            //
+            if (rx_rf_count > rx_rf_sent)
+            {
+                // send the current byte out the UART
+                u0tbl = rx_rf_data[rx_rf_sent];
+                rx_rf_sent++;
+            }
+
+            // the id length should be the location in the byte stream where the
+            // PID will be received.  Look for the PID so we know how many bytes
+            // to receive.
+            if(rx_rf_count == ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_DST_DID_IDX
+              + 1)
+            {
+                // All packet size constants below are including the PREAMBLE &
+                // SOF.  Since these cause the sync detect, these won't be read
+                // in, so the packet size that is being read in is shorter, so
+                // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
+                // read is being started.
+                switch(rx_rf_data[ONE_NET_ENCODED_PID_IDX
+                  - ONE_NET_ENCODED_DST_DID_IDX])
+                {
+                    case ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT:
+                    {
+                        blks_to_rx = RX_INVITE_LEN;
+                        break;
+                    } // MASTER invite new CLIENT case //
+
+                    case ONE_NET_ENCODED_SINGLE_DATA_ACK:           // fall through
+                    case ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE:
+                    case ONE_NET_ENCODED_SINGLE_DATA_NACK:          // fall through
+					#ifdef _BLOCK_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_BLOCK_DATA_ACK:            // fall through
+                    case ONE_NET_ENCODED_BLOCK_DATA_NACK:           // fall through
+					#endif
+					#ifdef _STREAM_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_STREAM_KEEP_ALIVE:
+					#endif
+                    {
+                        blks_to_rx = RX_DATA_ACK_NACK_LEN;
+                        break;
+                    } // acks/nacks/keep alive case for data packets //
+					
+					case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
+					#ifdef _BLOCK_MESSAGES_ENABLED
+					case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN: // fall through
+					#endif
+					{
+						blks_to_rx = RX_DATA_ACK_NACK_LEN;
+						break;
+					}
+
+                    #ifdef _TRIPLE_HANDSHAKE
+                    case ONE_NET_ENCODED_SINGLE_TXN_ACK:            // fall through
+					#ifdef _BLOCK_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_BLOCK_TXN_ACK:
+					#endif
+                    {
+                        blks_to_rx = RX_TXN_ACK_LEN;
+                        break;
+                    } // single/block txn ack case //
+					#endif
+
+                    case ONE_NET_ENCODED_SINGLE_DATA:               // fall through
+                    case ONE_NET_ENCODED_REPEAT_SINGLE_DATA:
+                    {
+                        blks_to_rx = RX_SINGLE_DATA_LEN;
+                        break;
+                    } // (repeat)single data case //
+                    
+					#ifdef _BLOCK_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_BLOCK_DATA:                // fall through
+                    case ONE_NET_ENCODED_REPEAT_BLOCK_DATA:         // fall through
+					#ifdef _STREAM_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_STREAM_DATA:
+					#endif
+                    {
+                        blks_to_rx = RX_BLOCK_STREAM_DATA_LEN;
+                        break;
+                    } // (repeat)block, stream data case //
+					#endif
+                    #ifdef _DATA_RATE
+                    case ONE_NET_ENCODED_DATA_RATE_TEST:
+                    {
+                        blks_to_rx = RX_DATA_RATE_TEST_LEN;
+                        break;
+                    } // data rate test case //
+                    #endif
+
+                    case ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN:
+					#ifdef _BLOCK_MESSAGES_ENABLED
+                    case ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN:
+					#endif
+                    {
+                        blks_to_rx = RX_NACK_RSN_LEN;
+                        break;
+                    }
+
+                    default:
+                    {
+                        DISABLE_RX_BIT_INTERRUPTS();
+                        // return ONS_BAD_PKT_TYPE;
+                        u0tbl = SNIFFER_BAD_PACKET_BYTE;
+                        rx_rf_count = blks_to_rx+1;
+                        //break;
+                    } // default case //
+                } // switch on PID //
+            } // if PID read //
+
+            //
+            // see if we have read a full byte since the last time we checked
+            //
+            if (rx_rf_count > rx_rf_sent)
+            {
+                // send the current byte out the UART
+                while(!(BOOL)ti_u0c1);
+                u0tbl = rx_rf_data[rx_rf_sent];
+                while(!(BOOL)ti_u0c1);
+                rx_rf_sent++;
+            }
+        } while(rx_rf_count < blks_to_rx);
+
+        //
+        // send any remaining received bytes
+        //
+        while (rx_rf_count > rx_rf_sent)
+        {
+            // send the current byte out the UART
+            while(!(BOOL)ti_u0c1);
+            u0tbl = rx_rf_data[rx_rf_sent];
+            while(!(BOOL)ti_u0c1);
+            rx_rf_sent++;
+        }
+
+        DISABLE_RX_BIT_INTERRUPTS();
+
+    } // while(1) //
+} // look_for_all_packets //
+
+#endif
+
+
+UInt16 one_net_read(UInt8 * data, const UInt16 LEN)
+{
+    UInt16 bytes_to_read;
+    
+    // check the parameters, and check to see if there is data to be read
+    if(!data || !LEN || rx_rf_idx >= rx_rf_count)
+    {
+        return 0;
+    } // if the parameters are invalid, or there is no more data to read //
+    
+    if(rx_rf_idx + LEN > rx_rf_count)
+    {
+        // more bytes have been requested than are available, so give the
+        // caller what is available
+        bytes_to_read = rx_rf_count - rx_rf_idx;
+    } // if more by requested than available //
+    else
+    {
+        bytes_to_read = LEN;
+    } // else read number of bytes requested //
+    
+    one_net_memmove(data, &(rx_rf_data[rx_rf_idx]), bytes_to_read);
+    rx_rf_idx += bytes_to_read;
+    
+    return bytes_to_read;
+} // one_net_read //
+
+
+#if ON_RF_TRANSFER == ON_POLLED
+    #error "one_net_write needs to be defined for a polled implementation"
+#elif ON_RF_TRANSFER == ON_INTERRUPT
+
+/*!
+    \brief Sends bytes out of the rf interface.
+
+    This function is application specific and will need to be implemented by
+    the application designer.
+
+    \param[in] DATA An array of bytes to be sent out of the rf interface
+    \param[in] LEN The number of bytes to send
+
+    \return The number of bytes sent.
+*/
+
+UInt16 one_net_write(const UInt8 * DATA, const UInt16 LEN)
+{
+#ifdef _ENABLE_CLI
+    // make sure the uart buffer is clear before trying to send
+	while(uart_tx_bytes_free() < uart_tx_buffer_size())
+	{
+		// do nothing
+	}
+	
+	// delay another 2 ms just to make sure, plus add a little more so that uart output can finish
+	delay_ms(2);
+#endif
+
+    tx_rf_idx = 0;
+    TX_RF_DATA = DATA;
+    tx_rf_len = LEN;
+    TAL_TURN_ON_TRANSMITTER();
+    ENABLE_TX_BIT_INTERRUPTS();
+    return LEN;
+} // one_net_write //
+
+#endif // #if/elif ON_RF_TRANSFER for one_net_write function //
+
+
+#if ON_RF_TRANSFER == ON_POLLED
+
+BOOL one_net_write_done(void)
+{
+    #ifdef DEMO_MODE
+        TOGGLE(TX_LED);
+    #endif // idef demo_mode //
+    return TRUE;
+} // one_net_write_done //
+
+#else
+
+BOOL one_net_write_done(void)
+{
+    if(tx_rf_idx < tx_rf_len)
+    {
+        return FALSE;
+    } // if not done //
+
+    DISABLE_TX_BIT_INTERRUPTS();
+    TAL_TURN_ON_RECEIVER();
+
+    return TRUE;
+} // one_net_write_done //
+
+#endif // #if/elif ON_RF_TRANSFER for one_net_write_done function //
 
 //! @} ADI_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
@@ -703,6 +1148,49 @@ UInt16 read_revision(void)
 //! \addtogroup ADI_pri_func
 //! \ingroup ADI
 //! @{
+
+/*!
+    \brief Reads information from the ADI.
+
+    Write the four bytes passed in the array to the registers, then reads two
+    back from the transceiver.  This function is considered protected, and is
+    derived by adi_dbg_code.c.
+
+    \param[in] MSG The information to read.
+
+    \return The information read.
+*/
+UInt16 adi_7025_read(const UInt8 * const MSG)
+{
+    enum
+    {
+        NUM_RESPONSE_BYTE = 2
+    };
+
+    UInt8 resp_byte[NUM_RESPONSE_BYTE];
+    UInt8 byte_count, bit;
+
+    write_reg(MSG, FALSE);
+
+    // manual ignore the first clock cycle.
+    SCLK   = 1;
+    SCLK   = 0;
+    
+    // read the 2 byte response
+    for(byte_count = 0; byte_count < NUM_RESPONSE_BYTE; byte_count++)
+    {
+        resp_byte[byte_count] = 0;
+        for(bit = 0; bit < 8; bit++)
+        {
+            SCLK   = 1;
+            SCLK   = 0;
+            resp_byte[byte_count] = (resp_byte[byte_count] << 1) | SREAD;
+        } // loop to read in each bit of the byte //
+    } // loop to read the bytes //
+
+    SLE = 0;
+    return (((UInt16)resp_byte[0] << 8) | (UInt16)resp_byte[1]);
+} /* adi_7025_read */
 
 
 /*!
@@ -742,75 +1230,8 @@ static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE)
     if(CLR_SLE)
     {
         SLE = 0;
-    } // if clear the SLE flag //    
+    } // if clear the SLE flag //
 } // write_reg //
-
-
-/*!
-    \brief Turns off the agc.
-
-    \param void
-
-    \return void
-*/
-static void turn_off_agc(void)
-{
-} // turn_off_agc //
-
-
-/*!
-    \brief Turns on the agc
-
-    \param void
-
-    \return void
-*/
-static void turn_on_agc(void)
-{
-} // turn_on_agc //
-
-
-/*!
-    \brief Reads information from the ADI.
-
-    Write the four bytes passed in the array to the registers, then reads two
-    back from the transceiver.
-
-    \param[in] MSG The information to read.
-
-    \return The information read.
-*/
-static UInt16 adi_7025_read(const UInt8 * const MSG)
-{
-    enum
-    {
-        NUM_RESPONSE_BYTE = 2
-    };
-
-    UInt8 resp_byte[NUM_RESPONSE_BYTE];
-    UInt8 byte_count, bit;
-
-    write_reg(MSG, FALSE);
-
-    // manual ignore the first clock cycle.
-    SCLK   = 1;
-    SCLK   = 0;
-    
-    // read the 2 byte response
-    for(byte_count = 0; byte_count < NUM_RESPONSE_BYTE; byte_count++)
-    {
-        resp_byte[byte_count] = 0;
-        for(bit = 0; bit < 8; bit++)
-        {
-            SCLK   = 1;
-            SCLK   = 0;
-            resp_byte[byte_count] = (resp_byte[byte_count] << 1) | SREAD;
-        } // loop to read in each bit of the byte //
-    } // loop to read the bytes //
-
-    SLE = 0;
-    return (((UInt16)resp_byte[0] << 8) | (UInt16)resp_byte[1]);
-} /* adi_7025_read */
 
 
 /*!
@@ -823,7 +1244,7 @@ static UInt16 adi_7025_read(const UInt8 * const MSG)
 
     \return The RSSI value in dBm.
 */
-static UInt16 calc_rssi(const UInt16 READBACK_CODE)
+UInt16 calc_rssi(const UInt16 READBACK_CODE)
 {
     UInt16 rssi = READBACK_CODE & 0x007f;
 
@@ -872,61 +1293,43 @@ static UInt16 calc_rssi(const UInt16 READBACK_CODE)
 
 
 /*!
-    \brief Sets the transceiver to receive mode
+    \brief Turns off the agc.
 
     \param void
 
     \return void
 */
-static void tal_turn_on_receiver(void)
+static void turn_off_agc(void)
 {
-    UInt8 msg[REG_SIZE];
+    const UInt8 AGC_OFF[REG_SIZE] = {0x00, 0x0A, 0x78, 0xF9};
 
-    // copy register 0 values for the current channel
-    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
-
-    // set transmit/receive bit to transmit
-    // by clearing the TR1 bit
-    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
-    // set the TR1 bit to receive
-    msg[TX_RX_BYTE_IDX] |= TX_RX_RECEIVE; 
-
-    write_reg(msg, TRUE);
-    RF_DATA_DIR = 0;                // set the data line to an input
-} // tal_turn_on_receiver //
+    write_reg(AGC_OFF, TRUE);
+} // turn_off_agc //
 
 
 /*!
-    \brief Sets the transceiver to transmit mode
+    \brief Turns on the agc
 
     \param void
 
     \return void
 */
-static void tal_turn_on_transmitter(void)
+static void turn_on_agc(void)
 {
-    UInt8 msg[REG_SIZE];
+    const UInt8 AGC_ON[REG_SIZE] = {0x00, 0x02, 0x78, 0xF9};
 
-    // copy register 0 values for the current channel
-    one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
-
-    // set transmit/receive bit to transmit
-    // clear the TR1 bit
-    msg[TX_RX_BYTE_IDX] &= TX_RX_MASK;   
-    // set the TR1 bit to transmit
-    msg[TX_RX_BYTE_IDX] |= TX_RX_TRANSMIT; 
-
-    write_reg(msg, TRUE);
-    RF_DATA_DIR = 1;                // set the data line to an output
-    
-    // give the transmitter some time to be ready to transmit.
-    delay_100s_us(1);   
-} // tal_turn_on_transmitter //
-
-
+    write_reg(AGC_ON, TRUE);
+} // turn_on_agc //
 
 //! @} ADI_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
 
 //! @} ADI
+UInt16 read_revision(void)
+{
+    const UInt8 MSG[REG_SIZE] = {0x00, 0x00, 0x01, 0xf7};
+
+    return adi_7025_read(MSG);
+} // read_revision //
+

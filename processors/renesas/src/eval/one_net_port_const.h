@@ -2,7 +2,11 @@
 #define _ONE_NET_PORT_CONST_H
 
 #include "config_options.h"
-#include "one_net_data_rate.h"
+
+// Test channels.  At least one locale must be defined.
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+	#error "ERROR : At least one locale must be defined.  Both _US_CHANNELS and _EUROPE_CHANNELS are currently undefined.  Please adjust the #define values in the config_options.h file."
+#endif
 
 
 //! \defgroup ONE-NET_port_const Application Specific ONE-NET constants.
@@ -10,7 +14,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -43,9 +47,17 @@
     \file one_net_port_const.h
     \brief Application specific ONE-NET constants.
 
-    These are constants that are specific to each ONE-NET device
+    These are constants that are specific to each ONE-NET device.  This file
+    should be copied to a project specific location and renamed to
+    one_net_port_const.h.
+    
+    \note See one_net.h for the version of the ONE-NET source as a whole.  If
+      any one file is modified, the version number in one_net.h will need to be
+      updated.
 */
 
+#include "one_net.h"
+#include "tick.h"
 
 
 //==============================================================================
@@ -54,152 +66,104 @@
 //! \ingroup ONE-NET_port_const
 //! @{
 
-
 enum
 {
-    //! Time in ms to spend checking for reception of a packet
-    //! (the PREAMBLE & SOF). 10ms
-    ONE_NET_WAIT_FOR_SOF_TIME = 10
+    //! Time in ticks to spend polling for reception of a packet (the PREAMBLE
+    //! & SOF). 10ms
+    ONE_NET_WAIT_FOR_SOF_TIME = MS_TO_TICK(10),
+
+    //! The maximum data rate this device can operate at.
+    ONE_NET_MAX_DATA_RATE = ONE_NET_DATA_RATE_38_4
 };
 
-
-enum
-{
-    //! Maximum number of recipient for any one message.
-    ONE_NET_MAX_RECIPIENTS = 6
-};
-
-
-#ifdef _PEER
-enum
-{
-    //! Size of the peer table
-    ONE_NET_MAX_PEER_UNIT = 8,
-    
-    #ifdef _ONE_NET_CLIENT
-    // subtract one for the actual recipient and another for the master
-    // in case we need to send to it and it isn't already on the list
-    ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 2
-    #else
-    // subtract one for the actual recipient
-    ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 1
-    #endif
-};
-#endif
-
-
-#ifdef _ONE_NET_MULTI_HOP
-enum
-{
-    //! The maximum number of hops
-    ON_MAX_HOPS_LIMIT = 7,
-};
-#endif
-
-
-#ifdef _RANGE_TESTING
-enum
-{
-    //! When Multi-Hop range testing (i.e. declaring devices in and out of
-    //! range when they actually are physically in range, the maximum
-    //! number of in-range devices.
-    RANGE_TESTING_ARRAY_SIZE = 5
-};
-#endif
-
-
-// Note : When experimenting with multi-hop, try changing ONE_NET_MH_LATENCY.
-// If this value is too small, there may be collisions on the repeat.  If
-// you increase this value, be aware that you may also need to increase
-// ONE_NET_RESPONSE_TIME_OUT.
 
 //! Timer related constants
 enum
 {
-    //! Time in ms a device must wait in between checking if a channel is
+    //! Time in ticks a device must wait in between checking if a channel is
     //! clear (5ms)
-    ONE_NET_CLR_CHANNEL_TIME = 5,
-    
-    //! Time in ms a device waits for a response (50ms)
-    ONE_NET_RESPONSE_TIME_OUT = 50,
-    
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    //! Base Fragment delay in ms for low priority transactions (125ms)
-    ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = 125,
+    ONE_NET_CLR_CHANNEL_TIME = MS_TO_TICK(5),
 
-    //! Base Fragment delay in ms for high priority transactions (25ms)
-    ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25,
-    #endif
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    //! Multi-hop retpeater latency -- i.e. estimated time it takes for a
-    //! repeater to forward a message in milliseconds
-    ONE_NET_MH_LATENCY = 5
-    #endif
+    //! Time in ticks a device waits for a response (50ms)
+    ONE_NET_RESPONSE_TIME_OUT = MS_TO_TICK(50),
+
+    //! Time in ticks a device waits for a transaction to end (ACK or new transaction) (100ms)
+    ONE_NET_TRN_END_TIME_OUT = MS_TO_TICK(100),
+	
+	//! Minimum time that must exist between distinct single data messages
+	ONE_NET_DISTINCT_SINGLE_MESSAGE_PAUSE = 4 * ONE_NET_RESPONSE_TIME_OUT,
+
+    //! The base time in ticks for the retransmit delay for low priority
+    //! transactions (10ms)
+    ONE_NET_RETRANSMIT_LOW_PRIORITY_TIME = MS_TO_TICK(10),
+
+    //! The base time in ticks for the retransmit delay for high prioritty
+    //! transactions (2ms)
+    ONE_NET_RETRANSMIT_HIGH_PRIORITY_TIME = MS_TO_TICK(2),
+
+    //! Base Fragment delay in ticks for low priority transactions (125ms)
+    ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = MS_TO_TICK(125),
+
+    //! Base Fragment delay in ticks for high priority transactions (25ms)
+    ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = MS_TO_TICK(25),
+
+    //! Time in ticks to stay awake after receiving a Single Data ACK Stay
+    //! Awake Packet (2s)
+    ONE_NET_STAY_AWAKE_TIME = MS_TO_TICK(2000),
 };
 
-//! The time before timeout of the invite process from beginning of the time
-//! that the invite starts to be accepted until the time all information has
-//! been passed between the master and the new client.  In ms.
-#define INVITE_TRANSACTION_TIMEOUT 10000
+
+//! The frequencies supported by ONE-NET (USA & European)  These need to be 0
+//! based without any gaps.  Whole groups (US & European) need to be included.
+typedef enum
+{
+#ifdef _US_CHANNELS
+    // US frequencies
+    ONE_NET_MIN_US_CHANNEL,                             //!< Min US frequency
+    ONE_NET_US_CHANNEL_1 = ONE_NET_MIN_US_CHANNEL,      //!< 903.0Mhz
+    ONE_NET_US_CHANNEL_2,                               //!< 904.0Mhz
+    ONE_NET_US_CHANNEL_3,                               //!< 905.0Mhz
+    ONE_NET_US_CHANNEL_4,                               //!< 906.0Mhz
+    ONE_NET_US_CHANNEL_5,                               //!< 907.0Mhz
+    ONE_NET_US_CHANNEL_6,                               //!< 908.0Mhz
+    ONE_NET_US_CHANNEL_7,                               //!< 909.0Mhz
+    ONE_NET_US_CHANNEL_8,                               //!< 910.0Mhz
+    ONE_NET_US_CHANNEL_9,                               //!< 911.0Mhz
+    ONE_NET_US_CHANNEL_10,                              //!< 912.0Mhz
+    ONE_NET_US_CHANNEL_11,                              //!< 913.0Mhz
+    ONE_NET_US_CHANNEL_12,                              //!< 914.0Mhz
+    ONE_NET_US_CHANNEL_13,                              //!< 915.0Mhz
+    ONE_NET_US_CHANNEL_14,                              //!< 916.0Mhz
+    ONE_NET_US_CHANNEL_15,                              //!< 917.0Mhz
+    ONE_NET_US_CHANNEL_16,                              //!< 918.0Mhz
+    ONE_NET_US_CHANNEL_17,                              //!< 919.0Mhz
+    ONE_NET_US_CHANNEL_18,                              //!< 920.0Mhz
+    ONE_NET_US_CHANNEL_19,                              //!< 921.0Mhz
+    ONE_NET_US_CHANNEL_20,                              //!< 922.0Mhz
+    ONE_NET_US_CHANNEL_21,                              //!< 923.0Mhz
+    ONE_NET_US_CHANNEL_22,                              //!< 924.0Mhz
+    ONE_NET_US_CHANNEL_23,                              //!< 925.0Mhz
+    ONE_NET_US_CHANNEL_24,                              //!< 926.0Mhz
+    ONE_NET_US_CHANNEL_25,                              //!< 927.0Mhz
+    ONE_NET_MAX_US_CHANNEL = ONE_NET_US_CHANNEL_25,     //!< Max US frequency
+#endif
+#ifdef _EUROPE_CHANNELS    
+    // European frequencies
+    ONE_NET_MIN_EUR_CHANNEL,                            //!< Min European freq.
+    ONE_NET_EUR_CHANNEL_1 = ONE_NET_MIN_EUR_CHANNEL,    //!< 865.8Mhz
+    ONE_NET_EUR_CHANNEL_2,                              //!< 866.5Mhz
+    ONE_NET_EUR_CHANNEL_3,                              //!< 867.2Mhz
+    ONE_NET_MAX_EUR_CHANNEL = ONE_NET_EUR_CHANNEL_3,    //!< Max European freq.
+#endif
+    ONE_NET_NUM_CHANNELS,                               //!< Number of channels
+    ONE_NET_MAX_CHANNEL = ONE_NET_NUM_CHANNELS - 1      //!< Max ONE-NET channel
+} one_net_channel_t;
 
 
 enum
 {
-    //! Number of pins on this device.  The Eval Board contains 4 switches
-    //! so this value is 4.
-    NUM_USER_PINS = 4,
-    
-    //! The number of different unit types this device supports.
-    //! The Eval Board contains only switches, so this value is 1
-    ONE_NET_NUM_UNIT_TYPES = 1,
-    
-    //! Number of units on this device.  The Eval Board contains 4 switches
-    //! so this value is 4.
-    ONE_NET_NUM_UNITS = NUM_USER_PINS
+    SINGLE_DATA_QUEUE_SIZE = 3
 };
-
-
-// uart buffer size
-enum
-{
-    UART_RX_BUF_SIZE = 100,   //!< Size of the uart receive buffer
-    UART_TX_BUF_SIZE = 100    //!< Size of the uart transmit buffer
-};
-
-
-enum
-{
-    SINGLE_DATA_QUEUE_SIZE = /*12*/3,
-    SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE = /*100*/50
-};
-
-
-// data rates -- uncomment any data rates that this device handles.
-// 38,400 must be enabled / uncommented
-#ifndef DATA_RATE_38_4_CAPABLE
-    #define DATA_RATE_38_4_CAPABLE
-#endif
-#ifndef DATA_RATE_76_8_CAPABLE
-    #define DATA_RATE_76_8_CAPABLE
-#endif
-// 115,200 is supposed to be possible, but there is a bug somewhere.
-// TODO - fix
-#ifndef DATA_RATE_115_2_CAPABLE
-//    #define DATA_RATE_115_2_CAPABLE
-#endif
-#ifndef DATA_RATE_153_6_CAPABLE
-//    #define DATA_RATE_153_6_CAPABLE
-#endif
-#ifndef DATA_RATE_192_0_CAPABLE
-//    #define DATA_RATE_192_0_CAPABLE
-#endif
-// 230,400 is supposed to be possible, but there is a bug somewhere.
-// TODO - fix
-#ifndef DATA_RATE_230_4_CAPABLE
-//    #define DATA_RATE_230_4_CAPABLE
-#endif
-
 
 
 //! @} ONE-NET_port_const_const
@@ -211,7 +175,7 @@ enum
 //! \defgroup ONE-NET_port_const_typedefs
 //! \ingroup ONE-NET_port_const
 //! @{
-
+    
 //! @} ONE-NET_port_const_typedefs
 //                                  TYPEDEFS END
 //==============================================================================
@@ -239,3 +203,4 @@ enum
 //! @} ONE-NET_port_specific
 
 #endif // _ONE_NET_PORT_CONST_H //
+

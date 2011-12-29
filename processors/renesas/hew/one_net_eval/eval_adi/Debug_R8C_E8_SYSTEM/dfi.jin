@@ -1,0 +1,9 @@
+#ASFILE
+"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\dfi.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -R8CE -O"C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,1023,1,112,JSR,$write_data_flash
+W,1042,1,12e,JSR,$erase_data_flash
+W,1120,1,16f,JSR,$write_data_flash
+W,1402,1,1ee,JSR,$write_data_flash

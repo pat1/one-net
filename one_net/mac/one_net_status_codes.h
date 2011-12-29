@@ -1,6 +1,8 @@
 #ifndef _ONE_NET_STATUS_CODES_H
 #define _ONE_NET_STATUS_CODES_H
 
+#include "config_options.h"
+
 
 //! \defgroup ONE-NET_status_codes ONE-NET Status Codes
 //! \ingroup ONE-NET
@@ -83,94 +85,57 @@ typedef enum
     ONS_CRC_FAIL,                   //!< [12] Computed crc did not match received
     ONS_RX_STAY_AWAKE,              //!< [13] A Stay Awake ACK was received.
     ONS_RX_NACK,                    //!< [14] Received a NACK
-    ONS_INCORRECT_NONCE,            //!< [15] The received nonce was not correct
+	ONS_TX_NACK,                    //!< [15] Send a NACK
+    ONS_INCORRECT_NONCE,            //!< [16] The received nonce was not correct
 
-    ONS_SINGLE_END,                 //!< [16] The transaction completed successfully
-    ONS_SINGLE_FAIL,                //!< [17] Single transaction failed.
+    ONS_SINGLE_END,                 //!< [17] The transaction completed successfully
+    ONS_SINGLE_FAIL,                //!< [18] Single transaction failed.
 
-    ONS_BLOCK_END,                  //!< [18] Block txn completed successfully
-    ONS_BLOCK_FAIL,                 //!< [19] The block transaction has failed
+    ONS_BLOCK_END,                  //!< [19] Block txn completed successfully
+    ONS_BLOCK_FAIL,                 //!< [20] The block transaction has failed
 
-    ONS_STREAM_END,                 //!< [20] The other side has ended the stream
-    ONS_STREAM_FAIL,                //!< [21] The stream transaction has failed
+    ONS_STREAM_END,                 //!< [21] The other side has ended the stream
+    ONS_STREAM_FAIL,                //!< [22] The stream transaction has failed
 
-    ONS_TXN_QUEUED,                 //!< [22] If a txn has been queued to send back
-    ONS_TXN_DOES_NOT_EXIST,         //!< [23] The transaction does not exist
+    ONS_TXN_QUEUED,                 //!< [23] If a txn has been queued to send back
+    ONS_TXN_DOES_NOT_EXIST,         //!< [24] The transaction does not exist
 
-    ONS_BAD_RAW_PKT_LEN,            //!< [24] Invalid length for a raw message
-    ONS_BAD_RAW_DATA,               //!< [25] The data in a raw block was not valid
-    ONS_BAD_ENCODING,               //!< [26] The encoding was not valid
-    ONS_BAD_PKT_TYPE,               //!< [27] Received an unknown pkt type
-    ONS_BAD_PKT,                    //!< [28] The packet was invalid
-    ONS_UNHANDLED_PKT,              //!< [29] The packet is not being handled
+    ONS_BAD_RAW_PKT_LEN,            //!< [25] Invalid length for a raw message
+    ONS_BAD_RAW_DATA,               //!< [26] The data in a raw block was not valid
+    ONS_BAD_ENCODING,               //!< [27] The encoding was not valid
+    ONS_BAD_PKT_TYPE,               //!< [28] Received an unknown pkt type
+    ONS_BAD_PKT,                    //!< [29] The packet was invalid
+    ONS_UNHANDLED_PKT,              //!< [30] The packet is not being handled
 
-    ONS_UNICAST_ADDR,               //!< [30] Our unicast address.
-    ONS_MULTICAST_ADDR,             //!< [31] Received one of our group addresses
-    ONS_BROADCAST_ADDR,             //!< [32] Received a broadcast address
-    ONS_BAD_ADDR,                   //!< [33] The address format is invalid
-    ONS_INCORRECT_ADDR,             //!< [34] Received sender addr not expected.
-    ONS_NID_FAILED,                 //!< [35] The NID portion of the address failed
-    ONS_DID_FAILED,                 //!< [36] The DID portion of the address failed
+    ONS_UNICAST_ADDR,               //!< [31] Our unicast address.
+    ONS_MULTICAST_ADDR,             //!< [32] Received one of our group addresses
+    ONS_BROADCAST_ADDR,             //!< [33] Received a broadcast address
+    ONS_BAD_ADDR,                   //!< [34] The address format is invalid
+    ONS_INCORRECT_ADDR,             //!< [35] Received sender addr not expected.
+    ONS_NID_FAILED,                 //!< [36] The NID portion of the address failed
+    ONS_DID_FAILED,                 //!< [37] The DID portion of the address failed
     
-    ONS_DEVICE_LIMIT,               //!< [37] The MASTER can't handle anymore devices
-    ONS_NOT_JOINED,                 //!< [38] The device has not joined the network.
+    ONS_DEVICE_LIMIT,               //!< [38] The MASTER can't handle anymore devices
+    ONS_NOT_JOINED,                 //!< [39] The device has not joined the network.
+
+    ONS_READ_ERR,                   //!< [40] Did not read specified number of bytes.
+    ONS_WRITE_ERR,                  //!< [41] Didn't write specified number of bytes.
+	ONS_REBUILD_PKT,                //!< [42] Packet must be rebuilt.
+	ONS_SINGLE_CANCELED,            //!< [43] Single transaction cancelled for whatever reason
+	ONS_BLOCK_CANCELED,             //!< [44] Block transaction cancelled for whatever reason
+	ONS_STREAM_CANCELED,            //!< [45] Stream transaction cancelled for whatever reason
+    ONS_RETRY,                      //!< [46] Some action should be tried again.
     
-    ONS_READ_ERR,                   //!< [39] Did not read specified number of bytes.
-    ONS_WRITE_ERR,                  //!< [40] Didn't write specified number of bytes.
-    ONS_FAIL,                       //!< [41] Generic failure code.
-    ONS_DEVICE_NOT_CAPABLE,         //!< [42] Physical (or logical) device does not
-                                    //!<      have the capability of achieving
-                                    //!<      this request (i.e. a low cost device being
-                                    //!<      requested t change to a very high data rate
-                                    //!<      that its transceiver cannot handle.
-    ONS_PKT_RCVD,                   //!< [43] A packet has been received.
-    ONS_BAD_MSG_ID,                 //!< [44] Packet has an invalid message ID.
-    ONS_BUSY,                       //!< [45] Device is busy with something and cannot service
-                                    //!<      this request right now.  This is similar to, but
-                                    //!<      not identical to ONS_ALREADY_IN_PROGRESS.
-    ONS_BAD_KEY_FRAGMENT,           //!< [46] Key fragment is invalid.
-    ONS_SNGH_INTERNAL_ERR           //!< [47] "Should Not Get Here" in the code internal error. 
+    #ifdef NON_BS_INVITE
+    // Threshold Corporation proprietary software codes
+    ONS_NON_BS_INVITE_IN_PROGRESS,  //!< [47] a non-Blue-Spot Invitation is in progress
+    ONS_NON_BS_INVITE_IDLE,         //!< [48] No non-Blue-Spot Invitations are in progress
+    ONS_NON_BS_INVITE_DEVICE_JOINED,//!< [49] A device has joined as a result of a
+                                    //!<      non-Blue-Spot inviation.
+    #endif
+    
+    ONS_SNGH_INTERNAL_ERR           //!< [50] "Should Not Get Here" in the code internal error. 
 } one_net_status_t;
-
-
-typedef enum
-{
-    ON_STARTUP_SUCCESS, //! startup was successful and is complete
-    ON_STARTUP_IN_PROGRESS, //! startup is in progress
-    ON_STARTUP_FAIL //! startup failed and is complete
-} one_net_startup_status_t;
-
-
-//! Generally set by application data message handlers and the ack/nack
-//! handlers to tell ONE-NET how / whether to proceed with a transaction.
-//! Also used to inform application code of how a transaction concluded
-//! (i.e. success, failure, aborted, etc.)
-typedef enum
-{
-    ON_MSG_DEFAULT_BHVR, //! use default ONE-NET behavior.
-    ON_MSG_CONTINUE, //! continue processing message.
-    ON_MSG_ABORT, //! abort this transaction(note : this status DOES NOT
-                  //! NECESSARILY mean a failure occurred.  Its meaning will
-                  //! depend on the application -- for example it could be
-                  //! interpreted as "I have all the information I need.  No "
-                  //! need to send any more")
-    ON_MSG_SUCCESS, //! Successful completion.  Transaction should terminate.
-    ON_MSG_FAIL, //! Failure.  Transation should terminate.
-    ON_MSG_RESPOND, //! Message should be responded to with an ACK or a NACK.
-    ON_MSG_TIMEOUT, //! Message has timed out.
-    ON_MSG_IGNORE, //! Message should be ignored.  ONE-NET should not send a response.
-               //! This doesn't mean a response won't be sent.  It could be sent
-               //! by the application code later.
-    ON_MSG_INTERNAL_ERR, //! Represents an internal error
-    ON_NUM_MESSAGE_STATUS_CODES,
-    
-    //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to
-    //! be interpreted purely by the application handler.  These codes will
-    //! be user-supplied and vary from application to application.
-    ON_MIN_APPLICATION_STATUS_CODE = ON_NUM_MESSAGE_STATUS_CODES
-} on_message_status_t;
-
-
 
 //! @} ONE-NET_status_codes_typedefs
 //                                  TYPEDEFS END

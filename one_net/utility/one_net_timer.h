@@ -1,8 +1,6 @@
 #ifndef _ONE_NET_TIMER_H
 #define _ONE_NET_TIMER_H
 
-#include "config_options.h"
-
 
 //! \defgroup ONE-NET_TIMER Timer functionality used by ONE-NET
 //! \ingroup ONE-NET_utility
@@ -48,11 +46,12 @@
     
     This module keeps track of the various timers used by ONE-NET, and can be
     used by applications.  Timers are identified by an enumeration, so if an
-    application wants to use this module, it should set its first timer to
+    application wants to use this module, it should set it's first timer to
     NUM_ONE_NET_TIMERS and increment from that point.  The application must
     specify the number of timers used even if it does not use the timer
-    functionality by defining the ONT_NUM_TIMERS variable to the total number of
-    timers used.
+    functionality by defining the NUM_TIMERS variable to the total number of
+    timers used (NUM_ONE_NET_TIMERS if the application is not useing this
+    module).
     
     Unfortuantly, the implementation is tied to the one_net_master and
     one_net_client files since it needs to know how many timers to allocate
@@ -69,6 +68,15 @@
 
 #include "tick.h"
 
+#ifdef _ONE_NET_EVAL
+    #include "one_net_client.h"
+    #include "one_net_master.h"
+#elif defined(_ONE_NET_MASTER) // ifdef _ONE_NET_EVAL //
+    #include "one_net_master.h"
+#else // elif _ONE_NET_MASTER is defined //
+    #include "one_net_client.h"
+#endif // else _ONE_NET_EVAL and _ONE_NET_MASTER are not defined //
+
 
 //==============================================================================
 //                                  CONSTANTS
@@ -76,71 +84,115 @@
 //! \ingroup ONE-NET_TIMER
 //! @{
 
-
-#ifdef _DEBUGGING_TOOLS
-// Note : this will increase!
-#ifdef _ONE_NET_MASTER
-#define NUM_DEBUG_INTERVALS 4
-#else
-#define NUM_DEBUG_INTERVALS 2
-#endif
-#endif
-
-
-
 enum
 {
-    //! General purpose timer
+    //! the number of timers needed for transactions
+    #ifdef _ONE_NET_EVAL
+        // This is the only case where we are allowing a device to contain
+        // both MASTER and CLIENT code.  The transaction timers will be shared
+        // since the device can only run as a MASTER or a CLIENT at a time.
+        // This is to make sure we have enough timers to be shared by both.
+        ONT_TXN_TIMER_COUNT = ON_MASTER_TXN_COUNT > ON_CLIENT_TXN_COUNT
+          ? ON_MASTER_TXN_COUNT : ON_CLIENT_TXN_COUNT
+    #elif defined(_ONE_NET_MASTER) // ifdef _ONE_NET_EVAL //
+        ONT_TXN_TIMER_COUNT = ON_MASTER_TXN_COUNT
+    #else // elif defined(_ONE_NET_MASTER) //
+        ONT_TXN_TIMER_COUNT = ON_CLIENT_TXN_COUNT
+    #endif // else must be a CLIENT //
+};
+
+
+// If additional timers, add them before the #if defined(_ONE_NET_MASTER) ...
+enum
+{
+    //! General purpose timer (shared to save resources)
     ONT_GENERAL_TIMER = ONT_NUM_APP_TIMERS,
-    
-    //! Timer to check for a clear channel
-    ONT_CLR_CHANNEL_TIMER,
-    
-    ONT_SINGLE_TIMER,
-    
-    ONT_RESPONSE_TIMER,
-    
-    ONT_INVITE_TIMER,
 
-    #ifdef _ONE_NET_MASTER
-    ONT_INVITE_SEND_TIMER,
-    #endif
-
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    ONT_BLOCK_TIMER,
-    #endif
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    ONT_STREAM_TIMER,
-    #endif
-
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
     //! The number of multi-hop packets that need a timer.
-    ONT_MH_TIMER,
+    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        ONT_MH_TIMER,
     #endif // ifdef _ONE_NET_MH_CLIENT_REPEATER //
-
-    #ifdef _ONE_NET_MASTER
-    //! Timer used for key changes
-    ONT_UPDATE_TIMER,
-    #endif
+	
+    #if defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL) || defined(_ENHANCED_INVITE)
+        //! Timer to know when to abort the invite process.  This is also used
+        //! when the MASTER creates a network.
+        ONT_INVITE_TIMER,
+	#endif
+	
+	//! Timer used to determine when two duplicate messages are actually different messages
+	//! as opposed to repeats of the same message
+	ONT_DISTINCT_SINGLE_TIMER,
+	
+    #if defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL)
+        //! Timer used to attempt to send a key change message to a different
+        //! device.  To save space, this is also reused when the MASTER is
+        //! creating the network since the two operations are mutually exclusive
+        ONT_CHANGE_KEY_TIMER,
+		
+		#ifdef _STREAM_MESSAGES_ENABLED
+        //! Timer used to attempt to send a change stream key message to a
+        //! different device.
+        ONT_CHANGE_STREAM_KEY_TIMER,
+		#endif
+        
+        //! Timer used for the data rate test.
+        ONT_DATA_RATE_TEST_TIMER,
+        
+        // Add any timers above this value.  This is used in the eval case when
+        // both the MASTER and CLIENT are in the same device, so some of the
+        // timers are shared
+        #ifdef _ONE_NET_EVAL
+            // The timer where the transaction timers would start for the MASTER
+            ONT_M_TXN_START,
+        #endif // ifdef _ONE_NET_EVAL //
+    #endif // if a MASTER //
     
-    #ifdef _ONE_NET_CLIENT
-    //! Timer for CLIENT to know when to send a Keep Alive
-    ONT_KEEP_ALIVE_TIMER,
+    #if !defined(_ONE_NET_MASTER) || defined(_ONE_NET_EVAL)
+        // if it is an eval board that contains both the MASTER and the CLIENT,
+        // reuse the same timers declared by the MASTER since the MASTER and
+        // CLIENT can't run at the same time.
+        #ifdef _ONE_NET_EVAL
+            //! Timer for CLIENT to know when to send a Keep Alive
+            ONT_KEEP_ALIVE_TIMER = ONT_INVITE_TIMER,
+        #else // ifdef _ONE_NET_EVAL //
+            ONT_KEEP_ALIVE_TIMER,
+        #endif // else _ONE_NET_EVAL is not defined //
 
-    #ifdef _DEVICE_SLEEPS
-    //! Timer for the period the CLIENT should stay awake after receiving
-    //! a Single Data ACK Stay Awake.
-    ONT_STAY_AWAKE_TIMER,
-    #endif // ifdef _DEVICE_SLEEPS //
-    #endif // ifdef _ONE_NET_CLIENT //
-    
-    #ifdef _DEBUGGING_TOOLS
-    WRITE_PAUSE_TIMER,
-    #endif
+        //! Timer for the period the CLIENT should stay awake after receiving
+        //! a Single Data ACK Stay Awake.
+        ONT_STAY_AWAKE_TIMER,
+
+        #if defined(_STREAM_MESSAGES_ENABLED)
+            //! Timer for CLIENT to query for the stream key
+            ONT_STREAM_KEY_TIMER,
+        #endif // if _STREAM_MESSAGES_ENABLED is defined //
+        
+        // Add any timers above this value.  This is used in the eval case when
+        // both the MASTER and CLIENT are in the same device, so some of the
+        // timers are shared
+        #ifdef _ONE_NET_EVAL
+            // The timer where the transaction timers would start for the CLIENT
+            ONT_C_TXN_START,
+        #endif // ifdef _ONE_NET_EVAL //
+    #endif // ifndef _ONE_NET_MASTER || defined(_ONE_NET_EVAL) //
+
+#if defined(BLUE_SPOT_DEVICE)
+        //! Timer used when powering on the Blue Spot PIC
+        ONA_BS_PIC_POWER,
+
+        //! Timer used when powering down the Blue Spot PIC
+        ONA_SAVING_NV_DATA_TIMER,
+#endif
+   
+    #ifdef _ONE_NET_EVAL
+        ONT_FIRST_TXN_TIMER = ONT_M_TXN_START > ONT_C_TXN_START
+          ? ONT_M_TXN_START : ONT_C_TXN_START,
+    #else // ifdef _ONE_NET_EVAL //
+        ONT_FIRST_TXN_TIMER,
+    #endif // else _ONE_NET_EVAL is not defined //
 
     //! The total number of timers in use
-    ONT_NUM_TIMERS
+    ONT_NUM_TIMERS = ONT_FIRST_TXN_TIMER + ONT_TXN_TIMER_COUNT
 };
 
 //! @} ONE-NET_TIMER_const
@@ -152,17 +204,6 @@ enum
 //! \defgroup ONE-NET_TIMER_typedefs
 //! \ingroup ONE-NET_TIMER
 //! @{
-
-
-/*!
-    \brief Represents a timer
-*/
-typedef struct
-{
-    BOOL active;                    //!< Flag to indicate if active(TRUE).
-    tick_t tick;                    //!< number of ticks remaining
-} ont_timer_t;
-
     
 //! @} ONE-NET_TIMER_typedefs
 //                                  TYPEDEFS END
@@ -173,45 +214,6 @@ typedef struct
 //! \defgroup ONE-NET_TIMER_pub_var
 //! \ingroup ONE-NET_TIMER
 //! @{
-    
-    
-//! Array to keep track of the timers.
-extern ont_timer_t timer[];
-
-
-// debugging tools for timers -- revert to #defines for chips NOT using these
-// debugging tools.  If the debugging tool are used, these are adjustable
-// variables that can be changed during run-time from a user interface.
-#ifdef _DEBUGGING_TOOLS
-extern UInt32* debug_intervals[];
-extern UInt32 one_net_response_time_out; // 0
-extern UInt32 write_pause; // 1
-extern UInt32 one_net_master_invite_send_time; // 2
-extern UInt32 one_net_master_channel_scan_time; // 3
-
-
-
-// global variables used to pause and step-through code, adjustable via
-// CLI
-extern BOOL pause;
-extern BOOL proceed;
-extern BOOL ratchet;
-extern BOOL pausing;
-
-#else
-
-// not using the debugging tools, but we've replaced the "constants" in the
-// code so we could use them for the debugging tools.  Define those variables
-// as constants with #define statements so things work like they are supposed
-// to.
-#define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
-#ifdef _ONE_NET_MASTER
-#define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
-#define one_net_master_channel_scan_time ONE_NET_MASTER_INVITE_SEND_TIME
-#endif
-
-#endif
-
 
 //! @} ONE-NET_TIMER_pub_var
 //                              PUBLIC VARIABLES END
@@ -223,7 +225,6 @@ extern BOOL pausing;
 //! \ingroup ONE-NET_TIMER
 //! @{
 
-
 BOOL ont_set_timer(const UInt8 TIMER, const tick_t DURATION);
 tick_t ont_get_timer(const UInt8 TIMER);
 BOOL ont_stop_timer(const UInt8 TIMER);
@@ -232,11 +233,10 @@ BOOL ont_active(const UInt8 TIMER);
 BOOL ont_expired(const UInt8 TIMER);
 BOOL ont_inactive_or_expired(const UInt8 TIMER);
 
-
-#ifdef _DEBUGGING_TOOLS
-void print_timers(void);
-void print_intervals(void);
-void synchronize_last_tick(void);
+#ifdef _DEBUG_DELAY
+void set_time_zero(void);
+tick_t get_time_expired(void);
+void debug_time_expired(void);
 #endif
 
 

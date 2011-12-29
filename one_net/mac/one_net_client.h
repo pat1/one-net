@@ -9,7 +9,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,8 @@
       updated.
 */
 
+#include "one_net_client_port_const.h"
+#include "one_net_port_const.h"
 #include "one_net.h"
 
 
@@ -57,6 +59,40 @@
 //! \defgroup ONE-NET_CLIENT_const
 //! \ingroup ONE-NET_CLIENT
 //! @{
+
+enum
+{
+    // This is necessary for the one_net_timer to initialize the correct number
+    // of timers.  This value counts the number of transactions defined by the
+    // one_net_client (single_txn, block_txn, stream_txn, etc).
+#if /*defined(_BLOCK_MESSAGES_ENABLED)*/1
+        //! How many txn_t the CLIENT has declared that need a timer.
+        // single_txn, block_txn, stream_txn, response_txn
+		#ifdef _STREAM_MESSAGES_ENABLED
+        ON_CLIENT_TXN_COUNT = 4,
+		#else
+        ON_CLIENT_TXN_COUNT = 3,
+		#endif
+        
+        //! Offset from ONT_FIRST_TXN_TIMER for single transaction timer
+        ON_CLIENT_SINGLE_TXN_TIMER_OFFSET = 0,
+        
+        //! Offset from ONT_FIRST_TXN_TIMER for block transaction timer
+        ON_CLIENT_BLOCK_TXN_TIMER_OFFSET,
+        
+		#ifdef _STREAM_MESSAGES_ENABLED
+        //! Offset from ONT_FIRST_TXN_TIMER for stream transaction timer
+        ON_CLIENT_STREAM_TXN_TIMER_OFFSET,
+		#endif
+        
+        //! Offset from ONT_FIRST_TXN_TIMER for the response transaction timer
+        ON_CLIENT_RESPONSE_TXN_TIMER_OFFSET
+    #else // ifdef _BLOCK_MESSAGES_ENABLED //
+        //! How many txn_t the CLIENT has declared that need a timer.
+        // transaction timers are not needed for simple CLIENTs
+        ON_CLIENT_TXN_COUNT = 0
+    #endif // else _BLOCK_MESSAGES_ENABLED is mnot defined //
+};
 
 //! @} ONE-NET_CLIENT_const
 //                                  CONSTANTS END
@@ -68,6 +104,45 @@
 //! \ingroup ONE-NET_CLIENT
 //! @{
 
+//! Data needed to communicate with the MASTER
+typedef struct
+{
+    //! Contains the MASTER did, and nonce expected to receive from the MASTER
+    on_sending_device_t device;
+
+    //! Interval at which the device must communicate with the MASTER
+    tick_t keep_alive_interval;
+
+    struct
+    {
+        //! Data rate the MASTER receives at
+        UInt8 master_data_rate;
+
+        //! Bitmap of communication and MASTER settable flags
+        //! (sent in the SETTINGS admin message).
+        UInt8 flags;
+    } settings;
+} on_master_t;
+
+//! The structure that holds the fields needed by one_net_client_join_network
+typedef struct
+{
+    one_net_channel_t   channel; 
+    one_net_xtea_key_t  current_key;
+    UInt8               single_block_encrypt_method;
+    on_data_rate_t      data_rate;
+    one_net_raw_sid_t   raw_sid;
+    one_net_raw_did_t   raw_master_did;
+    on_data_rate_t      master_data_rate;
+    tick_t              keep_alive_interval;
+#ifdef _BLOCK_MESSAGES_ENABLED
+    tick_t              fragment_delay_low;
+    tick_t              fragment_delay_high;
+    one_net_xtea_key_t  stream_key;
+    UInt8               stream_encrypt_method;
+#endif
+
+} one_net_client_join_network_data_t;
 
 
 //! @} ONE-NET_CLIENT_typedefs
@@ -80,19 +155,22 @@
 //! \ingroup ONE-NET_CLIENT
 //! @{
 
+// see one_net_client.h for declarations and descriptions of the variables below.
+
+#if defined(_ENHANCED_INVITE) && !defined(_IDLE)
+    #error "ERROR : _IDLE must be defined if _ENHANCED_INVITE is defined.  Please adjust the #define values in the config_options.h file."
+#endif
 
 extern BOOL client_joined_network;
 extern BOOL client_looking_for_invite;
-extern on_master_t * const master;
+extern const int CLIENT_NV_PARAM_SIZE_BYTES;
+
 
 #ifdef _ENHANCED_INVITE
     extern BOOL client_invite_timed_out;
 	extern one_net_channel_t low_invite_channel;
 	extern one_net_channel_t high_invite_channel;	
 #endif
-
-
-extern on_sending_dev_list_item_t sending_dev_list[];
 
 
 //! @} ONE-NET_CLIENT_pub_var
@@ -135,25 +213,41 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 #endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 
-#ifndef _PEER
-one_net_status_t one_net_client_init(const UInt8 * const param,
-  const UInt16 param_len);
-#else
-one_net_status_t one_net_client_init(const UInt8 * const param,
-  const UInt16 param_len, const UInt8* const peer_param,
-  const UInt16 peer_param_len);
+one_net_status_t one_net_client_init(const UInt8 * const PARAM,
+  const UInt16 PARAM_LEN);
+
+void one_net_copy_to_nv_param(const UInt8 *param, UInt16 len);
+
+void one_net_client_raw_master_did(one_net_raw_did_t * const master_did);
+
+one_net_status_t one_net_client_send_single(UInt8 *data,
+  UInt8 DATA_LEN, BOOL send_to_peer_list, UInt8 PRIORITY,
+  const one_net_raw_did_t *RAW_DST, UInt8 SRC_UNIT,
+  tick_t* send_time_from_now, tick_t* expire_time_from_now);
+
+one_net_status_t on_client_handle_ack_nack_response(on_txn_t* const txn,
+	const one_net_raw_did_t* const src_did, on_nack_rsn_t* const nack_reason,
+	on_ack_nack_handle_t* const ack_nack_handle,
+	ack_nack_payload_t* const ack_nack_payload);
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+    one_net_status_t one_net_client_block_stream_request(const UInt8 TYPE,
+      const BOOL SEND, const UInt16 DATA_TYPE, const UInt16 LEN,
+      const UInt8 PRIORITY, const one_net_raw_did_t * const DID,
+      const UInt8 SRC_UNIT);
+#endif // ifdef _BLOCK_MESSAGES_ENABLED //
+#ifdef _STREAM_MESSAGES_ENABLED
+    one_net_status_t one_net_client_end_stream(void);
+    void one_net_client_stream_key_query(void);
 #endif
+one_net_status_t one_net_client_join_network(one_net_client_join_network_data_t *DATA);
 
 tick_t one_net_client(void);
 
-
-#ifndef _PEER
-int client_nv_crc(const UInt8* param, int param_len);
-#else
-int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len);
+#ifdef _ONE_NET_EVAL
+    UInt8 one_net_client_get_channel(void);
 #endif
-
 
 
 //! @} ONE-NET_CLIENT_pub_func

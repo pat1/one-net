@@ -1,0 +1,223 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:27 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\str.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/str.c", "C:/HEWProj/2_0_trunk/common/string/str"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/processors/renesas/hew/one_net_eval/../../src/common/one_net_types.h", "C:/HEWProj/2_0_trunk/common/string/str"
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/str.h", "C:/HEWProj/2_0_trunk/common/string/str"
+	._inspect	'F', 'p', "ascii_hex_to_nibble", "$ascii_hex_to_nibble", 'G', 85, 0, 00h, 0
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/ctype.h", "C:/HEWProj/2_0_trunk/common/string/str"
+	._inspect	'V', 'e', "_ctype", 'G', 34, 0, 0, 0, 00h
+	._inspect	'F', 'p', "isalnum", "$isalnum", 'G', 50, 0, 00h, 0
+	._inspect	'F', 'p', "isalpha", "$isalpha", 'G', 51, 0, 00h, 0
+	._inspect	'F', 'p', "iscntrl", "$iscntrl", 'G', 52, 0, 00h, 0
+	._inspect	'F', 'p', "isdigit", "$isdigit", 'G', 53, 0, 00h, 0
+	._inspect	'F', 'p', "isgraph", "$isgraph", 'G', 54, 0, 00h, 0
+	._inspect	'F', 'p', "islower", "$islower", 'G', 55, 0, 00h, 0
+	._inspect	'F', 'p', "isprint", "$isprint", 'G', 56, 0, 00h, 0
+	._inspect	'F', 'p', "ispunct", "$ispunct", 'G', 57, 0, 00h, 0
+	._inspect	'F', 'p', "isspace", "$isspace", 'G', 58, 0, 00h, 0
+	._inspect	'F', 'p', "isupper", "$isupper", 'G', 59, 0, 00h, 0
+	._inspect	'F', 'p', "isxdigit", "$isxdigit", 'G', 60, 0, 00h, 0
+	._inspect	'F', 'p', "toupper", "$toupper", 'G', 61, 0, 00h, 0
+	._inspect	'F', 'p', "tolower", "$tolower", 'G', 62, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/str.c", "C:/HEWProj/2_0_trunk/common/string/str"
+
+;## #	FUNCTION ascii_hex_to_nibble
+;## #  REGISTER ARG    (   ASCII)   size   1,   REGISTER R1L
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+
+	.SECTION	program_high_rom,CODE
+	._inspect	'U', 2, "program_high_rom", "program", 1
+	._file	'C:/HEWProj/2_0_trunk/common/string/str.c'
+	._type	256,'T','UInt8',3
+	._type	257,'x',256,1
+	._type	257,'m','ASCII',0,3
+	._func	'ascii_hex_to_nibble','G',0,257,$ascii_hex_to_nibble,0
+	._inspect	'F', 's', "ascii_hex_to_nibble", "$ascii_hex_to_nibble", 'G', 3
+	._block
+	._line	108
+;## # C_SRC :	{
+	.glb	$ascii_hex_to_nibble
+$ascii_hex_to_nibble:
+	._block
+	._var	'ASCII','R',3,3
+	._eblock
+	._block
+	._var	'ASCII','A',3,0
+	._block
+	._var	'ASCII','R',3,3
+	._line	109
+;## # C_SRC :	    if(!isxdigit(ASCII))
+	mov.b	R1L,A0
+	lde.b	__ctype+1[A0],R0L
+	btst	07H,R0
+	jne	L1
+	._eblock
+	._line	110
+	._block
+	._line	111
+;## # C_SRC :	        return 0xFF;
+	mov.b	#0ffH,R0L
+	rts	
+	._eblock
+L1:
+	._block
+	._var	'ASCII','R',3,3
+	._line	114
+;## # C_SRC :	    if(ASCII <= '9')
+	cmp.b	#39H,R1L	;  ASCII 
+	jgtu	L9
+	._eblock
+	._line	115
+	._block
+	._block
+	._var	'ASCII','R',3,3
+	._line	116
+;## # C_SRC :	        return ASCII - '0';
+	mov.b	R1L,R0L	;  ASCII  ASCII 
+	._eblock
+	sub.b	#30H,R0L
+	rts	
+	._eblock
+L9:
+	._block
+	._var	'ASCII','R',3,3
+	._line	119
+;## # C_SRC :	    return (ASCII | 0x20) - 'a' + 0x0A;
+	mov.b	R1L,R0L	;  ASCII  ASCII 
+	._eblock
+	or.b	#20H,R0L
+	add.b	#0a9H,R0L
+	rts	
+E1:
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "ascii_hex_to_nibble", "$ascii_hex_to_nibble", 'G', 108, 0, 00h, 0
+	._inspect	'F', 't', "ascii_hex_to_nibble", 'G', 257
+	._inspect	'V', 'r', "_ctype", 'G', 109, 0, 0, 0, 00h
+	._inspect	'F', 'e', "ascii_hex_to_nibble", "$ascii_hex_to_nibble", 'G', 0, 0
+
+	.glb	__ctype
+	.glb	$isalnum
+	.glb	$isalpha
+	.glb	$iscntrl
+	.glb	$isdigit
+	.glb	$isgraph
+	.glb	$islower
+	.glb	$isprint
+	.glb	$ispunct
+	.glb	$isspace
+	.glb	$isupper
+	.glb	$isxdigit
+	.glb	$toupper
+	.glb	$tolower
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	258,'T','SInt8',19
+	._type	259,'T','UInt16',18
+	._type	260,'T','SInt16',16
+	._type	261,'T','UInt32',7
+	._type	262,'T','SInt32',20
+	._type	263,'T','Float32',10
+	._type	264,'T','tick_t',261
+	._type	265,'T','BOOL',256
+	._type	266,'Z',-1,3
+	._var	'_ctype','E',266
+	._type	267,'x',16,1
+	._type	267,'m','c',0,16
+	._var	'isalnum','F',267
+	._type	268,'x',16,1
+	._type	268,'m','c',0,16
+	._var	'isalpha','F',268
+	._type	269,'x',16,1
+	._type	269,'m','c',0,16
+	._var	'iscntrl','F',269
+	._type	270,'x',16,1
+	._type	270,'m','c',0,16
+	._var	'isdigit','F',270
+	._type	271,'x',16,1
+	._type	271,'m','c',0,16
+	._var	'isgraph','F',271
+	._type	272,'x',16,1
+	._type	272,'m','c',0,16
+	._var	'islower','F',272
+	._type	273,'x',16,1
+	._type	273,'m','c',0,16
+	._var	'isprint','F',273
+	._type	274,'x',16,1
+	._type	274,'m','c',0,16
+	._var	'ispunct','F',274
+	._type	275,'x',16,1
+	._type	275,'m','c',0,16
+	._var	'isspace','F',275
+	._type	276,'x',16,1
+	._type	276,'m','c',0,16
+	._var	'isupper','F',276
+	._type	277,'x',16,1
+	._type	277,'m','c',0,16
+	._var	'isxdigit','F',277
+	._type	278,'x',16,1
+	._type	278,'m','c',0,16
+	._var	'toupper','F',278
+	._type	279,'x',16,1
+	._type	279,'m','c',0,16
+	._var	'tolower','F',279
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 261
+	._inspect	'V', 't', "BOOL", 'O', 256
+	._inspect	'V', 't', "_ctype", 'G', 266
+	._inspect	'F', 't', "isalnum", 'G', 267
+	._inspect	'F', 't', "isalpha", 'G', 268
+	._inspect	'F', 't', "iscntrl", 'G', 269
+	._inspect	'F', 't', "isdigit", 'G', 270
+	._inspect	'F', 't', "isgraph", 'G', 271
+	._inspect	'F', 't', "islower", 'G', 272
+	._inspect	'F', 't', "isprint", 'G', 273
+	._inspect	'F', 't', "ispunct", 'G', 274
+	._inspect	'F', 't', "isspace", 'G', 275
+	._inspect	'F', 't', "isupper", 'G', 276
+	._inspect	'F', 't', "isxdigit", 'G', 277
+	._inspect	'F', 't', "toupper", 'G', 278
+	._inspect	'F', 't', "tolower", 'G', 279
+
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:27 2011
+
+

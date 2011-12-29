@@ -37,7 +37,16 @@
 */
 
 
+#include "config_options.h"
+
+
+#ifdef _ONE_NET_EVAL
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
+
+
 #include "str.h"
+
 #include <ctype.h>
 
 
@@ -108,7 +117,7 @@ UInt8 ascii_hex_to_nibble(const char ASCII)
     } // if it is numeric //
 
     return (ASCII | 0x20) - 'a' + 0x0A;
-} // ascii_hex_to_nibble //
+} // ascii_hex_to_byte //
 
 //! @} str_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END

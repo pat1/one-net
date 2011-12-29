@@ -3,7 +3,7 @@
 //! @{
 
 /*
-    Copyright (c) 2011, Threshold Corporation
+    Copyright (c) 2010, Threshold Corporation
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@
 
 #include "one_net_port_specific.h"
 #include "pal.h"
+#include "tick.h"
 
 
 //==============================================================================
@@ -91,6 +92,82 @@
 //! @{
 
 
+
+/*
+ * dje: The next function (short version of memmove) was used in
+ * versions before 1.6.0.
+ * It has the problem that it doesn't handle cases where the source
+ * is below the destination and the buffers overlap.  It really,
+ * really (really) shouldn't have been named one_net_memmove. 
+ * (It should have been named one_net_memcpy or some such thing.)
+ * 
+ * Anyhow...
+ *
+ * Versions of one-net before 1.6.0 apparently used it without ever
+ * calling it with fatal overlaps.  This is a Bad Thing, and, in fact
+ * programmers working on 1.6 didn't know it was unsafe and wasted
+ * a lot of time running down the bug.  (In my opinion, the unfortunate
+ * choice of the name was just not a matter of bad style, but it was
+ * a bug waiting to manifest itself.  Really.)
+ *
+ * So...
+ *
+ * I'll leave it here 'just in case,' but I'll disable it in favor of
+ * the "real" memmove (the safe one) that follows.
+ *
+ * Dave Evans
+ * Threshold Corporation
+ * November 5, 2010
+ *
+ */
+
+#ifdef _USE_UNSAFE_MEMMOVE
+/*
+ * This is the Bad Boy
+*/
+void * one_net_memmove(void * dst, const void * SRC, size_t len)
+{
+    const UInt8 * S = SRC;
+
+    UInt16 bytes_copied;
+    UInt8 * d = dst;
+    
+    if(!d || !S)
+    {
+        EXIT();
+    } // if the parameters are invalid //
+    
+    for(bytes_copied = 0; bytes_copied < len; bytes_copied++)
+    {
+        *d++ = *S++;
+    } // loop through to copy the bytes //
+    
+    return dst;
+} // one_net_memmove //
+#else
+
+
+/* 
+ * Safe copy src to dst is consistent with standard C library
+ * function memmove, and handles all cases whether the
+ * buffers overlap or not.
+ *
+ * Note that this takes 23 more bytes than the above function.
+ *
+ * If you really, really can't spare the 23 bytes, then you can try
+ * the simpler one, but if you do, it is up to you to make
+ * absoutely sure that it is guarandamnteed that you don't
+ * call it with a bad overlap.  In fact, you should rename it
+ * to one_net_memcpy and change all calls in your source code.
+ *
+ * dje: The previous version of this one had a (really) fatal bug:
+ * It copied the destination buffer to source!
+ *
+ * Fixed and tested Novermber 5, 2010.
+ * Dave Evans
+ * Threshold Corporation
+ *
+ */
 void *one_net_memmove(void *dst, const void *src, size_t n)
 {
     UInt8 *d = dst;
@@ -99,12 +176,6 @@ void *one_net_memmove(void *dst, const void *src, size_t n)
     if (!d || !s) { /* no recovery but at least don't crash */
         return NULL;
     }
-    
-    if(dst == src)
-    {
-        return dst; // addresses are the same.  No need to "move" any memory
-    }
-    
 	
 	// copy from beginning to end a byte at a time
     if ((d < s) && (s < (d + n))) {
@@ -120,51 +191,7 @@ void *one_net_memmove(void *dst, const void *src, size_t n)
     }
     return dst;
 }
-
-
-void * one_net_memset (void* dst, UInt8 value, size_t len)
-{
-    size_t i;
-    UInt8* ptr;
-    
-    if (!dst) 
-    { /* no recovery but at least don't crash */
-        return NULL;
-    }
-    
-    ptr = (UInt8*) dst;
-    
-    for(i = 0; i < len; i++)
-    {
-        *(ptr++) = value;
-    }
-    
-    return dst;
-}
-
-
-void* one_net_memset_block(void* const dst, size_t size, size_t count,
-  const void* const src)
-{
-    int i;
-    UInt8* ptr;
-    
-    if (!dst) 
-    { /* no recovery but at least don't crash */
-        return NULL;
-    }    
-    
-    ptr = (UInt8*) dst;
-    
-    for(i = 0; i < count; i++)
-    {
-        one_net_memmove(ptr, src, size);
-        ptr += size;
-    }
-
-    return dst;
-}
-
+#endif //_USE_SAFE_MEMMOVE
 
 SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 {
@@ -243,42 +270,22 @@ void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 } // one_net_int32_to_byte_stream //
 
 
-/*!
-    \brief Converts a raw did to a U16 value.
-    
-    \param[in] DID The device id to convert
-    
-    \return The UInt16 value corresponding to the DID.
-*/
-UInt16 did_to_u16(const on_raw_did_t *DID)
+tick_t one_net_tick(void)
 {
-    if(!DID)
-    {
-        return 0;
-    } // if the parameter is invalid //
-    
-    return one_net_byte_stream_to_int16(*DID) >> RAW_DID_SHIFT;
-} // did_to_u16 //
+    return get_tick_count();
+} // one_net_tick //
 
 
-/*!
-    \brief Converts string to long integer.
-    
-    \param[in] str String to convert
-    \param[in] endptr Reference to an object of type char*, whose value is set
-        by the function to the next character in str after the numerical
-        value.  This parameter can also be a null pointer, in which case it is
-        not used.
-    \param[in] base String to convert
-    
-    \return The "base" of the string representation.
-*/
-long int one_net_strtol(const char * str, char ** endptr, int base)
+tick_t one_net_ms_to_tick(const UInt32 MS)
 {
-    // use near pointers
-    return _n_n_strtol(str, endptr, base);
-}
+    return MS_TO_TICK(MS);
+} // one_net_ms_to_tick //
 
+
+UInt32 one_net_tick_to_ms(const tick_t TICK)
+{
+    return TICK_TO_MS(TICK);
+} // one_net_tick_to_ms //
 
 //! @} ONE-NET_impl_specific_pub_func
 //                          PUBLIC FUNCTION IMPLEMENTATION END

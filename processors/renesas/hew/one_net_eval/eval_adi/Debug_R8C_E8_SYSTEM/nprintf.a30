@@ -1,0 +1,730 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sat Jun 11 07:36:27 2011
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\nprintf.i -o C:\HEWProj\2_0_trunk\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\nprintf.a30 -finfo -O5 -OR -dS -WNP -fD32 -fNA -fNC -fNROM -fSIZET16 -fPTRDIFFT16 -fSA -fUD -Wall -R8CE
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/nprintf.c", "C:/HEWProj/2_0_trunk/common/string/nprintf"
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/stdarg.h", "C:/HEWProj/2_0_trunk/common/string/nprintf"
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/stdio.h", "C:/HEWProj/2_0_trunk/common/string/nprintf"
+	._inspect	'V', 'e', "_iob", 'G', 78, 0, 0, 0, 00h
+	._inspect	'F', 'p', "getc", "_getc", 'G', 121, 0, 00h, 0
+	._inspect	'F', 'p', "getchar", "_getchar", 'G', 122, 0, 00h, 0
+	._inspect	'F', 'p', "putc", "$putc", 'G', 123, 0, 00h, 0
+	._inspect	'F', 'p', "putchar", "$putchar", 'G', 124, 0, 00h, 0
+	._inspect	'F', 'p', "feof", "_feof", 'G', 125, 0, 00h, 0
+	._inspect	'F', 'p', "ferror", "_ferror", 'G', 126, 0, 00h, 0
+	._inspect	'F', 'p', "fgetc", "_fgetc", 'G', 127, 0, 00h, 0
+	._inspect	'F', 'p', "fgets", "$fgets", 'G', 128, 0, 00h, 0
+	._inspect	'F', 'p', "fputc", "$fputc", 'G', 129, 0, 00h, 0
+	._inspect	'F', 'p', "fputs", "_fputs", 'G', 130, 0, 00h, 0
+	._inspect	'F', 'p', "fread", "$fread", 'G', 131, 0, 00h, 0
+	._inspect	'F', 'p', "fwrite", "$fwrite", 'G', 132, 0, 00h, 0
+	._inspect	'F', 'p', "gets", "_gets", 'G', 133, 0, 00h, 0
+	._inspect	'F', 'p', "puts", "_puts", 'G', 134, 0, 00h, 0
+	._inspect	'F', 'p', "ungetc", "$ungetc", 'G', 135, 0, 00h, 0
+	._inspect	'F', 'p', "printf", "_printf", 'G', 136, 0, 00h, 0
+	._inspect	'F', 'p', "fprintf", "_fprintf", 'G', 137, 0, 00h, 0
+	._inspect	'F', 'p', "sprintf", "_sprintf", 'G', 138, 0, 00h, 0
+	._inspect	'F', 'p', "vprintf", "$vprintf", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'p', "vfprintf", "_vfprintf", 'G', 140, 0, 00h, 0
+	._inspect	'F', 'p', "vsprintf", "_vsprintf", 'G', 141, 0, 00h, 0
+	._inspect	'F', 'p', "fscanf", "_fscanf", 'G', 142, 0, 00h, 0
+	._inspect	'F', 'p', "scanf", "_scanf", 'G', 143, 0, 00h, 0
+	._inspect	'F', 'p', "sscanf", "_sscanf", 'G', 144, 0, 00h, 0
+	._inspect	'F', 'p', "fflush", "_fflush", 'G', 145, 0, 00h, 0
+	._inspect	'F', 'p', "clearerr", "_clearerr", 'G', 146, 0, 00h, 0
+	._inspect	'F', 'p', "perror", "_perror", 'G', 147, 0, 00h, 0
+	._inspect	'F', 'p', "init_dev", "$init_dev", 'G', 163, 0, 00h, 0
+	._inspect	'F', 'p', "speed", "$speed", 'G', 164, 0, 00h, 0
+	._inspect	'F', 'p', "init_prn", "_init_prn", 'G', 165, 0, 00h, 0
+	._inspect	'F', 'p', "_sget", "__sget", 'G', 166, 0, 00h, 0
+	._inspect	'F', 'p', "_sput", "$_sput", 'G', 167, 0, 00h, 0
+	._inspect	'F', 'p', "_pput", "$_pput", 'G', 168, 0, 00h, 0
+	._inspect	'F', 'p', "_print", "__print", 'G', 169, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/nprintf.h", "C:/HEWProj/2_0_trunk/common/string/nprintf"
+	._inspect	'F', 'p', "snprintf", "_snprintf", 'G', 91, 0, 00h, 0
+	._inspect	'F', 'p', "vsnprintf", "$vsnprintf", 'G', 94, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_trunk/common/string/nprintf.c", "C:/HEWProj/2_0_trunk/common/string/nprintf"
+	._inspect	'V', 'd', "result_str", "_result_str", 'S', 85, 2, 0, 0, 00h
+	._inspect	'V', 'd', "max_result_len", "_max_result_len", 'S', 88, 2, 0, 0, 00h
+	._inspect	'V', 'd', "result_len", "_result_len", 'S', 92, 2, 0, 0, 00h
+	._inspect	'F', 'p', "_local_print", "$_local_print", 'G', 106, 0, 00h, 0
+	._inspect	'F', 'p', "append_ch", "$append_ch", 'S', 108, 0, 00h, 0
+
+;## #	FUNCTION snprintf
+;## #  FRAME   ARG ( out_str)  size   2,    offset 5
+;## #  FRAME   ARG (    SIZE)  size   2,    offset 7
+;## #  FRAME   ARG (     FMT)  size   2,    offset 9
+;## #	ARG Size(6)	Auto Size(0)	Context Size(5)
+
+
+	.SECTION	program_high_rom,CODE
+	._inspect	'U', 2, "program_high_rom", "program", 1
+	._file	'C:/HEWProj/2_0_trunk/common/string/nprintf.c'
+	._type	256,'O',3
+	._type	257,'T','size_t',18
+	._type	258,'O',3
+	._type	259,'x',16,4
+	._type	259,'m','out_str',0,256
+	._type	259,'m','SIZE',0,257
+	._type	259,'m','FMT',0,258
+	._type	259,'m','',0,32
+	._func	'snprintf','G',0,259,_snprintf,0
+	._inspect	'F', 's', "snprintf", "_snprintf", 'G', 5
+	._block
+	._line	134
+;## # C_SRC :	{
+	.glb	_snprintf
+_snprintf:
+	enter	#00H
+	._block
+	._type	260,'O',3
+	._var	'out_str','A',260,5
+	._var	'SIZE','A',257,7
+	._type	261,'O',3
+	._var	'FMT','A',261,9
+	._type	262,'O',3
+	._type	263,'T','__va_list',262
+	._type	264,'T','va_list',263
+	._line	139
+;## # C_SRC :	    rv = vsnprintf(out_str, SIZE, FMT, ap);
+	._inspect	'S', 'p', 2
+	pusha	11[FB]	;  FMT 
+	push.w	9[FB]	;  FMT 
+	._inspect	'S', 'p', 2
+	mov.w	7[FB],R2	;  SIZE 
+	mov.w	5[FB],R1	;  out_str 
+	._inspect	'S', 'c', "vsnprintf", "$vsnprintf", 'G', 0, 139
+	jsr	$vsnprintf
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._block
+	._var	'rv','R',16,5
+	._line	142
+;## # C_SRC :	    return rv;
+	._eblock
+	exitd	
+E1:
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "snprintf", "_snprintf", 'G', 134, 0, 00h, 0
+	._inspect	'F', 't', "snprintf", 'G', 259
+	._inspect	'F', 'r', "vsnprintf", "$vsnprintf", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'e', "snprintf", "_snprintf", 'G', 4, 0
+
+
+;## #	FUNCTION vsnprintf
+;## #	FRAME	AUTO	(bytes_added)	size  2,	offset -2
+;## #  FRAME   ARG (     FMT)  size   2,    offset 5
+;## #  FRAME   ARG (      ap)  size   2,    offset 7
+;## #  REGISTER ARG    ( out_str)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (    SIZE)   size   2,   REGISTER R2
+;## #	ARG Size(4)	Auto Size(2)	Context Size(5)
+
+	._type	265,'O',3
+	._type	266,'O',3
+	._type	267,'x',16,4
+	._type	267,'m','out_str',0,265
+	._type	267,'m','SIZE',0,257
+	._type	267,'m','FMT',0,266
+	._type	267,'m','ap',0,264
+	._func	'vsnprintf','G',2,267,$vsnprintf,0
+	._inspect	'F', 's', "vsnprintf", "$vsnprintf", 'G', 7
+	._line	165
+;## # C_SRC :	{
+	.glb	$vsnprintf
+$vsnprintf:
+	enter	#02H
+	._block
+	._type	268,'O',3
+	._var	'out_str','A',268,0
+	._var	'SIZE','A',257,0
+	._type	269,'O',3
+	._var	'FMT','A',269,5
+	._var	'ap','A',264,7
+	._line	166
+;## # C_SRC :	    if(!out_str || !SIZE || !FMT)
+	._block
+	._type	270,'O',3
+	._var	'out_str','R',270,6
+	._var	'SIZE','R',257,7
+	cmp.w	#0000H,R1	;  out_str 
+	jeq	L105
+	cmp.w	#0000H,R2	;  SIZE 
+	jeq	L105
+	cmp.w	#0000H,5[FB]	;  FMT 
+	jne	L1
+	._eblock
+L105:
+	._line	167
+	._block
+	._line	168
+;## # C_SRC :	        return -1;
+	mov.w	#0ffffH,R0
+	exitd	
+	._eblock
+L1:
+	._block
+	._type	271,'O',3
+	._var	'out_str','R',271,6
+	._var	'SIZE','R',257,7
+	._line	171
+;## # C_SRC :	    result_str = out_str;
+	mov.w	R1,_result_str	;  out_str 
+	._eblock
+	._block
+	._var	'SIZE','R',257,7
+	._line	172
+;## # C_SRC :	    result_len = 0;
+	mov.w	#0000H,_result_len
+	._line	175
+;## # C_SRC :	    max_result_len = SIZE - 1;
+	add.w	#-1,R2
+	._eblock
+	mov.w	R2,_max_result_len
+	._line	177
+;## # C_SRC :	    while(FMT && *FMT)
+L41:
+	cmp.w	#0000H,5[FB]	;  FMT 
+	jeq	L107
+	mov.w	5[FB],A0	;  FMT 
+	mov.b	[A0],R0L
+	jeq	L107
+	._line	178
+	._block
+	._line	179
+;## # C_SRC :	        if(*FMT == '%')
+	cmp.b	#25H,[A0]
+	jne	L67
+	._line	180
+	._block
+	._line	181
+;## # C_SRC :	            FMT++;
+	add.w	#0001H,5[FB]	;  FMT 
+	._line	182
+;## # C_SRC :				if(*FMT == '%')
+	mov.w	5[FB],A0	;  FMT 
+	cmp.b	#25H,[A0]
+	jne	L57
+	._line	183
+	._block
+	._line	184
+;## # C_SRC :	                append_ch(*FMT);
+	mov.b	[A0],R1L
+	mov.b	#00H,R1H
+	._inspect	'S', 'c', "append_ch", "$append_ch", 'S', 0, 184
+	jsr	$append_ch
+	._line	185
+;## # C_SRC :	                FMT++;
+	add.w	#0001H,5[FB]	;  FMT 
+	._eblock
+	._line	186
+;## # C_SRC :				} // if a '%' should be added //
+	jmp	L41
+	._line	187
+;## # C_SRC :	            else
+L57:
+	._line	188
+	._block
+	._var	'bytes_added','A',16,-2
+	._line	191
+;## # C_SRC :	                FMT = _local_print(append_ch, FMT, (int **)&ap, &bytes_added);
+	._inspect	'S', 'p', 2
+	pusha	-2[FB]	;  bytes_added 
+	._inspect	'S', 'p', 2
+	pusha	7[FB]	;  ap 
+	push.w	#$append_ch>>16
+	push.w	#($append_ch&0FFFFH)
+	._inspect	'S', 'p', 4
+	mov.w	A0,R2
+	._inspect	'S', 'c', "_local_print", "$_local_print", 'G', 0, 191
+	jsr	$_local_print
+	._inspect	'S', 'p', -8
+	add.b	#08H,SP
+	mov.w	R0,5[FB]	;  FMT 
+	._eblock
+	._eblock
+	._line	193
+;## # C_SRC :	        } // if a '%' //
+	jmp	L41
+	._line	194
+;## # C_SRC :	        else
+L67:
+	._line	195
+	._block
+	._line	196
+;## # C_SRC :	            append_ch(*FMT++);
+	mov.b	[A0],R1L
+	mov.b	#00H,R1H
+	add.w	#0001H,5[FB]	;  FMT 
+	._inspect	'S', 'c', "append_ch", "$append_ch", 'S', 0, 196
+	jsr	$append_ch
+	._eblock
+	._eblock
+	._line	198
+;## # C_SRC :		} // while characters remain //
+	jmp	L41
+L107:
+	._line	200
+;## # C_SRC :		*result_str = '\0';
+	mov.w	_result_str,A0
+	mov.b	#00H,[A0]
+	._line	201
+;## # C_SRC :	    result_str = 0;                 // no longer operating on that data location
+	mov.w	#0000H,_result_str
+	._line	202
+;## # C_SRC :	    max_result_len = 0;
+	mov.w	#0000H,_max_result_len
+	._line	203
+;## # C_SRC :		return result_len;
+	mov.w	_result_len,R0
+	exitd	
+E2:
+	._eblock
+M2:
+	._efunc	M2
+	._inspect	'F', 'd', "vsnprintf", "$vsnprintf", 'G', 165, 0, 00h, 0
+	._inspect	'F', 't', "vsnprintf", 'G', 267
+	._inspect	'V', 'r', "result_str", 'S', 171, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_len", 'S', 172, 2, 0, 0, 00h
+	._inspect	'V', 'r', "max_result_len", 'S', 175, 2, 0, 0, 00h
+	._inspect	'F', 'r', "append_ch", "$append_ch", 'S', 184, 0, 00h, 0
+	._inspect	'F', 'r', "append_ch", "$append_ch", 'S', 191, 0, 00h, 0
+	._inspect	'F', 'r', "_local_print", "$_local_print", 'G', 191, 0, 00h, 0
+	._inspect	'F', 'r', "append_ch", "$append_ch", 'S', 196, 0, 00h, 0
+	._inspect	'V', 'r', "result_str", 'S', 200, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_str", 'S', 201, 2, 0, 0, 00h
+	._inspect	'V', 'r', "max_result_len", 'S', 202, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_len", 'S', 203, 2, 0, 0, 00h
+	._inspect	'F', 'e', "vsnprintf", "$vsnprintf", 'G', 8, 0
+
+
+;## #	FUNCTION append_ch
+;## #  REGISTER ARG    (       c)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(3)
+
+	._type	272,'x',16,1
+	._type	272,'m','c',0,16
+	._func	'append_ch','S',0,272,$append_ch,0
+	._inspect	'F', 's', "append_ch", "$append_ch", 'S', 3
+	._line	230
+;## # C_SRC :	{
+$append_ch:
+	._block
+	._var	'c','A',16,0
+	._line	231
+;## # C_SRC :	    if(!result_str || !max_result_len)
+	._block
+	._var	'c','R',16,6
+	cmp.w	#0000H,_result_str
+	jeq	L155
+	cmp.w	#0000H,_max_result_len
+	jne	L113
+	._eblock
+L155:
+	._line	232
+	._block
+	._line	233
+;## # C_SRC :	        return EOF;
+	mov.w	#0ffffH,R0
+	rts	
+	._eblock
+L113:
+	._block
+	._var	'c','R',16,6
+	._line	236
+;## # C_SRC :	    if(result_len < max_result_len)
+	cmp.w	_max_result_len,_result_len
+	jgeu	L137
+	._eblock
+	._line	237
+	._block
+	._block
+	._var	'c','R',16,6
+	._line	238
+;## # C_SRC :		    *result_str++ = c;
+	mov.w	_result_str,A0
+	mov.b	R1L,[A0]
+	._eblock
+	add.w	#0001H,_result_str
+	._eblock
+L137:
+	._line	241
+;## # C_SRC :	    result_len++;
+	add.w	#0001H,_result_len
+	._line	242
+;## # C_SRC :		return 1;
+	mov.w	#0001H,R0
+	rts	
+E3:
+	._eblock
+M3:
+	._efunc	M3
+	._inspect	'F', 'd', "append_ch", "$append_ch", 'S', 230, 0, 00h, 0
+	._inspect	'F', 't', "append_ch", 'S', 272
+	._inspect	'V', 'r', "result_str", 'S', 231, 2, 0, 0, 00h
+	._inspect	'V', 'r', "max_result_len", 'S', 231, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_len", 'S', 236, 2, 0, 0, 00h
+	._inspect	'V', 'r', "max_result_len", 'S', 236, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_str", 'S', 238, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_str", 'S', 238, 2, 0, 0, 00h
+	._inspect	'V', 'r', "result_len", 'S', 241, 2, 0, 0, 00h
+	._inspect	'F', 'e', "append_ch", "$append_ch", 'S', 0, 0
+
+	.glb	__iob
+	.glb	_getc
+	.glb	_getchar
+	.glb	$putc
+	.glb	$putchar
+	.glb	_feof
+	.glb	_ferror
+	.glb	_fgetc
+	.glb	$fgets
+	.glb	$fputc
+	.glb	_fputs
+	.glb	$fread
+	.glb	$fwrite
+	.glb	_gets
+	.glb	_puts
+	.glb	$ungetc
+	.glb	_printf
+	.glb	_fprintf
+	.glb	_sprintf
+	.glb	$vprintf
+	.glb	_vfprintf
+	.glb	_vsprintf
+	.glb	_fscanf
+	.glb	_scanf
+	.glb	_sscanf
+	.glb	_fflush
+	.glb	_clearerr
+	.glb	_perror
+	.glb	$init_dev
+	.glb	$speed
+	.glb	_init_prn
+	.glb	__sget
+	.glb	$_sput
+	.glb	$_pput
+	.glb	__print
+	.glb	$_local_print
+
+	.SECTION	data_NE,DATA,align
+	._inspect	'U', 1, "data_NE", "data_NE", 0
+_result_str:
+	.blkb	2
+_max_result_len:
+	.blkb	2
+_result_len:
+	.blkb	2
+
+	.SECTION	data_NEI,ROMDATA
+	._inspect	'U', 1, "data_NEI", "data_NEI", 0
+;## # init data of result_str.
+	.word	0000H
+;## # init data of max_result_len.
+	.word	0000H
+;## # init data of result_len.
+	.word	0000H
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	274,'v'
+	._type	275,'x',16,1
+	._type	275,'m','',0,274
+	._type	276,'P',275
+	._type	277,'x',16,1
+	._type	277,'m','',0,16
+	._type	278,'P',277
+	._type	273,'S','_iobuf',15
+	._type	273,'m','_buff',3,0
+	._type	273,'m','_cnt',16,1
+	._type	273,'m','_flag',16,3
+	._type	273,'m','_mod',16,5
+	._type	273,'m','_func_in',276,7
+	._type	273,'m','_func_out',278,11
+	._type	279,'T','FILE',273
+	._type	280,'T','fpos_t',20
+	._type	281,'Z',-1,279
+	._var	'_iob','E',281
+	._type	282,'P',279
+	._type	283,'x',16,1
+	._type	283,'m','st',0,282
+	._var	'getc','F',283
+	._type	284,'v'
+	._type	285,'x',16,1
+	._type	285,'m','',0,284
+	._var	'getchar','F',285
+	._type	286,'P',279
+	._type	287,'x',16,2
+	._type	287,'m','c',0,16
+	._type	287,'m','st',0,286
+	._var	'putc','F',287
+	._type	288,'x',16,1
+	._type	288,'m','c',0,16
+	._var	'putchar','F',288
+	._type	289,'P',279
+	._type	290,'x',16,1
+	._type	290,'m','st',0,289
+	._var	'feof','F',290
+	._type	291,'P',279
+	._type	292,'x',16,1
+	._type	292,'m','st',0,291
+	._var	'ferror','F',292
+	._type	293,'P',279
+	._type	294,'x',16,1
+	._type	294,'m','st',0,293
+	._var	'fgetc','F',294
+	._type	295,'P',3
+	._type	296,'P',3
+	._type	297,'P',279
+	._type	298,'x',295,3
+	._type	298,'m','s',0,296
+	._type	298,'m','n',0,16
+	._type	298,'m','st',0,297
+	._var	'fgets','F',298
+	._type	299,'P',279
+	._type	300,'x',16,2
+	._type	300,'m','c',0,16
+	._type	300,'m','st',0,299
+	._var	'fputc','F',300
+	._type	301,'P',3
+	._type	302,'P',279
+	._type	303,'x',16,2
+	._type	303,'m','s',0,301
+	._type	303,'m','st',0,302
+	._var	'fputs','F',303
+	._type	304,'v'
+	._type	305,'P',304
+	._type	306,'P',279
+	._type	307,'x',257,4
+	._type	307,'m','ptr',0,305
+	._type	307,'m','size',0,257
+	._type	307,'m','nelem',0,257
+	._type	307,'m','st',0,306
+	._var	'fread','F',307
+	._type	308,'v'
+	._type	309,'P',308
+	._type	310,'P',279
+	._type	311,'x',257,4
+	._type	311,'m','ptr',0,309
+	._type	311,'m','size',0,257
+	._type	311,'m','nelem',0,257
+	._type	311,'m','st',0,310
+	._var	'fwrite','F',311
+	._type	312,'P',3
+	._type	313,'P',3
+	._type	314,'x',312,1
+	._type	314,'m','s',0,313
+	._var	'gets','F',314
+	._type	315,'P',3
+	._type	316,'x',16,1
+	._type	316,'m','s',0,315
+	._var	'puts','F',316
+	._type	317,'P',279
+	._type	318,'x',16,2
+	._type	318,'m','c',0,16
+	._type	318,'m','st',0,317
+	._var	'ungetc','F',318
+	._type	319,'P',3
+	._type	320,'x',16,2
+	._type	320,'m','format',0,319
+	._type	320,'m','',0,32
+	._var	'printf','F',320
+	._type	321,'P',279
+	._type	322,'P',3
+	._type	323,'x',16,3
+	._type	323,'m','st',0,321
+	._type	323,'m','format',0,322
+	._type	323,'m','',0,32
+	._var	'fprintf','F',323
+	._type	324,'P',3
+	._type	325,'P',3
+	._type	326,'x',16,3
+	._type	326,'m','s',0,324
+	._type	326,'m','format',0,325
+	._type	326,'m','',0,32
+	._var	'sprintf','F',326
+	._type	327,'P',3
+	._type	328,'x',16,2
+	._type	328,'m','format',0,327
+	._type	328,'m','ap',0,263
+	._var	'vprintf','F',328
+	._type	329,'P',279
+	._type	330,'P',3
+	._type	331,'x',16,3
+	._type	331,'m','st',0,329
+	._type	331,'m','format',0,330
+	._type	331,'m','ap',0,263
+	._var	'vfprintf','F',331
+	._type	332,'P',3
+	._type	333,'P',3
+	._type	334,'x',16,3
+	._type	334,'m','s',0,332
+	._type	334,'m','format',0,333
+	._type	334,'m','ap',0,263
+	._var	'vsprintf','F',334
+	._type	335,'P',279
+	._type	336,'P',3
+	._type	337,'x',16,3
+	._type	337,'m','st',0,335
+	._type	337,'m','format',0,336
+	._type	337,'m','',0,32
+	._var	'fscanf','F',337
+	._type	338,'P',3
+	._type	339,'x',16,2
+	._type	339,'m','format',0,338
+	._type	339,'m','',0,32
+	._var	'scanf','F',339
+	._type	340,'P',3
+	._type	341,'P',3
+	._type	342,'x',16,3
+	._type	342,'m','s',0,340
+	._type	342,'m','format',0,341
+	._type	342,'m','',0,32
+	._var	'sscanf','F',342
+	._type	343,'P',279
+	._type	344,'x',16,1
+	._type	344,'m','stream',0,343
+	._var	'fflush','F',344
+	._type	345,'v'
+	._type	346,'P',279
+	._type	347,'x',345,1
+	._type	347,'m','stream',0,346
+	._var	'clearerr','F',347
+	._type	348,'v'
+	._type	349,'P',3
+	._type	350,'x',348,1
+	._type	350,'m','s',0,349
+	._var	'perror','F',350
+	._type	351,'P',279
+	._type	352,'x',16,2
+	._type	352,'m','',0,351
+	._type	352,'m','',0,16
+	._var	'init_dev','F',352
+	._type	353,'x',16,4
+	._type	353,'m','',0,16
+	._type	353,'m','',0,16
+	._type	353,'m','',0,16
+	._type	353,'m','',0,16
+	._var	'speed','F',353
+	._type	354,'v'
+	._type	355,'x',16,1
+	._type	355,'m','',0,354
+	._var	'init_prn','F',355
+	._type	356,'v'
+	._type	357,'x',16,1
+	._type	357,'m','',0,356
+	._var	'_sget','F',357
+	._type	358,'x',16,1
+	._type	358,'m','',0,16
+	._var	'_sput','F',358
+	._type	359,'x',16,1
+	._type	359,'m','',0,16
+	._var	'_pput','F',359
+	._type	360,'P',3
+	._type	361,'x',16,0
+	._type	362,'P',361
+	._type	363,'P',3
+	._type	364,'O',16
+	._type	365,'O',364
+	._type	366,'O',16
+	._type	367,'x',360,4
+	._type	367,'m','',0,362
+	._type	367,'m','',0,363
+	._type	367,'m','',0,365
+	._type	367,'m','',0,366
+	._var	'_print','F',367
+	._type	368,'O',3
+	._var	'result_str','S',368,_result_str
+	._var	'max_result_len','S',18,_max_result_len
+	._var	'result_len','S',18,_result_len
+	._type	369,'O',3
+	._type	370,'x',16,1
+	._type	370,'m','',0,16
+	._type	371,'P',370
+	._type	372,'O',3
+	._type	373,'O',16
+	._type	374,'O',373
+	._type	375,'O',16
+	._type	376,'x',369,4
+	._type	376,'m','func',0,371
+	._type	376,'m','format',0,372
+	._type	376,'m','ap',0,374
+	._type	376,'m','total',0,375
+	._var	'_local_print','F',376
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "__va_list", 'O', 262
+	._inspect	'V', 't', "va_list", 'O', 263
+	._inspect	'V', 't', "FILE", 'O', 273
+	._inspect	'V', 't', "fpos_t", 'O', 20
+	._inspect	'V', 't', "size_t", 'O', 18
+	._inspect	'V', 't', "_iob", 'G', 281
+	._inspect	'F', 't', "getc", 'G', 283
+	._inspect	'F', 't', "getchar", 'G', 285
+	._inspect	'F', 't', "putc", 'G', 287
+	._inspect	'F', 't', "putchar", 'G', 288
+	._inspect	'F', 't', "feof", 'G', 290
+	._inspect	'F', 't', "ferror", 'G', 292
+	._inspect	'F', 't', "fgetc", 'G', 294
+	._inspect	'F', 't', "fgets", 'G', 298
+	._inspect	'F', 't', "fputc", 'G', 300
+	._inspect	'F', 't', "fputs", 'G', 303
+	._inspect	'F', 't', "fread", 'G', 307
+	._inspect	'F', 't', "fwrite", 'G', 311
+	._inspect	'F', 't', "gets", 'G', 314
+	._inspect	'F', 't', "puts", 'G', 316
+	._inspect	'F', 't', "ungetc", 'G', 318
+	._inspect	'F', 't', "printf", 'G', 320
+	._inspect	'F', 't', "fprintf", 'G', 323
+	._inspect	'F', 't', "sprintf", 'G', 326
+	._inspect	'F', 't', "vprintf", 'G', 328
+	._inspect	'F', 't', "vfprintf", 'G', 331
+	._inspect	'F', 't', "vsprintf", 'G', 334
+	._inspect	'F', 't', "fscanf", 'G', 337
+	._inspect	'F', 't', "scanf", 'G', 339
+	._inspect	'F', 't', "sscanf", 'G', 342
+	._inspect	'F', 't', "fflush", 'G', 344
+	._inspect	'F', 't', "clearerr", 'G', 347
+	._inspect	'F', 't', "perror", 'G', 350
+	._inspect	'F', 't', "init_dev", 'G', 352
+	._inspect	'F', 't', "speed", 'G', 353
+	._inspect	'F', 't', "init_prn", 'G', 355
+	._inspect	'F', 't', "_sget", 'G', 357
+	._inspect	'F', 't', "_sput", 'G', 358
+	._inspect	'F', 't', "_pput", 'G', 359
+	._inspect	'F', 't', "_print", 'G', 367
+	._inspect	'V', 't', "result_str", 'S', 368
+	._inspect	'V', 't', "max_result_len", 'S', 18
+	._inspect	'V', 't', "result_len", 'S', 18
+	._inspect	'F', 't', "_local_print", 'G', 376
+
+	.END
+
+;## Compile End Time Sat Jun 11 07:36:27 2011
+
+
