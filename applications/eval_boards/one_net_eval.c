@@ -463,8 +463,12 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         return ON_MSG_CONTINUE;
     }
     
-    
+    #ifndef _ONE_NET_MULTI_HOP
     if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA)
+    #else
+    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA &&
+       msg_hdr->raw_pid != ONE_NET_RAW_MH_SINGLE_DATA)
+    #endif
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
