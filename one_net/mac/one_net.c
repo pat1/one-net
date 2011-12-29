@@ -111,14 +111,6 @@ const on_encoded_did_t MASTER_ENCODED_DID = {0xB4, 0xBC};
 //                              PUBLIC VARIABLES
 
 
-#ifdef _ONE_NET_MULTI_HOP
-//! The number of multi-hop capable devices in the network
-UInt8 num_mh_devices = 1; // add 1 for the master
-
-//! The number of multi-hop repeater clients in the network
-UInt8 num_mh_repeaters = 0;
-#endif
-
 
 //! Contiguous block of memory to store parameters that are saved to
 //! non-volatile memory.  Parameters will point to locations in the array

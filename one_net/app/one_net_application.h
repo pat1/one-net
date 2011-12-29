@@ -316,6 +316,14 @@ typedef struct
 
     //! Method to encrypt single or block data
     UInt8 single_block_encrypt;
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    //! The number of multi-hop capable devices in the network
+    UInt8 num_mh_devices;
+
+    //! The number of multi-hop repeater clients in the network
+    UInt8 num_mh_repeaters;
+    #endif
 
     #ifdef _STREAM_MESSAGES_ENABLED
     //! Method used to encrypt stream data

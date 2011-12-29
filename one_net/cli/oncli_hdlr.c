@@ -1133,8 +1133,8 @@ static oncli_status_t list_cmd_hdlr(void)
     #endif
     
     #ifdef _ONE_NET_MULTI_HOP
-    oncli_send_msg("# of Network MH Devices : %d\n", num_mh_devices);
-    oncli_send_msg("# of Network MH Repeaters : %d\n", num_mh_repeaters);
+    oncli_send_msg("# of Network MH Devices : %d\n", on_base_param->num_mh_devices);
+    oncli_send_msg("# of Network MH Repeaters : %d\n", on_base_param->num_mh_repeaters);
     #endif
     
     #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
@@ -3029,11 +3029,11 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 #ifdef _ONE_NET_MULTI_HOP
 /*!
-    \brief Sets the num_mh_devices and num_mh_repeaters counts manually
+    \brief Sets the on_base_param->num_mh_devices and on_base_param->num_mh_repeaters counts manually
     
     This function is useful mostly for debugging multi-hop applications.
-    Multi-hop works only when num_mh_repeat is a positive number.  Setting
-    these variables, particularly the num_mh_repeat variable, can serve to
+    Multi-hop works only when on_base_param->num_mh_repeat is a positive number.  Setting
+    these variables, particularly the on_base_param->num_mh_repeat variable, can serve to
     
     1) Quickly turn multi-hop on and off.
     2) Correct these variable values if they become incorrect due to either
@@ -3083,8 +3083,8 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_BAD_PARAM;
     }
 
-    num_mh_devices = num_mh;
-    num_mh_repeaters = num_mh_repeat;
+    on_base_param->num_mh_devices = num_mh;
+    on_base_param->num_mh_repeaters = num_mh_repeat;
     return ONCLI_SUCCESS;
 }
 #endif

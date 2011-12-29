@@ -384,6 +384,11 @@ one_net_status_t one_net_master_create_network(
     ont_set_timer(ONT_UPDATE_TIMER,
       MS_TO_TICK(one_net_master_channel_scan_time));
     on_state = ON_JOIN_NETWORK;
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    on_base_param->num_mh_devices = 1; // for the master
+    on_base_param->num_mh_repeaters = 0; // new network, no clients, master is not a repeater
+    #endif
 
     return ONS_SUCCESS;
 } // one_net_master_create_network //
@@ -544,13 +549,13 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     {
         if(features_mh_capable(client_list[i].device.features))
         {
-            num_mh_devices++;
+            on_base_param->num_mh_devices++;
             break;
         } // if client is a multi-hop client //
         
         if(features_mh_repeat_capable(client_list[i].device.features))
         {
-            num_mh_repeaters++;
+            on_base_param->num_mh_repeaters++;
             break;
         } // if client is a multi-hop repeater //
     } // loop to look for Multi-Hop and Multi-Hop repeaters //
@@ -859,11 +864,11 @@ one_net_status_t one_net_master_remove_device(
     #ifdef _ONE_NET_MULTI_HOP
     if(features_mh_capable(client->device.features))
     {
-        num_mh_devices--;
+        on_base_param->num_mh_devices--;
     }
     if(features_mh_repeat_capable(client->device.features))
     {
-        num_mh_repeaters--;
+        on_base_param->num_mh_repeaters--;
     }
     #endif
     
@@ -885,8 +890,8 @@ one_net_status_t one_net_master_remove_device(
     admin_pld[0] = remove_device_did[0];
     admin_pld[1] = remove_device_did[1];
     #ifdef _ONE_NET_MULTI_HOP
-    admin_pld[2] = num_mh_devices;
-    admin_pld[3] = num_mh_repeaters;
+    admin_pld[2] = on_base_param->num_mh_devices;
+    admin_pld[3] = on_base_param->num_mh_repeaters;
     #else
     // TODO -- should we ban multi-hop just because the master isn't capable?
     admin_pld[2] = 0;
@@ -1099,7 +1104,8 @@ void one_net_master(void)
                 
                 #ifdef _ONE_NET_MULTI_HOP
                 txn->retry++;
-                if(num_mh_repeaters && txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
+                if(on_base_param->num_mh_repeaters &&
+                  txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
                 {
                     txn->retry = 0;
                     raw_pid = ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT;
@@ -1293,12 +1299,12 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     #ifdef _ONE_NET_MULTI_HOP
     if(features_mh_capable(features))
     {
-        num_mh_devices++;
+        on_base_param->num_mh_devices++;
     }
     
     if(features_mh_repeat_capable(features))
     {
-        num_mh_repeaters++;
+        on_base_param->num_mh_repeaters++;
     }
     #endif
 
@@ -1873,7 +1879,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
             #ifdef _ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops if there are
             // any multi-hop clients.
-            if(num_mh_repeaters && txn->max_hops <
+            if(on_base_param->num_mh_repeaters && txn->max_hops <
               txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
@@ -2461,9 +2467,9 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               one_net_memmove(&admin_pld[0], add_device_did, ON_ENCODED_DID_LEN);
               #ifdef _ONE_NET_MULTI_HOP
               // Byte 2 is the # of MH devices in the network
-              admin_pld[2] = num_mh_devices;
+              admin_pld[2] = on_base_param->num_mh_devices;
               // Byte 3 is the # of MH repeaters in the network
-              admin_pld[3] = num_mh_repeaters;
+              admin_pld[3] = on_base_param->num_mh_repeaters;
               #else
               // TODO -- ban Multi-Hop just because the master doesn't have it?
               admin_pld[2] = 0;
@@ -2482,9 +2488,9 @@ static BOOL check_client_for_updates(on_client_t* client, UInt8 update_type)
               one_net_memmove(&admin_pld[0], remove_device_did, ON_ENCODED_DID_LEN);
               #ifdef _ONE_NET_MULTI_HOP
               // Byte 2 is the # of MH devices in the network
-              admin_pld[2] = num_mh_devices;
+              admin_pld[2] = on_base_param->num_mh_devices;
               // Byte 3 is the # of MH repeaters in the network
-              admin_pld[3] = num_mh_repeaters;
+              admin_pld[3] = on_base_param->num_mh_repeaters;
               #else
               // TODO -- ban Multi-Hop just because the master doesn't have it?
               admin_pld[2] = 0;
@@ -2643,8 +2649,8 @@ static void check_updates_in_progress(void)
                 admin_payload[0] = remove_device_did[0];
                 admin_payload[1] = remove_device_did[1];
                 #ifdef _ONE_NET_MULTI_HOP
-                admin_payload[2] = num_mh_devices;
-                admin_payload[3] = num_mh_repeaters;
+                admin_payload[2] = on_base_param->num_mh_devices;
+                admin_payload[3] = on_base_param->num_mh_repeaters;
                 #else
                 // TODO -- should we ban multi-hop just because the master
                 // isn't capable.
@@ -2692,8 +2698,8 @@ static void check_updates_in_progress(void)
                 admin_payload[0] = add_device_did[0];
                 admin_payload[1] = add_device_did[1];
                 #ifdef _ONE_NET_MULTI_HOP
-                admin_payload[2] = num_mh_devices;
-                admin_payload[3] = num_mh_repeaters;
+                admin_payload[2] = on_base_param->num_mh_devices;
+                admin_payload[3] = on_base_param->num_mh_repeaters;
                 #else
                 // TODO -- should we ban multi-hop just because the master
                 // isn't capable.
@@ -3075,8 +3081,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 ack_nack->payload->admin_msg[1] = (*device_change_did)[0];
                 ack_nack->payload->admin_msg[2] = (*device_change_did)[1];
                 #ifdef _ONE_NET_MULTI_HOP
-                ack_nack->payload->admin_msg[3] = num_mh_devices;
-                ack_nack->payload->admin_msg[4] = num_mh_repeaters;
+                ack_nack->payload->admin_msg[3] = on_base_param->num_mh_devices;
+                ack_nack->payload->admin_msg[4] = on_base_param->num_mh_repeaters;
                 #else
                 // TODO - should we ban multi-hop just because the master
                 // isn't multi-hop?

@@ -894,7 +894,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             // we may be able to re-send with a higher max hops if there are
             // any repeaters available
             
-            if((num_mh_repeaters || !client_joined_network) &&
+            if((on_base_param->num_mh_repeaters || !client_joined_network) &&
               txn->max_hops < txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
@@ -1092,8 +1092,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             }
                             
                             #ifdef _ONE_NET_MULTI_HOP
-                            num_mh_devices = ack_nack->payload->admin_msg[3];
-                            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                            on_base_param->num_mh_devices =
+                              ack_nack->payload->admin_msg[3];
+                            on_base_param->num_mh_repeaters =
+                              ack_nack->payload->admin_msg[4];
                             #endif
 
                             send_confirm_admin_msg = TRUE;
@@ -1115,8 +1117,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                               &(ack_nack->payload->admin_msg)[1]));
                               
                             #ifdef _ONE_NET_MULTI_HOP
-                            num_mh_devices = ack_nack->payload->admin_msg[3];
-                            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                            on_base_param->num_mh_devices =
+                              ack_nack->payload->admin_msg[3];
+                            on_base_param->num_mh_repeaters =
+                              ack_nack->payload->admin_msg[4];
                             #endif                              
                               
                             send_confirm_admin_msg = TRUE;
@@ -1786,8 +1790,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
-                num_mh_devices = ack_nack->payload->admin_msg[3];
-                num_mh_repeaters = ack_nack->payload->admin_msg[4];
+                on_base_param->num_mh_devices =
+                  ack_nack->payload->admin_msg[3];
+                on_base_param->num_mh_repeaters =
+                  ack_nack->payload->admin_msg[4];
                 #endif
             }
             
@@ -1815,8 +1821,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             #ifdef _ONE_NET_MULTI_HOP
-            num_mh_devices = ack_nack->payload->admin_msg[3];
-            num_mh_repeaters = ack_nack->payload->admin_msg[4];
+            on_base_param->num_mh_devices =
+              ack_nack->payload->admin_msg[3];
+            on_base_param->num_mh_repeaters =
+              ack_nack->payload->admin_msg[4];
             #endif
             break;
         }
