@@ -18,7 +18,7 @@ int open_port(char *devname);
 int main(int argc, char** argv)
 {
     int fd;
-    const int BAUDRATE = B9600;
+    const int BAUDRATE = B38400;
     char *device = "/dev/ttyS0";
     int i, n;
     struct termios old_sio;
