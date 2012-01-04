@@ -657,6 +657,7 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
 */
 BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 {
+    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     UInt8 i;
     for(i = 0; i < single_data_queue_size; i++)
     {
@@ -665,10 +666,13 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
             return TRUE;
         }
     }
+    #endif
     
     // TODO -- check everything else.  This funciton probably needs to be
     //         moved from one_net_message.c to one_net.c so more things
     //         can be checked.
+    //
+    //         Also, what needs to be checked for devices with no queue?
     return FALSE;
 }
 
