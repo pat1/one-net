@@ -185,9 +185,6 @@ extern BOOL client_joined_network; // declared extern in one_net_client.h but
      // we do not want to include one_net_client.h so we declare it here too.
 #endif
 
-//! Unique key of the device being invited into the network
-one_net_xtea_key_t invite_key;
-
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #ifdef _ONE_NET_MASTER
@@ -197,10 +194,6 @@ on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #endif
   
 #ifdef _ONE_NET_CLIENT
-//! This flag should be set if a message needs to be sent to the master in
-//! addition to wherever else it needs to be sent.
-BOOL send_to_master;
-
 extern BOOL client_looking_for_invite;
 #endif
 
@@ -228,13 +221,6 @@ on_state_t on_state = ON_INIT_STATE;
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
 #endif
-
-//! A place to store a message header for a data packet
-static on_msg_hdr_t data_msg_hdr;
-
-//! A place to store a message header for a reponse packet
-static on_msg_hdr_t resp_msg_hdr;
-
 
 
 #ifdef _RANGE_TESTING
