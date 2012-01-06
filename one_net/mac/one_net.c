@@ -2314,7 +2314,9 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     on_data_t type;
     UInt8* pkt_bytes;
+    #ifdef _ONE_NET_MASTER
     UInt8 original_payload[33];
+    #endif
 
 
     // only need to check 1 handler since it is all or nothing

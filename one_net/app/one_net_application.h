@@ -311,8 +311,10 @@ typedef struct
     //! The current xtea key being used.
     one_net_xtea_key_t current_key;
     
+    #ifdef _ONE_NET_MASTER
     //! The last key used
     one_net_xtea_key_t old_key;
+    #endif
 
     //! Method to encrypt single or block data
     UInt8 single_block_encrypt;
