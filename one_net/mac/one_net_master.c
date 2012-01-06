@@ -357,11 +357,7 @@ one_net_status_t one_net_master_create_network(
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(on_base_param->current_key, *KEY,
       sizeof(on_base_param->current_key));
-    on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
-	
-#ifdef _STREAM_MESSAGES_ENABLED
-    on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;
-#endif
+
 #ifdef _BLOCK_MESSAGES_ENABLED
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
@@ -1263,11 +1259,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         one_net_memmove(out_base_param->current_key, on_base_param->current_key,
           sizeof(one_net_xtea_key_t));    
         out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
-        out_base_param->single_block_encrypt = on_base_param->single_block_encrypt;
         out_base_param->channel = on_base_param->channel;
-        #ifdef _STREAM_MESSAGES_ENABLED
-        out_base_param->stream_encrypt = on_base_param->stream_encrypt;
-        #endif
         #ifdef _BLOCK_MESSAGES_ENABLED
         out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
         out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;

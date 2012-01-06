@@ -328,14 +328,10 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
     
     // initialize SID to invalid (all zeroes).
     one_net_memset(on_base_param->sid, 0xB4, ON_ENCODED_SID_LEN);
-    on_base_param->single_block_encrypt = SINGLE_BLOCK_ENCRYPT_METHOD;
     on_base_param->version = ON_PARAM_VERSION;
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(&(on_base_param->current_key), *INVITE_KEY,
       sizeof(on_base_param->current_key));
-    #ifdef _STREAM_MESSAGES_ENABLED
-    on_base_param->stream_encrypt = STREAM_ENCRYPT_METHOD;      
-    #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;

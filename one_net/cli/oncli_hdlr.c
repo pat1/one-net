@@ -133,16 +133,10 @@ static const one_net_xtea_key_t add_key = {0x00, 0x01, 0x02, 0x03, 0x04,
 static const UInt8 add_flags = ON_JOINED | ON_SEND_TO_MASTER;
 static const tick_t add_keep_alive = 1800000;
 static const UInt8 add_channel = 1;
-static const UInt8 add_single_block_encrypt =
-  ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
 #ifdef _BLOCK_MESSAGES_ENABLED
 static const UInt8 add_fragment_delay_low = 125;
 static const UInt8 add_fragment_delay_high = 25;
 #endif
-#ifdef _STREAM_MESSAGES_ENABLED
-static const UInt8 add_stream_encrypt = ONE_NET_STREAM_ENCRYPT_XTEA8;
-#endif
-
 
 
 
@@ -1910,11 +1904,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           sizeof(one_net_xtea_key_t));
         master->keep_alive_interval = add_keep_alive;
         master->flags = add_flags;
-        on_base_param->single_block_encrypt = add_single_block_encrypt;
         on_base_param->channel = add_channel;
-    #ifdef _STREAM_MESSAGES_ENABLED
-        on_base_param->stream_encrypt = add_stream_encrypt;
-    #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
         on_base_param->fragment_delay_low = add_fragment_delay_low;
         on_base_param->fragment_delay_high = add_fragment_delay_high;

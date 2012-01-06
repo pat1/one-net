@@ -316,20 +316,12 @@ typedef struct
     //! The current xtea key being used.
     one_net_xtea_key_t current_key;
     
-    //! Method to encrypt single or block data
-    UInt8 single_block_encrypt;
-    
     #ifdef _ONE_NET_MULTI_HOP
     //! The number of multi-hop capable devices in the network
     UInt8 num_mh_devices;
 
     //! The number of multi-hop repeater clients in the network
     UInt8 num_mh_repeaters;
-    #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    //! Method used to encrypt stream data
-    UInt8 stream_encrypt;
     #endif
     
     #ifdef _BLOCK_MESSAGES_ENABLED

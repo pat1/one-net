@@ -299,12 +299,11 @@ int main(void)
     on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
     one_net_memmove(on_base_param->current_key, EVAL_KEY,
       ONE_NET_XTEA_KEY_LEN);
-    #ifdef _ONE_NET_MASTER  
+    #ifdef _ONE_NET_MASTER
     one_net_memmove(&on_base_param->sid[ON_ENCODED_NID_LEN],
       MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
     #endif
-    
-    on_base_param->single_block_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
+
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     on_base_param->features = THIS_DEVICE_FEATURES;
     
@@ -315,10 +314,6 @@ int main(void)
     #ifdef _BLOCK_MASSGES_ENABLED
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
-    #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    on_base_param->stream_encrypt = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
     #endif
     
     

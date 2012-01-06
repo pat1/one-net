@@ -898,54 +898,14 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
     if(DATA_TYPE != ON_STREAM)
     {
 	#endif
-        switch(on_base_param->single_block_encrypt)
-        {
-            case ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE:
-            {
-                rounds = 0;
-                break;
-            } // no encryption //
-
-            case ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32:
-            {
-                rounds = ON_XTEA_32_ROUNDS;
-                break;
-            } // xtea with 32 rounds //
-
-            default:
-            {
-                return ONS_INTERNAL_ERR;
-                break;
-            } // default //
-        } // switch on encryption type //
-
-        data[payload_len - 1] = on_base_param->single_block_encrypt;
+        rounds = ON_XTEA_32_ROUNDS;
+        data[payload_len - 1] = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
 	#ifdef _STREAM_MESSAGES_ENABLED
     } // if not stream //
         else
         {
-            switch(on_base_param->stream_encrypt)
-            {
-                case ONE_NET_STREAM_ENCRYPT_NONE:
-                {
-                    rounds = 0;
-                    break;
-                } // no encryption //
-
-                case ONE_NET_STREAM_ENCRYPT_XTEA8:
-                {
-                    rounds = ON_XTEA_8_ROUNDS;
-                    break;
-                } // xtea with 8 rounds //
-
-                default:
-                {
-                    return ONS_INTERNAL_ERR;
-                    break;
-                } // default //
-            } // switch on encryption type //
-
-            data[payload_len - 1] = on_base_param->stream_encrypt;
+            rounds = ON_XTEA_8_ROUNDS;
+            data[payload_len - 1] = ONE_NET_STREAM_ENCRYPT_NONE;
         } // else stream //
     #endif // if _STREAM_MESSAGES_ENABLED is not defined //
 
@@ -2624,7 +2584,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     one_net_memmove(original_payload, raw_payload_bytes,
       get_raw_payload_len(raw_pid));
       
-master_decrypt_packet:      
+master_decrypt_packet:
     #endif
 
     if((status = on_decrypt(type, raw_payload_bytes, key,
