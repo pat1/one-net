@@ -1296,7 +1296,9 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr =
       &on_client_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
-    pkt_hdlr.adj_recip_list_hdlr = &on_client_adjust_recipient_list; 
+    #ifndef _ONE_NET_SIMPLE_DEVICE
+    pkt_hdlr.adj_recip_list_hdlr = &on_client_adjust_recipient_list;
+    #endif
     
     #ifdef _BLOCK_MESSAGES_ENABLED
     pkt_hdlr.block_data_hdlr = &on_client_block_data_hdlr;
