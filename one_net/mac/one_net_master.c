@@ -313,36 +313,16 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
 
     \param[in] SID The raw SID of the MASTER.
     \param[in] KEY The xtea key to use for single and block transactions.
-    \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
-      and block packets when they are sent.
-    \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
-      when they are sent.
 
     \return ONS_SUCCESS if the network was created.
             ONS_BAD_PARAM if the parameter was invalid
 */
-
-#ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_master_create_network(
-  const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
-  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-  const UInt8 STREAM_ENCRYPT_METHOD)
-#else
-one_net_status_t one_net_master_create_network(
-  const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY,
-  const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
-#endif  
+  const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY)
 {
 	UInt8 i;
 
-#ifdef _STREAM_MESSAGES_ENABLED
-    if(!SID || !KEY
-      || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32
-      || STREAM_ENCRYPT_METHOD != ONE_NET_STREAM_ENCRYPT_XTEA8)
-#else
-    if(!SID || !KEY
-      || SINGLE_BLOCK_ENCRYPT_METHOD != ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32)
-#endif
+    if(!SID || !KEY)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
