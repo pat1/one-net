@@ -484,10 +484,16 @@
     #define _HAS_LEDS
 #endif
 
+// Enable this if there is UART
+#ifndef _UART
+    #define _UART
+#endif
 
 // "Blocking" versus "Non-blocking" uart.
-#ifndef _BLOCKING_UART
-    #define _BLOCKING_UART
+#ifdef _UART
+    #ifndef _BLOCKING_UART
+        #define _BLOCKING_UART
+    #endif
 #endif
 
 
