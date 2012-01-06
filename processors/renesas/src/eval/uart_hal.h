@@ -3,6 +3,8 @@
 
 #include "config_options.h"
 
+#ifdef _UART
+
 
 //! \defgroup uart_hal UART hardware dependent functionality
 //! @{
@@ -113,5 +115,7 @@ typedef enum
 //==========================================================================
 
 //! @} uart_hal
+
+#endif //  if UART is enabled //
 
 #endif // #ifdef _UART_HAL_H //

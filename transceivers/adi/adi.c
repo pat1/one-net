@@ -254,10 +254,11 @@ const UInt8 * tx_rf_data;
 //! or received.
 UInt8 bit_mask = 0;
 
-
+#ifdef _UART
 //! From uart.c.  Used by tal_write_packet to check whether the uart is
 //! clear.
 extern cb_rec_t uart_tx_cb;
+#endif
 
 
 //! @} ADI_pub_var
@@ -433,6 +434,7 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
     tx_rf_data = data;
     tx_rf_len = len;
 
+    #ifdef _UART
     while(cb_bytes_queued(&uart_tx_cb))
     {
         uart_pause_needed = TRUE;
@@ -448,6 +450,7 @@ UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
         pausing = FALSE;
         #endif
     }
+    #endif //  if UART is enabled //
 
     tal_turn_on_transmitter();
     ENABLE_TX_BIT_INTERRUPTS();

@@ -278,7 +278,9 @@ int main(void)
     FLASH_ERASE_CHECK();
     #endif
 
+    #ifdef _UART
     uart_init(BAUD_38400/*BAUD_115200*/, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+    #endif
     disable_user_pins();
     ENABLE_GLOBAL_INTERRUPTS();
     

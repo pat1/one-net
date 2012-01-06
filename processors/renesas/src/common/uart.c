@@ -44,6 +44,8 @@
 
 #include "config_options.h"
 
+#ifdef _UART
+
 #include "uart.h"
 #include "sfr_r823.h"
 #include "cb.h"
@@ -437,6 +439,9 @@ void uart_rx_isr(void)
     // clear interrupt flag
 	ir_s0ric = 0;
 } // uart_receive_isr //
+
+
+#endif //  if UART is enabled //
 
 //! @} uart_pri_func
 //						PRIVATE FUNCTION IMPLEMENTATION END

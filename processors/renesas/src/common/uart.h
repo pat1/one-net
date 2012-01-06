@@ -44,6 +44,9 @@
 
 #include "config_options.h"
 
+
+#ifdef _UART
+
 #include "uart_hal.h"
 
 #include "one_net_types.h"
@@ -166,6 +169,8 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len);
 //==========================================================================
 
 //! @} uart
+
+#endif //  if UART is enabled //
 
 #endif // #ifdef _UART_H //
 
