@@ -45,6 +45,7 @@
 #include "hal_adi.h"
 #include "io_port_mapping.h"
 #include "tal.h"
+#include "one_net.h"
 #include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
 //=============================================================================
@@ -79,7 +80,6 @@
 
 extern UInt16 rx_rf_idx;
 extern UInt16 rx_rf_count;
-extern UInt8 rx_rf_data[];
 extern UInt16 tx_rf_len;
 extern UInt16 tx_rf_idx;
 extern const UInt8 * tx_rf_data;
@@ -196,11 +196,13 @@ void dataclk_isr(void)
 {
     if(RF_DATA)
     {
-        rx_rf_data[rx_rf_count] |= bit_mask;
+        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
+          bit_mask;
     } // if a 1 was receeived //
     else
     {
-        rx_rf_data[rx_rf_count] &= ~bit_mask;
+        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
+          ~bit_mask;
     } // else a 0 was received //
 
     bit_mask >>= 1;

@@ -126,37 +126,25 @@ on_pkt_hdlr_set_t pkt_hdlr;
 //! a function to retrieve the sender information
 one_net_get_sender_info_func_t get_sender_info;
 
-
-//! location to store the encoded data for an ack/nack packet
-UInt8 response_pkt[ON_ACK_NACK_ENCODED_PKT_SIZE];
-
 //! Used to send a response
 on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
-  ONT_RESPONSE_TIMER, 0, 0, response_pkt,
+  ONT_RESPONSE_TIMER, 0, 0, NULL,
   NULL, NULL};
-
-//! location to store the encoded data for the single transaction
-UInt8 single_pkt[ON_SINGLE_ENCODED_PKT_SIZE];
 
 //! Used to send a single message
 on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
-  0, single_pkt, NULL, NULL};
+  0, NULL, NULL, NULL};
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-    //! location to store the encoded data for a block transaction.
-    UInt8 block_pkt[ON_BLOCK_ENCODED_PKT_SIZE];
-    
     //! The current block transaction
     on_txn_t block_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
-      ONT_BLOCK_TIMER, 0, 0, block_pkt, NULL, NULL};
+      ONT_BLOCK_TIMER, 0, 0, NULL, NULL, NULL};
 
     #ifdef _STREAM_MESSAGES_ENABLED
-    //! location to store the encoded data for a stream transaction.
-    UInt8 stream_pkt[ON_STREAM_ENCODED_PKT_SIZE];
     
     //! The current stream transaction
     on_txn_t stream_txn = {ON_STREAM, ONE_NET_NO_PRIORITY, 0,
-      ONT_STREAM_TIMER, 0, 0, stream_pkt, NULL, NULL};    
+      ONT_STREAM_TIMER, 0, 0, NULL, NULL, NULL};    
     #endif
 #endif // if block messages are not enabled //
 
@@ -203,18 +191,15 @@ extern BOOL client_joined_network; // declared extern in one_net_client.h but
      // we do not want to include one_net_client.h so we declare it here too.
 #endif
 
-//! location to store the encoded data for an invite transaction.
-UInt8 invite_pkt[ON_INVITE_ENCODED_PKT_SIZE];
-
 //! Unique key of the device being invited into the network
 one_net_xtea_key_t invite_key;
 
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #ifdef _ONE_NET_MASTER
-  ONT_INVITE_SEND_TIMER, 0, 0, invite_pkt, NULL, NULL};
+  ONT_INVITE_SEND_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL};
 #else
-  ONT_INVITE_TIMER, 0, 0, invite_pkt, NULL, NULL};
+  ONT_INVITE_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL};
 #endif
   
 #ifdef _ONE_NET_CLIENT
@@ -225,6 +210,8 @@ BOOL send_to_master;
 extern BOOL client_looking_for_invite;
 #endif
 
+//! A buffer containing all encoded bytes for transmitting and receiving
+UInt8 encoded_pkt_bytes[ENCODED_BYTES_BUFFER_LEN];
 
 
 //                              PUBLIC VARIABLES
@@ -243,14 +230,9 @@ on_state_t on_state = ON_INIT_STATE;
 
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
-    // fill in the preamble in the Multi-Hop packet to be sent.  The rest will
-    // be filled in when the received Multi-Hop packet is read in over the rf
-    // interface.
-    static UInt8 mh_pkt[ON_MAX_ENCODED_PKT_SIZE] = {0x55, 0x55, 0x55, 0x33};
-
     // Transaction for forwarding on MH packets.
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
-      ONT_MH_TIMER, 0, 0, mh_pkt};
+      ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
 #endif
 
 //! A place to store a message header for a data packet
@@ -1254,6 +1236,9 @@ BOOL one_net(on_txn_t ** txn)
                     // a repeater and the packet wasn't for us, a repeat
                     // packet.  What we should NOT get is a response, block,
                     // or stream packet.
+                    response_txn.pkt =
+                      &encoded_pkt_bytes[ON_MAX_ENCODED_DATA_PKT_SIZE];
+                    single_txn.pkt = encoded_pkt_bytes;
                     this_txn = &single_txn;
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
@@ -1340,6 +1325,9 @@ BOOL one_net(on_txn_t ** txn)
                 }
 
                 // we have a message.  Let's create the packet.
+                single_txn.pkt =
+                  &encoded_pkt_bytes[ON_MAX_ENCODED_DATA_PKT_SIZE];
+                response_txn.pkt = encoded_pkt_bytes;
                 
                 // first get the sending device info.
                 device = (*get_sender_info)((on_encoded_did_t*)
@@ -1364,7 +1352,7 @@ BOOL one_net(on_txn_t ** txn)
                     device->msg_id = 0;
                 }
                 
-                if(!setup_pkt_ptr(single_msg.raw_pid, single_pkt,
+                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
                   &data_pkt_ptrs))
                 {
                     // an error of some sort occurred.  We likely have
@@ -1653,7 +1641,7 @@ BOOL one_net(on_txn_t ** txn)
             if(!terminate_txn && response_msg_or_timeout)
             {
                 // rebuild the packet                
-                if(setup_pkt_ptr(single_msg.raw_pid, single_pkt,
+                if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
@@ -2430,7 +2418,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     }
     #endif
     
-    
     if(packet_is_data(raw_pid))
     {
         if(packet_is_single(raw_pid))
@@ -2544,7 +2531,7 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
     #endif
     {
         return ONS_CRC_FAIL;
-    }   
+    }
     
     #ifdef _ONE_NET_MULTI_HOP
     // overwritten below if multi-hop
@@ -2630,7 +2617,6 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return status;
     }
     
-
     #ifdef _ONE_NET_MASTER
     // copy in case this is a client in the middle of a key change
     one_net_memmove(original_payload, raw_payload_bytes,

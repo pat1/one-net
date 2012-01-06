@@ -541,13 +541,50 @@ extern on_single_data_queue_t* single_msg_ptr;
 //! overflow.
 extern UInt8 raw_payload_bytes[];
 
-extern UInt8 invite_pkt[];
-
 //! Unique key of the device being invited into the network
 extern one_net_xtea_key_t invite_key;
 
 //! The current invite transaction
 extern on_txn_t invite_txn;
+
+// The buffer length required for both receiving and sending is...
+//
+// Both masters need to be able to store both an outgoing message and
+// an incoming message.  For devices without block messages, the length of
+// the packet will be ON_SINGLE_ENCODED_PKT_SIZE.  For devices with block
+// messages, the length of the packet will be ON_BLOCK_ENCODED_PKT_SIZE.
+// The buffer length must be at least twice this length (one for send, one for
+// receive.
+//
+// In addition, masters which send invite packets need an additional
+// ON_INVITE_ENCODED_PKT_SIZE bytes are needed for sending the invite packet.
+//
+// Clients do not need these additional buffer bytes.  They need to RECEIVE
+// an invite packet, but that invite packet length is less than the twice
+// ON_SINGLE_ENCODED_PKT_SIZE, so no more bytes are needed.
+//
+// 
+// Repeaters need to be able to repeat all packets, including block packets.
+// Repeaters will always be clients, so the buffer must be at least the length
+// of a multi-hop block packet.
+#ifndef _ONE_NET_MASTER
+     #define MIN_ENCODED_BYTES_BUFFER_LEN (2 * ON_MAX_ENCODED_DATA_PKT_SIZE)
+#else
+    #define MIN_ENCODED_BYTES_BUFFER_LEN (2 * ON_MAX_ENCODED_DATA_PKT_SIZE + ON_INVITE_ENCODED_PKT_SIZE)
+#endif
+
+#ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #if MIN_ENCODED_BYTES_BUFFER_LEN < ON_BLOCK_ENCODED_PKT_SIZE
+        #define ENCODED_BYTES_BUFFER_LEN ON_BLOCK_ENCODED_PKT_SIZE
+    #else
+        #define ENCODED_BYTES_BUFFER_LEN MIN_ENCODED_BYTES_BUFFER_LEN
+    #endif
+#else
+    #define ENCODED_BYTES_BUFFER_LEN MIN_ENCODED_BYTES_BUFFER_LEN
+#endif
+
+//! A buffer containing all encoded bytes for transmitting and receiving
+extern UInt8 encoded_pkt_bytes[];
 
 
 //! @} ONE-NET_pub_var

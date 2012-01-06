@@ -63,6 +63,7 @@
     #include "one_net_timer.h"
     #include "oncli.h"
 #endif
+#include "one_net.h"
 
 
 //==============================================================================
@@ -239,9 +240,6 @@ UInt16 rx_rf_idx = 0;
 
 //! bytes currently in rx_rf_data
 UInt16 rx_rf_count = 0;
-
-//! Buffer to receive data from the rf interface
-UInt8 rx_rf_data[ON_MAX_ENCODED_PKT_SIZE] = {0x00};
 
 //! length of tx_rf_data
 UInt16 tx_rf_len = 0;
@@ -493,7 +491,9 @@ UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
         bytes_to_read = len;
     } // else read number of bytes requested //
     
-    one_net_memmove(data, &(rx_rf_data[rx_rf_idx]), bytes_to_read);
+    // TODO -- this shouldn't actualy be moving anywhere?
+    one_net_memmove(data, &(encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN +
+      rx_rf_idx]), bytes_to_read);
     rx_rf_idx += bytes_to_read;
     
     return bytes_to_read;
@@ -530,16 +530,15 @@ one_net_status_t tal_look_for_packet(tick_t duration)
         // PID will be received.  Look for the PID so we know how many bytes
         // to receive.
         if(rx_rf_count ==
-          ONE_NET_ENCODED_PID_IDX - ONE_NET_ENCODED_RPTR_DID_IDX + 1)
+          ONE_NET_ENCODED_PID_IDX - ONE_NET_PREAMBLE_HEADER_LEN + 1)
         {
             // All packet size constants below are including the PREAMBLE &
             // SOF.  Since these cause the sync detect, these won't be read
             // in, so the packet size that is being read in is shorter, so
             // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
-            blks_to_rx = get_encoded_packet_len(
-              encoded_to_decoded_byte(rx_rf_data[ONE_NET_ENCODED_PID_IDX - 
-              ONE_NET_ENCODED_RPTR_DID_IDX], FALSE), FALSE);
+            blks_to_rx = get_encoded_packet_len(encoded_to_decoded_byte(
+              encoded_pkt_bytes[ONE_NET_ENCODED_PID_IDX], FALSE), FALSE);
             if(blks_to_rx == 0)
             {
                 // bad packet type

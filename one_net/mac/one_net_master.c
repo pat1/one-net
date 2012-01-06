@@ -705,7 +705,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
 
     // so far, so good.  Start building the packet.
-    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_pkt,
+    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_txn.pkt,
       &data_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
@@ -1108,7 +1108,7 @@ void one_net_master(void)
                 } // if time to send a multi hop packet //
                 #endif
 
-                if(!setup_pkt_ptr(raw_pid, invite_pkt, &data_pkt_ptrs))
+                if(!setup_pkt_ptr(raw_pid, invite_txn.pkt, &data_pkt_ptrs))
                 {
                     break; // we should never get here
                 }
@@ -2141,6 +2141,7 @@ static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
 */
 static one_net_status_t init_internal(void)
 {
+    invite_txn.pkt = &encoded_pkt_bytes[2 * ON_MAX_ENCODED_DATA_PKT_SIZE];
     pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
     pkt_hdlr.single_ack_nack_hdlr =
       &on_master_handle_single_ack_nack_response;
