@@ -905,7 +905,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
         else
         {
             rounds = ON_XTEA_8_ROUNDS;
-            data[payload_len - 1] = ONE_NET_STREAM_ENCRYPT_NONE;
+            data[payload_len - 1] = ONE_NET_STREAM_ENCRYPT_XTEA8;
         } // else stream //
     #endif // if _STREAM_MESSAGES_ENABLED is not defined //
 
