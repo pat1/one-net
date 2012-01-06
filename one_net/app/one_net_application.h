@@ -310,7 +310,7 @@ typedef struct
 
     #ifdef _ONE_NET_MASTER
     //! The last key used
-    one_net_xtea_key_t old_key;
+    one_net_xtea_key_fragment_t old_key;
     #endif
     
     //! The current xtea key being used.
