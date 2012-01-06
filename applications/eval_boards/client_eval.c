@@ -288,22 +288,12 @@ one_net_status_t one_net_client_reset_client(one_net_xtea_key_t* invite_key)
 {
     initialize_default_pin_directions(FALSE);
     
-#ifdef _STREAM_MESSAGES_ENABLED
-  #ifdef _ENHANCED_INVITE
-      return one_net_client_look_for_invite(invite_key, ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
-        ONE_NET_STREAM_ENCRYPT_XTEA8, 0, ONE_NET_MAX_CHANNEL, 0);
-  #else
-      return one_net_client_look_for_invite(invite_key, ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
-        ONE_NET_STREAM_ENCRYPT_XTEA8);
-  #endif
-#else
-  #ifdef _ENHANCED_INVITE
-      return one_net_client_look_for_invite(invite_key, ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32,
-        0, ONE_NET_MAX_CHANNEL, 0);
-  #else
-      return one_net_client_look_for_invite(invite_key, ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32);
-  #endif
-#endif
+    #ifdef _ENHANCED_INVITE
+    return one_net_client_look_for_invite(invite_key, 0, ONE_NET_MAX_CHANNEL,
+      0);
+    #else
+    return one_net_client_look_for_invite(invite_key);
+    #endif
 }
 
 

@@ -277,10 +277,6 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 
     \param INVITE_KEY The unique key of this CLIENT to decrypt invite packets
       with.
-    \param[in] SINGLE_BLOCK_ENCRYPT_METHOD The method to use to encrypt single
-      and block packets when they are sent.
-    \param[in] STREAM_ENCRYPT_METHOD The method to use to encrypt stream packets
-      when they are sent.
     \param[in] min_channel lowest channel to scan on.
     \param[in] max_channel highest channel to scan on.
     \param[in] timeout_time Length of time in milliseconds to listen for the invite.
@@ -290,34 +286,14 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
             ONS_BAD_PARAM if the parameter is invalid.
 */
 #if !defined(_ENHANCED_INVITE)
-#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-      const UInt8 STREAM_ENCRYPT_METHOD)
-#else // ifdef _STREAM_MESSAGES_ENABLED //
-    one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD)
-#endif // else _STREAM_MESSAGES_ENABLED is not defined //
+      const one_net_xtea_key_t * const INVITE_KEY)
 #else
-
-#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-      const UInt8 STREAM_ENCRYPT_METHOD,
 	  const one_net_channel_t min_channel,
 	  const one_net_channel_t max_channel,
 	  const tick_t timeout_time)
-#else // ifdef _STREAM_MESSAGES_ENABLED //
-    one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-	  const one_net_channel_t min_channel,
-	  const one_net_channel_t max_channel,
-	  const tick_t timeout_time)	  
-#endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 {
     tick_t time_now = get_tick_count();

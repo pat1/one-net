@@ -105,34 +105,16 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 //! \ingroup ONE-NET_CLIENT
 //! @{
 
+
 #if !defined(_ENHANCED_INVITE)
-#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-      const UInt8 STREAM_ENCRYPT_METHOD);
-#else // ifdef _STREAM_MESSAGES_ENABLED //
-    one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD);
-#endif // else _STREAM_MESSAGES_ENABLED is not defined //
+      const one_net_xtea_key_t * const INVITE_KEY);
 #else
-#ifdef _STREAM_MESSAGES_ENABLED
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-      const UInt8 STREAM_ENCRYPT_METHOD,
 	  const one_net_channel_t min_channel,
 	  const one_net_channel_t max_channel,
 	  const tick_t timeout_time);
-#else // ifdef _STREAM_MESSAGES_ENABLED //
-    one_net_status_t one_net_client_look_for_invite(
-      const one_net_xtea_key_t * const INVITE_KEY,
-      const UInt8 SINGLE_BLOCK_ENCRYPT_METHOD,
-	  const one_net_channel_t min_channel,
-	  const one_net_channel_t max_channel,
-	  const tick_t timeout_time);
-#endif // else _STREAM_MESSAGES_ENABLED is not defined //
 #endif
 
 #ifndef _PEER
