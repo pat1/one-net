@@ -393,7 +393,7 @@ BOOL tal_channel_is_clear(void)
 } // tal_channel_is_clear //
 
 
-UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
+UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
 {
     #ifdef _UART
     BOOL uart_pause_needed = FALSE;
@@ -482,9 +482,9 @@ BOOL tal_write_packet_done()
 } // tal_write_packet_done //
 
 
-UInt16 tal_read_bytes(UInt8 * data, const UInt16 len)
+UInt8 tal_read_bytes(UInt8 * data, const UInt8 len)
 {
-    UInt16 bytes_to_read;
+    UInt8 bytes_to_read;
     
     // check the parameters, and check to see if there is data to be read
     if(!data || !len || rx_rf_idx >= rx_rf_count)

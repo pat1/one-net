@@ -172,7 +172,7 @@ BOOL tal_channel_is_clear(void);
 
     \return The number of bytes sent.
 */
-UInt16 tal_write_packet(const UInt8 * data, const UInt16 len);
+UInt8 tal_write_packet(const UInt8 * data, const UInt8 len);
 
 
 /*!
@@ -196,7 +196,7 @@ BOOL tal_write_packet_done(void);
     \param[in] len The number of bytes to receive (data is at least this long).
     \return The number of bytes read
 */
-UInt16 tal_read_bytes(UInt8 * data, const UInt16 len);
+UInt8 tal_read_bytes(UInt8 * data, const UInt8 len);
 
 
 /*!
