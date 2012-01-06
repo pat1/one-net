@@ -235,10 +235,11 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
 
-//! index into rx_rf_data
+//! number of bytes received that have been requested from ONE-NET code
 UInt16 rx_rf_idx = 0;
 
-//! bytes currently in rx_rf_data
+//! number of bytes received from the transceiver (does not include Preamble /
+//! Header.
 UInt16 rx_rf_count = 0;
 
 //! length of tx_rf_data
@@ -370,13 +371,17 @@ void tal_init_transceiver(void)
 
 void tal_enable_transceiver(void)
 {
+    #ifdef _CHIP_ENABLE
     CHIP_ENABLE = 1;
+    #endif
 } // tal_enable_transceiver //
 
 
 void tal_disable_transceiver(void)
 {
+    #ifdef _CHIP_ENABLE
     CHIP_ENABLE = 0;
+    #endif
 } // tal_disable_transceiver //
 
 
@@ -388,7 +393,9 @@ BOOL tal_channel_is_clear(void)
 
 UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
 {
+    #ifdef _UART
     BOOL uart_pause_needed = FALSE;
+    #endif
     
     #ifdef _DEBUGGING_TOOLS
     if(pause || ratchet || write_pause)
