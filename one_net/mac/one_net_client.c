@@ -145,33 +145,11 @@ on_master_t * const master
 //! to this device.
 on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
-//! Set to true if a confirmation of a key change is needed.
-static BOOL confirm_key_change = FALSE;
-
 //! Set to true upon being deleted from the network.  There will be a slight
 //! two second pause before this device actually removes itself to give any
 //! pending transactions to complete.
 static BOOL removed = FALSE;
 
-
-
-//! flag denoting whether the client accepting the invite has sent
-//! the features
-static BOOL sent_features = FALSE;
-
-//! flag denoting whether the client accepting the invite has received
-//! the keep-alive interval
-static BOOL rcvd_keep_alive = FALSE;
-
-#ifdef _BLOCK_MESSAGES_ENABLED
-//! flag denoting whether the client accepting the invite has received
-//! the fragment delays
-static BOOL rcvd_fragment_delays = FALSE;
-#endif
-
-//! flag denoting whether the client accepting the invite has received
-//! the settings / flags.
-static BOOL rcvd_settings = FALSE;
 
 
 //! @} ONE-NET_CLIENT_pri_var
@@ -330,12 +308,6 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
     // the state machine and some flags to get ready to receive invitations.
     client_joined_network = FALSE;
     client_looking_for_invite = TRUE;
-    sent_features = FALSE;
-    rcvd_keep_alive = FALSE;
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    rcvd_fragment_delays = FALSE;
-    #endif
-    rcvd_settings = FALSE;
 
     #ifdef _ENHANCED_INVITE
     client_invite_timed_out = FALSE;
@@ -941,7 +913,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
         {
             case ON_FEATURES_RESP:
             {
-                sent_features = TRUE;
                 break;
             }
             
@@ -1160,7 +1131,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
                 ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
                   master->keep_alive_interval));
-                rcvd_keep_alive = TRUE;
                 break;
             }
         }
@@ -1623,8 +1593,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             ack_nack->handle = ON_ACK_KEY_FRAGMENT;
             one_net_memmove(ack_nack->payload->key_frag, &DATA[1],
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-              
-            confirm_key_change = TRUE;
 
             // we'll want to check in again soon, but we'll do it at a random
             // time.  There may be a lot of traffic out there trying to check
@@ -1704,7 +1672,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             on_base_param->fragment_delay_low = new_frag_low;
             on_base_param->fragment_delay_high = new_frag_high;
-            rcvd_fragment_delays = TRUE;
             break;
         } // update fragment delay(s) case //
         #endif
@@ -1718,7 +1685,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             ack_nack->handle = ON_ACK_TIME_MS;
             ack_nack->payload->ack_time_ms = master->keep_alive_interval;
-            rcvd_keep_alive = TRUE;
             break;
         } // keep alive query case //
         
@@ -1727,7 +1693,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             master->flags = DATA[1];
             ack_nack->handle = ON_ACK_VALUE;
             ack_nack->payload->ack_value.uint8 = master->flags;
-            rcvd_settings = TRUE;
             break;
         } // update settings case //
         
