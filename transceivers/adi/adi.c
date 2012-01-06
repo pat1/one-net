@@ -54,7 +54,9 @@
 #include "one_net_packet.h"
 #include "tick.h"
 #include "one_net_port_specific.h"
+#ifdef _UART
 #include "cb.h"
+#endif
 #include "one_net_encode.h"
 #ifdef _HAS_LEDS
     #include "one_net_led.h"
