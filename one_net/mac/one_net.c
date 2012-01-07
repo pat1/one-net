@@ -1460,13 +1460,11 @@ BOOL one_net(on_txn_t ** txn)
                     *txn = 0;
                 }
                 else
+                #endif
                 {
                     ont_set_timer(ONT_RESPONSE_TIMER, MS_TO_TICK(new_timeout_ms));
                     on_state++;
                 }
-                #else
-                on_state++;
-                #endif
             } // if write is complete //
             break;
         } // send single data write wait case //
