@@ -147,6 +147,7 @@ enum
 
 extern on_master_param_t * const master_param;
 extern on_client_t * const client_list;
+extern one_net_xtea_key_t invite_key;
 
 
 

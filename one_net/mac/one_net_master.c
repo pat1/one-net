@@ -130,6 +130,9 @@ on_master_param_t * const master_param =
 //! List of the CLIENTS
 on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
   sizeof(on_base_param_t) + sizeof(on_master_param_t));
+  
+//! Unique key of the device being invited into the network
+one_net_xtea_key_t invite_key;
 
 
 
