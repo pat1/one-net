@@ -1067,13 +1067,8 @@ BOOL one_net(on_txn_t ** txn)
             
             // we are listening for data.  Make sure we have nothing
             // pending
-            #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
               && single_msg_ptr == NULL)
-            #else
-            if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
-              && single_msg_ptr != NULL)
-            #endif
             {
                 on_sending_device_t* device;
                 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -1085,7 +1080,7 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     // we are not in the middle of a message.  We might have
                     // something ready to pop though.
-                    
+
                     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
                     int index = single_data_queue_ready_to_send(
                         &next_pop_time);
@@ -1640,6 +1635,15 @@ BOOL one_net(on_txn_t ** txn)
                 (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
                   single_msg_ptr->payload, &(single_msg_ptr->msg_type),
                   msg_status, &ack_nack);                    
+                #endif
+                
+                #if  _SINGLE_QUEUE_LEVEL == NO_SINGLE_QUEUE_LEVEL
+                if(!recipient_send_list_ptr ||
+                  recipient_send_list_ptr->num_recipients -
+                  recipient_send_list_ptr->recipient_index <= 1)
+                {
+                    empty_queue();
+                }
                 #endif
                   
                 // clear the transaction.

@@ -213,8 +213,7 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
     {
         return NULL;  // no room
     }
-    single_msg_ptr = &single_msg;
-    element= single_msg_ptr;
+    element= &single_msg;
     #endif
     
     element->raw_pid = raw_pid;
