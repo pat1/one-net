@@ -209,7 +209,7 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
 
     element = &single_data_queue[single_data_queue_size];
     #else
-    if(single_msg_ptr != NULL)
+    if(single_data_queue_size)
     {
         return NULL;  // no room
     }
@@ -266,10 +266,8 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
 	    element->expire_time = time_now + expire_time_from_now;
     }
     #endif
-    
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+
     single_data_queue_size++;
-    #endif
     return element;
 }
 
@@ -343,7 +341,7 @@ BOOL pop_queue_element(void)
     {
         // there's nothing to copy since everything is already loaded if
         // it exists.
-        BOOL ret_value = (single_data_queue_size == 0);
+        BOOL ret_value = (single_data_queue_size > 0);
         single_data_queue_size = 0;
         return ret_value;
     }
