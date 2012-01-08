@@ -341,7 +341,6 @@ BOOL pop_queue_element(void)
         // there's nothing to copy since everything is already loaded if
         // it exists.
         BOOL ret_value = (single_data_queue_size > 0);
-        single_data_queue_size = 0;
         return ret_value;
     }
     #endif
