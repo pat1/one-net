@@ -1612,6 +1612,7 @@ BOOL one_net(on_txn_t ** txn)
                       msg_status = ON_MSG_FAIL;
                 }
 
+                #ifndef _ONE_NET_SIMPLE_DEVICE
                 // if we get no reponse this last try and we NEVER got any
                 // reponse, we'll make the nack reason
                 // ON_NACK_RSN_NO_RESPONSE_TXN.
@@ -1621,6 +1622,7 @@ BOOL one_net(on_txn_t ** txn)
                     // if we got no response ever from the other device.
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                 }
+                #endif
                 
                 #if  _SINGLE_QUEUE_LEVEL == NO_SINGLE_QUEUE_LEVEL
                 if(!recipient_send_list_ptr ||
