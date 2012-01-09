@@ -98,8 +98,8 @@ enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     0,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  2,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     102 //! ONE-NET build version number
+    ONE_NET_VERSION_REVISION =  3,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     103 //! ONE-NET build version number
 };
 
 
@@ -109,7 +109,7 @@ enum
     ON_VERSION = 0x06,
 
     //! The version of the base parameter structures
-    ON_PARAM_VERSION = 0x04,
+    ON_PARAM_VERSION = 0x05,
 
     //! The version of the MASTER Invite New CLIENT packet.
     ON_INVITE_PKT_VERSION = 0x01,
