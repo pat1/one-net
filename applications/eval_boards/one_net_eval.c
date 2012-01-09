@@ -1303,9 +1303,7 @@ static const char* get_prompt_string(void)
     \param[in] enc_dst The device that is to receive this message.
     
     \return ONS_SUCCESS if the message was successfully queued.
-            ONS_INTERNAL_ERR If the send single function could not be retrieved.
-            See one_net_client_send_single & one_net_master_send_single for
-            more return values.
+            ONS_RSRC_FULL otherwise
 */
 one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
   UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
@@ -1320,7 +1318,7 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
     put_msg_data(status, raw_pld);
     put_dst_unit(dst_unit, raw_pld);
 
-    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
+    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, src_did, enc_dst
       #ifdef _PEER
@@ -1332,7 +1330,14 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif
-      );    
+      ))
+    {
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONS_RSRC_FULL;
+    }
 } // send_switch_status_change_msg //
 
 
@@ -1403,9 +1408,7 @@ static void eval_set_modes_from_switch_positions(void)
     \param[in] enc_dst The device that is to receive this message.
     
     \return ONS_SUCCESS if the message was successfully queued.
-            ONS_INTERNAL_ERR If the send single function could not be retrieved.
-            See one_net_client_send_single & one_net_master_send_single for
-            more return values.
+            ONS_RSRC_FULL otherwise.
 */
 one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
   UInt8 dst_unit, const on_encoded_did_t* const enc_dst)
@@ -1419,7 +1422,7 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
     // endianness.  Instead use one_net_memmove
     one_net_memmove(&raw_pld[ONA_MSG_DATA_IDX], text, ONA_MSG_DATA_LEN);
       
-    return (*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
+    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL, enc_dst
       #ifdef _PEER
@@ -1431,7 +1434,14 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif
-      );    
+      ))
+    {
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONS_RSRC_FULL;
+    }
 } // send_send_simple_text_command //
 #endif
 

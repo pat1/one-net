@@ -94,6 +94,11 @@
 
 
 
+#define one_net_client_send_single push_queue_element
+#define one_net_master_send_single push_queue_element
+#define one_net_send_single push_queue_element
+
+
 enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number

@@ -258,22 +258,6 @@ static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 static void sort_client_list_by_encoded_did(void);
 static UInt16 find_lowest_vacant_did(void);
 
-
-static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  , tick_t send_time_from_now
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  );
-  
-  
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static void check_updates_in_progress(void);
 
@@ -2139,7 +2123,6 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.stream_txn_hdlr = &on_master_stream_txn_hdlr;
     #endif    
 
-    one_net_send_single = &one_net_master_send_single;
     get_sender_info = &sender_info;
     device_is_master = TRUE;
     one_net_init();
@@ -2318,66 +2301,6 @@ static UInt16 find_lowest_vacant_did(void)
     
     // no gaps were found.
     return vacant_did;
-}
-
-
-/*!
-    \brief Sends a single data message.
-    
-    The message is either sent to the peer list or only to the specific device
-    that is passed in.
-    
-    \param[in] raw_pid The raw pid of the message.
-    \param[in] msg_type The message type of the message(admin, application, etc.)
-    \param[in] data The data to send.
-    \param[in] data_len The length of DATA (in bytes).
-    \param[in] priority The priority of the transaction.
-    \param[in] src_did The source of the message (if NULL, the source will be
-      assumed to be this device).
-    \param[in] enc_dst The device the message is destined for.  This can be
-      NULL if the message is to be sent to the peer list.
-    \param[in] send_to_peer_list If true, the message will be sent to.
-    \param[in] src_unit The unit that the message originated from.  Relevant
-      only if sending to the peer list.
-	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
-	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
-    
-    \return ONS_SUCCESS If the single data has been queued successfully.
-            ONS_BAD_PARAM If the parameters are invalid.
-            ONS_RSRC_FULL If no resources are currently available to handle the
-              request.
-*/
-static one_net_status_t one_net_master_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  , tick_t send_time_from_now
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  )
-{    
-    if(push_queue_element(raw_pid, msg_type, raw_data, data_len, priority,
-      src_did, enc_dst
-      #ifdef _PEER
-          , send_to_peer_list, src_unit
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , send_time_from_now
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , expire_time_from_now
-      #endif
-      ) == NULL)
-    {
-        return ONS_RSRC_FULL;
-    }
-
-    return ONS_SUCCESS;
 }
 
 
@@ -2595,7 +2518,6 @@ static void check_updates_in_progress(void)
     \param[in] send_time_from_now The time to pause before sending.
 
     \return ONS_SUCCESS If the packet was built and queued successfully
-            ONS_BAD_PARAM If any of the parameters are invalid
             ONS_RSRC_FULL If there are no resources available
 */
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
@@ -2628,7 +2550,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     #endif
     
     #ifndef _EXTENDED_SINGLE
-    return one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
+    if(one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, did
       #ifdef _PEER
@@ -2639,9 +2561,9 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , 0
       #endif
-      );
+      ))
     #else
-    return one_net_master_send_single(raw_pid, ON_ADMIN_MSG,
+    if(one_net_master_send_single(raw_pid, ON_ADMIN_MSG,
       admin_pld, admin_pld_data_len + 1, ONE_NET_LOW_PRIORITY,
       NULL, did
       #ifdef _PEER
@@ -2652,8 +2574,15 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 	  , 0
       #endif
-      );
+      ))
     #endif
+    {
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONS_RSRC_FULL;
+    }
 } // send_admin_pkt //
 
 

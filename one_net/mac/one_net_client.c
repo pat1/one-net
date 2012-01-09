@@ -196,22 +196,6 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
 
-static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t send_time_from_now
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  );
-
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now);
@@ -1236,7 +1220,6 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.stream_txn_hdlr = &on_client_stream_txn_hdlr;
     #endif
 
-    one_net_send_single = &one_net_client_send_single;
     get_sender_info = &sender_info;
     device_is_master = FALSE;
     one_net_init();
@@ -1344,68 +1327,6 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 } // sender_info //
 
 
-/*!
-    \brief Sends a single data message.
-    
-    The message is either sent to the peer list or only to the specific device
-    that is passed in.
-    
-    \param[in] raw_pid The raw pid of the message.
-    \param[in] msg_type The message type of the message(admin, application, etc.)
-    \param[in] data The data to send.
-    \param[in] data_len The length of DATA (in bytes).
-    \param[in] priority The priority of the transaction.
-    \param[in] src_did The source of the message (if NULL, the source will be
-      assumed to be this device).
-    \param[in] enc_dst The device the message is destined for.  This can be
-      NULL if the message is to be sent to the peer list.
-    \param[in] send_to_peer_list If true, the message will be sent to.
-    \param[in] src_unit The unit that the message originated from.  Relevant
-      only if sending to the peer list.
-	\param[in] send_time_from_now Time to pause before sending.  NULL is interpreted as "send immediately"
-	\param[in] expire_time_from_now If after this time, don't bother sending.  NULL is interpreted as "no expiration"
-    
-    \return ONS_SUCCESS If the single data has been queued successfully.
-            ONS_BAD_PARAM If the parameters are invalid.
-            ONS_RSRC_FULL If no resources are currently available to handle the
-              request.
-*/
-static one_net_status_t one_net_client_send_single(UInt8 raw_pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t send_time_from_now
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  )
-{
-    if(push_queue_element(raw_pid, msg_type, raw_data, data_len, priority,
-      src_did, enc_dst
-      #ifdef _PEER
-          , send_to_peer_list, src_unit
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , send_time_from_now
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , expire_time_from_now
-      #endif
-      ) == NULL)
-    {
-        return ONS_RSRC_FULL;
-    }
-
-    return ONS_SUCCESS;
-}
-
-
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now)
@@ -1425,7 +1346,7 @@ static one_net_status_t send_keep_alive(void)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
 
-    return one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
+    if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
       NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
       #ifdef _PEER
@@ -1439,7 +1360,14 @@ static one_net_status_t send_keep_alive(void)
       // if it can't get out of the queue within five seconds, cancel it.
       , expire_time_from_now
       #endif
-      );
+      ))
+    {
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONS_RSRC_FULL;
+    }
 }
 
 

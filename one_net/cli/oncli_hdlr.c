@@ -1396,7 +1396,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if parsing the data portion failed //
 
     
-    switch((*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
+    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef _PEER
@@ -1412,8 +1412,11 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
       #endif    
       ))
     {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        default: return ONCLI_RSRC_UNAVAILABLE;
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONCLI_RSRC_UNAVAILABLE;
     }
 } // single_cmd_hdlr //
 
@@ -1530,7 +1533,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     put_src_unit(src_unit, raw_pld);
     
 
-    switch((*one_net_send_single)(raw_pid, ON_APP_MSG, raw_pld, pld_len,
+    if(one_net_send_single(raw_pid, ON_APP_MSG, raw_pld, pld_len,
       ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef _PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
@@ -1545,8 +1548,11 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
       #endif    
       ))
     {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        default: return ONCLI_RSRC_UNAVAILABLE;
+        return ONS_SUCCESS;
+    }
+    else
+    {
+        return ONCLI_RSRC_UNAVAILABLE;
     }
 } // single_txt_cmd_hdlr //
 
@@ -1702,7 +1708,7 @@ static oncli_status_t parse_and_send_pin_msg(
     put_dst_unit(dst_unit, raw_pld);
     put_src_unit(src_unit, raw_pld);
       
-    switch((*one_net_send_single)(ONE_NET_RAW_SINGLE_DATA,
+    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL, &enc_dst
       #ifdef _PEER
@@ -1716,8 +1722,11 @@ static oncli_status_t parse_and_send_pin_msg(
       #endif    
       ))
     {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        default: return ONCLI_RSRC_UNAVAILABLE;
+        return ONCLI_SUCCESS;
+    }
+    else
+    {
+        return ONCLI_RSRC_UNAVAILABLE;
     }
 }
 #endif // _ENABLE_SINGLE_COMMAND //
