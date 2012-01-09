@@ -1,0 +1,4051 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Mon Jan 02 17:33:08 2012
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\2_0_Bet_16K\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_client_net.i -o C:\HEWProj\2_0_Bet_16K\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_client_net.a30 -finfo -O5 -OR -dS -OSA -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "one_net_xtea_encipher", "$one_net_xtea_encipher", 'G', 98, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_xtea_decipher", "$one_net_xtea_decipher", 'G', 100, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/mac/one_net.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'V', 'e', "ON_ENCODED_BROADCAST_DID", 'G', 1358, 2, 0, 0, 00h
+	._inspect	'F', 'p', "one_net_init", "$one_net_init", 'G', 1370, 0, 00h, 0
+	._inspect	'F', 'p', "on_is_my_NID", "$on_is_my_NID", 'G', 1373, 0, 00h, 0
+	._inspect	'F', 'p', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 1375, 0, 00h, 0
+	._inspect	'F', 'p', "on_validate_dst_DID", "$on_validate_dst_DID", 'G', 1376, 0, 00h, 0
+	._inspect	'F', 'p', "on_encrypt", "$on_encrypt", 'G', 1380, 0, 00h, 0
+	._inspect	'F', 'p', "on_decrypt", "$on_decrypt", 'G', 1382, 0, 00h, 0
+	._inspect	'F', 'p', "on_rx_data_pkt", "$on_rx_data_pkt", 'G', 1386, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_nonces", "$on_build_nonces", 'G', 1390, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_admin_pkt", "$on_build_admin_pkt", 'G', 1422, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_data_pkt", "$on_build_data_pkt", 'G', 1427, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_response_pkt", "$on_build_response_pkt", 'G', 1430, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_data_rate_pkt", "$on_build_data_rate_pkt", 'G', 1432, 0, 00h, 0
+	._inspect	'F', 'p', "on_build_pkt", "$on_build_pkt", 'G', 1435, 0, 00h, 0
+	._inspect	'F', 'p', "on_parse_pld", "$on_parse_pld", 'G', 1441, 0, 00h, 0
+	._inspect	'F', 'p', "on_update_next_txn_time", "$on_update_next_txn_time", 'G', 1449, 0, 00h, 0
+	._inspect	'F', 'p', "one_net", "$one_net", 'G', 1452, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/app/one_net_application.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+
+;## #	FUNCTION get_three_message_bytes_from_payload
+
+;## #	FUNCTION put_three_message_bytes_to_payload
+
+;## #	FUNCTION get_first_msg_byte
+
+;## #	FUNCTION put_first_msg_byte
+
+;## #	FUNCTION get_second_msg_byte
+
+;## #	FUNCTION put_second_msg_byte
+
+;## #	FUNCTION get_third_msg_byte
+
+;## #	FUNCTION put_third_msg_byte
+
+;## #	FUNCTION get_first_two_msg_bytes
+
+;## #	FUNCTION put_first_two_msg_bytes
+
+;## #	FUNCTION get_msg_hdr
+
+;## #	FUNCTION put_msg_hdr
+
+;## #	FUNCTION get_msg_data
+
+;## #	FUNCTION put_msg_data
+
+;## #	FUNCTION get_src_unit
+
+;## #	FUNCTION put_src_unit
+
+;## #	FUNCTION get_dst_unit
+
+;## #	FUNCTION put_dst_unit
+
+;## #	FUNCTION put_block_data_payload_hdr
+
+;## #	FUNCTION get_block_data_payload_hdr
+	._inspect	'V', 'e', "one_net_send_single", 'G', 594, 4, 0, 0, 00h
+	._inspect	'F', 'p', "ona_parse_msg_class_and_type", "$ona_parse_msg_class_and_type", 'G', 611, 0, 00h, 0
+	._inspect	'F', 'p', "ona_send_unit_type_count_status", "$ona_send_unit_type_count_status", 'G', 615, 0, 00h, 0
+	._inspect	'F', 'p', "ona_send_unit_type_count_query", "$ona_send_unit_type_count_query", 'G', 619, 0, 00h, 0
+	._inspect	'F', 'p', "ona_send_unit_type_status", "$ona_send_unit_type_status", 'G', 623, 0, 00h, 0
+	._inspect	'F', 'p', "ona_send_unit_type_query", "$ona_send_unit_type_query", 'G', 627, 0, 00h, 0
+	._inspect	'F', 'p', "ona_parse_unit_type_count", "$ona_parse_unit_type_count", 'G', 630, 0, 00h, 0
+	._inspect	'F', 'p', "ona_parse_unit_type_status", "$ona_parse_unit_type_status", 'G', 633, 0, 00h, 0
+	._inspect	'F', 'p', "ona_parse_unit_type_query", "$ona_parse_unit_type_query", 'G', 637, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../src/adi_io_boards/tick.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "init_tick", "_init_tick", 'G', 105, 0, 00h, 0
+	._inspect	'F', 'p', "get_tick_count", "_get_tick_count", 'G', 185, 0, 00h, 0
+	._inspect	'F', 'p', "delay_ms", "$delay_ms", 'G', 187, 0, 00h, 0
+	._inspect	'F', 'p', "delay_100s_us", "$delay_100s_us", 'G', 188, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../src/adi_io_boards/one_net_client_port_const.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'V', 'e', "ONE_NET_DEVICE_UNIT_TYPE", 'G', 106, 3, 0, 0, 00h
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "on_client_net_init", "$on_client_net_init", 'G', 146, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_assign_peer", "$on_client_net_assign_peer", 'G', 155, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 159, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_txn_nonce_for_peer", "$on_client_net_txn_nonce_for_peer", 'G', 161, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_set_peer_txn_nonce", "$on_client_net_set_peer_txn_nonce", 'G', 163, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_data_rate_for_peer", "$on_client_net_data_rate_for_peer", 'G', 164, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_set_peer_data_rate", "$on_client_net_set_peer_data_rate", 'G', 166, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_single_txn_hdlr", "$on_client_net_single_txn_hdlr", 'G', 176, 0, 00h, 0
+
+	._inspect	'M', "C:/Renesas/NC30WA/V543R00/inc30/stdlib.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "abort", "_abort", 'G', 73, 0, 00h, 0
+	._inspect	'F', 'p', "div", "$div", 'G', 74, 0, 00h, 0
+	._inspect	'F', 'p', "exit", "$exit", 'G', 75, 0, 00h, 0
+	._inspect	'F', 'p', "calloc", "_calloc", 'G', 76, 0, 00h, 0
+	._inspect	'F', 'p', "free", "$free", 'G', 77, 0, 00h, 0
+	._inspect	'F', 'p', "malloc", "_malloc", 'G', 78, 0, 00h, 0
+	._inspect	'F', 'p', "realloc", "$realloc", 'G', 79, 0, 00h, 0
+	._inspect	'F', 'p', "strtol", "$strtol", 'G', 81, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtol", "$_n_n_strtol", 'G', 82, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtol", "$_n_f_strtol", 'G', 83, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtol", "$_f_n_strtol", 'G', 84, 0, 00h, 0
+	._inspect	'F', 'p', "strtoul", "$strtoul", 'G', 85, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtoul", "$_n_n_strtoul", 'G', 86, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtoul", "$_n_f_strtoul", 'G', 87, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtoul", "$_f_n_strtoul", 'G', 88, 0, 00h, 0
+	._inspect	'F', 'p', "strtod", "$strtod", 'G', 89, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtod", "$_n_n_strtod", 'G', 90, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtod", "$_n_f_strtod", 'G', 91, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtod", "$_f_n_strtod", 'G', 92, 0, 00h, 0
+	._inspect	'F', 'p', "atoi", "$atoi", 'G', 94, 0, 00h, 0
+	._inspect	'F', 'p', "atol", "$atol", 'G', 95, 0, 00h, 0
+	._inspect	'F', 'p', "atof", "$atof", 'G', 96, 0, 00h, 0
+	._inspect	'F', 'p', "abs", "$abs", 'G', 97, 0, 00h, 0
+	._inspect	'F', 'p', "labs", "_labs", 'G', 98, 0, 00h, 0
+	._inspect	'F', 'p', "ldiv", "_ldiv", 'G', 99, 0, 00h, 0
+	._inspect	'F', 'p', "qsort", "$qsort", 'G', 100, 0, 00h, 0
+	._inspect	'F', 'p', "bsearch", "$bsearch", 'G', 101, 0, 00h, 0
+	._inspect	'F', 'p', "mblen", "$mblen", 'G', 102, 0, 00h, 0
+	._inspect	'F', 'p', "mbtowc", "$mbtowc", 'G', 103, 0, 00h, 0
+	._inspect	'F', 'p', "wctomb", "$wctomb", 'G', 104, 0, 00h, 0
+	._inspect	'F', 'p', "wcstombs", "$wcstombs", 'G', 105, 0, 00h, 0
+	._inspect	'F', 'p', "mbstowcs", "$mbstowcs", 'G', 106, 0, 00h, 0
+	._inspect	'F', 'p', "rand", "_rand", 'G', 107, 0, 00h, 0
+	._inspect	'F', 'p', "srand", "$srand", 'G', 108, 0, 00h, 0
+	._inspect	'F', 'p', "strtof", "$strtof", 'G', 110, 0, 00h, 0
+	._inspect	'F', 'p', "_n_n_strtof", "$_n_n_strtof", 'G', 111, 0, 00h, 0
+	._inspect	'F', 'p', "_n_f_strtof", "$_n_f_strtof", 'G', 112, 0, 00h, 0
+	._inspect	'F', 'p', "_f_n_strtof", "$_f_n_strtof", 'G', 113, 0, 00h, 0
+	._inspect	'F', 'p', "atoff", "$atoff", 'G', 114, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../src/adi_io_boards/one_net_port_const.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/port_specific/one_net_port_specific.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "one_net_memmove", "$one_net_memmove", 'G', 108, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_memcmp", "$one_net_memcmp", 'G', 122, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_byte_stream_to_int16", "$one_net_byte_stream_to_int16", 'G', 134, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_int16_to_byte_stream", "$one_net_int16_to_byte_stream", 'G', 145, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_byte_stream_to_int32", "$one_net_byte_stream_to_int32", 'G', 156, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_int32_to_byte_stream", "$one_net_int32_to_byte_stream", 'G', 167, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_tick", "_one_net_tick", 'G', 177, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_ms_to_tick", "_one_net_ms_to_tick", 'G', 187, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_tick_to_ms", "_one_net_tick_to_ms", 'G', 197, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_set_channel", "$one_net_set_channel", 'G', 208, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_channel_is_clear", "_one_net_channel_is_clear", 'G', 222, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_set_data_rate", "$one_net_set_data_rate", 'G', 236, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_look_for_pkt", "_one_net_look_for_pkt", 'G', 246, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_read", "$one_net_read", 'G', 259, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_write", "$one_net_write", 'G', 273, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_write_done", "_one_net_write_done", 'G', 284, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_client.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "one_net_client_look_for_invite", "$one_net_client_look_for_invite", 'G', 168, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_init", "$one_net_client_init", 'G', 172, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_copy_to_nv_param", "$one_net_copy_to_nv_param", 'G', 174, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_raw_master_did", "$one_net_client_raw_master_did", 'G', 176, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_send_single", "$one_net_client_send_single", 'G', 180, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_join_network", "$one_net_client_join_network", 'G', 190, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client", "_one_net_client", 'G', 192, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/port_specific/one_net_client_port_specific.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "one_net_client_joined_network", "$one_net_client_joined_network", 'G', 104, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_handle_single_pkt", "$one_net_client_handle_single_pkt", 'G', 123, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 160, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_save_settings", "$one_net_client_save_settings", 'G', 275, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_client_remove_device", "_one_net_client_client_remove_device", 'G', 288, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_encode.h", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'F', 'p', "on_encode", "$on_encode", 'G', 98, 0, 00h, 0
+	._inspect	'F', 'p', "on_decode", "$on_decode", 'G', 100, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c", "C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net"
+	._inspect	'V', 'd', "peer", "_peer", 'S', 111, 2, 0, 0, 00h
+	._inspect	'V', 'd', "peer_msg_mgr", "_peer_msg_mgr", 'S', 114, 3, 0, 0, 00h
+	._inspect	'F', 'p', "on_client_send_single", "$on_client_send_single", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_encoded_master_did", "$on_client_encoded_master_did", 'G', 140, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_send_to_master", "_on_client_send_to_master", 'G', 141, 0, 00h, 0
+	._inspect	'F', 'p', "have_more_peers", "$have_more_peers", 'S', 143, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 146, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 148, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 149, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 151, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 152, 0, 00h, 0
+	._inspect	'F', 'p', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 153, 0, 00h, 0
+
+;## #	FUNCTION one_net_client_send_single
+;## #	FRAME	AUTO	(  status)	size  2,	offset -6
+;## #	FRAME	AUTO	(encoded_dst_did)	size  2,	offset -4
+;## #	FRAME	AUTO	(    data)	size  2,	offset -2
+;## #	FRAME	AUTO	(  txn_id)	size  1,	offset 10
+;## #  FRAME   ARG (DATA_LEN)  size   1,    offset 5
+;## #  FRAME   ARG (DST_UNIT_IDX)  size   1,    offset 6
+;## #  FRAME   ARG (PRIORITY)  size   1,    offset 7
+;## #  FRAME   ARG ( RAW_DST)  size   2,    offset 8
+;## #  FRAME   ARG (SRC_UNIT)  size   1,    offset 10
+;## #  REGISTER ARG    (    data)   size   2,   REGISTER R1
+;## #	ARG Size(6)	Auto Size(6)	Context Size(5)
+
+
+	.SECTION	program,CODE
+	._inspect	'U', 2, "program", "program", 0
+	._file	'C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c'
+	._type	256,'N',''
+	._type	256,'m','ONS_SNGH_INTERNAL_ERR',41
+	._type	256,'m','ONS_WRITE_ERR',40
+	._type	256,'m','ONS_READ_ERR',39
+	._type	256,'m','ONS_NOT_JOINED',38
+	._type	256,'m','ONS_DEVICE_LIMIT',37
+	._type	256,'m','ONS_DID_FAILED',36
+	._type	256,'m','ONS_NID_FAILED',35
+	._type	256,'m','ONS_INCORRECT_ADDR',34
+	._type	256,'m','ONS_BAD_ADDR',33
+	._type	256,'m','ONS_BROADCAST_ADDR',32
+	._type	256,'m','ONS_MULTICAST_ADDR',31
+	._type	256,'m','ONS_UNICAST_ADDR',30
+	._type	256,'m','ONS_UNHANDLED_PKT',29
+	._type	256,'m','ONS_BAD_PKT',28
+	._type	256,'m','ONS_BAD_PKT_TYPE',27
+	._type	256,'m','ONS_BAD_ENCODING',26
+	._type	256,'m','ONS_BAD_RAW_DATA',25
+	._type	256,'m','ONS_BAD_RAW_PKT_LEN',24
+	._type	256,'m','ONS_TXN_DOES_NOT_EXIST',23
+	._type	256,'m','ONS_TXN_QUEUED',22
+	._type	256,'m','ONS_STREAM_FAIL',21
+	._type	256,'m','ONS_STREAM_END',20
+	._type	256,'m','ONS_BLOCK_FAIL',19
+	._type	256,'m','ONS_BLOCK_END',18
+	._type	256,'m','ONS_SINGLE_FAIL',17
+	._type	256,'m','ONS_SINGLE_END',16
+	._type	256,'m','ONS_INCORRECT_NONCE',15
+	._type	256,'m','ONS_RX_NACK',14
+	._type	256,'m','ONS_RX_STAY_AWAKE',13
+	._type	256,'m','ONS_CRC_FAIL',12
+	._type	256,'m','ONS_UNHANDLED_VER',11
+	._type	256,'m','ONS_INTERNAL_ERR',10
+	._type	256,'m','ONS_TIME_OUT',9
+	._type	256,'m','ONS_CANCELED',8
+	._type	256,'m','ONS_RSRC_FULL',7
+	._type	256,'m','ONS_END',6
+	._type	256,'m','ONS_MORE',5
+	._type	256,'m','ONS_INVALID_DATA',4
+	._type	256,'m','ONS_ALREADY_IN_PROGRESS',3
+	._type	256,'m','ONS_NOT_INIT',2
+	._type	256,'m','ONS_BAD_PARAM',1
+	._type	256,'m','ONS_SUCCESS',0
+	._type	257,'T','one_net_status_t',256
+	._type	258,'T','UInt8',3
+	._type	259,'O',258
+	._type	260,'Z',2,258
+	._type	261,'T','one_net_raw_did_t',260
+	._type	262,'O',261
+	._type	263,'x',257,6
+	._type	263,'m','data',0,259
+	._type	263,'m','DATA_LEN',0,258
+	._type	263,'m','DST_UNIT_IDX',0,258
+	._type	263,'m','PRIORITY',0,258
+	._type	263,'m','RAW_DST',0,262
+	._type	263,'m','SRC_UNIT',0,258
+	._func	'one_net_client_send_single','G',6,263,$one_net_client_send_single,0
+	._inspect	'F', 's', "one_net_client_send_single", "$one_net_client_send_single", 'G', 11
+	._block
+	._line	193
+;## # C_SRC :	{
+	.glb	$one_net_client_send_single
+$one_net_client_send_single:
+	enter	#06H
+	._block
+	._type	264,'O',258
+	._var	'data','R',264,6
+	mov.w	R1,-2[FB]	;  data  data 
+	._eblock
+	mov.b	10[FB],R0L	;  SRC_UNIT  SRC_UNIT 
+	._block
+	._var	'SRC_UNIT','R',258,1
+	._eblock
+	._block
+	._type	265,'O',258
+	._var	'data','A',265,-2
+	._var	'DATA_LEN','A',258,5
+	._var	'DST_UNIT_IDX','A',258,6
+	._var	'PRIORITY','A',258,7
+	._type	266,'O',261
+	._var	'RAW_DST','A',266,8
+	._var	'status','A',257,-6
+	._type	267,'Z',2,258
+	._type	268,'T','on_encoded_did_t',267
+	._var	'encoded_dst_did','A',268,-4
+	._var	'txn_id','A',258,10
+	._block
+	._var	'SRC_UNIT','R',258,1
+	._line	197
+;## # C_SRC :	    UInt8 txn_id = SINGLE_DST_TXN_ID;
+	mov.b	#0ffH,10[FB]	;  txn_id 
+	._line	202
+;## # C_SRC :	      || (SRC_UNIT == ONE_NET_DEV_UNIT && !RAW_DST))
+	cmp.w	#0000H,-2[FB]	;  data 
+	jeq	L389
+	cmp.b	#05H,5[FB]	;  DATA_LEN 
+	jgtu	L389
+	cmp.b	#01H,7[FB]	;  PRIORITY 
+	jltu	L389
+	cmp.b	#02H,7[FB]	;  PRIORITY 
+	jgtu	L389
+	cmp.b	#0fH,R0L	;  SRC_UNIT 
+	jeq	L343
+	cmp.b	#04H,R0L	;  SRC_UNIT 
+	jgeu	L389
+L343:
+	cmp.b	#0fH,R0L	;  SRC_UNIT 
+	jne	L391
+	cmp.w	#0000H,8[FB]	;  RAW_DST 
+	jne	L391
+	._eblock
+L389:
+	._line	203
+	._block
+	._line	204
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L391:
+	._block
+	._var	'SRC_UNIT','R',258,1
+	._line	208
+;## # C_SRC :	    if(!RAW_DST)
+	cmp.w	#0000H,8[FB]	;  RAW_DST 
+	jne	L249
+	._eblock
+	._line	209
+	._block
+	._block
+	._var	'SRC_UNIT','R',258,1
+	._line	211
+;## # C_SRC :	        if(peer_msg_mgr.src_unit != ONE_NET_DEV_UNIT)
+	cmp.b	#0fH,_peer_msg_mgr
+	jeq	L205
+	._eblock
+	._line	212
+	._block
+	._line	213
+;## # C_SRC :	            return ONS_RSRC_FULL;
+	mov.w	#0007H,R0
+	exitd	
+	._eblock
+L205:
+	._block
+	._var	'SRC_UNIT','R',258,1
+	._line	216
+;## # C_SRC :	        peer_msg_mgr.src_unit = SRC_UNIT;
+	mov.b	R0L,_peer_msg_mgr	;  SRC_UNIT 
+	._eblock
+	._line	217
+;## # C_SRC :	        peer_msg_mgr.peer_idx = 0;
+	mov.b	#00H,_peer_msg_mgr+1
+	._line	219
+;## # C_SRC :	          : ON_MAX_RAW_PLD_LEN;
+	cmp.b	5[FB],6[FB]	;  DATA_LEN  DST_UNIT_IDX 
+	jgeu	L225
+	mov.b	6[FB],R0L	;  DST_UNIT_IDX 
+	jmp	L227
+L225:
+	mov.b	#08H,R0L
+L227:
+	mov.b	R0L,_peer_msg_mgr+2
+	._line	223
+;## # C_SRC :	          &encoded_dst_did);
+	._inspect	'S', 'p', 2
+	pusha	-4[FB]	;  encoded_dst_did 
+	mov.w	#_peer_msg_mgr,R2
+	mov.w	-2[FB],R1	;  data 
+	._inspect	'S', 'c', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 0, 223
+	jsr	$on_client_net_setup_msg_for_peer
+	._inspect	'S', 'p', -2
+	add.b	#02H,SP
+	mov.w	R0,-6[FB]	;  status 
+	._line	224
+;## # C_SRC :	        switch(status)
+	jeq	L231
+	cmp.w	#0006H,R0
+	jeq	L233
+	._line	247
+	._block
+	._line	248
+;## # C_SRC :	                on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+L401:
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 248
+	jsr	$on_client_net_clear_peer_msg_mgr
+	._line	249
+;## # C_SRC :	                return status;
+L399:
+	mov.w	-6[FB],R0	;  status 
+	exitd	
+	._eblock
+	._line	225
+	._block
+	._line	226
+;## # C_SRC :	            case ONS_SUCCESS:
+L231:
+	._line	227
+	._block
+	._line	228
+;## # C_SRC :	                txn_id = 0;
+	mov.b	#00H,10[FB]	;  txn_id 
+	._line	229
+;## # C_SRC :	                break;
+	jmp	L257
+	._eblock
+	._line	232
+;## # C_SRC :	            case ONS_END:
+L233:
+	._line	233
+	._block
+	._line	234
+;## # C_SRC :	                on_client_encoded_master_did(&encoded_dst_did);
+	mova	-4[FB],R1	;  encoded_dst_did 
+	._inspect	'S', 'c', "on_client_encoded_master_did", "$on_client_encoded_master_did", 'G', 0, 234
+	jsr	$on_client_encoded_master_did
+	._line	235
+;## # C_SRC :	                if(peer_msg_mgr.msg_dst_unit_idx != ON_MAX_RAW_PLD_LEN)
+	cmp.b	#08H,_peer_msg_mgr+2
+	jeq	L237
+	._line	236
+	._block
+	._line	237
+;## # C_SRC :	                    put_dst_unit(ONE_NET_DEV_UNIT, data);
+	mov.w	-2[FB],A0	;  data 
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+	._file	'C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/app/one_net_application.h'
+	._line	204
+	._block
+	._var	'data','A',258,0
+	._type	269,'O',258
+	._var	'payload','A',269,0
+	._line	207
+;## # C_SRC :	        ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_1
+	.stk	-3
+	._eblock
+	._file	'C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c'
+L237:
+	._line	242
+;## # C_SRC :	                on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 242
+	jsr	$on_client_net_clear_peer_msg_mgr
+	._line	243
+;## # C_SRC :	                break;
+	jmp	L257
+	._eblock
+	._eblock
+	._eblock
+	._line	253
+;## # C_SRC :	    else if((status = on_encode(encoded_dst_did, *RAW_DST,
+L249:
+	._line	254
+;## # C_SRC :	      sizeof(encoded_dst_did))) != ONS_SUCCESS)
+	push.w	#0002H
+	._inspect	'S', 'p', 2
+	mov.w	8[FB],R2	;  RAW_DST 
+	mova	-4[FB],R1	;  encoded_dst_did 
+	._inspect	'S', 'c', "on_encode", "$on_encode", 'G', 0, 254
+	jsr	$on_encode
+	._inspect	'S', 'p', -2
+	add.b	#02H,SP
+	mov.w	R0,-6[FB]	;  status 
+	jeq	L257
+	._line	255
+	._block
+	._line	256
+;## # C_SRC :	        return status;
+	exitd	
+	._eblock
+L257:
+	._line	261
+;## # C_SRC :	                      &encoded_dst_did, txn_id);
+	push.b	10[FB]	;  txn_id 
+	._inspect	'S', 'p', 1
+	._inspect	'S', 'p', 2
+	pusha	-4[FB]	;  encoded_dst_did 
+	push.b	7[FB]	;  PRIORITY 
+	._inspect	'S', 'p', 1
+	push.b	5[FB]	;  DATA_LEN 
+	._inspect	'S', 'p', 1
+	mov.w	-2[FB],R1	;  data 
+	._inspect	'S', 'c', "on_client_send_single", "$on_client_send_single", 'G', 0, 261
+	jsr	$on_client_send_single
+	._inspect	'S', 'p', -5
+	add.b	#05H,SP
+	mov.w	R0,-6[FB]	;  status 
+	._line	262
+;## # C_SRC :	    if((status != ONS_SUCCESS) && !RAW_DST)
+	jeq	L399
+	cmp.w	#0000H,8[FB]	;  RAW_DST 
+	jne	L399
+	._line	263
+	._block
+	._line	265
+;## # C_SRC :	        if (!have_more_peers(&peer_msg_mgr))
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "have_more_peers", "$have_more_peers", 'S', 0, 265
+	jsr	$have_more_peers
+	mov.b	R0L,R0H
+	jne	L399
+	._line	266
+	._block
+	._line	267
+;## # C_SRC :	            on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+	jmp	L401
+E1:
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_1:
+	mov.b	[A0],R0L
+	and.b	#0f0H,R0L
+	or.b	#0fH,R0L
+	mov.b	R0L,[A0]
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_1:
+
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "one_net_client_send_single", "$one_net_client_send_single", 'G', 193, 0, 00h, 0
+	._inspect	'F', 't', "one_net_client_send_single", 'G', 263
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 211, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 216, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 217, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 219, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 223, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 223, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 248, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 248, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_encoded_master_did", "$on_client_encoded_master_did", 'G', 234, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 235, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 242, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 242, 0, 00h, 0
+	._inspect	'F', 'r', "on_encode", "$on_encode", 'G', 254, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_send_single", "$on_client_send_single", 'G', 261, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 265, 3, 0, 0, 00h
+	._inspect	'F', 'r', "have_more_peers", "$have_more_peers", 'S', 265, 0, 00h, 0
+	._inspect	'F', 'e', "one_net_client_send_single", "$one_net_client_send_single", 'G', 5, 0
+
+
+;## #	FUNCTION on_client_net_assign_peer
+;## #	FRAME	AUTO	(PEER_DID)	size  2,	offset -5
+;## #	FRAME	AUTO	( dev_idx)	size  1,	offset -3
+;## #	FRAME	AUTO	(unit_idx)	size  1,	offset -2
+;## #	FRAME	AUTO	(SRC_UNIT)	size  1,	offset -1
+;## #  FRAME   ARG (PEER_UNIT)  size   1,    offset 5
+;## #  REGISTER ARG    (SRC_UNIT)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    (PEER_DID)   size   2,   REGISTER R2
+;## #	ARG Size(1)	Auto Size(5)	Context Size(5)
+
+	._type	270,'O',268
+	._type	271,'x',257,3
+	._type	271,'m','SRC_UNIT',0,258
+	._type	271,'m','PEER_DID',0,270
+	._type	271,'m','PEER_UNIT',0,258
+	._func	'on_client_net_assign_peer','G',5,271,$on_client_net_assign_peer,0
+	._inspect	'F', 's', "on_client_net_assign_peer", "$on_client_net_assign_peer", 'G', 10
+	._line	300
+;## # C_SRC :	{
+	.glb	$on_client_net_assign_peer
+$on_client_net_assign_peer:
+	enter	#05H
+	mov.b	R1L,-1[FB]	;  SRC_UNIT  SRC_UNIT 
+	mov.w	R2,-5[FB]	;  PEER_DID  PEER_DID 
+	._block
+	._var	'SRC_UNIT','A',258,-1
+	._type	272,'O',268
+	._var	'PEER_DID','A',272,-5
+	._var	'PEER_UNIT','A',258,5
+	._var	'unit_idx','A',258,-2
+	._line	303
+;## # C_SRC :	    if(!PEER_DID)
+	jne	L405
+	._line	304
+	._block
+	._line	305
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L405:
+	._line	308
+;## # C_SRC :	    if(SRC_UNIT > ONE_NET_NUM_UNITS)
+	cmp.b	#04H,-1[FB]	;  SRC_UNIT 
+	jleu	L413
+	._line	309
+	._block
+	._line	310
+;## # C_SRC :	        return ONS_INVALID_DATA;
+	mov.w	#0004H,R0
+	exitd	
+	._eblock
+L413:
+	._line	315
+;## # C_SRC :	    for(unit_idx = 0; unit_idx < ONE_NET_PEER_PER_UNIT; unit_idx++)
+	mov.b	#00H,-2[FB]	;  unit_idx 
+L423:
+	._line	316
+	._block
+	._line	318
+;## # C_SRC :	        if(peer->unit[SRC_UNIT][unit_idx].peer_unit == ONE_NET_DEV_UNIT)
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_2
+	.stk	-3
+	cmp.b	#0fH,0042H[A0]
+	jne	L455
+	._line	319
+	._block
+	._var	'dev_idx','A',258,-3
+	._line	322
+;## # C_SRC :	            peer->unit[SRC_UNIT][unit_idx].peer_unit = PEER_UNIT;
+	mov.b	5[FB],0042H[A0]	;  PEER_UNIT 
+	._line	327
+;## # C_SRC :	            for(dev_idx = 0; dev_idx < ON_NUM_PEER_DEV; dev_idx++)
+	mov.b	#00H,-3[FB]	;  dev_idx 
+L435:
+	._line	328
+	._block
+	._line	330
+;## # C_SRC :	                  (const on_encoded_did_t * const)&(peer->dev[dev_idx].did)))
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_3
+	.stk	-3
+	mov.w	#_ON_ENCODED_BROADCAST_DID,R1
+	mov.w	R0,R2
+	._inspect	'S', 'c', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 0, 330
+	jsr	$on_encoded_did_equal
+	mov.b	R0L,R0H
+	jeq	L447
+	._line	331
+	._block
+	._line	333
+;## # C_SRC :	                      sizeof(peer->dev[dev_idx].did));
+	push.w	#0000H
+	push.w	#0002H
+	._inspect	'S', 'p', 4
+	mov.w	-5[FB],R2	;  PEER_DID 
+	mov.b	-3[FB],R1L	;  dev_idx 
+	mov.b	#00H,R1H
+	shl.w	#02H,R1
+	add.w	_peer,R1
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 333
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._line	339
+;## # C_SRC :	                    peer->unit[SRC_UNIT][unit_idx].peer_dev_idx = dev_idx;
+L509:
+	mov.b	-3[FB],R0L	;  dev_idx 
+	mov.b	#00H,R0H
+	mov.b	-1[FB],A0	;  SRC_UNIT 
+	mul.w	#000cH,A0
+	mov.b	-2[FB],R1L	;  unit_idx 
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4
+	.stk	-3
+	mov.w	R0,0040H[A0]
+	._line	340
+;## # C_SRC :	                    return ONS_SUCCESS;
+L511:
+	mov.w	#0000H,R0
+	exitd	
+	._eblock
+	._line	342
+;## # C_SRC :	                else if(on_encoded_did_equal(PEER_DID,
+L447:
+	._line	343
+;## # C_SRC :	                  (const on_encoded_did_t * const)&(peer->dev[dev_idx].did)))
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_3
+	.stk	-3
+	mov.w	-5[FB],R1	;  PEER_DID 
+	mov.w	R0,R2
+	._inspect	'S', 'c', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 0, 343
+	jsr	$on_encoded_did_equal
+	mov.b	R0L,R0H
+	jne	L509
+	._eblock
+	inc.b	-3[FB]	;  dev_idx 
+	cmp.b	#10H,-3[FB]	;  dev_idx 
+	jltu	L435
+	._line	350
+;## # C_SRC :	            peer->unit[SRC_UNIT][unit_idx].peer_unit = ONE_NET_DEV_UNIT;
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_2
+	.stk	-3
+	mov.b	#0fH,0042H[A0]
+	._line	351
+;## # C_SRC :	            return ONS_INTERNAL_ERR;
+	mov.w	#000aH,R0
+	exitd	
+	._eblock
+	._line	353
+;## # C_SRC :	        else if(peer->unit[SRC_UNIT][unit_idx].peer_unit == PEER_UNIT
+L455:
+	._line	356
+;## # C_SRC :	          &(peer->dev[peer->unit[SRC_UNIT][unit_idx].peer_dev_idx].did)))
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_5
+	.stk	-3
+	mov.w	A0,R0
+	add.w	_peer,A0
+	cmp.b	5[FB],0042H[A0]	;  PEER_UNIT 
+	jne	L507
+	mov.w	_peer,A0
+	add.w	#0040H,A0
+	add.w	R0,A0
+	mov.w	[A0],R2
+	shl.w	#02H,R2
+	add.w	_peer,R2
+	mov.w	-5[FB],R1	;  PEER_DID 
+	._inspect	'S', 'c', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 0, 356
+	jsr	$on_encoded_did_equal
+	mov.b	R0L,R0H
+	jne	L511
+L507:
+	inc.b	-2[FB]	;  unit_idx 
+	cmp.b	#04H,-2[FB]	;  unit_idx 
+	jltu	L423
+	._eblock
+	._line	362
+;## # C_SRC :	    return ONS_RSRC_FULL;
+	mov.w	#0007H,R0
+	exitd	
+E2:
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_5:
+	mov.b	-1[FB],A0
+	mul.w	#000cH,A0
+	mov.b	-2[FB],R0L
+	mov.b	#00H,R0H
+	mul.w	#0003H,R0
+	add.w	R0,A0
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_5:
+
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4:
+	mov.b	#00H,R1H
+	mul.w	#0003H,R1
+	add.w	R1,A0
+	add.w	_peer,A0
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4:
+
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_3:
+	mov.b	-3[FB],R0L
+	mov.b	#00H,R0H
+	shl.w	#02H,R0
+	add.w	_peer,R0
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_3:
+
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_2:
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_5
+	.stk	-3
+	add.w	_peer,A0
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_2:
+
+	._eblock
+M2:
+	._efunc	M2
+	._inspect	'F', 'd', "on_client_net_assign_peer", "$on_client_net_assign_peer", 'G', 300, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_assign_peer", 'G', 271
+	._inspect	'V', 'r', "peer", 'S', 318, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 330, 2, 0, 0, 00h
+	._inspect	'V', 'r', "ON_ENCODED_BROADCAST_DID", 'G', 330, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 330, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 333, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 333, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 339, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 343, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 343, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 350, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 356, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 356, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 356, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 356, 0, 00h, 0
+	._inspect	'F', 'e', "on_client_net_assign_peer", "$on_client_net_assign_peer", 'G', 4, 0
+
+
+;## #	FUNCTION on_client_net_unassign_peer
+;## #	FRAME	AUTO	( dev_idx)	size  2,	offset -9
+;## #	FRAME	AUTO	(PEER_DID)	size  2,	offset -7
+;## #	FRAME	AUTO	(peer_unit_idx)	size  1,	offset -5
+;## #	FRAME	AUTO	(src_unit_match)	size  1,	offset -4
+;## #	FRAME	AUTO	(src_unit)	size  1,	offset -3
+;## #	FRAME	AUTO	(rm_device)	size  1,	offset -2
+;## #	FRAME	AUTO	(SRC_UNIT)	size  1,	offset -1
+;## #  FRAME   ARG (PEER_UNIT)  size   1,    offset 5
+;## #  REGISTER ARG    (SRC_UNIT)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    (PEER_DID)   size   2,   REGISTER R2
+;## #	ARG Size(1)	Auto Size(9)	Context Size(5)
+
+	._type	273,'O',268
+	._type	274,'x',257,3
+	._type	274,'m','SRC_UNIT',0,258
+	._type	274,'m','PEER_DID',0,273
+	._type	274,'m','PEER_UNIT',0,258
+	._func	'on_client_net_unassign_peer','G',9,274,$on_client_net_unassign_peer,0
+	._inspect	'F', 's', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 14
+	._line	399
+;## # C_SRC :	{
+	.glb	$on_client_net_unassign_peer
+$on_client_net_unassign_peer:
+	enter	#09H
+	mov.b	R1L,-1[FB]	;  SRC_UNIT  SRC_UNIT 
+	mov.w	R2,-7[FB]	;  PEER_DID  PEER_DID 
+	._block
+	._var	'SRC_UNIT','A',258,-1
+	._type	275,'O',268
+	._var	'PEER_DID','A',275,-7
+	._var	'PEER_UNIT','A',258,5
+	._type	276,'T','UInt16',18
+	._var	'dev_idx','A',276,-9
+	._var	'peer_unit_idx','A',258,-5
+	._var	'src_unit','A',258,-3
+	._type	277,'T','BOOL',258
+	._var	'src_unit_match','A',277,-4
+	._var	'rm_device','A',277,-2
+	._line	406
+;## # C_SRC :		    PEER_UNIT > ONE_NET_DEV_UNIT)
+	cmp.b	#0fH,-1[FB]	;  SRC_UNIT 
+	jeq	L777
+	cmp.b	#04H,-1[FB]	;  SRC_UNIT 
+	jgeu	L783
+L777:
+	cmp.b	#0fH,5[FB]	;  PEER_UNIT 
+	jleu	L513
+L783:
+	._line	407
+	._block
+	._line	408
+;## # C_SRC :	        return ONS_INVALID_DATA;
+	mov.w	#0004H,R0
+	exitd	
+	._eblock
+L513:
+	._line	411
+;## # C_SRC :		if(PEER_DID == NULL)
+	cmp.w	#0000H,-7[FB]	;  PEER_DID 
+	jne	L581
+	._line	412
+	._block
+	._line	414
+;## # C_SRC :			for(dev_idx = 0; dev_idx < ON_NUM_PEER_DEV; dev_idx++)
+	mov.w	#0000H,-9[FB]	;  dev_idx 
+L559:
+	._line	415
+	._block
+	._line	417
+;## # C_SRC :				    PEER_UNIT);
+	push.b	5[FB]	;  PEER_UNIT 
+	._inspect	'S', 'p', 1
+	mov.w	-9[FB],R2	;  dev_idx 
+	shl.w	#02H,R2
+	add.w	_peer,R2
+	mov.b	-1[FB],R1L	;  SRC_UNIT 
+	._inspect	'S', 'c', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 0, 417
+	jsr	$on_client_net_unassign_peer
+	._inspect	'S', 'p', -1
+	add.b	#01H,SP
+	._block
+	._var	'status','R',257,5
+	._line	419
+;## # C_SRC :				if(status != ONS_SUCCESS)
+	cmp.w	#0000H,R0	;  status 
+	jeq	L571
+	._eblock
+	._line	420
+	._block
+	._block
+	._var	'status','R',257,5
+	._line	421
+;## # C_SRC :					return status; // some error somewhere
+	._eblock
+	exitd	
+	._eblock
+L571:
+	add.w	#0001H,-9[FB]	;  dev_idx 
+	cmp.w	#0010H,-9[FB]	;  dev_idx 
+	jltu	L559
+	._eblock
+	._line	425
+;## # C_SRC :			return ONS_SUCCESS;
+L855:
+	mov.w	#0000H,R0
+	exitd	
+	._eblock
+L581:
+	._line	429
+;## # C_SRC :	      PEER_DID)) == ON_INVALID_PEER)
+	mov.w	-7[FB],R1	;  PEER_DID 
+	._inspect	'S', 'c', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 429
+	jsr	$on_client_net_peer_dev_idx
+	mov.w	R0,-9[FB]	;  dev_idx 
+	cmp.w	#0ffffH,R0
+	jeq	L855
+	._line	449
+;## # C_SRC :		for(src_unit = ONE_NET_NUM_UNITS - 1; src_unit < ONE_NET_NUM_UNITS;
+	mov.w	#0103H,-3[FB]	;  src_unit 
+L601:
+	._line	451
+	._block
+	._line	452
+;## # C_SRC :			src_unit_match = (SRC_UNIT == ONE_NET_DEV_UNIT || src_unit == SRC_UNIT);
+	cmp.b	#0fH,-1[FB]	;  SRC_UNIT 
+	jeq	L845
+	cmp.b	-1[FB],-3[FB]	;  SRC_UNIT  src_unit 
+	jeq	L845
+	mov.b	#00H,R0L
+	jmp	L615
+L845:
+	mov.b	#01H,R0L
+L615:
+	mov.b	R0L,-4[FB]	;  src_unit_match 
+	._line	458
+;## # C_SRC :			    peer_unit_idx < ONE_NET_PEER_PER_UNIT; peer_unit_idx--)
+	mov.b	#03H,-5[FB]	;  peer_unit_idx 
+L637:
+	._line	459
+	._block
+	._line	460
+;## # C_SRC :				if(peer->unit[src_unit][peer_unit_idx].peer_unit == ONE_NET_DEV_UNIT)
+	mov.b	-3[FB],A0	;  src_unit 
+	mul.w	#000cH,A0
+	mov.b	-5[FB],R0L	;  peer_unit_idx 
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_6
+	.stk	-3
+	jeq	L847
+	._line	466
+;## # C_SRC :				    PEER_UNIT == peer->unit[src_unit][peer_unit_idx].peer_unit);
+	cmp.b	#0fH,5[FB]	;  PEER_UNIT 
+	jeq	L849
+	cmp.b	0042H[A0],5[FB]	;  PEER_UNIT 
+	jeq	L849
+	mov.b	#00H,R0L
+	jmp	L661
+L849:
+	mov.b	#01H,R0L
+L661:
+	._block
+	._var	'peer_unit_match','R',277,1
+	._line	469
+;## # C_SRC :				    peer->unit[src_unit][peer_unit_idx].peer_dev_idx);
+	mov.b	-3[FB],A0	;  src_unit 
+	mul.w	#000cH,A0
+	mov.b	-5[FB],R1L	;  peer_unit_idx 
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4
+	.stk	-3
+	cmp.w	0040H[A0],-9[FB]	;  dev_idx 
+	stzx	#01H,#00H,R0H
+	._eblock
+	._block
+	._var	'peer_unit_match','R',277,1
+	._var	'dev_idx_match','R',277,2
+	._line	471
+;## # C_SRC :				delete = (src_unit_match && peer_unit_match && dev_idx_match);
+	cmp.b	#00H,-4[FB]	;  src_unit_match 
+	jeq	L853
+	cmp.b	#00H,R0L	;  peer_unit_match 
+	jeq	L853
+	._eblock
+	._block
+	._var	'dev_idx_match','R',277,2
+	mov.b	R0H,R0L
+	jeq	L853
+	mov.b	#01H,R0L
+	jmp	L691
+	._eblock
+L853:
+	._block
+	._var	'dev_idx_match','R',277,2
+	mov.b	#00H,R0L
+L691:
+	._eblock
+	._block
+	._var	'delete','R',277,1
+	._var	'dev_idx_match','R',277,2
+	._line	473
+;## # C_SRC :				if(dev_idx_match && !delete)
+	cmp.b	#00H,R0H	;  dev_idx_match 
+	jeq	L713
+	._eblock
+	._block
+	._var	'delete','R',277,1
+	cmp.b	#00H,R0L	;  delete 
+	stz	#00H,-2[FB]	;  rm_device 
+L713:
+	._line	481
+;## # C_SRC :				if(delete)
+	mov.b	R0L,R0H
+	jeq	L847
+	._eblock
+	._line	482
+	._block
+	._line	500
+;## # C_SRC :					if(peer_unit_idx < ONE_NET_PEER_PER_UNIT - 1)
+	cmp.b	#03H,-5[FB]	;  peer_unit_idx 
+	jgeu	L733
+	._line	501
+	._block
+	._line	504
+;## # C_SRC :							(ONE_NET_PEER_PER_UNIT - peer_unit_idx- 1) * sizeof(on_peer_unit_t));					
+	mov.b	-5[FB],R0L	;  peer_unit_idx 
+	mov.b	#00H,R0H
+	mov.w	#0003H,R1
+	sub.w	R0,R1
+	mul.w	#0003H,R1
+	pushm	R3,R1
+	._inspect	'S', 'p', 4
+	mov.b	-5[FB],R0L	;  peer_unit_idx 
+	mov.b	#00H,R0H
+	mov.w	R0,R1
+	add.w	#0001H,R0
+	mul.w	#0003H,R0
+	mov.b	-3[FB],A0	;  src_unit 
+	mul.w	#000cH,A0
+	mov.w	A0,R2
+	add.w	R0,A0
+	add.w	_peer,A0
+	add.w	#0040H,A0
+	mul.w	#0003H,R1
+	xchg.w	R1,R2
+	mov.w	R2,R0
+	add.w	R0,R1
+	add.w	_peer,R1
+	add.w	#0040H,R1
+	mov.w	A0,R2
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 504
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._eblock
+L733:
+	._line	507
+;## # C_SRC :					peer->unit[src_unit][ONE_NET_PEER_PER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
+	mov.b	-3[FB],A0	;  src_unit 
+	mul.w	#000cH,A0
+	add.w	_peer,A0
+	mov.b	#0fH,004bH[A0]
+	._eblock
+L847:
+	dec.b	-5[FB]	;  peer_unit_idx 
+	cmp.b	#04H,-5[FB]	;  peer_unit_idx 
+	jltu	L637
+	dec.b	-3[FB]	;  src_unit 
+	cmp.b	#04H,-3[FB]	;  src_unit 
+	jltu	L601
+	._eblock
+	._eblock
+	._line	512
+;## # C_SRC :	    if(rm_device || !on_client_net_send_to_peer_dev(dev_idx))
+	mov.b	-2[FB],R0L	;  rm_device 
+	jne	L841
+	mov.w	-9[FB],R1	;  dev_idx 
+	._inspect	'S', 'c', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 0, 512
+	jsr	$on_client_net_send_to_peer_dev
+	mov.b	R0L,R0H
+	jne	L855
+L841:
+	._line	513
+	._block
+	._line	514
+;## # C_SRC :	        on_client_net_rm_dev(dev_idx);
+	mov.w	-9[FB],R1	;  dev_idx 
+	._inspect	'S', 'c', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 0, 514
+	jsr	$on_client_net_rm_dev
+	._eblock
+	._line	517
+;## # C_SRC :	    return ONS_SUCCESS;
+	jmp	L855
+E3:
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_6:
+	mov.b	#00H,R0H
+	mul.w	#0003H,R0
+	add.w	R0,A0
+	add.w	_peer,A0
+	cmp.b	#0fH,0042H[A0]
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_6:
+
+	._eblock
+M4:
+	._efunc	M4
+	._inspect	'F', 'd', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 399, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_unassign_peer", 'G', 274
+	._inspect	'V', 'r', "peer", 'S', 417, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 417, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 429, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 460, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 469, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 504, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 504, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 504, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 507, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 512, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 514, 0, 00h, 0
+	._inspect	'F', 'e', "on_client_net_unassign_peer", "$on_client_net_unassign_peer", 'G', 4, 0
+
+
+;## #	FUNCTION on_client_net_txn_nonce_for_peer
+;## #  REGISTER ARG    (PEER_DID)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	278,'O',268
+	._type	279,'x',258,1
+	._type	279,'m','PEER_DID',0,278
+	._func	'on_client_net_txn_nonce_for_peer','G',0,279,$on_client_net_txn_nonce_for_peer,0
+	._inspect	'F', 's', "on_client_net_txn_nonce_for_peer", "$on_client_net_txn_nonce_for_peer", 'G', 5
+	._line	530
+;## # C_SRC :	{
+	.glb	$on_client_net_txn_nonce_for_peer
+$on_client_net_txn_nonce_for_peer:
+	._block
+	._type	280,'O',268
+	._var	'PEER_DID','A',280,0
+	._line	531
+;## # C_SRC :	    UInt16 peer_dev_idx = ON_INVALID_PEER;
+	._block
+	._type	281,'O',268
+	._var	'PEER_DID','R',281,6
+	mov.w	#0ffffH,R0	;  peer_dev_idx 
+	._line	534
+;## # C_SRC :	      != ON_INVALID_PEER)
+	cmp.w	#0000H,R1	;  PEER_DID 
+	jeq	L891
+	._eblock
+	._inspect	'S', 'c', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 534
+	jsr	$on_client_net_peer_dev_idx
+	._block
+	._var	'peer_dev_idx','R',276,5
+	cmp.w	#0ffffH,R0	;  peer_dev_idx 
+	jeq	L891
+	._eblock
+	._line	535
+	._block
+	._block
+	._var	'peer_dev_idx','R',276,5
+	._line	536
+;## # C_SRC :	        return peer->dev[peer_dev_idx].nonce;
+	mov.w	R0,A0	;  peer_dev_idx  peer_dev_idx 
+	._eblock
+	shl.w	#02H,A0
+	add.w	_peer,A0
+	mov.b	0002H[A0],R0L
+	rts	
+	._eblock
+L891:
+	._line	539
+;## # C_SRC :	    return ON_INVALID_NONCE;
+	mov.b	#0ffH,R0L
+	rts	
+E4:
+	._eblock
+M5:
+	._efunc	M5
+	._inspect	'F', 'd', "on_client_net_txn_nonce_for_peer", "$on_client_net_txn_nonce_for_peer", 'G', 530, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_txn_nonce_for_peer", 'G', 279
+	._inspect	'F', 'r', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 534, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 536, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_txn_nonce_for_peer", "$on_client_net_txn_nonce_for_peer", 'G', 0, 0
+
+
+;## #	FUNCTION on_client_net_set_peer_txn_nonce
+;## #  FRAME   ARG (NEXT_NONCE)  size   1,    offset 5
+;## #  REGISTER ARG    (     DID)   size   2,   REGISTER R1
+;## #	ARG Size(1)	Auto Size(0)	Context Size(5)
+
+	._type	282,'O',268
+	._type	283,'x',277,2
+	._type	283,'m','DID',0,282
+	._type	283,'m','NEXT_NONCE',0,258
+	._func	'on_client_net_set_peer_txn_nonce','G',0,283,$on_client_net_set_peer_txn_nonce,0
+	._inspect	'F', 's', "on_client_net_set_peer_txn_nonce", "$on_client_net_set_peer_txn_nonce", 'G', 5
+	._line	554
+;## # C_SRC :	{
+	.glb	$on_client_net_set_peer_txn_nonce
+$on_client_net_set_peer_txn_nonce:
+	enter	#00H
+	._block
+	._type	284,'O',268
+	._var	'DID','A',284,0
+	._var	'NEXT_NONCE','A',258,5
+	._line	555
+;## # C_SRC :	    UInt16 dev_idx = ON_INVALID_PEER;
+	._block
+	._type	285,'O',268
+	._var	'DID','R',285,6
+	mov.w	#0ffffH,R0	;  dev_idx 
+	._line	558
+;## # C_SRC :	      && (dev_idx = on_client_net_peer_dev_idx(DID)) != ON_INVALID_PEER)
+	cmp.w	#0000H,R1	;  DID 
+	jeq	L953
+	cmp.b	#3fH,5[FB]	;  NEXT_NONCE 
+	jgtu	L953
+	._eblock
+	._inspect	'S', 'c', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 558
+	jsr	$on_client_net_peer_dev_idx
+	._block
+	._var	'dev_idx','R',276,5
+	cmp.w	#0ffffH,R0	;  dev_idx 
+	jeq	L953
+	._eblock
+	._line	559
+	._block
+	._block
+	._var	'dev_idx','R',276,5
+	._line	560
+;## # C_SRC :	        peer->dev[dev_idx].nonce = NEXT_NONCE;
+	mov.w	R0,A0	;  dev_idx  dev_idx 
+	._eblock
+	shl.w	#02H,A0
+	add.w	_peer,A0
+	mov.b	5[FB],0002H[A0]	;  NEXT_NONCE 
+	._line	561
+;## # C_SRC :	        return TRUE;
+	mov.b	#01H,R0L
+	exitd	
+	._eblock
+L953:
+	._line	564
+;## # C_SRC :	    return FALSE;
+	mov.b	#00H,R0L
+	exitd	
+E5:
+	._eblock
+M6:
+	._efunc	M6
+	._inspect	'F', 'd', "on_client_net_set_peer_txn_nonce", "$on_client_net_set_peer_txn_nonce", 'G', 554, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_set_peer_txn_nonce", 'G', 283
+	._inspect	'F', 'r', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 558, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 560, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_set_peer_txn_nonce", "$on_client_net_set_peer_txn_nonce", 'G', 0, 0
+
+
+;## #	FUNCTION on_client_net_data_rate_for_peer
+;## #  REGISTER ARG    (PEER_DID)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	286,'O',268
+	._type	287,'x',258,1
+	._type	287,'m','PEER_DID',0,286
+	._func	'on_client_net_data_rate_for_peer','G',0,287,$on_client_net_data_rate_for_peer,0
+	._inspect	'F', 's', "on_client_net_data_rate_for_peer", "$on_client_net_data_rate_for_peer", 'G', 5
+	._line	577
+;## # C_SRC :	{
+	.glb	$on_client_net_data_rate_for_peer
+$on_client_net_data_rate_for_peer:
+	._block
+	._type	288,'O',268
+	._var	'PEER_DID','A',288,0
+	._line	578
+;## # C_SRC :	    UInt16 peer_dev_idx = ON_INVALID_PEER;
+	._block
+	._type	289,'O',268
+	._var	'PEER_DID','R',289,6
+	mov.w	#0ffffH,R0	;  peer_dev_idx 
+	._line	581
+;## # C_SRC :	      != ON_INVALID_PEER)
+	cmp.w	#0000H,R1	;  PEER_DID 
+	jeq	L987
+	._eblock
+	._inspect	'S', 'c', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 581
+	jsr	$on_client_net_peer_dev_idx
+	._block
+	._var	'peer_dev_idx','R',276,5
+	cmp.w	#0ffffH,R0	;  peer_dev_idx 
+	jeq	L987
+	._eblock
+	._line	582
+	._block
+	._block
+	._var	'peer_dev_idx','R',276,5
+	._line	583
+;## # C_SRC :	        return peer->dev[peer_dev_idx].data_rate;
+	mov.w	R0,A0	;  peer_dev_idx  peer_dev_idx 
+	._eblock
+	shl.w	#02H,A0
+	add.w	_peer,A0
+	mov.b	0003H[A0],R0L
+	rts	
+	._eblock
+L987:
+	._line	586
+;## # C_SRC :	    return ONE_NET_DATA_RATE_LIMIT;
+	mov.b	#06H,R0L
+	rts	
+E6:
+	._eblock
+M7:
+	._efunc	M7
+	._inspect	'F', 'd', "on_client_net_data_rate_for_peer", "$on_client_net_data_rate_for_peer", 'G', 577, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_data_rate_for_peer", 'G', 287
+	._inspect	'F', 'r', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 581, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 583, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_data_rate_for_peer", "$on_client_net_data_rate_for_peer", 'G', 0, 0
+
+
+;## #	FUNCTION on_client_net_set_peer_data_rate
+;## #  FRAME   ARG (DATA_RATE)  size   1,    offset 5
+;## #  REGISTER ARG    (PEER_DID)   size   2,   REGISTER R1
+;## #	ARG Size(1)	Auto Size(0)	Context Size(5)
+
+	._type	290,'O',268
+	._type	291,'x',277,2
+	._type	291,'m','PEER_DID',0,290
+	._type	291,'m','DATA_RATE',0,258
+	._func	'on_client_net_set_peer_data_rate','G',0,291,$on_client_net_set_peer_data_rate,0
+	._inspect	'F', 's', "on_client_net_set_peer_data_rate", "$on_client_net_set_peer_data_rate", 'G', 5
+	._line	601
+;## # C_SRC :	{
+	.glb	$on_client_net_set_peer_data_rate
+$on_client_net_set_peer_data_rate:
+	enter	#00H
+	._block
+	._type	292,'O',268
+	._var	'PEER_DID','A',292,0
+	._var	'DATA_RATE','A',258,5
+	._line	602
+;## # C_SRC :	    UInt16 peer_dev_idx = ON_INVALID_PEER;
+	._block
+	._type	293,'O',268
+	._var	'PEER_DID','R',293,6
+	mov.w	#0ffffH,R0	;  peer_dev_idx 
+	._line	605
+;## # C_SRC :	      != ON_INVALID_PEER)
+	cmp.w	#0000H,R1	;  PEER_DID 
+	jeq	L1021
+	._eblock
+	._inspect	'S', 'c', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 605
+	jsr	$on_client_net_peer_dev_idx
+	._block
+	._var	'peer_dev_idx','R',276,5
+	cmp.w	#0ffffH,R0	;  peer_dev_idx 
+	jeq	L1021
+	._eblock
+	._line	606
+	._block
+	._block
+	._var	'peer_dev_idx','R',276,5
+	._line	607
+;## # C_SRC :	        peer->dev[peer_dev_idx].data_rate = DATA_RATE;
+	mov.w	R0,A0	;  peer_dev_idx  peer_dev_idx 
+	._eblock
+	shl.w	#02H,A0
+	add.w	_peer,A0
+	mov.b	5[FB],0003H[A0]	;  DATA_RATE 
+	._line	608
+;## # C_SRC :	        return TRUE;
+	mov.b	#01H,R0L
+	exitd	
+	._eblock
+L1021:
+	._line	611
+;## # C_SRC :	    return FALSE;
+	mov.b	#00H,R0L
+	exitd	
+E7:
+	._eblock
+M8:
+	._efunc	M8
+	._inspect	'F', 'd', "on_client_net_set_peer_data_rate", "$on_client_net_set_peer_data_rate", 'G', 601, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_set_peer_data_rate", 'G', 291
+	._inspect	'F', 'r', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 605, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 607, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_set_peer_data_rate", "$on_client_net_set_peer_data_rate", 'G', 0, 0
+
+
+;## #	FUNCTION on_client_net_single_txn_hdlr
+;## #	FRAME	AUTO	(encoded_dst_did)	size  2,	offset -9
+;## #	FRAME	AUTO	( raw_did)	size  2,	offset -7
+;## #	FRAME	AUTO	(  status)	size  2,	offset -5
+;## #	FRAME	AUTO	(  STATUS)	size  2,	offset -3
+;## #	FRAME	AUTO	( forward)	size  1,	offset -3
+;## #	FRAME	AUTO	(forward_txn_id)	size  1,	offset -1
+;## #  FRAME   ARG (    data)  size   2,    offset 5
+;## #  FRAME   ARG (   TRIES)  size   1,    offset 7
+;## #  FRAME   ARG (PRIORITY)  size   1,    offset 8
+;## #  FRAME   ARG (  TXN_ID)  size   1,    offset 9
+;## #  REGISTER ARG    (  STATUS)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (     DST)   size   2,   REGISTER R2
+;## #	ARG Size(5)	Auto Size(9)	Context Size(5)
+
+	._type	294,'O',268
+	._type	295,'O',258
+	._type	296,'x',257,6
+	._type	296,'m','STATUS',0,257
+	._type	296,'m','DST',0,294
+	._type	296,'m','data',0,295
+	._type	296,'m','TRIES',0,258
+	._type	296,'m','PRIORITY',0,258
+	._type	296,'m','TXN_ID',0,258
+	._func	'on_client_net_single_txn_hdlr','G',9,296,$on_client_net_single_txn_hdlr,0
+	._inspect	'F', 's', "on_client_net_single_txn_hdlr", "$on_client_net_single_txn_hdlr", 'G', 14
+	._line	688
+;## # C_SRC :	{
+	.glb	$on_client_net_single_txn_hdlr
+$on_client_net_single_txn_hdlr:
+	enter	#09H
+	mov.w	R1,-3[FB]	;  STATUS  STATUS 
+	._block
+	._var	'STATUS','A',257,-3
+	._type	297,'O',268
+	._var	'DST','A',297,0
+	._type	298,'O',258
+	._var	'data','A',298,5
+	._var	'TRIES','A',258,7
+	._var	'PRIORITY','A',258,8
+	._var	'TXN_ID','A',258,9
+	._var	'status','A',257,-5
+	._var	'encoded_dst_did','A',268,-9
+	._var	'raw_did','A',261,-7
+	._var	'forward_txn_id','A',258,-1
+	._line	693
+;## # C_SRC :	    UInt8 forward_txn_id = SINGLE_DST_TXN_ID;
+	._block
+	._type	299,'O',268
+	._var	'DST','R',299,7
+	mov.b	#0ffH,-1[FB]	;  forward_txn_id 
+	._line	697
+;## # C_SRC :	      && TXN_ID != SINGLE_DST_TXN_ID))
+	cmp.w	#0000H,R2	;  DST 
+	jeq	L1201
+	cmp.w	#0000H,5[FB]	;  data 
+	jeq	L1201
+	cmp.b	#01H,9[FB]	;  TXN_ID 
+	jltu	L1203
+	cmp.b	#0ffH,9[FB]	;  TXN_ID 
+	jeq	L1203
+	._eblock
+L1201:
+	._line	698
+	._block
+	._line	699
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L1203:
+	._block
+	._type	300,'O',268
+	._var	'DST','R',300,7
+	._line	708
+;## # C_SRC :	    if((status = on_decode(raw_did, *DST, ON_ENCODED_DID_LEN)) != ONS_SUCCESS)
+	push.w	#0002H
+	._inspect	'S', 'p', 2
+	._eblock
+	mova	-7[FB],R1	;  raw_did 
+	._inspect	'S', 'c', "on_decode", "$on_decode", 'G', 0, 708
+	jsr	$on_decode
+	mov.w	R0,-5[FB]	;  status 
+	._inspect	'S', 'p', -2
+	jeq	L1091
+	._line	709
+	._block
+	._line	710
+;## # C_SRC :	        one_net_client_single_txn_status(ONS_INTERNAL_ERR, 0, data, 0);
+	push.w	#0000H
+	._inspect	'S', 'p', 2
+	push.w	5[FB]	;  data 
+	._inspect	'S', 'p', 2
+	push.b	#00H
+	._inspect	'S', 'p', 1
+	mov.w	#000aH,R1
+	._inspect	'S', 'c', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 0, 710
+	jsr	$one_net_client_single_txn_status
+	._inspect	'S', 'p', 2
+	._inspect	'S', 'p', -7
+	add.b	#07H,SP
+	._line	711
+;## # C_SRC :	        return status;
+L1211:
+	mov.w	-5[FB],R0	;  status 
+	exitd	
+	._eblock
+L1091:
+	._line	715
+;## # C_SRC :	      data, &raw_did);
+	._inspect	'S', 'p', 2
+	pusha	-7[FB]	;  raw_did 
+	push.w	5[FB]	;  data 
+	._inspect	'S', 'p', 2
+	push.b	7[FB]	;  TRIES 
+	._inspect	'S', 'p', 1
+	mov.w	-3[FB],R1	;  STATUS 
+	._inspect	'S', 'c', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 0, 715
+	jsr	$one_net_client_single_txn_status
+	._inspect	'S', 'p', 2
+	._inspect	'S', 'p', -7
+	add.b	#07H,SP
+	._line	717
+;## # C_SRC :	    if(TXN_ID < MAX_SINGLE_TXN)
+	cmp.b	#01H,9[FB]	;  TXN_ID 
+	jgeu	L1205
+	._line	718
+	._block
+	._var	'forward','A',277,-3
+	._line	719
+;## # C_SRC :	        BOOL forward = FALSE;
+	mov.b	#00H,-3[FB]	;  forward 
+	._line	723
+;## # C_SRC :	          &encoded_dst_did)))
+	._inspect	'S', 'p', 2
+	pusha	-9[FB]	;  encoded_dst_did 
+	mov.w	#_peer_msg_mgr,R2
+	mov.w	5[FB],R1	;  data 
+	._inspect	'S', 'c', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 0, 723
+	jsr	$on_client_net_setup_msg_for_peer
+	._inspect	'S', 'p', -2
+	add.b	#02H,SP
+	mov.w	R0,-5[FB]	;  status 
+	jeq	L1103
+	cmp.w	#0006H,R0
+	jeq	L1105
+	._line	751
+	._block
+	._line	752
+;## # C_SRC :	                on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 752
+	jsr	$on_client_net_clear_peer_msg_mgr
+	._line	753
+;## # C_SRC :	                return status;
+	jmp	L1211
+	._eblock
+	._line	724
+	._block
+	._line	725
+;## # C_SRC :	            case ONS_SUCCESS:
+L1103:
+	._line	726
+	._block
+	._line	727
+;## # C_SRC :	                forward = TRUE;
+	mov.b	#01H,-3[FB]	;  forward 
+	._line	728
+;## # C_SRC :	                forward_txn_id = TXN_ID;
+	mov.b	9[FB],-1[FB]	;  TXN_ID  forward_txn_id 
+	._line	729
+;## # C_SRC :	                break;
+	jmp	L1101
+	._eblock
+	._line	732
+;## # C_SRC :	            case ONS_END:
+L1105:
+	._line	733
+	._block
+	._line	734
+;## # C_SRC :	                if(on_client_send_to_master())
+	._inspect	'S', 'c', "on_client_send_to_master", "_on_client_send_to_master", 'G', 0, 734
+	jsr	_on_client_send_to_master
+	mov.b	R0L,R0H
+	jeq	L1207
+	._line	735
+	._block
+	._line	736
+;## # C_SRC :	                    forward = TRUE;
+	mov.b	#01H,-3[FB]	;  forward 
+	._line	737
+;## # C_SRC :	                    on_client_encoded_master_did(&encoded_dst_did);
+	mova	-9[FB],R1	;  encoded_dst_did 
+	._inspect	'S', 'c', "on_client_encoded_master_did", "$on_client_encoded_master_did", 'G', 0, 737
+	jsr	$on_client_encoded_master_did
+	._line	738
+;## # C_SRC :	                    if(peer_msg_mgr.msg_dst_unit_idx != ON_MAX_RAW_PLD_LEN)
+	cmp.b	#08H,_peer_msg_mgr+2
+	jeq	L1207
+	._line	739
+	._block
+	._line	740
+;## # C_SRC :	                        put_dst_unit(ONE_NET_DEV_UNIT, data);
+	mov.w	5[FB],A0	;  data 
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+	._eblock
+	._file	'C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/app/one_net_application.h'
+	._line	207
+;## # C_SRC :	        ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_1
+	.stk	-3
+	._file	'C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c'
+L1207:
+	._line	746
+;## # C_SRC :	                on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 746
+	jsr	$on_client_net_clear_peer_msg_mgr
+	._eblock
+	._eblock
+	._line	755
+;## # C_SRC :	        } // switch(on_client_net_setup_msg_for_peer) //
+L1101:
+	._line	757
+;## # C_SRC :	        if(forward)
+	mov.b	-3[FB],R0L	;  forward 
+	jeq	L1205
+	._line	758
+	._block
+	._line	759
+;## # C_SRC :	            UInt8 priority = PRIORITY;
+	mov.b	8[FB],R0L	;  PRIORITY  priority 
+	._block
+	._var	'priority','R',258,1
+	._line	767
+;## # C_SRC :	            if (PRIORITY == ONE_NET_NO_PRIORITY) {
+	jne	L1125
+	._eblock
+	._block
+	._line	768
+;## # C_SRC :	                priority = ONE_NET_SEND_SINGLE_PRIORITY;
+	mov.b	#02H,R0L	;  priority 
+	._block
+	._var	'priority','R',258,1
+	._eblock
+L1125:
+	._line	775
+;## # C_SRC :	              != ONS_SUCCESS)
+	push.b	-1[FB]	;  forward_txn_id 
+	._inspect	'S', 'p', 1
+	._inspect	'S', 'p', 2
+	pusha	-9[FB]	;  encoded_dst_did 
+	push.b	R0L	;  priority 
+	._inspect	'S', 'p', 1
+	._eblock
+	push.b	#05H
+	._inspect	'S', 'p', 1
+	mov.w	5[FB],R1	;  data 
+	._inspect	'S', 'c', "on_client_send_single", "$on_client_send_single", 'G', 0, 775
+	jsr	$on_client_send_single
+	._inspect	'S', 'p', -5
+	add.b	#05H,SP
+	mov.w	R0,-5[FB]	;  status 
+	jeq	L1211
+	._line	776
+	._block
+	._line	780
+;## # C_SRC :	                one_net_client_single_txn_status(status, 0, data, &raw_did);
+	._inspect	'S', 'p', 2
+	pusha	-7[FB]	;  raw_did 
+	push.w	5[FB]	;  data 
+	._inspect	'S', 'p', 2
+	push.b	#00H
+	._inspect	'S', 'p', 1
+	mov.w	R0,R1
+	._inspect	'S', 'c', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 0, 780
+	jsr	$one_net_client_single_txn_status
+	._inspect	'S', 'p', -5
+	add.b	#05H,SP
+	._line	781
+;## # C_SRC :	                if (have_more_peers(&peer_msg_mgr))
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "have_more_peers", "$have_more_peers", 'S', 0, 781
+	jsr	$have_more_peers
+	mov.b	R0L,R0H
+	jeq	L1135
+	._line	782
+	._block
+	._line	786
+;## # C_SRC :	                    status = ONS_SUCCESS;
+	mov.w	#0000H,-5[FB]	;  status 
+	._eblock
+	._line	787
+;## # C_SRC :	                }
+	jmp	L1211
+	._line	789
+;## # C_SRC :	                else { // this is really the end; clean up a little
+L1135:
+	._block
+	._line	790
+;## # C_SRC :	                    on_client_net_clear_peer_msg_mgr(&peer_msg_mgr);
+	mov.w	#_peer_msg_mgr,R1
+	._inspect	'S', 'c', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 790
+	jsr	$on_client_net_clear_peer_msg_mgr
+	._line	792
+;## # C_SRC :	                                                 data, &raw_did);
+	._inspect	'S', 'p', 2
+	pusha	-7[FB]	;  raw_did 
+	push.w	5[FB]	;  data 
+	._inspect	'S', 'p', 2
+	push.b	#00H
+	._inspect	'S', 'p', 1
+	mov.w	#0010H,R1
+	._inspect	'S', 'c', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 0, 792
+	jsr	$one_net_client_single_txn_status
+	._inspect	'S', 'p', -5
+	add.b	#05H,SP
+	._eblock
+	._eblock
+	._line	796
+;## # C_SRC :	            return status;
+	jmp	L1211
+	._eblock
+	._eblock
+L1205:
+	._line	801
+;## # C_SRC :	    one_net_client_single_txn_status(ONS_SINGLE_END, 0, data, &raw_did);
+	._inspect	'S', 'p', 2
+	pusha	-7[FB]	;  raw_did 
+	push.w	5[FB]	;  data 
+	._inspect	'S', 'p', 2
+	push.b	#00H
+	._inspect	'S', 'p', 1
+	mov.w	#0010H,R1
+	._inspect	'S', 'c', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 0, 801
+	jsr	$one_net_client_single_txn_status
+	._inspect	'S', 'p', -5
+	add.b	#05H,SP
+	._line	803
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.w	#0000H,R0
+	exitd	
+E8:
+	._eblock
+M9:
+	._efunc	M9
+	._inspect	'F', 'd', "on_client_net_single_txn_hdlr", "$on_client_net_single_txn_hdlr", 'G', 688, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_single_txn_hdlr", 'G', 296
+	._inspect	'F', 'r', "on_decode", "$on_decode", 'G', 708, 0, 00h, 0
+	._inspect	'F', 'r', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 710, 0, 00h, 0
+	._inspect	'F', 'r', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 715, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 723, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 723, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 752, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 752, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_send_to_master", "_on_client_send_to_master", 'G', 734, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_encoded_master_did", "$on_client_encoded_master_did", 'G', 737, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 738, 3, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 746, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 746, 0, 00h, 0
+	._inspect	'F', 'r', "on_client_send_single", "$on_client_send_single", 'G', 775, 0, 00h, 0
+	._inspect	'F', 'r', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 780, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 781, 3, 0, 0, 00h
+	._inspect	'F', 'r', "have_more_peers", "$have_more_peers", 'S', 781, 0, 00h, 0
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 790, 3, 0, 0, 00h
+	._inspect	'F', 'r', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 790, 0, 00h, 0
+	._inspect	'F', 'r', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 792, 0, 00h, 0
+	._inspect	'F', 'r', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 801, 0, 00h, 0
+	._inspect	'F', 'e', "on_client_net_single_txn_hdlr", "$on_client_net_single_txn_hdlr", 'G', 7, 0
+
+
+;## #	FUNCTION on_client_net_init
+;## #	FRAME	AUTO	(       i)	size  1,	offset -1
+;## #  REGISTER ARG    (peer_location)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (     LEN)   size   2,   REGISTER R2
+;## #	ARG Size(0)	Auto Size(1)	Context Size(5)
+
+	._type	301,'v'
+	._type	302,'O',301
+	._type	303,'x',257,2
+	._type	303,'m','peer_location',0,302
+	._type	303,'m','LEN',0,276
+	._func	'on_client_net_init','G',1,303,$on_client_net_init,0
+	._inspect	'F', 's', "on_client_net_init", "$on_client_net_init", 'G', 6
+	._line	832
+;## # C_SRC :	{
+	.glb	$on_client_net_init
+$on_client_net_init:
+	enter	#01H
+	._block
+	._type	304,'v'
+	._type	305,'O',304
+	._var	'peer_location','A',305,0
+	._var	'LEN','A',276,0
+	._var	'i','A',258,-1
+	._line	835
+;## # C_SRC :	    if(!peer_location)
+	._block
+	._type	306,'v'
+	._type	307,'O',306
+	._var	'peer_location','R',307,6
+	._var	'LEN','R',276,7
+	cmp.w	#0000H,R1	;  peer_location 
+	jne	L1217
+	._eblock
+	._line	836
+	._block
+	._line	837
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L1217:
+	._block
+	._type	308,'v'
+	._type	309,'O',308
+	._var	'peer_location','R',309,6
+	._var	'LEN','R',276,7
+	._line	840
+;## # C_SRC :	    if(LEN < sizeof(on_peer_t))
+	cmp.w	#0070H,R2	;  LEN 
+	jgeu	L1225
+	._eblock
+	._line	841
+	._block
+	._line	842
+;## # C_SRC :	        return ONS_INVALID_DATA;
+	mov.w	#0004H,R0
+	exitd	
+	._eblock
+L1225:
+	._block
+	._type	310,'v'
+	._type	311,'O',310
+	._var	'peer_location','R',311,6
+	._line	845
+;## # C_SRC :	    peer = peer_location;
+	mov.w	R1,_peer	;  peer_location 
+	._eblock
+	._line	847
+;## # C_SRC :	    for(i = 0; i < ONE_NET_PEER_PER_UNIT * ONE_NET_NUM_UNITS; i++)
+	mov.b	#00H,-1[FB]	;  i 
+L1235:
+	._line	848
+	._block
+	._line	850
+;## # C_SRC :	          sizeof(peer->dev[i].did));
+	push.w	#0000H
+	push.w	#0002H
+	._inspect	'S', 'p', 4
+	mov.w	#_ON_ENCODED_BROADCAST_DID,R2
+	mov.b	-1[FB],R1L	;  i 
+	mov.b	#00H,R1H
+	shl.w	#02H,R1
+	add.w	_peer,R1
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 850
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._eblock
+	inc.b	-1[FB]	;  i 
+	cmp.b	#10H,-1[FB]	;  i 
+	jltu	L1235
+	._line	853
+;## # C_SRC :	    for(i = 0; i < ONE_NET_NUM_UNITS; i++)
+	mov.b	#00H,-1[FB]	;  i 
+L1247:
+	._line	854
+	._block
+	._line	855
+;## # C_SRC :	        for(j = 0; j < ONE_NET_PEER_PER_UNIT; j++)
+	mov.b	#00H,R0H	;  j 
+	._block
+	._var	'j','R',258,2
+	._eblock
+	mov.b	R0H,R0L	;  j  j 
+	._block
+	._var	'j','R',258,1
+L1259:
+	._eblock
+	._line	856
+	._block
+	._block
+	._var	'j','R',258,1
+	._line	857
+;## # C_SRC :	            peer->unit[i][j].peer_dev_idx = ON_INVALID_PEER;
+	mov.b	-1[FB],A0	;  i 
+	mul.w	#000cH,A0
+	mov.b	R0L,R1L
+	mov.b	#00H,R1H
+	mul.w	#0003H,R1
+	add.w	R1,A0
+	mov.w	A0,A1
+	._eblock
+	add.w	_peer,A0
+	._block
+	._var	'j','R',258,1
+	mov.w	#0ffffH,0040H[A0]
+	._line	858
+;## # C_SRC :	            peer->unit[i][j].peer_unit = ONE_NET_DEV_UNIT;
+	add.w	_peer,A1
+	mov.b	#0fH,0042H[A1]
+	._eblock
+	inc.b	R0L	;  j 
+	cmp.b	#04H,R0L	;  j 
+	jltu	L1259
+	._eblock
+	inc.b	-1[FB]	;  i 
+	cmp.b	#04H,-1[FB]	;  i 
+	jltu	L1247
+	._eblock
+	._line	862
+;## # C_SRC :	    peer_msg_mgr.src_unit = ONE_NET_DEV_UNIT;
+	mov.w	#000fH,_peer_msg_mgr
+	._line	865
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.w	#0000H,R0
+	exitd	
+E9:
+	._eblock
+M10:
+	._efunc	M10
+	._inspect	'F', 'd', "on_client_net_init", "$on_client_net_init", 'G', 832, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_init", 'G', 303
+	._inspect	'V', 'r', "peer", 'S', 845, 2, 0, 0, 00h
+	._inspect	'V', 'r', "ON_ENCODED_BROADCAST_DID", 'G', 850, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 850, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 850, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 857, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 858, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer_msg_mgr", 'S', 862, 3, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_init", "$on_client_net_init", 'G', 4, 0
+
+
+;## #	FUNCTION on_client_net_setup_msg_for_peer
+;## #	FRAME	AUTO	(peer_unit)	size  2,	offset -6
+;## #	FRAME	AUTO	(     mgr)	size  2,	offset -4
+;## #	FRAME	AUTO	(    data)	size  2,	offset -2
+;## #  FRAME   ARG ( dst_did)  size   2,    offset 5
+;## #  REGISTER ARG    (    data)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (     mgr)   size   2,   REGISTER R2
+;## #	ARG Size(2)	Auto Size(6)	Context Size(5)
+
+	._type	312,'O',258
+	._type	313,'S','',3
+	._type	313,'m','src_unit',258,0
+	._type	313,'m','peer_idx',258,1
+	._type	313,'m','msg_dst_unit_idx',258,2
+	._type	314,'T','peer_msg_mgr_t',313
+	._type	315,'O',314
+	._type	316,'O',268
+	._type	317,'x',257,3
+	._type	317,'m','data',0,312
+	._type	317,'m','mgr',0,315
+	._type	317,'m','dst_did',0,316
+	._func	'on_client_net_setup_msg_for_peer','S',6,317,$on_client_net_setup_msg_for_peer,0
+	._inspect	'F', 's', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 11
+	._line	886
+;## # C_SRC :	{
+$on_client_net_setup_msg_for_peer:
+	enter	#06H
+	mov.w	R1,-2[FB]	;  data  data 
+	mov.w	R2,-4[FB]	;  mgr  mgr 
+	._block
+	._type	318,'O',258
+	._var	'data','A',318,-2
+	._type	319,'O',314
+	._var	'mgr','A',319,-4
+	._type	320,'O',268
+	._var	'dst_did','A',320,5
+	._type	321,'S','',3
+	._type	321,'m','peer_dev_idx',276,0
+	._type	321,'m','peer_unit',258,2
+	._type	322,'T','on_peer_unit_t',321
+	._type	323,'O',322
+	._var	'peer_unit','A',323,-6
+	._line	889
+;## # C_SRC :	    if(!data || !mgr || !dst_did)
+	cmp.w	#0000H,-2[FB]	;  data 
+	jeq	L1367
+	cmp.w	#0000H,-4[FB]	;  mgr 
+	jeq	L1367
+	cmp.w	#0000H,5[FB]	;  dst_did 
+	jne	L1283
+L1367:
+	._line	890
+	._block
+	._line	891
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.w	#0001H,R0
+	exitd	
+	._eblock
+L1283:
+	._line	895
+;## # C_SRC :	    if(!(peer_unit = on_client_net_next_peer(mgr)))
+	mov.w	-4[FB],R1	;  mgr 
+	._inspect	'S', 'c', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 0, 895
+	jsr	$on_client_net_next_peer
+	mov.w	R0,-6[FB]	;  peer_unit 
+	jne	L1323
+	._line	896
+	._block
+	._line	897
+;## # C_SRC :	        return ONS_END;
+	mov.w	#0006H,R0
+	exitd	
+	._eblock
+L1323:
+	._line	902
+;## # C_SRC :	      sizeof(on_encoded_did_t));
+	push.w	#0000H
+	push.w	#0002H
+	._inspect	'S', 'p', 4
+	mov.w	-6[FB],A0	;  peer_unit 
+	mov.w	[A0],R2
+	shl.w	#02H,R2
+	add.w	_peer,R2
+	mov.w	5[FB],R1	;  dst_did 
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 902
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._line	905
+;## # C_SRC :	    if(mgr->msg_dst_unit_idx != ON_MAX_RAW_PLD_LEN)
+	mov.w	-4[FB],A0	;  mgr 
+	cmp.b	#08H,0002H[A0]
+	jeq	L1333
+	._line	906
+	._block
+	._line	907
+;## # C_SRC :	        put_dst_unit(peer_unit->peer_unit, data);
+	mov.w	-2[FB],A0	;  data 
+	._eblock
+	._eblock
+	._file	'C:/HEWProj/2_0_Bet_16K/processors/renesas/hew/app_board/../../../../one_net/app/one_net_application.h'
+	._line	207
+;## # C_SRC :	        ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
+	mov.w	-6[FB],A1	;  peer_unit 
+	mov.b	0002H[A1],R0L
+	mov.b	[A0],R0H
+	and.w	#0f00fH,R0
+	or.b	R0L,R0H
+	mov.b	R0H,[A0]
+	._file	'C:/HEWProj/2_0_Bet_16K/one_net/mac/one_net_client_net.c'
+L1333:
+	._line	910
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.w	#0000H,R0
+	exitd	
+E10:
+	._eblock
+M11:
+	._efunc	M11
+	._inspect	'F', 'd', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 886, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_setup_msg_for_peer", 'S', 317
+	._inspect	'F', 'r', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 895, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 902, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 902, 0, 00h, 0
+	._inspect	'F', 'e', "on_client_net_setup_msg_for_peer", "$on_client_net_setup_msg_for_peer", 'S', 4, 0
+
+
+;## #	FUNCTION have_more_peers
+;## #  REGISTER ARG    (     mgr)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	324,'O',314
+	._type	325,'x',258,1
+	._type	325,'m','mgr',0,324
+	._func	'have_more_peers','S',0,325,$have_more_peers,0
+	._inspect	'F', 's', "have_more_peers", "$have_more_peers", 'S', 5
+	._line	914
+;## # C_SRC :	{
+$have_more_peers:
+	._block
+	._type	326,'O',314
+	._var	'mgr','A',326,0
+	._line	915
+;## # C_SRC :	    UInt8 retval = 1;
+	._block
+	._type	327,'O',314
+	._var	'mgr','R',327,6
+	mov.b	#01H,R0L	;  retval 
+	._eblock
+	._block
+	._var	'retval','R',258,1
+	._type	328,'O',314
+	._var	'mgr','R',328,6
+	._line	916
+;## # C_SRC :	    if(!mgr)
+	cmp.w	#0000H,R1	;  mgr 
+	jne	L1369
+	._eblock
+	._block
+	._type	329,'O',314
+	._var	'mgr','R',329,6
+	._eblock
+	._line	917
+	._block
+	._block
+	._type	330,'O',314
+	._var	'mgr','R',330,6
+	._line	918
+;## # C_SRC :	        retval = 0;
+	mov.b	#00H,R0L	;  retval 
+	._eblock
+	._block
+	._var	'retval','R',258,1
+	._type	331,'O',314
+	._var	'mgr','R',331,6
+	._eblock
+L1369:
+	._line	921
+;## # C_SRC :	        (peer->unit[mgr->src_unit][mgr->peer_idx].peer_unit == ONE_NET_DEV_UNIT))
+	mov.w	R1,A0	;  mgr  mgr 
+	._eblock
+	cmp.b	#04H,0001H[A0]
+	jgeu	L1415
+	._block
+	._var	'retval','R',258,1
+	._type	332,'O',314
+	._var	'mgr','R',332,9
+	mov.b	0001H[A0],R1L
+	mov.b	#00H,R1H
+	mul.w	#0003H,R1
+	mov.b	[A0],A0	;  mgr 
+	._eblock
+	._block
+	._var	'retval','R',258,1
+	mul.w	#000cH,A0
+	add.w	R1,A0
+	add.w	_peer,A0
+	cmp.b	#0fH,0042H[A0]
+	jne	L1377
+	._eblock
+L1415:
+	._line	922
+	._block
+	._line	923
+;## # C_SRC :	        retval = 0;
+	mov.b	#00H,R0L	;  retval 
+	._block
+	._var	'retval','R',258,1
+	._eblock
+L1377:
+	._line	925
+;## # C_SRC :	    return retval;
+	._eblock
+	rts	
+E11:
+	._eblock
+M12:
+	._efunc	M12
+	._inspect	'F', 'd', "have_more_peers", "$have_more_peers", 'S', 914, 0, 00h, 0
+	._inspect	'F', 't', "have_more_peers", 'S', 325
+	._inspect	'V', 'r', "peer", 'S', 921, 2, 0, 0, 00h
+	._inspect	'F', 'e', "have_more_peers", "$have_more_peers", 'S', 0, 0
+
+
+;## #	FUNCTION on_client_net_next_peer
+;## #  REGISTER ARG    (     mgr)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	333,'O',322
+	._type	334,'O',314
+	._type	335,'x',333,1
+	._type	335,'m','mgr',0,334
+	._func	'on_client_net_next_peer','S',0,335,$on_client_net_next_peer,0
+	._inspect	'F', 's', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 5
+	._line	942
+;## # C_SRC :	{
+$on_client_net_next_peer:
+	._block
+	._type	336,'O',314
+	._var	'mgr','A',336,0
+	._line	943
+;## # C_SRC :	    if(!mgr)
+	._block
+	._type	337,'O',314
+	._var	'mgr','R',337,6
+	cmp.w	#0000H,R1	;  mgr 
+	jne	L1419
+	._eblock
+	._line	944
+	._block
+	._line	945
+;## # C_SRC :	        return 0;
+L1457:
+	mov.w	#0000H,R0
+	rts	
+	._eblock
+L1419:
+	._block
+	._type	338,'O',314
+	._var	'mgr','R',338,6
+	._line	949
+;## # C_SRC :	    if(mgr->peer_idx < ONE_NET_PEER_PER_UNIT)
+	mov.w	R1,A0	;  mgr  mgr 
+	._eblock
+	cmp.b	#04H,0001H[A0]
+	jgeu	L1457
+	._block
+	._type	339,'O',314
+	._var	'mgr','R',339,9
+	._eblock
+	._line	950
+	._block
+	._block
+	._type	340,'O',314
+	._var	'mgr','R',340,9
+	._line	951
+;## # C_SRC :	        UInt8 peer_idx = mgr->peer_idx++;
+	mov.b	0001H[A0],R0L
+	mov.b	R0L,R0H
+	._eblock
+	inc.b	R0L
+	._block
+	._type	341,'O',314
+	._var	'mgr','R',341,9
+	mov.b	R0L,0001H[A0]
+	._eblock
+	._block
+	._var	'peer_idx','R',258,2
+	._type	342,'O',314
+	._var	'mgr','R',342,9
+	._line	953
+;## # C_SRC :	        if(peer->unit[mgr->src_unit][peer_idx].peer_unit != ONE_NET_DEV_UNIT)
+	mov.b	[A0],A0	;  mgr 
+	._eblock
+	._block
+	._var	'peer_idx','R',258,2
+	mul.w	#000cH,A0
+	mov.b	R0H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_6
+	.stk	-3
+	._eblock
+	jeq	L1457
+	._line	954
+	._block
+	._line	956
+;## # C_SRC :	            return &(peer->unit[mgr->src_unit][peer_idx]);
+	mov.w	A0,R0
+	add.w	#0040H,R0
+	rts	
+E12:
+	._eblock
+	._eblock
+	._eblock
+M13:
+	._efunc	M13
+	._inspect	'F', 'd', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 942, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_next_peer", 'S', 335
+	._inspect	'V', 'r', "peer", 'S', 953, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_next_peer", "$on_client_net_next_peer", 'S', 0, 0
+
+
+;## #	FUNCTION on_client_net_clear_peer_msg_mgr
+;## #  REGISTER ARG    (     mgr)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	343,'v'
+	._type	344,'O',314
+	._type	345,'x',343,1
+	._type	345,'m','mgr',0,344
+	._func	'on_client_net_clear_peer_msg_mgr','S',0,345,$on_client_net_clear_peer_msg_mgr,0
+	._inspect	'F', 's', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 5
+	._line	972
+;## # C_SRC :	{
+$on_client_net_clear_peer_msg_mgr:
+	._block
+	._type	346,'O',314
+	._var	'mgr','A',346,0
+	._line	973
+;## # C_SRC :	    if(!mgr)
+	._block
+	._type	347,'O',314
+	._var	'mgr','R',347,6
+	cmp.w	#0000H,R1	;  mgr 
+	jne	L1459
+	._eblock
+	._line	974
+	._block
+	._line	975
+;## # C_SRC :	        return;
+	rts	
+	._eblock
+L1459:
+	._block
+	._type	348,'O',314
+	._var	'mgr','R',348,6
+	._line	978
+;## # C_SRC :	    mgr->src_unit = ONE_NET_DEV_UNIT;
+	mov.w	R1,A0	;  mgr  mgr 
+	._eblock
+	mov.w	#000fH,[A0]	;  mgr 
+	._block
+	._type	349,'O',314
+	._var	'mgr','R',349,9
+	._eblock
+	._line	980
+;## # C_SRC :	} // on_client_net_clear_peer_msg_mgr //
+	rts	
+	._eblock
+E13:
+M14:
+	._efunc	M14
+	._inspect	'F', 'd', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 972, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_clear_peer_msg_mgr", 'S', 345
+	._inspect	'F', 'e', "on_client_net_clear_peer_msg_mgr", "$on_client_net_clear_peer_msg_mgr", 'S', 0, 0
+
+
+;## #	FUNCTION on_client_net_peer_dev_idx
+;## #	FRAME	AUTO	(       i)	size  2,	offset -4
+;## #	FRAME	AUTO	(     DID)	size  2,	offset -2
+;## #  REGISTER ARG    (     DID)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(4)	Context Size(5)
+
+	._type	350,'O',268
+	._type	351,'x',276,1
+	._type	351,'m','DID',0,350
+	._func	'on_client_net_peer_dev_idx','S',4,351,$on_client_net_peer_dev_idx,0
+	._inspect	'F', 's', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 9
+	._line	992
+;## # C_SRC :	{
+$on_client_net_peer_dev_idx:
+	enter	#04H
+	mov.w	R1,-2[FB]	;  DID  DID 
+	._block
+	._type	352,'O',268
+	._var	'DID','A',352,-2
+	._var	'i','A',276,-4
+	._line	995
+;## # C_SRC :	    if(!DID)
+	jne	L1471
+	._line	996
+	._block
+	._line	997
+;## # C_SRC :	        return ON_INVALID_PEER;
+L1501:
+	mov.w	#0ffffH,R0
+	exitd	
+	._eblock
+L1471:
+	._line	1000
+;## # C_SRC :	    for(i = 0; i < ON_NUM_PEER_DEV; i++)
+	mov.w	#0000H,-4[FB]	;  i 
+L1479:
+	._line	1001
+	._block
+	._line	1003
+;## # C_SRC :	          &(peer->dev[i].did)))
+	mov.w	-4[FB],R2	;  i 
+	shl.w	#02H,R2
+	add.w	_peer,R2
+	mov.w	-2[FB],R1	;  DID 
+	._inspect	'S', 'c', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 0, 1003
+	jsr	$on_encoded_did_equal
+	mov.b	R0L,R0H
+	jeq	L1491
+	._line	1004
+	._block
+	._line	1005
+;## # C_SRC :	            return i;
+	mov.w	-4[FB],R0	;  i 
+	exitd	
+	._eblock
+L1491:
+	add.w	#0001H,-4[FB]	;  i 
+	cmp.w	#0010H,-4[FB]	;  i 
+	jltu	L1479
+	._eblock
+	._line	1009
+;## # C_SRC :	    return ON_INVALID_PEER;
+	jmp	L1501
+E14:
+	._eblock
+M15:
+	._efunc	M15
+	._inspect	'F', 'd', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 992, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_peer_dev_idx", 'S', 351
+	._inspect	'V', 'r', "peer", 'S', 1003, 2, 0, 0, 00h
+	._inspect	'F', 'r', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 1003, 0, 00h, 0
+	._inspect	'F', 'e', "on_client_net_peer_dev_idx", "$on_client_net_peer_dev_idx", 'S', 0, 0
+
+
+;## #	FUNCTION on_client_net_send_to_peer_dev
+;## #	FRAME	AUTO	( DEV_IDX)	size  2,	offset -3
+;## #	FRAME	AUTO	(  __TMP1)	size  1,	offset -1
+;## #  REGISTER ARG    ( DEV_IDX)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(3)	Context Size(5)
+
+	._type	353,'x',277,1
+	._type	353,'m','DEV_IDX',0,276
+	._func	'on_client_net_send_to_peer_dev','S',3,353,$on_client_net_send_to_peer_dev,0
+	._inspect	'F', 's', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 8
+	._line	1023
+;## # C_SRC :	{
+$on_client_net_send_to_peer_dev:
+	enter	#03H
+	mov.w	R1,-3[FB]	;  DEV_IDX  DEV_IDX 
+	._block
+	._var	'DEV_IDX','A',276,-3
+	._line	1026
+;## # C_SRC :	    if(DEV_IDX >= ON_NUM_PEER_DEV)
+	cmp.w	#0010H,-3[FB]	;  DEV_IDX 
+	jltu	L1503
+	._line	1027
+	._block
+	._line	1030
+;## # C_SRC :	        return TRUE;
+L1557:
+	mov.b	#01H,R0L
+	exitd	
+	._eblock
+L1503:
+	._line	1033
+;## # C_SRC :	    for(unit_idx = 0; unit_idx < ONE_NET_NUM_UNITS; unit_idx++)
+	mov.b	#00H,R0H	;  unit_idx 
+	._block
+	._var	'unit_idx','R',258,2
+	._eblock
+	mov.b	R0H,R0L	;  unit_idx  unit_idx 
+	._block
+	._var	'unit_idx','R',258,1
+L1513:
+	._eblock
+	._line	1034
+	._block
+	._block
+	._var	'unit_idx','R',258,1
+	._line	1035
+;## # C_SRC :	        for(peer_idx = 0; peer_idx < ONE_NET_PEER_PER_UNIT; peer_idx++)
+	mov.b	#00H,R0H	;  peer_idx 
+	._eblock
+	._block
+	._var	'unit_idx','R',258,1
+	._var	'peer_idx','R',258,2
+	._eblock
+	mov.b	R0L,-1[FB]	;  unit_idx  __TMP1 
+	mov.b	R0H,R0L	;  peer_idx  peer_idx 
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','A',258,-1
+L1525:
+	._eblock
+	._line	1036
+	._block
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','A',258,-1
+	._line	1037
+;## # C_SRC :	            if(peer->unit[unit_idx][peer_idx].peer_dev_idx == DEV_IDX)
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_7
+	.stk	-3
+	._eblock
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4
+	.stk	-3
+	cmp.w	-3[FB],0040H[A0]	;  DEV_IDX 
+	jeq	L1557
+	._eblock
+	._block
+	._var	'unit_idx','A',258,-1
+	._eblock
+	inc.b	R0L	;  peer_idx 
+	._eblock
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	mov.b	R0H,-1[FB]	;  unit_idx  __TMP1 
+	._eblock
+	cmp.b	#04H,R0L	;  peer_idx 
+	jltu	L1525
+	._block
+	._var	'unit_idx','A',258,-1
+	mov.b	-1[FB],R0L	;  __TMP1  unit_idx 
+	._eblock
+	inc.b	R0L	;  unit_idx 
+	._block
+	._var	'unit_idx','R',258,1
+	cmp.b	#04H,R0L	;  unit_idx 
+	jltu	L1513
+	._eblock
+	._eblock
+	._line	1044
+;## # C_SRC :	    return FALSE;
+	mov.b	#00H,R0L
+	exitd	
+E15:
+_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_7:
+	mov.b	-1[FB],R0H
+	mov.b	R0H,A0
+	mul.w	#000cH,A0
+	mov.b	R0L,R1L
+	rts	
+E_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_7:
+
+	._eblock
+M16:
+	._efunc	M16
+	._inspect	'F', 'd', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 1023, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_send_to_peer_dev", 'S', 353
+	._inspect	'V', 'r', "peer", 'S', 1037, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_send_to_peer_dev", "$on_client_net_send_to_peer_dev", 'S', 0, 0
+
+
+;## #	FUNCTION on_client_net_rm_dev
+;## #	FRAME	AUTO	( DEV_IDX)	size  2,	offset -3
+;## #	FRAME	AUTO	(  __TMP2)	size  1,	offset -1
+;## #  REGISTER ARG    ( DEV_IDX)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(3)	Context Size(5)
+
+	._type	354,'v'
+	._type	355,'x',354,1
+	._type	355,'m','DEV_IDX',0,276
+	._func	'on_client_net_rm_dev','S',3,355,$on_client_net_rm_dev,0
+	._inspect	'F', 's', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 8
+	._line	1061
+;## # C_SRC :	{
+$on_client_net_rm_dev:
+	enter	#03H
+	mov.w	R1,-3[FB]	;  DEV_IDX  DEV_IDX 
+	._block
+	._var	'DEV_IDX','A',276,-3
+	._line	1064
+;## # C_SRC :	    if(DEV_IDX >= ON_NUM_PEER_DEV)
+	cmp.w	#0010H,-3[FB]	;  DEV_IDX 
+	jltu	L1559
+	._line	1065
+	._block
+	._line	1068
+;## # C_SRC :	        return;
+	exitd	
+	._eblock
+L1559:
+	._line	1072
+;## # C_SRC :	    if(DEV_IDX < ON_NUM_PEER_DEV - 1)
+	cmp.w	#000fH,-3[FB]	;  DEV_IDX 
+	jgeu	L1569
+	._line	1073
+	._block
+	._line	1075
+;## # C_SRC :	          (ON_NUM_PEER_DEV - (DEV_IDX + 1)) * sizeof(on_peer_dev_t));
+	mov.w	-3[FB],R0	;  DEV_IDX 
+	add.w	#0001H,R0
+	mov.w	#0010H,R1
+	sub.w	R0,R1
+	mov.w	#0000H,R3
+	shl.l	#2,R3R1
+	pushm	R3,R1
+	._inspect	'S', 'p', 4
+	shl.w	#02H,R0
+	add.w	_peer,R0
+	mov.w	-3[FB],R1	;  DEV_IDX 
+	shl.w	#02H,R1
+	add.w	_peer,R1
+	mov.w	R0,R2
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 1075
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._eblock
+L1569:
+	._line	1079
+;## # C_SRC :	      ON_ENCODED_BROADCAST_DID, sizeof(on_encoded_did_t));
+	push.w	#0000H
+	push.w	#0002H
+	._inspect	'S', 'p', 4
+	mov.w	#_ON_ENCODED_BROADCAST_DID,R2
+	mov.w	_peer,R1
+	add.w	#003cH,R1
+	._inspect	'S', 'c', "one_net_memmove", "$one_net_memmove", 'G', 0, 1079
+	jsr	$one_net_memmove
+	._inspect	'S', 'p', -4
+	add.b	#04H,SP
+	._line	1083
+;## # C_SRC :	    for(unit_idx = 0; unit_idx < ONE_NET_NUM_UNITS; unit_idx++)
+	mov.b	#00H,R0H	;  unit_idx 
+	._block
+	._var	'unit_idx','R',258,2
+	._eblock
+	mov.b	R0H,R0L	;  unit_idx  unit_idx 
+	._block
+	._var	'unit_idx','R',258,1
+L1579:
+	._eblock
+	._line	1084
+	._block
+	._block
+	._var	'unit_idx','R',258,1
+	._line	1086
+;## # C_SRC :	          peer->unit[unit_idx][peer_idx].peer_unit != ONE_NET_DEV_UNIT;
+	mov.b	#00H,R0H	;  peer_idx 
+	._eblock
+	._block
+	._var	'unit_idx','R',258,1
+	._var	'peer_idx','R',258,2
+	._eblock
+	mov.b	R0L,-1[FB]	;  unit_idx  __TMP2 
+	mov.b	R0H,R0L	;  peer_idx  peer_idx 
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','A',258,-1
+L1591:
+	._line	1086
+;## # C_SRC :	          peer->unit[unit_idx][peer_idx].peer_unit != ONE_NET_DEV_UNIT;
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_7
+	.stk	-3
+	._eblock
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	.stk	3
+	jsr	_Aopt_CHEWProj20Bet16KprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetclientnet_4
+	.stk	-3
+	cmp.b	#0fH,0042H[A0]
+	jeq	L1595
+	._eblock
+	._line	1088
+	._block
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	._line	1089
+;## # C_SRC :	            if(peer->unit[unit_idx][peer_idx].peer_dev_idx > DEV_IDX)
+	cmp.w	-3[FB],0040H[A0]	;  DEV_IDX 
+	jleu	L1621
+	._eblock
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	._eblock
+	._line	1090
+	._block
+	._block
+	._var	'peer_idx','R',258,1
+	._var	'unit_idx','R',258,2
+	._line	1091
+;## # C_SRC :	                peer->unit[unit_idx][peer_idx].peer_dev_idx--;
+	add.w	#0040H,A0
+	add.w	#-1,[A0]
+	._eblock
+L1621:
+	inc.b	R0L	;  peer_idx 
+	mov.b	R0H,-1[FB]	;  unit_idx  __TMP2 
+	._eblock
+	cmp.b	#04H,R0L	;  peer_idx 
+	jltu	L1591
+	mov.b	-1[FB],R0H	;  __TMP2  unit_idx 
+	._block
+	._var	'unit_idx','R',258,2
+L1595:
+	._eblock
+	._block
+	._var	'unit_idx','R',258,2
+	inc.b	R0H	;  unit_idx 
+	mov.b	R0H,R0L	;  unit_idx  unit_idx 
+	._eblock
+	cmp.b	#04H,R0L	;  unit_idx 
+	jltu	L1579
+	._eblock
+	._eblock
+	._eblock
+	._line	1095
+;## # C_SRC :	} // on_client_net_rm_dev //
+	exitd	
+E16:
+M17:
+	._efunc	M17
+	._inspect	'F', 'd', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 1061, 0, 00h, 0
+	._inspect	'F', 't', "on_client_net_rm_dev", 'S', 355
+	._inspect	'V', 'r', "peer", 'S', 1075, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 1075, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 1075, 0, 00h, 0
+	._inspect	'V', 'r', "ON_ENCODED_BROADCAST_DID", 'G', 1079, 2, 0, 0, 00h
+	._inspect	'V', 'r', "peer", 'S', 1079, 2, 0, 0, 00h
+	._inspect	'F', 'r', "one_net_memmove", "$one_net_memmove", 'G', 1079, 0, 00h, 0
+	._inspect	'V', 'r', "peer", 'S', 1086, 2, 0, 0, 00h
+	._inspect	'F', 'e', "on_client_net_rm_dev", "$on_client_net_rm_dev", 'S', 4, 0
+
+	.glb	$one_net_xtea_encipher
+	.glb	$one_net_xtea_decipher
+	.glb	_ON_ENCODED_BROADCAST_DID
+	.glb	$one_net_init
+	.glb	$on_is_my_NID
+	.glb	$on_encoded_did_equal
+	.glb	$on_validate_dst_DID
+	.glb	$on_encrypt
+	.glb	$on_decrypt
+	.glb	$on_rx_data_pkt
+	.glb	$on_build_nonces
+	.glb	$on_build_admin_pkt
+	.glb	$on_build_data_pkt
+	.glb	$on_build_response_pkt
+	.glb	$on_build_data_rate_pkt
+	.glb	$on_build_pkt
+	.glb	$on_parse_pld
+	.glb	$on_update_next_txn_time
+	.glb	$one_net
+	.glb	_one_net_send_single
+	.glb	$ona_parse_msg_class_and_type
+	.glb	$ona_send_unit_type_count_status
+	.glb	$ona_send_unit_type_count_query
+	.glb	$ona_send_unit_type_status
+	.glb	$ona_send_unit_type_query
+	.glb	$ona_parse_unit_type_count
+	.glb	$ona_parse_unit_type_status
+	.glb	$ona_parse_unit_type_query
+	.glb	_init_tick
+	.glb	_get_tick_count
+	.glb	$delay_ms
+	.glb	$delay_100s_us
+	.glb	_ONE_NET_DEVICE_UNIT_TYPE
+	.glb	_abort
+	.glb	$div
+	.glb	$exit
+	.glb	_calloc
+	.glb	$free
+	.glb	_malloc
+	.glb	$realloc
+	.glb	$strtol
+	.glb	$_n_n_strtol
+	.glb	$_n_f_strtol
+	.glb	$_f_n_strtol
+	.glb	$strtoul
+	.glb	$_n_n_strtoul
+	.glb	$_n_f_strtoul
+	.glb	$_f_n_strtoul
+	.glb	$strtod
+	.glb	$_n_n_strtod
+	.glb	$_n_f_strtod
+	.glb	$_f_n_strtod
+	.glb	$atoi
+	.glb	$atol
+	.glb	$atof
+	.glb	$abs
+	.glb	_labs
+	.glb	_ldiv
+	.glb	$qsort
+	.glb	$bsearch
+	.glb	$mblen
+	.glb	$mbtowc
+	.glb	$wctomb
+	.glb	$wcstombs
+	.glb	$mbstowcs
+	.glb	_rand
+	.glb	$srand
+	.glb	$strtof
+	.glb	$_n_n_strtof
+	.glb	$_n_f_strtof
+	.glb	$_f_n_strtof
+	.glb	$atoff
+	.glb	$one_net_memmove
+	.glb	$one_net_memcmp
+	.glb	$one_net_byte_stream_to_int16
+	.glb	$one_net_int16_to_byte_stream
+	.glb	$one_net_byte_stream_to_int32
+	.glb	$one_net_int32_to_byte_stream
+	.glb	_one_net_tick
+	.glb	_one_net_ms_to_tick
+	.glb	_one_net_tick_to_ms
+	.glb	$one_net_set_channel
+	.glb	_one_net_channel_is_clear
+	.glb	$one_net_set_data_rate
+	.glb	_one_net_look_for_pkt
+	.glb	$one_net_read
+	.glb	$one_net_write
+	.glb	_one_net_write_done
+	.glb	$one_net_client_look_for_invite
+	.glb	$one_net_client_init
+	.glb	$one_net_copy_to_nv_param
+	.glb	$one_net_client_raw_master_did
+	.glb	$one_net_client_join_network
+	.glb	_one_net_client
+	.glb	$one_net_client_joined_network
+	.glb	$one_net_client_handle_single_pkt
+	.glb	$one_net_client_single_txn_status
+	.glb	$one_net_client_save_settings
+	.glb	_one_net_client_client_remove_device
+	.glb	$on_encode
+	.glb	$on_decode
+	.glb	$on_client_send_single
+	.glb	$on_client_encoded_master_did
+	.glb	_on_client_send_to_master
+
+	.SECTION	bss_NE,DATA,align
+	._inspect	'U', 3, "bss_NE", "bss_NE", 0
+_peer:
+	.blkb	2
+
+	.SECTION	bss_NO,DATA
+	._inspect	'U', 3, "bss_NO", "bss_NO", 0
+_peer_msg_mgr:
+	.blkb	3
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	356,'T','SInt8',19
+	._type	357,'T','SInt16',16
+	._type	358,'T','UInt32',7
+	._type	359,'T','SInt32',20
+	._type	360,'T','Float32',10
+	._type	361,'T','tick_t',358
+	._type	362,'Z',16,258
+	._type	363,'T','one_net_xtea_key_t',362
+	._type	364,'v'
+	._type	365,'O',258
+	._type	366,'O',363
+	._type	367,'x',364,3
+	._type	367,'m','ROUNDS',0,258
+	._type	367,'m','data',0,365
+	._type	367,'m','KEY',0,366
+	._var	'one_net_xtea_encipher','F',367
+	._type	368,'v'
+	._type	369,'O',258
+	._type	370,'O',363
+	._type	371,'x',368,3
+	._type	371,'m','ROUNDS',0,258
+	._type	371,'m','data',0,369
+	._type	371,'m','KEY',0,370
+	._var	'one_net_xtea_decipher','F',371
+	._type	372,'N',''
+	._type	372,'m','ONE_NET_ENCODED_MH_BLOCK_DATA_NACK_RSN',106
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_DATA_NACK_RSN',99
+	._type	372,'m','ONE_NET_ENCODED_BLOCK_DATA_NACK_RSN',108
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_DATA_NACK_RSN',100
+	._type	372,'m','ONE_NET_ENCODED_MH_DATA_RATE_TEST',150
+	._type	372,'m','ONE_NET_ENCODED_MH_STREAM_KEEP_ALIVE',153
+	._type	372,'m','ONE_NET_ENCODED_MH_STREAM_DATA',149
+	._type	372,'m','ONE_NET_ENCODED_MH_BLOCK_TXN_ACK',154
+	._type	372,'m','ONE_NET_ENCODED_MH_BLOCK_DATA_NACK',147
+	._type	372,'m','ONE_NET_ENCODED_MH_BLOCK_DATA_ACK',156
+	._type	372,'m','ONE_NET_ENCODED_MH_REPEAT_BLOCK_DATA',148
+	._type	372,'m','ONE_NET_ENCODED_MH_BLOCK_DATA',82
+	._type	372,'m','ONE_NET_ENCODED_MH_REPEAT_SINGLE_DATA',86
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_DATA',89
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_TXN_ACK',85
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_DATA_NACK',90
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_DATA_ACK_STAY_AWAKE',83
+	._type	372,'m','ONE_NET_ENCODED_MH_SINGLE_DATA_ACK',92
+	._type	372,'m','ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT',84
+	._type	372,'m','ONE_NET_ENCODED_DATA_RATE_TEST',198
+	._type	372,'m','ONE_NET_ENCODED_STREAM_KEEP_ALIVE',201
+	._type	372,'m','ONE_NET_ENCODED_STREAM_DATA',197
+	._type	372,'m','ONE_NET_ENCODED_BLOCK_TXN_ACK',202
+	._type	372,'m','ONE_NET_ENCODED_BLOCK_DATA_NACK',195
+	._type	372,'m','ONE_NET_ENCODED_BLOCK_DATA_ACK',204
+	._type	372,'m','ONE_NET_ENCODED_REPEAT_BLOCK_DATA',196
+	._type	372,'m','ONE_NET_ENCODED_BLOCK_DATA',178
+	._type	372,'m','ONE_NET_ENCODED_REPEAT_SINGLE_DATA',182
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_DATA',185
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_TXN_ACK',181
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_DATA_NACK',186
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE',179
+	._type	372,'m','ONE_NET_ENCODED_SINGLE_DATA_ACK',188
+	._type	372,'m','ONE_NET_ENCODED_MASTER_INVITE_NEW_CLIENT',180
+	._type	373,'T','on_pid_t',372
+	._type	374,'N',''
+	._type	374,'m','ON_INVALID_MSG_TYPE',3
+	._type	374,'m','ON_EXTENDED_ADMIN_MSG',2
+	._type	374,'m','ON_ADMIN_MSG',1
+	._type	374,'m','ON_APP_MSG',0
+	._type	375,'T','on_msg_type_t',374
+	._type	376,'N',''
+	._type	376,'m','ON_RM_DEV',34
+	._type	376,'m','ON_STREAM_KEY_QUERY',33
+	._type	376,'m','ON_ASSIGN_MH_PEER',32
+	._type	376,'m','ON_RECV_STREAM_HIGH',31
+	._type	376,'m','ON_SEND_STREAM_HIGH',30
+	._type	376,'m','ON_RECV_BLOCK_HIGH',29
+	._type	376,'m','ON_SEND_BLOCK_HIGH',28
+	._type	376,'m','ON_CHANGE_HIGH_FRAGMENT_DELAY',27
+	._type	376,'m','ON_CHANGE_PEER_DATA_RATE',26
+	._type	376,'m','ON_ADMIN_UNUSED4',25
+	._type	376,'m','ON_ADMIN_UNUSED3',24
+	._type	376,'m','ON_ADMIN_UNUSED2',23
+	._type	376,'m','ON_ADMIN_UNUSED1',22
+	._type	376,'m','ON_ADMIN_UNUSED0',21
+	._type	376,'m','ON_DATA_RATE_RESULT',20
+	._type	376,'m','ON_INIT_DATA_RATE_TEST',19
+	._type	376,'m','ON_END_STREAM',18
+	._type	376,'m','ON_RECV_STREAM_LOW',17
+	._type	376,'m','ON_SEND_STREAM_LOW',16
+	._type	376,'m','ON_RECV_BLOCK_LOW',15
+	._type	376,'m','ON_SEND_BLOCK_LOW',14
+	._type	376,'m','ON_UNASSIGN_PEER',13
+	._type	376,'m','ON_ASSIGN_PEER',12
+	._type	376,'m','ON_NEW_KEY_FRAGMENT',11
+	._type	376,'m','ON_CHANGE_KEEP_ALIVE',10
+	._type	376,'m','ON_KEEP_ALIVE_RESP',9
+	._type	376,'m','ON_KEEP_ALIVE_QUERY',8
+	._type	376,'m','ON_CHANGE_LOW_FRAGMENT_DELAY',7
+	._type	376,'m','ON_FRAGMENT_DELAY_RESP',6
+	._type	376,'m','ON_FRAGMENT_DELAY_QUERY',5
+	._type	376,'m','ON_CHANGE_SETTINGS',4
+	._type	376,'m','ON_SETTINGS_RESP',3
+	._type	376,'m','ON_SETTINGS_QUERY',2
+	._type	376,'m','ON_STATUS_RESP',1
+	._type	376,'m','ON_STATUS_QUERY',0
+	._type	377,'T','on_admin_msg_t',376
+	._type	378,'N',''
+	._type	378,'m','ON_CHANGE_STREAM_KEY',0
+	._type	379,'T','on_extended_admin_msg_t',378
+	._type	380,'N',''
+	._type	380,'m','ONE_NET_DATA_RATE_LIMIT',6
+	._type	380,'m','ONE_NET_DATA_RATE_230_4',5
+	._type	380,'m','ONE_NET_DATA_RATE_192_0',4
+	._type	380,'m','ONE_NET_DATA_RATE_153_6',3
+	._type	380,'m','ONE_NET_DATA_RATE_115_2',2
+	._type	380,'m','ONE_NET_DATA_RATE_76_8',1
+	._type	380,'m','ONE_NET_DATA_RATE_38_4',0
+	._type	381,'T','on_data_rate_t',380
+	._type	382,'N',''
+	._type	382,'m','ON_BLOCK',5
+	._type	382,'m','ON_STREAM',4
+	._type	382,'m','ON_SINGLE',3
+	._type	382,'m','ON_DATA_RATE_TXN',2
+	._type	382,'m','ON_INVITE',1
+	._type	382,'m','ON_NO_TXN',0
+	._type	383,'T','on_data_t',382
+	._type	384,'N',''
+	._type	384,'m','ONE_NET_SEND_SINGLE_PRIORITY',2
+	._type	384,'m','ONE_NET_HIGH_PRIORITY',2
+	._type	384,'m','ONE_NET_LOW_PRIORITY',1
+	._type	384,'m','ONE_NET_NO_PRIORITY',0
+	._type	385,'T','on_priority_t',384
+	._type	386,'N',''
+	._type	386,'m','ON_INIT_STATE',1000
+	._type	386,'m','ON_JOIN_NETWORK',500
+	._type	386,'m','ON_SEND_DATA_RATE_RESP_WRITE_WAIT',93
+	._type	386,'m','ON_SEND_DATA_RATE_RESP',92
+	._type	386,'m','ON_RX_DATA_RATE',91
+	._type	386,'m','ON_INIT_RX_DATA_RATE',90
+	._type	386,'m','ON_RX_DATA_RATE_RESP',83
+	._type	386,'m','ON_SEND_DATA_RATE_WRITE_WAIT',82
+	._type	386,'m','ON_SEND_DATA_RATE',81
+	._type	386,'m','ON_INIT_SEND_DATA_RATE',80
+	._type	386,'m','ON_SEND_STREAM_DATA_RESP_WRITE_WAIT',71
+	._type	386,'m','ON_SEND_STREAM_DATA_RESP',70
+	._type	386,'m','ON_WAIT_FOR_STREAM_DATA_RESP',62
+	._type	386,'m','ON_SEND_STREAM_DATA_WRITE_WAIT',61
+	._type	386,'m','ON_SEND_STREAM_DATA_PKT',60
+	._type	386,'m','ON_WAIT_FOR_BLOCK_DATA_END',52
+	._type	386,'m','ON_SEND_BLOCK_DATA_RESP_WRITE_WAIT',51
+	._type	386,'m','ON_SEND_BLOCK_DATA_RESP',50
+	._type	386,'m','ON_WAIT_FOR_BLOCK_DATA_RESP',42
+	._type	386,'m','ON_SEND_BLOCK_DATA_WRITE_WAIT',41
+	._type	386,'m','ON_SEND_BLOCK_DATA_PKT',40
+	._type	386,'m','ON_WAIT_FOR_SINGLE_DATA_END',32
+	._type	386,'m','ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT',31
+	._type	386,'m','ON_SEND_SINGLE_DATA_RESP',30
+	._type	386,'m','ON_WAIT_FOR_SINGLE_DATA_RESP',22
+	._type	386,'m','ON_SEND_SINGLE_DATA_WRITE_WAIT',21
+	._type	386,'m','ON_SEND_SINGLE_DATA_PKT',20
+	._type	386,'m','ON_SEND_PKT_WRITE_WAIT',11
+	._type	386,'m','ON_SEND_PKT',10
+	._type	386,'m','ON_LISTEN_FOR_DATA',0
+	._type	387,'T','on_state_t',386
+	._type	388,'N',''
+	._type	388,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1',192
+	._type	388,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0',128
+	._type	388,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32',64
+	._type	388,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE',0
+	._type	389,'T','one_net_single_blk_encryption_t',388
+	._type	390,'N',''
+	._type	390,'m','ONE_NET_STREAM_ENCRYPT_TBD1',192
+	._type	390,'m','ONE_NET_STREAM_ENCRYPT_TBD0',128
+	._type	390,'m','ONE_NET_STREAM_ENCRYPT_XTEA8',64
+	._type	390,'m','ONE_NET_STREAM_ENCRYPT_NONE',0
+	._type	391,'T','one_net_stream_encryption_t',390
+	._type	392,'Z',5,258
+	._type	393,'T','one_net_raw_nid_t',392
+	._type	394,'Z',6,258
+	._type	395,'T','one_net_raw_sid_t',394
+	._type	396,'Z',6,258
+	._type	397,'T','on_encoded_nid_t',396
+	._type	398,'Z',8,258
+	._type	399,'T','on_encoded_sid_t',398
+	._type	400,'Z',4,258
+	._type	401,'T','one_net_xtea_key_fragment_t',400
+	._type	402,'S','',30
+	._type	402,'m','crc',258,0
+	._type	402,'m','version',276,1
+	._type	402,'m','sid',399,3
+	._type	402,'m','channel',258,11
+	._type	402,'m','data_rate',258,12
+	._type	402,'m','current_key',363,13
+	._type	402,'m','single_block_encrypt',258,29
+	._type	403,'T','on_base_param_t',402
+	._type	404,'S','',5
+	._type	404,'m','did',268,0
+	._type	404,'m','expected_nonce',258,2
+	._type	404,'m','last_nonce',258,3
+	._type	404,'m','send_nonce',258,4
+	._type	405,'T','on_sending_device_t',404
+	._type	407,'O',258
+	._type	406,'S','',8
+	._type	406,'m','priority',258,0
+	._type	406,'m','retry',258,1
+	._type	406,'m','expected_nonce',258,2
+	._type	406,'m','msg_type',258,3
+	._type	406,'m','data_len',258,4
+	._type	406,'m','pkt_size',258,5
+	._type	406,'m','pkt',407,6
+	._type	408,'T','on_txn_t',406
+	._type	409,'O',268
+	._type	410,'O',258
+	._type	411,'O',408
+	._type	412,'O',411
+	._type	413,'x',257,4
+	._type	413,'m','PID',0,258
+	._type	413,'m','SRC_DID',0,409
+	._type	413,'m','pld',0,410
+	._type	413,'m','txn',0,412
+	._type	414,'P',413
+	._type	415,'T','on_pkt_hdlr_t',414
+	._type	416,'O',408
+	._type	417,'O',416
+	._type	418,'x',257,3
+	._type	418,'m','txn',0,417
+	._type	418,'m','NEXT_NONCE',0,258
+	._type	418,'m','STATUS',0,257
+	._type	419,'P',418
+	._type	420,'T','on_txn_hdlr_t',419
+	._type	421,'v'
+	._type	422,'O',268
+	._type	423,'x',421,3
+	._type	423,'m','RATE',0,258
+	._type	423,'m','DID',0,422
+	._type	423,'m','RESULT',0,258
+	._type	424,'P',423
+	._type	425,'T','on_data_rate_result_hdlr_t',424
+	._type	426,'S','',12
+	._type	426,'m','single_data_hdlr',415,0
+	._type	426,'m','single_txn_hdlr',420,4
+	._type	426,'m','data_rate_hdlr',425,8
+	._type	427,'T','on_pkt_hdlr_set_t',426
+	._var	'ON_ENCODED_BROADCAST_DID','E',268
+	._type	428,'v'
+	._type	429,'O',427
+	._type	430,'x',428,1
+	._type	430,'m','PKT_HDLR',0,429
+	._var	'one_net_init','F',430
+	._type	431,'O',397
+	._type	432,'x',277,1
+	._type	432,'m','NID',0,431
+	._var	'on_is_my_NID','F',432
+	._type	433,'O',268
+	._type	434,'O',268
+	._type	435,'x',277,2
+	._type	435,'m','LHS',0,433
+	._type	435,'m','RHS',0,434
+	._var	'on_encoded_did_equal','F',435
+	._type	436,'O',268
+	._type	437,'x',257,1
+	._type	437,'m','DID',0,436
+	._var	'on_validate_dst_DID','F',437
+	._type	438,'O',258
+	._type	439,'O',363
+	._type	440,'x',257,3
+	._type	440,'m','DATA_TYPE',0,258
+	._type	440,'m','data',0,438
+	._type	440,'m','key',0,439
+	._var	'on_encrypt','F',440
+	._type	441,'O',258
+	._type	442,'O',363
+	._type	443,'x',257,3
+	._type	443,'m','DATA_TYPE',0,258
+	._type	443,'m','data',0,441
+	._type	443,'m','key',0,442
+	._var	'on_decrypt','F',443
+	._type	444,'O',268
+	._type	445,'O',408
+	._type	446,'O',445
+	._type	447,'x',257,2
+	._type	447,'m','EXPECTED_SRC_DID',0,444
+	._type	447,'m','txn',0,446
+	._var	'on_rx_data_pkt','F',447
+	._type	448,'O',258
+	._type	449,'x',257,3
+	._type	449,'m','data',0,448
+	._type	449,'m','TXN_NONCE',0,258
+	._type	449,'m','RESP_NONCE',0,258
+	._var	'on_build_nonces','F',449
+	._type	450,'O',258
+	._type	451,'O',258
+	._type	452,'O',268
+	._type	453,'O',258
+	._type	454,'O',363
+	._type	455,'x',257,10
+	._type	455,'m','pkt',0,450
+	._type	455,'m','pkt_size',0,451
+	._type	455,'m','MSG_TYPE',0,258
+	._type	455,'m','MSG_ID',0,258
+	._type	455,'m','ENCODED_DST',0,452
+	._type	455,'m','TXN_NONCE',0,258
+	._type	455,'m','RESP_NONCE',0,258
+	._type	455,'m','RAW_DATA',0,453
+	._type	455,'m','DATA_LEN',0,258
+	._type	455,'m','KEY',0,454
+	._var	'on_build_admin_pkt','F',455
+	._type	456,'O',258
+	._type	457,'O',258
+	._type	458,'O',268
+	._type	459,'O',258
+	._type	460,'O',363
+	._type	461,'x',257,10
+	._type	461,'m','pkt',0,456
+	._type	461,'m','pkt_size',0,457
+	._type	461,'m','MSG_TYPE',0,258
+	._type	461,'m','PID',0,258
+	._type	461,'m','ENCODED_DST',0,458
+	._type	461,'m','TXN_NONCE',0,258
+	._type	461,'m','RESP_NONCE',0,258
+	._type	461,'m','RAW_DATA',0,459
+	._type	461,'m','DATA_LEN',0,258
+	._type	461,'m','KEY',0,460
+	._var	'on_build_data_pkt','F',461
+	._type	462,'O',258
+	._type	463,'O',258
+	._type	464,'O',268
+	._type	465,'x',257,6
+	._type	465,'m','pkt',0,462
+	._type	465,'m','pkt_size',0,463
+	._type	465,'m','PID',0,258
+	._type	465,'m','ENCODED_DST',0,464
+	._type	465,'m','TXN_NONCE',0,258
+	._type	465,'m','EXPECTED_NONCE',0,258
+	._var	'on_build_response_pkt','F',465
+	._type	466,'O',258
+	._type	467,'O',258
+	._type	468,'O',268
+	._type	469,'x',257,4
+	._type	469,'m','pkt',0,466
+	._type	469,'m','pkt_size',0,467
+	._type	469,'m','ENCODED_DST',0,468
+	._type	469,'m','data_rate',0,258
+	._var	'on_build_data_rate_pkt','F',469
+	._type	470,'O',258
+	._type	471,'O',258
+	._type	472,'O',268
+	._type	473,'O',258
+	._type	474,'x',257,6
+	._type	474,'m','pkt',0,470
+	._type	474,'m','pkt_size',0,471
+	._type	474,'m','PID',0,258
+	._type	474,'m','ENCODED_DST',0,472
+	._type	474,'m','RAW_DATA',0,473
+	._type	474,'m','DATA_WORD_SIZE',0,258
+	._var	'on_build_pkt','F',474
+	._type	475,'O',258
+	._type	476,'O',258
+	._type	477,'O',258
+	._type	478,'O',258
+	._type	479,'O',363
+	._type	480,'x',257,6
+	._type	480,'m','txn_nonce',0,475
+	._type	480,'m','resp_nonce',0,476
+	._type	480,'m','msg_type',0,477
+	._type	480,'m','pld',0,478
+	._type	480,'m','DATA_TYPE',0,258
+	._type	480,'m','KEY',0,479
+	._var	'on_parse_pld','F',480
+	._type	481,'v'
+	._type	482,'O',408
+	._type	483,'x',481,1
+	._type	483,'m','txn',0,482
+	._var	'on_update_next_txn_time','F',483
+	._type	484,'O',408
+	._type	485,'O',484
+	._type	486,'x',277,1
+	._type	486,'m','txn',0,485
+	._var	'one_net','F',486
+	._type	487,'N','_ona_msg_class'
+	._type	487,'m','ONA_MSG_CLASS_MASK',49152
+	._type	487,'m','ONA_NOT_USED',49152
+	._type	487,'m','ONA_QUERY',32768
+	._type	487,'m','ONA_COMMAND',16384
+	._type	487,'m','ONA_STATUS',0
+	._type	488,'T','ona_msg_class_t',487
+	._type	489,'N','_ona_msg_type'
+	._type	489,'m','ONA_MSG_TYPE_MASK',16383
+	._type	489,'m','ONA_X10_EXTENDED',16382
+	._type	489,'m','ONA_X10_SIMPLE',16381
+	._type	489,'m','ONA_INSTEON_COMMAND',16380
+	._type	489,'m','ONA_INSTEON_TO_ADDRESS',16379
+	._type	489,'m','ONA_PEAK_GAS_THERM_HRS',56
+	._type	489,'m','ONA_PEAK_GAS_THERM_MINS',55
+	._type	489,'m','ONA_PEAK_GAS_THERM_SECS',54
+	._type	489,'m','ONA_PEAK_GAS',53
+	._type	489,'m','ONA_AVER_GAS_THERM_HRS',52
+	._type	489,'m','ONA_AVER_GAS_THERM_MINS',51
+	._type	489,'m','ONA_AVER_GAS_THERM_SECS',50
+	._type	489,'m','ONA_AVER_GAS',49
+	._type	489,'m','ONA_ACCUM_GAS_THERM_HRS',48
+	._type	489,'m','ONA_ACCUM_GAS_THERM_MINS',47
+	._type	489,'m','ONA_ACCUM_GAS_THERM_SECS',46
+	._type	489,'m','ONA_ACCUM_GAS',45
+	._type	489,'m','ONA_GAS_THERM_HRS',44
+	._type	489,'m','ONA_GAS_THERM_MINS',43
+	._type	489,'m','ONA_GAS_THERM_SECS',42
+	._type	489,'m','ONA_GAS',41
+	._type	489,'m','ONA_PEAK_ENERGY_20000_WATT_SECONDS',40
+	._type	489,'m','ONA_PEAK_ENERGY_2000_WATT_SECONDS',39
+	._type	489,'m','ONA_PEAK_ENERGY_200_WATT_SECONDS',38
+	._type	489,'m','ONA_PEAK_ENERGY_20_WATT_SECONDS',37
+	._type	489,'m','ONA_PEAK_ENERGY_2_WATT_SECONDS',36
+	._type	489,'m','ONA_PEAK_ENERGY',35
+	._type	489,'m','ONA_ACCUM_ENERGY_20000_WATT_SECONDS',34
+	._type	489,'m','ONA_ACCUM_ENERGY_2000_WATT_SECONDS',33
+	._type	489,'m','ONA_ACCUM_ENERGY_200_WATT_SECONDS',32
+	._type	489,'m','ONA_ACCUM_ENERGY_20_WATT_SECONDS',31
+	._type	489,'m','ONA_ACCUM_ENERGY_2_WATT_SECONDS',30
+	._type	489,'m','ONA_ACCUM_ENERGY',29
+	._type	489,'m','ONA_ENERGY_20000_WATT_SECONDS',28
+	._type	489,'m','ONA_ENERGY_2000_WATT_SECONDS',27
+	._type	489,'m','ONA_ENERGY_200_WATT_SECONDS',26
+	._type	489,'m','ONA_ENERGY_20_WATT_SECONDS',25
+	._type	489,'m','ONA_ENERGY_2_WATT_SECONDS',24
+	._type	489,'m','ONA_ENERGY',23
+	._type	489,'m','ONA_VOLTAGE_SIMPLE',22
+	._type	489,'m','ONA_VOLTAGE_100THS_VOLTS',21
+	._type	489,'m','ONA_VOLTAGE_10THS_VOLTS',20
+	._type	489,'m','ONA_VOLTAGE_VOLTS',19
+	._type	489,'m','ONA_VOLTAGE',18
+	._type	489,'m','ONA_TIME',17
+	._type	489,'m','ONA_DATE',16
+	._type	489,'m','ONA_SIMPLE_TEXT',15
+	._type	489,'m','ONA_COLOR',14
+	._type	489,'m','ONA_UNIT_TYPE',13
+	._type	489,'m','ONA_UNIT_TYPE_COUNT',12
+	._type	489,'m','ONA_UNUSED0',11
+	._type	489,'m','ONA_SEAL',10
+	._type	489,'m','ONA_OPENING',9
+	._type	489,'m','ONA_STATUS_INTERVAL',8
+	._type	489,'m','ONA_DIRECTION',7
+	._type	489,'m','ONA_SPEED_M_S',6
+	._type	489,'m','ONA_RAINFALL',5
+	._type	489,'m','ONA_PRESSURE',4
+	._type	489,'m','ONA_HUMIDITY',3
+	._type	489,'m','ONA_TEMPERATURE',2
+	._type	489,'m','ONA_PERCENT',1
+	._type	489,'m','ONA_SWITCH',0
+	._type	490,'T','ona_msg_type_t',489
+	._type	491,'N','_ona_block_msg_type'
+	._type	491,'m','ONA_BLOCK_TEXT',1
+	._type	491,'m','ONA_BLOCK_INSTEON_EXTENDED',0
+	._type	492,'T','ona_block_msg_type_t',491
+	._type	493,'N','_ona_unit_type'
+	._type	493,'m','ONA_ONE_NET_INSTEON_BRIDGE',13
+	._type	493,'m','ONA_ONE_NET_X10_BRIDGE',12
+	._type	493,'m','ONA_MOTION_SENSOR',11
+	._type	493,'m','ONA_DOOR_WINDOW_SENSOR',10
+	._type	493,'m','ONA_HUMIDITY_SENSOR',9
+	._type	493,'m','ONA_TEMPERATURE_SENSOR',8
+	._type	493,'m','ONA_SPEAKER',7
+	._type	493,'m','ONA_OUTLET',6
+	._type	493,'m','ONA_DIMMING_LIGHT',5
+	._type	493,'m','ONA_SIMPLE_LIGHT',4
+	._type	493,'m','ONA_DISPLAY_DIMMER_SWITCH',3
+	._type	493,'m','ONA_DISPLAY_SWITCH',2
+	._type	493,'m','ONA_DIMMER_SWITCH',1
+	._type	493,'m','ONA_SIMPLE_SWITCH',0
+	._type	494,'T','ona_unit_type_t',493
+	._type	495,'S','',3
+	._type	495,'m','type',494,0
+	._type	495,'m','count',258,2
+	._type	496,'T','ona_unit_type_count_t',495
+	._type	497,'O',258
+	._type	498,'O',261
+	._type	499,'x',257,6
+	._type	499,'m','data',0,497
+	._type	499,'m','DATA_LEN',0,258
+	._type	499,'m','DST_UNIT_IDX',0,258
+	._type	499,'m','PRIORITY',0,258
+	._type	499,'m','RAW_DST',0,498
+	._type	499,'m','SRC_UNIT',0,258
+	._type	500,'P',499
+	._type	501,'T','one_net_send_single_func_t',500
+	._var	'one_net_send_single','E',501
+	._type	502,'O',258
+	._type	503,'O',488
+	._type	504,'O',490
+	._type	505,'x',257,3
+	._type	505,'m','MSG_DATA',0,502
+	._type	505,'m','msg_class',0,503
+	._type	505,'m','msg_type',0,504
+	._var	'ona_parse_msg_class_and_type','F',505
+	._type	506,'O',261
+	._type	507,'x',257,1
+	._type	507,'m','RAW_DST',0,506
+	._var	'ona_send_unit_type_count_status','F',507
+	._type	508,'O',261
+	._type	509,'x',257,1
+	._type	509,'m','RAW_DST',0,508
+	._var	'ona_send_unit_type_count_query','F',509
+	._type	510,'O',261
+	._type	511,'x',257,2
+	._type	511,'m','UNIT_TYPE_IDX',0,258
+	._type	511,'m','RAW_DST',0,510
+	._var	'ona_send_unit_type_status','F',511
+	._type	512,'O',261
+	._type	513,'x',257,2
+	._type	513,'m','UNIT_TYPE_INDEX',0,258
+	._type	513,'m','RAW_DST',0,512
+	._var	'ona_send_unit_type_query','F',513
+	._type	514,'O',258
+	._type	515,'O',258
+	._type	516,'O',258
+	._type	517,'x',257,3
+	._type	517,'m','MSG_DATA',0,514
+	._type	517,'m','unit_count',0,515
+	._type	517,'m','unit_type_count',0,516
+	._var	'ona_parse_unit_type_count','F',517
+	._type	518,'O',258
+	._type	519,'O',494
+	._type	520,'O',258
+	._type	521,'x',257,3
+	._type	521,'m','MSG_DATA',0,518
+	._type	521,'m','unit_type',0,519
+	._type	521,'m','unit_count',0,520
+	._var	'ona_parse_unit_type_status','F',521
+	._type	522,'O',258
+	._type	523,'O',258
+	._type	524,'x',257,2
+	._type	524,'m','MSG_DATA',0,522
+	._type	524,'m','unit_type_index',0,523
+	._var	'ona_parse_unit_type_query','F',524
+	._type	525,'v'
+	._type	526,'v'
+	._type	527,'x',525,1
+	._type	527,'m','',0,526
+	._var	'init_tick','F',527
+	._type	528,'v'
+	._type	529,'x',361,1
+	._type	529,'m','',0,528
+	._var	'get_tick_count','F',529
+	._type	530,'v'
+	._type	531,'x',530,1
+	._type	531,'m','count',0,276
+	._var	'delay_ms','F',531
+	._type	532,'v'
+	._type	533,'x',532,1
+	._type	533,'m','count',0,276
+	._var	'delay_100s_us','F',533
+	._type	534,'Z',1,496
+	._var	'ONE_NET_DEVICE_UNIT_TYPE','E',534
+	._type	535,'S','',4
+	._type	535,'m','did',268,0
+	._type	535,'m','nonce',258,2
+	._type	535,'m','data_rate',258,3
+	._type	536,'T','on_peer_dev_t',535
+	._type	538,'Z',16,536
+	._type	539,'Z',4,322
+	._type	540,'Z',4,539
+	._type	537,'S','',112
+	._type	537,'m','dev',538,0
+	._type	537,'m','unit',540,64
+	._type	541,'T','on_peer_t',537
+	._type	542,'S','_div_t',4
+	._type	542,'m','quot',16,0
+	._type	542,'m','rem',16,2
+	._type	543,'T','div_t',542
+	._type	544,'S','_ldiv_t',8
+	._type	544,'m','quot',20,0
+	._type	544,'m','rem',20,4
+	._type	545,'T','ldiv_t',544
+	._type	546,'T','size_t',7
+	._type	547,'T','wchar_t',5
+	._type	548,'v'
+	._type	549,'v'
+	._type	550,'x',548,1
+	._type	550,'m','',0,549
+	._var	'abort','F',550
+	._type	551,'x',543,2
+	._type	551,'m','numer',0,16
+	._type	551,'m','denom',0,16
+	._var	'div','F',551
+	._type	552,'v'
+	._type	553,'x',552,1
+	._type	553,'m','status',0,16
+	._var	'exit','F',553
+	._type	554,'v'
+	._type	555,'O',554
+	._type	556,'x',555,2
+	._type	556,'m','nelem',0,546
+	._type	556,'m','size',0,546
+	._var	'calloc','F',556
+	._type	557,'v'
+	._type	558,'v'
+	._type	559,'O',558
+	._type	560,'x',557,1
+	._type	560,'m','ptr',0,559
+	._var	'free','F',560
+	._type	561,'v'
+	._type	562,'O',561
+	._type	563,'x',562,1
+	._type	563,'m','size',0,546
+	._var	'malloc','F',563
+	._type	564,'v'
+	._type	565,'O',564
+	._type	566,'v'
+	._type	567,'O',566
+	._type	568,'x',565,2
+	._type	568,'m','ptr',0,567
+	._type	568,'m','size',0,546
+	._var	'realloc','F',568
+	._type	569,'O',3
+	._type	570,'O',3
+	._type	571,'O',570
+	._type	572,'x',20,3
+	._type	572,'m','s',0,569
+	._type	572,'m','endptr',0,571
+	._type	572,'m','base',0,16
+	._var	'strtol','F',572
+	._type	573,'O',3
+	._type	574,'O',3
+	._type	575,'O',574
+	._type	576,'x',20,3
+	._type	576,'m','s',0,573
+	._type	576,'m','endptr',0,575
+	._type	576,'m','base',0,16
+	._var	'_n_n_strtol','F',576
+	._type	577,'O',3
+	._type	578,'O',3
+	._type	579,'O',578
+	._type	580,'x',20,3
+	._type	580,'m','s',0,577
+	._type	580,'m','endptr',0,579
+	._type	580,'m','base',0,16
+	._var	'_n_f_strtol','F',580
+	._type	581,'O',3
+	._type	582,'O',3
+	._type	583,'O',582
+	._type	584,'x',20,3
+	._type	584,'m','s',0,581
+	._type	584,'m','endptr',0,583
+	._type	584,'m','base',0,16
+	._var	'_f_n_strtol','F',584
+	._type	585,'O',3
+	._type	586,'O',3
+	._type	587,'O',586
+	._type	588,'x',7,3
+	._type	588,'m','s',0,585
+	._type	588,'m','endptr',0,587
+	._type	588,'m','base',0,16
+	._var	'strtoul','F',588
+	._type	589,'O',3
+	._type	590,'O',3
+	._type	591,'O',590
+	._type	592,'x',7,3
+	._type	592,'m','s',0,589
+	._type	592,'m','endptr',0,591
+	._type	592,'m','base',0,16
+	._var	'_n_n_strtoul','F',592
+	._type	593,'O',3
+	._type	594,'O',3
+	._type	595,'O',594
+	._type	596,'x',7,3
+	._type	596,'m','s',0,593
+	._type	596,'m','endptr',0,595
+	._type	596,'m','base',0,16
+	._var	'_n_f_strtoul','F',596
+	._type	597,'O',3
+	._type	598,'O',3
+	._type	599,'O',598
+	._type	600,'x',7,3
+	._type	600,'m','s',0,597
+	._type	600,'m','endptr',0,599
+	._type	600,'m','base',0,16
+	._var	'_f_n_strtoul','F',600
+	._type	601,'O',3
+	._type	602,'O',3
+	._type	603,'O',602
+	._type	604,'x',10,2
+	._type	604,'m','s',0,601
+	._type	604,'m','endptr',0,603
+	._var	'strtod','F',604
+	._type	605,'O',3
+	._type	606,'O',3
+	._type	607,'O',606
+	._type	608,'x',10,2
+	._type	608,'m','s',0,605
+	._type	608,'m','endptr',0,607
+	._var	'_n_n_strtod','F',608
+	._type	609,'O',3
+	._type	610,'O',3
+	._type	611,'O',610
+	._type	612,'x',10,2
+	._type	612,'m','s',0,609
+	._type	612,'m','endptr',0,611
+	._var	'_n_f_strtod','F',612
+	._type	613,'O',3
+	._type	614,'O',3
+	._type	615,'O',614
+	._type	616,'x',10,2
+	._type	616,'m','s',0,613
+	._type	616,'m','endptr',0,615
+	._var	'_f_n_strtod','F',616
+	._type	617,'O',3
+	._type	618,'x',16,1
+	._type	618,'m','s',0,617
+	._var	'atoi','F',618
+	._type	619,'O',3
+	._type	620,'x',20,1
+	._type	620,'m','s',0,619
+	._var	'atol','F',620
+	._type	621,'O',3
+	._type	622,'x',10,1
+	._type	622,'m','s',0,621
+	._var	'atof','F',622
+	._type	623,'x',16,1
+	._type	623,'m','n',0,16
+	._var	'abs','F',623
+	._type	624,'x',20,1
+	._type	624,'m','n',0,20
+	._var	'labs','F',624
+	._type	625,'x',545,2
+	._type	625,'m','numer',0,20
+	._type	625,'m','denom',0,20
+	._var	'ldiv','F',625
+	._type	626,'v'
+	._type	627,'v'
+	._type	628,'O',627
+	._type	629,'v'
+	._type	630,'O',629
+	._type	631,'v'
+	._type	632,'O',631
+	._type	633,'x',16,2
+	._type	633,'m','e1',0,630
+	._type	633,'m','e2',0,632
+	._type	634,'P',633
+	._type	635,'x',626,4
+	._type	635,'m','base',0,628
+	._type	635,'m','nelem',0,546
+	._type	635,'m','size',0,546
+	._type	635,'m','cmp',0,634
+	._var	'qsort','F',635
+	._type	636,'v'
+	._type	637,'O',636
+	._type	638,'v'
+	._type	639,'O',638
+	._type	640,'v'
+	._type	641,'O',640
+	._type	642,'v'
+	._type	643,'O',642
+	._type	644,'v'
+	._type	645,'O',644
+	._type	646,'x',16,2
+	._type	646,'m','ck',0,643
+	._type	646,'m','ce',0,645
+	._type	647,'P',646
+	._type	648,'x',637,5
+	._type	648,'m','key',0,639
+	._type	648,'m','base',0,641
+	._type	648,'m','nelem',0,546
+	._type	648,'m','size',0,546
+	._type	648,'m','cmp',0,647
+	._var	'bsearch','F',648
+	._type	649,'O',3
+	._type	650,'x',16,2
+	._type	650,'m','s',0,649
+	._type	650,'m','n',0,546
+	._var	'mblen','F',650
+	._type	651,'O',547
+	._type	652,'O',3
+	._type	653,'x',16,3
+	._type	653,'m','pwc',0,651
+	._type	653,'m','s',0,652
+	._type	653,'m','n',0,546
+	._var	'mbtowc','F',653
+	._type	654,'O',3
+	._type	655,'x',16,2
+	._type	655,'m','s',0,654
+	._type	655,'m','wchar',0,547
+	._var	'wctomb','F',655
+	._type	656,'O',3
+	._type	657,'O',547
+	._type	658,'x',546,3
+	._type	658,'m','s',0,656
+	._type	658,'m','wcs',0,657
+	._type	658,'m','n',0,546
+	._var	'wcstombs','F',658
+	._type	659,'O',547
+	._type	660,'O',3
+	._type	661,'x',546,3
+	._type	661,'m','wcs',0,659
+	._type	661,'m','s',0,660
+	._type	661,'m','n',0,546
+	._var	'mbstowcs','F',661
+	._type	662,'v'
+	._type	663,'x',16,1
+	._type	663,'m','',0,662
+	._var	'rand','F',663
+	._type	664,'v'
+	._type	665,'x',664,1
+	._type	665,'m','',0,18
+	._var	'srand','F',665
+	._type	666,'O',3
+	._type	667,'O',3
+	._type	668,'O',667
+	._type	669,'x',10,2
+	._type	669,'m','s',0,666
+	._type	669,'m','endptr',0,668
+	._var	'strtof','F',669
+	._type	670,'O',3
+	._type	671,'O',3
+	._type	672,'O',671
+	._type	673,'x',10,2
+	._type	673,'m','s',0,670
+	._type	673,'m','endptr',0,672
+	._var	'_n_n_strtof','F',673
+	._type	674,'O',3
+	._type	675,'O',3
+	._type	676,'O',675
+	._type	677,'x',10,2
+	._type	677,'m','s',0,674
+	._type	677,'m','endptr',0,676
+	._var	'_n_f_strtof','F',677
+	._type	678,'O',3
+	._type	679,'O',3
+	._type	680,'O',679
+	._type	681,'x',10,2
+	._type	681,'m','s',0,678
+	._type	681,'m','endptr',0,680
+	._var	'_f_n_strtof','F',681
+	._type	682,'O',3
+	._type	683,'x',10,1
+	._type	683,'m','s',0,682
+	._var	'atoff','F',683
+	._type	684,'N',''
+	._type	684,'m','ONE_NET_MAX_CHANNEL',27
+	._type	684,'m','ONE_NET_NUM_CHANNELS',28
+	._type	684,'m','ONE_NET_MAX_EUR_CHANNEL',27
+	._type	684,'m','ONE_NET_EUR_CHANNEL_3',27
+	._type	684,'m','ONE_NET_EUR_CHANNEL_2',26
+	._type	684,'m','ONE_NET_EUR_CHANNEL_1',25
+	._type	684,'m','ONE_NET_MIN_EUR_CHANNEL',25
+	._type	684,'m','ONE_NET_MAX_US_CHANNEL',24
+	._type	684,'m','ONE_NET_US_CHANNEL_25',24
+	._type	684,'m','ONE_NET_US_CHANNEL_24',23
+	._type	684,'m','ONE_NET_US_CHANNEL_23',22
+	._type	684,'m','ONE_NET_US_CHANNEL_22',21
+	._type	684,'m','ONE_NET_US_CHANNEL_21',20
+	._type	684,'m','ONE_NET_US_CHANNEL_20',19
+	._type	684,'m','ONE_NET_US_CHANNEL_19',18
+	._type	684,'m','ONE_NET_US_CHANNEL_18',17
+	._type	684,'m','ONE_NET_US_CHANNEL_17',16
+	._type	684,'m','ONE_NET_US_CHANNEL_16',15
+	._type	684,'m','ONE_NET_US_CHANNEL_15',14
+	._type	684,'m','ONE_NET_US_CHANNEL_14',13
+	._type	684,'m','ONE_NET_US_CHANNEL_13',12
+	._type	684,'m','ONE_NET_US_CHANNEL_12',11
+	._type	684,'m','ONE_NET_US_CHANNEL_11',10
+	._type	684,'m','ONE_NET_US_CHANNEL_10',9
+	._type	684,'m','ONE_NET_US_CHANNEL_9',8
+	._type	684,'m','ONE_NET_US_CHANNEL_8',7
+	._type	684,'m','ONE_NET_US_CHANNEL_7',6
+	._type	684,'m','ONE_NET_US_CHANNEL_6',5
+	._type	684,'m','ONE_NET_US_CHANNEL_5',4
+	._type	684,'m','ONE_NET_US_CHANNEL_4',3
+	._type	684,'m','ONE_NET_US_CHANNEL_3',2
+	._type	684,'m','ONE_NET_US_CHANNEL_2',1
+	._type	684,'m','ONE_NET_US_CHANNEL_1',0
+	._type	684,'m','ONE_NET_MIN_US_CHANNEL',0
+	._type	685,'T','one_net_channel_t',684
+	._type	686,'v'
+	._type	687,'O',686
+	._type	688,'v'
+	._type	689,'O',688
+	._type	690,'v'
+	._type	691,'O',690
+	._type	692,'x',687,3
+	._type	692,'m','dst',0,689
+	._type	692,'m','SRC',0,691
+	._type	692,'m','len',0,546
+	._var	'one_net_memmove','F',692
+	._type	693,'v'
+	._type	694,'O',693
+	._type	695,'v'
+	._type	696,'O',695
+	._type	697,'x',356,3
+	._type	697,'m','vp1',0,694
+	._type	697,'m','vp2',0,696
+	._type	697,'m','n',0,546
+	._var	'one_net_memcmp','F',697
+	._type	698,'O',258
+	._type	699,'x',276,1
+	._type	699,'m','BYTE_STREAM',0,698
+	._var	'one_net_byte_stream_to_int16','F',699
+	._type	700,'v'
+	._type	701,'O',258
+	._type	702,'x',700,2
+	._type	702,'m','VAL',0,276
+	._type	702,'m','byte_stream',0,701
+	._var	'one_net_int16_to_byte_stream','F',702
+	._type	703,'O',258
+	._type	704,'x',358,1
+	._type	704,'m','BYTE_STREAM',0,703
+	._var	'one_net_byte_stream_to_int32','F',704
+	._type	705,'v'
+	._type	706,'O',258
+	._type	707,'x',705,2
+	._type	707,'m','VAL',0,358
+	._type	707,'m','byte_stream',0,706
+	._var	'one_net_int32_to_byte_stream','F',707
+	._type	708,'v'
+	._type	709,'x',361,1
+	._type	709,'m','',0,708
+	._var	'one_net_tick','F',709
+	._type	710,'x',361,1
+	._type	710,'m','MS',0,358
+	._var	'one_net_ms_to_tick','F',710
+	._type	711,'x',358,1
+	._type	711,'m','TICK',0,361
+	._var	'one_net_tick_to_ms','F',711
+	._type	712,'v'
+	._type	713,'x',712,1
+	._type	713,'m','CHANNEL',0,258
+	._var	'one_net_set_channel','F',713
+	._type	714,'v'
+	._type	715,'x',277,1
+	._type	715,'m','',0,714
+	._var	'one_net_channel_is_clear','F',715
+	._type	716,'v'
+	._type	717,'x',716,1
+	._type	717,'m','DATA_RATE',0,258
+	._var	'one_net_set_data_rate','F',717
+	._type	718,'x',257,1
+	._type	718,'m','DURATION',0,361
+	._var	'one_net_look_for_pkt','F',718
+	._type	719,'O',258
+	._type	720,'x',276,2
+	._type	720,'m','data',0,719
+	._type	720,'m','LEN',0,276
+	._var	'one_net_read','F',720
+	._type	721,'O',258
+	._type	722,'x',276,2
+	._type	722,'m','DATA',0,721
+	._type	722,'m','LEN',0,276
+	._var	'one_net_write','F',722
+	._type	723,'v'
+	._type	724,'x',277,1
+	._type	724,'m','',0,723
+	._var	'one_net_write_done','F',724
+	._type	726,'S','',2
+	._type	726,'m','master_data_rate',258,0
+	._type	726,'m','flags',258,1
+	._type	725,'S','',11
+	._type	725,'m','device',405,0
+	._type	725,'m','keep_alive_interval',361,5
+	._type	725,'m','settings',726,9
+	._type	727,'T','on_master_t',725
+	._type	728,'S','',35
+	._type	728,'m','channel',685,0
+	._type	728,'m','current_key',363,2
+	._type	728,'m','single_block_encrypt_method',258,18
+	._type	728,'m','data_rate',381,19
+	._type	728,'m','raw_sid',395,21
+	._type	728,'m','raw_master_did',261,27
+	._type	728,'m','master_data_rate',381,29
+	._type	728,'m','keep_alive_interval',361,31
+	._type	729,'T','one_net_client_join_network_data_t',728
+	._type	730,'O',363
+	._type	731,'x',257,2
+	._type	731,'m','INVITE_KEY',0,730
+	._type	731,'m','SINGLE_BLOCK_ENCRYPT_METHOD',0,258
+	._var	'one_net_client_look_for_invite','F',731
+	._type	732,'O',258
+	._type	733,'x',257,2
+	._type	733,'m','PARAM',0,732
+	._type	733,'m','PARAM_LEN',0,276
+	._var	'one_net_client_init','F',733
+	._type	734,'v'
+	._type	735,'O',258
+	._type	736,'x',734,2
+	._type	736,'m','param',0,735
+	._type	736,'m','len',0,276
+	._var	'one_net_copy_to_nv_param','F',736
+	._type	737,'v'
+	._type	738,'O',261
+	._type	739,'x',737,1
+	._type	739,'m','master_did',0,738
+	._var	'one_net_client_raw_master_did','F',739
+	._type	740,'O',729
+	._type	741,'x',257,1
+	._type	741,'m','DATA',0,740
+	._var	'one_net_client_join_network','F',741
+	._type	742,'v'
+	._type	743,'x',361,1
+	._type	743,'m','',0,742
+	._var	'one_net_client','F',743
+	._type	744,'v'
+	._type	745,'O',261
+	._type	746,'O',261
+	._type	747,'x',744,2
+	._type	747,'m','RAW_DID',0,745
+	._type	747,'m','MASTER_DID',0,746
+	._var	'one_net_client_joined_network','F',747
+	._type	748,'O',258
+	._type	749,'O',261
+	._type	750,'x',277,3
+	._type	750,'m','RX_PLD',0,748
+	._type	750,'m','RX_PLD_LEN',0,276
+	._type	750,'m','SRC_ADDR',0,749
+	._var	'one_net_client_handle_single_pkt','F',750
+	._type	751,'v'
+	._type	752,'O',258
+	._type	753,'O',261
+	._type	754,'x',751,4
+	._type	754,'m','STATUS',0,257
+	._type	754,'m','RETRY_COUNT',0,258
+	._type	754,'m','DATA',0,752
+	._type	754,'m','DST',0,753
+	._var	'one_net_client_single_txn_status','F',754
+	._type	755,'v'
+	._type	756,'O',258
+	._type	757,'x',755,2
+	._type	757,'m','PARAM',0,756
+	._type	757,'m','PARAM_LEN',0,276
+	._var	'one_net_client_save_settings','F',757
+	._type	758,'v'
+	._type	759,'v'
+	._type	760,'x',758,1
+	._type	760,'m','',0,759
+	._var	'one_net_client_client_remove_device','F',760
+	._type	761,'O',258
+	._type	762,'O',258
+	._type	763,'x',257,3
+	._type	763,'m','encoded',0,761
+	._type	763,'m','RAW',0,762
+	._type	763,'m','ENCODED_SIZE',0,276
+	._var	'on_encode','F',763
+	._type	764,'O',258
+	._type	765,'O',258
+	._type	766,'x',257,3
+	._type	766,'m','raw',0,764
+	._type	766,'m','ENCODED',0,765
+	._type	766,'m','ENCODED_SIZE',0,276
+	._var	'on_decode','F',766
+	._type	767,'O',541
+	._var	'peer','S',767,_peer
+	._var	'peer_msg_mgr','S',314,_peer_msg_mgr
+	._type	768,'O',258
+	._type	769,'O',268
+	._type	770,'x',257,5
+	._type	770,'m','DATA',0,768
+	._type	770,'m','DATA_LEN',0,258
+	._type	770,'m','PRIORITY',0,258
+	._type	770,'m','DST',0,769
+	._type	770,'m','TXN_ID',0,258
+	._var	'on_client_send_single','F',770
+	._type	771,'v'
+	._type	772,'O',268
+	._type	773,'x',771,1
+	._type	773,'m','master_did',0,772
+	._var	'on_client_encoded_master_did','F',773
+	._type	774,'v'
+	._type	775,'x',277,1
+	._type	775,'m','',0,774
+	._var	'on_client_send_to_master','F',775
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "one_net_status_t", 'O', 256
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 358
+	._inspect	'V', 't', "BOOL", 'O', 258
+	._inspect	'V', 't', "one_net_xtea_key_t", 'O', 362
+	._inspect	'F', 't', "one_net_xtea_encipher", 'G', 367
+	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 371
+	._inspect	'V', 't', "on_pid_t", 'O', 372
+	._inspect	'V', 't', "on_msg_type_t", 'O', 374
+	._inspect	'V', 't', "on_admin_msg_t", 'O', 376
+	._inspect	'V', 't', "on_extended_admin_msg_t", 'O', 378
+	._inspect	'V', 't', "on_data_rate_t", 'O', 380
+	._inspect	'V', 't', "on_data_t", 'O', 382
+	._inspect	'V', 't', "on_priority_t", 'O', 384
+	._inspect	'V', 't', "on_state_t", 'O', 386
+	._inspect	'V', 't', "one_net_single_blk_encryption_t", 'O', 388
+	._inspect	'V', 't', "one_net_stream_encryption_t", 'O', 390
+	._inspect	'V', 't', "one_net_raw_nid_t", 'O', 392
+	._inspect	'V', 't', "one_net_raw_did_t", 'O', 260
+	._inspect	'V', 't', "one_net_raw_sid_t", 'O', 394
+	._inspect	'V', 't', "on_encoded_nid_t", 'O', 396
+	._inspect	'V', 't', "on_encoded_did_t", 'O', 267
+	._inspect	'V', 't', "on_encoded_sid_t", 'O', 398
+	._inspect	'V', 't', "one_net_xtea_key_fragment_t", 'O', 400
+	._inspect	'V', 't', "on_base_param_t", 'O', 402
+	._inspect	'V', 't', "on_sending_device_t", 'O', 404
+	._inspect	'V', 't', "on_txn_t", 'O', 406
+	._inspect	'V', 't', "on_pkt_hdlr_t", 'O', 414
+	._inspect	'V', 't', "on_txn_hdlr_t", 'O', 419
+	._inspect	'V', 't', "on_data_rate_result_hdlr_t", 'O', 424
+	._inspect	'V', 't', "on_pkt_hdlr_set_t", 'O', 426
+	._inspect	'V', 't', "ON_ENCODED_BROADCAST_DID", 'G', 268
+	._inspect	'F', 't', "one_net_init", 'G', 430
+	._inspect	'F', 't', "on_is_my_NID", 'G', 432
+	._inspect	'F', 't', "on_encoded_did_equal", 'G', 435
+	._inspect	'F', 't', "on_validate_dst_DID", 'G', 437
+	._inspect	'F', 't', "on_encrypt", 'G', 440
+	._inspect	'F', 't', "on_decrypt", 'G', 443
+	._inspect	'F', 't', "on_rx_data_pkt", 'G', 447
+	._inspect	'F', 't', "on_build_nonces", 'G', 449
+	._inspect	'F', 't', "on_build_admin_pkt", 'G', 455
+	._inspect	'F', 't', "on_build_data_pkt", 'G', 461
+	._inspect	'F', 't', "on_build_response_pkt", 'G', 465
+	._inspect	'F', 't', "on_build_data_rate_pkt", 'G', 469
+	._inspect	'F', 't', "on_build_pkt", 'G', 474
+	._inspect	'F', 't', "on_parse_pld", 'G', 480
+	._inspect	'F', 't', "on_update_next_txn_time", 'G', 483
+	._inspect	'F', 't', "one_net", 'G', 486
+	._inspect	'V', 't', "ona_msg_class_t", 'O', 487
+	._inspect	'V', 't', "ona_msg_type_t", 'O', 489
+	._inspect	'V', 't', "ona_block_msg_type_t", 'O', 491
+	._inspect	'V', 't', "ona_unit_type_t", 'O', 493
+	._inspect	'V', 't', "ona_unit_type_count_t", 'O', 495
+	._inspect	'V', 't', "one_net_send_single_func_t", 'O', 500
+	._inspect	'V', 't', "one_net_send_single", 'G', 501
+	._inspect	'F', 't', "ona_parse_msg_class_and_type", 'G', 505
+	._inspect	'F', 't', "ona_send_unit_type_count_status", 'G', 507
+	._inspect	'F', 't', "ona_send_unit_type_count_query", 'G', 509
+	._inspect	'F', 't', "ona_send_unit_type_status", 'G', 511
+	._inspect	'F', 't', "ona_send_unit_type_query", 'G', 513
+	._inspect	'F', 't', "ona_parse_unit_type_count", 'G', 517
+	._inspect	'F', 't', "ona_parse_unit_type_status", 'G', 521
+	._inspect	'F', 't', "ona_parse_unit_type_query", 'G', 524
+	._inspect	'F', 't', "init_tick", 'G', 527
+	._inspect	'F', 't', "get_tick_count", 'G', 529
+	._inspect	'F', 't', "delay_ms", 'G', 531
+	._inspect	'F', 't', "delay_100s_us", 'G', 533
+	._inspect	'V', 't', "ONE_NET_DEVICE_UNIT_TYPE", 'G', 534
+	._inspect	'V', 't', "on_peer_dev_t", 'O', 535
+	._inspect	'V', 't', "on_peer_unit_t", 'O', 321
+	._inspect	'V', 't', "on_peer_t", 'O', 537
+	._inspect	'V', 't', "div_t", 'O', 542
+	._inspect	'V', 't', "ldiv_t", 'O', 544
+	._inspect	'V', 't', "size_t", 'O', 7
+	._inspect	'V', 't', "wchar_t", 'O', 5
+	._inspect	'F', 't', "abort", 'G', 550
+	._inspect	'F', 't', "div", 'G', 551
+	._inspect	'F', 't', "exit", 'G', 553
+	._inspect	'F', 't', "calloc", 'G', 556
+	._inspect	'F', 't', "free", 'G', 560
+	._inspect	'F', 't', "malloc", 'G', 563
+	._inspect	'F', 't', "realloc", 'G', 568
+	._inspect	'F', 't', "strtol", 'G', 572
+	._inspect	'F', 't', "_n_n_strtol", 'G', 576
+	._inspect	'F', 't', "_n_f_strtol", 'G', 580
+	._inspect	'F', 't', "_f_n_strtol", 'G', 584
+	._inspect	'F', 't', "strtoul", 'G', 588
+	._inspect	'F', 't', "_n_n_strtoul", 'G', 592
+	._inspect	'F', 't', "_n_f_strtoul", 'G', 596
+	._inspect	'F', 't', "_f_n_strtoul", 'G', 600
+	._inspect	'F', 't', "strtod", 'G', 604
+	._inspect	'F', 't', "_n_n_strtod", 'G', 608
+	._inspect	'F', 't', "_n_f_strtod", 'G', 612
+	._inspect	'F', 't', "_f_n_strtod", 'G', 616
+	._inspect	'F', 't', "atoi", 'G', 618
+	._inspect	'F', 't', "atol", 'G', 620
+	._inspect	'F', 't', "atof", 'G', 622
+	._inspect	'F', 't', "abs", 'G', 623
+	._inspect	'F', 't', "labs", 'G', 624
+	._inspect	'F', 't', "ldiv", 'G', 625
+	._inspect	'F', 't', "qsort", 'G', 635
+	._inspect	'F', 't', "bsearch", 'G', 648
+	._inspect	'F', 't', "mblen", 'G', 650
+	._inspect	'F', 't', "mbtowc", 'G', 653
+	._inspect	'F', 't', "wctomb", 'G', 655
+	._inspect	'F', 't', "wcstombs", 'G', 658
+	._inspect	'F', 't', "mbstowcs", 'G', 661
+	._inspect	'F', 't', "rand", 'G', 663
+	._inspect	'F', 't', "srand", 'G', 665
+	._inspect	'F', 't', "strtof", 'G', 669
+	._inspect	'F', 't', "_n_n_strtof", 'G', 673
+	._inspect	'F', 't', "_n_f_strtof", 'G', 677
+	._inspect	'F', 't', "_f_n_strtof", 'G', 681
+	._inspect	'F', 't', "atoff", 'G', 683
+	._inspect	'V', 't', "one_net_channel_t", 'O', 684
+	._inspect	'F', 't', "one_net_memmove", 'G', 692
+	._inspect	'F', 't', "one_net_memcmp", 'G', 697
+	._inspect	'F', 't', "one_net_byte_stream_to_int16", 'G', 699
+	._inspect	'F', 't', "one_net_int16_to_byte_stream", 'G', 702
+	._inspect	'F', 't', "one_net_byte_stream_to_int32", 'G', 704
+	._inspect	'F', 't', "one_net_int32_to_byte_stream", 'G', 707
+	._inspect	'F', 't', "one_net_tick", 'G', 709
+	._inspect	'F', 't', "one_net_ms_to_tick", 'G', 710
+	._inspect	'F', 't', "one_net_tick_to_ms", 'G', 711
+	._inspect	'F', 't', "one_net_set_channel", 'G', 713
+	._inspect	'F', 't', "one_net_channel_is_clear", 'G', 715
+	._inspect	'F', 't', "one_net_set_data_rate", 'G', 717
+	._inspect	'F', 't', "one_net_look_for_pkt", 'G', 718
+	._inspect	'F', 't', "one_net_read", 'G', 720
+	._inspect	'F', 't', "one_net_write", 'G', 722
+	._inspect	'F', 't', "one_net_write_done", 'G', 724
+	._inspect	'V', 't', "on_master_t", 'O', 725
+	._inspect	'V', 't', "one_net_client_join_network_data_t", 'O', 728
+	._inspect	'F', 't', "one_net_client_look_for_invite", 'G', 731
+	._inspect	'F', 't', "one_net_client_init", 'G', 733
+	._inspect	'F', 't', "one_net_copy_to_nv_param", 'G', 736
+	._inspect	'F', 't', "one_net_client_raw_master_did", 'G', 739
+	._inspect	'F', 't', "one_net_client_join_network", 'G', 741
+	._inspect	'F', 't', "one_net_client", 'G', 743
+	._inspect	'F', 't', "one_net_client_joined_network", 'G', 747
+	._inspect	'F', 't', "one_net_client_handle_single_pkt", 'G', 750
+	._inspect	'F', 't', "one_net_client_single_txn_status", 'G', 754
+	._inspect	'F', 't', "one_net_client_save_settings", 'G', 757
+	._inspect	'F', 't', "one_net_client_client_remove_device", 'G', 760
+	._inspect	'F', 't', "on_encode", 'G', 763
+	._inspect	'F', 't', "on_decode", 'G', 766
+	._inspect	'V', 't', "peer_msg_mgr_t", 'O', 313
+	._inspect	'V', 't', "peer", 'S', 767
+	._inspect	'V', 't', "peer_msg_mgr", 'S', 314
+	._inspect	'F', 't', "on_client_send_single", 'G', 770
+	._inspect	'F', 't', "on_client_encoded_master_did", 'G', 773
+	._inspect	'F', 't', "on_client_send_to_master", 'G', 775
+
+	.END
+
+;## Compile End Time Mon Jan 02 17:33:08 2012
+
+

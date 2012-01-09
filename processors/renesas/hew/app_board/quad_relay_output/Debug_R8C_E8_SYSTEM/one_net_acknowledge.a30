@@ -1,0 +1,545 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Mon Jan 09 13:51:23 2012
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.i -o C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'F', 'p', "one_net_xtea_encipher", "$one_net_xtea_encipher", 'G', 155, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_xtea_decipher", "$one_net_xtea_decipher", 'G', 157, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_packet.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 1382, 0, 00h, 0
+	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 1383, 0, 00h, 0
+	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 1384, 0, 00h, 0
+	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 1385, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 1386, 0, 00h, 0
+	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 1387, 0, 00h, 0
+	._inspect	'F', 'p', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 1388, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 1393, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 1395, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 1396, 0, 00h, 0
+	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 1398, 0, 00h, 0
+
+;## #	FUNCTION packet_is_single
+
+;## #	FUNCTION packet_is_invite
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_data_rate.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_features.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'V', 'e', "THIS_DEVICE_FEATURES", 'G', 196, 4, 0, 0, 00h
+	._inspect	'V', 'e', "FEATURES_UNKNOWN", 'G', 197, 4, 0, 0, 00h
+	._inspect	'F', 'p', "features_known", "_features_known", 'G', 210, 0, 00h, 0
+	._inspect	'F', 'p', "features_max_hops", "_features_max_hops", 'G', 211, 0, 00h, 0
+	._inspect	'F', 'p', "features_max_peers", "_features_max_peers", 'G', 212, 0, 00h, 0
+	._inspect	'F', 'p', "features_data_rate_capable", "_features_data_rate_capable", 'G', 213, 0, 00h, 0
+	._inspect	'F', 'p', "features_peer_capable", "_features_peer_capable", 'G', 214, 0, 00h, 0
+	._inspect	'F', 'p', "features_mh_capable", "_features_mh_capable", 'G', 215, 0, 00h, 0
+	._inspect	'F', 'p', "features_mh_repeat_capable", "_features_mh_repeat_capable", 'G', 216, 0, 00h, 0
+	._inspect	'F', 'p', "features_block_capable", "_features_block_capable", 'G', 217, 0, 00h, 0
+	._inspect	'F', 'p', "features_stream_capable", "_features_stream_capable", 'G', 218, 0, 00h, 0
+	._inspect	'F', 'p', "features_device_sleeps", "_features_device_sleeps", 'G', 219, 0, 00h, 0
+	._inspect	'F', 'p', "features_ack_nack_level", "_features_ack_nack_level", 'G', 220, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'F', 'p', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 258, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+
+;## #	FUNCTION nack_reason_is_fatal
+;## #  REGISTER ARG    (nack_reason)   size   1,   REGISTER R1L
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+
+	.SECTION	program,CODE
+	._inspect	'U', 2, "program", "program", 0
+	._file	'C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c'
+	._type	256,'T','UInt8',3
+	._type	257,'T','BOOL',256
+	._type	258,'N',''
+	._type	258,'m','ON_NACK_RSN_MAX_NACK_RSN_VALUE',43
+	._type	258,'m','ON_NACK_RSN_MAX_USR_NON_FATAL',63
+	._type	258,'m','ON_NACK_RSN_MIN_USR_NON_FATAL',60
+	._type	258,'m','ON_NACK_RSN_MAX_USR_GENERAL',59
+	._type	258,'m','ON_NACK_RSN_MIN_USR_GENERAL',52
+	._type	258,'m','ON_NACK_RSN_MAX_FATAL',43
+	._type	258,'m','ON_NACK_RSN_MAX_USR_FATAL',43
+	._type	258,'m','ON_NACK_RSN_MIN_USR_FATAL',40
+	._type	258,'m','ON_NACK_RSN_MAX_ONE_NET_FATAL',39
+	._type	258,'m','ON_NACK_RSN_FATAL_ERR',39
+	._type	258,'m','ON_NACK_RSN_NO_RESPONSE_TXN',33
+	._type	258,'m','ON_NACK_RSN_BUSY',32
+	._type	258,'m','ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED',31
+	._type	258,'m','ON_NACK_RSN_TRANSACTION_ERR',30
+	._type	258,'m','ON_NACK_RSN_BAD_DATA_ERR',29
+	._type	258,'m','ON_NACK_RSN_MISMATCH_UNIT_ERR',28
+	._type	258,'m','ON_NACK_RSN_INVALID_UNIT_ERR',27
+	._type	258,'m','ON_NACK_RSN_UNIT_FUNCTION_ERR',26
+	._type	258,'m','ON_NACK_RSN_DEVICE_FUNCTION_ERR',25
+	._type	258,'m','ON_NACK_RSN_INVALID_LENGTH_ERR',24
+	._type	258,'m','ON_NACK_RSN_MIN_ONE_NET_FATAL',24
+	._type	258,'m','ON_NACK_RSN_MIN_FATAL',24
+	._type	258,'m','ON_NACK_RSN_GENERAL_ERR',23
+	._type	258,'m','ON_NACK_RSN_UNSET',22
+	._type	258,'m','ON_NACK_RSN_BAD_KEY',20
+	._type	258,'m','ON_NACK_RSN_BAD_CRC',19
+	._type	258,'m','ON_NACK_RSN_FEATURES',18
+	._type	258,'m','ON_NACK_RSN_NEED_FEATURES',17
+	._type	258,'m','ON_NACK_RSN_INVALID_MSG_ID',16
+	._type	258,'m','ON_NACK_RSN_NO_RESPONSE',15
+	._type	258,'m','ON_NACK_RSN_INVALID_DATA_RATE',14
+	._type	258,'m','ON_NACK_RSN_ROUTE_ERROR',13
+	._type	258,'m','ON_NACK_RSN_OUT_OF_RANGE',12
+	._type	258,'m','ON_NACK_RSN_INVALID_PEER',11
+	._type	258,'m','ON_NACK_RSN_INVALID_HOPS',10
+	._type	258,'m','ON_NACK_RSN_INVALID_MAX_HOPS',9
+	._type	258,'m','ON_NACK_RSN_BAD_ADDRESS_ERR',8
+	._type	258,'m','ON_NACK_RSN_BAD_SIZE_ERROR',7
+	._type	258,'m','ON_NACK_RSN_BAD_POSITION_ERROR',6
+	._type	258,'m','ON_NACK_RSN_BUSY_TRY_AGAIN_TIME',5
+	._type	258,'m','ON_NACK_RSN_BUSY_TRY_AGAIN',4
+	._type	258,'m','ON_NACK_RSN_INTERNAL_ERR',3
+	._type	258,'m','ON_NACK_RSN_RSRC_UNAVAIL_ERR',2
+	._type	258,'m','ON_NACK_RSN_NONCE_ERR',1
+	._type	258,'m','ON_NACK_RSN_NO_ERROR',0
+	._type	259,'T','on_nack_rsn_t',258
+	._type	260,'x',257,1
+	._type	260,'m','nack_reason',0,259
+	._func	'nack_reason_is_fatal','G',0,260,$nack_reason_is_fatal,0
+	._inspect	'F', 's', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 5
+	._block
+	._line	89
+;## # C_SRC :	{		
+	.glb	$nack_reason_is_fatal
+$nack_reason_is_fatal:
+	._block
+	._var	'nack_reason','R',259,3
+	._eblock
+	._block
+	._var	'nack_reason','A',259,0
+	._block
+	._var	'nack_reason','R',259,3
+	._line	90
+;## # C_SRC :		if(nack_reason >= ON_NACK_RSN_MIN_FATAL && nack_reason <= ON_NACK_RSN_MAX_FATAL)
+	cmp.b	#18H,R1L	;  nack_reason 
+	jltu	L69
+	cmp.b	#2bH,R1L	;  nack_reason 
+	jgtu	L69
+	._eblock
+	._line	91
+	._block
+	._line	92
+;## # C_SRC :			return TRUE;
+	mov.b	#01H,R0L
+	rts	
+	._eblock
+L69:
+	._line	95
+;## # C_SRC :		return FALSE;
+	mov.b	#00H,R0L
+	rts	
+E1:
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 89, 0, 00h, 0
+	._inspect	'F', 't', "nack_reason_is_fatal", 'G', 260
+	._inspect	'F', 'e', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 0, 0
+
+	.glb	$one_net_xtea_encipher
+	.glb	$one_net_xtea_decipher
+	.glb	$get_encoded_payload_len
+	.glb	$get_raw_payload_len
+	.glb	$get_num_payload_blocks
+	.glb	$get_encoded_packet_len
+	.glb	$packet_is_stay_awake
+	.glb	$set_ack_or_nack_pid
+	.glb	$set_stay_awake_pid
+	.glb	$packet_is_data
+	.glb	$packet_is_ack
+	.glb	$packet_is_nack
+	.glb	$get_single_response_pid
+	.glb	_THIS_DEVICE_FEATURES
+	.glb	_FEATURES_UNKNOWN
+	.glb	_features_known
+	.glb	_features_max_hops
+	.glb	_features_max_peers
+	.glb	_features_data_rate_capable
+	.glb	_features_peer_capable
+	.glb	_features_mh_capable
+	.glb	_features_mh_repeat_capable
+	.glb	_features_block_capable
+	.glb	_features_stream_capable
+	.glb	_features_device_sleeps
+	.glb	_features_ack_nack_level
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	261,'T','SInt8',19
+	._type	262,'T','UInt16',18
+	._type	263,'T','SInt16',16
+	._type	264,'T','UInt32',7
+	._type	265,'T','SInt32',20
+	._type	266,'T','Float32',10
+	._type	267,'T','tick_t',264
+	._type	268,'Z',5,256
+	._type	269,'T','on_raw_nid_t',268
+	._type	270,'Z',2,256
+	._type	271,'T','on_raw_did_t',270
+	._type	272,'Z',6,256
+	._type	273,'T','on_raw_sid_t',272
+	._type	274,'Z',6,256
+	._type	275,'T','on_encoded_nid_t',274
+	._type	276,'Z',2,256
+	._type	277,'T','on_encoded_did_t',276
+	._type	278,'Z',8,256
+	._type	279,'T','on_encoded_sid_t',278
+	._type	280,'Z',16,256
+	._type	281,'T','one_net_xtea_key_t',280
+	._type	282,'Z',4,256
+	._type	283,'T','one_net_xtea_key_fragment_t',282
+	._type	284,'N',''
+	._type	284,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1',192
+	._type	284,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0',128
+	._type	284,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32',64
+	._type	284,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE',0
+	._type	285,'T','one_net_single_blk_encryption_t',284
+	._type	286,'v'
+	._type	287,'O',256
+	._type	288,'O',281
+	._type	289,'x',286,3
+	._type	289,'m','ROUNDS',0,256
+	._type	289,'m','data',0,287
+	._type	289,'m','KEY',0,288
+	._var	'one_net_xtea_encipher','F',289
+	._type	290,'v'
+	._type	291,'O',256
+	._type	292,'O',281
+	._type	293,'x',290,3
+	._type	293,'m','ROUNDS',0,256
+	._type	293,'m','data',0,291
+	._type	293,'m','KEY',0,292
+	._var	'one_net_xtea_decipher','F',293
+	._type	294,'N','_ona_msg_type'
+	._type	294,'m','ONA_TEXT',64
+	._type	294,'m','ONA_POWER_2_WATTS',63
+	._type	294,'m','ONA_POWER_WATTS',62
+	._type	294,'m','ONA_POWER_200_MILLIWATTS',61
+	._type	294,'m','ONA_POWER_50_MILLIWATTS',60
+	._type	294,'m','ONA_POWER_20_MILLIWATTS',59
+	._type	294,'m','ONA_POWER_2_MILLIWATTS',58
+	._type	294,'m','ONA_POWER',57
+	._type	294,'m','ONA_PEAK_GAS_THERM_HRS',56
+	._type	294,'m','ONA_PEAK_GAS_THERM_MINS',55
+	._type	294,'m','ONA_PEAK_GAS_THERM_SECS',54
+	._type	294,'m','ONA_PEAK_GAS',53
+	._type	294,'m','ONA_AVER_GAS_THERM_HRS',52
+	._type	294,'m','ONA_AVER_GAS_THERM_MINS',51
+	._type	294,'m','ONA_AVER_GAS_THERM_SECS',50
+	._type	294,'m','ONA_AVER_GAS',49
+	._type	294,'m','ONA_ACCUM_GAS_THERM_HRS',48
+	._type	294,'m','ONA_ACCUM_GAS_THERM_MINS',47
+	._type	294,'m','ONA_ACCUM_GAS_THERM_SECS',46
+	._type	294,'m','ONA_ACCUM_GAS',45
+	._type	294,'m','ONA_GAS_THERM_HRS',44
+	._type	294,'m','ONA_GAS_THERM_MINS',43
+	._type	294,'m','ONA_GAS_THERM_SECS',42
+	._type	294,'m','ONA_GAS',41
+	._type	294,'m','ONA_PEAK_ENERGY_20000_WATT_SECONDS',40
+	._type	294,'m','ONA_PEAK_ENERGY_2000_WATT_SECONDS',39
+	._type	294,'m','ONA_PEAK_ENERGY_200_WATT_SECONDS',38
+	._type	294,'m','ONA_PEAK_ENERGY_20_WATT_SECONDS',37
+	._type	294,'m','ONA_PEAK_ENERGY_2_WATT_SECONDS',36
+	._type	294,'m','ONA_PEAK_ENERGY',35
+	._type	294,'m','ONA_ACCUM_ENERGY_20000_WATT_SECONDS',34
+	._type	294,'m','ONA_ACCUM_ENERGY_2000_WATT_SECONDS',33
+	._type	294,'m','ONA_ACCUM_ENERGY_200_WATT_SECONDS',32
+	._type	294,'m','ONA_ACCUM_ENERGY_20_WATT_SECONDS',31
+	._type	294,'m','ONA_ACCUM_ENERGY_2_WATT_SECONDS',30
+	._type	294,'m','ONA_ACCUM_ENERGY',29
+	._type	294,'m','ONA_ENERGY_20000_WATT_SECONDS',28
+	._type	294,'m','ONA_ENERGY_2000_WATT_SECONDS',27
+	._type	294,'m','ONA_ENERGY_200_WATT_SECONDS',26
+	._type	294,'m','ONA_ENERGY_20_WATT_SECONDS',25
+	._type	294,'m','ONA_ENERGY_2_WATT_SECONDS',24
+	._type	294,'m','ONA_ENERGY',23
+	._type	294,'m','ONA_VOLTAGE_SIMPLE',22
+	._type	294,'m','ONA_VOLTAGE_100THS_VOLTS',21
+	._type	294,'m','ONA_VOLTAGE_10THS_VOLTS',20
+	._type	294,'m','ONA_VOLTAGE_VOLTS',19
+	._type	294,'m','ONA_VOLTAGE',18
+	._type	294,'m','ONA_TIME',17
+	._type	294,'m','ONA_DATE',16
+	._type	294,'m','ONA_SIMPLE_TEXT',15
+	._type	294,'m','ONA_COLOR',14
+	._type	294,'m','ONA_UNIT_TYPE',13
+	._type	294,'m','ONA_UNIT_TYPE_COUNT',12
+	._type	294,'m','ONA_UNUSED0',11
+	._type	294,'m','ONA_SEAL',10
+	._type	294,'m','ONA_OPENING',9
+	._type	294,'m','ONA_STATUS_INTERVAL',8
+	._type	294,'m','ONA_DIRECTION',7
+	._type	294,'m','ONA_SPEED_M_S',6
+	._type	294,'m','ONA_RAINFALL',5
+	._type	294,'m','ONA_PRESSURE',4
+	._type	294,'m','ONA_HUMIDITY',3
+	._type	294,'m','ONA_TEMPERATURE',2
+	._type	294,'m','ONA_PERCENT',1
+	._type	294,'m','ONA_SWITCH',0
+	._type	295,'T','ona_msg_type_t',294
+	._type	297,'O',256
+	._type	298,'O',256
+	._type	299,'O',256
+	._type	300,'O',256
+	._type	301,'O',277
+	._type	302,'O',277
+	._type	303,'O',277
+	._type	304,'O',275
+	._type	305,'O',256
+	._type	296,'S','',22
+	._type	296,'m','packet_header',297,0
+	._type	296,'m','enc_pid',298,2
+	._type	296,'m','raw_pid',256,4
+	._type	296,'m','enc_msg_id',299,5
+	._type	296,'m','enc_msg_crc',300,7
+	._type	296,'m','msg_id',256,9
+	._type	296,'m','msg_crc',256,10
+	._type	296,'m','enc_src_did',301,11
+	._type	296,'m','enc_dst_did',302,13
+	._type	296,'m','enc_repeater_did',303,15
+	._type	296,'m','enc_nid',304,17
+	._type	296,'m','payload',305,19
+	._type	296,'m','payload_len',256,21
+	._type	306,'T','on_pkt_t',296
+	._type	307,'x',261,1
+	._type	307,'m','raw_pid',0,256
+	._var	'get_encoded_payload_len','F',307
+	._type	308,'x',261,1
+	._type	308,'m','raw_pid',0,256
+	._var	'get_raw_payload_len','F',308
+	._type	309,'x',261,1
+	._type	309,'m','raw_pid',0,256
+	._var	'get_num_payload_blocks','F',309
+	._type	310,'x',256,2
+	._type	310,'m','raw_pid',0,256
+	._type	310,'m','include_header',0,257
+	._var	'get_encoded_packet_len','F',310
+	._type	311,'x',257,1
+	._type	311,'m','raw_pid',0,256
+	._var	'packet_is_stay_awake','F',311
+	._type	312,'O',256
+	._type	313,'x',257,2
+	._type	313,'m','raw_pid',0,312
+	._type	313,'m','is_ack',0,257
+	._var	'set_ack_or_nack_pid','F',313
+	._type	314,'O',256
+	._type	315,'x',257,2
+	._type	315,'m','raw_pid',0,314
+	._type	315,'m','stay_awake',0,257
+	._var	'set_stay_awake_pid','F',315
+	._type	316,'x',257,1
+	._type	316,'m','raw_pid',0,256
+	._var	'packet_is_data','F',316
+	._type	317,'x',257,1
+	._type	317,'m','raw_pid',0,256
+	._var	'packet_is_ack','F',317
+	._type	318,'x',257,1
+	._type	318,'m','raw_pid',0,256
+	._var	'packet_is_nack','F',318
+	._type	319,'x',256,3
+	._type	319,'m','raw_single_pid',0,256
+	._type	319,'m','isACK',0,257
+	._type	319,'m','stay_awake',0,257
+	._var	'get_single_response_pid','F',319
+	._type	320,'N',''
+	._type	320,'m','ONE_NET_DATA_RATE_LIMIT',6
+	._type	320,'m','ONE_NET_DATA_RATE_230_4',5
+	._type	320,'m','ONE_NET_DATA_RATE_192_0',4
+	._type	320,'m','ONE_NET_DATA_RATE_153_6',3
+	._type	320,'m','ONE_NET_DATA_RATE_115_2',2
+	._type	320,'m','ONE_NET_DATA_RATE_76_8',1
+	._type	320,'m','ONE_NET_DATA_RATE_38_4',0
+	._type	321,'T','on_data_rate_t',320
+	._type	322,'N',''
+	._type	322,'m','ONE_NET_DATA_RATE_230_4_MASK',32
+	._type	322,'m','ONE_NET_DATA_RATE_192_0_MASK',16
+	._type	322,'m','ONE_NET_DATA_RATE_153_6_MASK',8
+	._type	322,'m','ONE_NET_DATA_RATE_115_2_MASK',4
+	._type	322,'m','ONE_NET_DATA_RATE_76_8_MASK',2
+	._type	322,'m','ONE_NET_DATA_RATE_38_4_MASK',1
+	._type	323,'T','on_data_rate_mask_t',322
+	._type	324,'S','',4
+	._type	324,'m','feature_flags',256,0
+	._type	324,'m','data_rates',256,1
+	._type	324,'m','queue_ack_nack_values',256,2
+	._type	324,'m','peers_hops',256,3
+	._type	325,'T','on_features_t',324
+	._var	'THIS_DEVICE_FEATURES','E',325
+	._var	'FEATURES_UNKNOWN','E',325
+	._type	326,'x',257,1
+	._type	326,'m','features',0,325
+	._var	'features_known','F',326
+	._type	327,'x',256,1
+	._type	327,'m','features',0,325
+	._var	'features_max_hops','F',327
+	._type	328,'x',256,1
+	._type	328,'m','features',0,325
+	._var	'features_max_peers','F',328
+	._type	329,'x',257,2
+	._type	329,'m','features',0,325
+	._type	329,'m','data_rate',0,256
+	._var	'features_data_rate_capable','F',329
+	._type	330,'x',257,1
+	._type	330,'m','features',0,325
+	._var	'features_peer_capable','F',330
+	._type	331,'x',257,1
+	._type	331,'m','features',0,325
+	._var	'features_mh_capable','F',331
+	._type	332,'x',257,1
+	._type	332,'m','features',0,325
+	._var	'features_mh_repeat_capable','F',332
+	._type	333,'x',257,1
+	._type	333,'m','features',0,325
+	._var	'features_block_capable','F',333
+	._type	334,'x',257,1
+	._type	334,'m','features',0,325
+	._var	'features_stream_capable','F',334
+	._type	335,'x',257,1
+	._type	335,'m','features',0,325
+	._var	'features_device_sleeps','F',335
+	._type	336,'x',256,1
+	._type	336,'m','features',0,325
+	._var	'features_ack_nack_level','F',336
+	._type	337,'N',''
+	._type	337,'m','ON_ACK_MAX_APPLICATION_HANDLE',15
+	._type	337,'m','ON_ACK_MIN_APPLICATION_HANDLE',12
+	._type	337,'m','ON_ACK_STATUS',11
+	._type	337,'m','ON_ACK_KEY_FRAGMENT',10
+	._type	337,'m','ON_ACK_ADMIN_MSG',9
+	._type	337,'m','ON_ACK_PAUSE_TIME_MS',8
+	._type	337,'m','ON_ACK_SPEED_UP_TIME_MS',7
+	._type	337,'m','ON_ACK_SLOW_DOWN_TIME_MS',6
+	._type	337,'m','ON_ACK_TIMEOUT_MS',5
+	._type	337,'m','ON_ACK_TIME_MS',4
+	._type	337,'m','ON_ACK_VALUE',3
+	._type	337,'m','ON_ACK_DATA',2
+	._type	337,'m','ON_ACK_FEATURES',1
+	._type	337,'m','ON_ACK',0
+	._type	338,'T','on_ack_handle_t',337
+	._type	339,'T','on_ack_nack_handle_t',338
+	._type	340,'T','on_nack_handle_t',338
+	._type	341,'S','',5
+	._type	341,'m','uint8',256,0
+	._type	341,'m','uint32',264,1
+	._type	342,'T','ack_value_t',341
+	._type	344,'Z',5,256
+	._type	345,'Z',5,256
+	._type	346,'Z',5,256
+	._type	347,'Z',4,256
+	._type	343,'U','',5
+	._type	343,'m','status_resp',344,0
+	._type	343,'m','admin_msg',345,0
+	._type	343,'m','ack_payload',346,0
+	._type	343,'m','ack_value',342,0
+	._type	343,'m','ack_time_ms',267,0
+	._type	343,'m','nack_payload',347,0
+	._type	343,'m','nack_value',264,0
+	._type	343,'m','nack_time_ms',267,0
+	._type	343,'m','key_frag',283,0
+	._type	343,'m','features',325,0
+	._type	348,'T','ack_nack_payload_t',343
+	._type	350,'O',348
+	._type	349,'S','',4
+	._type	349,'m','nack_reason',259,0
+	._type	349,'m','handle',339,1
+	._type	349,'m','payload',350,2
+	._type	351,'T','on_ack_nack_t',349
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 264
+	._inspect	'V', 't', "BOOL", 'O', 256
+	._inspect	'V', 't', "on_raw_nid_t", 'O', 268
+	._inspect	'V', 't', "on_raw_did_t", 'O', 270
+	._inspect	'V', 't', "on_raw_sid_t", 'O', 272
+	._inspect	'V', 't', "on_encoded_nid_t", 'O', 274
+	._inspect	'V', 't', "on_encoded_did_t", 'O', 276
+	._inspect	'V', 't', "on_encoded_sid_t", 'O', 278
+	._inspect	'V', 't', "one_net_xtea_key_t", 'O', 280
+	._inspect	'V', 't', "one_net_xtea_key_fragment_t", 'O', 282
+	._inspect	'V', 't', "one_net_single_blk_encryption_t", 'O', 284
+	._inspect	'F', 't', "one_net_xtea_encipher", 'G', 289
+	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 293
+	._inspect	'V', 't', "ona_msg_type_t", 'O', 294
+	._inspect	'V', 't', "on_pkt_t", 'O', 296
+	._inspect	'F', 't', "get_encoded_payload_len", 'G', 307
+	._inspect	'F', 't', "get_raw_payload_len", 'G', 308
+	._inspect	'F', 't', "get_num_payload_blocks", 'G', 309
+	._inspect	'F', 't', "get_encoded_packet_len", 'G', 310
+	._inspect	'F', 't', "packet_is_stay_awake", 'G', 311
+	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 313
+	._inspect	'F', 't', "set_stay_awake_pid", 'G', 315
+	._inspect	'F', 't', "packet_is_data", 'G', 316
+	._inspect	'F', 't', "packet_is_ack", 'G', 317
+	._inspect	'F', 't', "packet_is_nack", 'G', 318
+	._inspect	'F', 't', "get_single_response_pid", 'G', 319
+	._inspect	'V', 't', "on_data_rate_t", 'O', 320
+	._inspect	'V', 't', "on_data_rate_mask_t", 'O', 322
+	._inspect	'V', 't', "on_features_t", 'O', 324
+	._inspect	'V', 't', "THIS_DEVICE_FEATURES", 'G', 325
+	._inspect	'V', 't', "FEATURES_UNKNOWN", 'G', 325
+	._inspect	'F', 't', "features_known", 'G', 326
+	._inspect	'F', 't', "features_max_hops", 'G', 327
+	._inspect	'F', 't', "features_max_peers", 'G', 328
+	._inspect	'F', 't', "features_data_rate_capable", 'G', 329
+	._inspect	'F', 't', "features_peer_capable", 'G', 330
+	._inspect	'F', 't', "features_mh_capable", 'G', 331
+	._inspect	'F', 't', "features_mh_repeat_capable", 'G', 332
+	._inspect	'F', 't', "features_block_capable", 'G', 333
+	._inspect	'F', 't', "features_stream_capable", 'G', 334
+	._inspect	'F', 't', "features_device_sleeps", 'G', 335
+	._inspect	'F', 't', "features_ack_nack_level", 'G', 336
+	._inspect	'V', 't', "on_nack_rsn_t", 'O', 258
+	._inspect	'V', 't', "on_ack_handle_t", 'O', 337
+	._inspect	'V', 't', "on_ack_nack_handle_t", 'O', 338
+	._inspect	'V', 't', "on_nack_handle_t", 'O', 338
+	._inspect	'V', 't', "ack_value_t", 'O', 341
+	._inspect	'V', 't', "ack_nack_payload_t", 'O', 343
+	._inspect	'V', 't', "on_ack_nack_t", 'O', 349
+
+	.END
+
+;## Compile End Time Mon Jan 09 13:51:23 2012
+
+

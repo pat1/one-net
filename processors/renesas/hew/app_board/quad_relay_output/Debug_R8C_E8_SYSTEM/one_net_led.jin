@@ -1,0 +1,13 @@
+#ASFILE
+"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_led.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,297,1,1a,JSR,$delay_ms
+W,311,1,2e,JSR,$delay_ms
+W,363,1,52,JSR,$delay_ms
+W,377,1,66,JSR,$delay_ms
+W,428,1,8a,JSR,$delay_ms
+W,442,1,9e,JSR,$delay_ms
+W,530,1,d9,JSR,$delay_ms
+W,566,1,ea,JSR,_hal_init_ports_leds

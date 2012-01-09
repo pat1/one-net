@@ -1,0 +1,2987 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Mon Jan 09 13:51:28 2012
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\pal.i -o C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\pal.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal.c", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/port_specific/pal.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "pal_init_ports", "_pal_init_ports", 'G', 102, 0, 00h, 0
+	._inspect	'F', 'p', "pal_init_processor", "$pal_init_processor", 'G', 112, 0, 00h, 0
+	._inspect	'F', 'p', "pal_high_speed_mode", "_pal_high_speed_mode", 'G', 120, 0, 00h, 0
+	._inspect	'F', 'p', "pal_low_speed_mode", "_pal_low_speed_mode", 'G', 128, 0, 00h, 0
+	._inspect	'F', 'p', "pal_enable_global_interrupts", "_pal_enable_global_interrupts", 'G', 138, 0, 00h, 0
+	._inspect	'F', 'p', "pal_disable_global_interrupts", "_pal_disable_global_interrupts", 'G', 148, 0, 00h, 0
+	._inspect	'F', 'p', "pal_processor_sleep", "_pal_processor_sleep", 'G', 161, 0, 00h, 0
+	._inspect	'F', 'p', "pal_exit", "_pal_exit", 'G', 173, 0, 00h, 0
+_pm0_addr	.equ	0004H     
+_pm1_addr	.equ	0005H     
+_cm0_addr	.equ	0006H     
+_cm1_addr	.equ	0007H     
+_aier_addr	.equ	0009H     
+_prcr_addr	.equ	000AH     
+_ocd_addr	.equ	000CH     
+_wdtr_addr	.equ	000DH     
+_wdts_addr	.equ	000EH     
+_wdc_addr	.equ	000FH     
+_rmad0_addr	.equ	0010H     
+_rmad1_addr	.equ	0014H     
+_cspr_addr	.equ	001CH     
+_int0f_addr	.equ	001EH     
+_hra0_addr	.equ	0020H     
+_hra1_addr	.equ	0021H     
+_hra2_addr	.equ	0022H     
+_vca1_addr	.equ	0031H     
+_vca2_addr	.equ	0032H     
+_vw1c_addr	.equ	0036H     
+_vw2c_addr	.equ	0037H     
+_kupic_addr	.equ	004DH     
+_adic_addr	.equ	004EH     
+_ssuaic_addr	.equ	004FH     
+_iic2aic_addr	.equ	004FH     
+_cmp1ic_addr	.equ	0050H     
+_s0tic_addr	.equ	0051H     
+_s0ric_addr	.equ	0052H     
+_s1tic_addr	.equ	0053H     
+_s1ric_addr	.equ	0054H     
+_txic_addr	.equ	0056H     
+_tzic_addr	.equ	0058H     
+_int1ic_addr	.equ	0059H     
+_int3ic_addr	.equ	005AH     
+_tcic_addr	.equ	005BH     
+_cmp0ic_addr	.equ	005CH     
+_int0ic_addr	.equ	005DH     
+_tzmr_addr	.equ	0080H     
+_tyzmr_addr	.equ	0080H     
+_pum_addr	.equ	0084H     
+_prez_addr	.equ	0085H     
+_tzsc_addr	.equ	0086H     
+_tzpr_addr	.equ	0087H     
+_tzoc_addr	.equ	008AH     
+_tyzoc_addr	.equ	008AH     
+_txmr_addr	.equ	008BH     
+_prex_addr	.equ	008CH     
+_tx_addr	.equ	008DH     
+_tcss_addr	.equ	008EH     
+_tc_addr	.equ	0090H     
+_inten_addr	.equ	0096H     
+_kien_addr	.equ	0098H     
+_tcc0_addr	.equ	009AH     
+_tcc1_addr	.equ	009BH     
+_tm0_addr	.equ	009CH     
+_tm1_addr	.equ	009EH     
+_u0mr_addr	.equ	00A0H     
+_u0brg_addr	.equ	00A1H     
+_u0tb_addr	.equ	00A2H     
+_u0c0_addr	.equ	00A4H     
+_u0c1_addr	.equ	00A5H     
+_u0rb_addr	.equ	00A6H     
+_u1mr_addr	.equ	00A8H     
+_u1brg_addr	.equ	00A9H     
+_u1tb_addr	.equ	00AAH     
+_u1c0_addr	.equ	00ACH     
+_u1c1_addr	.equ	00ADH     
+_u1rb_addr	.equ	00AEH     
+_ucon_addr	.equ	00B0H     
+_sscrh_addr	.equ	00B8H     
+_sscrl_addr	.equ	00B9H     
+_ssmr_addr	.equ	00BAH     
+_sser_addr	.equ	00BBH     
+_sssr_addr	.equ	00BCH     
+_ssmr2_addr	.equ	00BDH     
+_sstdr_addr	.equ	00BEH     
+_ssrdr_addr	.equ	00BFH     
+_iccr1_addr	.equ	00B8H     
+_iccr2_addr	.equ	00B9H     
+_icmr_addr	.equ	00BAH     
+_icier_addr	.equ	00BBH     
+_icsr_addr	.equ	00BCH     
+_sar_addr	.equ	00BDH     
+_icdrt_addr	.equ	00BEH     
+_icdrr_addr	.equ	00BFH     
+_ad_addr	.equ	00C0H     
+_adcon2_addr	.equ	00D4H     
+_adcon0_addr	.equ	00D6H     
+_adcon1_addr	.equ	00D7H     
+_p1_addr	.equ	00E1H     
+_pd1_addr	.equ	00E3H     
+_p3_addr	.equ	00E5H     
+_pd3_addr	.equ	00E7H     
+_p4_addr	.equ	00E8H     
+_pd4_addr	.equ	00EAH     
+_pmr_addr	.equ	00F8H     
+_pur0_addr	.equ	00FCH     
+_pur1_addr	.equ	00FDH     
+_drr_addr	.equ	00FEH     
+_tcout_addr	.equ	00FFH     
+_fmr4_addr	.equ	01B3H     
+_fmr1_addr	.equ	01B5H     
+_fmr0_addr	.equ	01B7H     
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../src/r8c1/sfr_r81B.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'V', 'd', "pm0_addr", "_pm0_addr", 'G', 248, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pm1_addr", "_pm1_addr", 'G', 256, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cm0_addr", "_cm0_addr", 'G', 264, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cm1_addr", "_cm1_addr", 'G', 274, 1, 1, 0, 00h
+	._inspect	'V', 'd', "aier_addr", "_aier_addr", 'G', 287, 1, 1, 0, 00h
+	._inspect	'V', 'd', "prcr_addr", "_prcr_addr", 'G', 296, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ocd_addr", "_ocd_addr", 'G', 306, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdtr_addr", "_wdtr_addr", 'G', 317, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdts_addr", "_wdts_addr", 'G', 323, 1, 1, 0, 00h
+	._inspect	'V', 'd', "wdc_addr", "_wdc_addr", 'G', 329, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cspr_addr", "_cspr_addr", 'G', 337, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int0f_addr", "_int0f_addr", 'G', 344, 1, 1, 0, 00h
+	._inspect	'V', 'd', "hra0_addr", "_hra0_addr", 'G', 353, 1, 1, 0, 00h
+	._inspect	'V', 'd', "hra1_addr", "_hra1_addr", 'G', 362, 1, 1, 0, 00h
+	._inspect	'V', 'd', "hra2_addr", "_hra2_addr", 'G', 368, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vca1_addr", "_vca1_addr", 'G', 377, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vca2_addr", "_vca2_addr", 'G', 385, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vw1c_addr", "_vw1c_addr", 'G', 394, 1, 1, 0, 00h
+	._inspect	'V', 'd', "vw2c_addr", "_vw2c_addr", 'G', 409, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tzmr_addr", "_tzmr_addr", 'G', 424, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pum_addr", "_pum_addr", 'G', 436, 1, 1, 0, 00h
+	._inspect	'V', 'd', "prez_addr", "_prez_addr", 'G', 446, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tzsc_addr", "_tzsc_addr", 'G', 452, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tzpr_addr", "_tzpr_addr", 'G', 458, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tzoc_addr", "_tzoc_addr", 'G', 464, 1, 1, 0, 00h
+	._inspect	'V', 'd', "txmr_addr", "_txmr_addr", 'G', 474, 1, 1, 0, 00h
+	._inspect	'V', 'd', "prex_addr", "_prex_addr", 'G', 489, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tx_addr", "_tx_addr", 'G', 495, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tcss_addr", "_tcss_addr", 'G', 501, 1, 1, 0, 00h
+	._inspect	'V', 'd', "inten_addr", "_inten_addr", 'G', 512, 1, 1, 0, 00h
+	._inspect	'V', 'd', "kien_addr", "_kien_addr", 'G', 521, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tcc0_addr", "_tcc0_addr", 'G', 536, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tcc1_addr", "_tcc1_addr", 'G', 550, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0brg_addr", "_u0brg_addr", 'G', 565, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1brg_addr", "_u1brg_addr", 'G', 571, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ucon_addr", "_ucon_addr", 'G', 577, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sscrh_addr", "_sscrh_addr", 'G', 590, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sscrl_addr", "_sscrl_addr", 'G', 602, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssmr_addr", "_ssmr_addr", 'G', 612, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sser_addr", "_sser_addr", 'G', 625, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sssr_addr", "_sssr_addr", 'G', 638, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssmr2_addr", "_ssmr2_addr", 'G', 650, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sstdr_addr", "_sstdr_addr", 'G', 665, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssrdr_addr", "_ssrdr_addr", 'G', 671, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iccr1_addr", "_iccr1_addr", 'G', 677, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iccr2_addr", "_iccr2_addr", 'G', 692, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icmr_addr", "_icmr_addr", 'G', 705, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icier_addr", "_icier_addr", 'G', 718, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icsr_addr", "_icsr_addr", 'G', 733, 1, 1, 0, 00h
+	._inspect	'V', 'd', "sar_addr", "_sar_addr", 'G', 748, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icdrt_addr", "_icdrt_addr", 'G', 763, 1, 1, 0, 00h
+	._inspect	'V', 'd', "icdrr_addr", "_icdrr_addr", 'G', 769, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon2_addr", "_adcon2_addr", 'G', 775, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon0_addr", "_adcon0_addr", 'G', 783, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adcon1_addr", "_adcon1_addr", 'G', 799, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p1_addr", "_p1_addr", 'G', 810, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd1_addr", "_pd1_addr", 'G', 825, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p3_addr", "_p3_addr", 'G', 840, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd3_addr", "_pd3_addr", 'G', 851, 1, 1, 0, 00h
+	._inspect	'V', 'd', "p4_addr", "_p4_addr", 'G', 862, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pd4_addr", "_pd4_addr", 'G', 873, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pmr_addr", "_pmr_addr", 'G', 881, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pur0_addr", "_pur0_addr", 'G', 890, 1, 1, 0, 00h
+	._inspect	'V', 'd', "pur1_addr", "_pur1_addr", 'G', 901, 1, 1, 0, 00h
+	._inspect	'V', 'd', "drr_addr", "_drr_addr", 'G', 909, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tcout_addr", "_tcout_addr", 'G', 920, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr4_addr", "_fmr4_addr", 'G', 935, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr1_addr", "_fmr1_addr", 'G', 949, 1, 1, 0, 00h
+	._inspect	'V', 'd', "fmr0_addr", "_fmr0_addr", 'G', 959, 1, 1, 0, 00h
+	._inspect	'V', 'd', "kupic_addr", "_kupic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "adic_addr", "_adic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "ssuaic_addr", "_ssuaic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "iic2aic_addr", "_iic2aic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cmp1ic_addr", "_cmp1ic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s0tic_addr", "_s0tic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s0ric_addr", "_s0ric_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s1tic_addr", "_s1tic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "s1ric_addr", "_s1ric_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "txic_addr", "_txic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tzic_addr", "_tzic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int1ic_addr", "_int1ic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int3ic_addr", "_int3ic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "tcic_addr", "_tcic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "cmp0ic_addr", "_cmp0ic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "int0ic_addr", "_int0ic_addr", 'G', 985, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0mr_addr", "_u0mr_addr", 'G', 1161, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1mr_addr", "_u1mr_addr", 'G', 1161, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0c0_addr", "_u0c0_addr", 'G', 1204, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1c0_addr", "_u1c0_addr", 'G', 1204, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0c1_addr", "_u0c1_addr", 'G', 1245, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u1c1_addr", "_u1c1_addr", 'G', 1245, 1, 1, 0, 00h
+	._inspect	'V', 'd', "u0rb_addr", "_u0rb_addr", 'G', 1294, 2, 1, 0, 00h
+	._inspect	'V', 'd', "u1rb_addr", "_u1rb_addr", 'G', 1294, 2, 1, 0, 00h
+	._inspect	'V', 'd', "rmad0_addr", "_rmad0_addr", 'G', 1355, 4, 1, 0, 00h
+	._inspect	'V', 'd', "rmad1_addr", "_rmad1_addr", 'G', 1355, 4, 1, 0, 00h
+	._inspect	'V', 'd', "tc_addr", "_tc_addr", 'G', 1391, 2, 1, 0, 00h
+	._inspect	'V', 'd', "tm0_addr", "_tm0_addr", 'G', 1391, 2, 1, 0, 00h
+	._inspect	'V', 'd', "tm1_addr", "_tm1_addr", 'G', 1391, 2, 1, 0, 00h
+	._inspect	'V', 'd', "u0tb_addr", "_u0tb_addr", 'G', 1391, 2, 1, 0, 00h
+	._inspect	'V', 'd', "u1tb_addr", "_u1tb_addr", 'G', 1391, 2, 1, 0, 00h
+	._inspect	'V', 'd', "ad_addr", "_ad_addr", 'G', 1391, 2, 1, 0, 00h
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "one_net_xtea_encipher", "$one_net_xtea_encipher", 'G', 155, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_xtea_decipher", "$one_net_xtea_decipher", 'G', 157, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_packet.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 1382, 0, 00h, 0
+	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 1383, 0, 00h, 0
+	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 1384, 0, 00h, 0
+	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 1385, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 1386, 0, 00h, 0
+	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 1387, 0, 00h, 0
+	._inspect	'F', 'p', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 1388, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 1393, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 1395, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 1396, 0, 00h, 0
+	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 1398, 0, 00h, 0
+
+;## #	FUNCTION packet_is_single
+
+;## #	FUNCTION packet_is_invite
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_message.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'V', 'e', "NO_DESTINATION", 'G', 98, 2, 0, 0, 00h
+	._inspect	'V', 'e', "single_data_queue_size", 'G', 332, 1, 0, 0, 00h
+	._inspect	'V', 'e', "recipient_send_list", 'G', 336, 14, 0, 0, 00h
+	._inspect	'V', 'e', "recipient_send_list_ptr", 'G', 341, 2, 0, 0, 00h
+	._inspect	'F', 'p', "empty_queue", "_empty_queue", 'G', 360, 0, 00h, 0
+	._inspect	'F', 'p', "pop_queue_element", "_pop_queue_element", 'G', 368, 0, 00h, 0
+	._inspect	'F', 'p', "single_data_queue_ready_to_send", "_single_data_queue_ready_to_send", 'G', 374, 0, 00h, 0
+	._inspect	'F', 'p', "push_queue_element", "$push_queue_element", 'G', 391, 0, 00h, 0
+	._inspect	'F', 'p', "must_send_to_master", "$must_send_to_master", 'G', 395, 0, 00h, 0
+	._inspect	'F', 'p', "clear_recipient_list", "$clear_recipient_list", 'G', 400, 0, 00h, 0
+	._inspect	'F', 'p', "did_and_unit_equal", "$did_and_unit_equal", 'G', 402, 0, 00h, 0
+	._inspect	'F', 'p', "remove_recipient_from_recipient_list", "$remove_recipient_from_recipient_list", 'G', 404, 0, 00h, 0
+	._inspect	'F', 'p', "add_recipient_to_recipient_list", "$add_recipient_to_recipient_list", 'G', 406, 0, 00h, 0
+	._inspect	'F', 'p', "load_next_recipient", "$load_next_recipient", 'G', 408, 0, 00h, 0
+	._inspect	'F', 'p', "device_should_stay_awake", "$device_should_stay_awake", 'G', 410, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_data_rate.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_features.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'V', 'e', "THIS_DEVICE_FEATURES", 'G', 196, 4, 0, 0, 00h
+	._inspect	'V', 'e', "FEATURES_UNKNOWN", 'G', 197, 4, 0, 0, 00h
+	._inspect	'F', 'p', "features_known", "_features_known", 'G', 210, 0, 00h, 0
+	._inspect	'F', 'p', "features_max_hops", "_features_max_hops", 'G', 211, 0, 00h, 0
+	._inspect	'F', 'p', "features_max_peers", "_features_max_peers", 'G', 212, 0, 00h, 0
+	._inspect	'F', 'p', "features_data_rate_capable", "_features_data_rate_capable", 'G', 213, 0, 00h, 0
+	._inspect	'F', 'p', "features_peer_capable", "_features_peer_capable", 'G', 214, 0, 00h, 0
+	._inspect	'F', 'p', "features_mh_capable", "_features_mh_capable", 'G', 215, 0, 00h, 0
+	._inspect	'F', 'p', "features_mh_repeat_capable", "_features_mh_repeat_capable", 'G', 216, 0, 00h, 0
+	._inspect	'F', 'p', "features_block_capable", "_features_block_capable", 'G', 217, 0, 00h, 0
+	._inspect	'F', 'p', "features_stream_capable", "_features_stream_capable", 'G', 218, 0, 00h, 0
+	._inspect	'F', 'p', "features_device_sleeps", "_features_device_sleeps", 'G', 219, 0, 00h, 0
+	._inspect	'F', 'p', "features_ack_nack_level", "_features_ack_nack_level", 'G', 220, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_acknowledge.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 258, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/port_specific/one_net_client_port_specific.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "one_net_client_invite_result", "$one_net_client_invite_result", 'G', 113, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_client_removed", "$one_net_client_client_removed", 'G', 129, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_client_added", "$one_net_client_client_added", 'G', 142, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_handle_single_pkt", "$one_net_client_handle_single_pkt", 'G', 191, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_handle_ack_nack_response", "$one_net_client_handle_ack_nack_response", 'G', 352, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_get_invite_key", "_one_net_client_get_invite_key", 'G', 369, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_save_settings", "_one_net_client_save_settings", 'G', 379, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_load_settings", "_one_net_client_load_settings", 'G', 388, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_erase_settings", "_one_net_client_erase_settings", 'G', 397, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_reset_client", "$one_net_client_reset_client", 'G', 413, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_client_single_txn_status", "$one_net_client_single_txn_status", 'G', 436, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../transceivers/tal.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'V', 'e', "current_channel", 'G', 95, 1, 0, 0, 00h
+	._inspect	'F', 'p', "tal_init_transceiver", "_tal_init_transceiver", 'G', 127, 0, 00h, 0
+	._inspect	'F', 'p', "tal_enable_transceiver", "_tal_enable_transceiver", 'G', 137, 0, 00h, 0
+	._inspect	'F', 'p', "tal_disable_transceiver", "_tal_disable_transceiver", 'G', 147, 0, 00h, 0
+	._inspect	'F', 'p', "tal_channel_is_clear", "_tal_channel_is_clear", 'G', 161, 0, 00h, 0
+	._inspect	'F', 'p', "tal_write_packet", "$tal_write_packet", 'G', 175, 0, 00h, 0
+	._inspect	'F', 'p', "tal_write_packet_done", "_tal_write_packet_done", 'G', 186, 0, 00h, 0
+	._inspect	'F', 'p', "tal_read_bytes", "$tal_read_bytes", 'G', 199, 0, 00h, 0
+	._inspect	'F', 'p', "tal_look_for_packet", "_tal_look_for_packet", 'G', 209, 0, 00h, 0
+	._inspect	'F', 'p', "tal_set_data_rate", "$tal_set_data_rate", 'G', 223, 0, 00h, 0
+	._inspect	'F', 'p', "tal_set_channel", "$tal_set_channel", 'G', 234, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/app/one_net_application.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+
+;## #	FUNCTION get_three_message_bytes_from_payload
+
+;## #	FUNCTION put_three_message_bytes_to_payload
+
+;## #	FUNCTION get_first_msg_byte
+
+;## #	FUNCTION put_first_msg_byte
+
+;## #	FUNCTION get_second_msg_byte
+
+;## #	FUNCTION put_second_msg_byte
+
+;## #	FUNCTION get_third_msg_byte
+
+;## #	FUNCTION put_third_msg_byte
+
+;## #	FUNCTION get_first_two_msg_bytes
+
+;## #	FUNCTION put_first_two_msg_bytes
+
+;## #	FUNCTION get_msg_hdr
+
+;## #	FUNCTION put_msg_hdr
+
+;## #	FUNCTION get_msg_class
+
+;## #	FUNCTION put_msg_class
+
+;## #	FUNCTION get_msg_type
+
+;## #	FUNCTION put_msg_type
+
+;## #	FUNCTION get_msg_data
+
+;## #	FUNCTION put_msg_data
+
+;## #	FUNCTION get_src_unit
+
+;## #	FUNCTION put_src_unit
+
+;## #	FUNCTION get_dst_unit
+
+;## #	FUNCTION put_dst_unit
+
+;## #	FUNCTION get_payload_msg_type
+
+;## #	FUNCTION put_payload_msg_type
+
+;## #	FUNCTION get_payload_txn_nonce
+
+;## #	FUNCTION put_payload_txn_nonce
+
+;## #	FUNCTION get_payload_resp_nonce
+
+;## #	FUNCTION put_payload_resp_nonce
+	._inspect	'F', 'p', "ona_parse_msg_class_and_type", "$ona_parse_msg_class_and_type", 'G', 489, 0, 00h, 0
+	._inspect	'F', 'p', "on_encoded_did_equal", "$on_encoded_did_equal", 'G', 494, 0, 00h, 0
+	._inspect	'F', 'p', "on_encoded_nid_equal", "$on_encoded_nid_equal", 'G', 496, 0, 00h, 0
+	._inspect	'F', 'p', "is_my_nid", "$is_my_nid", 'G', 497, 0, 00h, 0
+	._inspect	'F', 'p', "is_master_did", "$is_master_did", 'G', 498, 0, 00h, 0
+	._inspect	'F', 'p', "is_my_did", "$is_my_did", 'G', 499, 0, 00h, 0
+	._inspect	'F', 'p', "is_broadcast_did", "$is_broadcast_did", 'G', 500, 0, 00h, 0
+	._inspect	'F', 'p', "on_parse_app_pld", "$on_parse_app_pld", 'G', 506, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_led.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "rx_led_blink", "$rx_led_blink", 'G', 106, 0, 00h, 0
+	._inspect	'F', 'p', "tx_led_blink", "$tx_led_blink", 'G', 117, 0, 00h, 0
+	._inspect	'F', 'p', "tx_and_rx_led_blink", "$tx_and_rx_led_blink", 'G', 128, 0, 00h, 0
+	._inspect	'F', 'p', "startup_status_led_blink", "$startup_status_led_blink", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'p', "initialize_leds", "_initialize_leds", 'G', 148, 0, 00h, 0
+	._inspect	'F', 'p', "set_tx_led", "$set_tx_led", 'G', 159, 0, 00h, 0
+	._inspect	'F', 'p', "toggle_tx_led", "_toggle_tx_led", 'G', 167, 0, 00h, 0
+	._inspect	'F', 'p', "set_rx_led", "$set_rx_led", 'G', 178, 0, 00h, 0
+	._inspect	'F', 'p', "toggle_rx_led", "_toggle_rx_led", 'G', 186, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/hal_adi.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "tal_init_ports", "_tal_init_ports", 'G', 90, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/port_specific/tick.h", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "init_tick", "_init_tick", 'G', 105, 0, 00h, 0
+	._inspect	'F', 'p', "ms_to_tick", "_ms_to_tick", 'G', 117, 0, 00h, 0
+	._inspect	'F', 'p', "tick_to_ms", "_tick_to_ms", 'G', 129, 0, 00h, 0
+	._inspect	'F', 'p', "get_tick_count", "_get_tick_count", 'G', 139, 0, 00h, 0
+	._inspect	'F', 'p', "get_tick_diff", "_get_tick_diff", 'G', 150, 0, 00h, 0
+	._inspect	'F', 'p', "set_tick_count", "_set_tick_count", 'G', 163, 0, 00h, 0
+	._inspect	'F', 'p', "increment_tick_count", "_increment_tick_count", 'G', 176, 0, 00h, 0
+	._inspect	'F', 'p', "delay_ms", "$delay_ms", 'G', 188, 0, 00h, 0
+	._inspect	'F', 'p', "delay_100s_us", "$delay_100s_us", 'G', 198, 0, 00h, 0
+	._inspect	'F', 'p', "polled_tick_update", "_polled_tick_update", 'G', 211, 0, 00h, 0
+	._inspect	'F', 'p', "disable_tick_timer", "_disable_tick_timer", 'G', 221, 0, 00h, 0
+	._inspect	'F', 'p', "enable_tick_timer", "_enable_tick_timer", 'G', 231, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal.c", "C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal"
+	._inspect	'F', 'p', "update_tick_count", "_update_tick_count", 'G', 100, 0, 00h, 0
+
+;## #	FUNCTION pal_init_ports
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+
+	.SECTION	program,CODE
+	._inspect	'U', 2, "program", "program", 0
+	._file	'C:/HEWProj/kkn/processors/renesas/src/adi_io_boards/pal.c'
+	._type	256,'v'
+	._type	257,'v'
+	._type	258,'x',256,1
+	._type	258,'m','',0,257
+	._func	'pal_init_ports','G',0,258,_pal_init_ports,0
+	._inspect	'F', 's', "pal_init_ports", "_pal_init_ports", 'G', 5
+	._block
+	._line	120
+;## # C_SRC :	{
+	.glb	_pal_init_ports
+_pal_init_ports:
+	._block
+	._line	122
+;## # C_SRC :	    pur0  = 0xcc;
+	mov.b	#0ccH,_pur0_addr
+	._line	123
+;## # C_SRC :	    pur1  = 0x02;
+	mov.b	#02H,_pur1_addr
+	._line	143
+;## # C_SRC :	            OUTPUT1_DIR = OUTPUT;
+	or.b	#43H,_pd1_addr
+	._line	155
+;## # C_SRC :	            OUTPUT4_DIR = OUTPUT;
+	bset	5,_pd4_addr
+	._eblock
+	._line	160
+;## # C_SRC :	} // init_ports //
+_processor_sleep:
+	rts	
+E1:
+E6:
+M6:
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "pal_init_ports", "_pal_init_ports", 'G', 120, 0, 00h, 0
+	._inspect	'F', 't', "pal_init_ports", 'G', 258
+	._inspect	'V', 'r', "pur0_addr", 'G', 122, 1, 1, 0, 00h
+	._inspect	'V', 'r', "pur1_addr", 'G', 123, 1, 1, 0, 00h
+	._inspect	'V', 'r', "pd1_addr", 'G', 143, 1, 1, 0, 043h
+	._inspect	'V', 'r', "pd4_addr", 'G', 155, 1, 1, 0, 020h
+	._inspect	'F', 'e', "pal_init_ports", "_pal_init_ports", 'G', 0, 0
+
+
+;## #	FUNCTION init_ports_leds
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	259,'v'
+	._type	260,'v'
+	._type	261,'x',259,1
+	._type	261,'m','',5,260
+	._func	'init_ports_leds','G',0,261,_init_ports_leds,0
+	._inspect	'F', 's', "init_ports_leds", "_init_ports_leds", 'G', 5
+	._line	171
+;## # C_SRC :	{
+	.glb	_init_ports_leds
+_init_ports_leds:
+	._block
+	._line	172
+;## # C_SRC :	    LED2_DIR = OUTPUT;
+	or.b	#0cH,_pd1_addr
+	._line	175
+;## # C_SRC :	    TURN_OFF(LED2);
+	and.b	#0f3H,_p1_addr
+	._eblock
+	._line	177
+;## # C_SRC :	} // init_ports_leds //
+	rts	
+E2:
+M2:
+	._efunc	M2
+	._inspect	'F', 'd', "init_ports_leds", "_init_ports_leds", 'G', 171, 0, 00h, 0
+	._inspect	'F', 't', "init_ports_leds", 'G', 261
+	._inspect	'V', 'r', "pd1_addr", 'G', 172, 1, 1, 0, 0ch
+	._inspect	'V', 'r', "p1_addr", 'G', 175, 1, 1, 0, 0ch
+	._inspect	'F', 'e', "init_ports_leds", "_init_ports_leds", 'G', 0, 0
+
+
+;## #	FUNCTION high_speed_mode
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	262,'v'
+	._type	263,'v'
+	._type	264,'x',262,1
+	._type	264,'m','',5,263
+	._func	'high_speed_mode','G',0,264,_high_speed_mode,0
+	._inspect	'F', 's', "high_speed_mode", "_high_speed_mode", 'G', 5
+	._line	192
+;## # C_SRC :	{
+	.glb	_high_speed_mode
+_high_speed_mode:
+	._block
+	._line	193
+;## # C_SRC :	    prc0 = 1;                       // protect off
+	bset	0,_prcr_addr
+	._line	194
+;## # C_SRC :	    cm13 = 0;  //dje: Note that this must be zero to enable p4_7 as input
+	bclr	3,_cm1_addr
+	._line	195
+;## # C_SRC :	    cm05 = 0;                       // main clock oscillates
+	bclr	5,_cm0_addr
+	._line	202
+;## # C_SRC :	    delay_ms(1);
+	mov.w	#0001H,R1
+	._inspect	'S', 'c', "delay_ms", "$delay_ms", 'G', 0, 202
+	jsr	$delay_ms
+	._line	203
+;## # C_SRC :	    asm("nop");                     // let it settle
+;#### ASM START
+nop
+	._line	204
+;## # C_SRC :	    asm("nop");
+nop
+	._line	205
+;## # C_SRC :	    asm("nop");
+nop
+	._line	206
+;## # C_SRC :	    asm("nop");
+nop
+;#### ASM END
+	._line	208
+;## # C_SRC :	    cm06 = 0;                       // enable cm16 & cm17 divide bits
+	bclr	6,_cm0_addr
+	._line	211
+;## # C_SRC :	    cm16 = 0;
+	and.b	#3fH,_cm1_addr
+	._line	214
+;## # C_SRC :	    ocd2 = 0;                       // select main clock as system clock
+	bclr	2,_ocd_addr
+	._line	215
+;## # C_SRC :	    prc0 = 0;                       // protect on
+	bclr	0,_prcr_addr
+	._eblock
+	._line	216
+;## # C_SRC :	} // high_speed_mode //
+	rts	
+E3:
+M3:
+	._efunc	M3
+	._inspect	'F', 'd', "high_speed_mode", "_high_speed_mode", 'G', 192, 0, 00h, 0
+	._inspect	'F', 't', "high_speed_mode", 'G', 264
+	._inspect	'V', 'r', "prcr_addr", 'G', 193, 1, 1, 0, 01h
+	._inspect	'V', 'r', "cm1_addr", 'G', 194, 1, 1, 0, 08h
+	._inspect	'V', 'r', "cm0_addr", 'G', 195, 1, 1, 0, 020h
+	._inspect	'F', 'r', "delay_ms", "$delay_ms", 'G', 202, 0, 00h, 0
+	._inspect	'V', 'r', "cm0_addr", 'G', 208, 1, 1, 0, 040h
+	._inspect	'V', 'r', "cm1_addr", 'G', 211, 1, 1, 0, 0c0h
+	._inspect	'V', 'r', "ocd_addr", 'G', 214, 1, 1, 0, 04h
+	._inspect	'V', 'r', "prcr_addr", 'G', 215, 1, 1, 0, 01h
+	._inspect	'F', 'e', "high_speed_mode", "_high_speed_mode", 'G', 0, 0
+
+
+;## #	FUNCTION low_speed_mode
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	265,'v'
+	._type	266,'v'
+	._type	267,'x',265,1
+	._type	267,'m','',5,266
+	._func	'low_speed_mode','G',0,267,_low_speed_mode,0
+	._inspect	'F', 's', "low_speed_mode", "_low_speed_mode", 'G', 5
+	._line	227
+;## # C_SRC :	{
+	.glb	_low_speed_mode
+_low_speed_mode:
+	._block
+	._line	228
+;## # C_SRC :	    prc0 = 1;                       // protect off
+	bset	0,_prcr_addr
+	._line	229
+;## # C_SRC :	    ocd2 = 1;                       // select internal oscillator
+	bset	2,_ocd_addr
+	._line	230
+;## # C_SRC :	    cm05 = 1;                       // main clock stops
+	bset	5,_cm0_addr
+	._line	231
+;## # C_SRC :	    prc0 = 0;                       // protoect on
+	bclr	0,_prcr_addr
+	._eblock
+	._line	232
+;## # C_SRC :	} // low_speed_mode //
+	rts	
+E4:
+M4:
+	._efunc	M4
+	._inspect	'F', 'd', "low_speed_mode", "_low_speed_mode", 'G', 227, 0, 00h, 0
+	._inspect	'F', 't', "low_speed_mode", 'G', 267
+	._inspect	'V', 'r', "prcr_addr", 'G', 228, 1, 1, 0, 01h
+	._inspect	'V', 'r', "ocd_addr", 'G', 229, 1, 1, 0, 04h
+	._inspect	'V', 'r', "cm0_addr", 'G', 230, 1, 1, 0, 020h
+	._inspect	'V', 'r', "prcr_addr", 'G', 231, 1, 1, 0, 01h
+	._inspect	'F', 'e', "low_speed_mode", "_low_speed_mode", 'G', 0, 0
+
+
+;## #	FUNCTION pal_init_processor
+;## #  REGISTER ARG    (high_speed)   size   1,   REGISTER R1L
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	268,'v'
+	._type	269,'T','UInt8',3
+	._type	270,'T','BOOL',269
+	._type	271,'x',268,1
+	._type	271,'m','high_speed',0,270
+	._func	'pal_init_processor','G',0,271,$pal_init_processor,0
+	._inspect	'F', 's', "pal_init_processor", "$pal_init_processor", 'G', 5
+	._line	236
+;## # C_SRC :	{
+	.glb	$pal_init_processor
+$pal_init_processor:
+	._block
+	._var	'high_speed','A',270,0
+	._line	237
+;## # C_SRC :	    if(high_speed)
+	._block
+	._var	'high_speed','R',270,3
+	cmp.b	#00H,R1L	;  high_speed 
+	jeq	L115
+	._eblock
+	._line	238
+	._block
+	._line	239
+;## # C_SRC :	        high_speed_mode();
+	._inspect	'S', 'c', "high_speed_mode", "_high_speed_mode", 'G', 0, 239
+	jmp	_high_speed_mode
+	._eblock
+	._line	241
+;## # C_SRC :	    else
+L115:
+	._line	242
+	._block
+	._line	243
+;## # C_SRC :	        low_speed_mode();
+	._inspect	'S', 'c', "low_speed_mode", "_low_speed_mode", 'G', 0, 243
+	jmp	_low_speed_mode
+E5:
+	._eblock
+	._eblock
+M5:
+	._efunc	M5
+	._inspect	'F', 'd', "pal_init_processor", "$pal_init_processor", 'G', 236, 0, 00h, 0
+	._inspect	'F', 't', "pal_init_processor", 'G', 271
+	._inspect	'F', 'r', "high_speed_mode", "_high_speed_mode", 'G', 239, 0, 00h, 0
+	._inspect	'F', 'r', "low_speed_mode", "_low_speed_mode", 'G', 243, 0, 00h, 0
+	._inspect	'F', 'e', "pal_init_processor", "$pal_init_processor", 'G', 0, 0
+
+
+;## #	FUNCTION processor_sleep
+;## #  FRAME   ARG (      MS)  size   4,    offset 5
+;## #	ARG Size(4)	Auto Size(0)	Context Size(5)
+
+	._type	272,'v'
+	._type	273,'T','UInt32',7
+	._type	274,'x',272,1
+	._type	274,'m','MS',5,273
+	._func	'processor_sleep','G',0,274,_processor_sleep,0
+	._inspect	'F', 's', "processor_sleep", "_processor_sleep", 'G', 5
+	._line	261
+;## # C_SRC :	{
+	.glb	_processor_sleep
+	._line	262
+;## # C_SRC :	} // processor_sleep //
+	._efunc	M6
+	._inspect	'F', 'd', "processor_sleep", "_processor_sleep", 'G', 261, 0, 00h, 0
+	._inspect	'F', 't', "processor_sleep", 'G', 274
+	._inspect	'F', 'e', "processor_sleep", "_processor_sleep", 'G', 0, 0
+
+
+;## #	FUNCTION pal_disable_global_interrupts
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	275,'v'
+	._type	276,'v'
+	._type	277,'x',275,1
+	._type	277,'m','',0,276
+	._func	'pal_disable_global_interrupts','G',0,277,_pal_disable_global_interrupts,0
+	._inspect	'F', 's', "pal_disable_global_interrupts", "_pal_disable_global_interrupts", 'G', 5
+	._line	273
+;## # C_SRC :	{
+	.glb	_pal_disable_global_interrupts
+_pal_disable_global_interrupts:
+	._block
+	._line	274
+;## # C_SRC :	    asm("FCLR I");
+;#### ASM START
+FCLR I
+;#### ASM END
+	._eblock
+	._line	278
+;## # C_SRC :	}
+	rts	
+E7:
+M7:
+	._efunc	M7
+	._inspect	'F', 'd', "pal_disable_global_interrupts", "_pal_disable_global_interrupts", 'G', 273, 0, 00h, 0
+	._inspect	'F', 't', "pal_disable_global_interrupts", 'G', 277
+	._inspect	'F', 'e', "pal_disable_global_interrupts", "_pal_disable_global_interrupts", 'G', 0, 0
+
+
+;## #	FUNCTION pal_enable_global_interrupts
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	278,'v'
+	._type	279,'v'
+	._type	280,'x',278,1
+	._type	280,'m','',0,279
+	._func	'pal_enable_global_interrupts','G',0,280,_pal_enable_global_interrupts,0
+	._inspect	'F', 's', "pal_enable_global_interrupts", "_pal_enable_global_interrupts", 'G', 5
+	._line	289
+;## # C_SRC :	{
+	.glb	_pal_enable_global_interrupts
+_pal_enable_global_interrupts:
+	._block
+	._line	290
+;## # C_SRC :	    asm("FSET I");
+;#### ASM START
+FSET I
+;#### ASM END
+	._eblock
+	._line	294
+;## # C_SRC :	}
+	rts	
+E8:
+M8:
+	._efunc	M8
+	._inspect	'F', 'd', "pal_enable_global_interrupts", "_pal_enable_global_interrupts", 'G', 289, 0, 00h, 0
+	._inspect	'F', 't', "pal_enable_global_interrupts", 'G', 280
+	._inspect	'F', 'e', "pal_enable_global_interrupts", "_pal_enable_global_interrupts", 'G', 0, 0
+
+
+;## #	FUNCTION pal_exit
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	281,'v'
+	._type	282,'v'
+	._type	283,'x',281,1
+	._type	283,'m','',0,282
+	._func	'pal_exit','G',0,283,_pal_exit,0
+	._inspect	'F', 's', "pal_exit", "_pal_exit", 'G', 5
+	._line	307
+;## # C_SRC :	{
+	.glb	_pal_exit
+_pal_exit:
+	._block
+	._line	308
+;## # C_SRC :	    asm("FCLR I");
+;#### ASM START
+FCLR I
+	._line	309
+;## # C_SRC :	    asm("WAIT");
+WAIT
+;#### ASM END
+	._eblock
+	._line	310
+;## # C_SRC :	}
+	rts	
+E9:
+M9:
+	._efunc	M9
+	._inspect	'F', 'd', "pal_exit", "_pal_exit", 'G', 307, 0, 00h, 0
+	._inspect	'F', 't', "pal_exit", 'G', 283
+	._inspect	'F', 'e', "pal_exit", "_pal_exit", 'G', 0, 0
+
+	.glb	_pal_high_speed_mode
+	.glb	_pal_low_speed_mode
+	.glb	_pal_processor_sleep
+	.glb	$one_net_xtea_encipher
+	.glb	$one_net_xtea_decipher
+	.glb	$get_encoded_payload_len
+	.glb	$get_raw_payload_len
+	.glb	$get_num_payload_blocks
+	.glb	$get_encoded_packet_len
+	.glb	$packet_is_stay_awake
+	.glb	$set_ack_or_nack_pid
+	.glb	$set_stay_awake_pid
+	.glb	$packet_is_data
+	.glb	$packet_is_ack
+	.glb	$packet_is_nack
+	.glb	$get_single_response_pid
+	.glb	_NO_DESTINATION
+	.glb	_single_data_queue_size
+	.glb	_recipient_send_list
+	.glb	_recipient_send_list_ptr
+	.glb	_empty_queue
+	.glb	_pop_queue_element
+	.glb	_single_data_queue_ready_to_send
+	.glb	$push_queue_element
+	.glb	$must_send_to_master
+	.glb	$clear_recipient_list
+	.glb	$did_and_unit_equal
+	.glb	$remove_recipient_from_recipient_list
+	.glb	$add_recipient_to_recipient_list
+	.glb	$load_next_recipient
+	.glb	$device_should_stay_awake
+	.glb	_THIS_DEVICE_FEATURES
+	.glb	_FEATURES_UNKNOWN
+	.glb	_features_known
+	.glb	_features_max_hops
+	.glb	_features_max_peers
+	.glb	_features_data_rate_capable
+	.glb	_features_peer_capable
+	.glb	_features_mh_capable
+	.glb	_features_mh_repeat_capable
+	.glb	_features_block_capable
+	.glb	_features_stream_capable
+	.glb	_features_device_sleeps
+	.glb	_features_ack_nack_level
+	.glb	$nack_reason_is_fatal
+	.glb	$one_net_client_invite_result
+	.glb	$one_net_client_client_removed
+	.glb	$one_net_client_client_added
+	.glb	$one_net_client_handle_single_pkt
+	.glb	$one_net_client_handle_ack_nack_response
+	.glb	_one_net_client_get_invite_key
+	.glb	_one_net_client_save_settings
+	.glb	_one_net_client_load_settings
+	.glb	_one_net_client_erase_settings
+	.glb	$one_net_client_reset_client
+	.glb	$one_net_client_single_txn_status
+	.glb	_current_channel
+	.glb	_tal_init_transceiver
+	.glb	_tal_enable_transceiver
+	.glb	_tal_disable_transceiver
+	.glb	_tal_channel_is_clear
+	.glb	$tal_write_packet
+	.glb	_tal_write_packet_done
+	.glb	$tal_read_bytes
+	.glb	_tal_look_for_packet
+	.glb	$tal_set_data_rate
+	.glb	$tal_set_channel
+	.glb	$ona_parse_msg_class_and_type
+	.glb	$on_encoded_did_equal
+	.glb	$on_encoded_nid_equal
+	.glb	$is_my_nid
+	.glb	$is_master_did
+	.glb	$is_my_did
+	.glb	$is_broadcast_did
+	.glb	$on_parse_app_pld
+	.glb	$rx_led_blink
+	.glb	$tx_led_blink
+	.glb	$tx_and_rx_led_blink
+	.glb	$startup_status_led_blink
+	.glb	_initialize_leds
+	.glb	$set_tx_led
+	.glb	_toggle_tx_led
+	.glb	$set_rx_led
+	.glb	_toggle_rx_led
+	.glb	_tal_init_ports
+	.glb	_init_tick
+	.glb	_ms_to_tick
+	.glb	_tick_to_ms
+	.glb	_get_tick_count
+	.glb	_get_tick_diff
+	.glb	_set_tick_count
+	.glb	_increment_tick_count
+	.glb	$delay_ms
+	.glb	$delay_100s_us
+	.glb	_polled_tick_update
+	.glb	_disable_tick_timer
+	.glb	_enable_tick_timer
+	.glb	_update_tick_count
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	284,'T','SInt8',19
+	._type	285,'T','UInt16',18
+	._type	286,'T','SInt16',16
+	._type	287,'T','SInt32',20
+	._type	288,'T','Float32',10
+	._type	289,'T','tick_t',273
+	._type	290,'v'
+	._type	291,'v'
+	._type	292,'x',290,1
+	._type	292,'m','',0,291
+	._var	'pal_high_speed_mode','F',292
+	._type	293,'v'
+	._type	294,'v'
+	._type	295,'x',293,1
+	._type	295,'m','',0,294
+	._var	'pal_low_speed_mode','F',295
+	._type	296,'v'
+	._type	297,'x',296,1
+	._type	297,'m','ms',0,273
+	._var	'pal_processor_sleep','F',297
+	._type	300,'g','b0',0,1,3
+	._type	301,'g','b1',0,1,3
+	._type	302,'g','b2',0,1,3
+	._type	303,'g','b3',0,1,3
+	._type	304,'g','b4',0,1,3
+	._type	305,'g','b5',0,1,3
+	._type	306,'g','b6',0,1,3
+	._type	307,'g','b7',0,1,3
+	._type	299,'S','bit_def',1
+	._type	299,'m','b0',300,0
+	._type	299,'m','b1',301,1
+	._type	299,'m','b2',302,2
+	._type	299,'m','b3',303,3
+	._type	299,'m','b4',304,4
+	._type	299,'m','b5',305,5
+	._type	299,'m','b6',306,6
+	._type	299,'m','b7',307,7
+	._type	298,'U','byte_def',1
+	._type	298,'m','bit',299,0
+	._type	298,'m','byte',3,0
+	._var	'pm0_addr','S',298,_pm0_addr
+	._var	'pm1_addr','S',298,_pm1_addr
+	._var	'cm0_addr','S',298,_cm0_addr
+	._var	'cm1_addr','S',298,_cm1_addr
+	._var	'aier_addr','S',298,_aier_addr
+	._var	'prcr_addr','S',298,_prcr_addr
+	._var	'ocd_addr','S',298,_ocd_addr
+	._var	'wdtr_addr','S',298,_wdtr_addr
+	._var	'wdts_addr','S',298,_wdts_addr
+	._var	'wdc_addr','S',298,_wdc_addr
+	._var	'cspr_addr','S',298,_cspr_addr
+	._var	'int0f_addr','S',298,_int0f_addr
+	._var	'hra0_addr','S',298,_hra0_addr
+	._var	'hra1_addr','S',298,_hra1_addr
+	._var	'hra2_addr','S',298,_hra2_addr
+	._var	'vca1_addr','S',298,_vca1_addr
+	._var	'vca2_addr','S',298,_vca2_addr
+	._var	'vw1c_addr','S',298,_vw1c_addr
+	._var	'vw2c_addr','S',298,_vw2c_addr
+	._var	'tzmr_addr','S',298,_tzmr_addr
+	._var	'pum_addr','S',298,_pum_addr
+	._var	'prez_addr','S',298,_prez_addr
+	._var	'tzsc_addr','S',298,_tzsc_addr
+	._var	'tzpr_addr','S',298,_tzpr_addr
+	._var	'tzoc_addr','S',298,_tzoc_addr
+	._var	'txmr_addr','S',298,_txmr_addr
+	._var	'prex_addr','S',298,_prex_addr
+	._var	'tx_addr','S',298,_tx_addr
+	._var	'tcss_addr','S',298,_tcss_addr
+	._var	'inten_addr','S',298,_inten_addr
+	._var	'kien_addr','S',298,_kien_addr
+	._var	'tcc0_addr','S',298,_tcc0_addr
+	._var	'tcc1_addr','S',298,_tcc1_addr
+	._var	'u0brg_addr','S',298,_u0brg_addr
+	._var	'u1brg_addr','S',298,_u1brg_addr
+	._var	'ucon_addr','S',298,_ucon_addr
+	._var	'sscrh_addr','S',298,_sscrh_addr
+	._var	'sscrl_addr','S',298,_sscrl_addr
+	._var	'ssmr_addr','S',298,_ssmr_addr
+	._var	'sser_addr','S',298,_sser_addr
+	._var	'sssr_addr','S',298,_sssr_addr
+	._var	'ssmr2_addr','S',298,_ssmr2_addr
+	._var	'sstdr_addr','S',298,_sstdr_addr
+	._var	'ssrdr_addr','S',298,_ssrdr_addr
+	._var	'iccr1_addr','S',298,_iccr1_addr
+	._var	'iccr2_addr','S',298,_iccr2_addr
+	._var	'icmr_addr','S',298,_icmr_addr
+	._var	'icier_addr','S',298,_icier_addr
+	._var	'icsr_addr','S',298,_icsr_addr
+	._var	'sar_addr','S',298,_sar_addr
+	._var	'icdrt_addr','S',298,_icdrt_addr
+	._var	'icdrr_addr','S',298,_icdrr_addr
+	._var	'adcon2_addr','S',298,_adcon2_addr
+	._var	'adcon0_addr','S',298,_adcon0_addr
+	._var	'adcon1_addr','S',298,_adcon1_addr
+	._var	'p1_addr','S',298,_p1_addr
+	._var	'pd1_addr','S',298,_pd1_addr
+	._var	'p3_addr','S',298,_p3_addr
+	._var	'pd3_addr','S',298,_pd3_addr
+	._var	'p4_addr','S',298,_p4_addr
+	._var	'pd4_addr','S',298,_pd4_addr
+	._var	'pmr_addr','S',298,_pmr_addr
+	._var	'pur0_addr','S',298,_pur0_addr
+	._var	'pur1_addr','S',298,_pur1_addr
+	._var	'drr_addr','S',298,_drr_addr
+	._var	'tcout_addr','S',298,_tcout_addr
+	._var	'fmr4_addr','S',298,_fmr4_addr
+	._var	'fmr1_addr','S',298,_fmr1_addr
+	._var	'fmr0_addr','S',298,_fmr0_addr
+	._type	310,'g','ilvl0',0,1,3
+	._type	311,'g','ilvl1',0,1,3
+	._type	312,'g','ilvl2',0,1,3
+	._type	313,'g','ir',0,1,3
+	._type	314,'g','pol',0,1,3
+	._type	315,'g','b5',0,1,3
+	._type	316,'g','b6',0,1,3
+	._type	317,'g','b7',0,1,3
+	._type	309,'S','',1
+	._type	309,'m','ilvl0',310,0
+	._type	309,'m','ilvl1',311,1
+	._type	309,'m','ilvl2',312,2
+	._type	309,'m','ir',313,3
+	._type	309,'m','pol',314,4
+	._type	309,'m','b5',315,5
+	._type	309,'m','b6',316,6
+	._type	309,'m','b7',317,7
+	._type	308,'U','',1
+	._type	308,'m','bit',309,0
+	._type	308,'m','byte',3,0
+	._var	'kupic_addr','S',308,_kupic_addr
+	._type	320,'g','ilvl0',0,1,3
+	._type	321,'g','ilvl1',0,1,3
+	._type	322,'g','ilvl2',0,1,3
+	._type	323,'g','ir',0,1,3
+	._type	324,'g','pol',0,1,3
+	._type	325,'g','b5',0,1,3
+	._type	326,'g','b6',0,1,3
+	._type	327,'g','b7',0,1,3
+	._type	319,'S','',1
+	._type	319,'m','ilvl0',320,0
+	._type	319,'m','ilvl1',321,1
+	._type	319,'m','ilvl2',322,2
+	._type	319,'m','ir',323,3
+	._type	319,'m','pol',324,4
+	._type	319,'m','b5',325,5
+	._type	319,'m','b6',326,6
+	._type	319,'m','b7',327,7
+	._type	318,'U','',1
+	._type	318,'m','bit',319,0
+	._type	318,'m','byte',3,0
+	._var	'adic_addr','S',318,_adic_addr
+	._type	330,'g','ilvl0',0,1,3
+	._type	331,'g','ilvl1',0,1,3
+	._type	332,'g','ilvl2',0,1,3
+	._type	333,'g','ir',0,1,3
+	._type	334,'g','pol',0,1,3
+	._type	335,'g','b5',0,1,3
+	._type	336,'g','b6',0,1,3
+	._type	337,'g','b7',0,1,3
+	._type	329,'S','',1
+	._type	329,'m','ilvl0',330,0
+	._type	329,'m','ilvl1',331,1
+	._type	329,'m','ilvl2',332,2
+	._type	329,'m','ir',333,3
+	._type	329,'m','pol',334,4
+	._type	329,'m','b5',335,5
+	._type	329,'m','b6',336,6
+	._type	329,'m','b7',337,7
+	._type	328,'U','',1
+	._type	328,'m','bit',329,0
+	._type	328,'m','byte',3,0
+	._var	'ssuaic_addr','S',328,_ssuaic_addr
+	._type	340,'g','ilvl0',0,1,3
+	._type	341,'g','ilvl1',0,1,3
+	._type	342,'g','ilvl2',0,1,3
+	._type	343,'g','ir',0,1,3
+	._type	344,'g','pol',0,1,3
+	._type	345,'g','b5',0,1,3
+	._type	346,'g','b6',0,1,3
+	._type	347,'g','b7',0,1,3
+	._type	339,'S','',1
+	._type	339,'m','ilvl0',340,0
+	._type	339,'m','ilvl1',341,1
+	._type	339,'m','ilvl2',342,2
+	._type	339,'m','ir',343,3
+	._type	339,'m','pol',344,4
+	._type	339,'m','b5',345,5
+	._type	339,'m','b6',346,6
+	._type	339,'m','b7',347,7
+	._type	338,'U','',1
+	._type	338,'m','bit',339,0
+	._type	338,'m','byte',3,0
+	._var	'iic2aic_addr','S',338,_iic2aic_addr
+	._type	350,'g','ilvl0',0,1,3
+	._type	351,'g','ilvl1',0,1,3
+	._type	352,'g','ilvl2',0,1,3
+	._type	353,'g','ir',0,1,3
+	._type	354,'g','pol',0,1,3
+	._type	355,'g','b5',0,1,3
+	._type	356,'g','b6',0,1,3
+	._type	357,'g','b7',0,1,3
+	._type	349,'S','',1
+	._type	349,'m','ilvl0',350,0
+	._type	349,'m','ilvl1',351,1
+	._type	349,'m','ilvl2',352,2
+	._type	349,'m','ir',353,3
+	._type	349,'m','pol',354,4
+	._type	349,'m','b5',355,5
+	._type	349,'m','b6',356,6
+	._type	349,'m','b7',357,7
+	._type	348,'U','',1
+	._type	348,'m','bit',349,0
+	._type	348,'m','byte',3,0
+	._var	'cmp1ic_addr','S',348,_cmp1ic_addr
+	._type	360,'g','ilvl0',0,1,3
+	._type	361,'g','ilvl1',0,1,3
+	._type	362,'g','ilvl2',0,1,3
+	._type	363,'g','ir',0,1,3
+	._type	364,'g','pol',0,1,3
+	._type	365,'g','b5',0,1,3
+	._type	366,'g','b6',0,1,3
+	._type	367,'g','b7',0,1,3
+	._type	359,'S','',1
+	._type	359,'m','ilvl0',360,0
+	._type	359,'m','ilvl1',361,1
+	._type	359,'m','ilvl2',362,2
+	._type	359,'m','ir',363,3
+	._type	359,'m','pol',364,4
+	._type	359,'m','b5',365,5
+	._type	359,'m','b6',366,6
+	._type	359,'m','b7',367,7
+	._type	358,'U','',1
+	._type	358,'m','bit',359,0
+	._type	358,'m','byte',3,0
+	._var	's0tic_addr','S',358,_s0tic_addr
+	._type	370,'g','ilvl0',0,1,3
+	._type	371,'g','ilvl1',0,1,3
+	._type	372,'g','ilvl2',0,1,3
+	._type	373,'g','ir',0,1,3
+	._type	374,'g','pol',0,1,3
+	._type	375,'g','b5',0,1,3
+	._type	376,'g','b6',0,1,3
+	._type	377,'g','b7',0,1,3
+	._type	369,'S','',1
+	._type	369,'m','ilvl0',370,0
+	._type	369,'m','ilvl1',371,1
+	._type	369,'m','ilvl2',372,2
+	._type	369,'m','ir',373,3
+	._type	369,'m','pol',374,4
+	._type	369,'m','b5',375,5
+	._type	369,'m','b6',376,6
+	._type	369,'m','b7',377,7
+	._type	368,'U','',1
+	._type	368,'m','bit',369,0
+	._type	368,'m','byte',3,0
+	._var	's0ric_addr','S',368,_s0ric_addr
+	._type	380,'g','ilvl0',0,1,3
+	._type	381,'g','ilvl1',0,1,3
+	._type	382,'g','ilvl2',0,1,3
+	._type	383,'g','ir',0,1,3
+	._type	384,'g','pol',0,1,3
+	._type	385,'g','b5',0,1,3
+	._type	386,'g','b6',0,1,3
+	._type	387,'g','b7',0,1,3
+	._type	379,'S','',1
+	._type	379,'m','ilvl0',380,0
+	._type	379,'m','ilvl1',381,1
+	._type	379,'m','ilvl2',382,2
+	._type	379,'m','ir',383,3
+	._type	379,'m','pol',384,4
+	._type	379,'m','b5',385,5
+	._type	379,'m','b6',386,6
+	._type	379,'m','b7',387,7
+	._type	378,'U','',1
+	._type	378,'m','bit',379,0
+	._type	378,'m','byte',3,0
+	._var	's1tic_addr','S',378,_s1tic_addr
+	._type	390,'g','ilvl0',0,1,3
+	._type	391,'g','ilvl1',0,1,3
+	._type	392,'g','ilvl2',0,1,3
+	._type	393,'g','ir',0,1,3
+	._type	394,'g','pol',0,1,3
+	._type	395,'g','b5',0,1,3
+	._type	396,'g','b6',0,1,3
+	._type	397,'g','b7',0,1,3
+	._type	389,'S','',1
+	._type	389,'m','ilvl0',390,0
+	._type	389,'m','ilvl1',391,1
+	._type	389,'m','ilvl2',392,2
+	._type	389,'m','ir',393,3
+	._type	389,'m','pol',394,4
+	._type	389,'m','b5',395,5
+	._type	389,'m','b6',396,6
+	._type	389,'m','b7',397,7
+	._type	388,'U','',1
+	._type	388,'m','bit',389,0
+	._type	388,'m','byte',3,0
+	._var	's1ric_addr','S',388,_s1ric_addr
+	._type	400,'g','ilvl0',0,1,3
+	._type	401,'g','ilvl1',0,1,3
+	._type	402,'g','ilvl2',0,1,3
+	._type	403,'g','ir',0,1,3
+	._type	404,'g','pol',0,1,3
+	._type	405,'g','b5',0,1,3
+	._type	406,'g','b6',0,1,3
+	._type	407,'g','b7',0,1,3
+	._type	399,'S','',1
+	._type	399,'m','ilvl0',400,0
+	._type	399,'m','ilvl1',401,1
+	._type	399,'m','ilvl2',402,2
+	._type	399,'m','ir',403,3
+	._type	399,'m','pol',404,4
+	._type	399,'m','b5',405,5
+	._type	399,'m','b6',406,6
+	._type	399,'m','b7',407,7
+	._type	398,'U','',1
+	._type	398,'m','bit',399,0
+	._type	398,'m','byte',3,0
+	._var	'txic_addr','S',398,_txic_addr
+	._type	410,'g','ilvl0',0,1,3
+	._type	411,'g','ilvl1',0,1,3
+	._type	412,'g','ilvl2',0,1,3
+	._type	413,'g','ir',0,1,3
+	._type	414,'g','pol',0,1,3
+	._type	415,'g','b5',0,1,3
+	._type	416,'g','b6',0,1,3
+	._type	417,'g','b7',0,1,3
+	._type	409,'S','',1
+	._type	409,'m','ilvl0',410,0
+	._type	409,'m','ilvl1',411,1
+	._type	409,'m','ilvl2',412,2
+	._type	409,'m','ir',413,3
+	._type	409,'m','pol',414,4
+	._type	409,'m','b5',415,5
+	._type	409,'m','b6',416,6
+	._type	409,'m','b7',417,7
+	._type	408,'U','',1
+	._type	408,'m','bit',409,0
+	._type	408,'m','byte',3,0
+	._var	'tzic_addr','S',408,_tzic_addr
+	._type	420,'g','ilvl0',0,1,3
+	._type	421,'g','ilvl1',0,1,3
+	._type	422,'g','ilvl2',0,1,3
+	._type	423,'g','ir',0,1,3
+	._type	424,'g','pol',0,1,3
+	._type	425,'g','b5',0,1,3
+	._type	426,'g','b6',0,1,3
+	._type	427,'g','b7',0,1,3
+	._type	419,'S','',1
+	._type	419,'m','ilvl0',420,0
+	._type	419,'m','ilvl1',421,1
+	._type	419,'m','ilvl2',422,2
+	._type	419,'m','ir',423,3
+	._type	419,'m','pol',424,4
+	._type	419,'m','b5',425,5
+	._type	419,'m','b6',426,6
+	._type	419,'m','b7',427,7
+	._type	418,'U','',1
+	._type	418,'m','bit',419,0
+	._type	418,'m','byte',3,0
+	._var	'int1ic_addr','S',418,_int1ic_addr
+	._type	430,'g','ilvl0',0,1,3
+	._type	431,'g','ilvl1',0,1,3
+	._type	432,'g','ilvl2',0,1,3
+	._type	433,'g','ir',0,1,3
+	._type	434,'g','pol',0,1,3
+	._type	435,'g','b5',0,1,3
+	._type	436,'g','b6',0,1,3
+	._type	437,'g','b7',0,1,3
+	._type	429,'S','',1
+	._type	429,'m','ilvl0',430,0
+	._type	429,'m','ilvl1',431,1
+	._type	429,'m','ilvl2',432,2
+	._type	429,'m','ir',433,3
+	._type	429,'m','pol',434,4
+	._type	429,'m','b5',435,5
+	._type	429,'m','b6',436,6
+	._type	429,'m','b7',437,7
+	._type	428,'U','',1
+	._type	428,'m','bit',429,0
+	._type	428,'m','byte',3,0
+	._var	'int3ic_addr','S',428,_int3ic_addr
+	._type	440,'g','ilvl0',0,1,3
+	._type	441,'g','ilvl1',0,1,3
+	._type	442,'g','ilvl2',0,1,3
+	._type	443,'g','ir',0,1,3
+	._type	444,'g','pol',0,1,3
+	._type	445,'g','b5',0,1,3
+	._type	446,'g','b6',0,1,3
+	._type	447,'g','b7',0,1,3
+	._type	439,'S','',1
+	._type	439,'m','ilvl0',440,0
+	._type	439,'m','ilvl1',441,1
+	._type	439,'m','ilvl2',442,2
+	._type	439,'m','ir',443,3
+	._type	439,'m','pol',444,4
+	._type	439,'m','b5',445,5
+	._type	439,'m','b6',446,6
+	._type	439,'m','b7',447,7
+	._type	438,'U','',1
+	._type	438,'m','bit',439,0
+	._type	438,'m','byte',3,0
+	._var	'tcic_addr','S',438,_tcic_addr
+	._type	450,'g','ilvl0',0,1,3
+	._type	451,'g','ilvl1',0,1,3
+	._type	452,'g','ilvl2',0,1,3
+	._type	453,'g','ir',0,1,3
+	._type	454,'g','pol',0,1,3
+	._type	455,'g','b5',0,1,3
+	._type	456,'g','b6',0,1,3
+	._type	457,'g','b7',0,1,3
+	._type	449,'S','',1
+	._type	449,'m','ilvl0',450,0
+	._type	449,'m','ilvl1',451,1
+	._type	449,'m','ilvl2',452,2
+	._type	449,'m','ir',453,3
+	._type	449,'m','pol',454,4
+	._type	449,'m','b5',455,5
+	._type	449,'m','b6',456,6
+	._type	449,'m','b7',457,7
+	._type	448,'U','',1
+	._type	448,'m','bit',449,0
+	._type	448,'m','byte',3,0
+	._var	'cmp0ic_addr','S',448,_cmp0ic_addr
+	._type	460,'g','ilvl0',0,1,3
+	._type	461,'g','ilvl1',0,1,3
+	._type	462,'g','ilvl2',0,1,3
+	._type	463,'g','ir',0,1,3
+	._type	464,'g','pol',0,1,3
+	._type	465,'g','b5',0,1,3
+	._type	466,'g','b6',0,1,3
+	._type	467,'g','b7',0,1,3
+	._type	459,'S','',1
+	._type	459,'m','ilvl0',460,0
+	._type	459,'m','ilvl1',461,1
+	._type	459,'m','ilvl2',462,2
+	._type	459,'m','ir',463,3
+	._type	459,'m','pol',464,4
+	._type	459,'m','b5',465,5
+	._type	459,'m','b6',466,6
+	._type	459,'m','b7',467,7
+	._type	458,'U','',1
+	._type	458,'m','bit',459,0
+	._type	458,'m','byte',3,0
+	._var	'int0ic_addr','S',458,_int0ic_addr
+	._type	470,'g','smd0',0,1,3
+	._type	471,'g','smd1',0,1,3
+	._type	472,'g','smd2',0,1,3
+	._type	473,'g','ckdir',0,1,3
+	._type	474,'g','stps',0,1,3
+	._type	475,'g','pry',0,1,3
+	._type	476,'g','prye',0,1,3
+	._type	477,'g','b7',0,1,3
+	._type	469,'S','',1
+	._type	469,'m','smd0',470,0
+	._type	469,'m','smd1',471,1
+	._type	469,'m','smd2',472,2
+	._type	469,'m','ckdir',473,3
+	._type	469,'m','stps',474,4
+	._type	469,'m','pry',475,5
+	._type	469,'m','prye',476,6
+	._type	469,'m','b7',477,7
+	._type	468,'U','',1
+	._type	468,'m','bit',469,0
+	._type	468,'m','byte',3,0
+	._var	'u0mr_addr','S',468,_u0mr_addr
+	._type	480,'g','smd0',0,1,3
+	._type	481,'g','smd1',0,1,3
+	._type	482,'g','smd2',0,1,3
+	._type	483,'g','ckdir',0,1,3
+	._type	484,'g','stps',0,1,3
+	._type	485,'g','pry',0,1,3
+	._type	486,'g','prye',0,1,3
+	._type	487,'g','b7',0,1,3
+	._type	479,'S','',1
+	._type	479,'m','smd0',480,0
+	._type	479,'m','smd1',481,1
+	._type	479,'m','smd2',482,2
+	._type	479,'m','ckdir',483,3
+	._type	479,'m','stps',484,4
+	._type	479,'m','pry',485,5
+	._type	479,'m','prye',486,6
+	._type	479,'m','b7',487,7
+	._type	478,'U','',1
+	._type	478,'m','bit',479,0
+	._type	478,'m','byte',3,0
+	._var	'u1mr_addr','S',478,_u1mr_addr
+	._type	490,'g','clk0',0,1,3
+	._type	491,'g','clk1',0,1,3
+	._type	492,'g','b2',0,1,3
+	._type	493,'g','txept',0,1,3
+	._type	494,'g','b4',0,1,3
+	._type	495,'g','nch',0,1,3
+	._type	496,'g','ckpol',0,1,3
+	._type	497,'g','uform',0,1,3
+	._type	489,'S','',1
+	._type	489,'m','clk0',490,0
+	._type	489,'m','clk1',491,1
+	._type	489,'m','b2',492,2
+	._type	489,'m','txept',493,3
+	._type	489,'m','b4',494,4
+	._type	489,'m','nch',495,5
+	._type	489,'m','ckpol',496,6
+	._type	489,'m','uform',497,7
+	._type	488,'U','',1
+	._type	488,'m','bit',489,0
+	._type	488,'m','byte',3,0
+	._var	'u0c0_addr','S',488,_u0c0_addr
+	._type	500,'g','clk0',0,1,3
+	._type	501,'g','clk1',0,1,3
+	._type	502,'g','b2',0,1,3
+	._type	503,'g','txept',0,1,3
+	._type	504,'g','b4',0,1,3
+	._type	505,'g','nch',0,1,3
+	._type	506,'g','ckpol',0,1,3
+	._type	507,'g','uform',0,1,3
+	._type	499,'S','',1
+	._type	499,'m','clk0',500,0
+	._type	499,'m','clk1',501,1
+	._type	499,'m','b2',502,2
+	._type	499,'m','txept',503,3
+	._type	499,'m','b4',504,4
+	._type	499,'m','nch',505,5
+	._type	499,'m','ckpol',506,6
+	._type	499,'m','uform',507,7
+	._type	498,'U','',1
+	._type	498,'m','bit',499,0
+	._type	498,'m','byte',3,0
+	._var	'u1c0_addr','S',498,_u1c0_addr
+	._type	510,'g','te',0,1,3
+	._type	511,'g','ti',0,1,3
+	._type	512,'g','re',0,1,3
+	._type	513,'g','ri',0,1,3
+	._type	514,'g','b4',0,1,3
+	._type	515,'g','b5',0,1,3
+	._type	516,'g','b6',0,1,3
+	._type	517,'g','b7',0,1,3
+	._type	509,'S','',1
+	._type	509,'m','te',510,0
+	._type	509,'m','ti',511,1
+	._type	509,'m','re',512,2
+	._type	509,'m','ri',513,3
+	._type	509,'m','b4',514,4
+	._type	509,'m','b5',515,5
+	._type	509,'m','b6',516,6
+	._type	509,'m','b7',517,7
+	._type	508,'U','',1
+	._type	508,'m','bit',509,0
+	._type	508,'m','byte',3,0
+	._var	'u0c1_addr','S',508,_u0c1_addr
+	._type	520,'g','te',0,1,3
+	._type	521,'g','ti',0,1,3
+	._type	522,'g','re',0,1,3
+	._type	523,'g','ri',0,1,3
+	._type	524,'g','b4',0,1,3
+	._type	525,'g','b5',0,1,3
+	._type	526,'g','b6',0,1,3
+	._type	527,'g','b7',0,1,3
+	._type	519,'S','',1
+	._type	519,'m','te',520,0
+	._type	519,'m','ti',521,1
+	._type	519,'m','re',522,2
+	._type	519,'m','ri',523,3
+	._type	519,'m','b4',524,4
+	._type	519,'m','b5',525,5
+	._type	519,'m','b6',526,6
+	._type	519,'m','b7',527,7
+	._type	518,'U','',1
+	._type	518,'m','bit',519,0
+	._type	518,'m','byte',3,0
+	._var	'u1c1_addr','S',518,_u1c1_addr
+	._type	530,'g','b0',0,1,3
+	._type	531,'g','b1',0,1,3
+	._type	532,'g','b2',0,1,3
+	._type	533,'g','b3',0,1,3
+	._type	534,'g','b4',0,1,3
+	._type	535,'g','b5',0,1,3
+	._type	536,'g','b6',0,1,3
+	._type	537,'g','b7',0,1,3
+	._type	538,'g','b8',0,1,3
+	._type	539,'g','b9',0,1,3
+	._type	540,'g','b10',0,1,3
+	._type	541,'g','b11',0,1,3
+	._type	542,'g','oer',0,1,3
+	._type	543,'g','fer',0,1,3
+	._type	544,'g','per',0,1,3
+	._type	545,'g','sum',0,1,3
+	._type	529,'S','',2
+	._type	529,'m','b0',530,0
+	._type	529,'m','b1',531,1
+	._type	529,'m','b2',532,2
+	._type	529,'m','b3',533,3
+	._type	529,'m','b4',534,4
+	._type	529,'m','b5',535,5
+	._type	529,'m','b6',536,6
+	._type	529,'m','b7',537,7
+	._type	529,'m','b8',538,8
+	._type	529,'m','b9',539,9
+	._type	529,'m','b10',540,10
+	._type	529,'m','b11',541,11
+	._type	529,'m','oer',542,12
+	._type	529,'m','fer',543,13
+	._type	529,'m','per',544,14
+	._type	529,'m','sum',545,15
+	._type	546,'S','',2
+	._type	546,'m','low',3,0
+	._type	546,'m','high',3,1
+	._type	528,'U','',2
+	._type	528,'m','bit',529,0
+	._type	528,'m','byte',546,0
+	._type	528,'m','word',5,0
+	._var	'u0rb_addr','S',528,_u0rb_addr
+	._type	549,'g','b0',0,1,3
+	._type	550,'g','b1',0,1,3
+	._type	551,'g','b2',0,1,3
+	._type	552,'g','b3',0,1,3
+	._type	553,'g','b4',0,1,3
+	._type	554,'g','b5',0,1,3
+	._type	555,'g','b6',0,1,3
+	._type	556,'g','b7',0,1,3
+	._type	557,'g','b8',0,1,3
+	._type	558,'g','b9',0,1,3
+	._type	559,'g','b10',0,1,3
+	._type	560,'g','b11',0,1,3
+	._type	561,'g','oer',0,1,3
+	._type	562,'g','fer',0,1,3
+	._type	563,'g','per',0,1,3
+	._type	564,'g','sum',0,1,3
+	._type	548,'S','',2
+	._type	548,'m','b0',549,0
+	._type	548,'m','b1',550,1
+	._type	548,'m','b2',551,2
+	._type	548,'m','b3',552,3
+	._type	548,'m','b4',553,4
+	._type	548,'m','b5',554,5
+	._type	548,'m','b6',555,6
+	._type	548,'m','b7',556,7
+	._type	548,'m','b8',557,8
+	._type	548,'m','b9',558,9
+	._type	548,'m','b10',559,10
+	._type	548,'m','b11',560,11
+	._type	548,'m','oer',561,12
+	._type	548,'m','fer',562,13
+	._type	548,'m','per',563,14
+	._type	548,'m','sum',564,15
+	._type	565,'S','',2
+	._type	565,'m','low',3,0
+	._type	565,'m','high',3,1
+	._type	547,'U','',2
+	._type	547,'m','bit',548,0
+	._type	547,'m','byte',565,0
+	._type	547,'m','word',5,0
+	._var	'u1rb_addr','S',547,_u1rb_addr
+	._type	568,'g','b0',0,1,3
+	._type	569,'g','b1',0,1,3
+	._type	570,'g','b2',0,1,3
+	._type	571,'g','b3',0,1,3
+	._type	572,'g','b4',0,1,3
+	._type	573,'g','b5',0,1,3
+	._type	574,'g','b6',0,1,3
+	._type	575,'g','b7',0,1,3
+	._type	576,'g','b8',0,1,3
+	._type	577,'g','b9',0,1,3
+	._type	578,'g','b10',0,1,3
+	._type	579,'g','b11',0,1,3
+	._type	580,'g','b12',0,1,3
+	._type	581,'g','b13',0,1,3
+	._type	582,'g','b14',0,1,3
+	._type	583,'g','b15',0,1,3
+	._type	584,'g','b16',0,1,3
+	._type	585,'g','b17',0,1,3
+	._type	586,'g','b18',0,1,3
+	._type	587,'g','b19',0,1,3
+	._type	567,'S','',3
+	._type	567,'m','b0',568,0
+	._type	567,'m','b1',569,1
+	._type	567,'m','b2',570,2
+	._type	567,'m','b3',571,3
+	._type	567,'m','b4',572,4
+	._type	567,'m','b5',573,5
+	._type	567,'m','b6',574,6
+	._type	567,'m','b7',575,7
+	._type	567,'m','b8',576,8
+	._type	567,'m','b9',577,9
+	._type	567,'m','b10',578,10
+	._type	567,'m','b11',579,11
+	._type	567,'m','b12',580,12
+	._type	567,'m','b13',581,13
+	._type	567,'m','b14',582,14
+	._type	567,'m','b15',583,15
+	._type	567,'m','b16',584,16
+	._type	567,'m','b17',585,17
+	._type	567,'m','b18',586,18
+	._type	567,'m','b19',587,19
+	._type	588,'S','',4
+	._type	588,'m','low',3,0
+	._type	588,'m','mid',3,1
+	._type	588,'m','high',3,2
+	._type	588,'m','nc',3,3
+	._type	566,'U','',4
+	._type	566,'m','bit',567,0
+	._type	566,'m','byte',588,0
+	._type	566,'m','dword',7,0
+	._var	'rmad0_addr','S',566,_rmad0_addr
+	._type	591,'g','b0',0,1,3
+	._type	592,'g','b1',0,1,3
+	._type	593,'g','b2',0,1,3
+	._type	594,'g','b3',0,1,3
+	._type	595,'g','b4',0,1,3
+	._type	596,'g','b5',0,1,3
+	._type	597,'g','b6',0,1,3
+	._type	598,'g','b7',0,1,3
+	._type	599,'g','b8',0,1,3
+	._type	600,'g','b9',0,1,3
+	._type	601,'g','b10',0,1,3
+	._type	602,'g','b11',0,1,3
+	._type	603,'g','b12',0,1,3
+	._type	604,'g','b13',0,1,3
+	._type	605,'g','b14',0,1,3
+	._type	606,'g','b15',0,1,3
+	._type	607,'g','b16',0,1,3
+	._type	608,'g','b17',0,1,3
+	._type	609,'g','b18',0,1,3
+	._type	610,'g','b19',0,1,3
+	._type	590,'S','',3
+	._type	590,'m','b0',591,0
+	._type	590,'m','b1',592,1
+	._type	590,'m','b2',593,2
+	._type	590,'m','b3',594,3
+	._type	590,'m','b4',595,4
+	._type	590,'m','b5',596,5
+	._type	590,'m','b6',597,6
+	._type	590,'m','b7',598,7
+	._type	590,'m','b8',599,8
+	._type	590,'m','b9',600,9
+	._type	590,'m','b10',601,10
+	._type	590,'m','b11',602,11
+	._type	590,'m','b12',603,12
+	._type	590,'m','b13',604,13
+	._type	590,'m','b14',605,14
+	._type	590,'m','b15',606,15
+	._type	590,'m','b16',607,16
+	._type	590,'m','b17',608,17
+	._type	590,'m','b18',609,18
+	._type	590,'m','b19',610,19
+	._type	611,'S','',4
+	._type	611,'m','low',3,0
+	._type	611,'m','mid',3,1
+	._type	611,'m','high',3,2
+	._type	611,'m','nc',3,3
+	._type	589,'U','',4
+	._type	589,'m','bit',590,0
+	._type	589,'m','byte',611,0
+	._type	589,'m','dword',7,0
+	._var	'rmad1_addr','S',589,_rmad1_addr
+	._type	614,'g','b0',0,1,3
+	._type	615,'g','b1',0,1,3
+	._type	616,'g','b2',0,1,3
+	._type	617,'g','b3',0,1,3
+	._type	618,'g','b4',0,1,3
+	._type	619,'g','b5',0,1,3
+	._type	620,'g','b6',0,1,3
+	._type	621,'g','b7',0,1,3
+	._type	622,'g','b8',0,1,3
+	._type	623,'g','b9',0,1,3
+	._type	624,'g','b10',0,1,3
+	._type	625,'g','b11',0,1,3
+	._type	626,'g','b12',0,1,3
+	._type	627,'g','b13',0,1,3
+	._type	628,'g','b14',0,1,3
+	._type	629,'g','b15',0,1,3
+	._type	613,'S','',2
+	._type	613,'m','b0',614,0
+	._type	613,'m','b1',615,1
+	._type	613,'m','b2',616,2
+	._type	613,'m','b3',617,3
+	._type	613,'m','b4',618,4
+	._type	613,'m','b5',619,5
+	._type	613,'m','b6',620,6
+	._type	613,'m','b7',621,7
+	._type	613,'m','b8',622,8
+	._type	613,'m','b9',623,9
+	._type	613,'m','b10',624,10
+	._type	613,'m','b11',625,11
+	._type	613,'m','b12',626,12
+	._type	613,'m','b13',627,13
+	._type	613,'m','b14',628,14
+	._type	613,'m','b15',629,15
+	._type	630,'S','',2
+	._type	630,'m','low',3,0
+	._type	630,'m','high',3,1
+	._type	612,'U','',2
+	._type	612,'m','bit',613,0
+	._type	612,'m','byte',630,0
+	._type	612,'m','word',18,0
+	._var	'tc_addr','S',612,_tc_addr
+	._type	633,'g','b0',0,1,3
+	._type	634,'g','b1',0,1,3
+	._type	635,'g','b2',0,1,3
+	._type	636,'g','b3',0,1,3
+	._type	637,'g','b4',0,1,3
+	._type	638,'g','b5',0,1,3
+	._type	639,'g','b6',0,1,3
+	._type	640,'g','b7',0,1,3
+	._type	641,'g','b8',0,1,3
+	._type	642,'g','b9',0,1,3
+	._type	643,'g','b10',0,1,3
+	._type	644,'g','b11',0,1,3
+	._type	645,'g','b12',0,1,3
+	._type	646,'g','b13',0,1,3
+	._type	647,'g','b14',0,1,3
+	._type	648,'g','b15',0,1,3
+	._type	632,'S','',2
+	._type	632,'m','b0',633,0
+	._type	632,'m','b1',634,1
+	._type	632,'m','b2',635,2
+	._type	632,'m','b3',636,3
+	._type	632,'m','b4',637,4
+	._type	632,'m','b5',638,5
+	._type	632,'m','b6',639,6
+	._type	632,'m','b7',640,7
+	._type	632,'m','b8',641,8
+	._type	632,'m','b9',642,9
+	._type	632,'m','b10',643,10
+	._type	632,'m','b11',644,11
+	._type	632,'m','b12',645,12
+	._type	632,'m','b13',646,13
+	._type	632,'m','b14',647,14
+	._type	632,'m','b15',648,15
+	._type	649,'S','',2
+	._type	649,'m','low',3,0
+	._type	649,'m','high',3,1
+	._type	631,'U','',2
+	._type	631,'m','bit',632,0
+	._type	631,'m','byte',649,0
+	._type	631,'m','word',18,0
+	._var	'tm0_addr','S',631,_tm0_addr
+	._type	652,'g','b0',0,1,3
+	._type	653,'g','b1',0,1,3
+	._type	654,'g','b2',0,1,3
+	._type	655,'g','b3',0,1,3
+	._type	656,'g','b4',0,1,3
+	._type	657,'g','b5',0,1,3
+	._type	658,'g','b6',0,1,3
+	._type	659,'g','b7',0,1,3
+	._type	660,'g','b8',0,1,3
+	._type	661,'g','b9',0,1,3
+	._type	662,'g','b10',0,1,3
+	._type	663,'g','b11',0,1,3
+	._type	664,'g','b12',0,1,3
+	._type	665,'g','b13',0,1,3
+	._type	666,'g','b14',0,1,3
+	._type	667,'g','b15',0,1,3
+	._type	651,'S','',2
+	._type	651,'m','b0',652,0
+	._type	651,'m','b1',653,1
+	._type	651,'m','b2',654,2
+	._type	651,'m','b3',655,3
+	._type	651,'m','b4',656,4
+	._type	651,'m','b5',657,5
+	._type	651,'m','b6',658,6
+	._type	651,'m','b7',659,7
+	._type	651,'m','b8',660,8
+	._type	651,'m','b9',661,9
+	._type	651,'m','b10',662,10
+	._type	651,'m','b11',663,11
+	._type	651,'m','b12',664,12
+	._type	651,'m','b13',665,13
+	._type	651,'m','b14',666,14
+	._type	651,'m','b15',667,15
+	._type	668,'S','',2
+	._type	668,'m','low',3,0
+	._type	668,'m','high',3,1
+	._type	650,'U','',2
+	._type	650,'m','bit',651,0
+	._type	650,'m','byte',668,0
+	._type	650,'m','word',18,0
+	._var	'tm1_addr','S',650,_tm1_addr
+	._type	671,'g','b0',0,1,3
+	._type	672,'g','b1',0,1,3
+	._type	673,'g','b2',0,1,3
+	._type	674,'g','b3',0,1,3
+	._type	675,'g','b4',0,1,3
+	._type	676,'g','b5',0,1,3
+	._type	677,'g','b6',0,1,3
+	._type	678,'g','b7',0,1,3
+	._type	679,'g','b8',0,1,3
+	._type	680,'g','b9',0,1,3
+	._type	681,'g','b10',0,1,3
+	._type	682,'g','b11',0,1,3
+	._type	683,'g','b12',0,1,3
+	._type	684,'g','b13',0,1,3
+	._type	685,'g','b14',0,1,3
+	._type	686,'g','b15',0,1,3
+	._type	670,'S','',2
+	._type	670,'m','b0',671,0
+	._type	670,'m','b1',672,1
+	._type	670,'m','b2',673,2
+	._type	670,'m','b3',674,3
+	._type	670,'m','b4',675,4
+	._type	670,'m','b5',676,5
+	._type	670,'m','b6',677,6
+	._type	670,'m','b7',678,7
+	._type	670,'m','b8',679,8
+	._type	670,'m','b9',680,9
+	._type	670,'m','b10',681,10
+	._type	670,'m','b11',682,11
+	._type	670,'m','b12',683,12
+	._type	670,'m','b13',684,13
+	._type	670,'m','b14',685,14
+	._type	670,'m','b15',686,15
+	._type	687,'S','',2
+	._type	687,'m','low',3,0
+	._type	687,'m','high',3,1
+	._type	669,'U','',2
+	._type	669,'m','bit',670,0
+	._type	669,'m','byte',687,0
+	._type	669,'m','word',18,0
+	._var	'u0tb_addr','S',669,_u0tb_addr
+	._type	690,'g','b0',0,1,3
+	._type	691,'g','b1',0,1,3
+	._type	692,'g','b2',0,1,3
+	._type	693,'g','b3',0,1,3
+	._type	694,'g','b4',0,1,3
+	._type	695,'g','b5',0,1,3
+	._type	696,'g','b6',0,1,3
+	._type	697,'g','b7',0,1,3
+	._type	698,'g','b8',0,1,3
+	._type	699,'g','b9',0,1,3
+	._type	700,'g','b10',0,1,3
+	._type	701,'g','b11',0,1,3
+	._type	702,'g','b12',0,1,3
+	._type	703,'g','b13',0,1,3
+	._type	704,'g','b14',0,1,3
+	._type	705,'g','b15',0,1,3
+	._type	689,'S','',2
+	._type	689,'m','b0',690,0
+	._type	689,'m','b1',691,1
+	._type	689,'m','b2',692,2
+	._type	689,'m','b3',693,3
+	._type	689,'m','b4',694,4
+	._type	689,'m','b5',695,5
+	._type	689,'m','b6',696,6
+	._type	689,'m','b7',697,7
+	._type	689,'m','b8',698,8
+	._type	689,'m','b9',699,9
+	._type	689,'m','b10',700,10
+	._type	689,'m','b11',701,11
+	._type	689,'m','b12',702,12
+	._type	689,'m','b13',703,13
+	._type	689,'m','b14',704,14
+	._type	689,'m','b15',705,15
+	._type	706,'S','',2
+	._type	706,'m','low',3,0
+	._type	706,'m','high',3,1
+	._type	688,'U','',2
+	._type	688,'m','bit',689,0
+	._type	688,'m','byte',706,0
+	._type	688,'m','word',18,0
+	._var	'u1tb_addr','S',688,_u1tb_addr
+	._type	709,'g','b0',0,1,3
+	._type	710,'g','b1',0,1,3
+	._type	711,'g','b2',0,1,3
+	._type	712,'g','b3',0,1,3
+	._type	713,'g','b4',0,1,3
+	._type	714,'g','b5',0,1,3
+	._type	715,'g','b6',0,1,3
+	._type	716,'g','b7',0,1,3
+	._type	717,'g','b8',0,1,3
+	._type	718,'g','b9',0,1,3
+	._type	719,'g','b10',0,1,3
+	._type	720,'g','b11',0,1,3
+	._type	721,'g','b12',0,1,3
+	._type	722,'g','b13',0,1,3
+	._type	723,'g','b14',0,1,3
+	._type	724,'g','b15',0,1,3
+	._type	708,'S','',2
+	._type	708,'m','b0',709,0
+	._type	708,'m','b1',710,1
+	._type	708,'m','b2',711,2
+	._type	708,'m','b3',712,3
+	._type	708,'m','b4',713,4
+	._type	708,'m','b5',714,5
+	._type	708,'m','b6',715,6
+	._type	708,'m','b7',716,7
+	._type	708,'m','b8',717,8
+	._type	708,'m','b9',718,9
+	._type	708,'m','b10',719,10
+	._type	708,'m','b11',720,11
+	._type	708,'m','b12',721,12
+	._type	708,'m','b13',722,13
+	._type	708,'m','b14',723,14
+	._type	708,'m','b15',724,15
+	._type	725,'S','',2
+	._type	725,'m','low',3,0
+	._type	725,'m','high',3,1
+	._type	707,'U','',2
+	._type	707,'m','bit',708,0
+	._type	707,'m','byte',725,0
+	._type	707,'m','word',18,0
+	._var	'ad_addr','S',707,_ad_addr
+	._type	726,'N',''
+	._type	726,'m','ONS_SNGH_INTERNAL_ERR',47
+	._type	726,'m','ONS_BAD_KEY_FRAGMENT',46
+	._type	726,'m','ONS_BUSY',45
+	._type	726,'m','ONS_BAD_MSG_ID',44
+	._type	726,'m','ONS_PKT_RCVD',43
+	._type	726,'m','ONS_DEVICE_NOT_CAPABLE',42
+	._type	726,'m','ONS_FAIL',41
+	._type	726,'m','ONS_WRITE_ERR',40
+	._type	726,'m','ONS_READ_ERR',39
+	._type	726,'m','ONS_NOT_JOINED',38
+	._type	726,'m','ONS_DEVICE_LIMIT',37
+	._type	726,'m','ONS_DID_FAILED',36
+	._type	726,'m','ONS_NID_FAILED',35
+	._type	726,'m','ONS_INCORRECT_ADDR',34
+	._type	726,'m','ONS_BAD_ADDR',33
+	._type	726,'m','ONS_BROADCAST_ADDR',32
+	._type	726,'m','ONS_MULTICAST_ADDR',31
+	._type	726,'m','ONS_UNICAST_ADDR',30
+	._type	726,'m','ONS_UNHANDLED_PKT',29
+	._type	726,'m','ONS_BAD_PKT',28
+	._type	726,'m','ONS_BAD_PKT_TYPE',27
+	._type	726,'m','ONS_BAD_ENCODING',26
+	._type	726,'m','ONS_BAD_RAW_DATA',25
+	._type	726,'m','ONS_BAD_RAW_PKT_LEN',24
+	._type	726,'m','ONS_TXN_DOES_NOT_EXIST',23
+	._type	726,'m','ONS_TXN_QUEUED',22
+	._type	726,'m','ONS_STREAM_FAIL',21
+	._type	726,'m','ONS_STREAM_END',20
+	._type	726,'m','ONS_BLOCK_FAIL',19
+	._type	726,'m','ONS_BLOCK_END',18
+	._type	726,'m','ONS_SINGLE_FAIL',17
+	._type	726,'m','ONS_SINGLE_END',16
+	._type	726,'m','ONS_INCORRECT_NONCE',15
+	._type	726,'m','ONS_RX_NACK',14
+	._type	726,'m','ONS_RX_STAY_AWAKE',13
+	._type	726,'m','ONS_CRC_FAIL',12
+	._type	726,'m','ONS_UNHANDLED_VER',11
+	._type	726,'m','ONS_INTERNAL_ERR',10
+	._type	726,'m','ONS_TIME_OUT',9
+	._type	726,'m','ONS_CANCELED',8
+	._type	726,'m','ONS_RSRC_FULL',7
+	._type	726,'m','ONS_END',6
+	._type	726,'m','ONS_MORE',5
+	._type	726,'m','ONS_INVALID_DATA',4
+	._type	726,'m','ONS_ALREADY_IN_PROGRESS',3
+	._type	726,'m','ONS_NOT_INIT',2
+	._type	726,'m','ONS_BAD_PARAM',1
+	._type	726,'m','ONS_SUCCESS',0
+	._type	727,'T','one_net_status_t',726
+	._type	728,'N',''
+	._type	728,'m','ON_STARTUP_FAIL',2
+	._type	728,'m','ON_STARTUP_IN_PROGRESS',1
+	._type	728,'m','ON_STARTUP_SUCCESS',0
+	._type	729,'T','one_net_startup_status_t',728
+	._type	730,'N',''
+	._type	730,'m','ON_MIN_APPLICATION_STATUS_CODE',9
+	._type	730,'m','ON_NUM_MESSAGE_STATUS_CODES',9
+	._type	730,'m','ON_MSG_INTERNAL_ERR',8
+	._type	730,'m','ON_MSG_IGNORE',7
+	._type	730,'m','ON_MSG_TIMEOUT',6
+	._type	730,'m','ON_MSG_RESPOND',5
+	._type	730,'m','ON_MSG_FAIL',4
+	._type	730,'m','ON_MSG_SUCCESS',3
+	._type	730,'m','ON_MSG_ABORT',2
+	._type	730,'m','ON_MSG_CONTINUE',1
+	._type	730,'m','ON_MSG_DEFAULT_BHVR',0
+	._type	731,'T','on_message_status_t',730
+	._type	732,'Z',5,269
+	._type	733,'T','on_raw_nid_t',732
+	._type	734,'Z',2,269
+	._type	735,'T','on_raw_did_t',734
+	._type	736,'Z',6,269
+	._type	737,'T','on_raw_sid_t',736
+	._type	738,'Z',6,269
+	._type	739,'T','on_encoded_nid_t',738
+	._type	740,'Z',2,269
+	._type	741,'T','on_encoded_did_t',740
+	._type	742,'Z',8,269
+	._type	743,'T','on_encoded_sid_t',742
+	._type	744,'Z',16,269
+	._type	745,'T','one_net_xtea_key_t',744
+	._type	746,'Z',4,269
+	._type	747,'T','one_net_xtea_key_fragment_t',746
+	._type	748,'N',''
+	._type	748,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1',192
+	._type	748,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0',128
+	._type	748,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32',64
+	._type	748,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE',0
+	._type	749,'T','one_net_single_blk_encryption_t',748
+	._type	750,'v'
+	._type	751,'O',269
+	._type	752,'O',745
+	._type	753,'x',750,3
+	._type	753,'m','ROUNDS',0,269
+	._type	753,'m','data',0,751
+	._type	753,'m','KEY',0,752
+	._var	'one_net_xtea_encipher','F',753
+	._type	754,'v'
+	._type	755,'O',269
+	._type	756,'O',745
+	._type	757,'x',754,3
+	._type	757,'m','ROUNDS',0,269
+	._type	757,'m','data',0,755
+	._type	757,'m','KEY',0,756
+	._var	'one_net_xtea_decipher','F',757
+	._type	758,'N','_ona_msg_type'
+	._type	758,'m','ONA_TEXT',64
+	._type	758,'m','ONA_POWER_2_WATTS',63
+	._type	758,'m','ONA_POWER_WATTS',62
+	._type	758,'m','ONA_POWER_200_MILLIWATTS',61
+	._type	758,'m','ONA_POWER_50_MILLIWATTS',60
+	._type	758,'m','ONA_POWER_20_MILLIWATTS',59
+	._type	758,'m','ONA_POWER_2_MILLIWATTS',58
+	._type	758,'m','ONA_POWER',57
+	._type	758,'m','ONA_PEAK_GAS_THERM_HRS',56
+	._type	758,'m','ONA_PEAK_GAS_THERM_MINS',55
+	._type	758,'m','ONA_PEAK_GAS_THERM_SECS',54
+	._type	758,'m','ONA_PEAK_GAS',53
+	._type	758,'m','ONA_AVER_GAS_THERM_HRS',52
+	._type	758,'m','ONA_AVER_GAS_THERM_MINS',51
+	._type	758,'m','ONA_AVER_GAS_THERM_SECS',50
+	._type	758,'m','ONA_AVER_GAS',49
+	._type	758,'m','ONA_ACCUM_GAS_THERM_HRS',48
+	._type	758,'m','ONA_ACCUM_GAS_THERM_MINS',47
+	._type	758,'m','ONA_ACCUM_GAS_THERM_SECS',46
+	._type	758,'m','ONA_ACCUM_GAS',45
+	._type	758,'m','ONA_GAS_THERM_HRS',44
+	._type	758,'m','ONA_GAS_THERM_MINS',43
+	._type	758,'m','ONA_GAS_THERM_SECS',42
+	._type	758,'m','ONA_GAS',41
+	._type	758,'m','ONA_PEAK_ENERGY_20000_WATT_SECONDS',40
+	._type	758,'m','ONA_PEAK_ENERGY_2000_WATT_SECONDS',39
+	._type	758,'m','ONA_PEAK_ENERGY_200_WATT_SECONDS',38
+	._type	758,'m','ONA_PEAK_ENERGY_20_WATT_SECONDS',37
+	._type	758,'m','ONA_PEAK_ENERGY_2_WATT_SECONDS',36
+	._type	758,'m','ONA_PEAK_ENERGY',35
+	._type	758,'m','ONA_ACCUM_ENERGY_20000_WATT_SECONDS',34
+	._type	758,'m','ONA_ACCUM_ENERGY_2000_WATT_SECONDS',33
+	._type	758,'m','ONA_ACCUM_ENERGY_200_WATT_SECONDS',32
+	._type	758,'m','ONA_ACCUM_ENERGY_20_WATT_SECONDS',31
+	._type	758,'m','ONA_ACCUM_ENERGY_2_WATT_SECONDS',30
+	._type	758,'m','ONA_ACCUM_ENERGY',29
+	._type	758,'m','ONA_ENERGY_20000_WATT_SECONDS',28
+	._type	758,'m','ONA_ENERGY_2000_WATT_SECONDS',27
+	._type	758,'m','ONA_ENERGY_200_WATT_SECONDS',26
+	._type	758,'m','ONA_ENERGY_20_WATT_SECONDS',25
+	._type	758,'m','ONA_ENERGY_2_WATT_SECONDS',24
+	._type	758,'m','ONA_ENERGY',23
+	._type	758,'m','ONA_VOLTAGE_SIMPLE',22
+	._type	758,'m','ONA_VOLTAGE_100THS_VOLTS',21
+	._type	758,'m','ONA_VOLTAGE_10THS_VOLTS',20
+	._type	758,'m','ONA_VOLTAGE_VOLTS',19
+	._type	758,'m','ONA_VOLTAGE',18
+	._type	758,'m','ONA_TIME',17
+	._type	758,'m','ONA_DATE',16
+	._type	758,'m','ONA_SIMPLE_TEXT',15
+	._type	758,'m','ONA_COLOR',14
+	._type	758,'m','ONA_UNIT_TYPE',13
+	._type	758,'m','ONA_UNIT_TYPE_COUNT',12
+	._type	758,'m','ONA_UNUSED0',11
+	._type	758,'m','ONA_SEAL',10
+	._type	758,'m','ONA_OPENING',9
+	._type	758,'m','ONA_STATUS_INTERVAL',8
+	._type	758,'m','ONA_DIRECTION',7
+	._type	758,'m','ONA_SPEED_M_S',6
+	._type	758,'m','ONA_RAINFALL',5
+	._type	758,'m','ONA_PRESSURE',4
+	._type	758,'m','ONA_HUMIDITY',3
+	._type	758,'m','ONA_TEMPERATURE',2
+	._type	758,'m','ONA_PERCENT',1
+	._type	758,'m','ONA_SWITCH',0
+	._type	759,'T','ona_msg_type_t',758
+	._type	761,'O',269
+	._type	762,'O',269
+	._type	763,'O',269
+	._type	764,'O',269
+	._type	765,'O',741
+	._type	766,'O',741
+	._type	767,'O',741
+	._type	768,'O',739
+	._type	769,'O',269
+	._type	760,'S','',22
+	._type	760,'m','packet_header',761,0
+	._type	760,'m','enc_pid',762,2
+	._type	760,'m','raw_pid',269,4
+	._type	760,'m','enc_msg_id',763,5
+	._type	760,'m','enc_msg_crc',764,7
+	._type	760,'m','msg_id',269,9
+	._type	760,'m','msg_crc',269,10
+	._type	760,'m','enc_src_did',765,11
+	._type	760,'m','enc_dst_did',766,13
+	._type	760,'m','enc_repeater_did',767,15
+	._type	760,'m','enc_nid',768,17
+	._type	760,'m','payload',769,19
+	._type	760,'m','payload_len',269,21
+	._type	770,'T','on_pkt_t',760
+	._type	771,'x',284,1
+	._type	771,'m','raw_pid',0,269
+	._var	'get_encoded_payload_len','F',771
+	._type	772,'x',284,1
+	._type	772,'m','raw_pid',0,269
+	._var	'get_raw_payload_len','F',772
+	._type	773,'x',284,1
+	._type	773,'m','raw_pid',0,269
+	._var	'get_num_payload_blocks','F',773
+	._type	774,'x',269,2
+	._type	774,'m','raw_pid',0,269
+	._type	774,'m','include_header',0,270
+	._var	'get_encoded_packet_len','F',774
+	._type	775,'x',270,1
+	._type	775,'m','raw_pid',0,269
+	._var	'packet_is_stay_awake','F',775
+	._type	776,'O',269
+	._type	777,'x',270,2
+	._type	777,'m','raw_pid',0,776
+	._type	777,'m','is_ack',0,270
+	._var	'set_ack_or_nack_pid','F',777
+	._type	778,'O',269
+	._type	779,'x',270,2
+	._type	779,'m','raw_pid',0,778
+	._type	779,'m','stay_awake',0,270
+	._var	'set_stay_awake_pid','F',779
+	._type	780,'x',270,1
+	._type	780,'m','raw_pid',0,269
+	._var	'packet_is_data','F',780
+	._type	781,'x',270,1
+	._type	781,'m','raw_pid',0,269
+	._var	'packet_is_ack','F',781
+	._type	782,'x',270,1
+	._type	782,'m','raw_pid',0,269
+	._var	'packet_is_nack','F',782
+	._type	783,'x',269,3
+	._type	783,'m','raw_single_pid',0,269
+	._type	783,'m','isACK',0,270
+	._type	783,'m','stay_awake',0,270
+	._var	'get_single_response_pid','F',783
+	._type	784,'N',''
+	._type	784,'m','ON_FEATURE_MSG',2
+	._type	784,'m','ON_ADMIN_MSG',1
+	._type	784,'m','ON_APP_MSG',0
+	._type	785,'T','on_msg_type_t',784
+	._type	786,'N',''
+	._type	786,'m','ON_RESPONSE',5
+	._type	786,'m','ON_STREAM',4
+	._type	786,'m','ON_BLOCK',3
+	._type	786,'m','ON_SINGLE',2
+	._type	786,'m','ON_INVITE',1
+	._type	786,'m','ON_NO_TXN',0
+	._type	787,'T','on_data_t',786
+	._type	788,'N',''
+	._type	788,'m','ONE_NET_SEND_SINGLE_PRIORITY',2
+	._type	788,'m','ONE_NET_HIGH_PRIORITY',2
+	._type	788,'m','ONE_NET_LOW_PRIORITY',1
+	._type	788,'m','ONE_NET_NO_PRIORITY',0
+	._type	789,'T','on_priority_t',788
+	._var	'NO_DESTINATION','E',741
+	._type	790,'T','ona_msg_class_t',285
+	._type	791,'N',''
+	._type	791,'m','ON_RM_DEV',34
+	._type	791,'m','ON_ADD_DEV',33
+	._type	791,'m','ON_CHANGE_SETTINGS_RESP',18
+	._type	791,'m','ON_CHANGE_SETTINGS',16
+	._type	791,'m','ON_KEEP_ALIVE_RESP',15
+	._type	791,'m','ON_KEEP_ALIVE_QUERY',14
+	._type	791,'m','ON_CHANGE_KEEP_ALIVE',11
+	._type	791,'m','ON_REMOVE_DEV_RESP',5
+	._type	791,'m','ON_ADD_DEV_RESP',4
+	._type	791,'m','ON_NEW_KEY_FRAGMENT',2
+	._type	791,'m','ON_FEATURES_RESP',1
+	._type	791,'m','ON_FEATURES_QUERY',0
+	._type	792,'T','on_admin_msg_t',791
+	._type	794,'O',269
+	._type	793,'S','',10
+	._type	793,'m','raw_pid',269,0
+	._type	793,'m','priority',269,1
+	._type	793,'m','dst_did',741,2
+	._type	793,'m','msg_type',269,4
+	._type	793,'m','payload',794,5
+	._type	793,'m','payload_size',269,7
+	._type	793,'m','src_did',741,8
+	._type	795,'T','on_single_data_queue_t',793
+	._type	796,'S','',3
+	._type	796,'m','raw_pid',269,0
+	._type	796,'m','msg_id',269,1
+	._type	796,'m','msg_type',269,2
+	._type	797,'T','on_msg_hdr_t',796
+	._type	798,'S','',3
+	._type	798,'m','did',741,0
+	._type	798,'m','unit',269,2
+	._type	799,'T','on_did_unit_t',798
+	._type	801,'Z',4,799
+	._type	800,'S','',14
+	._type	800,'m','recipient_list',801,0
+	._type	800,'m','num_recipients',269,12
+	._type	800,'m','recipient_index',284,13
+	._type	802,'T','on_recipient_list_t',800
+	._var	'single_data_queue_size','E',269
+	._var	'recipient_send_list','E',802
+	._type	803,'O',802
+	._var	'recipient_send_list_ptr','E',803
+	._type	804,'v'
+	._type	805,'v'
+	._type	806,'x',804,1
+	._type	806,'m','',0,805
+	._var	'empty_queue','F',806
+	._type	807,'v'
+	._type	808,'x',270,1
+	._type	808,'m','',0,807
+	._var	'pop_queue_element','F',808
+	._type	809,'v'
+	._type	810,'x',16,1
+	._type	810,'m','',0,809
+	._var	'single_data_queue_ready_to_send','F',810
+	._type	811,'O',795
+	._type	812,'O',269
+	._type	813,'O',741
+	._type	814,'O',741
+	._type	815,'x',811,7
+	._type	815,'m','pid',0,269
+	._type	815,'m','msg_type',0,269
+	._type	815,'m','raw_data',0,812
+	._type	815,'m','data_len',0,269
+	._type	815,'m','priority',0,269
+	._type	815,'m','src_did',0,813
+	._type	815,'m','enc_dst',0,814
+	._var	'push_queue_element','F',815
+	._type	816,'O',795
+	._type	817,'x',270,1
+	._type	817,'m','element',0,816
+	._var	'must_send_to_master','F',817
+	._type	818,'v'
+	._type	819,'O',802
+	._type	820,'x',818,1
+	._type	820,'m','rec_list',0,819
+	._var	'clear_recipient_list','F',820
+	._type	821,'O',799
+	._type	822,'O',799
+	._type	823,'x',270,2
+	._type	823,'m','dev1',0,821
+	._type	823,'m','dev2',0,822
+	._var	'did_and_unit_equal','F',823
+	._type	824,'O',802
+	._type	825,'O',799
+	._type	826,'x',270,2
+	._type	826,'m','rec_list',0,824
+	._type	826,'m','recipient_to_remove',0,825
+	._var	'remove_recipient_from_recipient_list','F',826
+	._type	827,'O',802
+	._type	828,'O',799
+	._type	829,'x',270,2
+	._type	829,'m','rec_list',0,827
+	._type	829,'m','recipient_to_add',0,828
+	._var	'add_recipient_to_recipient_list','F',829
+	._type	830,'O',795
+	._type	831,'O',795
+	._type	832,'O',802
+	._type	833,'x',830,2
+	._type	833,'m','msg',0,831
+	._type	833,'m','recipient_list',0,832
+	._var	'load_next_recipient','F',833
+	._type	834,'O',741
+	._type	835,'x',270,1
+	._type	835,'m','did',0,834
+	._var	'device_should_stay_awake','F',835
+	._type	836,'N',''
+	._type	836,'m','ONE_NET_DATA_RATE_LIMIT',6
+	._type	836,'m','ONE_NET_DATA_RATE_230_4',5
+	._type	836,'m','ONE_NET_DATA_RATE_192_0',4
+	._type	836,'m','ONE_NET_DATA_RATE_153_6',3
+	._type	836,'m','ONE_NET_DATA_RATE_115_2',2
+	._type	836,'m','ONE_NET_DATA_RATE_76_8',1
+	._type	836,'m','ONE_NET_DATA_RATE_38_4',0
+	._type	837,'T','on_data_rate_t',836
+	._type	838,'N',''
+	._type	838,'m','ONE_NET_DATA_RATE_230_4_MASK',32
+	._type	838,'m','ONE_NET_DATA_RATE_192_0_MASK',16
+	._type	838,'m','ONE_NET_DATA_RATE_153_6_MASK',8
+	._type	838,'m','ONE_NET_DATA_RATE_115_2_MASK',4
+	._type	838,'m','ONE_NET_DATA_RATE_76_8_MASK',2
+	._type	838,'m','ONE_NET_DATA_RATE_38_4_MASK',1
+	._type	839,'T','on_data_rate_mask_t',838
+	._type	840,'S','',4
+	._type	840,'m','feature_flags',269,0
+	._type	840,'m','data_rates',269,1
+	._type	840,'m','queue_ack_nack_values',269,2
+	._type	840,'m','peers_hops',269,3
+	._type	841,'T','on_features_t',840
+	._var	'THIS_DEVICE_FEATURES','E',841
+	._var	'FEATURES_UNKNOWN','E',841
+	._type	842,'x',270,1
+	._type	842,'m','features',0,841
+	._var	'features_known','F',842
+	._type	843,'x',269,1
+	._type	843,'m','features',0,841
+	._var	'features_max_hops','F',843
+	._type	844,'x',269,1
+	._type	844,'m','features',0,841
+	._var	'features_max_peers','F',844
+	._type	845,'x',270,2
+	._type	845,'m','features',0,841
+	._type	845,'m','data_rate',0,269
+	._var	'features_data_rate_capable','F',845
+	._type	846,'x',270,1
+	._type	846,'m','features',0,841
+	._var	'features_peer_capable','F',846
+	._type	847,'x',270,1
+	._type	847,'m','features',0,841
+	._var	'features_mh_capable','F',847
+	._type	848,'x',270,1
+	._type	848,'m','features',0,841
+	._var	'features_mh_repeat_capable','F',848
+	._type	849,'x',270,1
+	._type	849,'m','features',0,841
+	._var	'features_block_capable','F',849
+	._type	850,'x',270,1
+	._type	850,'m','features',0,841
+	._var	'features_stream_capable','F',850
+	._type	851,'x',270,1
+	._type	851,'m','features',0,841
+	._var	'features_device_sleeps','F',851
+	._type	852,'x',269,1
+	._type	852,'m','features',0,841
+	._var	'features_ack_nack_level','F',852
+	._type	853,'N',''
+	._type	853,'m','ON_NACK_RSN_MAX_NACK_RSN_VALUE',43
+	._type	853,'m','ON_NACK_RSN_MAX_USR_NON_FATAL',63
+	._type	853,'m','ON_NACK_RSN_MIN_USR_NON_FATAL',60
+	._type	853,'m','ON_NACK_RSN_MAX_USR_GENERAL',59
+	._type	853,'m','ON_NACK_RSN_MIN_USR_GENERAL',52
+	._type	853,'m','ON_NACK_RSN_MAX_FATAL',43
+	._type	853,'m','ON_NACK_RSN_MAX_USR_FATAL',43
+	._type	853,'m','ON_NACK_RSN_MIN_USR_FATAL',40
+	._type	853,'m','ON_NACK_RSN_MAX_ONE_NET_FATAL',39
+	._type	853,'m','ON_NACK_RSN_FATAL_ERR',39
+	._type	853,'m','ON_NACK_RSN_NO_RESPONSE_TXN',33
+	._type	853,'m','ON_NACK_RSN_BUSY',32
+	._type	853,'m','ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED',31
+	._type	853,'m','ON_NACK_RSN_TRANSACTION_ERR',30
+	._type	853,'m','ON_NACK_RSN_BAD_DATA_ERR',29
+	._type	853,'m','ON_NACK_RSN_MISMATCH_UNIT_ERR',28
+	._type	853,'m','ON_NACK_RSN_INVALID_UNIT_ERR',27
+	._type	853,'m','ON_NACK_RSN_UNIT_FUNCTION_ERR',26
+	._type	853,'m','ON_NACK_RSN_DEVICE_FUNCTION_ERR',25
+	._type	853,'m','ON_NACK_RSN_INVALID_LENGTH_ERR',24
+	._type	853,'m','ON_NACK_RSN_MIN_ONE_NET_FATAL',24
+	._type	853,'m','ON_NACK_RSN_MIN_FATAL',24
+	._type	853,'m','ON_NACK_RSN_GENERAL_ERR',23
+	._type	853,'m','ON_NACK_RSN_UNSET',22
+	._type	853,'m','ON_NACK_RSN_BAD_KEY',20
+	._type	853,'m','ON_NACK_RSN_BAD_CRC',19
+	._type	853,'m','ON_NACK_RSN_FEATURES',18
+	._type	853,'m','ON_NACK_RSN_NEED_FEATURES',17
+	._type	853,'m','ON_NACK_RSN_INVALID_MSG_ID',16
+	._type	853,'m','ON_NACK_RSN_NO_RESPONSE',15
+	._type	853,'m','ON_NACK_RSN_INVALID_DATA_RATE',14
+	._type	853,'m','ON_NACK_RSN_ROUTE_ERROR',13
+	._type	853,'m','ON_NACK_RSN_OUT_OF_RANGE',12
+	._type	853,'m','ON_NACK_RSN_INVALID_PEER',11
+	._type	853,'m','ON_NACK_RSN_INVALID_HOPS',10
+	._type	853,'m','ON_NACK_RSN_INVALID_MAX_HOPS',9
+	._type	853,'m','ON_NACK_RSN_BAD_ADDRESS_ERR',8
+	._type	853,'m','ON_NACK_RSN_BAD_SIZE_ERROR',7
+	._type	853,'m','ON_NACK_RSN_BAD_POSITION_ERROR',6
+	._type	853,'m','ON_NACK_RSN_BUSY_TRY_AGAIN_TIME',5
+	._type	853,'m','ON_NACK_RSN_BUSY_TRY_AGAIN',4
+	._type	853,'m','ON_NACK_RSN_INTERNAL_ERR',3
+	._type	853,'m','ON_NACK_RSN_RSRC_UNAVAIL_ERR',2
+	._type	853,'m','ON_NACK_RSN_NONCE_ERR',1
+	._type	853,'m','ON_NACK_RSN_NO_ERROR',0
+	._type	854,'T','on_nack_rsn_t',853
+	._type	855,'N',''
+	._type	855,'m','ON_ACK_MAX_APPLICATION_HANDLE',15
+	._type	855,'m','ON_ACK_MIN_APPLICATION_HANDLE',12
+	._type	855,'m','ON_ACK_STATUS',11
+	._type	855,'m','ON_ACK_KEY_FRAGMENT',10
+	._type	855,'m','ON_ACK_ADMIN_MSG',9
+	._type	855,'m','ON_ACK_PAUSE_TIME_MS',8
+	._type	855,'m','ON_ACK_SPEED_UP_TIME_MS',7
+	._type	855,'m','ON_ACK_SLOW_DOWN_TIME_MS',6
+	._type	855,'m','ON_ACK_TIMEOUT_MS',5
+	._type	855,'m','ON_ACK_TIME_MS',4
+	._type	855,'m','ON_ACK_VALUE',3
+	._type	855,'m','ON_ACK_DATA',2
+	._type	855,'m','ON_ACK_FEATURES',1
+	._type	855,'m','ON_ACK',0
+	._type	856,'T','on_ack_handle_t',855
+	._type	857,'T','on_ack_nack_handle_t',856
+	._type	858,'T','on_nack_handle_t',856
+	._type	859,'S','',5
+	._type	859,'m','uint8',269,0
+	._type	859,'m','uint32',273,1
+	._type	860,'T','ack_value_t',859
+	._type	862,'Z',5,269
+	._type	863,'Z',5,269
+	._type	864,'Z',5,269
+	._type	865,'Z',4,269
+	._type	861,'U','',5
+	._type	861,'m','status_resp',862,0
+	._type	861,'m','admin_msg',863,0
+	._type	861,'m','ack_payload',864,0
+	._type	861,'m','ack_value',860,0
+	._type	861,'m','ack_time_ms',289,0
+	._type	861,'m','nack_payload',865,0
+	._type	861,'m','nack_value',273,0
+	._type	861,'m','nack_time_ms',289,0
+	._type	861,'m','key_frag',747,0
+	._type	861,'m','features',841,0
+	._type	866,'T','ack_nack_payload_t',861
+	._type	868,'O',866
+	._type	867,'S','',4
+	._type	867,'m','nack_reason',854,0
+	._type	867,'m','handle',857,1
+	._type	867,'m','payload',868,2
+	._type	869,'T','on_ack_nack_t',867
+	._type	870,'x',270,1
+	._type	870,'m','nack_reason',0,854
+	._var	'nack_reason_is_fatal','F',870
+	._type	871,'v'
+	._type	872,'O',735
+	._type	873,'x',871,2
+	._type	873,'m','RAW_DID',0,872
+	._type	873,'m','status',0,727
+	._var	'one_net_client_invite_result','F',873
+	._type	874,'v'
+	._type	875,'O',735
+	._type	876,'x',874,2
+	._type	876,'m','raw_did',0,875
+	._type	876,'m','this_device_removed',0,270
+	._var	'one_net_client_client_removed','F',876
+	._type	877,'v'
+	._type	878,'O',735
+	._type	879,'x',877,1
+	._type	879,'m','raw_did',0,878
+	._var	'one_net_client_client_added','F',879
+	._type	880,'O',269
+	._type	881,'O',797
+	._type	882,'O',735
+	._type	883,'O',735
+	._type	884,'O',869
+	._type	885,'x',731,5
+	._type	885,'m','raw_pld',0,880
+	._type	885,'m','msg_hdr',0,881
+	._type	885,'m','src_did',0,882
+	._type	885,'m','repeater_did',0,883
+	._type	885,'m','ack_nack',0,884
+	._var	'one_net_client_handle_single_pkt','F',885
+	._type	886,'O',269
+	._type	887,'O',797
+	._type	888,'O',797
+	._type	889,'O',869
+	._type	890,'O',735
+	._type	891,'O',735
+	._type	892,'O',269
+	._type	893,'x',731,7
+	._type	893,'m','raw_pld',0,886
+	._type	893,'m','msg_hdr',0,887
+	._type	893,'m','resp_msg_hdr',0,888
+	._type	893,'m','resp_ack_nack',0,889
+	._type	893,'m','src_did',0,890
+	._type	893,'m','repeater_did',0,891
+	._type	893,'m','retries',0,892
+	._var	'one_net_client_handle_ack_nack_response','F',893
+	._type	894,'O',745
+	._type	895,'v'
+	._type	896,'x',894,1
+	._type	896,'m','',0,895
+	._var	'one_net_client_get_invite_key','F',896
+	._type	897,'v'
+	._type	898,'x',727,1
+	._type	898,'m','',0,897
+	._var	'one_net_client_save_settings','F',898
+	._type	899,'v'
+	._type	900,'x',727,1
+	._type	900,'m','',0,899
+	._var	'one_net_client_load_settings','F',900
+	._type	901,'v'
+	._type	902,'x',727,1
+	._type	902,'m','',0,901
+	._var	'one_net_client_erase_settings','F',902
+	._type	903,'O',745
+	._type	904,'x',727,1
+	._type	904,'m','invite_key',0,903
+	._var	'one_net_client_reset_client','F',904
+	._type	905,'v'
+	._type	906,'O',269
+	._type	907,'O',735
+	._type	908,'O',869
+	._type	909,'x',905,6
+	._type	909,'m','status',0,731
+	._type	909,'m','retry_count',0,269
+	._type	909,'m','msg_hdr',0,797
+	._type	909,'m','data',0,906
+	._type	909,'m','dst',0,907
+	._type	909,'m','ack_nack',0,908
+	._var	'one_net_client_single_txn_status','F',909
+	._var	'current_channel','E',269
+	._type	910,'v'
+	._type	911,'v'
+	._type	912,'x',910,1
+	._type	912,'m','',0,911
+	._var	'tal_init_transceiver','F',912
+	._type	913,'v'
+	._type	914,'v'
+	._type	915,'x',913,1
+	._type	915,'m','',0,914
+	._var	'tal_enable_transceiver','F',915
+	._type	916,'v'
+	._type	917,'v'
+	._type	918,'x',916,1
+	._type	918,'m','',0,917
+	._var	'tal_disable_transceiver','F',918
+	._type	919,'v'
+	._type	920,'x',270,1
+	._type	920,'m','',0,919
+	._var	'tal_channel_is_clear','F',920
+	._type	921,'O',269
+	._type	922,'x',269,2
+	._type	922,'m','data',0,921
+	._type	922,'m','len',0,269
+	._var	'tal_write_packet','F',922
+	._type	923,'v'
+	._type	924,'x',270,1
+	._type	924,'m','',0,923
+	._var	'tal_write_packet_done','F',924
+	._type	925,'O',269
+	._type	926,'x',269,2
+	._type	926,'m','data',0,925
+	._type	926,'m','len',0,269
+	._var	'tal_read_bytes','F',926
+	._type	927,'x',727,1
+	._type	927,'m','duration',0,289
+	._var	'tal_look_for_packet','F',927
+	._type	928,'x',727,1
+	._type	928,'m','data_rate',0,269
+	._var	'tal_set_data_rate','F',928
+	._type	929,'x',727,1
+	._type	929,'m','channel',0,269
+	._var	'tal_set_channel','F',929
+	._type	930,'S','',33
+	._type	930,'m','crc',269,0
+	._type	930,'m','version',285,1
+	._type	930,'m','sid',743,3
+	._type	930,'m','channel',269,11
+	._type	930,'m','features',841,12
+	._type	930,'m','data_rate',269,16
+	._type	930,'m','current_key',745,17
+	._type	931,'T','on_base_param_t',930
+	._type	932,'S','',15
+	._type	932,'m','did',741,0
+	._type	932,'m','expected_nonce',269,2
+	._type	932,'m','last_nonce',269,3
+	._type	932,'m','send_nonce',269,4
+	._type	932,'m','features',841,5
+	._type	932,'m','data_rate',269,9
+	._type	932,'m','msg_id',269,10
+	._type	932,'m','verify_time',289,11
+	._type	933,'T','on_sending_device_t',932
+	._type	934,'N','_ona_unit_type'
+	._type	934,'m','ONA_ONE_NET_INSTEON_BRIDGE',13
+	._type	934,'m','ONA_ONE_NET_X10_BRIDGE',12
+	._type	934,'m','ONA_MOTION_SENSOR',11
+	._type	934,'m','ONA_DOOR_WINDOW_SENSOR',10
+	._type	934,'m','ONA_HUMIDITY_SENSOR',9
+	._type	934,'m','ONA_TEMPERATURE_SENSOR',8
+	._type	934,'m','ONA_SPEAKER',7
+	._type	934,'m','ONA_OUTLET',6
+	._type	934,'m','ONA_DIMMING_LIGHT',5
+	._type	934,'m','ONA_SIMPLE_LIGHT',4
+	._type	934,'m','ONA_DISPLAY_DIMMER_SWITCH',3
+	._type	934,'m','ONA_DISPLAY_SWITCH',2
+	._type	934,'m','ONA_DIMMER_SWITCH',1
+	._type	934,'m','ONA_SIMPLE_SWITCH',0
+	._type	935,'T','ona_unit_type_t',934
+	._type	936,'S','',2
+	._type	936,'m','type',935,0
+	._type	936,'m','count',269,1
+	._type	937,'T','ona_unit_type_count_t',936
+	._type	938,'N',''
+	._type	938,'m','ON_DISABLE_PIN',2
+	._type	938,'m','ON_OUTPUT_PIN',1
+	._type	938,'m','ON_INPUT_PIN',0
+	._type	939,'T','on_pin_state_t',938
+	._type	940,'O',269
+	._type	941,'O',790
+	._type	942,'O',759
+	._type	943,'x',727,3
+	._type	943,'m','MSG_DATA',0,940
+	._type	943,'m','msg_class',0,941
+	._type	943,'m','msg_type',0,942
+	._var	'ona_parse_msg_class_and_type','F',943
+	._type	944,'O',741
+	._type	945,'O',741
+	._type	946,'x',270,2
+	._type	946,'m','LHS',0,944
+	._type	946,'m','RHS',0,945
+	._var	'on_encoded_did_equal','F',946
+	._type	947,'O',739
+	._type	948,'O',739
+	._type	949,'x',270,2
+	._type	949,'m','LHS',0,947
+	._type	949,'m','RHS',0,948
+	._var	'on_encoded_nid_equal','F',949
+	._type	950,'O',739
+	._type	951,'x',270,1
+	._type	951,'m','nid',0,950
+	._var	'is_my_nid','F',951
+	._type	952,'O',741
+	._type	953,'x',270,1
+	._type	953,'m','did',0,952
+	._var	'is_master_did','F',953
+	._type	954,'O',741
+	._type	955,'x',270,1
+	._type	955,'m','did',0,954
+	._var	'is_my_did','F',955
+	._type	956,'O',741
+	._type	957,'x',270,1
+	._type	957,'m','did',0,956
+	._var	'is_broadcast_did','F',957
+	._type	958,'O',269
+	._type	959,'O',269
+	._type	960,'O',269
+	._type	961,'O',790
+	._type	962,'O',285
+	._type	963,'O',285
+	._type	964,'x',270,6
+	._type	964,'m','payload',0,958
+	._type	964,'m','src_unit',0,959
+	._type	964,'m','dst_unit',0,960
+	._type	964,'m','msg_class',0,961
+	._type	964,'m','msg_type',0,962
+	._type	964,'m','msg_data',0,963
+	._var	'on_parse_app_pld','F',964
+	._type	965,'v'
+	._type	966,'x',965,2
+	._type	966,'m','duration',0,285
+	._type	966,'m','num_times',0,269
+	._var	'rx_led_blink','F',966
+	._type	967,'v'
+	._type	968,'x',967,2
+	._type	968,'m','duration',0,285
+	._type	968,'m','num_times',0,269
+	._var	'tx_led_blink','F',968
+	._type	969,'v'
+	._type	970,'x',969,2
+	._type	970,'m','duration',0,285
+	._type	970,'m','num_times',0,269
+	._var	'tx_and_rx_led_blink','F',970
+	._type	971,'v'
+	._type	972,'x',971,1
+	._type	972,'m','startup_status',0,729
+	._var	'startup_status_led_blink','F',972
+	._type	973,'v'
+	._type	974,'v'
+	._type	975,'x',973,1
+	._type	975,'m','',0,974
+	._var	'initialize_leds','F',975
+	._type	976,'v'
+	._type	977,'x',976,1
+	._type	977,'m','on',0,270
+	._var	'set_tx_led','F',977
+	._type	978,'v'
+	._type	979,'v'
+	._type	980,'x',978,1
+	._type	980,'m','',0,979
+	._var	'toggle_tx_led','F',980
+	._type	981,'v'
+	._type	982,'x',981,1
+	._type	982,'m','on',0,270
+	._var	'set_rx_led','F',982
+	._type	983,'v'
+	._type	984,'v'
+	._type	985,'x',983,1
+	._type	985,'m','',0,984
+	._var	'toggle_rx_led','F',985
+	._type	986,'v'
+	._type	987,'v'
+	._type	988,'x',986,1
+	._type	988,'m','',0,987
+	._var	'tal_init_ports','F',988
+	._type	989,'v'
+	._type	990,'v'
+	._type	991,'x',989,1
+	._type	991,'m','',0,990
+	._var	'init_tick','F',991
+	._type	992,'x',289,1
+	._type	992,'m','ms',0,273
+	._var	'ms_to_tick','F',992
+	._type	993,'x',273,1
+	._type	993,'m','num_ticks',0,289
+	._var	'tick_to_ms','F',993
+	._type	994,'v'
+	._type	995,'x',289,1
+	._type	995,'m','',0,994
+	._var	'get_tick_count','F',995
+	._type	996,'x',289,2
+	._type	996,'m','then',0,289
+	._type	996,'m','now',0,289
+	._var	'get_tick_diff','F',996
+	._type	997,'v'
+	._type	998,'x',997,1
+	._type	998,'m','new_tick_count',0,289
+	._var	'set_tick_count','F',998
+	._type	999,'v'
+	._type	1000,'x',999,1
+	._type	1000,'m','increment',0,289
+	._var	'increment_tick_count','F',1000
+	._type	1001,'v'
+	._type	1002,'x',1001,1
+	._type	1002,'m','count',0,285
+	._var	'delay_ms','F',1002
+	._type	1003,'v'
+	._type	1004,'x',1003,1
+	._type	1004,'m','count',0,285
+	._var	'delay_100s_us','F',1004
+	._type	1005,'v'
+	._type	1006,'v'
+	._type	1007,'x',1005,1
+	._type	1007,'m','',0,1006
+	._var	'polled_tick_update','F',1007
+	._type	1008,'v'
+	._type	1009,'v'
+	._type	1010,'x',1008,1
+	._type	1010,'m','',0,1009
+	._var	'disable_tick_timer','F',1010
+	._type	1011,'v'
+	._type	1012,'v'
+	._type	1013,'x',1011,1
+	._type	1013,'m','',0,1012
+	._var	'enable_tick_timer','F',1013
+	._type	1014,'v'
+	._type	1015,'x',1014,1
+	._type	1015,'m','UPDATE',0,289
+	._var	'update_tick_count','F',1015
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 273
+	._inspect	'V', 't', "BOOL", 'O', 269
+	._inspect	'F', 't', "pal_high_speed_mode", 'G', 292
+	._inspect	'F', 't', "pal_low_speed_mode", 'G', 295
+	._inspect	'F', 't', "pal_processor_sleep", 'G', 297
+	._inspect	'V', 't', "pm0_addr", 'G', 298
+	._inspect	'V', 't', "pm1_addr", 'G', 298
+	._inspect	'V', 't', "cm0_addr", 'G', 298
+	._inspect	'V', 't', "cm1_addr", 'G', 298
+	._inspect	'V', 't', "aier_addr", 'G', 298
+	._inspect	'V', 't', "prcr_addr", 'G', 298
+	._inspect	'V', 't', "ocd_addr", 'G', 298
+	._inspect	'V', 't', "wdtr_addr", 'G', 298
+	._inspect	'V', 't', "wdts_addr", 'G', 298
+	._inspect	'V', 't', "wdc_addr", 'G', 298
+	._inspect	'V', 't', "cspr_addr", 'G', 298
+	._inspect	'V', 't', "int0f_addr", 'G', 298
+	._inspect	'V', 't', "hra0_addr", 'G', 298
+	._inspect	'V', 't', "hra1_addr", 'G', 298
+	._inspect	'V', 't', "hra2_addr", 'G', 298
+	._inspect	'V', 't', "vca1_addr", 'G', 298
+	._inspect	'V', 't', "vca2_addr", 'G', 298
+	._inspect	'V', 't', "vw1c_addr", 'G', 298
+	._inspect	'V', 't', "vw2c_addr", 'G', 298
+	._inspect	'V', 't', "tzmr_addr", 'G', 298
+	._inspect	'V', 't', "pum_addr", 'G', 298
+	._inspect	'V', 't', "prez_addr", 'G', 298
+	._inspect	'V', 't', "tzsc_addr", 'G', 298
+	._inspect	'V', 't', "tzpr_addr", 'G', 298
+	._inspect	'V', 't', "tzoc_addr", 'G', 298
+	._inspect	'V', 't', "txmr_addr", 'G', 298
+	._inspect	'V', 't', "prex_addr", 'G', 298
+	._inspect	'V', 't', "tx_addr", 'G', 298
+	._inspect	'V', 't', "tcss_addr", 'G', 298
+	._inspect	'V', 't', "inten_addr", 'G', 298
+	._inspect	'V', 't', "kien_addr", 'G', 298
+	._inspect	'V', 't', "tcc0_addr", 'G', 298
+	._inspect	'V', 't', "tcc1_addr", 'G', 298
+	._inspect	'V', 't', "u0brg_addr", 'G', 298
+	._inspect	'V', 't', "u1brg_addr", 'G', 298
+	._inspect	'V', 't', "ucon_addr", 'G', 298
+	._inspect	'V', 't', "sscrh_addr", 'G', 298
+	._inspect	'V', 't', "sscrl_addr", 'G', 298
+	._inspect	'V', 't', "ssmr_addr", 'G', 298
+	._inspect	'V', 't', "sser_addr", 'G', 298
+	._inspect	'V', 't', "sssr_addr", 'G', 298
+	._inspect	'V', 't', "ssmr2_addr", 'G', 298
+	._inspect	'V', 't', "sstdr_addr", 'G', 298
+	._inspect	'V', 't', "ssrdr_addr", 'G', 298
+	._inspect	'V', 't', "iccr1_addr", 'G', 298
+	._inspect	'V', 't', "iccr2_addr", 'G', 298
+	._inspect	'V', 't', "icmr_addr", 'G', 298
+	._inspect	'V', 't', "icier_addr", 'G', 298
+	._inspect	'V', 't', "icsr_addr", 'G', 298
+	._inspect	'V', 't', "sar_addr", 'G', 298
+	._inspect	'V', 't', "icdrt_addr", 'G', 298
+	._inspect	'V', 't', "icdrr_addr", 'G', 298
+	._inspect	'V', 't', "adcon2_addr", 'G', 298
+	._inspect	'V', 't', "adcon0_addr", 'G', 298
+	._inspect	'V', 't', "adcon1_addr", 'G', 298
+	._inspect	'V', 't', "p1_addr", 'G', 298
+	._inspect	'V', 't', "pd1_addr", 'G', 298
+	._inspect	'V', 't', "p3_addr", 'G', 298
+	._inspect	'V', 't', "pd3_addr", 'G', 298
+	._inspect	'V', 't', "p4_addr", 'G', 298
+	._inspect	'V', 't', "pd4_addr", 'G', 298
+	._inspect	'V', 't', "pmr_addr", 'G', 298
+	._inspect	'V', 't', "pur0_addr", 'G', 298
+	._inspect	'V', 't', "pur1_addr", 'G', 298
+	._inspect	'V', 't', "drr_addr", 'G', 298
+	._inspect	'V', 't', "tcout_addr", 'G', 298
+	._inspect	'V', 't', "fmr4_addr", 'G', 298
+	._inspect	'V', 't', "fmr1_addr", 'G', 298
+	._inspect	'V', 't', "fmr0_addr", 'G', 298
+	._inspect	'V', 't', "kupic_addr", 'G', 308
+	._inspect	'V', 't', "adic_addr", 'G', 318
+	._inspect	'V', 't', "ssuaic_addr", 'G', 328
+	._inspect	'V', 't', "iic2aic_addr", 'G', 338
+	._inspect	'V', 't', "cmp1ic_addr", 'G', 348
+	._inspect	'V', 't', "s0tic_addr", 'G', 358
+	._inspect	'V', 't', "s0ric_addr", 'G', 368
+	._inspect	'V', 't', "s1tic_addr", 'G', 378
+	._inspect	'V', 't', "s1ric_addr", 'G', 388
+	._inspect	'V', 't', "txic_addr", 'G', 398
+	._inspect	'V', 't', "tzic_addr", 'G', 408
+	._inspect	'V', 't', "int1ic_addr", 'G', 418
+	._inspect	'V', 't', "int3ic_addr", 'G', 428
+	._inspect	'V', 't', "tcic_addr", 'G', 438
+	._inspect	'V', 't', "cmp0ic_addr", 'G', 448
+	._inspect	'V', 't', "int0ic_addr", 'G', 458
+	._inspect	'V', 't', "u0mr_addr", 'G', 468
+	._inspect	'V', 't', "u1mr_addr", 'G', 478
+	._inspect	'V', 't', "u0c0_addr", 'G', 488
+	._inspect	'V', 't', "u1c0_addr", 'G', 498
+	._inspect	'V', 't', "u0c1_addr", 'G', 508
+	._inspect	'V', 't', "u1c1_addr", 'G', 518
+	._inspect	'V', 't', "u0rb_addr", 'G', 528
+	._inspect	'V', 't', "u1rb_addr", 'G', 547
+	._inspect	'V', 't', "rmad0_addr", 'G', 566
+	._inspect	'V', 't', "rmad1_addr", 'G', 589
+	._inspect	'V', 't', "tc_addr", 'G', 612
+	._inspect	'V', 't', "tm0_addr", 'G', 631
+	._inspect	'V', 't', "tm1_addr", 'G', 650
+	._inspect	'V', 't', "u0tb_addr", 'G', 669
+	._inspect	'V', 't', "u1tb_addr", 'G', 688
+	._inspect	'V', 't', "ad_addr", 'G', 707
+	._inspect	'V', 't', "one_net_status_t", 'O', 726
+	._inspect	'V', 't', "one_net_startup_status_t", 'O', 728
+	._inspect	'V', 't', "on_message_status_t", 'O', 730
+	._inspect	'V', 't', "on_raw_nid_t", 'O', 732
+	._inspect	'V', 't', "on_raw_did_t", 'O', 734
+	._inspect	'V', 't', "on_raw_sid_t", 'O', 736
+	._inspect	'V', 't', "on_encoded_nid_t", 'O', 738
+	._inspect	'V', 't', "on_encoded_did_t", 'O', 740
+	._inspect	'V', 't', "on_encoded_sid_t", 'O', 742
+	._inspect	'V', 't', "one_net_xtea_key_t", 'O', 744
+	._inspect	'V', 't', "one_net_xtea_key_fragment_t", 'O', 746
+	._inspect	'V', 't', "one_net_single_blk_encryption_t", 'O', 748
+	._inspect	'F', 't', "one_net_xtea_encipher", 'G', 753
+	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 757
+	._inspect	'V', 't', "ona_msg_type_t", 'O', 758
+	._inspect	'V', 't', "on_pkt_t", 'O', 760
+	._inspect	'F', 't', "get_encoded_payload_len", 'G', 771
+	._inspect	'F', 't', "get_raw_payload_len", 'G', 772
+	._inspect	'F', 't', "get_num_payload_blocks", 'G', 773
+	._inspect	'F', 't', "get_encoded_packet_len", 'G', 774
+	._inspect	'F', 't', "packet_is_stay_awake", 'G', 775
+	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 777
+	._inspect	'F', 't', "set_stay_awake_pid", 'G', 779
+	._inspect	'F', 't', "packet_is_data", 'G', 780
+	._inspect	'F', 't', "packet_is_ack", 'G', 781
+	._inspect	'F', 't', "packet_is_nack", 'G', 782
+	._inspect	'F', 't', "get_single_response_pid", 'G', 783
+	._inspect	'V', 't', "on_msg_type_t", 'O', 784
+	._inspect	'V', 't', "on_data_t", 'O', 786
+	._inspect	'V', 't', "on_priority_t", 'O', 788
+	._inspect	'V', 't', "NO_DESTINATION", 'G', 741
+	._inspect	'V', 't', "ona_msg_class_t", 'O', 285
+	._inspect	'V', 't', "on_admin_msg_t", 'O', 791
+	._inspect	'V', 't', "on_single_data_queue_t", 'O', 793
+	._inspect	'V', 't', "on_msg_hdr_t", 'O', 796
+	._inspect	'V', 't', "on_did_unit_t", 'O', 798
+	._inspect	'V', 't', "on_recipient_list_t", 'O', 800
+	._inspect	'V', 't', "single_data_queue_size", 'G', 269
+	._inspect	'V', 't', "recipient_send_list", 'G', 802
+	._inspect	'V', 't', "recipient_send_list_ptr", 'G', 803
+	._inspect	'F', 't', "empty_queue", 'G', 806
+	._inspect	'F', 't', "pop_queue_element", 'G', 808
+	._inspect	'F', 't', "single_data_queue_ready_to_send", 'G', 810
+	._inspect	'F', 't', "push_queue_element", 'G', 815
+	._inspect	'F', 't', "must_send_to_master", 'G', 817
+	._inspect	'F', 't', "clear_recipient_list", 'G', 820
+	._inspect	'F', 't', "did_and_unit_equal", 'G', 823
+	._inspect	'F', 't', "remove_recipient_from_recipient_list", 'G', 826
+	._inspect	'F', 't', "add_recipient_to_recipient_list", 'G', 829
+	._inspect	'F', 't', "load_next_recipient", 'G', 833
+	._inspect	'F', 't', "device_should_stay_awake", 'G', 835
+	._inspect	'V', 't', "on_data_rate_t", 'O', 836
+	._inspect	'V', 't', "on_data_rate_mask_t", 'O', 838
+	._inspect	'V', 't', "on_features_t", 'O', 840
+	._inspect	'V', 't', "THIS_DEVICE_FEATURES", 'G', 841
+	._inspect	'V', 't', "FEATURES_UNKNOWN", 'G', 841
+	._inspect	'F', 't', "features_known", 'G', 842
+	._inspect	'F', 't', "features_max_hops", 'G', 843
+	._inspect	'F', 't', "features_max_peers", 'G', 844
+	._inspect	'F', 't', "features_data_rate_capable", 'G', 845
+	._inspect	'F', 't', "features_peer_capable", 'G', 846
+	._inspect	'F', 't', "features_mh_capable", 'G', 847
+	._inspect	'F', 't', "features_mh_repeat_capable", 'G', 848
+	._inspect	'F', 't', "features_block_capable", 'G', 849
+	._inspect	'F', 't', "features_stream_capable", 'G', 850
+	._inspect	'F', 't', "features_device_sleeps", 'G', 851
+	._inspect	'F', 't', "features_ack_nack_level", 'G', 852
+	._inspect	'V', 't', "on_nack_rsn_t", 'O', 853
+	._inspect	'V', 't', "on_ack_handle_t", 'O', 855
+	._inspect	'V', 't', "on_ack_nack_handle_t", 'O', 856
+	._inspect	'V', 't', "on_nack_handle_t", 'O', 856
+	._inspect	'V', 't', "ack_value_t", 'O', 859
+	._inspect	'V', 't', "ack_nack_payload_t", 'O', 861
+	._inspect	'V', 't', "on_ack_nack_t", 'O', 867
+	._inspect	'F', 't', "nack_reason_is_fatal", 'G', 870
+	._inspect	'F', 't', "one_net_client_invite_result", 'G', 873
+	._inspect	'F', 't', "one_net_client_client_removed", 'G', 876
+	._inspect	'F', 't', "one_net_client_client_added", 'G', 879
+	._inspect	'F', 't', "one_net_client_handle_single_pkt", 'G', 885
+	._inspect	'F', 't', "one_net_client_handle_ack_nack_response", 'G', 893
+	._inspect	'F', 't', "one_net_client_get_invite_key", 'G', 896
+	._inspect	'F', 't', "one_net_client_save_settings", 'G', 898
+	._inspect	'F', 't', "one_net_client_load_settings", 'G', 900
+	._inspect	'F', 't', "one_net_client_erase_settings", 'G', 902
+	._inspect	'F', 't', "one_net_client_reset_client", 'G', 904
+	._inspect	'F', 't', "one_net_client_single_txn_status", 'G', 909
+	._inspect	'V', 't', "current_channel", 'G', 269
+	._inspect	'F', 't', "tal_init_transceiver", 'G', 912
+	._inspect	'F', 't', "tal_enable_transceiver", 'G', 915
+	._inspect	'F', 't', "tal_disable_transceiver", 'G', 918
+	._inspect	'F', 't', "tal_channel_is_clear", 'G', 920
+	._inspect	'F', 't', "tal_write_packet", 'G', 922
+	._inspect	'F', 't', "tal_write_packet_done", 'G', 924
+	._inspect	'F', 't', "tal_read_bytes", 'G', 926
+	._inspect	'F', 't', "tal_look_for_packet", 'G', 927
+	._inspect	'F', 't', "tal_set_data_rate", 'G', 928
+	._inspect	'F', 't', "tal_set_channel", 'G', 929
+	._inspect	'V', 't', "on_base_param_t", 'O', 930
+	._inspect	'V', 't', "on_sending_device_t", 'O', 932
+	._inspect	'V', 't', "ona_unit_type_t", 'O', 934
+	._inspect	'V', 't', "ona_unit_type_count_t", 'O', 936
+	._inspect	'V', 't', "on_pin_state_t", 'O', 938
+	._inspect	'F', 't', "ona_parse_msg_class_and_type", 'G', 943
+	._inspect	'F', 't', "on_encoded_did_equal", 'G', 946
+	._inspect	'F', 't', "on_encoded_nid_equal", 'G', 949
+	._inspect	'F', 't', "is_my_nid", 'G', 951
+	._inspect	'F', 't', "is_master_did", 'G', 953
+	._inspect	'F', 't', "is_my_did", 'G', 955
+	._inspect	'F', 't', "is_broadcast_did", 'G', 957
+	._inspect	'F', 't', "on_parse_app_pld", 'G', 964
+	._inspect	'F', 't', "rx_led_blink", 'G', 966
+	._inspect	'F', 't', "tx_led_blink", 'G', 968
+	._inspect	'F', 't', "tx_and_rx_led_blink", 'G', 970
+	._inspect	'F', 't', "startup_status_led_blink", 'G', 972
+	._inspect	'F', 't', "initialize_leds", 'G', 975
+	._inspect	'F', 't', "set_tx_led", 'G', 977
+	._inspect	'F', 't', "toggle_tx_led", 'G', 980
+	._inspect	'F', 't', "set_rx_led", 'G', 982
+	._inspect	'F', 't', "toggle_rx_led", 'G', 985
+	._inspect	'F', 't', "tal_init_ports", 'G', 988
+	._inspect	'F', 't', "init_tick", 'G', 991
+	._inspect	'F', 't', "ms_to_tick", 'G', 992
+	._inspect	'F', 't', "tick_to_ms", 'G', 993
+	._inspect	'F', 't', "get_tick_count", 'G', 995
+	._inspect	'F', 't', "get_tick_diff", 'G', 996
+	._inspect	'F', 't', "set_tick_count", 'G', 998
+	._inspect	'F', 't', "increment_tick_count", 'G', 1000
+	._inspect	'F', 't', "delay_ms", 'G', 1002
+	._inspect	'F', 't', "delay_100s_us", 'G', 1004
+	._inspect	'F', 't', "polled_tick_update", 'G', 1007
+	._inspect	'F', 't', "disable_tick_timer", 'G', 1010
+	._inspect	'F', 't', "enable_tick_timer", 'G', 1013
+	._inspect	'F', 't', "update_tick_count", 'G', 1015
+
+	.END
+
+;## Compile End Time Mon Jan 09 13:51:29 2012
+
+
