@@ -405,54 +405,6 @@ void master_eval(void)
 } // master_eval //
 
 
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
-#else
-on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
-  on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
-  UInt8 hops, UInt8* const max_hops)
-#endif
-{
-#ifndef _ONE_NET_MULTI_HOP
-    return eval_handle_single(raw_pld, msg_hdr, src_did, repeater_did,
-      ack_nack);
-#else
-    return eval_handle_single(raw_pld, msg_hdr, src_did, repeater_did,
-      ack_nack, hops, max_hops);
-#endif
-}
-
-
-#ifndef _ONE_NET_MULTI_HOP
-on_message_status_t one_net_master_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries)
-#else
-on_message_status_t one_net_master_handle_ack_nack_response(
-  UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
-  const on_msg_hdr_t* const resp_msg_hdr,
-  on_ack_nack_t* const resp_ack_nack,
-  const on_raw_did_t* const src_did,
-  const on_raw_did_t* const repeater_did, UInt8* const retries,
-  UInt8 hops, UInt8* const max_hops)
-#endif
-{
-    #ifndef _ONE_NET_MULTI_HOP
-    return eval_handle_ack_nack_response(raw_pld, msg_hdr, resp_msg_hdr,
-      resp_ack_nack, src_did, repeater_did, retries);
-    #else
-    return eval_handle_ack_nack_response(raw_pld, msg_hdr, resp_msg_hdr,
-      resp_ack_nack, src_did, repeater_did, retries, hops, max_hops);
-    #endif    
-}
-
-
 one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
 {
     one_net_status_t status;
@@ -464,26 +416,6 @@ one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
     } // if creating the network was successful //
 
     return ONS_SUCCESS;
-}
-
-
-#ifndef _ONE_NET_MULTI_HOP
-void one_net_master_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
-#else
-void one_net_master_single_txn_status(on_message_status_t status,
-  UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
-  const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
-#endif
-{
-    #ifndef _ONE_NET_MULTI_HOP
-    eval_single_txn_status(status, retry_count, msg_hdr, data,
-      dst, ack_nack);
-    #else
-    eval_single_txn_status(status, retry_count, msg_hdr, data,
-      dst, ack_nack, hops);
-    #endif    
 }
 
 

@@ -515,6 +515,19 @@
 
 
 
+
+// these aren't configuration options but rather aliases to avoid multiple
+// identical functions.
+#define one_net_client_handle_single_pkt eval_handle_single
+#define one_net_master_handle_single_pkt eval_handle_single
+#define one_net_client_handle_ack_nack_response eval_handle_ack_nack_response
+#define one_net_master_handle_ack_nack_response eval_handle_ack_nack_response
+#define one_net_client_single_txn_status eval_single_txn_status
+#define one_net_master_single_txn_status eval_single_txn_status
+
+
+
+
 //! @} one_net_config_options_const
 //                                  CONSTANTS END
 //==============================================================================
