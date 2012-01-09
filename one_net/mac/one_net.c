@@ -1151,12 +1151,8 @@ BOOL one_net(on_txn_t ** txn)
                                 at_least_one_response = FALSE;
                                 #endif
                                 recipient_send_list_ptr->recipient_index = -1;
-                            
-                                // we have a message.  We'll take it further
-                                // the next trip through.  If the nmber of 
-                                return FALSE; // we have no transaction, but
-                                              // we have something to send.
-                                              // Return false.
+                                return one_net(txn); // we have a message.
+                                     // send it through one_net() again.
                             }
                         }
                     }
@@ -1616,7 +1612,6 @@ BOOL one_net(on_txn_t ** txn)
                       msg_status = ON_MSG_FAIL;
                 }
 
-                #ifndef _ONE_NET_SIMPLE_DEVICE
                 // if we get no reponse this last try and we NEVER got any
                 // reponse, we'll make the nack reason
                 // ON_NACK_RSN_NO_RESPONSE_TXN.
@@ -1626,32 +1621,35 @@ BOOL one_net(on_txn_t ** txn)
                     // if we got no response ever from the other device.
                     ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE_TXN;
                 }
-
-                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
-                  single_msg_ptr->payload,
-                  &(single_msg_ptr->msg_type), msg_status, &ack_nack);
-                #else
-                
-                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
-                  single_msg_ptr->payload, &(single_msg_ptr->msg_type),
-                  msg_status, &ack_nack);                    
-                #endif
                 
                 #if  _SINGLE_QUEUE_LEVEL == NO_SINGLE_QUEUE_LEVEL
                 if(!recipient_send_list_ptr ||
                   recipient_send_list_ptr->num_recipients -
                   recipient_send_list_ptr->recipient_index <= 1)
                 {
-                    empty_queue();
+                    // for devices with no queue, we want to clear the queue
+                    // if possible BEFORE sending to the transaction handler
+                    // so that the transaction handler can send a message.
+                    single_msg_ptr = NULL;
+                    (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
+                      single_msg.payload, &(single_msg.msg_type),
+                      msg_status, &ack_nack);                    
                 }
+                #else
+                
+                (*pkt_hdlr.single_txn_hdlr)(txn, &data_pkt_ptrs,
+                  single_msg_ptr->payload, &(single_msg_ptr->msg_type),
+                  msg_status, &ack_nack);
+                single_msg_ptr = NULL;
                 #endif
                   
                 // clear the transaction.
                 (*txn)->priority = ONE_NET_NO_PRIORITY;
                 *txn = 0;
-                single_msg_ptr = 0;
                 on_state = ON_LISTEN_FOR_DATA;
-                return TRUE;
+                return one_net(txn); // we may have another message to send.
+                                     // send it before going back to the master
+                                     // or client code.
             }
             
             break;

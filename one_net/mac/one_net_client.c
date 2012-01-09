@@ -924,13 +924,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             #endif
             {
                 // success.  We'll check in immediately again.
-                #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-                send_keep_alive(0, 0);
-                #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                send_keep_alive(0);
-                #else
-                send_keep_alive();
-                #endif
+                master->keep_alive_interval = 0;
                 break;
             }
             
@@ -974,13 +968,11 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 // that is usually what is going to happen.
                 
                 
-                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                master->keep_alive_interval = MS_TO_TICK(750 +
-                  one_net_prand(get_tick_count(), 2000));
-                #else
+                // Jan. 8, 2012 -- changing it to an immediate send.  More
+                // experimentation is needed, but the random pause now seems
+                // more trouble than it's worth.  The comments above may be
+                // largely obsolete, but keeping them in anyway for now.
                 master->keep_alive_interval = 0;
-                #endif
-                
                                
                 if(ack_nack->handle == ON_ACK_ADMIN_MSG)
                 {
@@ -1111,26 +1103,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                           , 0
                           #endif
                           );
-                        break;
                     }
                     
-                    // success.  We'll check in immediately again.
-                    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-                    send_keep_alive(0, 0);
-                    #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-                    send_keep_alive(0);
-                    #else
-                    send_keep_alive();
-                    #endif
-
                     break;
                 }
                 
                 // No admin messages within the keep-alive response from
                 // the master.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
-                ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(
-                  master->keep_alive_interval));
                 break;
             }
         }
@@ -1145,10 +1125,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     #endif
 
 
-    if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR || *msg_type !=
-      ON_ADMIN_MSG)
+    if(is_master_did(pkt->enc_dst_did) && ack_nack->nack_reason ==
+      ON_NACK_RSN_NO_ERROR)
     {
-        // Reset the Keep-Alive Timer
+        // We have checked in.  Reset the Keep-Alive Timer.
         ont_set_timer(ONT_KEEP_ALIVE_TIMER,
           MS_TO_TICK(master->keep_alive_interval));
     }

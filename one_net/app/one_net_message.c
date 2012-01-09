@@ -142,6 +142,7 @@ on_recipient_list_t* recipient_send_list_ptr = NULL;
 void empty_queue(void)
 {
     single_data_queue_size = 0;
+    single_msg_ptr = NULL;
     #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     pld_buffer_tail_idx = 0;
     #endif
@@ -209,7 +210,7 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
 
     element = &single_data_queue[single_data_queue_size];
     #else
-    if(single_data_queue_size)
+    if(single_msg_ptr || single_data_queue_size)
     {
         return NULL;  // no room
     }
@@ -265,7 +266,6 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
 	    element->expire_time = time_now + expire_time_from_now;
     }
     #endif
-
     single_data_queue_size++;
     return element;
 }
@@ -341,6 +341,7 @@ BOOL pop_queue_element(void)
         // there's nothing to copy since everything is already loaded if
         // it exists.
         BOOL ret_value = (single_data_queue_size > 0);
+        single_data_queue_size = 0;
         return ret_value;
     }
     #endif
