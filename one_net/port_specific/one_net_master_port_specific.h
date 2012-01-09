@@ -363,11 +363,15 @@ on_raw_sid_t* one_net_master_get_raw_sid(void);
     will need to be added to the network using their unique key.
     
     \param[in] raw_sid The raw SID tio use for the network.
+    \param[in] channel The channel to use.  Only relevant if non-negative.
+               Also only relevant if non-volatile memory loading does not
+               override the channel
     
     \return ONS_SUCCESS If reseting to MASTER mode was successful
             ONS_FAIL If the command failed
 */
-one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid);
+one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
+  SInt8 channel);
 
 
 /*!

@@ -340,7 +340,11 @@ int main(void)
         #ifdef _ONE_NET_MASTER
         if(device_is_master)
         {
-            init_serial_master();
+            #ifndef _NON_VOLATILE_MEMORY
+            init_serial_master(-1);
+            #else
+            init_serial_master(TRUE, -1);
+            #endif
         }
         #endif
         #ifdef _ONE_NET_CLIENT
@@ -355,7 +359,11 @@ int main(void)
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
-        init_serial_master();
+        #ifndef _NON_VOLATILE_MEMORY
+        init_serial_master(-1);
+        #else
+        init_serial_master(TRUE, -1);
+        #endif
     }
     #endif
     #ifdef _ONE_NET_CLIENT

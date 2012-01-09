@@ -30,6 +30,7 @@
 #include "oncli_port.h"
 #include "oncli.h"
 #include "oncli_str.h"
+#include "tal.h"
 
 
 //=============================================================================
@@ -299,10 +300,22 @@ void init_auto_master(void)
 
 /*!
     \brief Initializes the device as a MASTER in serial mode
+    
+    \param[in] load_nv_memory If true, an attempt should be made to load
+               the non-volatile memory into RAM.  If false, not attempt will
+               be made.
+    \param[in] channel Relevant only if non-volatile memory is not loaded.
+                       If channel is non-negative, the master will use this
+                       channel.  If channel is negative, it will be
+                       disregarded.
 
     \return void
 */
-void init_serial_master(void)
+#ifdef _NON_VOLATILE_MEMORY
+void init_serial_master(BOOL load_nv_memory, SInt8 channel)
+#else
+void init_serial_master(UInt8 channel)
+#endif
 {
 #ifdef _NON_VOLATILE_MEMORY
     BOOL memory_loaded;
@@ -315,11 +328,16 @@ void init_serial_master(void)
     UInt16 peer_memory_len;
     #endif
 
-
-    memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
-      &user_pin_memory);
-      
-    if(user_pin_memory_len != sizeof(user_pin))
+    if(load_nv_memory)
+    {
+        memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
+          &user_pin_memory);
+        if(user_pin_memory_len != sizeof(user_pin))
+        {
+            memory_loaded = FALSE;
+        }
+    }
+    else
     {
         memory_loaded = FALSE;
     }
@@ -372,9 +390,9 @@ void init_serial_master(void)
     else
     {
         oncli_send_msg("Parameters have not been loaded from flash.\n");
-#endif        
+#endif
         // start a brand new network
-        one_net_master_reset_master(one_net_master_get_raw_sid());
+        one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
 #ifdef _NON_VOLATILE_MEMORY
     }
 #endif
@@ -405,16 +423,23 @@ void master_eval(void)
 } // master_eval //
 
 
-one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid)
+one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
+  SInt8 channel)
 {
-    one_net_status_t status;
+    node_loop_func = &master_eval;
     initialize_default_pin_directions(TRUE);
     
-    if(one_net_master_create_network(raw_sid, &EVAL_KEY) == ONS_SUCCESS)
-    {    
-        return ONCLI_SUCCESS;
-    } // if creating the network was successful //
-
+    // TODO -- what if this fails?
+    one_net_master_create_network(raw_sid, &EVAL_KEY);
+    
+    if(channel >= 0)
+    {
+        if(one_net_set_channel(channel) == ONS_SUCCESS)
+        {
+            on_base_param->channel = channel;
+            on_state = ON_LISTEN_FOR_DATA;
+        }
+    }
     return ONS_SUCCESS;
 }
 

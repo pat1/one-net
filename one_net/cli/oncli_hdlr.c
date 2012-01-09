@@ -2721,7 +2721,7 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return status;
     } // if parsing the channel was not successful //
     
-    one_net_reset_master_with_channel(channel);
+    one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
     return ONCLI_SUCCESS;
 } // channel_cmd_hdlr //
 #endif
@@ -2873,7 +2873,7 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(device_is_master)
     {
         one_net_master_erase_settings();
-        one_net_master_reset_master(one_net_master_get_raw_sid());
+        one_net_master_reset_master(one_net_master_get_raw_sid(), -1);
     }
     #endif
     
