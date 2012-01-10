@@ -1048,7 +1048,7 @@ void one_net_init(void)
               one that just finished.
             FALSE if the current transaction is not complete.
 */
-BOOL one_net(on_txn_t ** txn)
+void one_net(on_txn_t ** txn)
 {
     one_net_status_t status;
     on_txn_t* this_txn;
@@ -1156,8 +1156,8 @@ BOOL one_net(on_txn_t ** txn)
                                 at_least_one_response = FALSE;
                                 #endif
                                 recipient_send_list_ptr->recipient_index = -1;
-                                return one_net(txn); // we have a message.
-                                     // send it through one_net() again.
+                                return; // we have a message. Send it through
+                                        // one_net() again.
                             }
                         }
                     }
@@ -1274,7 +1274,7 @@ BOOL one_net(on_txn_t ** txn)
                 if(device == NULL)
                 {
                     // an error occurred somewhere.  Abort.
-                    return TRUE; // no pending transaction since we're
+                    return; // no pending transaction since we're
                                  // aborting
                 }
                 
@@ -1296,7 +1296,7 @@ BOOL one_net(on_txn_t ** txn)
                 {
                     // an error of some sort occurred.  We likely have
                     // a bad pid.  Unrecoverable.  Just abort.
-                    return TRUE; // no outstanding transaction
+                    return; // no outstanding transaction
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
@@ -1324,7 +1324,7 @@ BOOL one_net(on_txn_t ** txn)
                   (on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
-                    return TRUE; // no outstanding transaction
+                    return; // no outstanding transaction
                 }
 
                 // we'll need to fill in the key.  We're dealing with
@@ -1358,7 +1358,7 @@ BOOL one_net(on_txn_t ** txn)
                   device)!= ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
-                    return TRUE; // no outstanding transaction
+                    return; // no outstanding transaction
                 }
 
                 // now finish building the packet.
@@ -1366,7 +1366,7 @@ BOOL one_net(on_txn_t ** txn)
                   device->msg_id, single_msg.raw_pid) != ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
-                    return TRUE; // no outstanding transaction                            
+                    return; // no outstanding transaction                            
                 }
 
                 // packet was built successfully.  Set the transaction,
@@ -1387,7 +1387,7 @@ BOOL one_net(on_txn_t ** txn)
                 
                 (*txn)->send = TRUE;
                 
-                return FALSE; // transaction is not complete
+                return;
             }
 
             break;
@@ -1449,7 +1449,7 @@ BOOL one_net(on_txn_t ** txn)
                     *txn = NULL;
                     ont_stop_timer((*txn)->next_txn_timer);
                     on_state = ON_LISTEN_FOR_DATA;
-                    return TRUE;
+                    return;
                 }
                 
                 #ifdef _ONE_NET_MASTER  
@@ -1664,16 +1664,14 @@ BOOL one_net(on_txn_t ** txn)
                 (*txn)->priority = ONE_NET_NO_PRIORITY;
                 *txn = 0;
                 on_state = ON_LISTEN_FOR_DATA;
-                return one_net(txn); // we may have another message to send.
-                                     // send it before going back to the master
-                                     // or client code.
+                one_net(txn); // we may have another message to send.
+                              // send it before going back to the master
+                              // or client code.
             }
             
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
     }
-    
-    return FALSE;
 } // one_net //
 
 

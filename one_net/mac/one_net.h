@@ -665,7 +665,7 @@ BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did);
 
 
 //! the main function
-BOOL one_net(on_txn_t ** txn);
+void one_net(on_txn_t ** txn);
 
 
 
