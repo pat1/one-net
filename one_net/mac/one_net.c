@@ -1214,7 +1214,7 @@ void one_net(on_txn_t ** txn)
                             ont_set_timer(mh_txn.next_txn_timer, 0);
                     
                             on_state = ON_SEND_PKT;
-                            return FALSE;
+                            return;
                         }
                         #endif
                         
