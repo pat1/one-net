@@ -144,6 +144,97 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
 {
+    // Rough skeleton -- this will change!
+    
+    
+    UInt8 src_unit, dst_unit;
+    ona_msg_class_t msg_class;
+    UInt16 msg_type, msg_data;
+
+    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
+      !ack_nack->payload || ack_nack->payload !=
+      (ack_nack_payload_t*) raw_pld)
+    {
+        return ON_MSG_INTERNAL_ERR;
+    }
+    
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
+    
+    if(msg_hdr->msg_type != ON_APP_MSG)
+    {
+        return ON_MSG_IGNORE;
+    }
+    
+    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
+      &msg_data);
+      
+    if(msg_class != ONA_COMMAND && msg_class != ONA_STATUS_CHANGE)
+    {
+        return ON_MSG_IGNORE;
+    }      
+
+    if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
+    {
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_UNIT_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+    
+    if(msg_type != ONA_SWITCH || (msg_data != ONA_ON && msg_data != ONA_OFF
+      && msg_data != ONA_TOGGLE) || (msg_data == ONA_TOGGLE && msg_class !=
+      ONA_COMMAND))
+    {
+        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+
+    if(dst_unit == ONE_NET_DEV_UNIT)
+    {
+        ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+        ack_nack->handle = ON_NACK;
+        return ON_MSG_CONTINUE;
+    }
+
+    switch(dst_unit)
+    {
+        case 0: OUTPUT1 = (msg_data == ONA_TOGGLE) ? !OUTPUT1 : 
+                msg_data; break;
+        case 1: OUTPUT2 = (msg_data == ONA_TOGGLE) ? !OUTPUT2 : 
+                msg_data; break;
+        case 2: OUTPUT3 = (msg_data == ONA_TOGGLE) ? !OUTPUT3 : 
+                msg_data; break;
+        case 3: OUTPUT4 = (msg_data == ONA_TOGGLE) ? !OUTPUT4 : 
+                msg_data; break;
+    }
+    
+    switch(dst_unit)
+	{
+		case 0: msg_data = OUTPUT1; break;
+		case 1: msg_data = OUTPUT2; break;
+		case 2: msg_data = OUTPUT3; break;
+		case 3: msg_data = OUTPUT4; break;
+
+        default:
+            ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
+            ack_nack->handle = ON_NACK;
+            return ON_MSG_CONTINUE;
+	}    
+
+
+    msg_class = ONA_STATUS_COMMAND_RESP;
+    ack_nack->handle = ON_ACK_STATUS;
+
+    // source and destination are reversed in the response.
+    put_src_unit(dst_unit, ack_nack->payload->status_resp);
+    put_dst_unit(src_unit, ack_nack->payload->status_resp);
+    put_msg_class(msg_class, ack_nack->payload->status_resp);
+
+    // we don't need to fill in the type.  It's already there since this is
+    // the same memory as the raw payload!
+
+    put_msg_data(msg_data, ack_nack->payload->status_resp);
     return ON_MSG_CONTINUE;
 } // one_net_client_handle_single_pkt //
 
