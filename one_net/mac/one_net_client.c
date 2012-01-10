@@ -428,7 +428,14 @@ tick_t one_net_client(void)
         one_net_client_reset_client(one_net_client_get_invite_key());
         return 0;
     }
-    
+
+    // if we are not in a network yet, we only accept messages from the
+    // master.
+    if(!client_joined_network)
+    {
+        one_net_memmove(expected_src_did, MASTER_ENCODED_DID,
+          ON_ENCODED_DID_LEN);
+    }
 
     switch(on_state)
     {
@@ -1389,8 +1396,8 @@ static BOOL look_for_invite(void)
     on_pkt_t* this_pkt_ptrs = &data_pkt_ptrs;
     
 
-    if(on_rx_packet(&MASTER_ENCODED_DID, &invite_txn, &this_txn, &this_pkt_ptrs,
-      raw_payload_bytes) != ONS_PKT_RCVD)
+    if(on_rx_packet(&invite_txn, &this_txn, &this_pkt_ptrs, raw_payload_bytes)
+      != ONS_PKT_RCVD)
     {
         #ifdef _ENHANCED_INVITE
         if(ont_expired(ONT_INVITE_TIMER))

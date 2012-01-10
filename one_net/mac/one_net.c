@@ -200,6 +200,11 @@ extern BOOL client_looking_for_invite;
 //! A buffer containing all encoded bytes for transmitting and receiving
 UInt8 encoded_pkt_bytes[ENCODED_BYTES_BUFFER_LEN];
 
+//! The expected source of the next packet.
+//! TODO -- more can be done with this variable.  We need to have a way for
+//!         the application code to override the default.
+on_encoded_did_t expected_src_did; // broadcast
+
 
 //                              PUBLIC VARIABLES
 //==============================================================================
@@ -1161,7 +1166,19 @@ BOOL one_net(on_txn_t ** txn)
                     // the first place.  Clear it and return TRUE.
                     single_msg_ptr = NULL;
                     
-                    
+                    #ifdef _ONE_NET_CLIENT
+                    #ifdef _ONE_NET_MASTER
+                    if(device_is_master || client_joined_network)
+                    #else
+                    if(client_joined_network)
+                    #endif
+                    #endif
+                    {
+                        // accept a packet from anyone.
+                        one_net_memmove(expected_src_did,
+                          ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
+                    }
+
                     // nothing popped, so look for a packet.  Any packet we
                     // get should be a single packet or possibly, if we are
                     // a repeater and the packet wasn't for us, a repeat
@@ -1174,22 +1191,8 @@ BOOL one_net(on_txn_t ** txn)
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
 
-                    // TODO -- clean this up so there is some variable we can
-                    // set for who we expect as the source.
-                    #ifdef _ONE_NET_CLIENT
-                    if(!device_is_master && !client_joined_network)
-                    {
-                        status = on_rx_packet(&MASTER_ENCODED_DID,
-                          (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-                          raw_payload_bytes);
-                    }
-                    else 
-                    #endif
-                    {
-                        status = on_rx_packet(&ON_ENCODED_BROADCAST_DID,
-                          (const on_txn_t* const) *txn, &this_txn, &this_pkt_ptrs,
-                          raw_payload_bytes);
-                    }
+                    status = on_rx_packet((const on_txn_t* const) *txn,
+                      &this_txn, &this_pkt_ptrs, raw_payload_bytes);
             
                     if(status == ONS_PKT_RCVD)
                     {
@@ -1370,6 +1373,8 @@ BOOL one_net(on_txn_t ** txn)
                 (*txn)->retry = 0;
                 (*txn)->response_timeout = one_net_response_time_out;
                 (*txn)->device = device;
+                one_net_memmove(expected_src_did,
+                  *(data_pkt_ptrs.enc_dst_did), ON_ENCODED_DID_LEN);
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
@@ -1532,9 +1537,7 @@ BOOL one_net(on_txn_t ** txn)
             {
                 this_txn = &response_txn;
                 this_pkt_ptrs = &response_pkt_ptrs;
-                status = on_rx_packet((const on_encoded_did_t * const)
-                  &(single_txn.pkt[ONE_NET_ENCODED_DST_DID_IDX]),
-                  &single_txn, &this_txn, &this_pkt_ptrs,
+                status = on_rx_packet(&single_txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
             
                 if(status == ONS_PKT_RCVD)
@@ -2224,9 +2227,6 @@ one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
 
     This function receives all packets.
 
-    \param[in] EXPECTED_SRC_DID The encoded DID of the device that this device
-      expects to receive a packet from.  If this is set to the broadcast
-      address, this device does not expect a packet from anyone in particular.
     \param[in] The current transaction being carried out.
     \param[out] this_txn The packet received
     \param[out] this_pkt_ptrs Filled in pointers to the packet received
@@ -2235,9 +2235,8 @@ one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
     \return ONS_PKT_RCVD if a valid packet was received
             For more return values one_net_status_codes.h
 */
-one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
-  const on_txn_t* const txn, on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
-  UInt8* raw_payload_bytes)
+one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
+  on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes)
 {
     one_net_status_t status;
     on_encoded_did_t src_did;
@@ -2267,11 +2266,10 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
         return ONS_NOT_INIT;
     } // if this device was not initialized //
 
-    if(!EXPECTED_SRC_DID || !this_txn || !this_pkt_ptrs)
+    if(!this_txn || !this_pkt_ptrs)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
-
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
@@ -2332,8 +2330,8 @@ one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
       (&pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX]));
     dst_is_me = is_my_did((on_encoded_did_t*)
       (&pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX]));
-    src_match = is_broadcast_did(EXPECTED_SRC_DID) ||
-      on_encoded_did_equal(EXPECTED_SRC_DID,
+    src_match = is_broadcast_did(&expected_src_did) ||
+      on_encoded_did_equal(&expected_src_did,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
     
     #ifdef _ONE_NET_MULTI_HOP

@@ -591,6 +591,9 @@ extern on_txn_t invite_txn;
 //! A buffer containing all encoded bytes for transmitting and receiving
 extern UInt8 encoded_pkt_bytes[];
 
+//! The expected source of the next packet.
+extern on_encoded_did_t expected_src_did;
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
@@ -704,9 +707,8 @@ one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
 one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce);
 #endif
-one_net_status_t on_rx_packet(const on_encoded_did_t * const EXPECTED_SRC_DID,
-  const on_txn_t* const txn, on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
-  UInt8* raw_payload_bytes);
+one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
+  on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes);
   
 
 #ifdef _RANGE_TESTING
