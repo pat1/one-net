@@ -150,13 +150,6 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     UInt8 src_unit, dst_unit;
     ona_msg_class_t msg_class;
     UInt16 msg_type, msg_data;
-
-    if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
-      !ack_nack->payload || ack_nack->payload !=
-      (ack_nack_payload_t*) raw_pld)
-    {
-        return ON_MSG_INTERNAL_ERR;
-    }
     
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;

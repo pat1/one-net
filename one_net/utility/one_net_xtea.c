@@ -111,11 +111,6 @@ void one_net_xtea_encipher(const UInt8 ROUNDS, UInt8 * data,
     UInt32 k[4] = {0x00};
     UInt32 sum = 0;
     UInt8 i;
-
-    if(!data || !KEY)
-    {
-        return;
-    } // if parameters are invalid //
     
     // get v
     v[0] = one_net_byte_stream_to_int32(data);

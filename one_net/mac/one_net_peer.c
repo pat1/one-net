@@ -64,10 +64,6 @@
 //! @{
 
 
-// same as ON_ENCODED_BROADCAST_DID
-const on_encoded_did_t INVALID_PEER = {0xB4, 0xB4};
-
-
 
 //! @} ONE-NET_PEER_const
 //                                  CONSTANTS END
@@ -224,11 +220,6 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
     UInt8 index, unit_list_index;
     SInt8 insertion_index = -1; // negative means unset
     UInt8 num_peers_for_src = 0; // number of peers for this source
-
-    if(!PEER_DID)
-    {
-        return ONS_BAD_PARAM;
-    } // if any of the parameters are invalid //
     
     if(!peer_list)
     {
@@ -362,11 +353,6 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
   const UInt8 PEER_UNIT)
 {
     int i;
-    
-    if(!PEER_DID)
-    {
-        return ONS_BAD_PARAM;
-    }
     
     if(!peer_list)
     {

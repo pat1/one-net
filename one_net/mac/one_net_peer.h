@@ -65,7 +65,8 @@
 //! @{
 
 
-extern const on_encoded_did_t INVALID_PEER;
+// same as ON_ENCODED_BROADCAST_DID
+#define INVALID_PEER ON_ENCODED_BROADCAST_DID
 
 
 //! @} ONE-NET_PEER_const
