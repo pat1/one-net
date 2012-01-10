@@ -149,85 +149,114 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     
     UInt8 src_unit, dst_unit;
     ona_msg_class_t msg_class;
-    UInt16 msg_type, msg_data;
+    UInt16 msg_type, msg_data, original_state;
+    #ifdef _PEER
+    ona_msg_class_t original_class;
+    BOOL forward_to_peer = TRUE;
+    #endif
     
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
     
     if(msg_hdr->msg_type != ON_APP_MSG)
     {
-        return ON_MSG_IGNORE;
+        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+        return ON_MSG_CONTINUE;
     }
     
     on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);
+    
+    #ifdef _PEER  
+    original_class = msg_class;
+    #endif
       
-    if(msg_class != ONA_COMMAND && msg_class != ONA_STATUS_CHANGE)
+    if(!get_output(dst_unit, &original_state))
     {
-        return ON_MSG_IGNORE;
-    }      
-
-    if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
-    {
+        // no need to change handle.  ON_ACK and ON_NACK are the same.
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_UNIT_ERR;
-        ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
     }
     
-    if(msg_type != ONA_SWITCH || (msg_data != ONA_ON && msg_data != ONA_OFF
-      && msg_data != ONA_TOGGLE) || (msg_data == ONA_TOGGLE && msg_class !=
-      ONA_COMMAND))
+    if(msg_class == ONA_COMMAND)
     {
+        msg_class = ONA_STATUS_COMMAND_RESP;
+        if(msg_data == ONA_TOGGLE)
+        {
+            msg_data = !original_state;
+            #ifdef _PEER
+            forward_to_peer = FALSE;
+            #endif
+        }
+    }
+    else if(msg_class == ONA_STATUS_CHANGE)
+    {
+        // we'll treat this as a command
+        msg_class = ONA_STATUS_COMMAND_RESP;
+    }
+    else if(ONA_IS_STATUS_MESSAGE(msg_class))
+    {
+        // we aren't interested in this message, but we'll ACK it anyway.
+        return ON_MSG_CONTINUE;
+    }
+    else if(msg_class == ONA_QUERY)
+    {
+        msg_data = original_state;
+        msg_class = ONA_STATUS_QUERY_RESP;
+    }
+    else if(msg_class == ONA_FAST_QUERY)
+    {
+        msg_data = original_state;
+        msg_class = ONA_STATUS_FAST_QUERY_RESP;
+    }
+    else
+    {
+        // NACK it.  We don't handle it
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-        ack_nack->handle = ON_NACK;
         return ON_MSG_CONTINUE;
-    }
-
-    if(dst_unit == ONE_NET_DEV_UNIT)
-    {
-        ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
-        ack_nack->handle = ON_NACK;
-        return ON_MSG_CONTINUE;
-    }
-
-    switch(dst_unit)
-    {
-        case 0: OUTPUT1 = (msg_data == ONA_TOGGLE) ? !OUTPUT1 : 
-                msg_data; break;
-        case 1: OUTPUT2 = (msg_data == ONA_TOGGLE) ? !OUTPUT2 : 
-                msg_data; break;
-        case 2: OUTPUT3 = (msg_data == ONA_TOGGLE) ? !OUTPUT3 : 
-                msg_data; break;
-        case 3: OUTPUT4 = (msg_data == ONA_TOGGLE) ? !OUTPUT4 : 
-                msg_data; break;
     }
     
-    switch(dst_unit)
-	{
-		case 0: msg_data = OUTPUT1; break;
-		case 1: msg_data = OUTPUT2; break;
-		case 2: msg_data = OUTPUT3; break;
-		case 3: msg_data = OUTPUT4; break;
-
-        default:
-            ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
-            ack_nack->handle = ON_NACK;
-            return ON_MSG_CONTINUE;
-	}    
-
-
-    msg_class = ONA_STATUS_COMMAND_RESP;
-    ack_nack->handle = ON_ACK_STATUS;
-
-    // source and destination are reversed in the response.
+    if(msg_data != ONA_ON && msg_data != ONA_OFF)
+    {
+        // NACK it.  We don't handle it
+        ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+        return ON_MSG_CONTINUE;
+    }
+    
+    // source and destination are reversed
     put_src_unit(dst_unit, ack_nack->payload->status_resp);
     put_dst_unit(src_unit, ack_nack->payload->status_resp);
-    put_msg_class(msg_class, ack_nack->payload->status_resp);
-
-    // we don't need to fill in the type.  It's already there since this is
-    // the same memory as the raw payload!
-
     put_msg_data(msg_data, ack_nack->payload->status_resp);
+    put_msg_type(ONA_SWITCH, ack_nack->payload->status_resp);
+    
+    if(msg_class == ONA_STATUS_COMMAND_RESP)
+    {
+        if(msg_type != ONA_SWITCH)
+        {
+            // NACK it.  We don't handle it
+            ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            return ON_MSG_CONTINUE;
+        }
+        
+        set_output(dst_unit, msg_data);
+
+        #ifdef _PEER
+        // we may forward this message to our peer list
+        if(forward_to_peer)
+        {
+            put_msg_class(original_class, ack_nack->payload->status_resp);
+
+            if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
+              ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+              ONE_NET_HIGH_PRIORITY, NULL, NULL, TRUE, dst_unit))
+            {
+            }
+        }
+        #endif
+    }
+
+    ack_nack->handle = ON_ACK_STATUS;
+    put_msg_class(msg_class, ack_nack->payload->status_resp); 
     return ON_MSG_CONTINUE;
 } // one_net_client_handle_single_pkt //
 
