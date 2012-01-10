@@ -1395,9 +1395,13 @@ static BOOL look_for_invite(void)
     on_txn_t* this_txn = &invite_txn;
     on_pkt_t* this_pkt_ptrs = &data_pkt_ptrs;
     
-
+    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
     if(on_rx_packet(&invite_txn, &this_txn, &this_pkt_ptrs, raw_payload_bytes)
       != ONS_PKT_RCVD)
+    #else
+    if(on_rx_packet(&this_txn, &this_pkt_ptrs, raw_payload_bytes)
+      != ONS_PKT_RCVD)
+    #endif
     {
         #ifdef _ENHANCED_INVITE
         if(ont_expired(ONT_INVITE_TIMER))

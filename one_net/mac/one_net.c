@@ -1191,8 +1191,13 @@ BOOL one_net(on_txn_t ** txn)
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
 
+                    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
                     status = on_rx_packet((const on_txn_t* const) *txn,
                       &this_txn, &this_pkt_ptrs, raw_payload_bytes);
+                    #else
+                    status = on_rx_packet(&this_txn, &this_pkt_ptrs,
+                      raw_payload_bytes);
+                    #endif
             
                     if(status == ONS_PKT_RCVD)
                     {
@@ -1537,8 +1542,15 @@ BOOL one_net(on_txn_t ** txn)
             {
                 this_txn = &response_txn;
                 this_pkt_ptrs = &response_pkt_ptrs;
+                
+                
+                #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
                 status = on_rx_packet(&single_txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
+                #else
+                status = on_rx_packet(&this_txn, &this_pkt_ptrs,
+                  raw_payload_bytes);
+                #endif
             
                 if(status == ONS_PKT_RCVD)
                 {
@@ -2235,8 +2247,13 @@ one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
     \return ONS_PKT_RCVD if a valid packet was received
             For more return values one_net_status_codes.h
 */
+#if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes)
+#else
+one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
+  UInt8* raw_payload_bytes)
+#endif
 {
     one_net_status_t status;
     on_encoded_did_t src_did;

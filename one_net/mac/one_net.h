@@ -707,8 +707,13 @@ one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
 one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
   UInt8 txn_nonce, UInt8 resp_nonce);
 #endif
+#if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes);
+#else
+one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
+  UInt8* raw_payload_bytes);
+#endif
   
 
 #ifdef _RANGE_TESTING
