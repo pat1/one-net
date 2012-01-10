@@ -122,7 +122,6 @@ static UInt8 voltage_status = ONA_VOLTAGE_GOOD;
 
 static BOOL set_output(UInt8 unit, BOOL ON);
 static BOOL get_output(UInt8 unit, UInt16 *status);
-static BOOL toggle_output(UInt8 unit);
 
 //! @} simple_relay_pri_func
 //                          PRIVATE FUNCTION DECLARATIONS END
@@ -380,61 +379,6 @@ static BOOL set_output(UInt8 unit, BOOL ON)
     
     return TRUE;
 } // set_output //
-
-
-/*!
-    \brief Toggles the output for the given unit.
-    
-    \param[in] unit The unit to toggle.
-
-    \return TRUE if the operation was successful
-            FALSE if the operation was not successful (such as an invalid unt)
-*/
-static BOOL toggle_output(UInt8 unit)
-{
-    switch(unit)
-    {
-        #if _NUM_IO_UNITS > 0
-            case 0:
-            {
-                TOGGLE(OUTPUT1);
-                break;
-            } // unit 0 case //
-        #endif // #if _NUM_IO_UNITS > 0 //
-
-        #if _NUM_IO_UNITS > 1
-            case 1:
-            {
-                TOGGLE(OUTPUT2);
-                break;
-            } // unit 1 case //
-        #endif // #if _NUM_IO_UNITS > 1 //
-
-        #if _NUM_IO_UNITS > 2
-            case 2:
-            {
-                TOGGLE(OUTPUT3);
-                break;
-            } // unit 3 case //
-        #endif // #if _NUM_IO_UNITS > 2 //
-
-        #if _NUM_IO_UNITS > 3
-            case 3:
-            {
-                TOGGLE(OUTPUT4);
-                break;
-            } // unit 4 case //
-        #endif // #if _NUM_IO_UNITS > 3 //
-
-        default:
-        {
-            return FALSE;
-            break;
-        } // default case //
-    } // switch(unit) //
-    
-    return TRUE;
-} // toggle_output //
 
 
 /*!
