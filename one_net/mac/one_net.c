@@ -2275,18 +2275,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef _ONE_NET_MASTER
     UInt8 original_payload[33];
     #endif
-
-
-    // only need to check 1 handler since it is all or nothing
-    if(!pkt_hdlr.single_data_hdlr)
-    {
-        return ONS_NOT_INIT;
-    } // if this device was not initialized //
-
-    if(!this_txn || !this_pkt_ptrs)
-    {
-        return ONS_BAD_PARAM;
-    } // if the parameter is invalid //
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
