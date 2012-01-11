@@ -98,17 +98,6 @@
 	#define _PEER
 #endif
 
-// Block Messages
-#ifndef _BLOCK_MESSAGES_ENABLED
-//	#define _BLOCK_MESSAGES_ENABLED
-#endif
-
-// Stream Messages -- available only if block messages are enabled.
-#ifdef _BLOCK_MESSAGES_ENABLED
-    #ifndef _STREAM_MESSAGES_ENABLED
-//	    #define _STREAM_MESSAGES_ENABLED
-    #endif
-#endif
 
 // SINGLE_QUEUE_LEVEL - different levels of options for a single queue
 // NO_SINGLE_QUEUE_LEVEL means no single queue is used
@@ -124,27 +113,42 @@
 	#define _SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL
 #endif
 
-// simple clients cannot be masters, queue messages for future sending, have extended single,
-// block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
-// needed to test.
-#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_CLIENT
-        // comment in or out as needed
-        #define _ONE_NET_SIMPLE_CLIENT
+
+// Multi-Hop, Block, Extended Single, and Stream all require the master to
+// update them when the master adds a new client.  They also require
+// increased flexibility for timing options.  Therefore they should have the
+// ability to stagger messages.  Therefore their "queue level" must be greater
+// than MIN_SINGLE_QUEUE_LEVEL.
+#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    // Extended Single -- enable if this device can handle "extended"(i.e. large payload) single messages
+    #ifndef _EXTENDED_SINGLE
+        #define _EXTENDED_SINGLE
     #endif
+    
+    // Multi-Hop 
+    #ifndef _ONE_NET_MULTI_HOP
+	    #define _ONE_NET_MULTI_HOP
+    #endif
+    
+    #ifdef _ONE_NET_MULTI_HOP
+	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+		    #define _ONE_NET_MH_CLIENT_REPEATER
+	    #endif
+    #endif
+    
+    // Block Messages
+    #ifndef _BLOCK_MESSAGES_ENABLED
+    //	#define _BLOCK_MESSAGES_ENABLED
+    #endif
+
+    // Stream Messages -- available only if block messages are enabled.
+    #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifndef _STREAM_MESSAGES_ENABLED
+        //	    #define _STREAM_MESSAGES_ENABLED
+        #endif
+    #endif    
 #endif
 
-// Multi-Hop
-#ifndef _ONE_NET_MULTI_HOP
-	#define _ONE_NET_MULTI_HOP
-#endif
-
-
-#ifdef _ONE_NET_MULTI_HOP
-	#ifndef _ONE_NET_MH_CLIENT_REPEATER
-		#define _ONE_NET_MH_CLIENT_REPEATER
-	#endif
-#endif
 
 #ifndef _RANGE_TESTING
     #define _RANGE_TESTING
@@ -164,6 +168,17 @@
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
 	#endif
+#endif
+
+
+// simple clients cannot be masters, queue messages for future sending, have extended single,
+// block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
+// needed to test.
+#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+        // comment in or out as needed
+        #define _ONE_NET_SIMPLE_CLIENT
+    #endif
 #endif
 
 
