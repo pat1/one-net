@@ -99,13 +99,22 @@ const on_features_t FEATURES_UNKNOWN =
 //! \defgroup ONE-NET_FEATURES_pub_func
 //! \ingroup ONE-NET_FEATURES
 //! @{
-    
+
+
 BOOL features_known(on_features_t features)
 {
     return !(one_net_memcmp(&features, &FEATURES_UNKNOWN,
       sizeof(on_features_t)) == 0);
 }
 
+
+BOOL features_device_sleeps(on_features_t features)
+{
+    return ((features.feature_flags & ON_DEVICE_NEVER_SLEEPS_MASK) == 0);
+}
+
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
 UInt8 features_max_hops(on_features_t features)
 {
     return features.peers_hops & ON_FEATURES_MAX_HOPS_MASK;
@@ -154,16 +163,11 @@ BOOL features_stream_capable(on_features_t features)
 }
 
 
-BOOL features_device_sleeps(on_features_t features)
-{
-    return ((features.feature_flags & ON_DEVICE_NEVER_SLEEPS_MASK) == 0);
-}
-
-
 UInt8 features_ack_nack_level(on_features_t features)
 {
     return (features.queue_ack_nack_values & ON_ACK_NACK_LEVEL_MASK);
 }
+#endif
 
 
 //! @} ONE-NET_FEATURES_pub_func

@@ -208,6 +208,8 @@ extern const on_features_t FEATURES_UNKNOWN;
 //! @{
 
 BOOL features_known(on_features_t features);
+BOOL features_device_sleeps(on_features_t features);
+#ifndef _ONE_NET_SIMPLE_CLIENT
 UInt8 features_max_hops(on_features_t features);
 UInt8 features_max_peers(on_features_t features);
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate);
@@ -216,8 +218,8 @@ BOOL features_mh_capable(on_features_t features);
 BOOL features_mh_repeat_capable(on_features_t features);
 BOOL features_block_capable(on_features_t features);
 BOOL features_stream_capable(on_features_t features);
-BOOL features_device_sleeps(on_features_t features);
 UInt8 features_ack_nack_level(on_features_t features);
+#endif
 
 //! @} ONE-NET_FEATURES_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
