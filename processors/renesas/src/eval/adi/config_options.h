@@ -110,6 +110,30 @@
     #endif
 #endif
 
+// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
+// NO_SINGLE_QUEUE_LEVEL means no single queue is used
+// MIN_SINGLE_QUEUE_LEVEL means no "times".
+// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
+// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
+#ifndef _SINGLE_QUEUE_LEVEL
+    #define NO_SINGLE_QUEUE_LEVEL 0
+    #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
+	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
+	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
+	
+	#define _SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL
+#endif
+
+// simple clients cannot be masters, queue messages for future sending, have extended single,
+// block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
+// needed to test.
+#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+        // comment in or out as needed
+        #define _ONE_NET_SIMPLE_CLIENT
+    #endif
+#endif
+
 // Multi-Hop
 #ifndef _ONE_NET_MULTI_HOP
 	#define _ONE_NET_MULTI_HOP
@@ -125,34 +149,6 @@
 #ifndef _RANGE_TESTING
     #define _RANGE_TESTING
 #endif
-
-
-
-// ONE_NET_SIMPLE_DEVICE, _ONE_NET_SIMPLE_MASTER, and _ONE_NET_SIMPLE_CLIENT
-// are now defined explicitly.
-#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_DEVICE
-        // comment in or out as needed
-//        #define _ONE_NET_SIMPLE_DEVICE
-    #endif
-#endif
-
-#ifdef _ONE_NET_SIMPLE_DEVICE
-    #ifdef _ONE_NET_MASTER
-        #ifndef _ONE_NET_SIMPLE_MASTER
-            // comment in or out as needed
-            #define _ONE_NET_SIMPLE_MASTER
-        #endif
-    #endif
-    #ifdef _ONE_NET_CLIENT
-        #ifndef _ONE_NET_SIMPLE_CLIENT
-            // comment in or out as needed
-            #define _ONE_NET_SIMPLE_CLIENT
-        #endif
-    #endif
-#endif
-
-
 
 
 // Idle Option - Should be defined if the device can ever be idle
@@ -238,7 +234,7 @@
 
 // Enable this if data rates can be changed to anything besides the 38,400 base.
 #ifndef _DATA_RATE
-    #define _DATA_RATE
+//    #define _DATA_RATE
 #endif
 
 
@@ -440,26 +436,6 @@
 
 #ifndef _DEBUGGING_TOOLS
 //    #define _DEBUGGING_TOOLS
-#endif
-
-
-
-// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
-// NO_SINGLE_QUEUE_LEVEL means no single queue is used
-// MIN_SINGLE_QUEUE_LEVEL means no "times".
-// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
-// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
-#ifndef _SINGLE_QUEUE_LEVEL
-    #define NO_SINGLE_QUEUE_LEVEL 0
-    #define MIN_SINGLE_QUEUE_LEVEL 1
-	#define MED_SINGLE_QUEUE_LEVEL 2
-	#define MAX_SINGLE_QUEUE_LEVEL 3
-	
-	#define _SINGLE_QUEUE_LEVEL MAX_SINGLE_QUEUE_LEVEL
-#endif
-
-#ifndef _EXTENDED_SINGLE
-    #define _EXTENDED_SINGLE
 #endif
 
 
