@@ -57,6 +57,75 @@
 //! \ingroup one_net_test_defines
 
 
+// Dec. 16, 2011 -- testing defines.  This will change.  Some combinations are
+// unstable and so are disabled.  Not all bad combinatiions have been detected.
+#ifdef _BLOCK_MESSAGES_ENABLED
+    #error "Dec. 16, 2011 -- Block and stream are not currently available."
+#endif
+
+#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(_EXTENDED_SINGLE)
+    #error "_EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
+#endif
+
+#if !defined(_BLOCK_MESSAGES_ENABLED) && defined(_STREAM_MESSAGES_ENABLED)
+    #error "_EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
+#endif
+
+#if !defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_MASTER)
+    #error "_ONE_NET_CLIENT and _ONE_NET_MASTER cannot both be undefined."
+#endif
+
+#ifdef _ONE_NET_MASTER
+    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+        #error "Masters must have queue levels of at least MED_SINGLE_QUEUE_LEVEL."
+    #endif
+#endif
+
+#ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #ifndef _ONE_NET_MULTI_HOP
+        #error "_ONE_NET_MULTI_HOP must be defined if _ONE_NET_MH_CLIENT_REPEATER is defined."
+    #endif
+#endif
+
+#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
+    #error "_US_CHANELS and _EUROPE_CHANNELS cannot both be undefined."
+#endif
+
+#ifdef _BLOCKING_UART
+    #ifndef _UART
+        #error "_UART must be defined if _BLOCKING_UART is defined."
+    #endif
+#endif
+
+// Simple clients cannot be masters, queue messages for future sending, have extended single,
+// block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
+// needed to test.  However, for easier readability, we'll test even some of the redundant tests.
+#ifdef _ONE_NET_SIMPLE_CLIENT
+    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        #error "Simple clients cannot have _SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
+    #endif
+    #ifdef _ONE_NET_MASTER
+        #error "Simple clients cannot have _ONE_NET_MASTER defined."
+    #endif
+    #ifdef _EXTENDED_SINGLE
+        #error "Simple clients cannot have _EXTENDED_SINGLE defined."
+    #endif
+    #ifdef _ONE_NET_MULTI_HOP
+        #error "Simple clients cannot have _ONE_NET_MULTI_HOP defined."
+    #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+        #error "Simple clients cannot have _BLOCK_MESSAGES_ENABLED defined."
+    #endif
+    #ifdef _STREAM_MESSAGES_ENABLED
+        #error "Simple clients cannot have _STREAM_MESSAGES_ENABLED defined."
+    #endif
+    #ifndef _ONE_NET_CLIENT
+        #error "Simple clients must have _ONE_NET_CLIENT defined."
+    #endif
+#endif
+
+
+
 
 //! @{
 
