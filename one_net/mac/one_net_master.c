@@ -272,11 +272,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
 static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
 
-
-#ifndef _ONE_NET_SIMPLE_DEVICE
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
-#endif
 
 
 
@@ -2088,9 +2085,7 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr =
       &on_master_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
-    #ifndef _ONE_NET_SIMPLE_DEVICE
     pkt_hdlr.adj_recip_list_hdlr = &on_master_adjust_recipient_list;
-    #endif
     
     #ifdef _BLOCK_MESSAGES_ENABLED
     pkt_hdlr.block_data_hdlr = &on_master_block_data_hdlr;
@@ -2806,7 +2801,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 }
 
 
-#ifndef _ONE_NET_SIMPLE_DEVICE
 /*!
     \brief Allows for adjustment of the recipient list for a message
 
@@ -2960,8 +2954,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     // looks like nothing should be sent.  Abort this message.
     *recipient_send_list = NULL;
 }
-#endif
-      
+
 
 
 
