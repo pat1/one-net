@@ -1502,7 +1502,8 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
     on_encoded_did_t did;
     one_net_status_t status;
     on_client_t * client;
-    UInt8 flags = client->flags;
+    UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
+    pld[0] = client->flags;
 
 
     if(!DST_DID)
@@ -1522,15 +1523,15 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
 
     if(UPDATE_MASTER)
     {
-        flags |= ON_SEND_TO_MASTER;
+        pld[0] |= ON_SEND_TO_MASTER;
     } // if the MASTER should be updated //
     else
     {
-        flags &= ~ON_SEND_TO_MASTER;
+        pld[0] &= ~ON_SEND_TO_MASTER;
     } // else the MASTER does not want to be updated //
 
     return send_admin_pkt(ON_CHANGE_SETTINGS,
-      (const on_encoded_did_t * const)&did, &flags, 0);
+      (const on_encoded_did_t * const)&did, pld, 0);
 } // one_net_master_set_update_master_flag //
 
 
@@ -2506,32 +2507,10 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
   const on_encoded_did_t* const did, const UInt8* const pld,
   tick_t send_time_from_now)
 {
-    #ifndef _EXTENDED_SINGLE
     UInt8 admin_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-    #else
-    UInt8 admin_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
-    UInt8 admin_pld_data_len = ONA_SINGLE_PACKET_PAYLOAD_LEN - 1;
-    UInt8 raw_pid = ONE_NET_RAW_SINGLE_DATA;
-    #endif
-
-    switch(admin_msg_id)
-    {
-        case ON_CHANGE_SETTINGS:
-            admin_pld_data_len = 1;
-            break;
-    }
-
-    
-    // TODO -- use named constants
     admin_pld[0] = admin_msg_id;
-    
-    #ifndef _EXTENDED_SINGLE
     one_net_memmove(&admin_pld[1], pld, ONA_SINGLE_PACKET_PAYLOAD_LEN - 1);
-    #else
-    one_net_memmove(&admin_pld[1], pld, admin_pld_data_len);
-    #endif
-    
-    #ifndef _EXTENDED_SINGLE
+
     if(one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, did
@@ -2544,20 +2523,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 	  , 0
       #endif
       ))
-    #else
-    if(one_net_master_send_single(raw_pid, ON_ADMIN_MSG,
-      admin_pld, admin_pld_data_len + 1, ONE_NET_LOW_PRIORITY,
-      NULL, did
-      #ifdef _PEER
-      , FALSE,
-      ONE_NET_DEV_UNIT
-      #endif
-      , send_time_from_now
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
-	  , 0
-      #endif
-      ))
-    #endif
     {
         return ONS_SUCCESS;
     }
