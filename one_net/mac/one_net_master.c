@@ -1131,6 +1131,18 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     {
         return ONS_DEVICE_LIMIT;
     }
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    if(features_mh_capable(features))
+    {
+        on_base_param->num_mh_devices++;
+    }
+    
+    if(features_mh_repeat_capable(features))
+    {
+        on_base_param->num_mh_repeaters++;
+    }
+    #endif    
 
     // a device is being added, place it in the next available client_t
     // structure
@@ -1183,6 +1195,10 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     // invite processes, they should be NULL.
     if(out_base_param && out_master_param)
     {
+        // TODO -- what about the number of multi-hop and multi-hop repeaters?
+        // The device added possibly needs to know.  Note that this is
+        // irrelevant which are added with the wireless ONE-NET invite process.
+        
         one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
           client->device.did, ON_ENCODED_DID_LEN);
         one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
@@ -1218,28 +1234,36 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     {
         UInt8 i;
         add_device_update_in_progress = TRUE;
+        add_device_did[0] = client->device.did[0];
+        add_device_did[1] = client->device.did[1];
+        add_device_start_time = get_tick_count();
+        device_to_update = client; // update the device being added
+                                   // first. 
+        
         for(i = 0; i < master_param->client_count; i++)
         {
             client_list[i].send_add_device_message = TRUE;
-            device_to_update = client; // update the device being added
-                                       // first.
-            add_device_start_time = get_tick_count();
-            add_device_did[0] = client->device.did[0];
-            add_device_did[1] = client->device.did[1];
+            
+            // some clients WILL NOT get updates.
+            if(client == &client_list[i])
+            {
+                continue; // this is the client being added. It needs one.
+            }
+            
+            if(features_device_sleeps(client_list[i].device.features))
+            {
+                // no update if it sleeps.
+                client_list[i].send_add_device_message = FALSE;
+            }
+            
+            // TODO -- what about extended single?  They need to be updated too?
+            if(!features_mh_capable(client_list[i].device.features) &&
+               !features_block_capable(client_list[i].device.features))
+            {
+                client_list[i].send_add_device_message = FALSE;
+            }
         }
     }
-
-    #ifdef _ONE_NET_MULTI_HOP
-    if(features_mh_capable(features))
-    {
-        on_base_param->num_mh_devices++;
-    }
-    
-    if(features_mh_repeat_capable(features))
-    {
-        on_base_param->num_mh_repeaters++;
-    }
-    #endif
 
     return ONS_SUCCESS;
 } // one_net_master_add_client //
@@ -2865,6 +2889,165 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     
     did_unit.unit = ONE_NET_DEV_UNIT; // all of these updates go to the device
                                       // as a whole.
+                                      
+    // first we'll check to see if this is a message for the addition or
+    // removal of a device.  If it is, then the device being added or removed
+    // needs to be informed first.  If this is a device that is being ADDED and
+    // it hasn't been informed yet, we'll cancel this message.  It will be
+    // informed with an ACK to a message that IT initiates.  Note that
+    // the only devices that are informed of a device being added or removed
+    // are
+    
+    // 1) The device being added or removed.
+    // 2) Any devices that have block, multi-hop, or extended single capability
+    //    AND which do not sleep.  Any devices which sleep and need to know
+    //    about a network update can query the master.
+    
+    // The REMOVAL of a sleeping device is sort of complicated.  We can't hold
+    // everything up waiting for a sleeping device to check-in, so we won't
+    // bother informing that device when we remove it.  We'll inform everyone
+    // else who needs to know.  How to handle sleeping devices is always a
+    // little complex and very applicaiton dependent, so a client-to-client
+    // protocol involving device(s) that sleep will have to be largely dealt
+    // with at the application level, not the ONE-NET level.
+    
+
+    // Jan. 11, 2011 -- Some of the code below might be unnecessary.  However
+    // we seem to be getting some collisions.  When we STOP getting collisons,
+    // we should revisit some of this anti-collision code to see if there are
+    // any redundancies that can be removed.  For now, I'll take redundancy
+    // over collisions!
+    if(msg->payload[0] == ON_ADD_DEV || msg->payload[0] == ON_RM_DEV)
+    {
+        BOOL adding = (msg->payload[0] == ON_ADD_DEV);
+        on_client_t* add_or_remove_client = NULL;
+        on_encoded_did_t encoded_add_or_rm_did;
+        
+        if(adding && !add_device_update_in_progress)
+        {
+            // looks like we queued a message in the past and since then,
+            // everything has either been updated or for whatever other
+            // reason, we should not send this message, so cancel it.  If it
+            // turns out that not everyone has been updated, this flag will be
+            // reset to true.  We'll just assume that whoever set this flag
+            // knows what he / she /it is doing. :)  Cancel the message!
+            *recipient_send_list = NULL;
+            return;
+        }
+        else if(!adding && !remove_device_update_in_progress)
+        {
+            // looks like we queued a message in the past and since then,
+            // everything has either been updated or for whatever other
+            // reason, we should not send this message, so cancel it.  If it
+            // turns out that not everyone has been updated, this flag will be
+            // reset to true.  We'll just assume that whoever set this flag
+            // knows what he / she /it is doing. :)  Cancel the message!
+            *recipient_send_list = NULL;
+            return;
+        }
+        
+        
+        
+        if((add_or_remove_client = client_info((on_encoded_did_t*)
+          &(msg->payload[1]))) == NULL)
+        {
+            // internal error.  This message has been corrupted somehow.
+            // Cancel any notifications.
+            on_raw_did_t raw_did;
+            UInt8 i;
+            on_ack_nack_t ack_nack;
+            ack_nack.nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+
+            for(i = 0; i < master_param->client_count; i++)
+            {
+                on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);            
+                
+                if(adding)
+                {
+                    if(client_list[i].send_add_device_message)
+                    {
+                        one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
+                          &raw_did, &ack_nack);
+                        client_list[i].send_add_device_message = FALSE;
+                    }
+                }
+                else
+                {
+                    if(client_list[i].send_remove_device_message)
+                    {
+                        one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
+                          &raw_did, &ack_nack);
+                        client_list[i].send_remove_device_message = FALSE;
+                    }
+                }
+            }
+            
+            if(adding)
+            {
+                one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
+                    NULL, &ack_nack);
+                add_device_update_in_progress = FALSE;
+            }
+            else
+            {
+                one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
+                    NULL, &ack_nack);
+                remove_device_update_in_progress = FALSE;
+            }
+            
+            // now cancel this message.
+            *recipient_send_list = NULL;
+            return;
+        }
+        
+        if(adding && add_or_remove_client->send_add_device_message)
+        {
+            // TODO -- if we get here, I think we have an inefficiency.  The
+            // client being added needs to be informed via an ACK.  How did
+            // the "send_add_device_message" get flagged in the first place?
+            // Did it need to be?  Can this be improved?  Regardless, this WILL
+            // work and until we're sure this is NOT needed and / or desired and
+            // working as far as an anti-collision test, we'll keep it in.
+            
+            // cancel the message.  This client has not been informed yet that
+            // it is now a member of the network.  We want to inform it when it
+            // checks in with us.
+            *recipient_send_list = NULL;
+            return;
+        }
+        else if(!adding && add_or_remove_client->send_remove_device_message)
+        {
+            if(features_device_sleeps(add_or_remove_client->device.features))
+            {
+                // this client is not going to be informed of its own removal.
+                // TODO -- see the other TODO comments.  Is this wise /
+                // necessary?
+                
+                // set the flag so that we don't send again and inform the
+                // master that this client was not informed of its removal.
+                add_or_remove_client->send_remove_device_message = FALSE;
+                
+                // cancel this message.
+                *recipient_send_list = NULL;
+                return;                
+            }
+            
+            // the device being removed hasn't been informed yet.  Whoever
+            // the original intended recipient of this message was, the device
+            // being removed needs to be informed first, so we'll change the
+            // recipient.
+            
+            // first clear the list.
+            (*recipient_send_list)->num_recipients = 0;
+            
+            // now add the new recipient.
+            did_unit.did[0] = encoded_add_or_rm_did[0];
+            did_unit.did[1] = encoded_add_or_rm_did[1];
+            add_recipient_to_recipient_list(*recipient_send_list, &did_unit);
+            return;
+        }
+    }
+
     
     // we may already have a destination queued.  If so, override the
     // random index with that one.
