@@ -296,7 +296,9 @@ int main(void)
     
     // do some initialization here.  It may get written over later, but
     // that's OK.
+    #if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
     on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
+    #endif
     one_net_memmove(on_base_param->current_key, EVAL_KEY,
       ONE_NET_XTEA_KEY_LEN);
     #ifdef _ONE_NET_MASTER
