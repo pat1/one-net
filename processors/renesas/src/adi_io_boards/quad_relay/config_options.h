@@ -79,59 +79,100 @@
 
 
 
+#ifndef _QUAD_OUTPUT
+    #define _QUAD_OUTPUT
+#endif
+
+
 
 // Master/Client
+#ifndef _ONE_NET_MASTER
+//	#define _ONE_NET_MASTER
+#endif
+
 #ifndef _ONE_NET_CLIENT
 	#define _ONE_NET_CLIENT
 #endif
 
 
+
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
 // Define _PEER if your application implements peer assignments.  Default is _PEER assigned
 #ifndef _PEER
-//	#define _PEER
+	#define _PEER
+#endif
+
+#ifndef _EXTENDED_SINGLE
+//    #define _EXTENDED_SINGLE
+#endif
+
+// Extended Single must be enabled if Block messages is enabled.
+// Block Messages
+#ifdef _EXTENDED_SINGLE
+    #ifndef _BLOCK_MESSAGES_ENABLED
+    //	#define _BLOCK_MESSAGES_ENABLED
+    #endif
+#endif
+
+// Stream Messages -- available only if block messages are enabled.
+#ifdef _BLOCK_MESSAGES_ENABLED
+    #ifndef _STREAM_MESSAGES_ENABLED
+//	    #define _STREAM_MESSAGES_ENABLED
+    #endif
+#endif
+
+// Multi-Hop
+#ifndef _ONE_NET_MULTI_HOP
+//	#define _ONE_NET_MULTI_HOP
+#endif
+
+#ifdef _ONE_NET_MULTI_HOP
+	#ifndef _ONE_NET_MH_CLIENT_REPEATER
+//		#define _ONE_NET_MH_CLIENT_REPEATER
+	#endif
 #endif
 
 #ifndef _RANGE_TESTING
 //    #define _RANGE_TESTING
 #endif
 
+// variable data rates are only available if block messages are enabled
+#ifdef _BLOCK_MESSAGES_ENABLED
+    // Enable this if data rates can be changed to anything besides the 38,400 base.
+    #ifndef _DATA_RATE
+    //    #define _DATA_RATE
+    #endif
+#endif
 
 
-// ONE_NET_SIMPLE_DEVICE, _ONE_NET_SIMPLE_MASTER, and _ONE_NET_SIMPLE_CLIENT
-// are now defined explicitly.
-#if !defined(_BLOCK_MESSAGES_ENABLED) && !defined(_ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_DEVICE
+// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
+// NO_SINGLE_QUEUE_LEVEL means no single queue is used
+// MIN_SINGLE_QUEUE_LEVEL means no "times".
+// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
+// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
+#ifndef _SINGLE_QUEUE_LEVEL
+    #define NO_SINGLE_QUEUE_LEVEL 0
+    #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
+	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
+	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
+	
+	#define _SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
+#endif
+
+// simple clients cannot be masters, queue messages for future sending, have extended single,
+// block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
+// needed to test.
+#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
+    #ifndef _ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed
-        #define _ONE_NET_SIMPLE_DEVICE
+        #define _ONE_NET_SIMPLE_CLIENT
     #endif
 #endif
-
-#ifdef _ONE_NET_SIMPLE_DEVICE
-    #ifdef _ONE_NET_MASTER
-        #ifndef _ONE_NET_SIMPLE_MASTER
-            // comment in or out as needed
-            #define _ONE_NET_SIMPLE_MASTER
-        #endif
-    #endif
-    #ifdef _ONE_NET_CLIENT
-        #ifndef _ONE_NET_SIMPLE_CLIENT
-            // comment in or out as needed
-            #define _ONE_NET_SIMPLE_CLIENT
-        #endif
-    #endif
-#endif
-
-
-// Jan. 3, 2012
-#define _DEREK_SIMPLE_CLIENT _ONE_NET_SIMPLE_CLIENT
-
-
 
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
-//    #define _IDLE
+//  #define _IDLE
 #endif
 
 
@@ -140,7 +181,7 @@
 // if _IDLE is defined.
 #if defined(_IDLE) && defined(_ONE_NET_CLIENT)
     #ifndef _ENHANCED_INVITE
-	    #define _ENHANCED_INVITE
+//   #define _ENHANCED_INVITE
 	#endif
 #endif
 
@@ -156,9 +197,8 @@
 #endif
 
 
-#define QUAD_OUTPUT
 
-
+// Other Options
 #ifndef _R8C_TINY
 	#define _R8C_TINY
 #endif
@@ -168,32 +208,6 @@
 // non-volatile memory (i.e. Flash memory)
 #ifndef _NON_VOLATILE_MEMORY
     #define _NON_VOLATILE_MEMORY
-#endif
-
-
-
-// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
-// NO_SINGLE_QUEUE_LEVEL means no single queue is used
-// MIN_SINGLE_QUEUE_LEVEL means no "times".
-// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
-// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
-#ifndef _SINGLE_QUEUE_LEVEL
-    #define NO_SINGLE_QUEUE_LEVEL 0
-    #define MIN_SINGLE_QUEUE_LEVEL 1
-	#define MED_SINGLE_QUEUE_LEVEL 2
-	#define MAX_SINGLE_QUEUE_LEVEL 3
-	
-	#define _SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
-#endif
-
-#ifndef _EXTENDED_SINGLE
-//    #define _EXTENDED_SINGLE
-#endif
-
-
-// replace with named constants
-#ifndef _ACK_NACK_LEVEL
-    #define _ACK_NACK_LEVEL 1
 #endif
 
 
@@ -216,8 +230,25 @@
     #endif
 #endif
 
+
+#define _ACK_NACK_LEVEL 3
+
+
 // Now test #defines for compatibility
 #include "test_defines.h"
+
+
+
+
+// these aren't configuration options but rather aliases to avoid multiple
+// identical functions.
+#define one_net_client_handle_single_pkt eval_handle_single
+#define one_net_master_handle_single_pkt eval_handle_single
+#define one_net_client_handle_ack_nack_response eval_handle_ack_nack_response
+#define one_net_master_handle_ack_nack_response eval_handle_ack_nack_response
+#define one_net_client_single_txn_status eval_single_txn_status
+#define one_net_master_single_txn_status eval_single_txn_status
+
 
 
 
