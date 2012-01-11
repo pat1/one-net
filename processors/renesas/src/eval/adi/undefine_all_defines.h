@@ -72,20 +72,8 @@
     #undef _RANGE_TESTING
 #endif
 
-#ifdef _ONE_NET_SIMPLE_DEVICE
-    #undef _ONE_NET_SIMPLE_DEVICE
-#endif
-
-#ifdef _ONE_NET_SIMPLE_DEVICE
-    #define _ONE_NET_SIMPLE_DEVICE
-#endif
-
 #ifdef _ONE_NET_SIMPLE_CLIENT
     #define _ONE_NET_SIMPLE_CLIENT
-#endif
-
-#ifdef _ONE_NET_SIMPLE_MASTER
-    #define _ONE_NET_SIMPLE_MASTER
 #endif
 
 #ifdef _IDLE
