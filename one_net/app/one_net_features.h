@@ -70,7 +70,7 @@ enum
 {
     // first bit unused for now.
     ON_PEER_FEATURE_SHIFT           = 1,  //! Bit 1 -- Mask = 0x02   True if Device is peer capable
-    ON_NON_SIMPLE_DEVICE_SHIFT      = 2,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple device
+    ON_NON_SIMPLE_CLIENT_SHIFT      = 2,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple client
     ON_DEVICE_NEVER_SLEEPS_SHIFT    = 3,  //! Bit 3 -- Mask = 0x08.  True if Device is always awake
     ON_BLOCK_FEATURE_SHIFT          = 4,  //! Bit 2 -- Mask = 0x10.  True if block messages are enabled
     ON_MH_FEATURE_SHIFT             = 5,  //! Bit 5 -- Mask = 0x20.  True if Multi-Hop capable
@@ -78,7 +78,7 @@ enum
     ON_STREAM_FEATURE_SHIFT         = 7,  //! Bit 7 -- Mask = 0x80.  True if stream messages enabled
     
     ON_PEER_FEATURE_MASK            = 0x02,  //! Bit 1 -- Mask = 0x02   True if Device is peer capable
-    ON_NON_SIMPLE_DEVICE_MASK       = 0x04,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple device
+    ON_NON_SIMPLE_CLIENT_MASK       = 0x04,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple client
     ON_DEVICE_NEVER_SLEEPS_MASK     = 0x08,  //! Bit 3 -- Mask = 0x08.  True if Device is always awake
     ON_BLOCK_FEATURE_MASK           = 0x10,  //! Bit 2 -- Mask = 0x10.  True if block messages are enabled
     ON_MH_FEATURE_MASK              = 0x20,  //! Bit 5 -- Mask = 0x20.  True if Multi-Hop capable
@@ -113,7 +113,7 @@ enum
             + ON_PEER_FEATURE_MASK
         #endif
         #ifndef _ONE_NET_SIMPLE_CLIENT
-            + ON_NON_SIMPLE_DEVICE_MASK
+            + ON_NON_SIMPLE_CLIENT_MASK
         #endif
         #ifndef _DEVICE_SLEEPS
             + ON_DEVICE_NEVER_SLEEPS_MASK

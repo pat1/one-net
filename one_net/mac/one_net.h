@@ -410,7 +410,7 @@ typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t* txn,
   on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
 
-#ifndef _ONE_NET_SIMPLE_DEVICE
+#ifndef _ONE_NET_SIMPLE_CLIENT
 typedef void (*on_recip_list_hdlr_t)(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
 #endif
@@ -432,7 +432,7 @@ typedef struct
     //! Single transaction handler
     on_txn_hdlr_t single_txn_hdlr;
     
-    #ifndef _ONE_NET_SIMPLE_DEVICE
+    #ifndef _ONE_NET_SIMPLE_CLIENT
     on_recip_list_hdlr_t adj_recip_list_hdlr;
     #endif
 

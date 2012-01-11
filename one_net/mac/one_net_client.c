@@ -213,7 +213,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 static BOOL check_in_with_master(void);
 
 
-#ifndef _ONE_NET_SIMPLE_DEVICE
+#ifndef _ONE_NET_SIMPLE_CLIENT
 static void on_client_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
 #endif
@@ -1209,7 +1209,7 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr =
       &on_client_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
-    #ifndef _ONE_NET_SIMPLE_DEVICE
+    #ifndef _ONE_NET_SIMPLE_CLIENT
     pkt_hdlr.adj_recip_list_hdlr = &on_client_adjust_recipient_list;
     #endif
     
@@ -1761,7 +1761,7 @@ static BOOL check_in_with_master(void)
 }
 
 
-#ifndef _ONE_NET_SIMPLE_DEVICE
+#ifndef _ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows for adjustment of the recipient list for a message
 

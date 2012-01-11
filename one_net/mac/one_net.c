@@ -1053,7 +1053,7 @@ void one_net(on_txn_t ** txn)
     one_net_status_t status;
     on_txn_t* this_txn;
     on_pkt_t* this_pkt_ptrs;
-    #ifndef _ONE_NET_SIMPLE_DEVICE
+    #ifndef _ONE_NET_SIMPLE_CLIENT
     static BOOL at_least_one_response = FALSE;
     #endif
     
@@ -1145,14 +1145,14 @@ void one_net(on_txn_t ** txn)
                             }
                             #endif
                             
-                            #ifndef _ONE_NET_SIMPLE_DEVICE
+                            #ifndef _ONE_NET_SIMPLE_CLIENT
                             (*pkt_hdlr.adj_recip_list_hdlr)(&single_msg, 
                               &recipient_send_list_ptr);
                             #endif
 
                             if(recipient_send_list_ptr)
                             {
-                                #ifndef _ONE_NET_SIMPLE_DEVICE
+                                #ifndef _ONE_NET_SIMPLE_CLIENT
                                 at_least_one_response = FALSE;
                                 #endif
                                 recipient_send_list_ptr->recipient_index = -1;
@@ -1477,14 +1477,14 @@ void one_net(on_txn_t ** txn)
             BOOL response_msg_or_timeout = FALSE; // will be set to true if
                  // the response timer timed out or there was a response
             
-            #ifndef _ONE_NET_SIMPLE_DEVICE
+            #ifndef _ONE_NET_SIMPLE_CLIENT
             // send right away unless overruled later.
             UInt32 next_send_pause_time = 0;
             #endif
             
             if(ont_inactive_or_expired(ONT_RESPONSE_TIMER))
             {
-                #ifndef _ONE_NET_SIMPLE_DEVICE
+                #ifndef _ONE_NET_SIMPLE_CLIENT
                 // we timed out without a response.  Notify application code
                 // it's unlikely they'll decide to change the response time-
                 // out, but they might.
@@ -1497,7 +1497,7 @@ void one_net(on_txn_t ** txn)
                 response_msg_or_timeout = TRUE;
                 (*txn)->retry++;
                 
-                #ifndef _ONE_NET_SIMPLE_DEVICE
+                #ifndef _ONE_NET_SIMPLE_CLIENT
                 msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(&single_txn,
                   &data_pkt_ptrs, single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), &ack_nack);
@@ -1566,7 +1566,7 @@ void one_net(on_txn_t ** txn)
                         default:
                             terminate_txn = ((*txn)->retry >= ON_MAX_RETRY ||
                               this_txn == 0);
-                            #ifndef _ONE_NET_SIMPLE_DEVICE
+                            #ifndef _ONE_NET_SIMPLE_CLIENT
                             at_least_one_response = TRUE;
                             #endif
                     }
@@ -1603,7 +1603,7 @@ void one_net(on_txn_t ** txn)
                 
                 if(!terminate_txn)
                 {
-                    #ifndef _ONE_NET_SIMPLE_DEVICE
+                    #ifndef _ONE_NET_SIMPLE_CLIENT
                     ont_set_timer((*txn)->next_txn_timer,
                       MS_TO_TICK(next_send_pause_time));
                     #else
@@ -1627,7 +1627,7 @@ void one_net(on_txn_t ** txn)
                       msg_status = ON_MSG_FAIL;
                 }
 
-                #ifndef _ONE_NET_SIMPLE_DEVICE
+                #ifndef _ONE_NET_SIMPLE_CLIENT
                 // if we get no reponse this last try and we NEVER got any
                 // reponse, we'll make the nack reason
                 // ON_NACK_RSN_NO_RESPONSE_TXN.
