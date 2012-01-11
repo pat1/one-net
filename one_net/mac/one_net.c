@@ -1308,7 +1308,7 @@ void one_net(on_txn_t ** txn)
                 // wants to.
                 switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
                 {
-                    case ON_MSG_ABORT: return TRUE; // aborting
+                    case ON_MSG_ABORT: return; // aborting
                 }
                 
                 data_pkt_ptrs.hops = single_txn.hops;
