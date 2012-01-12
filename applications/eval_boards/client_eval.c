@@ -298,7 +298,7 @@ void init_serial_client(void)
 }
 
 
-one_net_status_t one_net_client_reset_client(one_net_xtea_key_t* invite_key)
+one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_key)
 {
     initialize_default_pin_directions(FALSE);
     
