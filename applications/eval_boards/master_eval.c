@@ -581,10 +581,6 @@ static void send_auto_msg(void)
     if(ont_expired(AUTO_MODE_TIMER))
     {
         UInt8 i;
-        on_encoded_did_t* src_did = (on_encoded_did_t*)
-          (&(on_base_param->sid[ON_ENCODED_NID_LEN]));
-        
-        UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
         
         // each client gets a different text message
         char* auto_messages[NUM_AUTO_CLIENTS] = {"11", "22", "33"};

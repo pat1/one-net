@@ -1121,10 +1121,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
   on_base_param_t* out_base_param, on_master_t* out_master_param,
   BOOL send_update_to_network)
 {
-    // instead of separate arguments for values returned.
-    one_net_status_t status;
     on_raw_did_t raw_did;
-
     on_client_t * client;
     
     if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
@@ -1295,7 +1292,6 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const on_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
   const on_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT)
 {
-    on_client_t * src_client = 0, * peer_client = 0;
     on_encoded_did_t enc_src_did;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
     on_encoded_did_t* enc_dst_did = (on_encoded_did_t*)&pld[ON_PEER_DID_IDX];
@@ -1894,7 +1890,6 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
   const on_ack_nack_t* const ack_nack, on_client_t* client)
 {
     UInt8 admin_type = raw_pld[0];
-    const UInt8* admin_data_payload = raw_pld + 1;
     one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
     on_encoded_did_t enc_did;
     on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN);

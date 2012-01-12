@@ -217,7 +217,7 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT)
 {
-    UInt8 index, unit_list_index;
+    UInt8 unit_list_index;
     SInt8 insertion_index = -1; // negative means unset
     UInt8 num_peers_for_src = 0; // number of peers for this source
     
