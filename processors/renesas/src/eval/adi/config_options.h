@@ -199,14 +199,24 @@
 	#define _ONE_NET_EVAL
 #endif
 
-
+#ifndef _UART
+    // Enable this if there is UART
+    #define _UART
+#endif
 
 // Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
 // 3 for more detailed printouts, etc.  The higher the number, the
 // more detailed the display will be.  This value must be set
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#define _DEBUG_VERBOSE_LEVEL 1
+#ifdef _UART
+    // You can change the value below.
+    #define _DEBUG_VERBOSE_LEVEL 1
+#else
+    // DO NOT change the value below.
+    #define _DEBUG_VERBOSE_LEVEL 0
+#endif
+    
 
 
 #ifdef _ONE_NET_EVAL
@@ -253,10 +263,19 @@
 #endif
 
 
-// Command line interface
-#ifndef _ENABLE_CLI
-	#define _ENABLE_CLI
+#ifdef _UART
+    // "Blocking" versus "Non-blocking" uart.
+    #ifndef _BLOCKING_UART
+        #define _BLOCKING_UART
+    #endif
+
+    // Command line interface
+    #ifndef _ENABLE_CLI
+        #define _ENABLE_CLI
+    #endif    
 #endif
+
+
 
 // #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
 // own #define for maximum ease of enabling and disabling features.  CLI options that don't make
@@ -475,17 +494,6 @@
     #define _HAS_LEDS
 #endif
 
-// Enable this if there is UART
-#ifndef _UART
-    #define _UART
-#endif
-
-// "Blocking" versus "Non-blocking" uart.
-#ifdef _UART
-    #ifndef _BLOCKING_UART
-        #define _BLOCKING_UART
-    #endif
-#endif
 
 
 // Use this feature to override any random channel searching and select a
