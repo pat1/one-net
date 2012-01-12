@@ -316,7 +316,7 @@ void init_auto_master(void)
 #ifdef _NON_VOLATILE_MEMORY
 void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 #else
-void init_serial_master(UInt8 channel)
+void init_serial_master(SInt8 channel)
 #endif
 {
 #ifdef _NON_VOLATILE_MEMORY
