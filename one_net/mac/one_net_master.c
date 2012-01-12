@@ -1801,7 +1801,6 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
   on_ack_nack_t* ack_nack)
 {
     on_raw_did_t src_did;
-    UInt8 raw_hops_field;
     on_message_status_t status = ON_MSG_DEFAULT_BHVR;
     on_msg_hdr_t msg_hdr;
     

@@ -1293,7 +1293,6 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 
     if(match_idx != i)
     {
-        UInt8* ptr = on_base_param->sid;
         // replace the least recently used device
         match_idx = max_lru_idx;
         one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
