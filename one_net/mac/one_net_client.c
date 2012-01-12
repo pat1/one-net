@@ -783,7 +783,6 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
   on_ack_nack_t* ack_nack)
 {
     on_raw_did_t src_did;
-    UInt8 raw_hops_field;
     on_message_status_t status = ON_MSG_DEFAULT_BHVR;
     on_msg_hdr_t msg_hdr;
     BOOL no_response;
@@ -1474,7 +1473,6 @@ static BOOL look_for_invite(void)
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn, on_ack_nack_t* ack_nack)
 {
-    on_message_status_t status;
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
 

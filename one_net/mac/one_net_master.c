@@ -304,8 +304,6 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
 one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY)
 {
-	UInt8 i;
-
     if(!SID || !KEY)
     {
         return ONS_BAD_PARAM;
@@ -726,7 +724,6 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 one_net_status_t one_net_master_cancel_invite(
   const one_net_xtea_key_t* const KEY)
 {
-    UInt8 i;
     invite_txn.priority = ONE_NET_NO_PRIORITY;
     ont_stop_timer(invite_txn.next_txn_timer);
     ont_stop_timer(ONT_INVITE_TIMER);
@@ -934,7 +931,6 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
 */
 BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did)
 {
-    one_net_status_t status;
     on_client_t* client;
     
     if(!did)
@@ -2341,7 +2337,6 @@ static void check_updates_in_progress(void)
     const tick_t UPDATE_TIME_LIMIT = MS_TO_TICK(60000);
 
     UInt16 i;
-    on_client_t* client;
     UInt8 admin_payload[4];
     on_ack_nack_t ack;
     UInt8 admin_msg_id = 0xFF; // garbage argument.  Will be written over if
@@ -2566,7 +2561,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
   on_client_t ** client, on_ack_nack_t* ack_nack)
 {
-    on_message_status_t status;
     on_raw_did_t raw_did;
 
     // TODO -- we need some named constants

@@ -2242,7 +2242,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 #endif
 {
     one_net_status_t status;
-    on_encoded_did_t src_did;
     one_net_xtea_key_t* key = NULL;
     UInt8 raw_pid, enc_pid; // TODO -- make this one variable?  This can be
                             // easily done, but it's a little confusing to
@@ -2251,7 +2250,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     BOOL dst_is_broadcast, dst_is_me, src_match;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL packet_is_mh;
-    UInt8 raw_hops_field;
     #endif
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     BOOL repeat_this_packet = FALSE;
