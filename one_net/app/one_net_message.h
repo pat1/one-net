@@ -199,6 +199,9 @@ typedef enum
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
     ON_CHANGE_FRAGMENT_DELAY = 0x08,
+    
+    //! Response to changing of fragment delays
+    ON_CHANGE_FRAGMENT_DELAY_RESP = 0x09,
     #endif
     
     //! Sent to change the keep alive interval
