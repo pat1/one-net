@@ -1338,13 +1338,8 @@ void one_net(on_txn_t ** txn)
                 {
                     // we're the master.  We may or may not be dealing
                     // with a client using the old key.
-                    #ifdef _STREAM_MESSAGES_ENABLED
-                    single_txn.key = master_get_encryption_key(ON_SINGLE,
-                      (on_encoded_did_t*) single_msg.dst_did);
-                    #else
                     single_txn.key = master_get_encryption_key(
                       (on_encoded_did_t*) single_msg.dst_did);
-                    #endif
                 }
                 #endif
                 
@@ -2543,11 +2538,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
-        #ifdef _STREAM_MESSAGES_ENABLED
-        key = master_get_encryption_key(type, (*this_pkt_ptrs)->enc_src_did);
-        #else
         key = master_get_encryption_key((*this_pkt_ptrs)->enc_src_did);
-        #endif
     }
     #endif
     
