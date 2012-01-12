@@ -111,6 +111,7 @@ static void client_user_pin(void);
 void one_net_client_client_removed(const on_raw_did_t * const raw_did,
     BOOL this_device_removed)
 {
+    #ifdef _UART
     if(this_device_removed)
     {
         oncli_send_msg("This device has been removed from the network.\n");
@@ -120,19 +121,23 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
         oncli_send_msg("Device %03d has been removed from the network.\n",
           did_to_u16(raw_did));
     }
+    #endif
 }
 
 
 void one_net_client_client_added(const on_raw_did_t * const raw_did)
 {
+    #ifdef _UART
     oncli_send_msg("Device %03d has been added to the network.\n",
       did_to_u16(raw_did));
+    #endif
 }
 
 
 void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
   one_net_status_t status)
 {
+    #ifdef _UART
     switch(status)
     {
         case ONS_CANCELED: oncli_send_msg("Invite process cancelled.\n");
@@ -143,6 +148,7 @@ void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
           // print the joined message
           oncli_send_msg(ONCLI_JOINED_FMT, did_to_u16(RAW_DID));
     }
+    #endif
 }
     
     
@@ -169,8 +175,10 @@ one_net_status_t one_net_client_erase_settings(void)
 
 void one_net_client_client_remove_device(void)
 {
+    #ifdef _UART
     oncli_send_msg("Removed from network by master.  No longer joined.\n");
     oncli_send_msg("Now resetting the device and looking for an invite.\n");
+    #endif
 } // one_net_client_client_remove_device //
 
 
@@ -268,14 +276,18 @@ void init_serial_client(void)
         
         if(status != ONS_SUCCESS)
         {
+            #ifdef _UART
             oncli_send_msg("Parameters have not been loaded from flash.\n");
+            #endif
             one_net_client_reset_client(one_net_client_get_invite_key());
         }
         else
         {
             // so far, so good.  Copy the pin info and we should be done.
             one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
+            #ifdef _UART
             oncli_send_msg("Parameters have been loaded from flash.\n");
+            #endif
         }
     }
     else

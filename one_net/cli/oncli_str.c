@@ -41,6 +41,9 @@
 */
 
 #include "config_options.h"
+
+#ifdef _UART
+
 #include "one_net_status_codes.h"
 #include "oncli_str.h"
 #include "one_net_data_rate.h"
@@ -694,3 +697,6 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 //==============================================================================
 
 //! @} oncli_str
+
+
+#endif // #ifdef _UART //

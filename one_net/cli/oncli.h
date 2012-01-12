@@ -1,6 +1,11 @@
 #ifndef _ONCLI_H 
 #define _ONCLI_H 
 
+#include "config_options.h"
+#ifdef _UART
+
+
+
 
 #include "one_net_types.h"
 #include "oncli_port.h"
@@ -169,5 +174,7 @@ void print_recipient_list(const on_recipient_list_t* const recip_list);
 
 //! @} oncli
 
+
+#endif // #ifdef _UART //
 
 #endif // #ifdef _ONCLI_H //

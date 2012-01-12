@@ -39,6 +39,8 @@
 
 #include "config_options.h"
 
+#ifdef _UART
+
 
 #include "oncli.h"
 #include "one_net.h"
@@ -1137,3 +1139,5 @@ static void print_cmd_result(const char * const CMD,
 
 //! @} oncli
 
+
+#endif // if _UART //

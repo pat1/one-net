@@ -49,6 +49,9 @@
 #include "config_options.h"
 
 
+#ifdef _UART
+
+
 //==============================================================================
 //								CONSTANTS
 //! \defgroup oncli_str_const
@@ -408,5 +411,7 @@ enum
 
 //! @} oncli_str
 
+
+#endif // #ifdef _UART //
 
 #endif // #ifdef _ONCLI_STR_H //

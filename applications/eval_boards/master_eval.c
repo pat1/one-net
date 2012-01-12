@@ -196,6 +196,7 @@ BOOL one_net_master_device_is_awake(BOOL responding,
 void one_net_master_invite_result(one_net_status_t STATUS,
   one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID)
 {
+    #ifdef _UART
     if(!KEY)
     {
         oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
@@ -244,6 +245,7 @@ void one_net_master_invite_result(one_net_status_t STATUS,
             break;
         } // default case //
     } // switch(STATUS) //
+    #endif
 } // one_net_master_invite_result //
 
 
@@ -387,11 +389,15 @@ void init_serial_master(SInt8 channel)
     
     if(memory_loaded)
     {
+        #ifdef _UART
         oncli_send_msg("Parameters have been loaded from flash.\n");
+        #endif
     }
     else
     {
+        #ifdef _UART
         oncli_send_msg("Parameters have not been loaded from flash.\n");
+        #endif
 #endif
         // start a brand new network
         one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
@@ -449,6 +455,7 @@ one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
 void one_net_master_update_result(one_net_mac_update_t update,
   const on_raw_did_t* did, const on_ack_nack_t* ack_nack)
 {
+    #ifdef _UART
     const char * result_status;
     const char * result_type;
     const char * result_fmt = ONCLI_UPDATE_RESULT_FMT;
@@ -524,14 +531,17 @@ void one_net_master_update_result(one_net_mac_update_t update,
     {
         oncli_send_msg(result_fmt, result_type, result_status);
     }
+    #endif
 } // one_net_master_update_result //
 
 
 BOOL one_net_master_client_missed_check_in(on_client_t* client)
 {
+    #ifdef _UART
     on_raw_did_t raw_did;
     on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);
     oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16(&raw_did));
+    #endif
     return FALSE;
 }
 
@@ -560,11 +570,13 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 */
 static void send_auto_msg(void)
 {
+    #ifdef _UART
     if(oncli_user_input())
     {
         ont_set_timer(AUTO_MODE_TIMER, MS_TO_TICK(AUTO_MANUAL_DELAY));
         return;
     } // if there is user input //
+    #endif
 
     if(ont_expired(AUTO_MODE_TIMER))
     {

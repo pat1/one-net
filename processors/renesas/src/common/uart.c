@@ -365,18 +365,17 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
 } // uart_write_int8_hex_array //
 
 
+#endif //  if UART is enabled //
 
 
-//! @} uart_pub_func
-//						PUBLIC FUNCTION IMPLEMENTATION END
-//==============================================================================
+// Jan. 12, 2012
+// We won't define out the interrupts just because it's easier to keep them
+// so we don't get an error in sect30.inc if you only change config_options.h
+// and don't want to mess with vector tables.  However, if you really aren't
+// using uart, you should comment the two interrupts out and remove uart_tx_isr
+// and uart_rx_isr from the interrupt table in sect30.inc.
 
 
-//==============================================================================
-//						PRIVATE FUNCTION IMPLEMENTATION 
-//! \addtogroup uart_pri_func
-//! \ingroup uart
-//! @{
 
 /*!
     \brief ISR for transmitting data over the serial port
@@ -390,6 +389,7 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
 #pragma interrupt uart_tx_isr
 void uart_tx_isr( void )
 {
+    #ifdef _UART
     UInt8 byte;
 
     // if there was a TX interrupt and the cb is not empty, get a byte
@@ -413,6 +413,7 @@ void uart_tx_isr( void )
 
     // clear interrupt flag
     ir_s0tic = 0;
+    #endif
 } // uart_transmit_isr //
 
 
@@ -426,6 +427,7 @@ void uart_tx_isr( void )
 #pragma interrupt uart_rx_isr
 void uart_rx_isr(void)
 {
+    #ifdef _UART
 	UInt8 byte;
 
 	byte = u0rb;
@@ -438,12 +440,13 @@ void uart_rx_isr(void)
 
     // clear interrupt flag
 	ir_s0ric = 0;
+    #endif
 } // uart_receive_isr //
 
 
-#endif //  if UART is enabled //
+//! @} uart_pub_func
+//						PUBLIC FUNCTION IMPLEMENTATION END
+//==============================================================================
 
-//! @} uart_pri_func
-//						PRIVATE FUNCTION IMPLEMENTATION END
-//============================================================================== 
+
 //! @} uart

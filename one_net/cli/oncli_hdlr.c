@@ -38,6 +38,10 @@
 */
 
 #include "config_options.h"
+
+#ifdef _UART
+
+
 #include "oncli_hdlr.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -3963,3 +3967,6 @@ static const char * parse_ascii_tx_text_data(const char * ASCII, UInt8 * data,
 //==============================================================================
 
 //! @} oncli_hdlr
+
+
+#endif // #ifdef _UART //
