@@ -265,4 +265,4 @@ BOOL nack_reason_is_fatal(const on_nack_rsn_t nack_reason);
 
 //! @} ONE-NET_ACKNOWLEDGE
 
-#endif // _ONE_NET_PACKET_H //
+#endif // _ONE_NET_ACKNOWLEDGE_H //
