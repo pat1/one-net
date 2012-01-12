@@ -41,7 +41,6 @@
 */
 
 #include "one_net_port_specific.h"
-#include "pal.h"
 
 
 //==============================================================================
@@ -186,12 +185,6 @@ SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM)
 {
     UInt16 val;
-    
-    if(!BYTE_STREAM)
-    {
-        EXIT();
-    } // if parameters are invalid //
-    
     val = (((UInt16)BYTE_STREAM[0]) << 8) & 0xFF00;
     val |= ((UInt16)BYTE_STREAM[1]) & 0x00FF;
     
@@ -201,11 +194,6 @@ UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM)
 
 void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
 {
-    if(!byte_stream)
-    {
-        EXIT();
-    } // if parameters are invalid //
-    
     byte_stream[0] = (UInt8)(VAL >> 8);
     byte_stream[1] = (UInt8)VAL;
 } // one_net_int16_to_byte_stream //
@@ -214,12 +202,6 @@ void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
 UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM)
 {
     UInt32 val;
-
-    if(!BYTE_STREAM)
-    {
-        EXIT();
-    } // if the parameter is invalid //
-    
     val = (((UInt32)BYTE_STREAM[0]) << 24) & 0xFF000000;
     val |= (((UInt32)BYTE_STREAM[1]) << 16) & 0x00FF0000;
     val |= (((UInt32)BYTE_STREAM[2]) << 8) & 0x0000FF00;
@@ -231,11 +213,6 @@ UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM)
 
 void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 {
-    if(!byte_stream)
-    {
-        EXIT();
-    } // if parameters are invalid //
-
     byte_stream[0] = (UInt8)(VAL >> 24);
     byte_stream[1] = (UInt8)(VAL >> 16);
     byte_stream[2] = (UInt8)(VAL >> 8);
@@ -252,11 +229,6 @@ void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 */
 UInt16 did_to_u16(const on_raw_did_t *DID)
 {
-    if(!DID)
-    {
-        return 0;
-    } // if the parameter is invalid //
-    
     return one_net_byte_stream_to_int16(*DID) >> RAW_DID_SHIFT;
 } // did_to_u16 //
 
