@@ -619,7 +619,7 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
 BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
 
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,

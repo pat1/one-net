@@ -543,7 +543,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 
 
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  const on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 {
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
