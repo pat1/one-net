@@ -138,7 +138,7 @@ ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8 *payload)
 }
 
 ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
-  const UInt8 *payload)
+  UInt8 *payload)
 {
     UInt16 class_and_type = get_msg_hdr(payload);
     class_and_type &= ~ONA_MSG_CLASS_MASK;
@@ -153,7 +153,7 @@ ONE_NET_INLINE UInt16 get_msg_type(const UInt8 *payload)
 }
 
 ONE_NET_INLINE void put_msg_type(ona_msg_class_t msg_type,
-  const UInt8 *payload)
+  UInt8 *payload)
 {
     UInt16 class_and_type = get_msg_hdr(payload);
     class_and_type &= ONA_MSG_CLASS_MASK;
