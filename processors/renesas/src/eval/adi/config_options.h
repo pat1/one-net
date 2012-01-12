@@ -306,6 +306,11 @@
         #ifndef _ENABLE_SAVE_COMMAND
 	        #define _ENABLE_SAVE_COMMAND
         #endif
+        
+        // _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
+        #ifndef _ENABLE_SETNI_COMMAND
+            #define _ENABLE_SETNI_COMMAND
+        #endif
     #endif
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
@@ -404,11 +409,6 @@
 		    #define _ENABLE_JOIN_COMMAND
 	    #endif
     #endif
-
-	// _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
-	#ifndef _ENABLE_SETNI_COMMAND
-		#define _ENABLE_SETNI_COMMAND
-	#endif
 
 	// _ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
 	#ifdef _SNIFFER_MODE
