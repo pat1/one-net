@@ -367,7 +367,6 @@ BOOL pop_queue_element(void)
 int single_data_queue_ready_to_send(tick_t* const next_pop_time)
 {
 	int i, j;
-    int* index;
     tick_t sleep_time;
 	UInt8 priority = ONE_NET_HIGH_PRIORITY;
 	tick_t cur_tick = get_tick_count();

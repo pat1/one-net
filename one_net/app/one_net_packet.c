@@ -310,7 +310,6 @@ BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
 */
 BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack)
 {
-    UInt8 i, j;
     BOOL pid_is_nack = packet_is_nack(*raw_pid);
     BOOL pid_is_ack  = packet_is_ack(*raw_pid);
     if(!pid_is_ack && !pid_is_nack)
