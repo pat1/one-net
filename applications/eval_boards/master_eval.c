@@ -20,7 +20,9 @@
 #include "one_net_timer.h"
 #include "io_port_mapping.h"
 #include "tick.h"
+#ifdef _NON_VOLATILE_MEMORY
 #include "nv_hal.h"
+#endif
 #include "hal.h"
 #include "one_net_eval.h"
 #include "one_net_encode.h"

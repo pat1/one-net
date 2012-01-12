@@ -18,7 +18,9 @@
 #include "pal.h"
 #include "hal.h"
 #include "tal.h"
+#ifdef _NON_VOLATILE_MEMORY
 #include "nv_hal.h"
+#endif
 #include "uart.h"
 #include "io_port_mapping.h"
 #include "oncli.h"

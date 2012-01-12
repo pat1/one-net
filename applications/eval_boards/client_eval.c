@@ -17,7 +17,9 @@
 #include "one_net_port_const.h"
 #include "one_net_constants.h"
 #include "one_net_eval.h"
+#ifdef _NON_VOLATILE_MEMORY
 #include "nv_hal.h"
+#endif
 #include "tick.h"
 #include "one_net_encode.h"
 #include "one_net_port_specific.h"
