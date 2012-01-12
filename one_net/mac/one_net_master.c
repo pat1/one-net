@@ -1520,7 +1520,6 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
     one_net_status_t status;
     on_client_t * client;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
-    pld[0] = client->flags;
 
 
     if(!DST_DID)
@@ -1537,6 +1536,8 @@ one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
     {
         return ONS_INCORRECT_ADDR;
     } // if getting the client info was not successful //
+    
+    pld[0] = client->flags;
 
     if(UPDATE_MASTER)
     {
