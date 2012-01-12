@@ -1754,7 +1754,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     on_message_status_t msg_status;
-    BOOL ack_rcvd = packet_is_ack(pkt->raw_pid);
     UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL verify_needed;
@@ -1975,16 +1974,10 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack)
 {
-    BOOL ack_msg = FALSE;
-    UInt8 msg_type, resp_pid;
+    UInt8 msg_type;
     UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
     UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL src_features_known;
-    BOOL verify_needed = FALSE;
-    BOOL message_id_match = FALSE;
-    BOOL message_ignore = FALSE;
-    tick_t time_now = get_tick_count();
-    on_message_status_t msg_status = ON_MSG_CONTINUE;
     
     if(!txn || !(*txn) || !raw_payload || !ack_nack)
     {
