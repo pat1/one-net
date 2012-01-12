@@ -2455,7 +2455,7 @@ static void check_updates_in_progress(void)
             // sent.  This does not include devices that sleep.
             for(i = 0; i < master_param->client_count; i++)
             {
-                if(!features_device_sleeps(client[i].device.features))
+                if(!features_device_sleeps(client_list[i].device.features))
                 {
                     client_list[i].send_add_device_message = FALSE;
                 }
