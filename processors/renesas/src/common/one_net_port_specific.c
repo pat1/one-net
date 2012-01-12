@@ -92,8 +92,8 @@
 
 void *one_net_memmove(void *dst, const void *src, size_t n)
 {
-    UInt8 *d = dst;
-    const UInt8 *s = src;
+    UInt8 *d = (UInt8*) dst;
+    const UInt8 *s = (const UInt8*) src;
 
     if (!d || !s) { /* no recovery but at least don't crash */
         return NULL;
@@ -145,7 +145,7 @@ void * one_net_memset (void* dst, UInt8 value, size_t len)
 void* one_net_memset_block(void* const dst, size_t size, size_t count,
   const void* const src)
 {
-    int i;
+    size_t i;
     UInt8* ptr;
     
     if (!dst) 
@@ -167,14 +167,18 @@ void* one_net_memset_block(void* const dst, size_t size, size_t count,
 
 SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 {
-    UInt8 * up1;
-    UInt8 * up2;
+    const UInt8 * up1;
+    const UInt8 * up2;
     // If invalid, just return zero since there is no error recovery
-    if (!vp1 || !vp2) {
+    if (!vp1 || !vp2)
+    {
         return 0;
     }
-    for (up1 = vp1, up2 = vp2; n > 0; ++up1, ++up2, --n) {
-        if (*up1 != *up2) {
+    for (up1 = (const UInt8*) vp1, up2 = (const UInt8*) vp2;
+      n > 0; ++up1, ++up2, --n)
+    {
+        if (*up1 != *up2)
+        {
             return ((*up1 < *up2) ? -1 : 1);
         }
     }
