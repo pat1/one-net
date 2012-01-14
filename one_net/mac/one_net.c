@@ -531,8 +531,13 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
-    if((status = on_encrypt(txn->txn_type, raw_payload_bytes, txn->key,
-      raw_pld_len)) == ONS_SUCCESS)
+    #ifdef _STREAM_MESSAGES_ENABLED  
+    if((status = on_encrypt(txn->txn_type == ON_STREAM, raw_payload_bytes,
+      txn->key, raw_pld_len)) == ONS_SUCCESS)
+    #else
+    if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
+      ONS_SUCCESS)
+    #endif
     {
         status = on_encode(pkt_ptrs->payload, raw_payload_bytes,
           num_words);
@@ -602,9 +607,14 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     raw_payload_bytes[0] = (UInt8)one_net_compute_crc(
       &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-      
-    if((status = on_encrypt(txn->txn_type, raw_payload_bytes, txn->key,
-      raw_pld_len)) == ONS_SUCCESS)
+    
+    #ifdef _STREAM_MESSAGES_ENABLED  
+    if((status = on_encrypt(txn->txn_type == ON_STREAM, raw_payload_bytes,
+      txn->key, raw_pld_len)) == ONS_SUCCESS)
+    #else
+    if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
+      ONS_SUCCESS)
+    #endif
     {
         status = on_encode(pkt_ptrs->payload, raw_payload_bytes,
           num_words);
@@ -858,7 +868,7 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     for the encryption type.  In short, data should be the format of the
     payload field for the appropriate data type.
 
-    \param[in] DATA_TYPE Type of data to be sent.  (see on_data_t in one_net.h)
+    \param[in] is_stream_pkt True if the packet is a stream packet, false otherwise
     \param[in/out] data The data to encrypt
     \param[in] KEY The XTEA key used to encrypt the data
     \param[in] payload_len Length to be encrypted, including one byte that is
@@ -867,8 +877,13 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
 
     \return The status of the operation
 */
-one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t on_encrypt(BOOL is_stream_pkt , UInt8 * const data,
   const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+#else
+one_net_status_t on_encrypt(UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+#endif
 {
     // # of encryption rounds
     UInt8 rounds = 0;
@@ -880,7 +895,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
     #ifdef _STREAM_MESSAGES_ENABLED
     // get the number of XTEA rounds
-    if(DATA_TYPE != ON_STREAM)
+    if(is_stream_pkt)
     {
 	#endif
         rounds = ON_XTEA_32_ROUNDS;
@@ -917,8 +932,7 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
     packet.  These 2 bits are the high 2 bits of the last byte, as not all of
     the bits in the last byte are used.
 
-    \param[in] DATA_TYPE Type of data to decrypted.  (see on_data_t in
-      one_net.h)
+    \param[in] is_stream_pkt True if the packet is a stream packet, false otherwise
     \param[in/out] data The data to decrypt
     \param[in] key The XTEA key used to decrypt the data
     \param[in] payload_len Length to be encrypted, including one byte that is
@@ -927,16 +941,16 @@ one_net_status_t on_encrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
     \return The status of the operation
 */
-one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t on_decrypt(BOOL is_stream_pkt , UInt8 * const data,
   const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+#else
+one_net_status_t on_decrypt(UInt8 * const data,
+  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+#endif
 {
     // # of encryption rounds
     UInt8 rounds = 0;
-
-    if(!data)
-    {
-        return ONS_BAD_PARAM;
-    } // if invalid parameter //
 
     if(!data || !KEY || (payload_len < 9) || ((payload_len % 8) != 1))
     {
@@ -945,7 +959,7 @@ one_net_status_t on_decrypt(const UInt8 DATA_TYPE, UInt8 * const data,
 
     // get the number of XTEA rounds
 	#ifdef _STREAM_MESSAGES_ENABLED
-    if(DATA_TYPE != ON_STREAM)
+    if(is_stream_pkt)
     {
 	#endif
         switch(data[payload_len - 1])
@@ -2552,8 +2566,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 master_decrypt_packet:
     #endif
 
-    if((status = on_decrypt(type, raw_payload_bytes, key,
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes, key,
       get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+    #else
+    if((status = on_decrypt(raw_payload_bytes, key,
+      get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+    #endif
     {   
         return status;
     }

@@ -1188,9 +1188,14 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         oncli_send_msg("\n");
                         one_net_memmove(decrypted, encrypted, raw_pld_len);
                         
-                        if(on_decrypt(data_type, decrypted,
+                        #ifdef _STREAM_MESSAGES_ENABLED
+                        if(on_decrypt(data_type == ON_STREAM, decrypted,
                           (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
                           ONS_SUCCESS)
+                        #else
+                        if(on_decrypt(decrypted, (one_net_xtea_key_t*)keys[j],
+                          raw_pld_len) != ONS_SUCCESS)
+                        #endif
                         {
                             oncli_send_msg("Not decryptable\n");
                             break;

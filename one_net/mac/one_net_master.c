@@ -631,9 +631,13 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       &raw_invite[ON_INVITE_CRC_START_IDX],
       ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
 
-    status = on_encrypt(ON_INVITE, raw_invite,
+    #ifdef _STREAM_MESSAGES_ENABLED
+    status = on_encrypt(FALSE, raw_invite,
       (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE);
-
+    #else
+    status = on_encrypt(raw_invite,
+      (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE);
+    #endif
 
     if(status != ONS_SUCCESS)
     {
