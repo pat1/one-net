@@ -101,6 +101,13 @@ extern const char HEX_DIGIT[];
 //! flag to indicate if echoing or not
 BOOL echo_on = TRUE;
 
+//! verbosity level
+#ifdef _DEBUG_VERBOSE_LEVEL
+    UInt8 verbose_level = _DEBUG_VERBOSE_LEVEL;
+#else
+    #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
+#endif
+
 
 //! @} oncli_pub_var
 //							PUBLIC VARIABLES END

@@ -405,13 +405,25 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
         proceed = FALSE;
         synchronize_last_tick();
         #if _DEBUG_VERBOSE_LEVEL > 5
-        oncli_send_msg("\n\nPause : About to write...\n");
-        display_pkt(data, len, NULL, 0, NULL, 0);
-        #elif _DEBUG_VERBOSE_LEVEL > 2
-        oncli_send_msg("\n\nPause : About to write...\n");
-        xdump(data, len);
-        #elif _DEBUG_VERBOSE_LEVEL > 1
-        oncli_send_msg("\n\nWrite PID %02X\n", data[ONE_NET_ENCODED_PID_IDX]);
+        if(verbose_level > 5)
+        {
+            oncli_send_msg("\n\nPause : About to write...\n");
+            display_pkt(data, len, NULL, 0, NULL, 0);
+        }
+        #endif
+        #if _DEBUG_VERBOSE_LEVEL > 2
+        if(verbose_level <= 5 && verbose_level > 2)
+        {
+            oncli_send_msg("\n\nPause : About to write...\n");
+            xdump(data, len);
+        }
+        #endif
+        #if _DEBUG_VERBOSE_LEVEL > 1
+        if(verbose_level == 2)
+        {
+            oncli_send_msg("\n\nWrite PID %02X\n",
+              data[ONE_NET_ENCODED_PID_IDX]);
+        }
         #endif
     }
     
@@ -432,7 +444,10 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
             oncli();  // alow the user to enter commands while pausing
         }
         #if _DEBUG_VERBOSE_LEVEL > 1
-        oncli_send_msg("Pause done\n");
+        if(verbose_level > 1)
+        {
+            oncli_send_msg("Pause done\n");
+        }
         #endif
         pausing = FALSE;
     }

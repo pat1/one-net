@@ -621,6 +621,9 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 const char* const ONCLI_BAUD_CMD_STR = "baud";
 #endif
 
+#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+const char* const ONCLI_VERBOSE_LEVEL_CMD_STR = "verbose level";
+#endif
 
 
 

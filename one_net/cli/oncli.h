@@ -113,6 +113,12 @@ typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 
 
 extern BOOL echo_on;
+#ifdef _DEBUG_VERBOSE_LEVEL
+    extern UInt8 verbose_level;
+#else
+    #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
+#endif
+
 
 
 //! @} oncli_pub_var

@@ -454,9 +454,12 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
       &msg_data);
 
     #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("eval_hdl_sng: ");
-    print_app_payload(raw_pld, 5);
-    oncli_send_msg("\n");
+    if(verbose_level > 3)
+    {
+        oncli_send_msg("eval_hdl_sng: ");
+        print_app_payload(raw_pld, 5);
+        oncli_send_msg("\n");
+    }
     #endif
 
     if(dst_unit >= ONE_NET_NUM_UNITS && dst_unit != ONE_NET_DEV_UNIT)
@@ -654,9 +657,12 @@ on_message_status_t eval_handle_ack_nack_response(
     #endif
     
     #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ehanr : ");
-    print_ack_nack(resp_ack_nack, 5);
-    delay_ms(10);
+    if(verbose_level > 3)
+    {
+        oncli_send_msg("ehanr : ");
+        print_ack_nack(resp_ack_nack, 5);
+        delay_ms(10);
+    }
     #endif
 
     return ON_MSG_CONTINUE;
@@ -845,28 +851,34 @@ void eval_single_txn_status(on_message_status_t status,
     } // if the parameters are invalid //
     
     #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ests start:");
-    oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
-      data[0], data[1], data[2], data[3], data[4]);
-    oncli_send_msg("Hdr-->");
-    print_msg_hdr(&msg_hdr);
-    #ifndef _ONE_NET_MULTI_HOP
-    oncli_send_msg("retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
-      (*dst)[0], (*dst)[1]);
-    #else
-    oncli_send_msg("retry=%d,hops=%d,dst=%02X%02X\nack_nack-->", retry_count,
-      hops, (*dst)[0], (*dst)[1]);
-    #endif
+    if(verbose_level > 3)
+    {
+        oncli_send_msg("ests start:");
+        oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
+          data[0], data[1], data[2], data[3], data[4]);
+        oncli_send_msg("Hdr-->");
+        print_msg_hdr(&msg_hdr);
+        #ifndef _ONE_NET_MULTI_HOP
+        oncli_send_msg("retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
+          (*dst)[0], (*dst)[1]);
+        #else
+        oncli_send_msg("retry=%d,hops=%d,dst=%02X%02X\nack_nack-->", retry_count,
+          hops, (*dst)[0], (*dst)[1]);
+        #endif
 
-    print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
-      ON_PLD_DATA_IDX);
+        print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
+          ON_PLD_DATA_IDX);
+    }
     #endif
 
     oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
       oncli_msg_status_str(status));
 
     #if _DEBUG_VERBOSE_LEVEL > 3
-    oncli_send_msg("ests end\n");
+    if(verbose_level > 3)
+    {
+        oncli_send_msg("ests end\n");
+    }
     #endif
     
     if(ack_nack->handle == ON_ACK_STATUS)
@@ -905,13 +917,16 @@ void debug_display_did(const char* const description,
     
     oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
     #if _DEBUG_VERBOSE_LEVEL > 2
-    if(valid)
+    if(verbose_level > 2)
     {
-        oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
-    }
-    else
-    {
-        oncli_send_msg(" -- Invalid");
+        if(valid)
+        {
+            oncli_send_msg(" -- Decoded : 0x%03X", did_to_u16(&raw_did));
+        }
+        else
+        {
+            oncli_send_msg(" -- Invalid");
+        }
     }
     #endif
     oncli_send_msg("\n");
@@ -938,16 +953,19 @@ void debug_display_nid(const char* const description,
     oncli_send_msg("%s : 0x", description);
     uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
     #if _DEBUG_VERBOSE_LEVEL > 2
-    if(valid)
+    if(verbose_level > 2)
     {
-        oncli_send_msg(" -- Decoded : 0x");
-        uart_write_int8_hex_array(raw_nid, FALSE, ON_RAW_NID_LEN-1);
-        oncli_send_msg("%c", HEX_DIGIT[(raw_nid[ON_RAW_NID_LEN-1] >> 4)
-          & 0x0F]);
-    }
-    else
-    {
-        oncli_send_msg(" -- Invalid");
+        if(valid)
+        {
+            oncli_send_msg(" -- Decoded : 0x");
+            uart_write_int8_hex_array(raw_nid, FALSE, ON_RAW_NID_LEN-1);
+            oncli_send_msg("%c", HEX_DIGIT[(raw_nid[ON_RAW_NID_LEN-1] >> 4)
+              & 0x0F]);
+        }
+        else
+        {
+            oncli_send_msg(" -- Invalid");
+        }
     }
     #endif
     oncli_send_msg("\n");
@@ -987,9 +1005,13 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             oncli_send_msg("\n");
         } // if need to output a new line //
     } // loop to output the bytes that were read //
-    oncli_send_msg("\n\n");   
+    oncli_send_msg("\n\n");
 
     #if _DEBUG_VERBOSE_LEVEL > 1
+    if(verbose_level < 2)
+    {
+        return;
+    }
     {
         UInt8 raw_pid = encoded_to_decoded_byte(
             packet_bytes[ONE_NET_ENCODED_PID_IDX], FALSE);
@@ -1013,6 +1035,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             oncli_send_msg("\n");
             oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
             #if _DEBUG_VERBOSE_LEVEL > 2
+            if(verbose_level > 2)
             {
                 oncli_send_msg(" -- Decoded : ");
                 if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
@@ -1025,13 +1048,16 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     oncli_send_msg("0x%02X", debug_pkt_ptrs.msg_id >> 2);
                 }
             }
-            #else
-            oncli_send_msg("\n");
+            else
             #endif
+            {
+                oncli_send_msg("\n");
+            }
             
             oncli_send_msg("\n");
             oncli_send_msg("Enc. Msg CRC : 0x%02X", *(debug_pkt_ptrs.enc_msg_crc));
             #if _DEBUG_VERBOSE_LEVEL > 2
+            if(verbose_level > 2)
             {
                 UInt8 calculated_msg_crc;
 
@@ -1055,9 +1081,12 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                       "CRC!\n");
                 } 
             }
-            #else
-            oncli_send_msg("\n");
+            else
             #endif
+            {
+                oncli_send_msg("\n");
+            }
+
             
             debug_display_did("Repeater DID",
               debug_pkt_ptrs.enc_repeater_did);
@@ -1081,6 +1110,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             } // loop to output the bytes that were read //
             
             #if _DEBUG_VERBOSE_LEVEL > 2
+            if(verbose_level > 2)
             {
                 UInt8 raw_pld_len = get_raw_payload_len(raw_pid);
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",

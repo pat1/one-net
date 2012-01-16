@@ -402,6 +402,11 @@ static oncli_status_t interval_cmd_hdlr(
 static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+static oncli_status_t verbose_level_cmd_hdlr(
+  const char* const ASCII_PARAM_LIST);
+#endif
+
 
 
 
@@ -664,7 +669,25 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         *cmd_hdlr = &baud_cmd_hdlr;
         
         return ONCLI_SUCCESS;
-    } // else if the user pin command was received //
+    } // else if the "baud" command was received //
+    #endif
+    
+    #ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+    else if(!strnicmp(ONCLI_VERBOSE_LEVEL_CMD_STR, CMD,
+      strlen(ONCLI_VERBOSE_LEVEL_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_VERBOSE_LEVEL_CMD_STR;
+        
+        if(CMD[strlen(ONCLI_VERBOSE_LEVEL_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+        
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &verbose_level_cmd_hdlr;
+        
+        return ONCLI_SUCCESS;
+    } // else if the "verbose level" command was received //
     #endif
     
 	#ifdef _ENABLE_USER_PIN_COMMAND
@@ -1178,6 +1201,38 @@ static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST)
     delay_ms(10); // short pause
     uart_init(br, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
     delay_ms(10); //  short pause
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
+{
+    char * end_ptr;
+    UInt8 new_verbose_level;
+    const UInt8 max_verbose_level = _DEBUG_VERBOSE_LEVEL;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+    
+    new_verbose_level = one_net_strtol(ASCII_PARAM_LIST, &end_ptr, 10);
+    
+    // check the parameter delimiter
+    if(*end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    if(new_verbose_level > max_verbose_level)
+    {
+        oncli_send_msg("Level should be < %d.\n", max_verbose_level);
+        return ONCLI_BAD_PARAM;
+    }
+
+    verbose_level = new_verbose_level;
     return ONCLI_SUCCESS;
 }
 #endif

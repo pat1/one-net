@@ -361,6 +361,10 @@ extern const char* const ONCLI_INTERVAL_CMD_STR;
 extern const char* const ONCLI_BAUD_CMD_STR;
 #endif
 
+#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+extern const char* const ONCLI_VERBOSE_LEVEL_CMD_STR;
+#endif
+
 
 
 

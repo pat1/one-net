@@ -466,6 +466,12 @@
         #ifndef _ENABLE_BAUD_COMMAND
             #define _ENABLE_BAUD_COMMAND
         #endif
+        
+        // _ENABLE_VERBOSE_LEVEL_COMMAND should be enabled if you are implementing
+        // the "verbose level" command
+        #ifndef _ENABLE_VERBOSE_LEVEL_COMMAND
+            #define _ENABLE_VERBOSE_LEVEL_COMMAND
+        #endif
     #endif
 #endif
 	
