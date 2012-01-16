@@ -283,7 +283,15 @@ int main(void)
     #endif
 
     #ifdef _UART
-    uart_init(BAUD_38400/*BAUD_115200*/, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+        #ifdef _DEFAULT_BAUD_RATE
+            #if _DEFAULT_BAUD_RATE == 115200
+                uart_init(BAUD_115200, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+            #else
+                uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+            #endif
+        #else
+            uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+        #endif
     #endif
     disable_user_pins();
     ENABLE_GLOBAL_INTERRUPTS();

@@ -202,6 +202,14 @@
 #ifndef _UART
     // Enable this if there is UART
     #define _UART
+    
+    // define the base baud rate.  Define _DEFAULT_BAUD_RATE as 38400 or 115200.
+    // If _DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
+    // 38400 baud will be used.  The baud rate can also be changed with the "baud"
+    // command-line option.  "baud:38400" or
+    #ifndef _DEFAULT_BAUD_RATE
+        #define _DEFAULT_BAUD_RATE 115200
+    #endif
 #endif
 
 // Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
