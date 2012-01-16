@@ -86,6 +86,10 @@ enum
 #endif
 
 
+static tick_t sniff_start_time = 0;
+static tick_t sniff_duration_ms = 0;
+
+
 
 //! @} ONE-NET_sniff_eval_pri_var
 //                              PRIVATE VARIABLES END
@@ -128,10 +132,15 @@ static const one_net_xtea_key_t sniff_enc_keys[NUM_SNIFF_ENCRYPT_KEYS] =
 //! \defgroup ONE-NET_sniff_eval_pub_func
 //! \ingroup ONE-NET_sniff_eval
 //! @{
+    
 
 
-
-oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
+// If sniff_time_ms is non-zero, timestamps will start at 0 and packets will
+// only be siffed for a certain time period.  For example, if sniff_time_ms
+// is equal to 3500, the first packet sniffed will be given a timestamp of 0.
+// Any packets received more than 3.5 seconds after the first packet will not
+// be displayed.
+oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms)
 {
     if(oncli_format_channel(CHANNEL, channel_format_buffer,
       MAX_CHANNEL_STRING_FORMAT_LENGTH) != channel_format_buffer)
@@ -146,6 +155,8 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
     on_base_param->channel = sniff_channel;
     one_net_set_channel(on_base_param->channel);
     
+    sniff_duration_ms = sniff_time_ms;
+    sniff_start_time = 0;
     return ONCLI_SUCCESS;
 } // oncli_reset_sniff //
 
@@ -161,6 +172,7 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL)
 */
 void sniff_eval(void)
 {
+    tick_t packet_time_ms;
     UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
     UInt8* pkt_wo_header = &pkt[ONE_NET_ENCODED_RPTR_DID_IDX];
     UInt16 bytes_read = sizeof(pkt);
@@ -184,7 +196,7 @@ void sniff_eval(void)
             return;
         } // else the user input timer has not expired //
     } // if there had been user input //
-
+    
 
     if(one_net_look_for_pkt(MS_TO_TICK(ONE_NET_WAIT_FOR_SOF_TIME))
       != ONS_SUCCESS)
@@ -209,8 +221,22 @@ void sniff_eval(void)
     }
     #endif
     
+    packet_time_ms = TICK_TO_MS(get_tick_count());
+    if(sniff_duration_ms)
+    {
+        if(sniff_start_time == 0)
+        {
+            sniff_start_time = packet_time_ms;
+        }
+
+        packet_time_ms -= sniff_start_time;
+        if(packet_time_ms > sniff_duration_ms)
+        {
+            return;
+        }
+    }      
     
-    oncli_send_msg("%lu received %u bytes:\n", get_tick_count(), bytes_read +
+    oncli_send_msg("\n\n%lu received %u bytes:\n", packet_time_ms, bytes_read +
       ONE_NET_PREAMBLE_HEADER_LEN);
     
     #if _DEBUG_VERBOSE_LEVEL > 2
@@ -221,7 +247,7 @@ void sniff_eval(void)
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
     #endif
 
-    oncli_send_msg("\n\n\n");
+    oncli_send_msg("\n\n");
 
     // update the time to display the prompt
     ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);

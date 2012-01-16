@@ -153,6 +153,8 @@ void oncli_print_prompt(void);
     \brief Resets the device to sniff mode.
     
     \param CHANNEL The channel to sniff.
+    \param sniff_time_ms The duration to sniff after the first packet is
+                         received.  0 means sniff indefinitely.
     
     \return ONCLI_SUCCESS if setting to sniff mode was successful
             ONCLI_INVALID_CMD_FOR_MODE if the command is not valid for the mode
@@ -160,7 +162,7 @@ void oncli_print_prompt(void);
             ONCLI_INTERNAL_ERR if something unexpected happened.
 */
 #ifdef _SNIFFER_MODE
-	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL);
+	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms);
 #endif
 
 

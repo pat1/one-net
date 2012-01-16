@@ -1393,16 +1393,32 @@ static oncli_status_t save_cmd_hdlr(void)
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     oncli_status_t status;
-
+    tick_t duration_ms = 0;
     UInt8 channel;
+    
+    char* END_PTR;
+    const char* PARAM_PTR = ASCII_PARAM_LIST;
+    
+    // Get the duration if it's there
+    if(isdigit(*PARAM_PTR))
+    {
+        duration_ms = one_net_strtol(PARAM_PTR, &END_PTR, 0);
+	    PARAM_PTR = END_PTR;
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the command isn't formatted properly //
+        PARAM_PTR++;
+    } // get the duration in milliseconds
+    
 
-    if((status = oncli_parse_channel(ASCII_PARAM_LIST, &channel)) !=
+    if((status = oncli_parse_channel(PARAM_PTR, &channel)) !=
       ONCLI_SUCCESS)
     {
         return status;
     } // if parsing the channel was not successful //
 
-    return oncli_reset_sniff(channel);
+    return oncli_reset_sniff(channel, duration_ms);
 } // sniff_cmd_hdlr //
 #endif
 
