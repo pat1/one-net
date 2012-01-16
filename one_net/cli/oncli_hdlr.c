@@ -1228,7 +1228,7 @@ static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
     
     if(new_verbose_level > max_verbose_level)
     {
-        oncli_send_msg("Level should be < %d.\n", max_verbose_level);
+        oncli_send_msg("Level should be <= %d.\n", max_verbose_level);
         return ONCLI_BAD_PARAM;
     }
 
