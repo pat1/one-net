@@ -617,6 +617,11 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 #endif
 
 
+#ifdef _ENABLE_BAUD_COMMAND
+const char* const ONCLI_BAUD_CMD_STR = "baud";
+#endif
+
+
 
 
 

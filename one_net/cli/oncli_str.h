@@ -357,6 +357,11 @@ extern const char* const ONCLI_INTERVAL_CMD_STR;
 #endif
 
 
+#ifdef _ENABLE_BAUD_COMMAND
+extern const char* const ONCLI_BAUD_CMD_STR;
+#endif
+
+
 
 
 //! @} oncli_str_const

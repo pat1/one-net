@@ -82,6 +82,13 @@
 #include "io_port_mapping.h"
 #endif
 
+#ifdef _ENABLE_BAUD_COMMAND
+#include "uart.h"
+#include "uart_hal.h"
+#include "cb.h"
+extern cb_rec_t uart_tx_cb;
+#endif
+
 
 
 
@@ -391,6 +398,11 @@ static oncli_status_t interval_cmd_hdlr(
 #endif
 
 
+#ifdef _ENABLE_BAUD_COMMAND
+static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST);
+#endif
+
+
 
 
 
@@ -636,6 +648,24 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the set data rate command was received //
 	#endif
+    
+    #ifdef _ENABLE_BAUD_COMMAND
+    else if(!strnicmp(ONCLI_BAUD_CMD_STR, CMD,
+      strlen(ONCLI_BAUD_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_BAUD_CMD_STR;
+        
+        if(CMD[strlen(ONCLI_BAUD_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end of the command is not valid //
+        
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &baud_cmd_hdlr;
+        
+        return ONCLI_SUCCESS;
+    } // else if the user pin command was received //
+    #endif
     
 	#ifdef _ENABLE_USER_PIN_COMMAND
     else if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
@@ -1101,6 +1131,55 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     echo_on = echo;
     return ONCLI_SUCCESS;
 } // echo_cmd_hdlr //
+#endif
+
+
+#ifdef _ENABLE_BAUD_COMMAND
+static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST)
+{
+    char * end_ptr;
+    UInt32 new_baud_rate;
+    baud_rate_t br;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return 0;
+    } // if any of the parameters are invalid //
+    
+    new_baud_rate = one_net_strtol(ASCII_PARAM_LIST, &end_ptr, 10);
+    
+    // check the parameter delimiter
+    if(*end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    
+    
+    if(new_baud_rate == 38400)
+    {
+        br = BAUD_38400;
+    }
+    else if(new_baud_rate == 115200)
+    {
+        br = BAUD_115200;
+    }
+    else
+    {
+        return ONCLI_UNSUPPORTED;
+    }
+
+
+    // TODO -- there's a better way to do this, I think.  This is more than
+    // a little risky.  We need to disable uart altogether before re-
+    // initializing.
+    
+    // let everything in the uart go out, then a short pause
+    while(cb_bytes_queued(&uart_tx_cb)){}
+    delay_ms(10); // short pause
+    uart_init(br, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
+    delay_ms(10); //  short pause
+    return ONCLI_SUCCESS;
+}
 #endif
 
 

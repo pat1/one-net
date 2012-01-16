@@ -452,6 +452,13 @@
     //        #define _ENABLE_SET_DATA_RATE_COMMAND
         #endif
     #endif
+    
+    #ifdef _UART
+        // _ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
+        #ifndef _ENABLE_BAUD_COMMAND
+            #define _ENABLE_BAUD_COMMAND
+        #endif
+    #endif
 #endif
 	
 
