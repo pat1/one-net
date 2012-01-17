@@ -315,6 +315,59 @@ typedef struct
 
 
 
+// TODO -- add a regular expression expression matcher.  Will need to be
+// careful because it will add a little to the code size and add a few calls
+// to the call stack level.
+/*!
+    \brief A poor-man's limited regular expression to compare messages.
+    
+    The best way to show is to show a few examples.  For example, to test
+    whether a message matches the following criteria...
+    
+    1.  Test whether a message is a command to turn a switch on or off.  Source
+        unit is 3, destination unit is a unit from 0 to 3, inclusive.
+        
+        For the reg_exp_mask, pick 0xFCFFFFFFFE.  Masks should be chosen
+        thoughtfully in order to match all "matching" messages and no
+        "non-matching" messages.
+        
+        reg_exp_mask = 0xFCFFFFFFFE
+        
+        The corresponding "regular expression" would be (pick any message that
+        matches this criteria and do an AND ).  For example, the one below...
+        
+        message = 0x3200000001 -- src = 3, dst = 2, msg type = 0, data = 1 (on)
+        
+        Now AND this with 0xFCFFFFFFFE and get 0x3000000000.  Any message that
+        "matches" will, when ANDed with 0xFCFFFFFFFE, match 0x3000000000.
+        Therefore...
+        
+        reg_exp = 0x3000000000
+        
+        len would be 5, since this is 5 bytes.
+        
+        
+        To compare whether a message matches this criteria, Do an AND operation
+        on the message and the regular expression mask.
+        
+        
+    2.  As another example, to check whether an admin message is a keep-alive
+        response, you can use a mask of 0xFF00000000 and a "regular expression"
+        of 0x2100000000 and a length of 5.  Since the last 4 bytes are all 0,
+        this can be reduced to a mask of 0xFF, a regular expression of 0x21, and
+        a length of 1.
+*/
+typedef struct
+{
+    //! The regular expression
+    UInt8* reg_exp;
+    
+    //! The regular expression mask
+    UInt8* reg_exp_mask;
+    
+    // length of the regular expression
+    UInt8 len;
+} single_reg_exp_t;
 
 
 //! @} ONE-NET_MESSAGE_typedefs
