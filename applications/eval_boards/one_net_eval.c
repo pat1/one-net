@@ -1286,7 +1286,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         {
                             continue;
                         }
-                        if(packet_is_single(raw_pid))
+                        if(packet_is_data(raw_pid) && packet_is_single(raw_pid))
                         {
                             print_single(raw_pid, decrypted);
                         }
