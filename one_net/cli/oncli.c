@@ -74,6 +74,19 @@
 
 extern const char HEX_DIGIT[];
 
+#if _DEBUG_VERBOSE_LEVEL > 3
+// change for any custom message header printouts you want
+// adjust the "3" below to the actual number of types if you add anything
+static const char* const MSG_TYPE_STR[3] =
+{
+    "App",
+    "Admin",
+    "Features",
+    // add any custom types here -- see comment above.  Make sure to adjust the
+    // array size too!
+};
+#endif
+
 
 //! @} oncli_const
 //								CONSTANTS END
@@ -772,6 +785,39 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 }
 
 
+#if _DEBUG_VERBOSE_LEVEL > 4
+void print_single(UInt8 pid, const UInt8* raw_payload)
+{
+    UInt8 msg_pld_type = get_payload_msg_type(raw_payload);
+    UInt8 pld_len = ONE_NET_XTEA_BLOCK_SIZE * get_num_payload_blocks(pid) -
+      ON_PLD_DATA_IDX;
+    
+    oncli_send_msg("Single -- Msg Type=0x%01X(%s)\n", msg_pld_type,
+      msg_pld_type < 3 ? MSG_TYPE_STR[msg_pld_type] : "");
+      
+    switch(msg_pld_type)
+    {
+        case ON_ADMIN_MSG:
+            print_admin_payload(&raw_payload[ON_PLD_DATA_IDX]); break;
+        case ON_APP_MSG:
+            print_app_payload(&raw_payload[ON_PLD_DATA_IDX], pld_len); break;
+        case ON_FEATURE_MSG:
+            oncli_print_features(
+              *((on_features_t*)&raw_payload[ON_PLD_DATA_IDX])); break;
+    }
+}
+
+
+void print_response(UInt8 pid, const UInt8* raw_payload)
+{
+    on_ack_nack_t ack_nack;
+    UInt8 pld_len = get_num_payload_blocks(pid) - ON_PLD_DATA_IDX;
+    on_parse_response_pkt(pid, raw_payload, &ack_nack);
+    print_ack_nack(&ack_nack, pld_len);
+}
+#endif
+
+
 /*!
     \brief Parses and displays the contents of a Single admin message payload
 
@@ -786,14 +832,6 @@ void print_admin_payload(const UInt8* const pld)
 
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
 {
-    // change for any custom message header printouts you want
-    static const char* const MSG_TYPE_STR[3] =
-    {
-        "App",
-        "Admin",
-        "Features"
-    };
-    
     oncli_send_msg("PID=0x%02X,Msg ID=0x%02X,Msg Type=0x%01X(%s)\n",
       msg_hdr->raw_pid, msg_hdr->msg_id, msg_hdr->msg_type,
       msg_hdr->msg_type < 3 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
