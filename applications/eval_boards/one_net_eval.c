@@ -1280,6 +1280,22 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             }
                         }
                         #endif
+                        
+                        #if _DEBUG_VERBOSE_LEVEL > 4
+                        if(verbose_level <= 4 || !crc_match)
+                        {
+                            continue;
+                        }
+                        if(packet_is_single(raw_pid))
+                        {
+                            print_single(raw_pid, decrypted);
+                        }
+                        else if(packet_is_ack(raw_pid) ||
+                          packet_is_nack(raw_pid))
+                        {
+                            print_response(raw_pid, decrypted);
+                        }
+                        #endif
                     }
                 }
             }
