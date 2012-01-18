@@ -1170,6 +1170,7 @@ void one_net(on_txn_t ** txn)
                                 at_least_one_response = FALSE;
                                 #endif
                                 recipient_send_list_ptr->recipient_index = -1;
+                                one_net(txn);
                                 return; // we have a message. Send it through
                                         // one_net() again.
                             }
