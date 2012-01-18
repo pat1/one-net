@@ -983,9 +983,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                               ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
                             {
                                 // shift the current key left.
-                                one_net_memmove(on_base_param->current_key,
-                                  &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                                one_net_memmove(on_base_param->old_key,
+                                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
                                   
                                 // replace the last fragment with the one we
                                 // just received
@@ -1476,7 +1475,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
 
-
     switch(DATA[0])
     {
         case ON_NEW_KEY_FRAGMENT:
@@ -1487,16 +1485,15 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // replace anything.  If not, replace the last fragment with what
             // we received.
             
-            if(one_net_memcmp(&DATA[1],
+            if(decrypt_using_current_key && one_net_memcmp(&DATA[1],
               &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
             {
                 // we are not using the correct key.  Copy it.
                 
-                // first shift the current fragments left.
-                one_net_memmove(on_base_param->current_key,
-                  &(on_base_param->current_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                // first shift the current key to the old.
+                one_net_memmove(on_base_param->old_key,
+                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
                 
                 // now copy in the new fragment we just received.
                 one_net_memmove(
@@ -1505,27 +1502,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             
-            // we now have the right key.  Send it back in the ACK.
+            // we now have the right key.  Send it back in the ACK.  We'll
+            // encrypt using the NEW key.
             ack_nack->handle = ON_ACK_KEY_FRAGMENT;
             one_net_memmove(ack_nack->payload->key_frag, &DATA[1],
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-
-            // we'll want to check in again soon, but we'll do it at a random
-            // time.  There may be a lot of traffic out there trying to check
-            // in with the new key.  We'll ACK it now, then check in.  If we
-            // are a device that sleeps, we get precedence.  If we don't
-            // sleep, we'll wait a little longer so any devices that do sleep
-            // can hopefully check in first.
-            
-            // TODO -- is this a good technique to prevent a lot of messages
-            // crashing into each other?
-            #ifdef _DEVICE_SLEEPS
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(500 +
-              one_net_prand(get_tick_count(), 1500)));
-            #else
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, MS_TO_TICK(2000 +
-              one_net_prand(get_tick_count(), 2500)));
-            #endif
+            txn->key = &(on_base_param->current_key);
             break;
         } // change key case //
 

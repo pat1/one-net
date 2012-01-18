@@ -223,6 +223,9 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     int peer_param_len);
 #endif
 
+one_net_xtea_key_t* master_get_encryption_key(
+  const on_encoded_did_t* const did);
+
 
 
 //! @} ONE-NET_MASTER_pub_func

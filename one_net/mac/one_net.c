@@ -60,8 +60,9 @@
 #ifdef _ONE_NET_CLIENT
 #include "one_net_client_port_specific.h"
 #endif
-
-
+#ifdef _ONE_NET_MASTER
+#include "one_net_master.h"
+#endif
 
 //==============================================================================
 //                                  CONSTANTS
@@ -204,6 +205,9 @@ UInt8 encoded_pkt_bytes[ENCODED_BYTES_BUFFER_LEN];
 //! TODO -- more can be done with this variable.  We need to have a way for
 //!         the application code to override the default.
 on_encoded_did_t expected_src_did; // broadcast
+
+//! Denotes which key was used.  If true, the current key is being used.
+BOOL decrypt_using_current_key;
 
 
 //                              PUBLIC VARIABLES
@@ -2271,9 +2275,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     on_data_t type;
     UInt8* pkt_bytes;
-    #ifdef _ONE_NET_MASTER
-    UInt8 original_payload[33];
-    #endif
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
@@ -2540,63 +2541,52 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         key = (one_net_xtea_key_t*) one_net_client_get_invite_key();
     }
     #endif
-    
-    #ifdef _ONE_NET_MASTER
-    if(device_is_master)
-    {
-        key = master_get_encryption_key((*this_pkt_ptrs)->enc_src_did);
-    }
-    #endif
-    
-    if(key == NULL)
-    {
-        return ONS_DID_FAILED;
-    }
 
-    if((status = on_decode(raw_payload_bytes, (*this_pkt_ptrs)->payload,
-      (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
+    decrypt_using_current_key = TRUE;
+    while(1)
     {
-        return status;
-    }
-    
-    #ifdef _ONE_NET_MASTER
-    // copy in case this is a client in the middle of a key change
-    one_net_memmove(original_payload, raw_payload_bytes,
-      get_raw_payload_len(raw_pid));
-      
-master_decrypt_packet:
-    #endif
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes, key,
-      get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
-    #else
-    if((status = on_decrypt(raw_payload_bytes, key,
-      get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
-    #endif
-    {   
-        return status;
-    }
-
-    // check the payload CRC.
-    if(!verify_payload_crc(raw_pid, raw_payload_bytes))
-    {
-        #ifdef _ONE_NET_MASTER
-        if(device_is_master && (type == ON_SINGLE || type == ON_RESPONSE) &&
-          master_try_alternate_key_change_key((*this_pkt_ptrs)->enc_src_did))
+        if((status = on_decode(raw_payload_bytes, (*this_pkt_ptrs)->payload,
+          (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
         {
-            // the device may be in the middle of a key change so it may be
-            // worthwhile to check both the new and the old key.
-            if(key != &(on_base_param->current_key))
-            {
-                key = &(on_base_param->current_key);
-                one_net_memmove(raw_payload_bytes, original_payload,
-                  get_raw_payload_len(raw_pid));
-                goto master_decrypt_packet; // try again with another key
-            }
+            return status;
+        }
+    
+        #ifdef _STREAM_MESSAGES_ENABLED
+        if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes, key,
+          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        #else
+        if((status = on_decrypt(raw_payload_bytes, key,
+          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        #endif
+        {
+            return status;
+        }   
+
+        // check the payload CRC.
+        if(verify_payload_crc(raw_pid, raw_payload_bytes))
+        {
+            break;
+        }
+        
+        // we may be in the middle of a key change.  We may try the other
+        // key
+        #ifdef _ONE_NET_CLIENT
+        if(!device_is_master && *this_txn == &invite_txn)
+        {
+            // only have one invite key and it didn't work.
+            return ONS_CRC_FAIL;;
         }
         #endif
-        return ONS_CRC_FAIL;
+        
+        if(decrypt_using_current_key)
+        {
+            return ONS_CRC_FAIL;; // Tried two keys.  Neither key worked.
+        }
+        
+        decrypt_using_current_key = FALSE;
+        
+        // try the old key
+        key = (one_net_xtea_key_t*) &(on_base_param->old_key);
     }
     
     // decode the message id and fill it in.

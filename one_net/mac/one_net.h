@@ -594,6 +594,9 @@ extern UInt8 encoded_pkt_bytes[];
 //! The expected source of the next packet.
 extern on_encoded_did_t expected_src_did;
 
+//! Denotes which key was used.  If true, the current key is being used.
+extern BOOL decrypt_using_current_key;
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END
@@ -658,18 +661,6 @@ one_net_status_t on_decrypt(UInt8 * const data,
 
 // initialization
 void one_net_init(void);
-
-
-// this is a master-specific function, but we're declaring it in one_net.h
-// rather than one_net_master.h because we want to avoid if possible having
-// one_net.h include one_net_master.h.  The implementation is in
-// one_net_master.c
-#ifdef _ONE_NET_MASTER
-one_net_xtea_key_t* master_get_encryption_key(
-  const on_encoded_did_t* const did);
-BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did);
-#endif
-
 
 //! the main function
 void one_net(on_txn_t ** txn);

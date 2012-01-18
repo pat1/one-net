@@ -557,10 +557,8 @@ one_net_status_t one_net_master_change_key_fragment(
     change_key_start_time = get_tick_count();
 
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
-    one_net_memmove(&((*key)[0]), &((*key)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-      3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]), key_fragment,
-      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+    one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+      key_fragment, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
     
     {
         UInt8 i;
@@ -908,48 +906,6 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
         return TRUE;
     }
     return FALSE;
-}
-
-
-/*!
-    \brief Determines whether a device may be in the middle of a key change
-           and it is therefore worth trying both the old and new keys.
-
-    This is a master-specific function added so that one_net.c
-      can get the correct key for a client.  It is declared in one_net.h
-      rather than one_net_master.h so that one_net.h does not have to
-      include one_net_master.h.
-      
-    When a key change is made, the master sends a new key and the client
-    will respond with the new key.  However, the master still has in its
-    file the belief that the client is still using the old key, so that
-    old key will not work anymore when decrypting in rx_packet().  This
-    function is called as a second attempt to decruypt a packet during a
-    key change.  If the client is not undergoing a key change, this function
-    will return FALSE.  Otherwise it will return true.
-
-    \param[in] did of the device
-
-    \return TRUE if this client is in the middle of a key change
-            FALSE otherwise
-*/
-BOOL master_try_alternate_key_change_key(const on_encoded_did_t* const did)
-{
-    on_client_t* client;
-    
-    if(!did)
-    {
-        return FALSE;
-    }
-    
-    client = client_info(did);
-    
-    if(client == NULL || client->use_current_key || !key_update_in_progress)
-    {
-        return FALSE;
-    }
-    
-    return TRUE;
 }
 
 

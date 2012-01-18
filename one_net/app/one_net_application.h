@@ -308,10 +308,8 @@ typedef struct
     //! Data rate the device is currently using
     UInt8 data_rate;
 
-    #ifdef _ONE_NET_MASTER
     //! The last key used
     one_net_xtea_key_fragment_t old_key;
-    #endif
     
     //! The current xtea key being used.
     one_net_xtea_key_t current_key;
