@@ -57,6 +57,17 @@
 //! \ingroup one_net_test_defines
 
 
+#ifndef _ONE_NET_EVAL
+    #error "This is an Eval Board.  _ONE_NET_EVAL must be defined."
+#endif
+
+#ifdef _ONE_NET_SIMPLE_CLIENT
+    #ifdef _ONE_NET_EVAL
+        #error "_ONE_NET_EVAL and _ONE_NET_SIMPLE_CLIENT cannot both defined."
+    #endif
+#endif
+
+
 // Dec. 16, 2011 -- testing defines.  This will change.  Some combinations are
 // unstable and so are disabled.  Not all bad combinatiions have been detected.
 #ifdef _BLOCK_MESSAGES_ENABLED

@@ -176,8 +176,8 @@
 // needed to test.
 #if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
     #ifndef _ONE_NET_SIMPLE_CLIENT
-        // comment in or out as needed
-        #define _ONE_NET_SIMPLE_CLIENT
+        // comment in or out as needed.  Note.  Eval boards cannot be simple clients.
+        //#define _ONE_NET_SIMPLE_CLIENT
     #endif
 #endif
 
