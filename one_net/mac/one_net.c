@@ -2578,7 +2578,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         }
         #endif
         
-        if(decrypt_using_current_key)
+        if(!decrypt_using_current_key)
         {
             return ONS_CRC_FAIL;; // Tried two keys.  Neither key worked.
         }
