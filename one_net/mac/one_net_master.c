@@ -381,9 +381,9 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
     #ifdef _PEER
     static UInt8 peer_memory_size_initialized = 0;
+    static BOOL init_internal_called = FALSE;
     #endif
     
-
     if(PARAM != NULL)
     {
         // initialization may take place with one call to this function if all
@@ -456,6 +456,15 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
             UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
               peer_memory_size_initialized;
               
+            if(!init_internal_called)
+            {
+                if((status = init_internal()) != ONS_SUCCESS)
+                {
+                    return status; // if initializing the internals failed //
+                }
+                init_internal_called = TRUE;
+            }
+              
             if(PARAM_LEN <= more_needed_for_peer)
             {
                 one_net_memmove(&peer_storage[peer_memory_size_initialized],
@@ -515,13 +524,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     } // loop to look for Multi-Hop and Multi-Hop repeaters //
     #endif
     
-    if((status = init_internal()) != ONS_SUCCESS)
-    {
-        return status;
-    } // if initializing the internals failed //
-    
     on_state = ON_LISTEN_FOR_DATA;
-
     return ONS_SUCCESS;
 } // one_net_master_init //
 
