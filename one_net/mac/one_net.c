@@ -1090,8 +1090,7 @@ void one_net(on_txn_t ** txn)
             
             // we are listening for data.  Make sure we have nothing
             // pending
-            if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY
-              && single_msg_ptr == NULL)
+            if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY)
             {
                 on_sending_device_t* device;
                 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
