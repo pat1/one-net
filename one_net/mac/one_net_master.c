@@ -570,6 +570,10 @@ one_net_status_t one_net_master_change_key_fragment(
             client_list[i].use_current_key = FALSE;
         }
     }
+    
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif    
       
     return ONS_SUCCESS;
 } // one_net_master_change_key_fragment //
@@ -836,6 +840,10 @@ one_net_status_t one_net_master_remove_device(
     admin_pld[2] = 0;
     admin_pld[3] = 0;
     #endif
+    
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif    
 
     // all client peer assignments to this did are removed.  Now remove the device itself.
     // When that's done, the other devices will also be informed of this deletion.
@@ -1051,8 +1059,14 @@ void one_net_master(void)
       queue_sleep_time < MS_TO_TICK(500))
     {
         check_updates_in_progress();
+        #ifdef _AUTO_SAVE
+        if(save)
+        {
+            one_net_master_save_settings();
+            save = FALSE;
+        }
+        #endif
     }
-    
 } // one_net_master //
 
 
@@ -1221,6 +1235,9 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         }
     }
 
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif
     return ONS_SUCCESS;
 } // one_net_master_add_client //
 
@@ -1315,6 +1332,10 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
             return one_net_remove_peer_from_list(SRC_UNIT, NULL, enc_dst_did,
                 PEER_UNIT);
         }
+        
+        #ifdef _AUTO_SAVE
+        save = TRUE;
+        #endif        
     }
 
 
@@ -1435,6 +1456,9 @@ one_net_status_t one_net_master_change_frag_dly(
         
         on_base_param->fragment_delay_low = new_low;
         on_base_param->fragment_delay_high = new_high;
+        #ifdef _AUTO_SAVE
+        save = TRUE;
+        #endif
         return ONS_SUCCESS;
     } // if the MASTER device //
     
@@ -1898,6 +1922,9 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->send_add_device_message = FALSE;
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
             }
             update = ONE_NET_UPDATE_ADD_DEVICE;
             break;
@@ -1908,6 +1935,9 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->send_remove_device_message = FALSE;
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
             }
             update = ONE_NET_UPDATE_REMOVE_DEVICE;
             break;
@@ -1922,6 +1952,9 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
                 {
                     client->use_current_key = TRUE;
+                    #ifdef _AUTO_SAVE
+                    save = TRUE;
+                    #endif
                 }
                 update = ONE_NET_UPDATE_NETWORK_KEY;
             }
@@ -2181,7 +2214,9 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
     
     // now fill in the next client did to assign
     master_param->next_client_did = find_lowest_vacant_did();
-
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif
 	return ONS_SUCCESS;
 } // rm_client //
 
@@ -2551,6 +2586,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             (*client)->send_add_device_message = FALSE;
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif
             break;
         }
         
@@ -2565,6 +2603,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             (*client)->send_remove_device_message = FALSE;
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif
             break;
         }
         
@@ -2674,6 +2715,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                         &raw_did, ack_nack);
                 }
                 (*client)->use_current_key = TRUE;
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
             }
             
             if(is_invite_did(SRC_DID))

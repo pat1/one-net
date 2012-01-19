@@ -597,6 +597,10 @@ extern on_encoded_did_t expected_src_did;
 //! Denotes which key was used.  If true, the current key is being used.
 extern BOOL decrypt_using_current_key;
 
+#ifdef _AUTO_SAVE
+    extern BOOL save;
+#endif
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END

@@ -338,6 +338,12 @@
         #ifndef _ENABLE_SETNI_COMMAND
             #define _ENABLE_SETNI_COMMAND
         #endif
+        
+        // _AUTO_SAVE should be defined if the parameters should be saved every
+        // time they change
+        #ifndef _AUTO_SAVE
+           // #define _AUTO_SAVE
+        #endif
     #endif
 
 	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option

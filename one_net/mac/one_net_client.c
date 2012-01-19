@@ -329,6 +329,10 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 
     ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(ONE_NET_SCAN_CHANNEL_TIME));
     on_state = ON_JOIN_NETWORK;
+    
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif    
     return ONS_SUCCESS;
 } // one_net_client_look_for_invite //
 
@@ -463,6 +467,9 @@ tick_t one_net_client(void)
                 removed = FALSE;
                 one_net_client_client_removed(NULL, TRUE);
                 one_net_client_reset_client(one_net_client_get_invite_key());
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
                 return 0;
             }
             
@@ -472,6 +479,9 @@ tick_t one_net_client(void)
                 // we started to accept an invite, but for whatever reason
                 // we did not get 
                 one_net_client_reset_client(one_net_client_get_invite_key());
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
                 return 0;
             }
             
@@ -553,6 +563,16 @@ tick_t one_net_client(void)
             sleep_time = 0;
         }
     }
+    
+    #ifdef _AUTO_SAVE
+    // if we're going to do anything soon, don't save since things might change
+    // soon.
+    if(sleep_time > MS_TO_TICK(1000) && save)
+    {        
+        one_net_client_save_settings();
+        save = FALSE;
+    }
+    #endif
     
     // even if the device doesn't sleep, we'll return sleep_time.  Even the
     // application code of non-sleeping devices might find it useful.
@@ -1098,6 +1118,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 // No admin messages within the keep-alive response from
                 // the master.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
                 break;
             }
         }
@@ -1450,7 +1473,9 @@ static BOOL look_for_invite(void)
     #ifdef _ONE_NET_MULTI_HOP
     master->device.max_hops = features_max_hops(master->device.features);
     #endif
-
+    #ifdef _AUTO_SAVE
+    save = TRUE;
+    #endif    
     return TRUE;
 } // look_for_invite //
 
@@ -1497,6 +1522,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_memmove(
                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                   &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif
             }
             
             
@@ -1518,7 +1546,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 case ONS_RSRC_FULL: ack_nack->nack_reason =
                        ON_NACK_RSN_RSRC_UNAVAIL_ERR; break;
-                case ONS_SUCCESS: break;
+                case ONS_SUCCESS:
+                    #ifdef _AUTO_SAVE
+                    save = TRUE;
+                    #endif
+                    break;
                 default: ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
             }
             
@@ -1531,7 +1563,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
               NULL, (const on_encoded_did_t * const)
               &DATA[1 + ON_PEER_DID_IDX], DATA[1 + ON_PEER_PEER_UNIT_IDX]))
             {
-                case ONS_SUCCESS: break;
+                case ONS_SUCCESS:
+                    #ifdef _AUTO_SAVE
+                    save = TRUE;
+                    #endif
+                    break;
                 default: ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
             }
             
@@ -1568,6 +1604,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             on_base_param->fragment_delay_low = new_frag_low;
             on_base_param->fragment_delay_high = new_frag_high;
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif
             break;
         } // update fragment delay(s) case //
         #endif
@@ -1576,6 +1615,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             master->keep_alive_interval = one_net_byte_stream_to_int32(
               &DATA[1]);
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif
         } // change keep-alive case : intentional fall-through //
         case ON_KEEP_ALIVE_QUERY:
         {
@@ -1589,6 +1631,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             master->flags = DATA[1];
             ack_nack->handle = ON_ACK_VALUE;
             ack_nack->payload->ack_value.uint8 = master->flags;
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif
             break;
         } // update settings case //
         
@@ -1642,6 +1687,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 on_base_param->num_mh_repeaters =
                   ack_nack->payload->admin_msg[4];
                 #endif
+                #ifdef _AUTO_SAVE
+                save = TRUE;
+                #endif                
             }
             
             break;
@@ -1672,7 +1720,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
               ack_nack->payload->admin_msg[3];
             on_base_param->num_mh_repeaters =
               ack_nack->payload->admin_msg[4];
-            #endif
+            #endif            
+            #ifdef _AUTO_SAVE
+            save = TRUE;
+            #endif            
             break;
         }
 

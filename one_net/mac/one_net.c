@@ -210,6 +210,10 @@ on_encoded_did_t expected_src_did; // broadcast
 BOOL decrypt_using_current_key;
 
 
+#ifdef _AUTO_SAVE
+    BOOL save = FALSE;
+#endif
+
 //                              PUBLIC VARIABLES
 //==============================================================================
 
