@@ -461,7 +461,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     
     // fill in the payload based on the handle
     {
-        UInt32 val;
+        UInt32 val = ack_nack->payload->ack_time_ms; // time case
         BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
@@ -491,7 +491,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             case ON_ACK_SLOW_DOWN_TIME_MS:
             case ON_ACK_SPEED_UP_TIME_MS:
                 val_present = TRUE;
-                val = ack_nack->payload->ack_time_ms;
+                // time case is initialized above
                 break;
         }
         
