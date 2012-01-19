@@ -371,10 +371,14 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
         one_net_memmove(nv_param, param, CLIENT_NV_PARAM_SIZE_BYTES);
     }
     
+    if((status = init_internal()) != ONS_SUCCESS)
+    {
+        return status;
+    } // if initializing the internals failed //
+    
     #ifdef _PEER
     if(peer_param != NULL)
     {
-        one_net_reset_peers();
         if(peer_param_len > PEER_STORAGE_SIZE_BYTES || peer_param_len %
           sizeof(on_peer_unit_t) != 0)
         {
@@ -388,11 +392,6 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
     {
         return ONS_NOT_JOINED;
     } // if not connected //
-
-    if((status = init_internal()) != ONS_SUCCESS)
-    {
-        return status;
-    } // if initializing the internals failed //
 
     on_state = ON_LISTEN_FOR_DATA;
     client_joined_network = TRUE;
