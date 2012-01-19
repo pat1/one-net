@@ -477,8 +477,9 @@ void main(void)
     FLASH_ERASE_CHECK();
 
     #ifdef _PEER
-    if(((PARAM_PTR = read_param(&param_len)) != NULL) &&
-      ((peer_param_ptr = read_param(&peer_param_len)) != NULL))
+    if(((PARAM_PTR = read_param(ONE_NET_CLIENT_FLASH_NV_DATA, &param_len))
+      != NULL) && ((peer_param_ptr = read_param(ONE_NET_CLIENT_FLASH_PEER_DATA,
+      &peer_param_len)) != NULL))
     #else
     if((PARAM_PTR = read_param(&param_len)) != NULL)
     #endif

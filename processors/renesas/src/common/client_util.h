@@ -98,7 +98,11 @@ typedef enum
 //! \ingroup client_util
 //! @{
 
+#ifdef _PEER
+const UInt8 * read_param(UInt8 type, UInt16 * const len);
+#else
 const UInt8 * read_param(UInt16 * const len);
+#endif
 
 void clr_flash(void);
 void flash_erase_check(void);

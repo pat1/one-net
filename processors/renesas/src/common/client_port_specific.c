@@ -114,12 +114,17 @@ static UInt8 * nv_addr = (UInt8 *)DF_BLOCK_A_START;
 /*!
     \brief Returns a pointer to the ONE-NET CLIENT parameters.
 
+    \param[in] type The type of memory we are looking for
     \param[out] len The number of bytes the pointer points to.
 
     \return 0 if there are no valid parameters or a pointer to the parameters
       if they are valid.
 */
+#ifdef _PEER
+const UInt8 * read_param(UInt8 type, UInt16 * const len)
+#else
 const UInt8 * read_param(UInt16 * const len)
+#endif
 {
 #ifdef _DEBUGGER_USES_DATA_FLASH
     *len = 0;
@@ -138,7 +143,11 @@ const UInt8 * read_param(UInt16 * const len)
       && ((const flash_hdr_t *)nv_addr)->type != INVALID_FLASH_DATA;
       nv_addr += sizeof(flash_hdr_t) + ((const flash_hdr_t *)nv_addr)->len)
     {
+        #ifdef _PEER
+        if(((const flash_hdr_t *)nv_addr)->type == type)
+        #else
         if(((const flash_hdr_t *)nv_addr)->type == ONE_NET_CLIENT_FLASH_NV_DATA)
+        #endif
         {
             PARAM_PTR = nv_addr + sizeof(flash_hdr_t);
             *len = ((const flash_hdr_t *)nv_addr)->len;
