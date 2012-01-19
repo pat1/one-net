@@ -49,7 +49,10 @@
     #include "one_net_led.h"
 #endif
 #include "io_port_mapping.h"
-#include "one_net_application.h" // for INPUT and OUTPUT //
+#include "one_net.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 #include "client_util.h"
 
 
@@ -227,43 +230,57 @@ void flash_erase_check(void)
 } // flash_erase_check //
 
 
-void one_net_client_save_settings(const UInt8 * PARAM, const UInt16 PARAM_LEN)
+void one_net_client_save_settings(void)
 {
 #ifdef _DEBUGGER_USES_DATA_FLASH
     return;
 #else
-    const UInt16 BYTES_TO_WRITE = sizeof(flash_hdr_t) + PARAM_LEN;
-    const UInt16 END_OF_WRITE_PTR = (UInt16)(nv_addr + BYTES_TO_WRITE);
-
-    // if the type of nv_hdr is changed, need to change BYTES_TO_WRITE
-    flash_hdr_t nv_hdr = {ONE_NET_CLIENT_FLASH_NV_DATA, PARAM_LEN};
-
-    if(!PARAM || !PARAM_LEN)
-    {
-        EXIT();
-    } // if parameters are invalid //
-
-    if((UInt16)nv_addr < DF_BLOCK_START || END_OF_WRITE_PTR >= DF_BLOCK_END)
+    const flash_hdr_t nv_hdr = {ONE_NET_CLIENT_FLASH_NV_DATA,
+      CLIENT_NV_PARAM_SIZE_BYTES};
+    #ifdef _PEER
+    const flash_hdr_t peer_nv_hdr = {ONE_NET_CLIENT_FLASH_PEER_DATA,
+      PEER_STORAGE_SIZE_BYTES};
+    UInt16 bytes_to_write = 2 * sizeof(flash_hdr_t) + CLIENT_NV_PARAM_SIZE_BYTES
+      + PEER_STORAGE_SIZE_BYTES;
+    #else
+    UInt16 bytes_to_write = sizeof(flash_hdr_t) + CLIENT_NV_PARAM_SIZE_BYTES;
+    #endif
+    
+    UInt16 end_of_write_ptr = (UInt16)(nv_addr + bytes_to_write);
+    if((UInt16)nv_addr < DF_BLOCK_START || end_of_write_ptr >= DF_BLOCK_END)
     {
         if(!erase_data_flash(DF_BLOCK_A_START)
           || !erase_data_flash(DF_BLOCK_B_START))
         {
-            EXIT();
+            return;
         } // could not erase the blocks //
         
         nv_addr = (UInt8 *)DF_BLOCK_START;
     } // if the address is not in range //
+    
 
     if(write_data_flash((UInt16)nv_addr, (const UInt8 *)&nv_hdr, sizeof(nv_hdr))
       != sizeof(nv_hdr) || write_data_flash((UInt16)nv_addr + sizeof(nv_hdr),
-      PARAM, nv_hdr.len) != nv_hdr.len)
+      nv_param, nv_hdr.len) != nv_hdr.len)
     {
-        EXIT();
+        return;
     } // if saving settings failed //
-
     nv_addr += sizeof(nv_hdr) + nv_hdr.len;
+    
+    #ifdef _PEER
+    if(write_data_flash((UInt16)nv_addr, (const UInt8 *)&peer_nv_hdr,
+      sizeof(peer_nv_hdr)) != sizeof(peer_nv_hdr) ||
+      write_data_flash((UInt16)nv_addr + sizeof(peer_nv_hdr),
+      peer_storage, peer_nv_hdr.len) != nv_hdr.len)
+    {
+        return;
+    } // if saving settings failed //
+    nv_addr += sizeof(peer_nv_hdr) + peer_nv_hdr.len;    
+    #endif
 #endif
 } // one_net_client_save_settings //
+
+
 
 //! @} CLIENT_port_specific_pub_func
 //                          PUBLIC FUNCTION IMPLEMENTATION END

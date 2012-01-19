@@ -214,7 +214,7 @@
     // _AUTO_SAVE should be defined if the parameters should be saved every
     // time they change
     #ifndef _AUTO_SAVE
-     //   #define _AUTO_SAVE
+        #define _AUTO_SAVE
     #endif
 #endif
 
