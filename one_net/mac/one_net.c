@@ -1584,6 +1584,10 @@ void one_net(on_txn_t ** txn)
                             #endif
                     }
                 }
+                else
+                {
+                    break;
+                }
             }
             
             if(nack_reason_is_fatal(ack_nack.nack_reason))
