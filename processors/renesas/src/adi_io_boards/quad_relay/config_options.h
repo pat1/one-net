@@ -210,6 +210,14 @@
     #define _NON_VOLATILE_MEMORY
 #endif
 
+#ifdef _NON_VOLATILE_MEMORY
+    // _AUTO_SAVE should be defined if the parameters should be saved every
+    // time they change
+    #ifndef _AUTO_SAVE
+     //   #define _AUTO_SAVE
+    #endif
+#endif
+
 
 // Enable this if the device has transmit and receive LEDS
 #ifndef _HAS_LEDS

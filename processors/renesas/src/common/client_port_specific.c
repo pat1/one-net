@@ -50,6 +50,7 @@
 #endif
 #include "io_port_mapping.h"
 #include "one_net_application.h" // for INPUT and OUTPUT //
+#include "client_util.h"
 
 
 //==============================================================================
@@ -68,15 +69,7 @@
 //! \ingroup CLIENT_port_specific
 //! @{
 
-//! Values for representing the type of data stored in non-volatile memory
-typedef enum
-{
-    //! Value that represents start of unused flash data
-    INVALID_FLASH_DATA = 0xFF,
-    
-    //! Value that represents the start of ONE-NET paramets
-    ONE_NET_CLIENT_FLASH_DATA = 0x00
-} nv_data_t;
+
 
 //! Header to be saved when parameters are saved.
 typedef struct
@@ -145,7 +138,7 @@ const UInt8 * read_param(UInt16 * const len)
       && ((const flash_hdr_t *)nv_addr)->type != INVALID_FLASH_DATA;
       nv_addr += sizeof(flash_hdr_t) + ((const flash_hdr_t *)nv_addr)->len)
     {
-        if(((const flash_hdr_t *)nv_addr)->type == ONE_NET_CLIENT_FLASH_DATA)
+        if(((const flash_hdr_t *)nv_addr)->type == ONE_NET_CLIENT_FLASH_NV_DATA)
         {
             PARAM_PTR = nv_addr + sizeof(flash_hdr_t);
             *len = ((const flash_hdr_t *)nv_addr)->len;
@@ -234,7 +227,7 @@ void one_net_client_save_settings(const UInt8 * PARAM, const UInt16 PARAM_LEN)
     const UInt16 END_OF_WRITE_PTR = (UInt16)(nv_addr + BYTES_TO_WRITE);
 
     // if the type of nv_hdr is changed, need to change BYTES_TO_WRITE
-    flash_hdr_t nv_hdr = {ONE_NET_CLIENT_FLASH_DATA, PARAM_LEN};
+    flash_hdr_t nv_hdr = {ONE_NET_CLIENT_FLASH_NV_DATA, PARAM_LEN};
 
     if(!PARAM || !PARAM_LEN)
     {

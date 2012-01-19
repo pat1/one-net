@@ -61,6 +61,23 @@
 //! \ingroup client_util
 //! @{
 
+
+//! Values for representing the type of data stored in non-volatile memory
+typedef enum
+{
+    //! Value that represents start of unused flash data
+    INVALID_FLASH_DATA = 0xFF,
+    
+    //! Value that represents the start of ONE-NET parameters
+    ONE_NET_CLIENT_FLASH_NV_DATA = 0x00,
+    
+    #ifdef _PEER
+    //! Value that represents the start of peer parameters
+    ONE_NET_CLIENT_FLASH_PEER_DATA = 0x01
+    #endif
+} nv_data_t;
+
+
 //! @} client_util_typedefs
 //                                  TYPEDEFS END
 //=============================================================================
