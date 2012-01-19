@@ -585,7 +585,6 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
 {
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
-    UInt16 expected_param_len;
     
     #ifdef _PEER
     if(!peer_param)
@@ -603,7 +602,7 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
         param = nv_param;
     }
     
-    if(param_len >= 0 && expected_param_len != CLIENT_NV_PARAM_SIZE_BYTES)
+    if(param_len >= 0 && param_len != CLIENT_NV_PARAM_SIZE_BYTES)
     {
         return -1;
     }
