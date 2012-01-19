@@ -460,6 +460,7 @@ void main(void)
     const UInt8* peer_param_ptr = NULL;
     UInt16 peer_param_len = 0;
     #endif
+    one_net_status_t status = ONS_NOT_JOINED;
 
     INIT_PORTS();
     
@@ -485,13 +486,14 @@ void main(void)
     #endif
     {
         #ifdef _PEER
-        one_net_client_init(PARAM_PTR, param_len, peer_param_ptr,
+        status = one_net_client_init(PARAM_PTR, param_len, peer_param_ptr,
           peer_param_len);
         #else
-        one_net_client_init(PARAM_PTR, param_len);
+        status = one_net_client_init(PARAM_PTR, param_len);
         #endif
     } // if the settings were successfully returned //
-    else
+    
+    if(status != ONS_SUCCESS)
     {
         one_net_client_look_for_invite(&DEV_KEY);
     } // else join a network //
