@@ -518,7 +518,8 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
           msg_data);
         #endif
         if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
-          (msg_data == ONA_ON || msg_data == ONA_OFF))
+          (msg_data == ONA_ON || msg_data == ONA_OFF) && dst_unit <
+          ONE_NET_NUM_UNITS)
         {
             // interpret ONA_STATUS_CHANGE as ONA_COMMAND
             msg_class = ONA_COMMAND;
