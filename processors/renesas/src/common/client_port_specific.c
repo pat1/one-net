@@ -271,7 +271,7 @@ void one_net_client_save_settings(void)
     if(write_data_flash((UInt16)nv_addr, (const UInt8 *)&peer_nv_hdr,
       sizeof(peer_nv_hdr)) != sizeof(peer_nv_hdr) ||
       write_data_flash((UInt16)nv_addr + sizeof(peer_nv_hdr),
-      peer_storage, peer_nv_hdr.len) != nv_hdr.len)
+      peer_storage, peer_nv_hdr.len) != peer_nv_hdr.len)
     {
         return;
     } // if saving settings failed //
