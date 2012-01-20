@@ -465,11 +465,13 @@ tick_t one_net_client(void)
                 // pasue is now over.  Set the client_joined_network flag to
                 // false.
                 removed = FALSE;
+                master->flags = 0;
+                #ifdef _AUTO_SAVE
+                one_net_client_save_settings();
+                save = FALSE;
+                #endif
                 one_net_client_client_removed(NULL, TRUE);
                 one_net_client_reset_client(one_net_client_get_invite_key());
-                #ifdef _AUTO_SAVE
-                save = TRUE;
-                #endif
                 return 0;
             }
             
