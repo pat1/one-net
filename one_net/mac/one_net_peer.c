@@ -394,8 +394,8 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
         
         
         // move everything after up one spot
-        one_net_memmove(&peer_list[i], &peer_list[i+1], ONE_NET_MAX_PEER_UNIT
-           - i - 1);
+        one_net_memmove(&peer_list[i], &peer_list[i+1], (ONE_NET_MAX_PEER_UNIT
+           - i - 1) * sizeof(on_peer_unit_t));
            
         // now blank out the last spot if not already blanked out.
         one_net_memmove(&peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
