@@ -99,9 +99,10 @@ void *one_net_memmove(void *dst, const void *src, size_t n)
         return NULL;
     }
     
-    if(dst == src)
+    if(n == 0 || dst == src)
     {
-        return dst; // addresses are the same.  No need to "move" any memory
+        return dst; // addresses are the same or the number of bytes to move is
+                    // 0.  No need to "move" any memory.  Just return.
     }
     
 	
