@@ -1,4 +1,4 @@
-README - December 29, 2011
+README - January 20, 2012
 
 The file called Doxyfile located in this folder was used to create the ONE-NET API on the ONE-NET website (http://www.one-net.info/api).
 
@@ -11,6 +11,6 @@ If you downlaod the Windows version of doxygen, it comes with a very useful prog
 This particular Doxyfile is set to generate graphs.  To get the graphs that are in the API, you should download and install the Graphiz package here: http://www.graphviz.org/ before running doxygen to generate the documentation.
 
 
-You must change the INPUT and OUTPUT options in the enclosed Doxyfile so that INPUT matches the root folder of your ONE-NET 1.6 files and OUTPUT specifies where you want doxygen to place the generated documentation.
+You must change the INPUT and OUTPUT options in the enclosed Doxyfile so that INPUT matches the root folder of your ONE-NET 2.0 files and OUTPUT specifies where you want doxygen to place the generated documentation.
 
 Change Doxyfile to whatever other options you like.  In particular, you can generate Latex and man pages.  You can also choose not to create the graphs, which are useful, but take up a lot of space.  There are a variety of other options.
