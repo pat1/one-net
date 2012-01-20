@@ -2917,7 +2917,6 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     {
         BOOL adding = (msg->payload[0] == ON_ADD_DEV);
         on_client_t* add_or_remove_client = NULL;
-        on_encoded_did_t encoded_add_or_rm_did;
         
         if(adding && !add_device_update_in_progress)
         {
@@ -3037,8 +3036,8 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             (*recipient_send_list)->num_recipients = 0;
             
             // now add the new recipient.
-            did_unit.did[0] = encoded_add_or_rm_did[0];
-            did_unit.did[1] = encoded_add_or_rm_did[1];
+            did_unit.did[0] = msg->payload[1];
+            did_unit.did[1] = msg->payload[2];
             add_recipient_to_recipient_list(*recipient_send_list, &did_unit);
             return;
         }
