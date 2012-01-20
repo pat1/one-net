@@ -189,6 +189,9 @@ on_raw_sid_t * one_net_master_get_raw_sid(void)
 BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID)
 {
+    #ifdef _UART
+    oncli_send_msg("Device %03X has checked in.\n", did_to_u16(DID));
+    #endif
     return FALSE;
 } // one_net_master_device_is_awake //
 

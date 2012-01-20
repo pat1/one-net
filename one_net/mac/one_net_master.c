@@ -274,6 +274,8 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
 
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
+  
+static void check_clients_for_missed_check_ins(void);
 
 
 
@@ -1066,6 +1068,7 @@ void one_net_master(void)
             save = FALSE;
         }
         #endif
+        check_clients_for_missed_check_ins();
     }
 } // one_net_master //
 
@@ -1139,7 +1142,6 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     // give it 5 extra seconds.
     client->next_check_in_time = get_tick_count() +
       MS_TO_TICK(5000 + client->keep_alive_interval);
-    client->last_admin_update_time = 0;
       
     #ifdef _ONE_NET_MULTI_HOP
     client->device.max_hops = features_max_hops(features);
@@ -3131,6 +3133,28 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     
     // looks like nothing should be sent.  Abort this message.
     *recipient_send_list = NULL;
+}
+
+
+static void check_clients_for_missed_check_ins(void)
+{
+    UInt8 i;
+    tick_t time_now = get_tick_count();
+    UInt8 pld[4];
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(client_list[i].next_check_in_time < time_now)
+        {
+            if(one_net_master_client_missed_check_in(&client_list[i]) &&
+              !features_device_sleeps(client_list[i].device.features))
+            {
+                send_admin_pkt(ON_KEEP_ALIVE_QUERY,
+                  &(client_list[i].device.did), pld, 0);
+            }
+            client_list[i].next_check_in_time = time_now + 
+              MS_TO_TICK(5000 + client_list[i].keep_alive_interval);
+        }
+    }
 }
 
 
