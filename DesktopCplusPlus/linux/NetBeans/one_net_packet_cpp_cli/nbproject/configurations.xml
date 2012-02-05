@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="69">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true"
+                   kind="SOURCE_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="include" displayName="include" projectFiles="true">
+      <itemPath>include/xtea_key.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="one_net_packet_cpp_cli"
+                   displayName="one_net_packet_cpp_cli"
+                   projectFiles="true">
+      <logicalFolder name="dist"
+                     displayName="dist"
+                     projectFiles="true"
+                     kind="SOURCE_LOGICAL_FOLDER">
+        <logicalFolder name="Debug"
+                       displayName="Debug"
+                       projectFiles="true"
+                       kind="SOURCE_LOGICAL_FOLDER">
+          <logicalFolder name="GNU-Linux-x86"
+                         displayName="GNU-Linux-x86"
+                         projectFiles="true"
+                         kind="SOURCE_LOGICAL_FOLDER">
+            <itemPath>dist/Debug/GNU-Linux-x86/one_net_packet_cpp_cli</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="Release"
+                       displayName="Release"
+                       projectFiles="true"
+                       kind="SOURCE_LOGICAL_FOLDER">
+          <logicalFolder name="GNU-Linux-x86"
+                         displayName="GNU-Linux-x86"
+                         projectFiles="true"
+                         kind="SOURCE_LOGICAL_FOLDER">
+            <itemPath>dist/Release/GNU-Linux-x86/one_net_packet_cpp_cli</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="include"
+                     displayName="include"
+                     projectFiles="true"
+                     kind="SOURCE_LOGICAL_FOLDER">
+        <logicalFolder name="include" displayName="include" projectFiles="true">
+        </logicalFolder>
+        <logicalFolder name="one_net_lib" displayName="one_net_lib" projectFiles="true">
+          <logicalFolder name="dist"
+                         displayName="dist"
+                         projectFiles="true"
+                         kind="SOURCE_LOGICAL_FOLDER">
+            <logicalFolder name="Debug"
+                           displayName="Debug"
+                           projectFiles="true"
+                           kind="SOURCE_LOGICAL_FOLDER">
+              <logicalFolder name="GNU-Linux-x86"
+                             displayName="GNU-Linux-x86"
+                             projectFiles="true"
+                             kind="SOURCE_LOGICAL_FOLDER">
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="Release"
+                           displayName="Release"
+                           projectFiles="true"
+                           kind="SOURCE_LOGICAL_FOLDER">
+              <logicalFolder name="GNU-Linux-x86"
+                             displayName="GNU-Linux-x86"
+                             projectFiles="true"
+                             kind="SOURCE_LOGICAL_FOLDER">
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="include"
+                         displayName="include"
+                         projectFiles="true"
+                         kind="SOURCE_LOGICAL_FOLDER">
+            <itemPath>../one_net_lib/include/config_options.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_acknowledge.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_application.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_channel.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_client.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_client_port_specific.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_constants.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_crc.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_data_rate.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_encode.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_features.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_led.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_master.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_master_port_const.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_master_port_specific.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_message.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_packet.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_peer.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_port_const.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_port_specific.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_prand.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_status_codes.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_timer.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_timer_port_const.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_types.h</itemPath>
+            <itemPath>../one_net_lib/include/one_net_xtea.h</itemPath>
+            <itemPath>../one_net_lib/include/pal.h</itemPath>
+            <itemPath>../one_net_lib/include/tal.h</itemPath>
+            <itemPath>../one_net_lib/include/test_defines.h</itemPath>
+            <itemPath>../one_net_lib/include/tick.h</itemPath>
+            <itemPath>../one_net_lib/include/undefine_all_defines.h</itemPath>
+          </logicalFolder>
+          <itemPath>../one_net_lib/Makefile</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="src"
+                     displayName="src"
+                     projectFiles="true"
+                     kind="SOURCE_LOGICAL_FOLDER">
+      </logicalFolder>
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true"
+                   kind="SOURCE_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true"
+                   kind="SOURCE_LOGICAL_FOLDER">
+      <itemPath>main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="src" displayName="src" projectFiles="true">
+      <itemPath>attribute.cpp</itemPath>
+      <itemPath>attribute.h</itemPath>
+      <itemPath>src/cli.cpp</itemPath>
+      <itemPath>src/cli.h</itemPath>
+      <itemPath>src/packet.cpp</itemPath>
+      <itemPath>src/packet.h</itemPath>
+      <itemPath>src/string_utils.cpp</itemPath>
+      <itemPath>src/string_utils.h</itemPath>
+      <itemPath>time_utils.cpp</itemPath>
+      <itemPath>time_utils.h</itemPath>
+      <itemPath>src/xtea_key.cpp</itemPath>
+      <itemPath>src/xtea_key.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>chip_connection.cpp</itemPath>
+    <itemPath>chip_connection.h</itemPath>
+    <itemPath>filter.cpp</itemPath>
+    <itemPath>filter.h</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+    <Elem>../one_net_lib</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>../one_net_lib/include</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>../one_net_lib/include</pElem>
+            <pElem>include</pElem>
+            <pElem>src</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibFileItem>../one_net_lib/dist/Debug/GNU-Linux-x86/libone_net_lib.a</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="/root/NetBeansProjects/one_net_lib"
+                        CT="3"
+                        CN="Debug"
+                        AC="false"
+                        BL="true"
+                        WD="/root/NetBeansProjects/one_net_lib"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libone_net_lib.a">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>include</pElem>
+            <pElem>../one_net_lib/include</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../one_net_lib/include</pElem>
+            <pElem>include</pElem>
+            <pElem>src</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibFileItem>../one_net_lib/dist/Release/GNU-Linux-x86/libone_net_lib.a</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="/root/NetBeansProjects/one_net_lib"
+                        CT="3"
+                        CN="Release"
+                        AC="true"
+                        BL="true"
+                        WD="/root/NetBeansProjects/one_net_lib"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libone_net_lib.a">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>
