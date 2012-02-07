@@ -69,27 +69,26 @@ bool packet::parse_app_payload(payload_t& payload, const filter& fltr)
 }
 
 
-bool packet::parse_admin_payload(payload_t& payload, const filter& fltr)
+bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes,
+    const filter& fltr)
 {
-    payload.admin_payload.admin_type =
-        payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX];
-    
-    UInt8* ptr = &payload.decrypted_payload_bytes[ON_PLD_ADMIN_DATA_IDX];
+    payload.admin_payload.admin_type = admin_bytes[0];
+    admin_bytes++;
 
     switch(payload.admin_payload.admin_type)
     {
         case ON_CHANGE_FRAGMENT_DELAY: case ON_CHANGE_FRAGMENT_DELAY_RESP:
-            payload.admin_payload.frag_time_low_ms = (ptr[0] << 8) +
-                    ptr[1];
-            payload.admin_payload.frag_time_high_ms = (ptr[2] << 8) +
-                    ptr[3];
+            payload.admin_payload.frag_time_low_ms = (admin_bytes[0] << 8) +
+                    admin_bytes[1];
+            payload.admin_payload.frag_time_high_ms = (admin_bytes[2] << 8) +
+                    admin_bytes[3];
             return true;
         case ON_CHANGE_KEEP_ALIVE:
-            payload.admin_payload.time_ms = (ptr[0] << 24) + (ptr[1] << 16) +
-                (ptr[2] << 8) + ptr[3];
+            payload.admin_payload.time_ms = (admin_bytes[0] << 24) +
+                (admin_bytes[1] << 16) + (admin_bytes[2] << 8) + admin_bytes[3];
             return true;
         default:
-            memcpy(payload.admin_payload.data, ptr, sizeof(
+            memcpy(payload.admin_payload.data, admin_bytes, sizeof(
                 payload.admin_payload.data));
             return true;
     }
@@ -107,6 +106,12 @@ bool packet::parse_response_payload(payload_t& payload, const filter& fltr)
     memcpy(&payload.response_payload.pld, ack_nack->payload,
         sizeof(ack_nack_payload_t));
     ack_nack->payload = &payload.response_payload.pld;
+
+    if(payload.response_payload.ack_nack.handle == ON_ACK_ADMIN_MSG)
+    {
+        return parse_admin_payload(payload,
+            &payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX], fltr);
+    }
     return true;
 }
 
@@ -175,7 +180,8 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
                 return packet::parse_app_payload(payload, fltr);
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
-                return packet::parse_admin_payload(payload, fltr);
+                return packet::parse_admin_payload(payload,
+                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX], fltr);
             case ON_FEATURE_MSG:
                 payload.is_features_pkt = true;
                 memcpy(&payload.features_payload,
@@ -282,6 +288,26 @@ bool packet::filter_packet(const filter& fltr) const
         return false;
     }
     if(!fltr.value_accepted(filter::FILTER_MAX_HOPS, max_hops))
+    {
+        return false;
+    }
+
+    // test admin message type
+    bool test_admin_type = false;
+    UInt8 admin_type;
+    if(is_data_pkt && is_single_pkt)
+    {
+        test_admin_type = true;
+        admin_type = payload.admin_payload.admin_type;
+    }
+    else if(this->is_response_pkt && payload.admin_payload.admin_type ==
+        ON_ACK_ADMIN_MSG)
+    {
+        test_admin_type = true;
+        admin_type = payload.admin_payload.admin_type;
+    }
+    if(test_admin_type && !fltr.value_accepted(filter::FILTER_ADMIN_TYPE,
+        admin_type))
     {
         return false;
     }
@@ -468,7 +494,8 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
                 break;
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
-                parse_admin_payload(payload, fltr);
+                parse_admin_payload(payload,
+                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX], fltr);
                 break;
             case ON_FEATURE_MSG:
                 payload.is_features_pkt = true;
@@ -642,8 +669,7 @@ bool admin_payload_t::detailed_admin_payload_to_string(string& str) const
     string tmp;
     stringstream ss;
     str = "Admin Type : 0x";
-    ss << setfill('0') << setw(2) << (int) admin_type;
-    ss >> tmp;
+    byte_to_hex_string(admin_type, tmp);
     str += tmp;
     str += "(";
     str += admin_payload_t::get_admin_type_string(admin_type);
@@ -673,10 +699,12 @@ bool admin_payload_t::detailed_admin_payload_to_string(string& str) const
             bytes_to_hex_string(add_remove_msg.enc_did, 2, tmp, ' ', 0, 0);
             str += tmp;
             str += " -- # Multi-Hop : ";
+            ss.clear();
             ss << (int) add_remove_msg.num_mh_devices;
             ss >> tmp;
             str += tmp;
             str += " -- # Multi-Hop Repeater : ";
+            ss.clear();
             ss << (int) add_remove_msg.num_mh_repeaters;
             ss >> tmp;
             str += tmp;
@@ -1101,6 +1129,14 @@ bool payload_t::detailed_response_payload_to_string(string& str) const
             ss >> tmp;
             str += tmp;
             break;
+        case ON_ACK_ADMIN_MSG:
+            str += "ACK Admin Payload...\n";
+            if(!admin_payload.detailed_admin_payload_to_string(tmp))
+            {
+                return false;
+            }
+            str += tmp;
+            break;
     }
 
     str += "\n";
@@ -1111,10 +1147,17 @@ bool payload_t::detailed_response_payload_to_string(string& str) const
 bool payload_t::detailed_payload_to_string(UInt8 raw_pid, string& str) const
 {
     str = "";
+
+    if(packet_is_single(raw_pid) && (packet_is_ack(raw_pid) ||
+        packet_is_nack(raw_pid)))
+    {
+        return this->detailed_response_payload_to_string(str);
+    }
     if(this->is_app_pkt)
     {
         return app_payload.detailed_app_payload_to_string(str);
     }
+
     else if(this->is_admin_pkt)
     {
         return admin_payload.detailed_admin_payload_to_string(str);
@@ -1126,11 +1169,6 @@ bool payload_t::detailed_payload_to_string(UInt8 raw_pid, string& str) const
     else if(this->is_invite_pkt)
     {
         return invite_payload.detailed_invite_payload_to_string(str);
-    }
-    else if(packet_is_single(raw_pid) && (packet_is_ack(raw_pid) ||
-        packet_is_nack(raw_pid)))
-    {
-        return this->detailed_response_payload_to_string(str);
     }
 
     return true;
