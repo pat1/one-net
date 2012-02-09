@@ -202,14 +202,14 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
 */
 UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header)
 {
-    UInt8 pld_len = get_encoded_payload_len(raw_pid);
+    SInt8 pld_len = get_encoded_payload_len(raw_pid);
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 mh_bytes = packet_is_multihop(raw_pid) ? ON_ENCODED_HOPS_SIZE : 0;
     #endif
     UInt8 header_offset = include_header ? 0 : ONE_NET_ENCODED_RPTR_DID_IDX;
     
-    if(pld_len == 0)
+    if(pld_len < 0)
     {
         // invalid PID
         return 0;
