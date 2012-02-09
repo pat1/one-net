@@ -39,9 +39,12 @@
 */
 
 
-
+#include "config_options.h"
 #include "cb.h"
 #include "one_net_port_specific.h"
+#ifdef _UART
+#include "oncli.h"
+#endif
 
 
 //==============================================================================
@@ -272,6 +275,70 @@ UInt16 cb_bytes_queued(const cb_rec_t * const CB)
     // add 1 to include the bounds
     return (CB->wrap - CB->tail) + CB->head + 1;
 } // cb_bytes_queued //
+
+
+BOOL  cb_peek(const cb_rec_t* const CB, UInt16 index, UInt8* byte)
+{
+    UInt16 peek_index;
+    
+    if(index >= cb_bytes_queued(CB))
+    {
+        return FALSE;
+    }
+    
+    if(CB->wrap - CB->tail >= index)
+    {
+        peek_index = CB->tail + index;
+    }
+    else
+    {
+        peek_index = index - (CB->wrap - CB->tail) - 1;
+    }
+    
+    *byte = CB->buffer[peek_index];
+    return TRUE;
+}
+
+
+void  cb_clear(cb_rec_t* CB)
+{
+    CB->head = CB->tail = 0;
+}
+
+
+#ifdef _UART
+void cb_print(const cb_rec_t* const CB)
+{
+    UInt16 i;
+    UInt8 peek_byte;
+    UInt16 q_size = cb_bytes_queued(CB);
+    oncli_send_msg("head=%d tail=%d wrap=%d queued=%d free=%d\n",
+      CB->head, CB->tail, CB->wrap, q_size, cb_bytes_free(CB));
+      
+    for(i = 0; i < q_size; i++)
+    {
+        if(i % 16 == 0)
+        {
+            if(i > 0)
+            {
+                oncli_send_msg("\n");
+            }
+        }
+        else
+        {
+            oncli_send_msg(" ");
+        }
+        
+        if(!cb_peek(CB, i, &peek_byte))
+        {
+            oncli_send_msg("\nPeek Error!\n");
+            break;
+        }
+        oncli_send_msg("%02X", peek_byte);
+    }
+    oncli_send_msg("\n");
+}
+#endif
 
 
 /*!

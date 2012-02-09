@@ -56,6 +56,8 @@
     disable interrupts in either cb_get or cb_put. 
 */
 
+
+#include "config_options.h"
 #include "one_net_types.h"
 
 
@@ -132,6 +134,11 @@ UInt16 cb_bytes_queued(const cb_rec_t * const);
 UInt16 cb_bytes_free(const cb_rec_t * const);
 UInt8 cb_getqueue(cb_rec_t *, UInt8 *);
 UInt8 cb_putqueue(cb_rec_t *, UInt8);
+BOOL  cb_peek(const cb_rec_t* const, UInt16, UInt8*);
+void  cb_clear(cb_rec_t*);
+#ifdef _UART
+void cb_print(const cb_rec_t* const CB);
+#endif
 
 //! @} cb_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END
