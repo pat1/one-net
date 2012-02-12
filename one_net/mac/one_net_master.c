@@ -329,6 +329,9 @@ one_net_status_t one_net_master_create_network(
 
     master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
     master_param->client_count = 0;
+    #ifdef _PEER
+    one_net_reset_peers();
+    #endif    
 
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
@@ -385,6 +388,15 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     static UInt8 peer_memory_size_initialized = 0;
     static BOOL init_internal_called = FALSE;
     #endif
+    
+    if(!init_internal_called)
+    {
+        if((status = init_internal()) != ONS_SUCCESS)
+        {
+            return status; // if initializing the internals failed //
+        }
+        init_internal_called = TRUE;
+    }
     
     if(PARAM != NULL)
     {
@@ -457,16 +469,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
         {
             UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
               peer_memory_size_initialized;
-              
-            if(!init_internal_called)
-            {
-                if((status = init_internal()) != ONS_SUCCESS)
-                {
-                    return status; // if initializing the internals failed //
-                }
-                init_internal_called = TRUE;
-            }
-              
+                            
             if(PARAM_LEN <= more_needed_for_peer)
             {
                 one_net_memmove(&peer_storage[peer_memory_size_initialized],

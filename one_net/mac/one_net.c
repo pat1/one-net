@@ -1044,9 +1044,6 @@ void one_net_init(void)
     #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     empty_queue();
     #endif
-    #ifdef _PEER
-    one_net_reset_peers();
-    #endif
     single_msg_ptr = NULL;
     single_txn.priority = ONE_NET_NO_PRIORITY;
     #ifdef _RANGE_TESTING

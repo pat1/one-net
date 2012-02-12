@@ -33,6 +33,9 @@
 #include "oncli.h"
 #include "oncli_str.h"
 #include "tal.h"
+#ifdef _PEER
+#include "one_net_peer.h"
+#endif
 
 
 //=============================================================================
@@ -296,7 +299,10 @@ void init_auto_master(void)
         client_list[i].keep_alive_interval = MS_TO_TICK(
             DEFAULT_EVAL_KEEP_ALIVE_MS);
     }
-    
+
+    #ifdef _PEER
+    one_net_reset_peers();
+    #endif
     one_net_master_init(NULL, 0);
     
     // initialize timer for auto mode to send right away

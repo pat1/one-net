@@ -292,6 +292,9 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
     // the state machine and some flags to get ready to receive invitations.
     client_joined_network = FALSE;
     client_looking_for_invite = TRUE;
+    #ifdef _PEER
+    one_net_reset_peers();
+    #endif    
 
     #ifdef _ENHANCED_INVITE
     client_invite_timed_out = FALSE;
