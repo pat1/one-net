@@ -84,6 +84,8 @@ extern UInt8 tx_rf_len;
 extern UInt8 tx_rf_idx;
 extern const UInt8 * tx_rf_data;
 extern UInt8 bit_mask;
+extern UInt8 encoded_pkt_bytes[SNIFF_PKT_BUFFER_SIZE][ON_MAX_ENCODED_PKT_SIZE];
+extern UInt8 rcv_idx;
 
 
 
@@ -196,12 +198,12 @@ void dataclk_isr(void)
 {
     if(RF_DATA)
     {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
+        encoded_pkt_bytes[rcv_idx][ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
           bit_mask;
     } // if a 1 was receeived //
     else
     {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
+        encoded_pkt_bytes[rcv_idx][ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
           ~bit_mask;
     } // else a 0 was received //
 

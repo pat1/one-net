@@ -75,6 +75,13 @@
 //! @{
 
 
+UInt8 rcv_idx = 0;
+SInt8 prnt_idx = -1;
+BOOL printit = TRUE;
+tick_t pkt_time[SNIFF_PKT_BUFFER_SIZE];
+UInt8 pkt_size[SNIFF_PKT_BUFFER_SIZE];
+
+
 
 enum
 {
@@ -264,6 +271,9 @@ extern cb_rec_t uart_tx_cb;
 #endif
 
 
+extern UInt8 encoded_pkt_bytes[SNIFF_PKT_BUFFER_SIZE][ON_MAX_ENCODED_PKT_SIZE];
+
+
 //! @} ADI_pub_var
 //                              PUBLIC VARIABLES END
 //==============================================================================
@@ -283,7 +293,6 @@ static void turn_off_agc(void);
 static void turn_on_agc(void);
 static UInt16 adi_7025_read(const UInt8 * const MSG);
 static UInt16 calc_rssi(const UInt16 READBACK_CODE);
-static void tal_turn_on_receiver(void);
 static void tal_turn_on_transmitter(void);
 
 
@@ -395,155 +404,59 @@ BOOL tal_channel_is_clear(void)
 
 UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
 {
-    #ifdef _UART
-    BOOL uart_pause_needed = FALSE;
-    #endif
-    
-    #ifdef _DEBUGGING_TOOLS
-    if(pause || ratchet || write_pause)
-    {
-        proceed = FALSE;
-        synchronize_last_tick();
-        #if _DEBUG_VERBOSE_LEVEL > 5
-        if(verbose_level > 5)
-        {
-            oncli_send_msg("\n\nPause : About to write...\n");
-            display_pkt(data, len, NULL, 0, NULL, 0);
-        }
-        #endif
-        #if _DEBUG_VERBOSE_LEVEL > 2
-        if(verbose_level <= 5 && verbose_level > 2)
-        {
-            oncli_send_msg("\n\nPause : About to write...\n");
-            xdump(data, len);
-        }
-        #endif
-        #if _DEBUG_VERBOSE_LEVEL > 1
-        if(verbose_level == 2)
-        {
-            oncli_send_msg("\n\nWrite PID %02X\n",
-              data[ONE_NET_ENCODED_PID_IDX]);
-        }
-        #endif
-    }
-    
-    while(pausing = (pause || (ratchet && !proceed)))
-    {
-        synchronize_last_tick();
-        oncli();
-    }
-    proceed = FALSE;
-    
-    if(write_pause > 0)
-    {
-        pausing = TRUE;
-        ont_set_timer(WRITE_PAUSE_TIMER, write_pause);
-        
-        while(!ont_inactive_or_expired(WRITE_PAUSE_TIMER))
-        {
-            oncli();  // alow the user to enter commands while pausing
-        }
-        #if _DEBUG_VERBOSE_LEVEL > 1
-        if(verbose_level > 1)
-        {
-            oncli_send_msg("Pause done\n");
-        }
-        #endif
-        pausing = FALSE;
-    }
-    #endif    
-    
-    
-    tx_rf_idx = 0;
-    tx_rf_data = data;
-    tx_rf_len = len;
 
-    #ifdef _UART
-    while(cb_bytes_queued(&uart_tx_cb))
-    {
-        uart_pause_needed = TRUE;
-    }
-    if(uart_pause_needed)
-    {
-        #ifdef _DEBUGGING_TOOLS
-        pausing = TRUE;
-        #endif
-        delay_ms(2); // slight pause to let the uart clear so nothing
-                     // gets garbled.
-        #ifdef _DEBUGGING_TOOLS
-        pausing = FALSE;
-        #endif
-    }
-    #endif //  if UART is enabled //
-
-    tal_turn_on_transmitter();
-    ENABLE_TX_BIT_INTERRUPTS();
-
-    return len;
 } // tal_write_packet //
 
 
-BOOL tal_write_packet_done()
+UInt8 tal_read_bytes(UInt8 ** data, tick_t* pkt_rcv_time)
 {
-    if(tx_rf_idx < tx_rf_len)
-    {
-        return FALSE;
-    } // if not done //
-
-    DISABLE_TX_BIT_INTERRUPTS();
-    tal_turn_on_receiver();
-
-    return TRUE;
-} // tal_write_packet_done //
-
-
-UInt8 tal_read_bytes(UInt8 * data, const UInt8 len)
-{
-    UInt8 bytes_to_read;
+    UInt8 bytes_read, new_prnt_idx;
     
     // check the parameters, and check to see if there is data to be read
-    if(!data || !len || rx_rf_idx >= rx_rf_count)
+    if(!data || prnt_idx < 0 || prnt_idx >=
+      SNIFF_PKT_BUFFER_SIZE || pkt_size[prnt_idx] > ON_MAX_ENCODED_PKT_SIZE -
+      ONE_NET_PREAMBLE_HEADER_LEN)
     {
         return 0;
-    } // if the parameters are invalid, or there is no more data to read //
+    } // if the parameters are invalid
     
-    if(rx_rf_idx + len > rx_rf_count)
+    bytes_read = pkt_size[prnt_idx];
+    *data = &(encoded_pkt_bytes[prnt_idx][ONE_NET_PREAMBLE_HEADER_LEN]);
+    *pkt_rcv_time = pkt_time[prnt_idx];
+    new_prnt_idx = prnt_idx + 1;
+    if(new_prnt_idx >= SNIFF_PKT_BUFFER_SIZE)
     {
-        // more bytes have been requested than are available, so give the
-        // caller what is available
-        bytes_to_read = rx_rf_count - rx_rf_idx;
-    } // if more by requested than available //
+        new_prnt_idx = 0;
+    }
+    if(new_prnt_idx == rcv_idx)
+    {
+        prnt_idx = -1;
+    }
     else
     {
-        bytes_to_read = len;
-    } // else read number of bytes requested //
+        prnt_idx = new_prnt_idx;
+    }
     
-    // TODO -- this shouldn't actualy be moving anywhere?
-    one_net_memmove(data, &(encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN +
-      rx_rf_idx]), bytes_to_read);
-    rx_rf_idx += bytes_to_read;
-    
-    return bytes_to_read;
+    return bytes_read;
 }
 
 
 one_net_status_t tal_look_for_packet(tick_t duration)
 {
+    UInt8 new_rcv_idx;
     UInt8 blks_to_rx = ON_MAX_ENCODED_PKT_SIZE;
-
-    tick_t end = get_tick_count() + duration;
-
-    tal_turn_on_receiver();   
+    tick_t i = 0;
 
     rx_rf_count = 0;
     rx_rf_idx = 0;
 
     while(!SYNCDET)
     {   
-        if(get_tick_count() >= end)
+        if(i >= duration)
         {
 		    return ONS_TIME_OUT;
         } // if done looking //
+        i++;
     } // while no sync detect //
     
     #ifdef _HAS_LEDS
@@ -565,7 +478,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
             blks_to_rx = get_encoded_packet_len(encoded_to_decoded_byte(
-              encoded_pkt_bytes[ONE_NET_ENCODED_PID_IDX], FALSE), FALSE);
+              encoded_pkt_bytes[rcv_idx][ONE_NET_ENCODED_PID_IDX], FALSE), FALSE);
             if(blks_to_rx == 0)
             {
                 // bad packet type
@@ -582,6 +495,25 @@ one_net_status_t tal_look_for_packet(tick_t duration)
     #ifdef _HAS_LEDS
     set_rx_led(FALSE);
     #endif
+    
+    pkt_time[rcv_idx] = get_tick_count();
+    pkt_size[rcv_idx] = blks_to_rx;
+    new_rcv_idx = rcv_idx + 1;
+    if(new_rcv_idx >= SNIFF_PKT_BUFFER_SIZE)
+    {
+        new_rcv_idx = 0;
+    }
+    
+    if(prnt_idx == -1)
+    {
+        prnt_idx = rcv_idx;
+        rcv_idx = new_rcv_idx;
+    }
+    else if(prnt_idx != new_rcv_idx)
+    {
+        rcv_idx = new_rcv_idx;
+    }    
+    
     return ONS_SUCCESS;
 }
 
@@ -904,7 +836,7 @@ static UInt16 calc_rssi(const UInt16 READBACK_CODE)
 
     \return void
 */
-static void tal_turn_on_receiver(void)
+void tal_turn_on_receiver(void)
 {
     UInt8 msg[REG_SIZE];
 

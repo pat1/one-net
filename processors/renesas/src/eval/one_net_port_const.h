@@ -66,7 +66,7 @@ enum
 enum
 {
     //! Maximum number of recipient for any one message.
-    ONE_NET_MAX_RECIPIENTS = 6
+    ONE_NET_MAX_RECIPIENTS = 1
 };
 
 
@@ -142,22 +142,6 @@ enum
 //! that the invite starts to be accepted until the time all information has
 //! been passed between the master and the new client.  In ms.
 #define INVITE_TRANSACTION_TIMEOUT 10000
-
-
-enum
-{
-    //! Number of pins on this device.  The Eval Board contains 4 switches
-    //! so this value is 4.
-    NUM_USER_PINS = 4,
-    
-    //! The number of different unit types this device supports.
-    //! The Eval Board contains only switches, so this value is 1
-    ONE_NET_NUM_UNIT_TYPES = 1,
-    
-    //! Number of units on this device.  The Eval Board contains 4 switches
-    //! so this value is 4.
-    ONE_NET_NUM_UNITS = NUM_USER_PINS
-};
 
 
 // uart buffer size

@@ -94,9 +94,6 @@
 
 
 
-#define one_net_client_send_single push_queue_element
-#define one_net_master_send_single push_queue_element
-#define one_net_send_single push_queue_element
 
 
 enum
@@ -155,6 +152,12 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 //! \defgroup ONE-NET_typedefs
 //! \ingroup ONE-NET
 //! @{
+    
+    
+typedef enum
+{
+    SNIFF_PKT_BUFFER_SIZE = 15
+};    
     
     
 typedef enum
@@ -237,13 +240,6 @@ typedef enum
     //! initialization routines are called)
     ON_INIT_STATE = 200
 } on_state_t;
-
-
-typedef struct
-{
-    on_sending_device_t sender;     //!< did, nonces, etc. from sender.
-    UInt8 lru;                      //!< least recently used value   
-} on_sending_dev_list_item_t;
 
 
 //! Transaction structure
@@ -469,85 +465,13 @@ typedef struct
 //! @{
 
 
-#ifdef _ONE_NET_MULTI_HOP
-//! The number of multi-hop capable devices in the network
-extern UInt8 num_mh_devices;
-
-//! The number of multi-hop repeater clients in the network
-extern UInt8 num_mh_repeaters;
-#endif
-
 //! The encoded broadcast did.
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
 
 //! The raw broadcast did.
 extern const on_raw_did_t ON_RAW_BROADCAST_DID;
 
-extern UInt8 nv_param[];
-extern on_base_param_t* const on_base_param;
 
-
-extern on_txn_t response_txn;
-extern on_txn_t single_txn;
-#ifdef _BLOCK_MESSAGES_ENABLED
-extern on_txn_t block_txn;
-#endif
-#ifdef _STREAM_MESSAGES_ENABLED
-extern on_txn_t stream_txn;
-#endif
-
-
-//! An array that contains the number of of units of each type that this
-//! device supports.  If values are changed here, see ONE_NET_NUM_UNIT_TYPES &
-//! ONE_NET_NUM_UNITS
-extern const ona_unit_type_count_t
-  ONE_NET_DEVICE_UNIT_TYPE[ONE_NET_NUM_UNIT_TYPES];
-
-//! true if device is functioning as a master, false otherwise 
-extern BOOL device_is_master;
-
-//! current status of startup
-extern one_net_startup_status_t startup_status;
-
-//! The current state.
-extern on_state_t on_state;
-
-
-//! The set of packet handlers
-extern on_pkt_hdlr_set_t pkt_hdlr;
-
-
-//! an on_pkt_t structure for data packets
-extern on_pkt_t data_pkt_ptrs;
-
-//! an on_pkt_t structure for response packets
-extern on_pkt_t response_pkt_ptrs;
-
-//! a function to retrieve the sender information
-extern one_net_get_sender_info_func_t get_sender_info;
-
-
-//! A place to store a single message with payload.
-extern on_single_data_queue_t single_msg;
-
-//! A place to store the single message raw payload.
-extern UInt8 single_data_raw_pld[];
-
-//! Pointer to the current single message being sent.  If none, this will be
-//! NULL.  Generally this will point to single_msg.
-extern on_single_data_queue_t* single_msg_ptr;
-
-
-//! A place to store the raw packet bytes when encrypting, decrypting, etc.
-//! so that it will not have to be declared inside of functions and risk a
-//! overflow.
-extern UInt8 raw_payload_bytes[];
-
-//! Unique key of the device being invited into the network
-extern one_net_xtea_key_t invite_key;
-
-//! The current invite transaction
-extern on_txn_t invite_txn;
 
 // The buffer length required for both receiving and sending is...
 //
@@ -586,17 +510,8 @@ extern on_txn_t invite_txn;
 #endif
 
 //! A buffer containing all encoded bytes for transmitting and receiving
-extern UInt8 encoded_pkt_bytes[];
+extern UInt8 encoded_pkt_bytes[SNIFF_PKT_BUFFER_SIZE][ON_MAX_ENCODED_PKT_SIZE];
 
-//! The expected source of the next packet.
-extern on_encoded_did_t expected_src_did;
-
-//! Denotes which key was used.  If true, the current key is being used.
-extern BOOL decrypt_using_current_key;
-
-#ifdef _AUTO_SAVE
-    extern BOOL save;
-#endif
 
 
 //! @} ONE-NET_pub_var
@@ -615,30 +530,11 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
   on_ack_nack_t* const ack_nack);
 
 #ifdef _ONE_NET_MULTI_HOP
-one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
-  UInt8 max_hops);
 one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
   UInt8* max_hops);
 #endif
 BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt);
 
-one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
-
-one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
-  BOOL stay_awake);
-  
-one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
-  const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
-  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
-  
-one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
-  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
-
-one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
-  UInt8 msg_id, UInt8 pid);
-  
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted);
@@ -665,35 +561,6 @@ void one_net_init(void);
 
 //! the main function
 void one_net(on_txn_t ** txn);
-
-
-
-#ifdef _ONE_NET_MULTI_HOP
-/*!
-    \brief Sets the hops for a device
-    
-    \param[in] raw_dst The raw device ID of the device's hops to change.
-    \param[in] hops The desired new number of hops for the device
-    
-    \return The new number of hops for the device.
-    \return -1 if device id could not be decoded or is not in this
-               device's sending table.
-*/
-SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops);
-
-
-/*!
-    \brief Sets the max_hops for a device
-    
-    \param[in] raw_dst The raw device ID of the device's max hops to change.
-    \param[in] max_hops The desired new number of max_hops for the device.
-    
-    \return The new maximum number of hops for the device
-    \return -1 if device id could not be decoded or is not in this
-               device's sending table.
-*/
-SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
-#endif
 
 
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,

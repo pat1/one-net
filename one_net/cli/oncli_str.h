@@ -67,18 +67,6 @@ extern const char * const ONCLI_STARTUP_FMT;
 extern const char * const ONCLI_STARTUP_REV_FMT;
 
 
-
-// Mode strings (TODO - move these into application code?)
-#ifdef _AUTO_MODE
-extern const char * const ONCLI_AUTO_MODE_STR;
-#endif
-#ifdef _SNIFFER_MODE
-extern const char * const ONCLI_SNIFFER_STR;
-#endif
-extern const char * const ONCLI_SERIAL_MODE_STR;
-
-
-
 // Device strings
 extern const char * const ONCLI_MASTER_STR;
 extern const char * const ONCLI_CLIENT_STR;
@@ -318,30 +306,6 @@ extern const char* const NACK_REASON_STR_ARRAY[];
 
 extern const char* const ACK_NACK_DISPLAY_FMT;
 
-#endif
-
-
-#ifdef _ONE_NET_MASTER
-// formats for the results of admin messages from the master.
-extern const char * const ONCLI_UPDATE_RESULT_FMT;
-extern const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
-extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
-
-// master admin update strings
-extern const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
-#ifdef _PEER
-extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
-#endif
-extern const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
-#ifdef _BLOCK_MESSAGES_ENABLED
-extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR;
-#endif
-extern const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_SETTINGS_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_RM_DEV_STR;
-extern const char* const ONCLI_M_UPDATE_RESULT_ADD_DEV_STR;
 #endif
 
 

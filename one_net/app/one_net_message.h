@@ -380,16 +380,6 @@ typedef struct
 //! \ingroup ONE-NET_MESSAGE
 //! @{
 
-extern UInt8 single_data_queue_size;
-
-
-//! The list of recipients to send to for THIS message
-extern on_recipient_list_t recipient_send_list;
-
-//! Pointer to the list of recipients to send to for THIS message.  Generally
-//! will point either to NULL or recipient_send_list.  However, the user is
-//! allowed to provide their own recipient lists to override this list
-extern on_recipient_list_t* recipient_send_list_ptr;
 
 
 //! @} ONE-NET_MESSAGE_pub_var
@@ -401,64 +391,6 @@ extern on_recipient_list_t* recipient_send_list_ptr;
 //! \defgroup ONE-NET_MESSAGE_pub_func
 //! \ingroup ONE-NET_MESSAGE
 //! @{
-
-
-#ifdef _DEBUGGING_TOOLS
-void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
-         UInt8* queue_size, UInt16* tail_idx);
-#endif
-
-void empty_queue(void);
-
-
-#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
-// return true if an element was popped, false otherwise.
-BOOL pop_queue_element(on_single_data_queue_t* const element,
-    UInt8* const buffer, UInt8 index);
-#else
-BOOL pop_queue_element(void);
-#endif
-
-#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
-#else
-int single_data_queue_ready_to_send(void);
-#endif
-
-on_single_data_queue_t* push_queue_element(UInt8 pid,
-  UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
-  const on_encoded_did_t* const src_did,
-  const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
-      , BOOL send_to_peer_list,
-      UInt8 src_unit
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-      , tick_t send_time_from_now
-  #endif
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-	  , tick_t expire_time_from_now
-  #endif
-  );
-  
-
-#ifdef _ONE_NET_CLIENT
-BOOL must_send_to_master(const on_single_data_queue_t* const element);
-#endif
-
-
-
-void clear_recipient_list(on_recipient_list_t* rec_list);
-BOOL did_and_unit_equal(const on_did_unit_t* const dev1,
-  const on_did_unit_t* const dev2);
-BOOL remove_recipient_from_recipient_list(on_recipient_list_t* rec_list,
-  const on_did_unit_t* const recipient_to_remove);
-BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
-  const on_did_unit_t* const recipient_to_add);
-on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
-  on_recipient_list_t* recipient_list);
-  
-BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 
 
 

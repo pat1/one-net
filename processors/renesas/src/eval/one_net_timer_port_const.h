@@ -69,11 +69,6 @@
 */
 enum
 {
-#ifdef _AUTO_MODE
-    //! Timer used in auto mode to automatically send packets
-    AUTO_MODE_TIMER = 0,
-#endif
-    
     //! Timer used to turn off the transmit led
     TX_LED_TIMER,
     

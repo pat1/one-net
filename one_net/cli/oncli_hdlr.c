@@ -59,18 +59,6 @@
 #include "one_net_peer.h"
 #endif
 #include "one_net_port_specific.h"
-#ifdef _ONE_NET_CLIENT
-#include "one_net_client.h"
-#include "one_net_client_port_specific.h"
-#endif
-#ifdef _ONE_NET_MASTER
-#include "one_net_master_port_specific.h"
-#include "one_net_master_port_const.h"
-#include "one_net_master.h"
-#endif
-#ifdef _NON_VOLATILE_MEMORY
-#include "dfi.h"
-#endif
 
 #ifdef _DEBUGGING_TOOLS
 #include "one_net_timer.h"
@@ -113,6 +101,13 @@ static const char ONCLI_PARAM_DELIMITER = ':';
 // debugging -- temporary
 static const char* ADD_DEV_CMD_STR = "add dev";
 
+
+
+extern BOOL printit;
+extern SInt8 prnt_idx;
+extern UInt8 rcv_idx;
+extern tick_t pkt_time[SNIFF_PKT_BUFFER_SIZE];
+extern UInt8 pkt_size[SNIFF_PKT_BUFFER_SIZE];
 
 
 
@@ -243,6 +238,10 @@ int memory_len = 0;
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
 
+static oncli_status_t printit_cmd_hdlr(void);
+static oncli_status_t rcvd_bytes_cmd_hdlr(void);
+
+
 #ifdef _ENABLE_ERASE_COMMAND 
 	static oncli_status_t erase_cmd_hdlr(void);
 #endif
@@ -271,10 +270,6 @@ static oncli_status_t parse_and_send_pin_msg(
 
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
-
-#ifdef _ENABLE_USER_PIN_COMMAND
-	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
@@ -336,17 +331,6 @@ static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #ifdef _RANGE_TESTING
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-
-#ifdef _ONE_NET_MULTI_HOP
-// temporary debugging
-static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
-
-// temporary debugging
-static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-
-
-
 
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
@@ -493,6 +477,30 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return list_cmd_hdlr();
     } // else if the list command was received //
 	#endif
+    
+    if(!strnicmp("a", CMD, strlen("a")))
+    {
+        *CMD_STR = "a";
+
+        if(CMD[strlen("a")] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return printit_cmd_hdlr();
+    } // else if the printit command was received //
+    
+    if(!strnicmp("b", CMD, strlen("b")))
+    {
+        *CMD_STR = "b";
+
+        if(CMD[strlen("b")] != '\n')
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        return rcvd_bytes_cmd_hdlr();
+    } // else if the rcvd_bytes command was received //  
     
 	#ifdef _ENABLE_ERASE_COMMAND 
     else if(!strnicmp(ONCLI_ERASE_CMD_STR, CMD, strlen(ONCLI_ERASE_CMD_STR)))
@@ -689,25 +697,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the "verbose level" command was received //
     #endif
-    
-	#ifdef _ENABLE_USER_PIN_COMMAND
-    else if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
-      strlen(ONCLI_USER_PIN_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_USER_PIN_CMD_STR;
-        
-        if(CMD[strlen(ONCLI_USER_PIN_CMD_STR)] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end of the command is not valid //
-        
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &user_pin_cmd_hdlr;
-        
-        return ONCLI_SUCCESS;
-    } // else if the user pin command was received //
-	#endif
-    
+
 	#ifdef _ENABLE_INVITE_COMMAND
     else if(!strnicmp(ONCLI_INVITE_CMD_STR, CMD, strlen(ONCLI_INVITE_CMD_STR)))
     {
@@ -848,22 +838,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the change keep alive command was received //
 	#endif
-
-    // debugging temporary
-    else if(!strnicmp("add dev", CMD, 7))
-    {
-        *CMD_STR = ADD_DEV_CMD_STR;
-
-        if(CMD[7] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &add_dev_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the "add dev" command was received //
     
 	#ifdef _ENABLE_CHANGE_KEY_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
@@ -953,24 +927,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
         *cmd_hdlr = &range_test_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the range test command was received //
-    #endif
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
-      strlen(ONCLI_MH_REPEAT_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_MH_REPEAT_CMD_STR;
-
-        if(CMD[strlen(ONCLI_MH_REPEAT_CMD_STR)] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &mh_repeat_cmd_hdlr;
 
         return ONCLI_SUCCESS;
     } // else if the range test command was received //
@@ -1238,131 +1194,36 @@ static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_LIST_COMMAND
-/*!
-    \brief Prints information about the current configuration
-    of the device.
-    
-    \param void
-    
-    \return ONCLI_SUCCESS if listing the current settings was successful
-*/
-static oncli_status_t list_cmd_hdlr(void)
+static oncli_status_t printit_cmd_hdlr(void)
 {
-    oncli_status_t status;
-    UInt8 i;
-    
-    oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
-      ONE_NET_VERSION_MINOR);
-    oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
-      ONE_NET_VERSION_BUILD);
-      
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        oncli_print_invite();
-    }
-    #endif
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    oncli_send_msg("# of Network MH Devices : %d\n", on_base_param->num_mh_devices);
-    oncli_send_msg("# of Network MH Repeaters : %d\n", on_base_param->num_mh_repeaters);
-    #endif
-    
-    #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
-	if(device_is_master || client_joined_network)
-    #elif defined(_ONE_NET_CLIENT)
-    if(client_joined_network)
-    #endif
-	{
-        // print encryption key
-		oncli_send_msg    ("Message key : ");
-	    oncli_print_xtea_key(&(on_base_param->current_key));
-        oncli_send_msg("\n");
-		oncli_send_msg    ("Old Message key : ");
-	    oncli_print_xtea_key((one_net_xtea_key_t*) &(on_base_param->old_key));
-        oncli_send_msg("\n\n");
-        // print the NID and the DID
-        if(oncli_print_sid((on_encoded_sid_t*)(on_base_param->sid)) !=
-          ONCLI_SUCCESS)
-        {
-            return ONCLI_CMD_FAIL;
-        }
-        
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        oncli_send_msg("\n\n");
-        oncli_print_fragment_delays();
-        #endif
-	}
-    
-    oncli_send_msg("\n\nDevice Features...\n");
-    oncli_print_features(on_base_param->features);
-    
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master && !client_joined_network)
-    {
-        oncli_send_msg("\n\nCLIENT : Not Joined\n\n");
-        return ONCLI_SUCCESS;
-    }
-    #endif
-    
-    #ifdef _ONE_NET_MASTER
-    if(device_is_master && (on_state == ON_JOIN_NETWORK ||
-      on_state == ON_INIT_STATE))
-    {
-        oncli_send_msg("\n\nMASTER : Initializing\n\n");
-        return ONCLI_SUCCESS;        
-    }
-    #endif
-    
-    // print channel
-    oncli_send_msg("\n\nChannel: ");
-    if((status = oncli_print_channel()) != ONCLI_SUCCESS)
-    {
-        return status;
-    }
-    
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        oncli_send_msg("\n\nSend To Master: %s\n\n", master->flags &
-          ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("\n\nMaster Features...\n\n");
-        oncli_print_features(master->device.features);
-    }
-    #endif
-    
-    #ifdef _ONE_NET_MASTER
-    if(device_is_master)
-    {
-        // print the client list
-        oncli_send_msg("Client count: %d\n", master_param->client_count);
-        for (i = 0; i < master_param->client_count; i++)
-        {
-            on_client_t* client = &client_list[i];
-            oncli_send_msg("\n\n\n  Client %d : ", i + 1);
-            oncli_print_did(&(client->device.did));
-            oncli_send_msg("\n");
-            oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
-              client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-            oncli_print_features(client->device.features);
-        }
-    }
-    #endif
-    
-    #ifdef _PEER
-    #ifdef _ONE_NET_CLIENT
-    if(device_is_master || client_joined_network)
-    #endif
-    {
-        oncli_print_peer_list();
-    }
-    #endif
-    oncli_send_msg("\n\n");
-    oncli_print_user_pin_cfg();
+    printit = !printit;
     return ONCLI_SUCCESS;
-} // list_cmd_hdlr //
-#endif
+}
+
+
+static oncli_status_t rcvd_bytes_cmd_hdlr(void)
+{
+    UInt8 i, j;
+    oncli_send_msg("\nprintit=%d rcv_idx=%d prnt_idx=%d time=%lu", printit,
+      rcv_idx, prnt_idx, get_tick_count());
+      
+    for(i = 0; i < SNIFF_PKT_BUFFER_SIZE; i++)
+    {
+        oncli_send_msg("\ni=%d pkt_size=%d pkt_time=%lu\n", i, pkt_size[i], pkt_time[i]);
+        for(j = 0; j < 52; j++)
+        {
+            if(j % 26 == 0)
+            {
+                oncli_send_msg("\n");
+            }
+            oncli_send_msg("%02X ", encoded_pkt_bytes[i][j]);
+            delay_ms(1);
+        }
+        oncli_send_msg("\n");
+    }
+    
+    return ONCLI_SUCCESS;
+}
 
 
 #ifdef _ENABLE_ERASE_COMMAND
@@ -1481,414 +1342,6 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_SINGLE_COMMAND
-/*!
-    \brief Handles receiving the single command and all its parameters.
-    
-    The single command has the form
-    
-    single:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:AABBCCDDEE
-    
-    where AABBCCDDEE is the packet to send in ASCII hex characters ('0' - '9',
-    'A' - 'F' (lower case is valid also)).  Only the parameters (starting with
-    SRC UNIT) are passed in.
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
-      should be seperated by ':'.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
-              current mode of the device.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
-              because the resource is full.
-            ONCLI_INVALID_DST If the destination is invalid
-            ONCLI_NOT_JOINED If the device needs to join a network before the
-              command can be carried out.
-            ONCLI_INTERNAL_ERR If something unexpected occured
-*/
-static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    on_encoded_did_t enc_dst;
-    UInt8 src_unit, dst_unit;
-    #ifdef _PEER
-    BOOL send_to_peer_list;
-    #endif
-    UInt16 data_len;
-    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    // get the send parameters
-    #ifdef _PEER
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst, &send_to_peer_list)))
-    #else
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst)))
-    #endif
-    {
-        return ONCLI_PARSE_ERR;
-    } // if failed parsing parameters //
-
-    // check the parameter delimiter
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    // get the data
-    data_len = sizeof(raw_pld);
-    if(!(PARAM_PTR = parse_ascii_tx_data(PARAM_PTR, raw_pld,
-      &data_len)) || (*PARAM_PTR != '\n'))
-    {
-        return ONCLI_PARSE_ERR;
-    } // if parsing the data portion failed //
-
-    
-    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
-      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, NULL,
-      #ifdef _PEER
-          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
-      #else
-          &enc_dst
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , 0
-      #endif    
-      ))
-    {
-        return ONS_SUCCESS;
-    }
-    else
-    {
-        return ONCLI_RSRC_UNAVAILABLE;
-    }
-} // single_cmd_hdlr //
-
-
-/*!
-    \brief Handles receiving the single text command and all it's parameters.
-    
-    The single text command has the form
-    
-    single txt:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:"abc"
-    
-    where "abc" is the text to send.  Only the parameters (starting with
-    SRC UNIT) are passed in.
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
-      should be seperated by ':'.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
-              current mode of the device.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            ONCLI_RSRC_UNAVAILABLE If the command can not be carried out
-              because the resource is full.
-            ONCLI_CMD_FAIL If the command failed.
-*/
-static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    on_encoded_did_t enc_dst;
-    UInt16 data_len;
-    UInt8 src_unit, dst_unit;
-    UInt8 raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN] = {0};
-    #ifdef _PEER
-    BOOL send_to_peer_list;
-    #endif
-    
-    UInt8 raw_pid, pld_len, msg_type;
-    
-    #ifdef _EXTENDED_SINGLE
-    UInt8* text_start_ptr = &raw_pld[ONA_MSG_SECOND_IDX];
-    #endif
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    // get the send parameters
-    #ifdef _PEER
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst, &send_to_peer_list)))
-    #else
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst)))
-    #endif
-    {
-        return ONCLI_PARSE_ERR;
-    } // if failed parsing parameters //
-
-    // check the parameter delimiter
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter // 
-
-    // get the data
-    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX;
-    #ifdef _EXTENDED_SINGLE
-    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX - 1;
-    #endif
-    
-    if(!(PARAM_PTR = parse_ascii_tx_text_data(PARAM_PTR, &raw_pld[ONA_MSG_DATA_IDX],
-      &data_len)) || (*PARAM_PTR != '\n'))
-    {
-        return ONCLI_PARSE_ERR;
-    } // if parsing the data portion failed //
-    
-    raw_pid = ONE_NET_RAW_SINGLE_DATA;
-    pld_len = ONA_SINGLE_PACKET_PAYLOAD_LEN;
-    msg_type = ONA_SIMPLE_TEXT;
-
-    #ifdef _EXTENDED_SINGLE
-    if(data_len <= ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_DATA_IDX)
-    {
-        // pid, pld_len, msg_type already set.  Do nothing.
-    }
-    else if(data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN -
-      ONA_MSG_DATA_IDX -1)
-    {
-        raw_pid = ONE_NET_RAW_LARGE_SINGLE_DATA;
-        pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;
-        msg_type = ONA_TEXT;
-        // add a NULL terminator
-        text_start_ptr[data_len] = 0;
-    }
-    else
-    {
-        raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
-        pld_len = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN;
-        msg_type = ONA_TEXT;
-        // add a NULL terminator
-        text_start_ptr[data_len] = 0;
-    }
-    #endif
-    
-    // store the message class/message type in the payload
-    put_msg_hdr(ONA_COMMAND | msg_type, raw_pld);
-
-    // store the source and destination unit numbers in the payload
-    put_dst_unit(dst_unit, raw_pld);
-    put_src_unit(src_unit, raw_pld);
-    
-
-    if(one_net_send_single(raw_pid, ON_APP_MSG, raw_pld, pld_len,
-      ONE_NET_HIGH_PRIORITY, NULL,
-      #ifdef _PEER
-          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
-      #else
-          &enc_dst
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , 0
-      #endif    
-      ))
-    {
-        return ONS_SUCCESS;
-    }
-    else
-    {
-        return ONCLI_RSRC_UNAVAILABLE;
-    }
-} // single_txt_cmd_hdlr //
-
-
-static oncli_status_t status_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_STATUS);
-}
-
-
-static oncli_status_t query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_QUERY);
-}
-
-
-static oncli_status_t fast_query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_FAST_QUERY);
-}
-
-
-static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    return parse_and_send_pin_msg(ASCII_PARAM_LIST, ONA_COMMAND);
-}
-
-
-/*!
-    \brief Parses and sends commands, status messages, queries, and fast queries
-    
-    Valid commands are of the following type...
-    
-    status pin:DDD:P
-    query pin:DDD:P
-    fast query pin:DDD:P
-    set pin:DDD:P:V
-    
-    where DDD is the raw DID of the device receiving the message, P is the pin
-              number, V is the value to set the pin.
-              
-    status pin:003:2 sends the status of THIS DEVICE's pin number 2 to device 003
-    query pin:003:2 tells device 003 to report back the current state of it pin number 2
-    fast query pin:003:2 Same as "query pin:003:2" except this is a "fast query" (i.e.
-        device 003 should NOT send back a separate message, but instead only send
-        back the status in the response message.
-    set pin:003:2:1 commands device device 003 to set pin 2 to state 1(high).  Valid states
-        are 0(low), 1(high), or 2(toggle).  This can only be used as if pin 2 of device 003
-        is an output pin.
-    
-    
-
-    \param[in] ASCII_PARAM_LIST ASCII parameter list.
-    \param[in] msg_class Themessage class of the outgoing single app message
-
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            See user_pin for more return values.
-*/
-static oncli_status_t parse_and_send_pin_msg(
-  const char * const ASCII_PARAM_LIST, UInt16 msg_class)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    const char * endptr = NULL;
-    on_encoded_did_t enc_dst;
-    UInt16 raw_did_int;
-    on_raw_did_t raw_dst;
-    UInt8 src_unit, dst_unit, unit, pin_value;
-    UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
-    
-    one_net_memset(raw_pld, 0, sizeof(raw_pld));
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    // store the message class/message type in the payload
-    put_msg_hdr(msg_class | ONA_SWITCH, raw_pld);
-    
-    raw_did_int = one_net_strtol(PARAM_PTR, &endptr, 16);
-    if(raw_did_int < 0x001 || raw_did_int > 0xFFF || *endptr != ':')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    raw_did_int <<= 4;
-    raw_dst[0] = (raw_did_int & 0xFF00) >> 8;
-    raw_dst[1] = raw_did_int & 0xFF;
-    on_encode(enc_dst, raw_dst, ON_ENCODED_DID_LEN);
-    
-    if(*endptr == '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    endptr++;
-    PARAM_PTR = endptr;
-    
-    unit = one_net_strtol(PARAM_PTR, &endptr, 16);
-    if(unit >= ONE_NET_NUM_UNITS)
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    if(msg_class == ONA_COMMAND)
-    {
-        if(*endptr != ':')
-        {
-            return ONCLI_PARSE_ERR;
-        }
-        endptr++;
-        PARAM_PTR = endptr;
-        
-        pin_value = one_net_strtol(PARAM_PTR, &endptr, 10);
-        if(pin_value >= ONA_TOGGLE)
-        {
-            return ONCLI_PARSE_ERR;
-        }
-    }
-    
-    if(*endptr != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    src_unit = ONE_NET_DEV_UNIT;
-    dst_unit = unit;
-
-    if(msg_class == ONA_STATUS)
-    {
-        src_unit = unit;
-        dst_unit = ONE_NET_DEV_UNIT;
-        switch(src_unit)
-        {
-            case 0: pin_value = USER_PIN0; break;
-            case 1: pin_value = USER_PIN1; break;
-            case 2: pin_value = USER_PIN2; break;
-            case 3: pin_value = USER_PIN3; break;
-        }
-    }
-    
-    if(msg_class == ONA_STATUS || msg_class == ONA_COMMAND)
-    {
-        put_msg_data(pin_value, raw_pld);
-    }
-
-
-    // store the source and destination unit numbers in the payload
-    put_dst_unit(dst_unit, raw_pld);
-    put_src_unit(src_unit, raw_pld);
-      
-    if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
-      ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, NULL, &enc_dst
-      #ifdef _PEER
-          , FALSE,  src_unit
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-          , 0
-      #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
-          , 0
-      #endif    
-      ))
-    {
-        return ONCLI_SUCCESS;
-    }
-    else
-    {
-        return ONCLI_RSRC_UNAVAILABLE;
-    }
-}
-#endif // _ENABLE_SINGLE_COMMAND //
-
-
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
@@ -1914,505 +1367,6 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         case ONS_DEVICE_NOT_CAPABLE: return ONCLI_UNSUPPORTED;
         default: return ONCLI_CMD_FAIL;
     }
-}
-#endif
-
-
-/*!
-    \brief Handles receiving the user pin command and all it's parameters.
-
-    \param[in] ASCII_PARAM_LIST ASCII parameter list.
-
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            See user_pin for more return values.
-*/
-#ifdef _ENABLE_USER_PIN_COMMAND
-static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-
-    char * end_ptr;
-
-    UInt8 pin;
-    UInt8 pin_type;
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    if(!isdigit(*PARAM_PTR))
-    {
-        return ONCLI_PARSE_ERR;
-    } // if the data is not formatted correctly //
-    
-    // read in the pin
-    pin = (UInt8) one_net_strtol(PARAM_PTR, &end_ptr, 0);
-    if(!end_ptr || end_ptr == PARAM_PTR)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if parsing the data failed //
-    PARAM_PTR = end_ptr;
-
-    // check the delimiter
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    // check the action
-    if(!strnicmp(PARAM_PTR, ONCLI_INPUT_STR, strlen(ONCLI_INPUT_STR)))
-    {
-        pin_type = ON_INPUT_PIN;
-        PARAM_PTR += strlen(ONCLI_INPUT_STR);
-    } // if it should be an input //
-    else if(!strnicmp(PARAM_PTR, ONCLI_OUTPUT_STR, strlen(ONCLI_OUTPUT_STR)))
-    {
-        pin_type = ON_OUTPUT_PIN;
-        PARAM_PTR += strlen(ONCLI_OUTPUT_STR);
-    } // else if it should be an output //
-    else if(!strnicmp(PARAM_PTR, ONCLI_DISABLE_STR, strlen(ONCLI_DISABLE_STR)))
-    {
-        pin_type = ON_DISABLE_PIN;
-        PARAM_PTR += strlen(ONCLI_DISABLE_STR);
-    } // else if it should be an output //
-    else
-    {
-        return ONCLI_PARSE_ERR;
-    } // else if the priority is invalid //
-
-    if(*PARAM_PTR != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    } // if the data is not formatted correctly //
-    
-    return oncli_set_user_pin_type(pin, pin_type);
-} // user_pin_cmd_hdlr //
-#endif
-
-
-// temporary -- debugging
-#include "one_net_master.h"
-#include "one_net_prand.h"
-static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    on_raw_did_t did;
-    on_features_t features;
-    on_base_param_t out_base_param;
-    on_master_t out_master_param;
-
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    if(!device_is_master)
-    {
-        // read in the did
-        if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
-          != ONCLI_ASCII_RAW_DID_SIZE)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if converting the source peer did failed //
-        PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-    }
-    else
-    {
-        // read in features
-        if(ascii_hex_to_byte_stream(PARAM_PTR, (UInt8*) &features,
-          2 * sizeof(on_features_t)) != 2 * sizeof(on_features_t))
-        {
-            return ONCLI_PARSE_ERR;
-        } // if converting the features failed //    
-    
-        PARAM_PTR += (2 * sizeof(on_features_t));
-    }
-    
-    if(*PARAM_PTR != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    #ifdef _ONE_NET_MASTER
-    if(device_is_master)
-    {
-        if(one_net_master_add_client(features, &out_base_param,
-          &out_master_param, FALSE) != ONS_SUCCESS)
-        {
-            return ONCLI_CMD_FAIL;
-        }        
-    }
-    #endif
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]), did,
-          ON_ENCODED_DID_LEN);
-        on_encode(on_base_param->sid, add_nid, ON_ENCODED_NID_LEN);
-        master->device.features = add_master_features;
-        master->device.expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        master->device.last_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        master->device.send_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        master->device.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
-        one_net_memmove(master->device.did, MASTER_ENCODED_DID,
-          ON_ENCODED_DID_LEN);
-    #ifdef _ONE_NET_MULTI_HOP
-        master->device.max_hops = features_max_hops(add_master_features);       
-        master->device.hops = 0;
-    #endif
-        one_net_memmove(on_base_param->current_key, add_key,
-          sizeof(one_net_xtea_key_t));
-        master->keep_alive_interval = add_keep_alive;
-        master->flags = add_flags;
-        on_base_param->channel = add_channel;
-    #ifdef _BLOCK_MESSAGES_ENABLED
-        on_base_param->fragment_delay_low = add_fragment_delay_low;
-        on_base_param->fragment_delay_high = add_fragment_delay_high;
-    #endif
-    
-        on_state = ON_LISTEN_FOR_DATA;
-        client_joined_network = TRUE;
-        client_looking_for_invite = FALSE;
-    }
-    #endif
-
-    return ONCLI_SUCCESS;
-}
-
-
-
-#ifdef _ENABLE_INVITE_COMMAND
-/*!
-    \brief Handles receiving the invite command and all its parameters.
-    
-    The invite command has the form
-    
-    invite:AAAA-BBBB:TTTT
-    
-    where AAAA-BBBB is the unique invite key for the CLIENT to invite
-    and TTTT (note : TTTT is not necessarily exactly 4 characters) is an
-    optional timeout time
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONCLI_BAD_PARAM If any of the parameters passed into this function
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-*/
-static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    oncli_status_t status;
-    char* ptr;
-    char* end_ptr;
-    long int timeout = ONE_NET_MASTER_INVITE_DURATION;
-    one_net_xtea_key_t invite_key;
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    if((status = parse_invite_key(ASCII_PARAM_LIST, &end_ptr,
-      &invite_key)) != ONCLI_SUCCESS)
-    {
-        return status;
-    } // if parsing the key was not successful //
-    
-    if(*end_ptr == ONCLI_PARAM_DELIMITER)
-    {
-        ptr = end_ptr + 1;
-        timeout = one_net_strtol(ptr, &end_ptr, 10);
-        if(timeout <= 0)
-        {
-            return ONCLI_BAD_PARAM;
-        }
-    }
-    
-    if(*end_ptr != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-
-    switch(one_net_master_invite(&invite_key, (UInt32) timeout))
-    {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        case ONS_DEVICE_LIMIT: return ONCLI_RSRC_UNAVAILABLE;
-        case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
-        case ONS_NOT_INIT: return ONCLI_ONS_NOT_INIT_ERR;
-        case ONS_BAD_PARAM: return ONCLI_BAD_PARAM;
-        case ONS_INTERNAL_ERR: return ONCLI_INTERNAL_ERR;
-        default: return ONCLI_CMD_FAIL;
-    }
-}
-#endif
-
-
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
-extern one_net_xtea_key_t invite_key;
-static oncli_status_t cancel_invite_cmd_hdlr(void)
-{
-    one_net_master_invite_result(ONS_CANCELED, &invite_key, 0);
-    one_net_master_cancel_invite(&invite_key);
-    return ONCLI_SUCCESS;
-}
-#endif
-
-
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
-/*!
-    \brief Handles receiving the remove device command and all its parameters.
-    
-    \param[in] ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was successful
-            ONCLI_ALREADY_IN_PROGRESS if the system is already in the middle
-                of a device deletion.
-            ONCLI_RSRC_UNAVAILABLE is the maste is currently processing a
-                transaction.
-            ONCLI_BAD_PARAM If any of the parameters passed into this functtion
-              are invalid.
-            ONCLI_INVALID_DST If the device that we are attempting to remove is
-              not part of the network
-*/
-static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    on_raw_did_t dst;
-    
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        return ONCLI_INVALID_CMD_FOR_NODE;
-    }
-    #endif
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-
-    // read in the did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, dst, ONCLI_ASCII_RAW_DID_SIZE)
-      != ONCLI_ASCII_RAW_DID_SIZE)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if converting the raw peer did failed //
-    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-
-    if(*PARAM_PTR != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    } // if the data is not formatted correctly //
-
-    switch(one_net_master_remove_device(&dst))
-    {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
-        case ONS_BUSY: return ONCLI_RSRC_UNAVAILABLE;
-        case ONS_INCORRECT_ADDR: return ONCLI_INVALID_DST;
-        default: return ONCLI_CMD_FAIL;
-    }
-} // rm_dev_cmd_hdlr //
-#endif
-
-
-#if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
-/*!
-    \brief Changes a peer list.
-    
-    The command has the form "aaaaaaa:bbb:c:ddd:e"
-    
-    where aaaaaaa is either "assign peer" or "unassign peer"
-    
-    Note that "unassign peer" has "wildcards".  "assign peer" does not.
-    
-    where bbb is the three digit raw did of the source.
-    where c is the source unit ("f" is a wildcard)
-    where ddd is the three digit raw did of the peer ("000" is a wildcard).
-    where e is the peer unit ("f" is a wildcard).
-
-    
-    \param [in] ASSIGN.  If true, we are adding a peer.  If false, we are
-                         deleting a peer.
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
-              is no room on the list.
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
-              part of the network or both addresses are the same.
-            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
-              master-only command.
-            ONCLI_CMD_FAIL For any other failure
-*/
-static oncli_change_peer_list(BOOL ASSIGN,
-  const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-
-    char * end_ptr = 0;
-    
-    on_raw_did_t peer_did, src_did;
-    on_encoded_did_t enc_peer_did, enc_src_did;
-    
-    UInt8 peer_unit, src_unit;
-    
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        return ONCLI_INVALID_CMD_FOR_NODE;
-    }
-    #endif
-    
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    // read in the source did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, src_did, ONCLI_ASCII_RAW_DID_SIZE)
-      != ONCLI_ASCII_RAW_DID_SIZE)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if converting the source peer did failed //
-    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-    
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    // read in the source unit
-    src_unit = one_net_strtol(PARAM_PTR, &end_ptr, 16);
-    if(!end_ptr || end_ptr == PARAM_PTR)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-    PARAM_PTR = end_ptr;
-    
-    // check the parameter delimiter
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-    
-    // read in the peer did
-    if(ascii_hex_to_byte_stream(PARAM_PTR, peer_did, ONCLI_ASCII_RAW_DID_SIZE)
-      != ONCLI_ASCII_RAW_DID_SIZE)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if converting the peer destination did failed //
-    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-
-    if(*PARAM_PTR++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    // read in the peer unit
-    peer_unit = one_net_strtol(PARAM_PTR, &end_ptr, 16);
-    if(!end_ptr || end_ptr == PARAM_PTR || (*end_ptr != '\n'))
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-    
-
-    // we're the master and we want to assign a peer to a client
-    switch(one_net_master_peer_assignment(ASSIGN, &src_did, src_unit,
-        &peer_did, peer_unit))
-    {
-        case ONS_SUCCESS: return ONCLI_SUCCESS;
-        case ONS_RSRC_FULL: return ONCLI_RSRC_UNAVAILABLE;
-        case ONS_INCORRECT_ADDR: return ONCLI_INVALID_DST;
-        default: return ONCLI_CMD_FAIL;
-    }
-}
-#endif
-
-
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
-/*!
-    \brief Adds a peer to a peer list of a device
-    
-    The command has the form "assign peer:bbb:c:ddd:e"
-
-    
-    where bbb is the three digit raw did of the source.
-    where c is the source unit
-    where ddd is the three digit raw did of the peer
-    where e is the peer unit
-
-
-    \param [in] ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
-              is no room on the list.
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
-              part of the network or both addresses are the same.
-            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
-              master-only command.
-            ONCLI_CMD_FAIL For any other failure
-*/
-static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    return oncli_change_peer_list(TRUE, ASCII_PARAM_LIST);
-}
-#endif
-
-
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
-/*!
-    \brief Removes peer(s) from a peer list
-    
-    The command has the form "unassign peer:bbb:c:ddd:e"
-    
-    where bbb is the three digit raw did of the source.
-    where c is the source unit ("f" is a wildcard)
-    where ddd is the three digit raw did of the peer ("000" is a wildcard).
-    where e is the peer unit ("f" is a wildcard).
-    
-    
-    Wildcards mean that all existing peers that match will be deleted.
-    
-    For example, "unassign peer:003:f:000:5" will delete all peers in device
-    003 with any source unit, any peer device, and a peer unit of 5.
-    
-
-    
-    \param ASCII_PARAM_LIST ASCII parameter list.
-    
-    \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
-              is no room on the list.
-              are invalid.
-            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
-              properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
-              part of the network or both addresses are the same.
-            ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
-              master-only command.
-            ONCLI_CMD_FAIL For any other failure
-*/
-static oncli_status_t unassign_peer_cmd_hdlr(
-  const char * const ASCII_PARAM_LIST)
-{
-    return oncli_change_peer_list(FALSE, ASCII_PARAM_LIST);
 }
 #endif
 
@@ -3181,72 +2135,6 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     return ONCLI_CMD_FAIL;
 } // range_test_cmd_hdlr //
 #endif
-
-
-#ifdef _ONE_NET_MULTI_HOP
-/*!
-    \brief Sets the on_base_param->num_mh_devices and on_base_param->num_mh_repeaters counts manually
-    
-    This function is useful mostly for debugging multi-hop applications.
-    Multi-hop works only when on_base_param->num_mh_repeat is a positive number.  Setting
-    these variables, particularly the on_base_param->num_mh_repeat variable, can serve to
-    
-    1) Quickly turn multi-hop on and off.
-    2) Correct these variable values if they become incorrect due to either
-       a non-ONE-NET wireless invite or deletion process (i.e. manual adding
-       or deleting a device through the command line or otherwise).
-    3) Or due to losing these values due to power cycling.
-    4) Or due to any other experiment or bug that may cause these values to
-       become incorrect.
-
-    \param[in] ASCII_PARAM_LIST String containing the memory to load
-
-    \return ONCLI_SUCCESS if the parsing of the string worked and the parsed
-                values were valid.
-            ONCLI_PARSE_ERR if the string could not be parsed.
-            ONCLI_BAD_PARAM if the string parsed correctly, but the parsed
-                values were invalid.
-*/
-static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    const char* endptr = 0;
-    int num_mh = 0;
-    int num_mh_repeat = 0;
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    num_mh = one_net_strtol(PARAM_PTR, &endptr, 10);
-    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != ':')
-    {
-        return ONCLI_PARSE_ERR;
-    }    
-    endptr++;
-    PARAM_PTR = endptr;
-    num_mh_repeat = one_net_strtol(PARAM_PTR, &endptr, 10);
-    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    if(num_mh_repeat > num_mh)
-    {
-        // all multi-hop repeaters are multi-hop, so this is an impossible
-        // scenario.
-        return ONCLI_BAD_PARAM;
-    }
-
-    on_base_param->num_mh_devices = num_mh;
-    on_base_param->num_mh_repeaters = num_mh_repeat;
-    return ONCLI_SUCCESS;
-}
-#endif
-
-
-
 
 
 #ifdef _DEBUGGING_TOOLS

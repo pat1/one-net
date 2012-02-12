@@ -83,7 +83,7 @@
 // Master/Client
 
 #ifndef _ONE_NET_MASTER
-	#define _ONE_NET_MASTER
+//	#define _ONE_NET_MASTER
 #endif
 
 #ifndef _ONE_NET_CLIENT
@@ -95,7 +95,7 @@
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
 // Define _PEER if your application implements peer assignments.  Default is _PEER assigned
 #ifndef _PEER
-	#define _PEER
+//	#define _PEER
 #endif
 
 
@@ -132,7 +132,7 @@
     
     #ifdef _ONE_NET_MULTI_HOP
 	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
-		    #define _ONE_NET_MH_CLIENT_REPEATER
+	//	    #define _ONE_NET_MH_CLIENT_REPEATER
 	    #endif
     #endif
     
@@ -157,7 +157,7 @@
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
-    #define _IDLE
+//    #define _IDLE
 #endif
 
 
@@ -231,11 +231,6 @@
 	#ifndef _SERIAL_ASSIGN_DEMO_PINS
 		#define _SERIAL_ASSIGN_DEMO_PINS
 	#endif
-	
-	// _AUTO_MODE should be defined if you want the Auto Mode option available
-	#ifndef _AUTO_MODE
-		#define _AUTO_MODE
-	#endif
 
 	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
     #if _DEBUG_VERBOSE_LEVEL > 0
@@ -261,7 +256,7 @@
 // Enable this if the device has the ability to save to / load from
 // non-volatile memory (i.e. Flash memory)
 #ifndef _NON_VOLATILE_MEMORY
-    #define _NON_VOLATILE_MEMORY
+//    #define _NON_VOLATILE_MEMORY
 #endif
 
 
@@ -308,7 +303,7 @@
 
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
 	#ifndef _ENABLE_SINGLE_COMMAND
-		#define _ENABLE_SINGLE_COMMAND
+//		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
@@ -365,7 +360,7 @@
 
 	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
 	#ifndef _ENABLE_LIST_COMMAND
-		#define _ENABLE_LIST_COMMAND
+	//	#define _ENABLE_LIST_COMMAND
 	#endif
 
     // Master Only Commands
@@ -433,13 +428,13 @@
 
 	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
 	#ifndef _ENABLE_USER_PIN_COMMAND
-		#define _ENABLE_USER_PIN_COMMAND
+//		#define _ENABLE_USER_PIN_COMMAND
 	#endif
 
 	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
     #ifdef _ONE_NET_CLIENT
         #ifndef _ENABLE_JOIN_COMMAND
-		    #define _ENABLE_JOIN_COMMAND
+//		    #define _ENABLE_JOIN_COMMAND
 	    #endif
     #endif
 
@@ -452,7 +447,7 @@
 
 	// _ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
 	#ifndef _ENABLE_MODE_COMMAND
-		#define _ENABLE_MODE_COMMAND
+//		#define _ENABLE_MODE_COMMAND
 	#endif
 
 	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option

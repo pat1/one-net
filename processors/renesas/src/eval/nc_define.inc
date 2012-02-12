@@ -11,7 +11,7 @@
 ; Macro Symbol definition
 __STANDARD_IO__    .equ	1	; STANDARD I/O flag definition
 __HEAPSIZE__       .equ	0H	; HEEP SIZE definition
-__STACKSIZE__      .equ	240H	; STACK SIZE definition
+__STACKSIZE__      .equ	180H	; STACK SIZE definition
 __ISTACKSIZE__     .equ	100H	; INTERRUPT STACK SIZE definition
 __VECTOR_ADR__     .equ	0fedcH	; INTERRUPT VECTOR ADDRESS definition
 __ROM_TOPADR__     .equ	04000H	; ROM TOP ADDRESS definition

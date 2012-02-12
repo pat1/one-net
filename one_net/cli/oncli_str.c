@@ -70,23 +70,6 @@ const char * const ONCLI_STARTUP_FMT = "ONE-NET Evaluation Version %d.%d";
 //! Oct. 31 -- This appears to no longer be true?  Keeping it as it is though.
 const char * const ONCLI_STARTUP_REV_FMT = ".%d (Build %03d)\n";   
 
-    
-
-// Mode strings
-#ifdef _AUTO_MODE
-//! Auto mode string
-const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
-#endif
-
-#ifdef _SNIFFER_MODE
-//! sniffer string
-const char * const ONCLI_SNIFFER_STR = "SNIFFER";
-#endif
-
-//! Serial mode string
-const char * const ONCLI_SERIAL_MODE_STR = "SERIAL MODE";
-
-
 
 // Device strings
 //! MASTER string
@@ -108,8 +91,6 @@ const char * const ONCLI_US_STR = "US";
 const char * const ONCLI_EUR_STR = "EUR";
 #endif
 
-
-
 // Argument strings
 //! set argument string
 const char * const ONCLI_SET_STR = "set";
@@ -122,14 +103,6 @@ const char * const ONCLI_ON_STR = "on";
 
 //! off argument string
 const char * const ONCLI_OFF_STR = "off";
-
-//! low argument string
-const char * const ONCLI_LOW_STR = "low";
-
-//! high argument string
-const char * const ONCLI_HIGH_STR = "high";
-
-
 
 // Command Strings
 #ifdef _ENABLE_ECHO_COMMAND
@@ -185,16 +158,6 @@ const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
 //! Command to enable or disable user pins
 const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
 #endif
-
-//! input argument string
-const char * const ONCLI_INPUT_STR = "input";
-
-//! output argument string
-const char * const ONCLI_OUTPUT_STR = "output";
-
-//! disable argument string
-const char * const ONCLI_DISABLE_STR = "disable";
-
 
 // Master only commands
 #ifdef _ENABLE_INVITE_COMMAND
@@ -324,19 +287,6 @@ const char * const ONCLI_CHANNEL_NOT_SELECTED_STR = "channel not selected";
 //! Message to output when the channel has not been set yet.
 const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
 
-//! Format output to report the results of a single transaction
-const char * const ONCLI_SINGLE_RESULT_FMT
-  = "Single transaction with %03X; return status: %s\n";
-  
-const char* const ONCLI_DEVICE_STATE_FMT = "Unit %d of %003d has state %0004X.\n";
-const char* const ONCLI_CHANGE_PIN_STATE_FMT = "Pin %d has changed to state %d\n";
-
-// Text messages
-//! Format output when a text transaction has been received
-const char * const ONCLI_RX_TXT_FMT
-  = "Received text from %03X:\n%.*s\n";
-  
-
 // Message types
 //! string for a single transaction
 const char * const ONCLI_SINGLE_TXN_STR = "Single";
@@ -350,9 +300,6 @@ const char * const ONCLI_BLOCK_TXN_STR = "Block";
 //! string for a stream transaction
 const char * const ONCLI_STREAM_TXN_STR = "Stream";
 #endif
-
-
-
 
 
 
@@ -425,19 +372,10 @@ const char * const ONCLI_INVALID_DST_STR
 const char * const ONCLI_NEED_TO_JOIN_STR
   = "Device needs to join a network first";
 
-//! String to indicate an invalid key fragment
-const char * const ONCLI_BAD_KEY_FRAGMENT_STR
-  = "Key fragment invalid or already in key";
-
 //! The length of the parameters exceeds the limit.
 const char * const ONCLI_INVALID_CMD_LEN_STR
   = "The command (and parameters) exceeds the max possible length\n";
 
-//! String to indicate loading from the flash failed.
-const char * const ONCLI_LOAD_FAIL_STR
-  = "Loading from flash failed!  Starting as a new device.  The flash should"
-  "be erased\n";
- 
 //! Fatal error 1
 const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 

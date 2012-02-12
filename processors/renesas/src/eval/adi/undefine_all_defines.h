@@ -104,10 +104,6 @@
 	#undef _SERIAL_ASSIGN_DEMO_PINS
 #endif
 
-#ifdef _AUTO_MODE
-	#undef _AUTO_MODE
-#endif
-
 #ifdef _SNIFFER_MODE
     #undef _SNIFFER_MODE
 #endif

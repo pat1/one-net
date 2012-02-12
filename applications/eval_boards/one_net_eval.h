@@ -28,18 +28,6 @@
 
 
 
-#ifdef _AUTO_MODE
-extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
-extern const on_encoded_did_t ENC_AUTO_CLIENT_DID[];
-extern const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS;
-#endif
-
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
-extern const UInt8 DEFAULT_RAW_NID[];
-#endif
-
-
-
 //! @} ONE-NET_eval_const
 //                                  CONSTANTS END
 //=============================================================================
@@ -53,24 +41,9 @@ extern const UInt8 DEFAULT_RAW_NID[];
     
 enum
 {
-    #ifdef _AUTO_MODE
-    //! The number of clients in AUTO mode.
-    NUM_AUTO_CLIENTS = 3,
-    #endif
-    
     //! The channel for Auto Mode
     DEFAULT_EVAL_CHANNEL = 1,
 };    
-
-
-/*!
-    \brief Holds the functionality and state for the user pins.
-*/
-typedef struct
-{
-    on_pin_state_t pin_type;        //!< Functionality type
-    UInt8 old_state;                //!< The last state of the pin
-} user_pin_t;
 
 
 //! State machine for dealing with the user pins.
@@ -93,23 +66,11 @@ enum
 //! \ingroup ONE-NET_eval
 //! @{
 
-extern user_pin_t user_pin[NUM_USER_PINS];
+
 #ifdef _SNIFFER_MODE
 extern BOOL in_sniffer_mode;
 #endif
 
-
-extern UInt8 user_pin_state;
-extern UInt8 user_pin_src_unit;
-
-
-
-//! The key used in the evaluation network
-extern const one_net_xtea_key_t EVAL_KEY;
-
-//! Default invite key to use if no manufacturing data (SID and invite key) segment
-//! is found in data flash.
-extern const UInt8 DEFAULT_INVITE_KEY[];
                                      
 #if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
 //! Default NID to use if no NID is found in the manufacturing data segment
@@ -155,20 +116,7 @@ void init_serial_client(void); // in client_eval.c
 #ifdef _SNIFFER_MODE
 void sniff_eval(void); // in sniff_eval.c
 #endif
-#ifdef _AUTO_MODE
-#ifdef _ONE_NET_MASTER
-void init_auto_master(void);
-#endif
-#ifdef _ONE_NET_CLIENT
-void init_auto_client(UInt8 index);
-#endif
-#endif
 
-
-void initialize_default_pin_directions(BOOL is_master);
-void check_user_pins(void);
-void disable_user_pins(void);
-void send_user_pin_input(void);
 
 
 /*!
@@ -344,12 +292,6 @@ void eval_single_txn_status(on_message_status_t status,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops);
 #endif
 
-
-
-#ifdef _AUTO_MODE
-one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
-  UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
-#endif
 one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
   UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 

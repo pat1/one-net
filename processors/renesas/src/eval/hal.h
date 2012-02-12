@@ -96,16 +96,6 @@
 
 
 
-#ifdef _AUTO_MODE
-//! The interval in ms to automatically send data when in auto mode.
-//! 1 second
-#define AUTO_INTERVAL 2500
-
-//! The timeout after a user switches the mode switch before the device
-//! goes back to automatically sending commands (AUTO_INTERVAL). 20s
-#define AUTO_MANUAL_DELAY 20000
-#endif
-
 
 
 #ifdef _SNIFFER_MODE

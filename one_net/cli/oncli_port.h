@@ -166,34 +166,8 @@ void oncli_print_prompt(void);
 #endif
 
 
-/*!
-    \brief Changes a user pin function.
-    
-    \param[in] pin The user pin number (between 1 & 255) to change.
-    \param[in] pin_type The functionality for the pin.  Input, output, or
-      disable -- see on_pin_state_t for options
-    
-    \return ONCLI_SUCCESS if the command was successful
-            ONCLI_BAD_PARAM If any of the parameters passed in are invalid
-            ONCLI_INVALID_CMD_FOR_DEVICE If the command is not valid for the
-              current mode of the device.
-            ONCLI_CMD_FAIL If the command failed.
-*/
-oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
-
-
-/*!
-      \brief Print the current configuration of the user pins.
- 
-      For each user pin, print the pin number and whether it is 
-      configured as an input, an output, or disabled.
-
-      \return void
-*/
-void oncli_print_user_pin_cfg(void);
 
 #if _DEBUG_VERBOSE_LEVEL > 0
-
 #if _DEBUG_VERBOSE_LEVEL > 1
 /*!
     \brief Displays a DID in verbose fashion.
@@ -218,30 +192,6 @@ void debug_display_did(const char* const description,
 void debug_display_nid(const char* const description,
   const on_encoded_nid_t* const enc_nid);
 #endif
-
-
-/*!
-    \brief Parses and displays a packet
-
-    \param[in] packet_bytes The bytes that make up the packet.
-    \param[in] num_bytes The number of bytes in the packet.
-    \param[in] enc_keys the block / single keys to check.  If not relevant, set to
-                 NULL and set num_keys to 0.
-    \param[in] num_enc_keys the number of block / single keys to check.
-    \param[in] invite_keys the invite keys to check.  If not relevant, set to
-                 NULL and set num_invite_keys to 0.
-    \param[in] num_invite_keys the number of invite keys to check.
-    
-    \return void
-*/
-#if _DEBUG_VERBOSE_LEVEL < 3
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
-#else
-void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
-  const one_net_xtea_key_t* const enc_keys, UInt8 num_enc_keys,
-  const one_net_xtea_key_t* const invite_keys, UInt8 num_invite_keys);
-#endif
-
 #endif
 
 

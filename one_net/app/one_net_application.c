@@ -74,8 +74,6 @@
 
 
 
-extern BOOL device_is_master;
-extern on_base_param_t* const on_base_param;
 extern const on_encoded_did_t MASTER_ENCODED_DID;
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
 
@@ -167,21 +165,6 @@ BOOL on_encoded_nid_equal(const on_encoded_nid_t * const LHS,
 
     return (one_net_memcmp(*LHS, *RHS, ON_ENCODED_NID_LEN) == 0);
 } // on_encoded_nid_equal //  
-  
-
-/*!
-    \brief Compares the NID passed to the function to this device's NID
-    
-    \param[in] nid The network ID to compare.
-    
-    \return TRUE if the NID is this device's NID.
-    \return FALSE if NID is NULL or the NIDs do not match
-*/
-BOOL is_my_nid(const on_encoded_nid_t* nid)
-{
-    on_encoded_nid_t* my_nid = (on_encoded_nid_t*) (on_base_param->sid);
-    return on_encoded_nid_equal(nid, my_nid);
-}
 
 
 /*!
@@ -195,22 +178,6 @@ BOOL is_my_nid(const on_encoded_nid_t* nid)
 BOOL is_master_did(const on_encoded_did_t* did)
 {
     return on_encoded_did_equal(did, &MASTER_ENCODED_DID);
-}
-
-
-/*!
-    \brief Compares the DID passed to the function to this device's DID
-    
-    \param[in] did The Device ID to compare.
-    
-    \return TRUE if the DID is this device's DID.
-    \return FALSE if DID is NULL or the DID is not this device's DID.
-*/
-BOOL is_my_did(const on_encoded_did_t* did)
-{
-    on_encoded_did_t* my_did = (on_encoded_did_t*)
-      &(on_base_param->sid[ON_ENCODED_NID_LEN]);
-    return on_encoded_did_equal(did, my_did);
 }
 
 

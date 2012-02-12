@@ -289,21 +289,6 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
 } // oncli_format_channel //
 
 
-#ifdef _ONE_NET_CLIENT
-/*!
-    \brief Prints the invite code.
-    
-    \return ONCLI_SUCCESS If the message was successfully output.
-*/
-oncli_status_t oncli_print_invite(void)
-{
-    UInt8* ptr_invite_key = (UInt8*) (one_net_client_get_invite_key());
-    oncli_send_msg(ONCLI_DISPLAY_INVITE_STR, &ptr_invite_key[0], &ptr_invite_key[4]);
-    return ONCLI_SUCCESS;
-}
-#endif
-
-
 /*!
     \brief Prints an xtea key.
     
@@ -501,46 +486,6 @@ oncli_status_t oncli_print_features(on_features_t features)
     
     return ONCLI_SUCCESS;
 } // oncli_print_features //
-
-
-/*!
-    \brief Prints the current channel
-        
-    \return ONCLI_SUCCESS If the channel was successfully output.
-    \return ONCLI_CMD_FAIL If the cahnnel is invalid.
-*/
-oncli_status_t oncli_print_channel(void)
-{
-    #ifdef _US_CHANNELS
-    if((SInt8)on_base_param->channel >= (SInt8)ONE_NET_MIN_US_CHANNEL &&
-      on_base_param->channel <= ONE_NET_MAX_US_CHANNEL)
-    {
-        // +1 since channels are stored 0 based, but output 1 based
-        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR,
-          on_base_param->channel - ONE_NET_MIN_US_CHANNEL + 1);
-    } // if a US channel //
-    #endif
-    #ifdef _EUROPE_CHANNELS
-    #ifdef _US_CHANNELS
-    else if(on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
-      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
-    #else
-    if((SInt8) on_base_param->channel >= (SInt8)ONE_NET_MIN_EUR_CHANNEL
-      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
-    #endif
-    {
-        // +1 since channels are stored 0 based, but output 1 based
-        oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR,
-          on_base_param->channel - ONE_NET_MIN_EUR_CHANNEL + 1);
-    } // else if a European channel //
-    #endif
-    else
-    {
-        return ONCLI_CMD_FAIL;
-    } // else the channel is not selected //
-
-    return ONCLI_SUCCESS;    
-}
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1160,12 +1105,6 @@ static void print_cmd_result(const char * const CMD,
               device_is_master ? ONCLI_MASTER_STR : ONCLI_CLIENT_STR);
             #endif
             break;            
-        }
-        
-        case ONCLI_BAD_KEY_FRAGMENT:
-        {
-            oncli_send_msg(ONCLI_CMD_FAIL_FMT, CMD, ONCLI_BAD_KEY_FRAGMENT_STR);
-            break;
         }
 
         default:

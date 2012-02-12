@@ -33,6 +33,7 @@
 #include "oncli.h"
 #include "cb.h"
 #include "one_net_crc.h"
+#include "io_port_mapping.h"
 
 
 
@@ -45,6 +46,13 @@
 
 extern const char HEX_DIGIT[];
 extern const UInt8 HEADER[];
+extern BOOL printit;
+extern UInt8 rcv_idx;
+extern SInt8 prnt_idx;
+extern UInt8 encoded_pkt_bytes[SNIFF_PKT_BUFFER_SIZE][ON_MAX_ENCODED_PKT_SIZE];
+extern tick_t pkt_time[SNIFF_PKT_BUFFER_SIZE];
+extern UInt8 pkt_size[SNIFF_PKT_BUFFER_SIZE];
+
 
 
 //! @} ONE-NET_sniff_eval_const
@@ -148,13 +156,13 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms)
         // error
         return ONCLI_INTERNAL_ERR;
     }
-      
+    
+    tal_set_channel(CHANNEL);
+    tal_turn_on_receiver();
     in_sniffer_mode = TRUE;
     sniff_channel = CHANNEL;
     node_loop_func = &sniff_eval;
-    on_base_param->channel = sniff_channel;
-    one_net_set_channel(on_base_param->channel);
-    
+    one_net_set_channel(sniff_channel);
     sniff_duration_ms = sniff_time_ms;
     sniff_start_time = 0;
     return ONCLI_SUCCESS;
@@ -172,85 +180,116 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms)
 */
 void sniff_eval(void)
 {
-    tick_t packet_time_ms;
-    UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
-    UInt8* pkt_wo_header = &pkt[ONE_NET_ENCODED_RPTR_DID_IDX];
-    UInt16 bytes_read = sizeof(pkt);
-    
-    one_net_memmove(pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
+    typedef enum
+    {
+        NOT_PRINTING,
+        PRINT_TIMESTAMP,
+        PRINT_RECEIVED_STRING,
+        PRINT_NUM_BYTES,
+        PRINT_BYTES_STRING,
+        PRINT_HEADER,
+        PRINT_BYTES
+    } sniff_print_stage_t;
+
+
+    static UInt16 bytes_read;
+    static UInt8 index;
+    static sniff_print_stage_t print_stage;
+    static BOOL init = FALSE;
+    static tick_t pkt_rcv_time;
+    static UInt8* pkt_wo_header;
+
+    if(!init)
+    {
+        init = TRUE;
+        print_stage = NOT_PRINTING;
+    }
 
     if(oncli_user_input())
     {
-        ont_set_timer(USER_INPUT_TIMER, MS_TO_TICK(USER_INPUT_PAUSE_TIME));
         return;
     } // if there has been user input //
 
-    if(ont_active(USER_INPUT_TIMER))
+    if(one_net_look_for_pkt(50) != ONS_SUCCESS)
     {
-        if(ont_expired(USER_INPUT_TIMER))
-        {
-            ont_stop_timer(USER_INPUT_TIMER);
-        } // if the user input timer has expired //
-        else
+        if(print_stage == NOT_PRINTING && prnt_idx == -1)
         {
             return;
-        } // else the user input timer has not expired //
-    } // if there had been user input //
-    
-
-    if(one_net_look_for_pkt(MS_TO_TICK(ONE_NET_WAIT_FOR_SOF_TIME))
-      != ONS_SUCCESS)
-    {
-        if(ont_active(PROMPT_TIMER) && ont_expired(PROMPT_TIMER))
-        {
-            ont_stop_timer(PROMPT_TIMER);
-            oncli_print_prompt();
-        } // if the prompt needs to be displayed //
-
-        return;
+        }
     } // if SOF was not received //
-
-    bytes_read = one_net_read(pkt_wo_header, bytes_read);
     
-    #ifdef _RANGE_TESTING
-    if(!device_in_range((on_encoded_did_t*)
-      &(pkt[ONE_NET_ENCODED_RPTR_DID_IDX])))
+    if(!printit)
     {
-        // we are filtering the packets.  Ignore this one.
         return;
     }
-    #endif
-    
-    packet_time_ms = TICK_TO_MS(get_tick_count());
-    if(sniff_duration_ms)
+
+    if(print_stage == NOT_PRINTING)
     {
-        if(sniff_start_time == 0)
+        bytes_read = one_net_read(&pkt_wo_header, &pkt_rcv_time);
+        if(bytes_read > 0)
         {
-            sniff_start_time = packet_time_ms;
+            print_stage = PRINT_TIMESTAMP;
+            index = 0;
         }
-
-        packet_time_ms -= sniff_start_time;
-        if(packet_time_ms > sniff_duration_ms)
-        {
-            return;
-        }
-    }      
+        return;
+    }
     
-    oncli_send_msg("\n\n%lu received %u bytes:\n", packet_time_ms, bytes_read +
-      ONE_NET_PREAMBLE_HEADER_LEN);
     
-    #if _DEBUG_VERBOSE_LEVEL > 2
-    display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN
-      , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
-      , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS);
-    #else
-    display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
-    #endif
-
-    oncli_send_msg("\n\n");
-
-    // update the time to display the prompt
-    ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);
+    switch(print_stage)
+    {
+        case PRINT_TIMESTAMP:
+            oncli_send_msg("\n\n%lu", pkt_rcv_time);
+            print_stage++;
+            break;
+        case PRINT_RECEIVED_STRING:
+            oncli_send_msg(" received ");
+            print_stage++;
+            break;        
+        case PRINT_NUM_BYTES:
+            oncli_send_msg("%u", bytes_read + ONE_NET_PREAMBLE_HEADER_LEN);
+            print_stage++;
+            break;        
+        case PRINT_BYTES_STRING:
+            oncli_send_msg(" bytes:");
+            print_stage++;
+            index = 0;
+            break;
+        case PRINT_HEADER:
+            if(index >= ONE_NET_PREAMBLE_HEADER_LEN)
+            {
+                print_stage++;
+                break;
+            }
+            else if(index == 0)
+            {
+                oncli_send_msg("\n%02X", HEADER[index]);
+            }
+            else
+            {
+                oncli_send_msg(" %02X", HEADER[index]);
+            }
+            index++;
+            break;            
+        case PRINT_BYTES:
+            if(index >= bytes_read + ONE_NET_PREAMBLE_HEADER_LEN)
+            {
+                oncli_send_msg("\n\n");
+                print_stage = NOT_PRINTING;
+                return;
+            }
+            else if(index % 26 == 0)
+            {
+                oncli_send_msg("\n%02X",
+                  pkt_wo_header[index - ONE_NET_PREAMBLE_HEADER_LEN]);
+            }
+            else
+            {
+                oncli_send_msg(" %02X",
+                  pkt_wo_header[index - ONE_NET_PREAMBLE_HEADER_LEN]);
+            }
+            index++;
+            break;
+    }
 } // sniff_eval //
 
 

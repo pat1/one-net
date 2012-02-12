@@ -196,7 +196,7 @@ BOOL tal_write_packet_done(void);
     \param[in] len The number of bytes to receive (data is at least this long).
     \return The number of bytes read
 */
-UInt8 tal_read_bytes(UInt8 * data, const UInt8 len);
+UInt8 tal_read_bytes(UInt8 ** data, tick_t* pkt_rcv_time);
 
 
 /*!
@@ -232,6 +232,10 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate);
     \return ONS_SUCCEESS if channel was set successfully, error message otherwise
 */
 one_net_status_t tal_set_channel(const UInt8 channel);
+
+
+
+void tal_turn_on_receiver(void);
 
 
 
