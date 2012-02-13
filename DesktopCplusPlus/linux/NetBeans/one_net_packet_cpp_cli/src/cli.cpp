@@ -401,7 +401,10 @@ bool cli_execute_filter(string command_line)
                 return false;
             }
 
-            return pkt_filter.accept_value(ft, (uint64_t) val);
+            filter::FILTER_MATCH fm = (val == 0 ? filter::MUST_NOT_MATCH :
+                filter::MUST_MATCH);
+
+            return pkt_filter.accept_value(ft, (uint64_t) fm);
         }
 
 
