@@ -103,13 +103,16 @@ static const char* const HELP_STRINGS[] =
 
 void cli_print_prompt(ostream& outs)
 {
-    outs << "\n\nEnter Command (\"help\" for help) > ";
+    outs << "\n\nEnter Command (" << (logging ? "Logging, " : "Not Logging, ")
+        << "Logfile = " << log_filename << ", \"chip_cli\" for chip commands, "
+        << "\"help\" for help) >\n";
 }
 
 
 void chip_cli_print_prompt(ostream& outs)
 {
-    outs << "\n\nEnter Chip Command (\"cli\" to return to desktop CLI) >\n";
+    outs << "\n\nEnter Chip Command (" << (logging ? "Logging, " : "Not Logging, ")
+        << "Logfile = " << log_filename << ", \"cli\" to return to desktop CLI) >\n";
 }
 
 
