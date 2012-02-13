@@ -392,7 +392,8 @@ bool cli_execute_filter(string command_line)
         }
 
         if(ft == filter::FILTER_PAYLOAD_CRC_MATCH || ft ==
-            filter::FILTER_MSG_CRC_MATCH || ft == filter::FILTER_VALID_MATCH)
+            filter::FILTER_MSG_CRC_MATCH || ft == filter::FILTER_VALID_MATCH ||
+            ft == filter::FILTER_VALID_MATCH)
         {
             bool val;
             if(!string_to_bool(args, val))
