@@ -52,7 +52,7 @@ static const char* const HELP_STRINGS[] =
     "help -- explanation of commands.",
     "clear -- removes all packets from memory.",
     "load a.txt -- loads packets from a.txt into memory.  Removes all existing "
-       "packets from memory.",
+        "packets from memory.",
     "remove a.txt -- removes all packets from a.txt from memory.",
     "add a.txt -- adds all packets from a.txt from memory.",
     "save a.txt -- saves all packets in memory to a.txt.",
@@ -74,9 +74,7 @@ static const char* const HELP_STRINGS[] =
     "filter add payload_crc_match false -- filter out all packets where the message crc matches",
     "filter add valid true -- filter out any invalid packets",
     "attribute display -- shows what attributes are displayed",
-    "attribute rptr_did src_did pid bytes -- sets to the filter to show the \
-      repeater did, the source did, the pid, and the packet bytes.  \
-      Execute the \"attribute display\" command to show options.",
+    "attribute rptr_did src_did pid bytes -- sets to the filter to show the repeater did, the source did, the pid, and the packet bytes.  Execute the \"attribute display\" command to show options.",
     "attribute add nid -- adds nid to the list if not already there",
     "attribute remove payload_crc -- removes payload_crc from list if there.",
     "attribute removal all -- remove all attributes from list.",
@@ -180,9 +178,42 @@ bool open_log_file(bool append_mode)
 
 void cli_execute_help(ostream& outs)
 {
+    string print_string;
+    const int MULTI_LINE_PAD = 3;
+    const string pad = "   ";
+    const int HELP_LINE_LENGTH = 80;
     for(int i = 0; i < NUM_HELP_STRINGS; i++)
     {
-        outs << HELP_STRINGS[i] << "\n";
+        print_string = HELP_STRINGS[i];
+        string remaining;
+        int line_length = HELP_LINE_LENGTH;
+        while(1)
+        {
+            strip_leading_and_trailing_whitespace(print_string);
+
+            if(line_length < HELP_LINE_LENGTH)
+            {
+                outs << pad;
+            }
+
+            if(print_string.length() <= line_length)
+            {
+                outs << print_string << endl;
+                break;
+            }
+
+            while(!isspace(print_string[line_length - 1]))
+            {
+                line_length--;
+            }
+
+            remaining = print_string.substr(line_length);
+            print_string = print_string.substr(0, line_length);
+            strip_leading_and_trailing_whitespace(remaining);
+            outs << print_string << endl;
+            print_string = remaining;
+            line_length = HELP_LINE_LENGTH - MULTI_LINE_PAD;
+        }
     }
 }
 
