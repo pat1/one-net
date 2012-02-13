@@ -964,7 +964,7 @@ void filter::display(ostream& outs) const
         FILTER_MATCH_STR[(int) msg_crc_match] << "\n";
     outs << "Payload CRC Match : " <<
         FILTER_MATCH_STR[(int) pld_crc_match] << "\n";
-    outs << "Valid Match : " <<
+    outs << "Valid Decode Match : " <<
         FILTER_MATCH_STR[(int) valid_decode_match] << "\n";
     outs << "Valid Match : " <<
         FILTER_MATCH_STR[(int) valid_match] << "\n";
