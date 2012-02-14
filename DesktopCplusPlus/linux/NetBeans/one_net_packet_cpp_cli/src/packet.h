@@ -150,7 +150,7 @@ public:
     static bool parse_invite_payload(payload_t& payload);
     static bool parse_block_payload(payload_t& payload);
     static bool parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
-        payload_t& payload, const filter& fltr);
+        payload_t& payload);
     bool filter_packet(const filter& fltr) const;
     static bool create_packet(struct timeval timestamp, UInt8 raw_pid,
         UInt8 num_bytes, const UInt8* const bytes, const filter& fltr,

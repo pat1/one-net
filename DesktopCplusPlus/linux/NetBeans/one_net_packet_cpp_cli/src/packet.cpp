@@ -138,7 +138,7 @@ bool packet::parse_block_payload(payload_t& payload)
 
 
 bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
-    payload_t& payload, const filter& fltr)
+    payload_t& payload)
 {
     SInt8 raw_pld_len_including_tech = get_raw_payload_len(raw_pid);
     payload.raw_pid = raw_pid;
@@ -470,7 +470,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
 
 
         if(payload.valid_payload_crc && packet::parse_payload(raw_pid, NULL,
-            payload, fltr))
+            payload))
         {
             valid_decrypt = true;
             this->key = key;
