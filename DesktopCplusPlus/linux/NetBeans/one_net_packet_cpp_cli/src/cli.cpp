@@ -553,6 +553,8 @@ bool cli_execute_load(string command_line, const filter& fltr)
         }
 
         ins.close();
+        struct timeval start_time = {0,0};
+        packet::adjust_timestamps(packets, start_time);
         packet::display(packets, att, cout);
     }
 
