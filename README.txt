@@ -1,5 +1,5 @@
-README -- A more thorough README and tutorial will follow soon.
-Feb. 5, 2012
+README -- Please see the attached tutorial folder for more details.
+Feb. 13, 2012
 
 This project is the 2.0.3 Beta Eval Board project specifically geared towards running a command-line program from a desktop Command-Line Interface program written in C++ rather than a "dumb" terminal program like Tera Term.  Compile the cpp_sniff_eval project on the Eval Board using Renesas HEW and attach a serial board to the Eval Board.  The program assumes it is attached to /ttySS0 (see comment below fo where to change in the code if this is invalid).
 
@@ -35,3 +35,4 @@ Note on serial ports...
 
 
 I developed this in NetBeans on Linux, but I don't see any reason why it can't easily be ported to other IDEs or no IDE at all and also to Windows using Cygwin environment.
+
