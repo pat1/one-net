@@ -60,7 +60,7 @@ packet::~packet()
 }
 
 
-bool packet::parse_app_payload(payload_t& payload, const filter& fltr)
+bool packet::parse_app_payload(payload_t& payload)
 {
     return on_parse_app_pld(&payload.decrypted_payload_bytes[ON_PLD_DATA_IDX],
         &payload.app_payload.src_unit, &payload.app_payload.dst_unit,
@@ -177,7 +177,7 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
         {
             case ON_APP_MSG:
                 payload.is_app_pkt = true;
-                return packet::parse_app_payload(payload, fltr);
+                return packet::parse_app_payload(payload);
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
                 return packet::parse_admin_payload(payload,
@@ -490,7 +490,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
         {
             case ON_APP_MSG:
                 payload.is_app_pkt = true;
-                parse_app_payload(payload, fltr);
+                parse_app_payload(payload);
                 break;
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
