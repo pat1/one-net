@@ -94,7 +94,7 @@ bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes)
 }
 
 
-bool packet::parse_response_payload(payload_t& payload, const filter& fltr)
+bool packet::parse_response_payload(payload_t& payload)
 {
     on_ack_nack_t* ack_nack = &payload.response_payload.ack_nack;
     UInt8 tmp_bytes[sizeof(payload.decrypted_payload_bytes)];
@@ -166,8 +166,8 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
     {
         payload.ack_nack_handle =
             get_ack_nack_handle(payload.decrypted_payload_bytes);
-        packet::parse_response_payload(payload, fltr);
-        return packet::parse_response_payload(payload, fltr);
+        packet::parse_response_payload(payload);
+        return packet::parse_response_payload(payload);
     }
     else if(packet_is_data(raw_pid) && packet_is_single(raw_pid))
     {
@@ -506,7 +506,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     }
     else if(is_single_pkt && is_response_pkt)
     {
-        parse_response_payload(payload, fltr);
+        parse_response_payload(payload);
     }
     else if(payload.is_invite_pkt)
     {
