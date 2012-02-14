@@ -1397,3 +1397,73 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     return true;
 }
+
+
+bool packet::insert_packet(vector<packet>& packets, packet& new_packet)
+{
+    int num_packets = packets.size();
+
+    if(num_packets == 0 || timeval_compare(new_packet.timestamp,
+        packets.at(num_packets - 1).timestamp) > 0)
+    {
+        packets.push_back(new_packet);
+        return true;
+    }
+
+
+    vector<packet>::iterator it = packets.end();
+    it--;
+    while(1)
+    {
+        int comp = timeval_compare(new_packet.timestamp, it->timestamp);
+        if(comp == 0)
+        {
+            return false;
+        }
+        if(comp > 0)
+        {
+            packets.insert(it, new_packet);
+            return true;
+        }
+        if(it == packets.begin())
+        {
+            packets.insert(it, new_packet);
+            return true;
+        }
+    }
+}
+
+
+void packet::adjust_timestamps(vector<packet>& packets,
+    struct timeval begin_time)
+{
+    int num_packets = packets.size();
+    if(num_packets == 0)
+    {
+        return;
+    }
+
+    bool subtract = false;
+    if(timeval_compare(begin_time, packets[0].timestamp) < 0)
+    {
+        subtract = true;
+    }
+
+    struct timeval time_diff = (subtract ? subtract_timeval(
+        packets[0].timestamp, begin_time) : subtract_timeval(begin_time,
+        packets[0].timestamp));
+
+    for(int i = 0; i < num_packets; i++)
+    {
+        if(subtract)
+        {
+            packets[i].timestamp = add_timeval(packets[i].timestamp,
+                time_diff);
+        }
+        else
+        {
+            packets[i].timestamp = subtract_timeval(packets[i].timestamp,
+                time_diff);
+        }
+    }
+}

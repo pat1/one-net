@@ -160,6 +160,10 @@ public:
     static bool create_packet(FILE* file, const filter& fltr, packet& pkt);
     static bool create_packet(istream& is, const filter& fltr, packet& pkt);
     static string get_raw_pid_string(UInt8 raw_pid);
+    static bool insert_packet(vector<packet>& packets,
+        packet& new_packet);
+    static void adjust_timestamps(vector<packet>& packets, struct timeval
+        begin_time);
     bool display(const attribute& att, ostream& outs) const;
 
     static vector<xtea_key> keys;
