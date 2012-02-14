@@ -29,9 +29,6 @@ extern "C"
 
 
 
-
-vector<packet> valid_packets;
-vector<packet> invalid_packets;
 vector<xtea_key> packet::keys;
 vector<xtea_key> packet::invite_keys;
 
@@ -42,15 +39,10 @@ packet::packet()
 }
 
 
-packet::packet(const packet& orig)
+packet::packet(const packet& orig, const filter& fltr)
 {
-
-}
-
-
-packet& packet::operator = (const packet& that)
-{
-
+    fill_in_packet_values(orig.timestamp, orig.payload.raw_pid, orig.num_bytes,
+        orig.enc_pkt_bytes, fltr);
 }
 
 
@@ -1395,6 +1387,19 @@ bool packet::display(const attribute& att, ostream& outs) const
     }
 
     return true;
+}
+
+
+void packet::display(const vector<packet>& packets, const attribute& att,
+        ostream& outs)
+{
+    const int size = packets.size();
+    outs << "\n\n# of packets : " << size << "\n\n";
+    for(int i = 0; i < size; i++)
+    {
+        outs << "\n\nPacket " << i + 1 << "\n\n";
+        packets[i].display(att, outs);
+    }
 }
 
 
