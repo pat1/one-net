@@ -148,7 +148,7 @@ public:
         const UInt8* admin_bytes);
     static bool parse_response_payload(payload_t& payload, const filter& fltr);
     static bool parse_invite_payload(payload_t& payload, const filter& fltr);
-    static bool parse_block_payload(payload_t& payload, const filter& fltr);
+    static bool parse_block_payload(payload_t& payload);
     static bool parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
         payload_t& payload, const filter& fltr);
     bool filter_packet(const filter& fltr) const;

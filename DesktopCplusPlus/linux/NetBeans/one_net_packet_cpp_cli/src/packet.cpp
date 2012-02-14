@@ -131,7 +131,7 @@ bool packet::parse_invite_payload(payload_t& payload, const filter& fltr)
 }
 
 
-bool packet::parse_block_payload(payload_t& payload, const filter& fltr)
+bool packet::parse_block_payload(payload_t& payload)
 {
     return false;
 }
