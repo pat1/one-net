@@ -1459,7 +1459,7 @@ void packet::adjust_timestamps(vector<packet>& packets,
 
     for(int i = 0; i < num_packets; i++)
     {
-        if(subtract)
+        if(!subtract)
         {
             packets[i].timestamp = add_timeval(packets[i].timestamp,
                 time_diff);
