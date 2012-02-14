@@ -45,6 +45,8 @@ string log_filename = "log.txt";
 filebuf log_buf;
 ostream* log_file = NULL;
 
+vector <packet> packets;
+
 
 
 static const char* const HELP_STRINGS[] =
@@ -534,6 +536,7 @@ bool cli_execute_load(string command_line, const filter& fltr)
     else
     {
         string line;
+        packets.clear();
         while(ins)
         {
             getline(ins, line, '\n');
@@ -543,13 +546,14 @@ bool cli_execute_load(string command_line, const filter& fltr)
                 {
                     if(pkt.filter_packet(fltr))
                     {
-                        cout << "\n\n\n\nPacket received\n";
-                        pkt.display(att, cout);
+                        packet::insert_packet(packets, pkt);
                     }
                 }
             }
         }
+
         ins.close();
+        packet::display(packets, att, cout);
     }
 
     if(use_log_file)
