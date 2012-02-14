@@ -620,23 +620,10 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
     }
     #endif
     
-    // TODO - any other tests to do?  To we need to test any
-    // base parameters?  Perhaps the DEVICE can handle this data
-    // rate, but the network master has told it not to operate at this
-    // level for whatever reason.  There are other reasons a device might
-    // reject a request to change to a data rate that it is CAPABLE of
-    // achieving.
-    
-    // temporarily disabling till we get things working more completely.
-    #if 0
     if((status = init_rf_interrupts(data_rate)) == ONS_SUCCESS)
     {
         write_reg(DATA_RATE_SETTING[data_rate], TRUE);
-    } // if the data rate is valid //
-    #else
-    status = ONS_SUCCESS;
-    #endif
-    
+    } // if the data rate is valid //    
     
     return status;
 }
