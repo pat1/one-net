@@ -69,8 +69,7 @@ bool packet::parse_app_payload(payload_t& payload)
 }
 
 
-bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes,
-    const filter& fltr)
+bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes)
 {
     payload.admin_payload.admin_type = admin_bytes[0];
     admin_bytes++;
@@ -110,7 +109,7 @@ bool packet::parse_response_payload(payload_t& payload, const filter& fltr)
     if(payload.response_payload.ack_nack.handle == ON_ACK_ADMIN_MSG)
     {
         return parse_admin_payload(payload,
-            &payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX], fltr);
+            &payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX]);
     }
     return true;
 }
@@ -181,7 +180,7 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
                 return packet::parse_admin_payload(payload,
-                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX], fltr);
+                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX]);
             case ON_FEATURE_MSG:
                 payload.is_features_pkt = true;
                 memcpy(&payload.features_payload,
@@ -495,7 +494,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
             case ON_ADMIN_MSG:
                 payload.is_admin_pkt = true;
                 parse_admin_payload(payload,
-                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX], fltr);
+                    &payload.decrypted_payload_bytes[ON_PLD_DATA_IDX]);
                 break;
             case ON_FEATURE_MSG:
                 payload.is_features_pkt = true;
