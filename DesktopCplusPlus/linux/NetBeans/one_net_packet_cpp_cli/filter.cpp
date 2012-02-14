@@ -737,7 +737,7 @@ bool filter::match_value_accepted(FILTER_TYPE ft, bool value) const
         case FILTER_PAYLOAD_CRC_MATCH:
             fm = pld_crc_match; break;
         case FILTER_VALID_DECODE_MATCH:
-            fm = valid_match; break;
+            fm = valid_decode_match; break;
         case FILTER_VALID_MATCH:
             fm = valid_match; break;
         default:
