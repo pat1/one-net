@@ -115,7 +115,7 @@ bool packet::parse_response_payload(payload_t& payload, const filter& fltr)
 }
 
 
-bool packet::parse_invite_payload(payload_t& payload, const filter& fltr)
+bool packet::parse_invite_payload(payload_t& payload)
 {
     payload.invite_payload.version =
         payload.decrypted_payload_bytes[ON_INVITE_VERSION_IDX];
@@ -193,7 +193,7 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
     }
     else if(packet_is_invite(raw_pid))
     {
-        return packet::parse_invite_payload(payload, fltr);
+        return packet::parse_invite_payload(payload);
     }
     else
     {
@@ -510,7 +510,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     }
     else if(payload.is_invite_pkt)
     {
-        parse_invite_payload(payload, fltr);
+        parse_invite_payload(payload);
     }
     else
     {
