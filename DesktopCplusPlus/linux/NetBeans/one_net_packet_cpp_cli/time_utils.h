@@ -6,6 +6,7 @@
 
 
 struct timeval add_timeval(struct timeval time1, struct timeval time2);
+struct timeval subtract_timeval(struct timeval time1, struct timeval time2);
 int timeval_compare(struct timeval time1, struct timeval time2);
 uint64_t struct_timeval_to_microseconds(struct timeval timestamp);
 struct timeval microseconds_to_struct_timeval(uint64_t time_micro);

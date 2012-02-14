@@ -17,6 +17,29 @@ struct timeval add_timeval(struct timeval time1, struct timeval time2)
 }
 
 
+struct timeval subtract_timeval(struct timeval time1, struct timeval time2)
+{
+    struct timeval diff;
+    if(timeval_compare(time1, time2) < 0)
+    {
+        diff = subtract_timeval(time2, time1);
+        diff.tv_sec = -diff.tv_sec;
+        diff.tv_usec = -diff.tv_usec;
+        return diff;
+    }
+
+    diff.tv_sec = time1.tv_sec - time2.tv_sec;
+    if(time1.tv_usec < time2.tv_usec)
+    {
+        diff.tv_sec--;
+        time1.tv_usec += 1000000;
+    }
+
+    diff.tv_usec = time1.tv_usec - time2.tv_usec;
+    return diff;
+}
+
+
 int timeval_compare(struct timeval time1, struct timeval time2)
 {
     if(time1.tv_sec < time2.tv_sec)
