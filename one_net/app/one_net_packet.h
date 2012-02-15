@@ -353,7 +353,20 @@
 #endif // if stream messages enabled //
 
 
-
+#ifdef _ROUTE
+#define ONE_NET_RAW_ROUTE      0x1C
+#define ONE_NET_RAW_ROUTE_ACK  0x1D
+#define ONE_NET_RAW_ROUTE_NACK 0x1E
+#define ONE_NET_ENCODED_ROUTE      0xA5
+#define ONE_NET_ENCODED_ROUTE_ACK  0xA9
+#define ONE_NET_ENCODED_ROUTE_NACK 0xA6
+#define ONE_NET_RAW_MH_ROUTE      0x3C
+#define ONE_NET_RAW_MH_ROUTE_ACK  0x3D
+#define ONE_NET_RAW_MH_ROUTE_NACK 0x3E
+#define ONE_NET_ENCODED_MH_ROUTE      0xD5
+#define ONE_NET_ENCODED_MH_ROUTE_ACK  0xD9
+#define ONE_NET_ENCODED_MH_ROUTE_NACK 0xD6
+#endif
 
 
 
@@ -1430,6 +1443,21 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt8 raw_pid)
 */
 ONE_NET_INLINE BOOL packet_is_single(UInt8 raw_pid)
 {
+    #ifdef _ROUTE
+    switch(raw_pid)
+    {
+        case ONE_NET_RAW_ROUTE:
+        case ONE_NET_RAW_ROUTE_ACK:
+        case ONE_NET_RAW_ROUTE_NACK:
+        case ONE_NET_RAW_MH_ROUTE:
+        case ONE_NET_RAW_MH_ROUTE_ACK:
+        case ONE_NET_RAW_MH_ROUTE_NACK:
+            return TRUE;
+        default:
+            break;
+    }
+    #endif
+    
     #ifndef _ONE_NET_MULTI_HOP
     return (raw_pid < 0x10);
     #else  
@@ -1504,6 +1532,23 @@ ONE_NET_INLINE BOOL packet_is_invite(UInt8 raw_pid)
             return FALSE;
     }
 }
+
+
+#ifdef _ROUTE
+ONE_NET_INLINE BOOL packet_is_route(UInt8 raw_pid)
+{
+    set_multihop_pid(&raw_pid, FALSE);
+    switch(raw_pid)
+    {
+        case ONE_NET_RAW_ROUTE:
+        case ONE_NET_RAW_ROUTE_ACK:
+        case ONE_NET_RAW_ROUTE_NACK:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+#endif
 
 
     

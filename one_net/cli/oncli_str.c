@@ -626,7 +626,9 @@ const char* const ONCLI_VERBOSE_LEVEL_CMD_STR = "verbose level";
 #endif
 
 
-
+#ifdef _ENABLE_ROUTE_COMMAND
+const char* const ONCLI_ROUTE_CMD_STR = "route";
+#endif
 
   
 

@@ -142,14 +142,12 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
     // in this regard, as will multi-hop and non-multi-hop pasckets, as will
     // stay-awake versus non-stay-awake packets.
 
-    #ifdef _ONE_NET_MULTI_HOP
-    set_multihop_pid(&raw_pid, FALSE);
-    #endif
-    
-    set_stay_awake_pid(&raw_pid, FALSE); // if it's not an ACk or a NACK, not a
+
+    set_stay_awake_pid(&raw_pid, FALSE); // if it's not an ACK or a NACK, not a
                                      // problem.  No changes will be made.
-    set_ack_or_nack_pid(&raw_pid, TRUE); // if it's not an ACk or a NACK, not a
+    set_ack_or_nack_pid(&raw_pid, TRUE); // if it's not an ACK or a NACK, not a
                                      // problem.  No changes will be made.
+                                     
     
     switch(raw_pid)
     {
@@ -163,8 +161,12 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
             return 2;        
         case ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK:
             return 3;
-        #endif        
-        
+        #endif
+        #ifdef _ROUTE
+        case ONE_NET_RAW_ROUTE_ACK:
+            return 3;
+        #endif       
+
 
         case ONE_NET_RAW_SINGLE_DATA:
             return 1;
@@ -174,6 +176,10 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
         case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
             return 3;
         #endif
+        #ifdef _ROUTE
+        case ONE_NET_RAW_ROUTE:
+            return 3;
+        #endif 
         
 
         #ifdef _BLOCK_MESSAGES_ENABLED
@@ -271,7 +277,15 @@ BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
 {
     BOOL pid_is_stay_awake;
     
-    if(!packet_is_single(*raw_pid) || packet_is_data(*raw_pid))
+    #ifdef _ROUTE
+    // route messages don't change stay-awake
+    if(packet_is_route(*raw_pid))
+    {
+        return FALSE;
+    }
+    #endif
+    
+    if(!packet_is_single(*raw_pid) ||packet_is_data(*raw_pid))
     {
         return FALSE; // not a single ACK or a NACK.
     }
@@ -401,6 +415,10 @@ BOOL packet_is_data(UInt8 raw_pid)
         #ifdef _STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA:
         #endif
+        #ifdef _ROUTE
+        case ONE_NET_RAW_ROUTE:
+        #endif
+        
             return TRUE;
         default:
             return FALSE;
@@ -442,6 +460,12 @@ BOOL packet_is_ack(UInt8 raw_pid)
     {
         return FALSE;
     }
+    #ifdef _ROUTE
+    if(raw_pid == ONE_NET_RAW_ROUTE_ACK)
+    {
+        return TRUE;
+    }
+    #endif
     
     #ifdef _EXTENDED_SINGLE
     if(raw_pid < 0x10)
@@ -483,12 +507,16 @@ UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK,
     switch(raw_single_pid)
     {
         case ONE_NET_RAW_SINGLE_DATA:
-          raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK;break;
+          raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK; break;
         #ifdef _EXTENDED_SINGLE
         case ONE_NET_RAW_LARGE_SINGLE_DATA:
           raw_resp_pid = ONE_NET_RAW_LARGE_SINGLE_DATA_ACK; break;             
         case ONE_NET_RAW_EXTENDED_SINGLE_DATA:
-          raw_resp_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK; break; 
+          raw_resp_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK; break;
+        #endif
+        #ifdef _ROUTE
+        case ONE_NET_RAW_ROUTE:
+          raw_resp_pid = ONE_NET_RAW_ROUTE_ACK; break;
         #endif
         default:
           if(!packet_is_ack(raw_single_pid) && !packet_is_nack(raw_single_pid))

@@ -136,6 +136,11 @@
 	    #endif
     #endif
     
+    #if defined(_ONE_NET_MULTI_HOP) && defined(_EXTENDED_SINGLE)
+        // define if this device handles routing
+        #define _ROUTE
+    #endif
+    
     // Block Messages
     #ifndef _BLOCK_MESSAGES_ENABLED
     //	#define _BLOCK_MESSAGES_ENABLED
@@ -464,6 +469,13 @@
     #ifdef _DATA_RATE
         #ifndef _ENABLE_SET_DATA_RATE_COMMAND
     //        #define _ENABLE_SET_DATA_RATE_COMMAND
+        #endif
+    #endif
+    
+    // _ENABLE_ROUTE_COMMAND should be defined if you are implementing the "route" command option
+    #ifdef _ROUTE
+        #ifndef _ENABLE_ROUTE_COMMAND
+            #define _ENABLE_ROUTE_COMMAND
         #endif
     #endif
     

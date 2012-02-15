@@ -366,6 +366,11 @@ extern const char* const ONCLI_VERBOSE_LEVEL_CMD_STR;
 #endif
 
 
+#ifdef _ENABLE_ROUTE_COMMAND
+extern const char* const ONCLI_ROUTE_CMD_STR;
+#endif
+
+
 
 
 //! @} oncli_str_const

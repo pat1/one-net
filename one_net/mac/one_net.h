@@ -724,6 +724,10 @@ BOOL device_in_range(on_encoded_did_t* did);
 #endif
 
 
+#ifdef _ROUTE
+one_net_status_t send_route_msg(const on_raw_did_t* raw_did);
+#endif
+
 
 
 //! @} ONE-NET_pub_func

@@ -408,6 +408,11 @@ static oncli_status_t verbose_level_cmd_hdlr(
 #endif
 
 
+#ifdef _ENABLE_ROUTE_COMMAND
+static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+
 
 
 
@@ -1084,6 +1089,23 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the proceed command was received //
     #endif
     
+    #ifdef _ENABLE_ROUTE_COMMAND
+    if(!strnicmp(ONCLI_ROUTE_CMD_STR, CMD, strlen(ONCLI_ROUTE_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_ROUTE_CMD_STR;
+
+        if(CMD[strlen(ONCLI_ROUTE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &route_cmd_hdlr;
+        
+        return ONCLI_SUCCESS;
+    } // else if the route command was received //
+    #endif
+
     else
     {
         *CMD_STR = CMD;
@@ -3246,7 +3268,39 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-
+#ifdef _ENABLE_ROUTE_COMMAND
+static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    on_raw_did_t raw_did;
+    on_encoded_did_t enc_did;
+    
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    
+    // read in the did
+    if(ascii_hex_to_byte_stream(PARAM_PTR, raw_did, ONCLI_ASCII_RAW_DID_SIZE)
+      != ONCLI_ASCII_RAW_DID_SIZE)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if converting the source peer did failed //
+    PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
+    
+    if(on_encode(enc_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    switch(send_route_msg((const on_raw_did_t* const) raw_did))
+    {
+        case ONS_SUCCESS: return ONCLI_SUCCESS;
+        default: return ONCLI_CMD_FAIL;
+    }
+}
+#endif
 
 
 #ifdef _DEBUGGING_TOOLS
