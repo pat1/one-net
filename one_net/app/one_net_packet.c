@@ -437,6 +437,10 @@ BOOL packet_is_data(UInt8 raw_pid)
 */
 BOOL packet_is_nack(UInt8 raw_pid)
 {
+    if(packet_is_data(raw_pid))
+    {
+        return FALSE;
+    }
     return packet_is_ack(raw_pid - 1);
 }
 
