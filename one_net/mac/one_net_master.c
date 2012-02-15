@@ -384,9 +384,9 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     // initialized so far.
     static UInt16 nv_param_size_initialized = 0;
     static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+    static BOOL init_internal_called = FALSE;
     #ifdef _PEER
     static UInt8 peer_memory_size_initialized = 0;
-    static BOOL init_internal_called = FALSE;
     #endif
     
     if(!init_internal_called)
