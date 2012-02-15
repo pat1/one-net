@@ -2768,7 +2768,36 @@ BOOL device_in_range(on_encoded_did_t* did)
 #ifdef _ROUTE
 one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
 {
-    // TODO -- implement
+    UInt8 raw_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
+    on_encoded_did_t enc_dst;
+    one_net_status_t status;
+    
+    if((status = on_encode(enc_dst, *raw_did, ON_ENCODED_DID_LEN) !=
+      ONS_SUCCESS))
+    {
+        return status;
+    }
+    
+    one_net_memset(raw_pld, 0, ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
+    
+    if(one_net_send_single(ONE_NET_RAW_ROUTE, ON_ADMIN_MSG, raw_pld,
+      ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
+      NULL, (const on_encoded_did_t* const) enc_dst
+      #ifdef _PEER
+        , FALSE,
+        ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	    , 0
+      #endif
+      ) == NULL)
+    {
+        return ONS_RSRC_FULL;
+    }
+    
     return ONS_SUCCESS;
 }
 #endif
