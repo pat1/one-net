@@ -1667,6 +1667,30 @@ static on_message_status_t on_master_single_data_hdlr(
             msg_status = handle_admin_pkt(pkt->enc_src_did,
             &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
             break;
+        #ifdef _ROUTE
+        case ON_ROUTE_MSG:
+        {
+            on_raw_did_t my_raw_did;
+            msg_status = ON_MSG_CONTINUE;
+            ack_nack->handle = ON_ACK_ROUTE;
+            ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+            one_net_memmove(ack_nack->payload->ack_payload,
+              &raw_pld[ON_PLD_DATA_IDX],
+              ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
+              
+            if(on_decode(my_raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
+              ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+            }
+            else if(append_raw_did_to_route(ack_nack->payload->ack_payload,
+              (const on_raw_did_t* const) my_raw_did) == -1)
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
+            }
+            break;
+        }
+        #endif            
         default:   
             #ifndef _ONE_NET_MULTI_HOP
             msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],

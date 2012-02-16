@@ -2774,14 +2774,23 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
     UInt8 raw_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
     on_encoded_did_t enc_dst;
     one_net_status_t status;
+    on_raw_did_t my_raw_did;
     
-    if((status = on_encode(enc_dst, *raw_did, ON_ENCODED_DID_LEN) !=
-      ONS_SUCCESS))
+    
+    if((status = on_encode(enc_dst, *raw_did, ON_ENCODED_DID_LEN)) !=
+      ONS_SUCCESS)
     {
         return status;
     }
+    if((status = on_decode(my_raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
+      ON_ENCODED_DID_LEN)) != ONS_SUCCESS)
+    {
+        return status;
+    }    
     
     one_net_memset(raw_pld, 0, ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
+    append_raw_did_to_route(raw_pld, (const on_raw_did_t* const)
+      my_raw_did);
     
     if(one_net_send_single(ONE_NET_RAW_ROUTE, ON_ROUTE_MSG, raw_pld,
       ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
@@ -2802,6 +2811,52 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
     }
     
     return ONS_SUCCESS;
+}
+
+
+// return -1 for bad parameter or no room left.  Buffer must be at least 21
+// bytes long.
+SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
+{
+    UInt8 route_index;
+    const int MAX_NUM_DIDS = 14;
+    if(!route || !raw_did)
+    {
+        return -1;
+    }
+    
+    for(route_index = 0; route_index < MAX_NUM_DIDS; route_index++)
+    {
+        if(route_index % 2)
+        {
+            if((route[0] & 0x0F) || route[1])
+            {
+                route += 2;
+                continue;
+            }
+            
+            // found spot.
+            route[0] |=  (((*raw_did)[0] & 0xF0) >> 4);
+            route[1] = (((*raw_did)[0] & 0x0F) << 4) +
+              (((*raw_did)[1] & 0xF0) >> 4);
+            return route_index;
+        }
+        else
+        {
+            if(route[0] || (route[1] & 0xF0))
+            {
+                route += 1;
+                continue;
+            }
+            
+            // found spot.
+            route[0] = (*raw_did)[0];
+            route[1] = ((*raw_did)[1] & 0xF0);
+            return route_index;            
+        }
+    }
+    
+    return -1; // full
 }
 #endif
 
