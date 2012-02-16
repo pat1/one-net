@@ -228,6 +228,18 @@ UInt16 did_to_u16(const on_raw_did_t *DID);
 
 
 /*!
+    \brief converts a U16 value to a raw DID
+    
+    \param[in] raw_did_int -- the UInt16 representation of the raw DID
+      (0 - 4015 range)
+    \param[out] raw_did -- the converted raw DID
+    
+    \return True if the conversion was successful, false otherwise
+*/
+BOOL u16_to_did(UInt16 raw_did_int, on_raw_did_t* raw_did);
+
+
+/*!
     \brief Converts string to long integer.
     
     \param[in] str String to convert
