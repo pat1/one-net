@@ -477,6 +477,9 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
             case ON_ACK_ADMIN_MSG:
+            #ifdef _ROUTE
+            case ON_ACK_ROUTE:
+            #endif
                 one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
                   ack_nack_pld_len);
                 break;
@@ -2780,7 +2783,7 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
     
     one_net_memset(raw_pld, 0, ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
     
-    if(one_net_send_single(ONE_NET_RAW_ROUTE, ON_ADMIN_MSG, raw_pld,
+    if(one_net_send_single(ONE_NET_RAW_ROUTE, ON_ROUTE_MSG, raw_pld,
       ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, (const on_encoded_did_t* const) enc_dst
       #ifdef _PEER
