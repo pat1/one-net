@@ -726,8 +726,13 @@ BOOL device_in_range(on_encoded_did_t* did);
 
 #ifdef _ROUTE
 one_net_status_t send_route_msg(const on_raw_did_t* raw_did);
+UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index);
+SInt8 find_raw_did_in_route(const UInt8* route,
+  const on_raw_did_t* const raw_did, SInt8 minimum_index);
 SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did);
 #endif
+
+
 
 
 

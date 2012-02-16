@@ -2814,51 +2814,78 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
 }
 
 
-// return -1 for bad parameter or no room left.  Buffer must be at least 21
-// bytes long.
-SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
+UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index)
+{
+    UInt16 raw_did_int;
+    route += ((3 * index) / 2);
+    if(index % 2)
+    {
+        raw_did_int = ((route[0] & 0x0F) << 8) + route[1];
+    }
+    else
+    {
+        raw_did_int = (route[0] << 4) + (route[1] >> 4);
+    }
+    
+    return raw_did_int;
+}
+
+
+SInt8 find_raw_did_in_route(const UInt8* route,
+  const on_raw_did_t* const raw_did, SInt8 minimum_index)
 {
     UInt8 route_index;
+    UInt16 raw_did_int;
     const int MAX_NUM_DIDS = 14;
+    
     if(!route || !raw_did)
     {
         return -1;
     }
+    raw_did_int = did_to_u16(raw_did);
     
-    for(route_index = 0; route_index < MAX_NUM_DIDS; route_index++)
+    for(route_index = minimum_index < 0 ? 0 : (UInt8) minimum_index;
+      route_index < MAX_NUM_DIDS; route_index++)
     {
-        if(route_index % 2)
+        if(extract_raw_did_from_route(route, route_index) == raw_did_int)
         {
-            if((route[0] & 0x0F) || route[1])
-            {
-                route += 2;
-                continue;
-            }
-            
-            // found spot.
-            route[0] |=  (((*raw_did)[0] & 0xF0) >> 4);
-            route[1] = (((*raw_did)[0] & 0x0F) << 4) +
-              (((*raw_did)[1] & 0xF0) >> 4);
             return route_index;
-        }
-        else
-        {
-            if(route[0] || (route[1] & 0xF0))
-            {
-                route += 1;
-                continue;
-            }
-            
-            // found spot.
-            route[0] = (*raw_did)[0];
-            route[1] = ((*raw_did)[1] & 0xF0);
-            return route_index;            
         }
     }
     
-    return -1; // full
+    return -1;
+}
+
+
+// return -1 for bad parameter or no room left.  Buffer must be at least 21
+// bytes long.
+SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
+{
+    on_raw_did_t vacant_raw_did = {0, 0};
+    SInt8 route_index = find_raw_did_in_route(route,
+      (const on_raw_did_t* const) vacant_raw_did, 0);
+    route += ((3 * route_index) / 2);  
+    
+    if(route_index != -1)
+    {
+        // found a spot
+        if(route_index % 2)
+        {
+            route[0] |=  (((*raw_did)[0] & 0xF0) >> 4);
+            route[1] = (((*raw_did)[0] & 0x0F) << 4) +
+              (((*raw_did)[1] & 0xF0) >> 4);
+        }
+        else
+        {
+            route[0] = (*raw_did)[0];
+            route[1] = ((*raw_did)[1] & 0xF0);
+        }
+    }
+    
+    return route_index;
 }
 #endif
+
 
 
 
