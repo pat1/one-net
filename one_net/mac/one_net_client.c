@@ -699,6 +699,14 @@ static on_message_status_t on_client_single_data_hdlr(
             msg_status = handle_admin_pkt(pkt->enc_src_did,
             &raw_pld[ON_PLD_DATA_IDX], *txn, ack_nack);
             break;
+        #ifdef _ROUTE
+        case ON_ROUTE_MSG:
+            ack_nack->handle = ON_ACK_ROUTE;
+            ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+            one_net_memmove(ack_nack->payload->ack_payload,
+                &raw_pld[ON_PLD_DATA_IDX],
+                ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
+        #endif
         default:   
             #ifndef _ONE_NET_MULTI_HOP
             msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
