@@ -155,6 +155,7 @@ typedef enum
 	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.
     ON_ACK_ADMIN_MSG,     //! Sending back an Admin message with an ACK
     ON_ACK_KEY_FRAGMENT, //! This ACK or NACK is sent when sending a key fragment.
+    ON_ACK_ROUTE,
 	ON_ACK_STATUS,        //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
     ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
                                   //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET

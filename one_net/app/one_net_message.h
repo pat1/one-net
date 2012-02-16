@@ -64,7 +64,10 @@ typedef enum
 {
     ON_APP_MSG,                     //!< Application message type
     ON_ADMIN_MSG,                   //!< Admin message type
-    ON_FEATURE_MSG                  //!< A request for features
+    ON_FEATURE_MSG,                 //!< A request for features
+    #ifdef _ROUTE
+    ON_ROUTE_MSG                    //!< A routing message
+    #endif
 } on_msg_type_t;
 
 
