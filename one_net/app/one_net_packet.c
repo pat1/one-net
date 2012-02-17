@@ -142,7 +142,9 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
     // in this regard, as will multi-hop and non-multi-hop pasckets, as will
     // stay-awake versus non-stay-awake packets.
 
-
+	#ifdef _ONE_NET_MULTI_HOP	 
+    set_multihop_pid(&raw_pid, FALSE);
+    #endif
     set_stay_awake_pid(&raw_pid, FALSE); // if it's not an ACK or a NACK, not a
                                      // problem.  No changes will be made.
     set_ack_or_nack_pid(&raw_pid, TRUE); // if it's not an ACK or a NACK, not a
