@@ -2279,6 +2279,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     BOOL repeat_this_packet = FALSE;
+    #ifdef _ROUTE
+    BOOL repeat_route_packet = FALSE;
+    #endif
     #endif
     on_data_t type;
     UInt8* pkt_bytes;
@@ -2369,6 +2372,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         
         // we'll repeat it if there are any hops left.
         repeat_this_packet = TRUE;
+        #ifdef _ROUTE
+        repeat_route_packet = packet_is_route(raw_pid);
+        #endif
     }
     #endif
     
@@ -2533,8 +2539,16 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_ENCODED_DID_LEN);
             ont_set_timer(mh_txn.next_txn_timer, MS_TO_TICK(
               ONE_NET_MH_LATENCY));
-              
+            
+            #ifdef _ROUTE
+            if(!repeat_route_packet)
+            {
+                // more needs to be done for route packets.
+                return ONS_PKT_RCVD;
+            }
+            #else  
             return ONS_PKT_RCVD;
+            #endif
         }
         #endif
     }
@@ -2607,6 +2621,64 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
     // set the key
     (*this_txn)->key = key;
+    
+    #if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_ROUTE)
+    if(repeat_route_packet)
+    {
+        on_raw_did_t my_raw_did;
+        on_raw_did_t raw_dst_did;
+        SInt8 dst_idx;
+        
+        if(on_decode(my_raw_did, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
+          ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+        {
+            return ONS_INTERNAL_ERR;
+        }
+        if(on_decode(raw_dst_did, *((*this_pkt_ptrs)->enc_dst_did),
+          ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+        {
+            return ONS_BAD_ENCODING;
+        }
+        
+        dst_idx = find_raw_did_in_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
+          (const on_raw_did_t* const) raw_dst_did, 0);
+          
+        // see if we are already in this route
+        if(find_raw_did_in_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
+          (const on_raw_did_t* const) my_raw_did, dst_idx + 1) != -1)
+        {
+            // already here.  Don't add yourself again.
+            return ONS_INCORRECT_ADDR;
+        }
+        
+        // If we have room to append our raw did, we'll repeat.
+        if(append_raw_did_to_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
+          (const on_raw_did_t* const) my_raw_did) == -1)
+        {
+            // no room.  Don't repeat.
+            return ONS_RSRC_FULL;
+        }
+        
+        // looks like we'll repeat.  TODO -- use named constant lengths
+        // Change the payload CRC, re-encrypt, re-encode, re-calculate the
+        // message CRC.
+        raw_payload_bytes[0] = one_net_compute_crc(&raw_payload_bytes[1], 23,
+            ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);    
+        if((status = on_encrypt(raw_payload_bytes, key,
+          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        {
+            return status;
+        }
+        if((status = on_encode((*this_pkt_ptrs)->payload, raw_payload_bytes,
+          (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
+        {
+            return status;
+        }
+        (*this_pkt_ptrs)->msg_crc = calculate_msg_crc(*this_pkt_ptrs);
+        *((*this_pkt_ptrs)->enc_msg_crc) = decoded_to_encoded_byte(
+          (*this_pkt_ptrs)->msg_crc, TRUE);
+    }
+    #endif
 
     return ONS_PKT_RCVD;
 } // on_rx_packet //
