@@ -1838,7 +1838,25 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
-        txn->response_timeout = ack_nack->payload->nack_time_ms;
+        SInt16 new_response_timeout = (SInt16)txn->response_timeout;
+
+        switch(ack_nack->handle)
+        {
+            case ON_ACK_SLOW_DOWN_TIME_MS:
+                new_response_timeout += (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+            case ON_ACK_SPEED_UP_TIME_MS:
+                new_response_timeout -= (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+            case ON_ACK_RESPONSE_TIME_MS:
+                new_response_timeout = (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+        }
+        
+        if(new_response_timeout > 0)
+        {
+            txn->response_timeout = (UInt16)new_response_timeout;
+        }
         
         if(txn->retry >= ON_MAX_RETRY)
         {

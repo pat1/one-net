@@ -832,20 +832,12 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     on_raw_did_t src_did;
     on_message_status_t status = ON_MSG_DEFAULT_BHVR;
     on_msg_hdr_t msg_hdr;
-    BOOL no_response;
     
     if(!ack_nack || !txn)
     {
         // not sure how we got here, but we can't do anything
         return status;
-    }    
-
-    // if no_response, then we did not get any response from the receiving
-    // device, so don't bother to try to parse nonces, etc. for a non-existent
-    // response message.  We'll inform the application code so that it knows,
-    // so that it can change the response timeout time time if desired, and
-    // so it can pause or abort the transaction as well.
-    no_response = (ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE);
+    }
     
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
@@ -860,27 +852,31 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
     #endif
-    
 
-    if(no_response)
-    {
-        // we'll change the response timeout here if needed,  If a pause
-        // is desired, we'll ignore it.  That will be handled by the function
-        // that called this function. 
-    
-        switch(ack_nack->handle)
-        {
-            case ON_ACK_SLOW_DOWN_TIME_MS:
-              txn->response_timeout += ack_nack->payload->nack_time_ms;
-              break;
-            case ON_ACK_SPEED_UP_TIME_MS:
-              txn->response_timeout -= ack_nack->payload->nack_time_ms;
-              break;
-        }
-    }
 
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
+        SInt16 new_response_timeout = (SInt16)txn->response_timeout;
+
+        switch(ack_nack->handle)
+        {
+            case ON_ACK_SLOW_DOWN_TIME_MS:
+                new_response_timeout += (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+            case ON_ACK_SPEED_UP_TIME_MS:
+                new_response_timeout -= (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+            case ON_ACK_RESPONSE_TIME_MS:
+                new_response_timeout = (SInt16)ack_nack->payload->ack_time_ms;
+                break;
+        }
+        
+        if(new_response_timeout > 0)
+        {
+            txn->response_timeout = (UInt16)new_response_timeout;
+        }        
+        
+        
         if(txn->retry >= ON_MAX_RETRY)
         {
             #ifdef _ONE_NET_MULTI_HOP
