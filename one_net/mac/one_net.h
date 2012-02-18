@@ -717,7 +717,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
 #ifdef _PID_BLOCK
 void enable_pid_blocking(BOOL on);
-BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids);
+BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids, BOOL* on);
 BOOL adjust_blocked_pid_array(UInt8 pid, BOOL add);
 void reset_blocked_pid_array(void);
 BOOL pid_is_blocked(UInt8 pid);
@@ -725,7 +725,8 @@ BOOL pid_is_blocked(UInt8 pid);
 
 #ifdef _RANGE_TESTING
 void enable_range_testing(BOOL on);
-BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range);
+BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range,
+  BOOL* on);
 BOOL adjust_range_test_did_array(on_encoded_did_t* const did, BOOL add);
 void reset_range_test_did_array(void);
 BOOL device_in_range(on_encoded_did_t* did);

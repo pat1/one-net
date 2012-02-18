@@ -2701,13 +2701,13 @@ void enable_pid_blocking(BOOL on)
 }
 
 
-BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids)
+BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids, BOOL* on)
 {
     UInt8 i = 0;
     UInt8 arr_size;
 
     
-    if(!blocked_pid_list || !num_blocked_pids)
+    if(!blocked_pid_list || !num_blocked_pids || !on)
     {
         return FALSE; // bad parameter.
     }
@@ -2726,6 +2726,7 @@ BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids)
     
     *num_blocked_pids = i;
     one_net_memmove(blocked_pid_list, pid_block_array, *num_blocked_pids);
+    *on = pid_blocking_on;
     return TRUE;
 }
 
@@ -2821,18 +2822,20 @@ void enable_range_testing(BOOL on)
     \param[out] enc_dids Array of encoded dids to store the in-range devices
     \param[in/out] num_in_range in --> size of array passed.  out --> number
                    of devices within range.
+    \param[out] on True if range testing is on, false otherwise.
     
     \return TRUE if no errors and devices could be retrieved.
             FALSE is bad paraemter, device is not in a network, or not enough
                   room exists in the passed array.
 */
-BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range)
+BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range,
+    BOOL* on)
 {
     UInt8 i = 0;
     UInt8 arr_size;
 
     
-    if(!enc_dids || !num_in_range)
+    if(!enc_dids || !num_in_range || !on)
     {
         return FALSE; // bad parameter.
     }
@@ -2854,6 +2857,7 @@ BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range)
     *num_in_range = i;
     one_net_memmove(*enc_dids, range_test_did_array, ((*num_in_range) *
       sizeof(on_encoded_did_t)));
+    *on = range_testing_on;
     return TRUE;
 }
 

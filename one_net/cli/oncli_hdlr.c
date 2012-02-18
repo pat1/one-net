@@ -3120,6 +3120,7 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     BOOL clear = FALSE;
     BOOL display = FALSE;
     BOOL add = FALSE;
+    BOOL on;
 
     if(!ASCII_PARAM_LIST)
     {
@@ -3197,13 +3198,14 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         UInt8 i;
         UInt8 pid_array[PID_BLOCK_ARRAY_SIZE];
         UInt8 num_block = PID_BLOCK_ARRAY_SIZE;
-        if(!pids_blocked(pid_array, &num_block))
+        if(!pids_blocked(pid_array, &num_block, &on))
         {
             oncli_send_msg("PID Block Device List Unretrievable.\n");
             return ONCLI_CMD_FAIL;
         }
         
-        oncli_send_msg("# of PIDs Blocked : %d\n", num_block);
+        oncli_send_msg("PID Blocking is %s : # of PIDs Blocked : %d\n",
+          (on ? ONCLI_ON_STR : ONCLI_OFF_STR), num_block);
         for(i = 0; i < num_block; i++)
         {
             oncli_send_msg("Raw Blocked PID : %02X\n", pid_array[i]);
@@ -3254,6 +3256,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     BOOL clear = FALSE;
     BOOL display = FALSE;
     BOOL add = FALSE;
+    BOOL on;
 
     if(!ASCII_PARAM_LIST)
     {
@@ -3336,13 +3339,15 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         UInt8 i;
         on_encoded_did_t enc_did_array[RANGE_TESTING_ARRAY_SIZE];
         UInt8 num_in_range = RANGE_TESTING_ARRAY_SIZE;
-        if(!devices_within_range(enc_did_array, &num_in_range))
+        if(!devices_within_range(enc_did_array, &num_in_range, &on))
         {
             oncli_send_msg("In-Range Device List Unretrievable.\n");
             return ONCLI_CMD_FAIL;
         }
         
-        oncli_send_msg("# of In-Range Devices : %d\n", num_in_range);
+        oncli_send_msg("Range Testing is %s : # of In-Range Devices : %d\n",
+          (on ? ONCLI_ON_STR : ONCLI_OFF_STR), num_in_range);
+        
         for(i = 0; i < num_in_range; i++)
         {
             oncli_send_msg("Encoded DID : %02X%02X -- Raw ",
