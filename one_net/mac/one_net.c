@@ -2785,7 +2785,7 @@ BOOL pid_is_blocked(UInt8 pid)
     
     if(!pid_blocking_on)
     {
-        return TRUE;
+        return FALSE;
     }
     
     for(i = PID_BLOCK_ARRAY_SIZE - 1; i >= 0 ; i--)
