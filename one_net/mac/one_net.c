@@ -403,6 +403,8 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_TIMEOUT_MS:
             case ON_ACK_SLOW_DOWN_TIME_MS:
             case ON_ACK_SPEED_UP_TIME_MS:
+            case ON_ACK_RESPONSE_TIME_MS:
+            case ON_ACK_PAUSE_TIME_MS:
                 val_present = TRUE;
                 break;
         }
@@ -504,6 +506,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             case ON_ACK_TIMEOUT_MS:
             case ON_ACK_SLOW_DOWN_TIME_MS:
             case ON_ACK_SPEED_UP_TIME_MS:
+            case ON_ACK_RESPONSE_TIME_MS:
+            case ON_ACK_PAUSE_TIME_MS:
                 val_present = TRUE;
                 // time case is initialized above
                 break;
