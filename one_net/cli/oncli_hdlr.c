@@ -337,6 +337,10 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _PID_BLOCK
+static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 #ifdef _RANGE_TESTING
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -947,6 +951,24 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the sid command was received //
+    #endif
+    
+    #ifdef _PID_BLOCK
+    if(!strnicmp(ONCLI_PID_BLOCK_CMD_STR, CMD,
+      strlen(ONCLI_PID_BLOCK_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_PID_BLOCK_CMD_STR;
+
+        if(CMD[strlen(ONCLI_PID_BLOCK_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &pid_block_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the pid block command was received //
     #endif
     
     #ifdef _RANGE_TESTING
@@ -3063,6 +3085,38 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     // TODO -- what about resetting the client?
     return ONCLI_SUCCESS;
 } // setni_cmd_hdlr //
+#endif
+
+
+#ifdef _PID_BLOCK
+/*!
+    \brief Turns on or off pid blocking for debugging purposes.  Sets a
+           pid as either ignored or not ignored.
+    
+    The "pid block" command has the form
+    
+    pid block:on  --> turns pid blocking on
+    pid block:off  --> turns pid blocking off
+    pid block:clear --> makes all PIDs not ignored
+    pid block:display --> Displays all ignored PIDs
+    pid block:add:3F --> Ignore raw pid 0x3F
+    pid block:remove:3F --> Do not ignore raw pid 0x3F
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+            ONCLI_PARSE_ERR If the cli command/parameters are not formatted
+              properly.
+            ONCLI_CMD_FAIL If the command failed.
+*/
+static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    // TODO -- actually write this.
+    oncli_send_msg("range_test_cmd_hdlr:%s\n", ASCII_PARAM_LIST);
+    return ONCLI_SUCCESS;
+} // pid_block_cmd_hdlr //
 #endif
 
 

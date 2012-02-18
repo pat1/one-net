@@ -160,7 +160,7 @@
 #endif
 
 #ifndef _PID_BLOCK
-//    #define _PID_BLOCK
+    #define _PID_BLOCK
 #endif
 
 
