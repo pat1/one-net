@@ -152,7 +152,9 @@ typedef enum
                               //! the time specified.
 	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
                               //! the time specified.
-	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a pause in milliseconds.
+	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to pause in milliseconds.
+    ON_ACK_RESPONSE_TIME_MS, // Same as ON_ACK_TIME_MS, but represents a request to set the response timeout / fragment delay
+                             //! to this exact value.
     ON_ACK_ADMIN_MSG,     //! Sending back an Admin message with an ACK
     ON_ACK_KEY_FRAGMENT, //! This ACK or NACK is sent when sending a key fragment.
     ON_ACK_ROUTE,
