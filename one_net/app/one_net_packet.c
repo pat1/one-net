@@ -42,6 +42,10 @@
 #include "one_net_encode.h"
 #include "config_options.h"
 
+#ifdef _PID_BLOCK
+#include "one_net.h"
+#endif
+
 
 
 
@@ -141,6 +145,13 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
     // looking for the number of blocks, so ACKs and NACKs will be equivalent
     // in this regard, as will multi-hop and non-multi-hop pasckets, as will
     // stay-awake versus non-stay-awake packets.
+    
+    #ifdef _PID_BLOCK
+    if(pid_is_blocked(raw_pid))
+    {
+        return -1;
+    }
+    #endif
 
 	#ifdef _ONE_NET_MULTI_HOP	 
     set_multihop_pid(&raw_pid, FALSE);
