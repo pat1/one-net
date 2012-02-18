@@ -262,7 +262,14 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
 #ifdef _RANGE_TESTING
     //! Command to adjust range testing
     const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
-    
+#endif
+
+#ifdef _PID_BLOCK
+    //! Command to adjust pid blocking
+    const char* const ONCLI_PID_BLOCK_CMD_STR = "pid block";
+#endif
+
+#if defined(_RANGE_TESTING) || defined(_PID_BLOCK)
     //! "add" argument
     const char* const ADD_STR = "add";
     

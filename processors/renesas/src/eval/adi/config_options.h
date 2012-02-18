@@ -159,6 +159,10 @@
     #define _RANGE_TESTING
 #endif
 
+#ifndef _PID_BLOCK
+//    #define _PID_BLOCK
+#endif
+
 
 // Idle Option - Should be defined if the device can ever be idle
 #ifndef _IDLE
