@@ -3113,9 +3113,110 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 */
 static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    // TODO -- actually write this.
-    oncli_send_msg("range_test_cmd_hdlr:%s\n", ASCII_PARAM_LIST);
-    return ONCLI_SUCCESS;
+    const char * PARAM_PTR = ASCII_PARAM_LIST;
+    UInt8 raw_pid;
+    BOOL turn_on = FALSE;
+    BOOL turn_off = FALSE;
+    BOOL clear = FALSE;
+    BOOL display = FALSE;
+    BOOL add = FALSE;
+
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_BAD_PARAM;
+    } // if the parameter is invalid //
+    
+    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_ON_STR);
+        turn_on = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
+    {
+        PARAM_PTR += strlen(ONCLI_OFF_STR);
+        turn_off = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
+    {
+        PARAM_PTR += strlen(CLEAR_STR);
+        clear = TRUE;
+    }
+    else if(!strnicmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
+    {
+        PARAM_PTR += strlen(DISPLAY_STR);
+        display = TRUE;
+    }
+    else
+    {
+        if(!strnicmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
+        {
+            add = TRUE;
+            PARAM_PTR += strlen(ADD_STR);
+        }
+        else if(!strnicmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
+        {
+            PARAM_PTR += strlen(REMOVE_STR);
+        }
+        else
+        {
+            return ONCLI_PARSE_ERR;
+        }
+        
+        if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        }
+        PARAM_PTR++;
+        
+        // read in the pid
+        if(ascii_hex_to_byte_stream(PARAM_PTR, &raw_pid, sizeof(raw_pid) * 2)
+          != sizeof(raw_pid) * 2)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if converting the source peer did failed //
+        PARAM_PTR += (sizeof(raw_pid) * 2);
+    }
+    
+    if(*PARAM_PTR != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(turn_on || turn_off)
+    {
+        enable_pid_blocking(turn_on);
+        return ONCLI_SUCCESS;
+    }
+    else if(clear)
+    {
+        reset_blocked_pid_array();
+        return ONCLI_SUCCESS;
+    }
+    else if(display)
+    {
+        UInt8 i;
+        UInt8 pid_array[PID_BLOCK_ARRAY_SIZE];
+        UInt8 num_block = PID_BLOCK_ARRAY_SIZE;
+        if(!pids_blocked(pid_array, &num_block))
+        {
+            oncli_send_msg("PID Block Device List Unretrievable.\n");
+            return ONCLI_CMD_FAIL;
+        }
+        
+        oncli_send_msg("# of PIDs Blocked : %d\n", num_block);
+        for(i = 0; i < num_block; i++)
+        {
+            oncli_send_msg("Raw Blocked PID : %02X\n", pid_array[i]);
+        }
+        return ONCLI_SUCCESS;
+    }
+    
+    if(adjust_blocked_pid_array(raw_pid, add))
+    {
+        return ONCLI_SUCCESS;
+    }
+    
+    return ONCLI_CMD_FAIL;
 } // pid_block_cmd_hdlr //
 #endif
 

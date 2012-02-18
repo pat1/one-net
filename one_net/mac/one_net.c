@@ -235,12 +235,19 @@ on_state_t on_state = ON_INIT_STATE;
       ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
 #endif
 
+#ifdef _PID_BLOCK
+//! Stores the PIDs that are blocked
+static UInt8 pid_block_array[PID_BLOCK_ARRAY_SIZE];
+
+//! If true, block pids.  If false, do not.
+static BOOL pid_blocking_on = FALSE;
+#endif
 
 #ifdef _RANGE_TESTING
 //! Stores the DIDs of the devices which are in range.
 static on_encoded_did_t range_test_did_array[RANGE_TESTING_ARRAY_SIZE];
 
-//! If true, trange test.  If false, do not.
+//! If true, range test.  If false, do not.
 static BOOL range_testing_on = FALSE;
 #endif
 
@@ -1049,6 +1056,9 @@ void one_net_init(void)
     #endif
     single_msg_ptr = NULL;
     single_txn.priority = ONE_NET_NO_PRIORITY;
+    #ifdef _PID_BLOCK
+    reset_blocked_pid_array();
+    #endif
     #ifdef _RANGE_TESTING
     reset_range_test_did_array();
     #endif
@@ -2682,6 +2692,113 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
     return ONS_PKT_RCVD;
 } // on_rx_packet //
+
+
+#ifdef _PID_BLOCK
+void enable_pid_blocking(BOOL on)
+{
+    pid_blocking_on = on;
+}
+
+
+BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids)
+{
+    UInt8 i = 0;
+    UInt8 arr_size;
+
+    
+    if(!blocked_pid_list || !num_blocked_pids)
+    {
+        return FALSE; // bad parameter.
+    }
+
+    arr_size = *num_blocked_pids;
+    *num_blocked_pids = 0;
+    
+    while(i < PID_BLOCK_ARRAY_SIZE && pid_block_array[i] != 0xFF)
+    {
+        i++;
+        if(i >= arr_size)
+        {
+            return FALSE; // no room.
+        }
+    }
+    
+    *num_blocked_pids = i;
+    one_net_memmove(blocked_pid_list, pid_block_array, *num_blocked_pids);
+    return TRUE;
+}
+
+
+BOOL adjust_blocked_pid_array(UInt8 pid, BOOL add)
+{
+    SInt8 i;
+    SInt8 index = -1;
+    SInt8 empty_index = -1;
+    
+    for(i = PID_BLOCK_ARRAY_SIZE - 1; i >= 0 ; i--)
+    {
+        if(pid_block_array[i] == 0xFF)
+        {
+            empty_index = i;
+        }
+        else if(pid_block_array[i] == pid)
+        {
+            index = i;
+        }
+    }
+    
+    if(!add && index == -1)
+    {
+        return TRUE; // nothing to do
+    }
+    else if(add && index != -1)
+    {
+        return TRUE; // nothing to do.
+    }
+    else if(add && empty_index == -1)
+    {
+        return FALSE; // no room.
+    }
+    else if(add)
+    {
+        pid_block_array[empty_index] = pid;
+        return TRUE; // added
+    }
+    else
+    {
+        pid_block_array[index] = 0xFF;
+        return TRUE; // removed        
+    }
+}
+
+
+void reset_blocked_pid_array(void)
+{
+    one_net_memset(pid_block_array, 0xFF, PID_BLOCK_ARRAY_SIZE);
+}
+
+
+BOOL pid_is_blocked(UInt8 pid)
+{
+    SInt8 i;
+    
+    if(!pid_blocking_on)
+    {
+        return TRUE;
+    }
+    
+    for(i = PID_BLOCK_ARRAY_SIZE - 1; i >= 0 ; i--)
+    {
+        if(pid_block_array[i] == pid)
+        {
+            return TRUE;
+        }
+    }
+    
+    return FALSE;    
+}
+#endif
 
 
 #ifdef _RANGE_TESTING
