@@ -731,7 +731,10 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
         case ON_ACK_STATUS:
         {
             oncli_send_msg("\n");
-            print_app_payload(ack_nack->payload->status_resp, pld_len);
+            
+            // TODO -- pld_len isn't being set correctly somewhere.  Fix it.
+            // For now, hard-coding in 5.
+            print_app_payload(ack_nack->payload->status_resp, /*pld_len*/5);
             break;
         }
         
