@@ -3027,7 +3027,14 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
 
 UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index)
 {
+    const int MAX_NUM_DIDS = 14;
     UInt16 raw_did_int;
+    
+    if(index >= MAX_NUM_DIDS)
+    {
+        return 0;
+    }
+    
     route += ((3 * index) / 2);
     if(index % 2)
     {

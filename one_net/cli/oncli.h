@@ -172,6 +172,9 @@ void print_single(UInt8 pid, const UInt8* raw_payload);
 void print_response(UInt8 pid, const UInt8* raw_payload);
 #endif
 void print_admin_payload(const UInt8* const pld);
+#ifdef _ROUTE
+void print_route(const UInt8* const route);
+#endif
 void print_recipient_list(const on_recipient_list_t* const recip_list);
 #endif
 
