@@ -722,6 +722,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
         case ON_ACK_SLOW_DOWN_TIME_MS:
         case ON_ACK_SPEED_UP_TIME_MS:
         case ON_ACK_PAUSE_TIME_MS:
+        case ON_ACK_RESPONSE_TIME_MS:
         {
             oncli_send_msg("%ld ms\n", ack_nack->payload->ack_time_ms);
             break;
