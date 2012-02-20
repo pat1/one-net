@@ -2387,7 +2387,12 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         // we'll repeat it if there are any hops left.
         repeat_this_packet = TRUE;
         #ifdef _ROUTE
-        repeat_route_packet = packet_is_route(raw_pid);
+        // if it's a NACK, we'll just forward it as we do all other packets.
+        // If it's the original message or an ACK, we'll need to decrypt it,
+        // add ourself, then encrypt it and send it along, so we'll set a
+        // repeat_route_packet flag to true for these PIDs.
+        repeat_route_packet = packet_is_route(raw_pid) &&
+          !packet_is_nack(raw_pid);
         #endif
     }
     #endif
@@ -2557,7 +2562,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             #ifdef _ROUTE
             if(!repeat_route_packet)
             {
-                // more needs to be done for route packets.
+                // more needs to be done for route packets.  This is NOT a
+                // route packet or it is a route packet NACK, so we're done.
                 return ONS_PKT_RCVD;
             }
             #else  
@@ -2640,26 +2646,34 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     if(repeat_route_packet)
     {
         on_raw_did_t my_raw_did;
-        on_raw_did_t raw_dst_did;
-        SInt8 dst_idx;
+        on_raw_did_t raw_src_did;
+        SInt8 src_idx;
         
+        // We need to do two things.  One, we need to check whether we are
+        // already in this route.  If we are, we will not forward since that
+        // would make a circular route.  Two, we need to append ourself to the
+        // end of this route.  We'll do am quick check to make sure there is
+        // room to do that without overflowing the message.  Assuming we're not
+        // on the route and there's room in the message, we'll add ourselves,
+        // then re-encrypt, re-encode, and re-calculate the CRC values and send
+        // the message on its way.
         if(on_decode(my_raw_did, &(on_base_param->sid[ON_ENCODED_NID_LEN]),
           ON_ENCODED_DID_LEN) != ONS_SUCCESS)
         {
             return ONS_INTERNAL_ERR;
         }
-        if(on_decode(raw_dst_did, *((*this_pkt_ptrs)->enc_dst_did),
+        if(on_decode(raw_src_did, *((*this_pkt_ptrs)->enc_src_did),
           ON_ENCODED_DID_LEN) != ONS_SUCCESS)
         {
             return ONS_BAD_ENCODING;
         }
         
-        dst_idx = find_raw_did_in_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
-          (const on_raw_did_t* const) raw_dst_did, 0);
+        src_idx = find_raw_did_in_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
+          (const on_raw_did_t* const) raw_src_did, 0);
           
         // see if we are already in this route
         if(find_raw_did_in_route(&raw_payload_bytes[ON_PLD_DATA_IDX],
-          (const on_raw_did_t* const) my_raw_did, dst_idx + 1) != -1)
+          (const on_raw_did_t* const) my_raw_did, src_idx + 1) != -1)
         {
             // already here.  Don't add yourself again.
             return ONS_INCORRECT_ADDR;
@@ -2673,7 +2687,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             return ONS_RSRC_FULL;
         }
         
-        // looks like we'll repeat.  TODO -- use named constant lengths
+        // looks like we'll repeat.  TODO -- use named constant length for 23.
         // Change the payload CRC, re-encrypt, re-encode, re-calculate the
         // message CRC.
         raw_payload_bytes[0] = one_net_compute_crc(&raw_payload_bytes[1], 23,
