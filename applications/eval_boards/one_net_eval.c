@@ -889,6 +889,20 @@ void eval_single_txn_status(on_message_status_t status,
         oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(dst),
           msg_data);
     }
+    
+    #ifdef _ROUTE
+    if(ack_nack->handle == ON_ACK_ROUTE)
+    {
+        on_raw_did_t raw_did;
+        on_decode(raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
+          ON_ENCODED_DID_LEN);
+        append_raw_did_to_route(ack_nack->payload->ack_payload,
+          (const on_raw_did_t* const) raw_did);
+        oncli_send_msg("Route:");
+        print_route(ack_nack->payload->ack_payload);
+        oncli_send_msg("\n");
+    }
+    #endif
     #endif
 }
 

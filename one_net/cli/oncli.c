@@ -668,6 +668,30 @@ const char * oncli_msg_status_str(on_message_status_t status)
 } // oncli_msg_status_str //
 
 
+#ifdef _ROUTE
+/*!
+    \brief Parses and displays the contents of a Route payload
+
+    \param[in] route The 21 byte route payload
+*/
+void print_route(const UInt8* const route)
+{
+    UInt8 index = 0;
+    UInt16 raw_did_int;
+    
+    while(raw_did_int = extract_raw_did_from_route(route, index))
+    {
+        if(index > 0)
+        {
+            oncli_send_msg("-");
+        }
+        oncli_send_msg("%03X", raw_did_int);
+        index++;
+    }
+}
+#endif
+
+
 #if _DEBUG_VERBOSE_LEVEL > 3
 /*!
     \brief Displays the contents of an ack_nack_t is string form.
@@ -856,30 +880,6 @@ void print_admin_payload(const UInt8* const pld)
     oncli_send_msg("Admin type : %02X : Admin payload : 0x", pld[0]);
     uart_write_int8_hex_array(&pld[1], FALSE, 4);
 }
-
-
-#ifdef _ROUTE
-/*!
-    \brief Parses and displays the contents of a Route payload
-
-    \param[in] route The 21 byte route payload
-*/
-void print_route(const UInt8* const route)
-{
-    UInt8 index = 0;
-    UInt16 raw_did_int;
-    
-    while(raw_did_int = extract_raw_did_from_route(route, index))
-    {
-        if(index > 0)
-        {
-            oncli_send_msg("-");
-        }
-        oncli_send_msg("%03X", raw_did_int);
-        index++;
-    }
-}
-#endif
 
 
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
