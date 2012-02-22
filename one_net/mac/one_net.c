@@ -1709,6 +1709,12 @@ void one_net(on_txn_t ** txn)
                   msg_status, &ack_nack);
                 single_msg_ptr = NULL;
                 #endif
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                // TODO -- this seems like the wrong place to put this.
+                // What about the application code?
+                (*txn)->device->hops = (*txn)->max_hops;
+                #endif
                   
                 // clear the transaction.
                 (*txn)->priority = ONE_NET_NO_PRIORITY;
