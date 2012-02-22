@@ -845,6 +845,10 @@ void eval_single_txn_status(on_message_status_t status,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
 #endif
 {
+    #ifdef _ROUTE
+    tick_t route_time = get_tick_count() - route_start_time;
+    #endif
+    
     #ifdef _UART
     if(!dst)
     {
@@ -898,7 +902,7 @@ void eval_single_txn_status(on_message_status_t status,
           ON_ENCODED_DID_LEN);
         append_raw_did_to_route(ack_nack->payload->ack_payload,
           (const on_raw_did_t* const) raw_did);
-        oncli_send_msg("Route:");
+        oncli_send_msg("Route Time:%ld ms:", route_time);
         print_route(ack_nack->payload->ack_payload);
         oncli_send_msg("\n");
     }

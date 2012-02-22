@@ -598,6 +598,12 @@ extern BOOL decrypt_using_current_key;
     extern BOOL save;
 #endif
 
+#ifdef _ROUTE
+//! variable denoting the start of a route message.
+extern tick_t route_start_time;
+#endif
+
+
 
 //! @} ONE-NET_pub_var
 //                              PUBLIC VARIABLES END

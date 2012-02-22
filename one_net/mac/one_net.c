@@ -214,6 +214,13 @@ BOOL decrypt_using_current_key;
     BOOL save = FALSE;
 #endif
 
+#ifdef _ROUTE
+//! variable denoting the start of a route message.
+tick_t route_start_time = 0;
+#endif
+
+
+
 //                              PUBLIC VARIABLES
 //==============================================================================
 
@@ -1417,6 +1424,14 @@ void one_net(on_txn_t ** txn)
                 single_msg_ptr = &single_msg;
                 
                 (*txn)->send = TRUE;
+                
+                #ifdef _ROUTE
+                if(*(data_pkt_ptrs.enc_pid) == ONE_NET_ENCODED_ROUTE ||
+                  *(data_pkt_ptrs.enc_pid) == ONE_NET_ENCODED_MH_ROUTE)
+                {
+                    route_start_time = get_tick_count();
+                }
+                #endif
                 
                 return;
             }
