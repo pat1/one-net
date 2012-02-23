@@ -198,6 +198,11 @@ typedef enum
     
     //! Response from a client when a device has been removed.
     ON_REMOVE_DEV_RESP = 0x05,
+    
+    #ifdef _DATA_RATE
+    //! Change data rate
+    ON_CHANGE_DATA_RATE = 0x06,
+    #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message

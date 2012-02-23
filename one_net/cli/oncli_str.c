@@ -176,7 +176,7 @@ const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
 	const char * const ONCLI_SAVE_CMD_STR = "save";
 #endif
 
-#ifdef _DATA_RATE
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
     //! Sets the data rate of a device
     const char * const ONCLI_SET_DATA_RATE_CMD_STR = "set data rate";
 #endif

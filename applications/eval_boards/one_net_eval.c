@@ -1358,6 +1358,16 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
+#ifdef _DATA_RATE
+void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate)
+{
+    oncli_send_msg("Changed to data rate %s, channel ",
+      DATA_RATE_STR[new_data_rate]);
+    oncli_print_channel();
+}
+#endif
+
+
 
 
 

@@ -219,6 +219,14 @@ BOOL decrypt_using_current_key;
 tick_t route_start_time = 0;
 #endif
 
+#ifdef _DATA_RATE
+dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
+UInt16 data_rate_pause_time_ms = 0;
+UInt16 dormant_data_rate_time_ms = 0;
+UInt8 next_data_rate = ONE_NET_DATA_RATE_38_4;
+UInt8 next_channel;
+#endif
+
 
 
 //                              PUBLIC VARIABLES
@@ -1303,6 +1311,42 @@ void one_net(on_txn_t ** txn)
                         }
                     }
                     
+                    #ifdef _DATA_RATE
+                    if(*txn == 0)
+                    {
+                        // see if we need to change data rates.
+                        if(dr_channel_stage !=
+                          ON_DR_CHANNEL_NO_SCHEDULED_CHANGE)
+                        {
+                            if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
+                            {
+                                UInt8 temp = on_base_param->data_rate;
+                                
+                                if(one_net_set_data_rate(next_data_rate) ==
+                                  ONS_SUCCESS)
+                                {                                    
+                                    on_base_param->data_rate = next_data_rate;
+                                    next_data_rate = temp;
+                                    temp = on_base_param->channel;
+                                    on_base_param->channel = next_channel;
+                                    one_net_set_channel(next_channel);
+                                    next_channel = temp;
+                                    one_net_data_rate_changed(
+                                      on_base_param->channel,
+                                      on_base_param->data_rate);
+                                    dr_channel_stage++;
+                                    ont_set_timer(ONT_DATA_RATE_TIMER,
+                                      MS_TO_TICK(dormant_data_rate_time_ms));
+                                    if(dr_channel_stage == NUM_DR_CHANNEL_STAGES)
+                                    {
+                                        dr_channel_stage =
+                                          ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
+                                    }  
+                                }
+                            }
+                        }
+                    }
+                    #endif
                     break;
                 }
 
@@ -1467,8 +1511,18 @@ void one_net(on_txn_t ** txn)
         {
             if(one_net_write_done())
             {
+                UInt32 new_timeout_ms;
+                
+                #ifdef _DATA_RATE
+                if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)
+                {
+                    ont_set_timer(ONT_DATA_RATE_TIMER,
+                        MS_TO_TICK(dormant_data_rate_time_ms));
+                }
+                #endif                
+                
                 #ifdef _ONE_NET_MULTI_HOP
-                UInt32 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
+                new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
                   + (1 + (*txn)->max_hops) * (*txn)->response_timeout;
                 
                 #ifdef _ONE_NET_MASTER
@@ -3125,6 +3179,48 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
 }
 #endif
 
+
+#ifdef _DATA_RATE
+one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+  UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
+  UInt8 new_data_rate)
+{
+    UInt8 pld[5];
+    if(!enc_did)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    if(is_my_did(enc_did))
+    {
+        next_data_rate = new_data_rate;
+        next_channel = new_channel;
+        dormant_data_rate_time_ms = dormant_time_ms;
+        dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
+        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
+        return ONS_SUCCESS;
+    }
+    
+    pld[0] = ON_CHANGE_DATA_RATE;
+    pld[1] = new_channel;
+    pld[2] = new_data_rate;
+    pld[3] = (UInt8) (pause_time_ms / 100);
+    pld[4] = (UInt8) (dormant_time_ms / 100);
+    
+    return (push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld, 5,
+      ONE_NET_LOW_PRIORITY, NULL, enc_did
+      #ifdef _PEER
+      , FALSE, ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+	  , 0
+      #endif
+      ) == NULL ? ONS_RSRC_FULL : ONS_SUCCESS);
+}
+#endif
 
 
 

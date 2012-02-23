@@ -2622,6 +2622,21 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
+        #ifdef _DATA_RATE
+        case ON_CHANGE_DATA_RATE:
+        {
+            switch(one_net_change_data_rate((const on_encoded_did_t*)
+              &on_base_param->sid[ON_ENCODED_NID_LEN], DATA[3] * 100,
+              DATA[4] * 100, DATA[1], DATA[2]))
+            {
+                case ONS_SUCCESS: break;
+                default: ack_nack->nack_reason = ON_NACK_RSN_GENERAL_ERR;
+            }
+
+            break;
+        }
+        #endif
+        
         case ON_ADD_DEV_RESP:
         {
             // this is sent when a client has received a message that a device

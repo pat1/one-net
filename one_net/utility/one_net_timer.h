@@ -138,6 +138,10 @@ enum
     #ifdef _DEBUGGING_TOOLS
     WRITE_PAUSE_TIMER,
     #endif
+    
+    #ifdef _DATA_RATE
+    ONT_DATA_RATE_TIMER,
+    #endif
 
     //! The total number of timers in use
     ONT_NUM_TIMERS

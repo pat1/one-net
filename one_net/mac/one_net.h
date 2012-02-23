@@ -457,6 +457,14 @@ typedef struct
 } on_pkt_hdlr_set_t;
 
 
+typedef enum
+{
+    ON_DR_CHANNEL_NO_SCHEDULED_CHANGE,
+    ON_DR_CHANNEL_CHANGE_SCHEDULED,
+    ON_DR_CHANNEL_CHANGE_DONE,
+    NUM_DR_CHANNEL_STAGES
+} dr_channel_stage_t;
+
 
 //! @} ONE-NET_typedefs
 //                                  TYPEDEFS END
@@ -603,6 +611,13 @@ extern BOOL decrypt_using_current_key;
 extern tick_t route_start_time;
 #endif
 
+#ifdef _DATA_RATE
+extern dr_channel_stage_t dr_channel_stage;
+extern UInt16 data_rate_pause_time_ms;
+extern UInt16 dormant_data_rate_time_ms;
+extern UInt8 next_data_rate;
+extern UInt8 next_channel;
+#endif
 
 
 //! @} ONE-NET_pub_var
@@ -745,6 +760,13 @@ UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index);
 SInt8 find_raw_did_in_route(const UInt8* route,
   const on_raw_did_t* const raw_did, SInt8 minimum_index);
 SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did);
+#endif
+
+
+#ifdef _DATA_RATE
+one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+  UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
+  UInt8 new_data_rate);
 #endif
 
 

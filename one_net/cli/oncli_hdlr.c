@@ -1938,30 +1938,77 @@ static oncli_status_t parse_and_send_pin_msg(
 
 
 #ifdef _ENABLE_SET_DATA_RATE_COMMAND
+// set data rate:1:003:4000:1500:US:7 will send a message to device DID 003 to
+// set data rate to 76,800 KHz and the channel to US Channel 7 in 4000
+// milliseconds and to set the data rate back to where it was if it does not
+// see a relevant message in a 1500 millisecond period.
 oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-    long int new_data_rate;
+    SInt8 new_data_rate, new_channel;
     oncli_status_t status;
     const char* endptr = 0;
+    UInt16 pause_time_ms;
+    UInt16 dormant_time_ms;
+    const char* PARAM_PTR = (const char*) ASCII_PARAM_LIST;
+    on_raw_did_t raw_did;
+    UInt16 raw_did_int;
+    on_encoded_did_t enc_did;
     
-    new_data_rate = one_net_strtol(ASCII_PARAM_LIST, &endptr, 10);
-    if(*endptr == 0 || endptr == ASCII_PARAM_LIST || *endptr != '\n')
+    
+    new_data_rate = one_net_strtol(PARAM_PTR, &endptr, 10);
+    if(*endptr != ':')
     {
         return ONCLI_PARSE_ERR;
     }
     
-    if(new_data_rate < 0 || new_data_rate >=
-      (long int) ONE_NET_DATA_RATE_LIMIT)
+    if(new_data_rate < 0 || new_data_rate >= ONE_NET_DATA_RATE_LIMIT)
     {
         return ONCLI_UNSUPPORTED;
     }
+    PARAM_PTR = endptr + 1;
+
+    raw_did_int = one_net_strtol(PARAM_PTR, &endptr, 16);
+    if(*endptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    PARAM_PTR = endptr + 1;
+
+    pause_time_ms = one_net_strtol(PARAM_PTR, &endptr, 10);
+    if(*endptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    PARAM_PTR = endptr + 1;
     
-    switch(one_net_set_data_rate((UInt8) new_data_rate))
+    dormant_time_ms = one_net_strtol(PARAM_PTR, &endptr, 10);
+    if(*endptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    if(!u16_to_did(raw_did_int, (on_raw_did_t*) raw_did))
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    if(on_encode(enc_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    PARAM_PTR = endptr + 1;
+    
+    if((status = oncli_parse_channel(PARAM_PTR, (UInt8*)(&new_channel))) != ONCLI_SUCCESS)
+    {
+        return status;
+    }
+      
+    switch(one_net_change_data_rate((on_encoded_did_t*) enc_did, pause_time_ms,
+      dormant_time_ms, new_channel, (UInt8) new_data_rate))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
-        case ONS_DEVICE_NOT_CAPABLE: return ONCLI_UNSUPPORTED;
         default: return ONCLI_CMD_FAIL;
-    }
+    }    
 }
 #endif
 
