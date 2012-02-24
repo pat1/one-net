@@ -2856,6 +2856,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     one_net_master_cancel_invite(&invite_key);
                     // TODO -- check return value.  What do we do if this
                     // is not a success?
+                    
+                    // one_net_master_add_client function will figure out
+                    // what DID to assign.  It will be the same one as what
+                    // is in there now, but we'll need to blank it out to
+                    // prevent problems.
+                    one_net_memmove((*client)->device.did,
+                      ON_ENCODED_BROADCAST_DID, ON_ENCODED_DID_LEN);
                     one_net_master_add_client((*client)->device.features,
                       NULL, NULL, TRUE);
                 }
