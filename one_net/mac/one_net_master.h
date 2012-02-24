@@ -165,7 +165,8 @@ extern one_net_xtea_key_t invite_key;
 
 one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY);
-
+void one_net_master_clear_client_memory(void);
+void one_net_master_condense_client_memory(void);
 one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN);
 
 

@@ -257,6 +257,7 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 static void sort_client_list_by_encoded_did(void);
 static UInt16 find_lowest_vacant_did(void);
+static SInt16 find_vacant_client_list_index(void);
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static void check_updates_in_progress(void);
@@ -326,13 +327,7 @@ one_net_status_t one_net_master_create_network(
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
 #endif
-
-    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
-    master_param->client_count = 0;
-    #ifdef _PEER
-    one_net_reset_peers();
-    #endif    
-
+    one_net_master_clear_client_memory();
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
     
@@ -343,14 +338,59 @@ one_net_status_t one_net_master_create_network(
     ont_set_timer(ONT_UPDATE_TIMER,
       MS_TO_TICK(one_net_master_channel_scan_time));
     on_state = ON_JOIN_NETWORK;
-    
-    #ifdef _ONE_NET_MULTI_HOP
-    on_base_param->num_mh_devices = 1; // for the master
-    on_base_param->num_mh_repeaters = 0; // new network, no clients, master is not a repeater
-    #endif
 
     return ONS_SUCCESS;
 } // one_net_master_create_network //
+
+
+void one_net_master_clear_client_memory(void)
+{
+    master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
+    master_param->client_count = 0;
+    one_net_master_condense_client_memory();
+    #ifdef _PEER
+    one_net_reset_peers();
+    #endif    
+    #ifdef _ONE_NET_MULTI_HOP
+    on_base_param->num_mh_devices = 1; // for the master
+    on_base_param->num_mh_repeaters = 0; // new network, no clients,
+                                         // master is not a repeater
+    #endif
+}
+
+
+void one_net_master_condense_client_memory(void)
+{
+    SInt16 i;
+    UInt16 num_clients_encountered = 0;
+    
+    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+    {
+        if(num_clients_encountered >= master_param->client_count)
+        {
+            break;
+        }
+        if(is_broadcast_did((const on_encoded_did_t*)
+          client_list[i].device.did))
+        {
+            // move everything up
+            one_net_memmove(&client_list[i], &client_list[i+1],
+              (ONE_NET_MASTER_MAX_CLIENTS - i - 1) * sizeof(on_client_t));
+            i--;
+        }
+        else
+        {
+            num_clients_encountered++;
+        }
+    }
+    
+    for(i = master_param->client_count; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+    {
+        one_net_memmove(client_list[i].device.did, ON_ENCODED_BROADCAST_DID,
+          ON_ENCODED_DID_LEN);
+    }
+}
+
 
 
 /*!
@@ -1103,7 +1143,10 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     on_raw_did_t raw_did;
     on_client_t * client;
     
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    
+    SInt16 vacant_index = find_vacant_client_list_index();
+    
+    if(vacant_index < 0)
     {
         return ONS_DEVICE_LIMIT;
     }
@@ -1122,7 +1165,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     // a device is being added, place it in the next available client_t
     // structure
-    client = &client_list[master_param->client_count];
+    client = &client_list[vacant_index];
 
     //
     // initialize the fields in the client_t structure for this new client
@@ -2216,18 +2259,12 @@ static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 */
 static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 {
-    UInt16 index;
     on_client_t* client;
-    BOOL found = FALSE;
     
     if(!DID)
     {
         return ONS_INVALID_DATA;
     } // if the parameter is invalid //
-    
-    sort_client_list_by_encoded_did(); // sort the list if it isn't already
-                                       // sorted.  This is probably not
-                                       // necessary.
 
     client = client_info(DID);
     if(!client)
@@ -2237,24 +2274,10 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
                                // already been deleted.
     }
     
-    // now loop through and find the index of the client in the client_list.
-    for(index = 0; index < master_param->client_count; index++)
-    {
-        if(&client_list[index] == client)
-        {
-            found = TRUE;
-            break;
-        }
-    }
     
-    if(!found)
-    {
-        return ONS_INTERNAL_ERR; // we shouild never get here
-    }
-    
-    // move everything below up one.
-    one_net_memmove(&client_list[index], &client_list[index + 1],
-      (master_param->client_count - index - 1) * sizeof(on_client_t));
+    // make this slot vacant
+    one_net_memmove(client->device.did, ON_ENCODED_BROADCAST_DID,
+      ON_ENCODED_DID_LEN);
       
     // subtract 1 from the count
     (master_param->client_count)--;
@@ -2311,34 +2334,53 @@ static void sort_client_list_by_encoded_did(void)
 static UInt16 find_lowest_vacant_did(void)
 {
     UInt16 i;
+    BOOL found;
     on_raw_did_t raw_did;
     UInt16 vacant_did = ONE_NET_INITIAL_CLIENT_DID;
-    
-    sort_client_list_by_encoded_did();
     
     if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
     {
         return 0; // list is full.
     }
     
-    // Note that the list is already sorted.  We'll go through it and see if
-    // there are any gaps.  If not, we'll add ONE_NET_INITIAL_CLIENT_DID to
-    // the last client and return that.
-    for(i = 0; i < master_param->client_count; i++)
+    do
     {
-        on_decode(raw_did, client_list[i].device.did,
-          ON_ENCODED_DID_LEN);
-        if(one_net_byte_stream_to_int16(raw_did) != vacant_did)
+        found = FALSE;
+        for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
         {
-            // a vacant did has been found
-            return vacant_did;
+            on_decode(raw_did, client_list[i].device.did, ON_ENCODED_DID_LEN);
+            if(one_net_byte_stream_to_int16(raw_did) == vacant_did)
+            {
+                // this did is already taken, so increment
+                vacant_did += ON_CLIENT_DID_INCREMENT;
+                found = TRUE;
+            }
         }
-        
-        vacant_did += ON_CLIENT_DID_INCREMENT;
+    } while(found);
+    
+    return vacant_did;
+}
+
+
+/*!
+    \brief Finds the lowest unused index in the client list.
+
+    \return the lowest unused index in the client list.
+            -1 if the list is full.
+*/
+static SInt16 find_vacant_client_list_index(void)
+{
+    UInt16 i;
+    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+    {
+        if(is_broadcast_did((const on_encoded_did_t*)
+          client_list[i].device.did))
+        {
+            return i;
+        }
     }
     
-    // no gaps were found.
-    return vacant_did;
+    return -1;
 }
 
 

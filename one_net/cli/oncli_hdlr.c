@@ -1298,7 +1298,7 @@ static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 static oncli_status_t list_cmd_hdlr(void)
 {
     oncli_status_t status;
-    UInt8 i;
+    UInt16 i;
     
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
       ONE_NET_VERSION_MINOR);
@@ -1383,17 +1383,27 @@ static oncli_status_t list_cmd_hdlr(void)
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
+        UInt16 index = 0;
         // print the client list
+        i = 0;
         oncli_send_msg("Client count: %d\n", master_param->client_count);
-        for (i = 0; i < master_param->client_count; i++)
+        while(i < master_param->client_count)
         {
-            on_client_t* client = &client_list[i];
+            on_client_t* client = &client_list[index];
+            index++;
+            
+            if(is_broadcast_did((const on_encoded_did_t*) client->device.did))
+            {
+                continue;
+            }
+
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
             oncli_print_did(&(client->device.did));
             oncli_send_msg("\n");
             oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
               client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
             oncli_print_features(client->device.features);
+            i++;
         }
     }
     #endif

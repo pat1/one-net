@@ -302,8 +302,10 @@ BOOL eval_save(void)
     dfi_segment_type_t settings_segment_type;
     UInt16 nv_param_len;
     
+    one_net_master_condense_client_memory();
+    
 
-    // first calculate the crc, length, adn type of memory
+    // first calculate the crc, length, and type of memory
     #ifdef _PEER
     
     
