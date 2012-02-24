@@ -165,6 +165,10 @@ typedef enum
     DEBUG_MEMORY_PEER,
     #endif
     DEBUG_MEMORY_BASE_PARAM,
+    #ifdef _ONE_NET_MASTER
+    DEBUG_MEMORY_MASTER_PARAM,
+    DEBUG_MEMORY_CLIENT_LIST,
+    #endif
     DEBUG_MEMORY_INVITE_TXN,
     DEBUG_MEMORY_RESPONSE_TXN,
     DEBUG_MEMORY_SINGLE_TXN,
@@ -186,6 +190,10 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
     "peer",
     #endif    
     "base_param",
+    #ifdef _ONE_NET_MASTER
+    "master_param",
+    "client_list",
+    #endif
     "invite_txn",
     "response_txn",
     "single_txn",
@@ -3759,6 +3767,28 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             len = sizeof(on_txn_t);
             break; 
         #endif
+        #ifdef _ONE_NET_MASTER
+        case DEBUG_MEMORY_CLIENT_LIST:
+            *mem_ptr = (UInt8*) &client_list[0];
+            if(index < 0)
+            {
+                len = ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t);
+            }
+            else if(index < ONE_NET_MASTER_MAX_CLIENTS)
+            {
+                len = sizeof(on_client_t);
+                *mem_ptr = (UInt8*) &client_list[index];
+            }
+            else
+            {
+                return -1; // error
+            }
+            break;
+        case DEBUG_MEMORY_MASTER_PARAM:
+            *mem_ptr = (UInt8*) master_param;
+            len = sizeof(on_master_param_t);
+            break;
+        #endif
         default:
             return -1; // error
     }
@@ -3823,6 +3853,9 @@ static int parse_memory_str(UInt8** mem_ptr,
         case DEBUG_MEMORY_TIMER:
         #ifdef _PEER
         case DEBUG_MEMORY_PEER:
+        #endif
+        #ifdef _ONE_NET_MASTER
+        case DEBUG_MEMORY_CLIENT_LIST:
         #endif
             has_index = TRUE; // these are arrays.
             break;
