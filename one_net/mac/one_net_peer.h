@@ -51,6 +51,7 @@
 #ifdef _PEER
 
 #include "one_net_types.h"
+#include "one_net.h"
 #include "one_net_port_specific.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
