@@ -647,6 +647,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     on_client_t* client;
     tick_t time_now = get_tick_count();
     on_raw_did_t raw_invite_did;
+    SInt16 vacant_index;
 
     if(!KEY || timeout == 0)
     {
@@ -663,7 +664,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
         return ONS_ALREADY_IN_PROGRESS;
     } // if already in the process of inviting //
 
-    if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
+    if((vacant_index = find_vacant_client_list_index()) < 0)
     {
         return ONS_DEVICE_LIMIT;
     } // if the MASTER has reached it's device limit //
@@ -739,7 +740,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     
     
     // now set up the next unused position in client_list for this client
-    client = &client_list[master_param->client_count];
+    client = &client_list[vacant_index];
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
