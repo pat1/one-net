@@ -1535,7 +1535,7 @@ void one_net(on_txn_t ** txn)
                 #endif
                 
                 #else
-                UInt32 new_timeout_ms = (*txn)->response_timeout;
+                new_timeout_ms = (*txn)->response_timeout;
                 #endif
                 
                 if(on_state == ON_SEND_PKT_WRITE_WAIT || on_state ==
