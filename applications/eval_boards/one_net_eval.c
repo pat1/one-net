@@ -872,7 +872,7 @@ void eval_single_txn_status(on_message_status_t status,
         #endif
 
         print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
-          ON_PLD_DATA_IDX);
+          ON_PLD_DATA_IDX);          
     }
     #endif
 
@@ -882,6 +882,19 @@ void eval_single_txn_status(on_message_status_t status,
     #if _DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
+        #ifdef _ROUTE
+        if(ack_nack->handle == ON_ACK_ROUTE)
+        {
+            on_raw_did_t raw_did;
+            on_decode(raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
+              ON_ENCODED_DID_LEN);
+            append_raw_did_to_route(ack_nack->payload->ack_payload,
+              (const on_raw_did_t* const) raw_did);
+            oncli_send_msg("Route Time:%ld ms:", route_time);
+            print_route(ack_nack->payload->ack_payload);
+            oncli_send_msg("\n");
+        }
+        #endif        
         oncli_send_msg("ests end\n");
     }
     #endif
@@ -894,19 +907,6 @@ void eval_single_txn_status(on_message_status_t status,
           msg_data);
     }
     
-    #ifdef _ROUTE
-    if(ack_nack->handle == ON_ACK_ROUTE)
-    {
-        on_raw_did_t raw_did;
-        on_decode(raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
-          ON_ENCODED_DID_LEN);
-        append_raw_did_to_route(ack_nack->payload->ack_payload,
-          (const on_raw_did_t* const) raw_did);
-        oncli_send_msg("Route Time:%ld ms:", route_time);
-        print_route(ack_nack->payload->ack_payload);
-        oncli_send_msg("\n");
-    }
-    #endif
     #endif
 }
 
