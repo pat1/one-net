@@ -239,6 +239,13 @@ BOOL ont_expired(const UInt8 TIMER);
 BOOL ont_inactive_or_expired(const UInt8 TIMER);
 
 
+void pause_timer(UInt8 TIMER);
+void unpause_timer(UInt8 TIMER);
+
+
+
+
+
 #ifdef _DEBUGGING_TOOLS
 void print_timers(void);
 void print_intervals(void);

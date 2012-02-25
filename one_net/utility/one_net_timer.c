@@ -426,6 +426,20 @@ static void update_timers(void)
 } // update_timers //
 
 
+void pause_timer(UInt8 TIMER)
+{
+    update_timers();
+    timer[TIMER].active = FALSE;
+}
+
+
+void unpause_timer(UInt8 TIMER)
+{
+    update_timers();
+    timer[TIMER].active = TRUE;
+}
+
+
 //! @} ONE-NET_TIMER_pri_func
 //                      PRIVATE FUNCTION IMPLEMENTATION END
 //==============================================================================
