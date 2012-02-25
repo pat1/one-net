@@ -99,6 +99,7 @@ UInt32 one_net_response_time_out = ONE_NET_RESPONSE_TIME_OUT;
 UInt32 write_pause = 0;
 UInt32 one_net_master_invite_send_time = ONE_NET_MASTER_INVITE_SEND_TIME;
 tick_t one_net_master_channel_scan_time = ONE_NET_MASTER_CHANNEL_SCAN_TIME;
+UInt32 invite_transaction_timeout = INVITE_TRANSACTION_TIMEOUT;
 
 
 
@@ -109,6 +110,7 @@ UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
     #ifdef _ONE_NET_MASTER
     &one_net_master_invite_send_time, // 2
     &one_net_master_channel_scan_time, // 3
+    &invite_transaction_timeout, // 4
     #endif
 };
 
@@ -121,6 +123,7 @@ const char* const debug_interval_strs[NUM_DEBUG_INTERVALS] =
     "Invite Send Time",
     "Channel Scan Time",
     #endif
+    "Invite Trans. Timeout",    
 };
 
 

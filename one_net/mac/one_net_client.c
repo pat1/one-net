@@ -512,7 +512,7 @@ tick_t one_net_client(void)
             // have not completed the process by then, start looking for
             // invites again.
             ont_set_timer(ONT_GENERAL_TIMER,
-              MS_TO_TICK(INVITE_TRANSACTION_TIMEOUT));
+              MS_TO_TICK(invite_transaction_timeout));
             on_state = ON_LISTEN_FOR_DATA;
         }
         

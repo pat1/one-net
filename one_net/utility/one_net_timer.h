@@ -80,9 +80,9 @@
 #ifdef _DEBUGGING_TOOLS
 // Note : this will increase!
 #ifdef _ONE_NET_MASTER
-#define NUM_DEBUG_INTERVALS 4
+#define NUM_DEBUG_INTERVALS 5
 #else
-#define NUM_DEBUG_INTERVALS 2
+#define NUM_DEBUG_INTERVALS 3
 #endif
 #endif
 
@@ -192,6 +192,7 @@ extern UInt32 one_net_response_time_out; // 0
 extern UInt32 write_pause; // 1
 extern UInt32 one_net_master_invite_send_time; // 2
 extern UInt32 one_net_master_channel_scan_time; // 3
+extern UInt32 invite_transaction_timeout; // 4
 
 
 
@@ -209,6 +210,7 @@ extern BOOL pausing;
 // as constants with #define statements so things work like they are supposed
 // to.
 #define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
+#define invite_transaction_timeout INVITE_TRANSACTION_TIMEOUT
 #ifdef _ONE_NET_MASTER
 #define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
 #define one_net_master_channel_scan_time ONE_NET_MASTER_INVITE_SEND_TIME
