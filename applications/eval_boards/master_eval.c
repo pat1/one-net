@@ -36,6 +36,7 @@
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
+#include "one_net_prand.h"
 
 
 //=============================================================================
