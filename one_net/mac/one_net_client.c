@@ -847,7 +847,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
 
-    on_decode(src_did, &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+    on_decode(src_did, &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
    
     #ifndef _ONE_NET_MULTI_HOP
@@ -893,7 +893,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did,
-                  &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+                  &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
                 
                 if(txn->max_hops == 0)
@@ -944,7 +944,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
-    on_decode(dst , &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+    on_decode(dst , &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
     
     
@@ -1169,7 +1169,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
 
     if(is_master_did((on_encoded_did_t*)
-      &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]))
+      &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]))
       && ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
         // We have checked in.  Reset the Keep-Alive Timer.

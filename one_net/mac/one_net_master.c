@@ -1875,7 +1875,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
 
-    on_decode(src_did, &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+    on_decode(src_did, &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
     
     #ifndef _ONE_NET_MULTI_HOP
@@ -1918,7 +1918,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did,
-                  &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+                  &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
                 
                 if(txn->max_hops == 0)
@@ -2075,7 +2075,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     on_msg_hdr_t msg_hdr;
     on_raw_did_t dst;
     on_client_t* client = client_info((on_encoded_did_t*)
-      &(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]));
+      &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]));
     
     if(!client)
     {
@@ -2086,7 +2086,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
-    on_decode(dst ,&(pkt->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+    on_decode(dst ,&(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
     
     
