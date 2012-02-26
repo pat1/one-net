@@ -1464,8 +1464,6 @@ void one_net(on_txn_t ** txn)
                 ont_set_timer((*txn)->next_txn_timer, 0);
                 single_msg_ptr = &single_msg;
                 
-                (*txn)->send = TRUE;
-                
                 #ifdef _ROUTE
                 if(data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX] ==
                   ONE_NET_ENCODED_ROUTE ||
