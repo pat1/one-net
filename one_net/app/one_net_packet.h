@@ -881,10 +881,10 @@ enum
     ON_ENCODED_SRC_DID_IDX = ON_ENCODED_NID_IDX + ON_ENCODED_NID_LEN,
 
     //! The index into the encoded packet where the PID starts.
-    ONE_NET_ENCODED_PID_IDX = ON_ENCODED_SRC_DID_IDX + ON_ENCODED_DID_LEN,
+    ON_ENCODED_PID_IDX = ON_ENCODED_SRC_DID_IDX + ON_ENCODED_DID_LEN,
 
     //! The index into the encoded packet where the payload starts
-    ON_PLD_IDX = ONE_NET_ENCODED_PID_IDX + ON_ENCODED_PID_SIZE
+    ON_PLD_IDX = ON_ENCODED_PID_IDX + ON_ENCODED_PID_SIZE
 };
 
 

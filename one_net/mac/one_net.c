@@ -450,7 +450,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // change pid if necessary
     pkt_ptrs->raw_pid = get_single_response_pid(pkt_ptrs->raw_pid, is_ack,
       stay_awake);
-    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+    pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
 
@@ -537,7 +537,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // change between multi-hop and non-multi-hop depending on whether 
     // txn->max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), txn->max_hops > 0);
-    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+    pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(txn->max_hops > 0)
@@ -601,7 +601,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
-    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+    pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(pkt_ptrs->max_hops > 0)
@@ -882,7 +882,7 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     
     pkt->packet_bytes     = &pkt_bytes[0];
     pkt->raw_pid          = raw_pid;
-    pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+    pkt->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
     pkt->enc_repeater_did = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_RPTR_DID_IDX];
     pkt->enc_nid          = (on_encoded_nid_t*) &pkt_bytes[ON_ENCODED_NID_IDX];
@@ -1472,9 +1472,9 @@ void one_net(on_txn_t ** txn)
                 (*txn)->send = TRUE;
                 
                 #ifdef _ROUTE
-                if(data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_PID_IDX] ==
+                if(data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX] ==
                   ONE_NET_ENCODED_ROUTE ||
-                  data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_PID_IDX] ==
+                  data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX] ==
                   ONE_NET_ENCODED_MH_ROUTE)
                 {
                     route_start_time = get_tick_count();
@@ -1499,7 +1499,7 @@ void one_net(on_txn_t ** txn)
             {
                 one_net_write((*txn)->pkt, get_encoded_packet_len(
                    encoded_to_decoded_byte(
-                   (*txn)->pkt[ONE_NET_ENCODED_PID_IDX], FALSE), TRUE));
+                   (*txn)->pkt[ON_ENCODED_PID_IDX], FALSE), TRUE));
                 on_state++;
             } // if the channel is clear //
             
@@ -2427,7 +2427,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     #endif
     
-    enc_pid = pkt_bytes[ONE_NET_ENCODED_PID_IDX];
+    enc_pid = pkt_bytes[ON_ENCODED_PID_IDX];
     raw_pid = encoded_to_decoded_byte(enc_pid, FALSE);
     if(raw_pid >= 0x40)
     {

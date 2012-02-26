@@ -422,7 +422,7 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
         if(verbose_level == 2)
         {
             oncli_send_msg("\n\nWrite PID %02X\n",
-              data[ONE_NET_ENCODED_PID_IDX]);
+              data[ON_ENCODED_PID_IDX]);
         }
         #endif
     }
@@ -556,8 +556,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
         // the id length should be the location in the byte stream where the
         // PID will be received.  Look for the PID so we know how many bytes
         // to receive.
-        if(rx_rf_count ==
-          ONE_NET_ENCODED_PID_IDX - ONE_NET_PREAMBLE_HEADER_LEN + 1)
+        if(rx_rf_count == ON_ENCODED_PID_IDX - ONE_NET_PREAMBLE_HEADER_LEN + 1)
         {
             // All packet size constants below are including the PREAMBLE &
             // SOF.  Since these cause the sync detect, these won't be read
@@ -565,7 +564,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             // subtract the ON_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
             blks_to_rx = get_encoded_packet_len(encoded_to_decoded_byte(
-              encoded_pkt_bytes[ONE_NET_ENCODED_PID_IDX], FALSE), FALSE);
+              encoded_pkt_bytes[ON_ENCODED_PID_IDX], FALSE), FALSE);
             if(blks_to_rx == 0)
             {
                 // bad packet type

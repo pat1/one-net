@@ -1033,7 +1033,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
     }
     {
         UInt8 raw_pid = encoded_to_decoded_byte(
-            packet_bytes[ONE_NET_ENCODED_PID_IDX], FALSE);
+            packet_bytes[ON_ENCODED_PID_IDX], FALSE);
         on_pkt_t debug_pkt_ptrs;
         oncli_send_msg("Raw PID=%02X", raw_pid);
 
