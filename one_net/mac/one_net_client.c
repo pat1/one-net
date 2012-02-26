@@ -670,7 +670,8 @@ static on_message_status_t on_client_single_data_hdlr(
 
     on_decode(raw_src_did, &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
+    on_decode(raw_repeater_did, &(pkt->packet_bytes[ON_ENCODED_RPTR_DID_IDX]),
+      ON_ENCODED_DID_LEN);
     
     msg_hdr.msg_type = *msg_type;
     msg_hdr.raw_pid = pkt->raw_pid;
