@@ -1359,7 +1359,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
           one_net_prand(get_tick_count(), ON_MAX_NONCE);
         sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
         sending_dev_list[match_idx].sender.msg_id =
-          one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
+          one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
         
         #ifdef _ONE_NET_MULTI_HOP
         sending_dev_list[match_idx].sender.hops = 0;
@@ -1718,7 +1718,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 device->send_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
                 device->expected_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
                 device->last_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
-                device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID);
+                device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID / 2);
 
                 #ifdef _PEER
                 // delete any peer assignments for this device

@@ -706,7 +706,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     }
 
     // pick a random message id
-    data_pkt_ptrs.msg_id = one_net_prand(time_now, ON_MAX_MSG_ID);
+    data_pkt_ptrs.msg_id = one_net_prand(time_now, ON_MAX_MSG_ID / 2);
 
     // fill in the addresses
     if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
@@ -1172,7 +1172,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     // initialize the fields in the client_t structure for this new client
     //    
     client->device.msg_id = one_net_prand(get_tick_count(),
-      ON_MAX_MSG_ID);
+      ON_MAX_MSG_ID / 2);
     client->device.expected_nonce = one_net_prand(get_tick_count(),
       ON_MAX_NONCE);
     client->device.last_nonce = one_net_prand(get_tick_count(),
@@ -1229,7 +1229,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
           ON_MAX_NONCE);
         out_master_param->device.msg_id = one_net_prand(get_tick_count(),
-          ON_MAX_MSG_ID);
+          ON_MAX_MSG_ID / 2);
         #ifdef _ONE_NET_MULTI_HOP
         out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
         out_master_param->device.hops = 0;

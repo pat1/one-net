@@ -29,7 +29,7 @@
 #ifdef _NON_VOLATILE_MEMORY
 #include "dfi.h"
 #endif
-
+#include "one_net_prand.h"
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
@@ -208,7 +208,8 @@ void init_auto_client(UInt8 index)
     master->device.expected_nonce = ON_INVALID_NONCE;
     master->device.last_nonce = ON_INVALID_NONCE;
     master->device.send_nonce = ON_INVALID_NONCE;
-    master->device.msg_id = ON_MAX_MSG_ID + 1; // invalid
+    master->device.msg_id = one_net_prand(get_tick_count(),
+      ON_MAX_MSG_ID / 2);
 
     #ifndef _PEER
     one_net_client_init(NULL, 0);

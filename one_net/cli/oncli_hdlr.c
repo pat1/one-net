@@ -2172,7 +2172,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         master->device.expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
         master->device.last_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
         master->device.send_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        master->device.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID);
+        master->device.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
         one_net_memmove(master->device.did, MASTER_ENCODED_DID,
           ON_ENCODED_DID_LEN);
     #ifdef _ONE_NET_MULTI_HOP
