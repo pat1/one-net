@@ -961,6 +961,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             case ON_ADD_DEV_RESP:
             case ON_REMOVE_DEV_RESP:
             case ON_CHANGE_SETTINGS_RESP:
+            case ON_REQUEST_KEY_CHANGE:
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_CHANGE_FRAGMENT_DELAY_RESP:
             #endif

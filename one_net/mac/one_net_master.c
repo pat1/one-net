@@ -2543,6 +2543,8 @@ static void check_updates_in_progress(void)
 
     else if(key_update_in_progress)
     {
+        key_change_requested = FALSE; // already changing it.  No need to
+                                      // flag it to change again.
         if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
         {
             // time's up.  Set everyone's flag to "sent" even if they have not
@@ -2580,6 +2582,21 @@ static void check_updates_in_progress(void)
               &ack);
             return;
         }
+    }
+    
+    else if(key_change_requested)
+    {
+        UInt32 rand_num;
+        one_net_xtea_key_fragment_t key_fragment;
+        while(!key_update_in_progress)
+        {
+            rand_num = one_net_prand(get_tick_count(),
+              0xFFFFFFFF);
+            one_net_memmove(key_fragment, &rand_num,
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+            one_net_master_change_key_fragment(key_fragment);
+        }
+        return;
     }
 
 
@@ -2690,6 +2707,15 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         #endif
+        
+        case ON_REQUEST_KEY_CHANGE:
+        {
+            if(!key_update_in_progress)
+            {
+                key_change_requested = TRUE;
+            }
+            break;
+        }
         
         case ON_ADD_DEV_RESP:
         {
