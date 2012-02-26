@@ -750,7 +750,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     #endif
     
     // preamble and start of frame
-    one_net_memmove(pkt_ptrs->packet_header, HEADER, sizeof(HEADER));
+    one_net_memmove(pkt_ptrs->packet_bytes, HEADER, sizeof(HEADER));
 
     // we have everything filled in but the the msg_crc, so we can calculate
     // it now.
@@ -873,7 +873,7 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
         return FALSE;
     }
     
-    pkt->packet_header    = &pkt_bytes[0];
+    pkt->packet_bytes     = &pkt_bytes[0];
     pkt->enc_pid          = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
     pkt->raw_pid          = raw_pid;
     *(pkt->enc_pid)       = decoded_to_encoded_byte(raw_pid, FALSE);

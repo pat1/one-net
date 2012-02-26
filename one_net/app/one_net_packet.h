@@ -1348,7 +1348,7 @@ enum
 //! change based on the payload_len field, which is based on the pid.
 typedef struct
 {
-    UInt8* packet_header; //! pointer to the preamble and start of frame
+    UInt8* packet_bytes;
     UInt8* enc_pid; //! pid of the packet
     UInt8 raw_pid;  //! raw pid of the packet
     UInt8* enc_msg_id; //! encoded message id of the packet
