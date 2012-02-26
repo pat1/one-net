@@ -1352,7 +1352,6 @@ typedef struct
     UInt8 raw_pid;  //! raw pid of the packet
     UInt8 msg_id; //! raw message id of the packet
     UInt8 msg_crc; //! raw message crc of the packet
-    on_encoded_did_t* enc_dst_did; //! encoded destination did of the packet
     on_encoded_did_t* enc_repeater_did; //! encoded repeater did of the packet
     on_encoded_nid_t* enc_nid; //! encoded nid of the packet
     UInt8* payload; //! encoded payload (if any) of the packet.

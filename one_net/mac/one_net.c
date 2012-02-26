@@ -674,10 +674,10 @@ one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
     one_net_memmove(pkt_ptrs->enc_nid, *nid, ON_ENCODED_NID_LEN);
     one_net_memmove(pkt_ptrs->enc_repeater_did, *repeater_did,
       ON_ENCODED_DID_LEN);
-    one_net_memmove(pkt_ptrs->enc_dst_did, *dst_did,
-      ON_ENCODED_DID_LEN);
-    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_SRC_DID_IDX]), *src_did,
-      ON_ENCODED_DID_LEN);
+    one_net_memmove(&(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+      *dst_did, ON_ENCODED_DID_LEN);
+    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
+      *src_did, ON_ENCODED_DID_LEN);
       
     return ONS_SUCCESS;
 }
@@ -884,7 +884,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     pkt->raw_pid          = raw_pid;
     pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
-    pkt->enc_dst_did      = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX];
     pkt->enc_repeater_did = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX];
     pkt->enc_nid          = (on_encoded_nid_t*) &pkt_bytes[ON_ENCODED_NID_IDX];
     pkt->payload          = &pkt_bytes[ON_PLD_IDX];
@@ -1463,7 +1462,8 @@ void one_net(on_txn_t ** txn)
                 (*txn)->response_timeout = one_net_response_time_out;
                 (*txn)->device = device;
                 one_net_memmove(expected_src_did,
-                  *(data_pkt_ptrs.enc_dst_did), ON_ENCODED_DID_LEN);
+                  &(data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]),
+                  ON_ENCODED_DID_LEN);
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);

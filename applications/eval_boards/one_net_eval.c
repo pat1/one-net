@@ -1113,8 +1113,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             debug_display_did("Repeater DID",
               debug_pkt_ptrs.enc_repeater_did);
-            debug_display_did("Dest. DID",
-              debug_pkt_ptrs.enc_dst_did);
+            debug_display_did("Dest. DID", (on_encoded_did_t*)
+              &(debug_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_DST_DID_IDX]));
             debug_display_nid("NID",
               debug_pkt_ptrs.enc_nid);
             debug_display_did("Source DID", (on_encoded_did_t*)
