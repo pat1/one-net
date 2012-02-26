@@ -1354,7 +1354,6 @@ typedef struct
     UInt8 msg_crc; //! raw message crc of the packet
     UInt8 payload_len; //! length of the encoded payload in bytes
     #ifdef _ONE_NET_MULTI_HOP
-    UInt8* enc_hops_field; //! encoded hops field of the packet
     UInt8 hops; //! hops of the packet.  May or may not be relevant.
     UInt8 max_hops; //! Maximum hops of the packet.  May or may not be relevant
     #endif

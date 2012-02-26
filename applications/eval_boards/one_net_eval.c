@@ -1288,7 +1288,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             if(packet_is_multihop(raw_pid))
                             {
                                 oncli_send_msg("Encoded Hops Field : %02X  ",
-                                  *(debug_pkt_ptrs.enc_hops_field));
+                                  *(&(debug_pkt_ptrs.packet_bytes[ON_PLD_IDX])
+                                  + debug_pkt_ptrs.payload_len));
                                 if(on_parse_hops(&debug_pkt_ptrs,
                                   &(debug_pkt_ptrs.hops),
                                   &(debug_pkt_ptrs.max_hops)) != ONS_SUCCESS)

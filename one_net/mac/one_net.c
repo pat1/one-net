@@ -888,10 +888,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
       decoded_to_encoded_byte(raw_pid, FALSE);
     pkt->payload_len      = (UInt8) len;
     
-    #ifdef _ONE_NET_MULTI_HOP
-    pkt->enc_hops_field = &(pkt->packet_bytes[ON_PLD_IDX]) + pkt->payload_len;
-    #endif
-    
     return TRUE;
 }
 
@@ -2598,14 +2594,16 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     {
         UInt8 raw_hops_field;
 
-        if(one_net_read((*this_pkt_ptrs)->enc_hops_field, ON_ENCODED_HOPS_SIZE)
-          != ON_ENCODED_HOPS_SIZE)
+        if(one_net_read(&((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+          (*this_pkt_ptrs)->payload_len, ON_ENCODED_HOPS_SIZE) !=
+          ON_ENCODED_HOPS_SIZE)
         {
             return ONS_READ_ERR;
         }
 
-        if(on_decode(&raw_hops_field, (*this_pkt_ptrs)->enc_hops_field,
-          ON_ENCODED_HOPS_SIZE) != ONS_SUCCESS)
+        if(on_decode(&raw_hops_field,
+          &((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+          (*this_pkt_ptrs)->payload_len, ON_ENCODED_HOPS_SIZE) != ONS_SUCCESS)
         {
             return ONS_BAD_ENCODING;
         }
@@ -2630,7 +2628,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             
             raw_hops_field = ((((*this_pkt_ptrs)->hops) << 3) +
               (*this_pkt_ptrs)->max_hops) << 2;
-            on_encode((*this_pkt_ptrs)->enc_hops_field, &raw_hops_field,
+            on_encode(&((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+              (*this_pkt_ptrs)->payload_len, &raw_hops_field,
               ON_ENCODED_HOPS_SIZE);
             one_net_memmove(
               &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_RPTR_DID_IDX]),
