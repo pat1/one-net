@@ -671,7 +671,8 @@ one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
         return ONS_BAD_PARAM;
     }
     
-    one_net_memmove(pkt_ptrs->enc_nid, *nid, ON_ENCODED_NID_LEN);
+    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_NID_IDX]), *nid,
+      ON_ENCODED_NID_LEN);
     one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_RPTR_DID_IDX]),
       *repeater_did, ON_ENCODED_DID_LEN);
     one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_DST_DID_IDX]),
@@ -884,7 +885,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     pkt->raw_pid          = raw_pid;
     pkt->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
-    pkt->enc_nid          = (on_encoded_nid_t*) &pkt_bytes[ON_ENCODED_NID_IDX];
     pkt->payload          = &pkt_bytes[ON_PLD_IDX];
     pkt->payload_len      = (UInt8) len;
     

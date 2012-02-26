@@ -1115,8 +1115,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
               &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_RPTR_DID_IDX]));
             debug_display_did("Dest. DID", (on_encoded_did_t*)
               &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_DST_DID_IDX]));
-            debug_display_nid("NID",
-              debug_pkt_ptrs.enc_nid);
+            debug_display_nid("NID", (on_encoded_nid_t*)
+              &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_NID_IDX]));
             debug_display_did("Source DID", (on_encoded_did_t*)
               &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_SRC_DID_IDX]));
               

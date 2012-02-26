@@ -1497,8 +1497,8 @@ static BOOL look_for_invite(void)
     }
     
     // We'll fill in some information and return TRUE.
-    one_net_memmove(on_base_param->sid, *(this_pkt_ptrs->enc_nid),
-      ON_ENCODED_NID_LEN);
+    one_net_memmove(on_base_param->sid,
+      &(this_pkt_ptrs->packet_bytes[ON_ENCODED_NID_IDX]), ON_ENCODED_NID_LEN);
     on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]),
       &raw_payload_bytes[ON_INVITE_ASSIGNED_DID_IDX], ON_ENCODED_DID_LEN);
     one_net_memmove(on_base_param->current_key,
