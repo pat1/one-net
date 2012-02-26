@@ -306,19 +306,18 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 /*!
     \brief Builds the encoded hops field for the packet.
 
-    \param[out] enc_hops_field The hops field to be sent with the pkt.
+    \param[out] pkt The packet to be built.
     \param[in] hops The number of hops taken so far.
     \param[in] max_hops maximum number of hops the packet can take.
 
     \return ONS_SUCCESS If building the hops field was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
-one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
-  UInt8 max_hops)
+one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops)
 {
     UInt8 raw_hops;
 
-    if(!enc_hops_field || max_hops > ON_MAX_HOPS_LIMIT || hops > max_hops)
+    if(!pkt || max_hops > ON_MAX_HOPS_LIMIT || hops > max_hops)
     {
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
@@ -327,7 +326,8 @@ one_net_status_t on_build_hops(UInt8 * enc_hops_field, UInt8 hops,
       ON_MAX_HOPS_BUILD_MASK) | ((hops << ON_HOPS_BUILD_SHIFT)
       & ON_HOPS_BUILD_MASK);
 
-    on_encode(enc_hops_field, &raw_hops, ON_ENCODED_HOPS_SIZE);
+    on_encode(&(pkt->packet_bytes[ON_PLD_IDX]) + pkt->payload_len,
+      &raw_hops, ON_ENCODED_HOPS_SIZE);
 
     return ONS_SUCCESS;
 } // on_build_hops //
@@ -545,8 +545,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     if(txn->max_hops > 0)
     {
         // build hops
-        if((status = on_build_hops(pkt_ptrs->enc_hops_field, 0,
-          txn->max_hops)) != ONS_SUCCESS)
+        if((status = on_build_hops(pkt_ptrs, 0, txn->max_hops)) != ONS_SUCCESS)
         {
             return status;
         }
@@ -609,7 +608,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     if(pkt_ptrs->max_hops > 0)
     {
         // build hops
-        if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
+        if((status = on_build_hops(pkt_ptrs, pkt_ptrs->hops,
           pkt_ptrs->max_hops)) != ONS_SUCCESS)
         {
             return status;
@@ -749,8 +748,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     if(packet_is_multihop(pid))
     {
         one_net_status_t status;
-        if((status = on_build_hops(pkt_ptrs->enc_hops_field, pkt_ptrs->hops,
-          pkt_ptrs->max_hops) != ONS_SUCCESS))
+        if((status = on_build_hops(pkt_ptrs, pkt_ptrs->hops, pkt_ptrs->max_hops)
+          != ONS_SUCCESS))
         {
             return status;
         }
