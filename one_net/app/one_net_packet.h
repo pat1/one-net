@@ -1339,20 +1339,14 @@ enum
 };
 
 
-//! To save stack space when processing function calls, to simplify things,
-//! and for (at times) fewer parameters, this is a structure containing
-//! common portions of a packet.  Everything, even UInt8 portions, is a
-//! pointer so that a structure can be set up pointing to an array and the
-//! array can change, yet the on_pkt_t structure does not need to be changed
-//! much, at least the encoded portions.  The pointer to the hops field may
-//! change based on the payload_len field, which is based on the pid.
 typedef struct
 {
     UInt8* packet_bytes;
     UInt8 raw_pid;  //! raw pid of the packet
     UInt8 msg_id; //! raw message id of the packet
-    UInt8 msg_crc; //! raw message crc of the packet
     UInt8 payload_len; //! length of the encoded payload in bytes
+    
+    // TODO -- can we get rid of these 2 hops fields?
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 hops; //! hops of the packet.  May or may not be relevant.
     UInt8 max_hops; //! Maximum hops of the packet.  May or may not be relevant

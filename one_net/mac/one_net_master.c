@@ -1078,9 +1078,9 @@ void one_net_master(void)
                     // we're either switching from multi-hop to non-multi-hop
                     // or vice-versa, so we need to re-calculate the message
                     // crc.
-                    data_pkt_ptrs.msg_crc = calculate_msg_crc(&data_pkt_ptrs);
+                    UInt8 msg_crc = calculate_msg_crc(&data_pkt_ptrs);
                     data_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX] =
-                      decoded_to_encoded_byte(data_pkt_ptrs.msg_crc, TRUE);
+                      decoded_to_encoded_byte(msg_crc, TRUE);
                 }
                 #endif
 

@@ -1081,10 +1081,10 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             #if _DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
-                UInt8 calculated_msg_crc;
+                UInt8 calculated_msg_crc, msg_crc;
 
                 oncli_send_msg(" -- Decoded Msg. CRC : ");
-                if(on_decode(&debug_pkt_ptrs.msg_crc,
+                if(on_decode(&msg_crc,
                   &debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX],
                   ONE_NET_ENCODED_MSG_CRC_LEN) != ONS_SUCCESS)
                 {
@@ -1092,13 +1092,13 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 }
                 else
                 {
-                    oncli_send_msg("0x%02X\n", debug_pkt_ptrs.msg_crc);
+                    oncli_send_msg("0x%02X\n", msg_crc);
                 }
                 
                 calculated_msg_crc = calculate_msg_crc(&debug_pkt_ptrs);
                 oncli_send_msg("Calculated Raw Msg CRC : 0x%02X\n", calculated_msg_crc);
                 
-                if(calculated_msg_crc != debug_pkt_ptrs.msg_crc)
+                if(calculated_msg_crc != msg_crc)
                 {
                     oncli_send_msg("Calc. msg. CRC does not match packet "
                       "CRC!\n");

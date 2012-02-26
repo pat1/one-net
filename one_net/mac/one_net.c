@@ -705,7 +705,7 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
 one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
   UInt8 msg_id, UInt8 pid)
 {
-    UInt8 msg_crc_calc_len;
+    UInt8 msg_crc, msg_crc_calc_len;
     UInt8* msg_crc_start;
     
     if(!pkt_ptrs)
@@ -761,13 +761,13 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
 
     // we have everything filled in but the the msg_crc, so we can calculate
     // it now.
-    pkt_ptrs->msg_crc = (UInt8) one_net_compute_crc(msg_crc_start,
+    msg_crc = (UInt8) one_net_compute_crc(msg_crc_start,
       msg_crc_calc_len, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
     // we are only interested in the 6 most significant bits, so mask them
-    pkt_ptrs->msg_crc &= 0xFC; // 11111100 -- six most significant bits.
+    msg_crc &= 0xFC; // 11111100 -- six most significant bits.
     // now encode for the message
     on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_CRC_IDX]),
-      &(pkt_ptrs->msg_crc), ONE_NET_ENCODED_MSG_CRC_LEN);
+      &msg_crc, ONE_NET_ENCODED_MSG_CRC_LEN);
       
     return ONS_SUCCESS;
 }
@@ -2728,6 +2728,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         on_raw_did_t my_raw_did;
         on_raw_did_t raw_src_did;
         SInt8 src_idx;
+        UInt8 msg_crc;
         
         // We need to do two things.  One, we need to check whether we are
         // already in this route.  If we are, we will not forward since that
@@ -2783,9 +2784,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             return status;
         }
-        (*this_pkt_ptrs)->msg_crc = calculate_msg_crc(*this_pkt_ptrs);
+        msg_crc = calculate_msg_crc(*this_pkt_ptrs);
         (*this_pkt_ptrs)->packet_bytes[ON_ENCODED_MSG_CRC_IDX] =
-          decoded_to_encoded_byte((*this_pkt_ptrs)->msg_crc, TRUE);
+          decoded_to_encoded_byte(msg_crc, TRUE);
     }
     #endif
 
