@@ -1052,12 +1052,14 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             }
             
             oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg ID : 0x%02X", *(debug_pkt_ptrs.enc_msg_id));
+            oncli_send_msg("Enc. Msg ID : 0x%02X",
+              debug_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]);
             #if _DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
                 oncli_send_msg(" -- Decoded : ");
-                if(on_decode(&debug_pkt_ptrs.msg_id, debug_pkt_ptrs.enc_msg_id,
+                if(on_decode(&debug_pkt_ptrs.msg_id,
+                  &(debug_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]),
                   ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable");

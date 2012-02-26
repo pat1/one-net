@@ -737,7 +737,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     // we shift in order to encode.  We saved the unshifted message id before
     // shifting.
     msg_id <<= 2;
-    on_encode(pkt_ptrs->enc_msg_id, &msg_id, ONE_NET_ENCODED_MSG_ID_LEN);
+    on_encode(&(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]),
+      &msg_id, ONE_NET_ENCODED_MSG_ID_LEN);
     
     #ifdef _ONE_NET_MULTI_HOP
     // fill in hops if needed
@@ -880,7 +881,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     pkt->raw_pid          = raw_pid;
     pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
-    pkt->enc_msg_id       = &pkt_bytes[ONE_NET_ENCODED_MSG_ID_IDX];
     pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
     pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
     pkt->enc_dst_did      = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX];
@@ -2709,7 +2709,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     
     // decode the message id and fill it in.
-    if(on_decode(&((*this_pkt_ptrs)->msg_id), (*this_pkt_ptrs)->enc_msg_id,
+    if(on_decode(&((*this_pkt_ptrs)->msg_id),
+      &((*this_pkt_ptrs)->packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]),
       ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
     {
         return ONS_BAD_ENCODING;
