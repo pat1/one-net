@@ -155,8 +155,6 @@ BOOL device_is_master = TRUE; // if device cvan be master OR client, the
 #endif
 
 
-one_net_startup_status_t startup_status = ON_STARTUP_IN_PROGRESS;
-
 
 //! an on_pkt_t structure for data packets
 on_pkt_t data_pkt_ptrs;

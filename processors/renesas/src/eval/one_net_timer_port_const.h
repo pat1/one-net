@@ -73,12 +73,6 @@ enum
     //! Timer used in auto mode to automatically send packets
     AUTO_MODE_TIMER = 0,
 #endif
-    
-    //! Timer used to turn off the transmit led
-    TX_LED_TIMER,
-    
-    //! Timer used to turn off the receive led
-    RX_LED_TIMER,
 
     //! Timer to output prompt if no incoming data for a certain period.
     PROMPT_TIMER,

@@ -155,25 +155,7 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 //! \defgroup ONE-NET_typedefs
 //! \ingroup ONE-NET
 //! @{
-    
-    
-typedef enum
-{
-    //! Master and client have not successfully passed any messages
-    INVITE_START,
 
-    //! Client has sent its features
-    INVITE_FEATURES_TRANSFERRED,
-
-    //! Master has sent the keep alive time and the flags
-    INVITE_KEEP_ALIVE_FLAGS_TRANSFERRED,
-
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    //! Master has sent the fragment delay values
-    INVITE_FRAG_DELAY_TRANSFERRED,
-    #endif
-} invite_accept_stage_t;
-    
 
 
 /*!
@@ -378,19 +360,6 @@ enum
 };
 
 
-#ifdef _ENHANCED_INVITE
-//! Reason why an invitation has been cancelled.
-//! TO DO : We may want to make this part of the application code since
-//! different applications may have specific codes that shouldn't be part
-//! be part of the official ONE-NET package.
-typedef enum
-{
-    CANCEL_INVITE_TIMEOUT, /* look for invitation time has expired */
-    CANCEL_INVITE_CANCELLED_BY_USER, /* look for invitation time has expired */
-    CANCEL_INVITE_CANCELLED_INTERNAL_ERROR, /* Some error occurred somewhere */
-    CANCEL_INVITE_OTHER_REASON /* If none of the reasons above fit. */	
-} cancel_invite_reason_t;
-#endif
 
 //! Function to retrieve sending device information
 typedef on_sending_device_t* (*one_net_get_sender_info_func_t)
@@ -477,13 +446,6 @@ typedef enum
 //! @{
 
 
-#ifdef _ONE_NET_MULTI_HOP
-//! The number of multi-hop capable devices in the network
-extern UInt8 num_mh_devices;
-
-//! The number of multi-hop repeater clients in the network
-extern UInt8 num_mh_repeaters;
-#endif
 
 //! The encoded broadcast did.
 extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
@@ -513,9 +475,6 @@ extern const ona_unit_type_count_t
 
 //! true if device is functioning as a master, false otherwise 
 extern BOOL device_is_master;
-
-//! current status of startup
-extern one_net_startup_status_t startup_status;
 
 //! The current state.
 extern on_state_t on_state;
