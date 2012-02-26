@@ -703,10 +703,11 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
 
 
 one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
-  UInt8 msg_id, UInt8 pid)
+  UInt16 msg_id, UInt8 pid)
 {
     UInt8 msg_crc, msg_crc_calc_len;
     UInt8* msg_crc_start;
+    on_raw_msg_id_t msg_id_buf;
     
     if(!pkt_ptrs)
     {
@@ -739,9 +740,9 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     
     // we shift in order to encode.  We saved the unshifted message id before
     // shifting.
-    msg_id <<= 2;
+    u16_to_msg_id_buf(msg_id, (on_raw_msg_id_t*) msg_id_buf);
     on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
-      &msg_id, ONE_NET_ENCODED_MSG_ID_LEN);
+      msg_id_buf, ON_ENCODED_MSG_ID_LEN);
     
     #ifdef _ONE_NET_MULTI_HOP
     // fill in hops if needed
@@ -2248,7 +2249,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     {
         tick_t time_now = get_tick_count();
         const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
-        UInt8 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
+        UInt16 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
           0 : 1 + (*txn)->device->msg_id);
           
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_MSG_ID;
@@ -2371,6 +2372,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     on_data_t type;
     UInt8* pkt_bytes;
+    on_raw_msg_id_t msg_id_buf;
+
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
@@ -2661,7 +2664,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
     decrypt_using_current_key = TRUE;
     while(1)
-    {
+    {        
         if((status = on_decode(raw_payload_bytes,
           &((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]),
           (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
@@ -2707,15 +2710,15 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         key = (one_net_xtea_key_t*) &(on_base_param->old_key);
     }
     
-    // decode the message id and fill it in.
-    if(on_decode(&((*this_pkt_ptrs)->msg_id),
+    // decode the message id and fill it in.  
+    if(on_decode(msg_id_buf,
       &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
-      ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+      ON_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
     {
         return ONS_BAD_ENCODING;
     }
 
-    (*this_pkt_ptrs)->msg_id >>= 2;
+    (*this_pkt_ptrs)->msg_id = msg_id_buf_to_u16((on_raw_msg_id_t*) msg_id_buf);
 
     // set the key
     (*this_txn)->key = key;

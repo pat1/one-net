@@ -358,7 +358,7 @@ typedef struct
                                     //!< the same.
     #endif
     UInt8 data_rate;                //!< The current data rate the device is using
-    UInt8 msg_id;                   //!< The message id of the current transaction with this device.
+    UInt16 msg_id;                  //!< The message id of the current or next transaction with this device(0 - 4095).
     tick_t verify_time;             //!< The last time the message id and nonces were verified for this device
 } on_sending_device_t;    
     

@@ -1052,21 +1052,26 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             }
             
             oncli_send_msg("\n");
-            oncli_send_msg("Enc. Msg ID : 0x%02X",
-              debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_IDX]);
+            oncli_send_msg("Enc. Msg ID : 0x%02X%02X",
+              debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_IDX],
+              debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_IDX+1]
+              );
             #if _DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
+                on_raw_msg_id_t raw_msg_id;
                 oncli_send_msg(" -- Decoded : ");
-                if(on_decode(&debug_pkt_ptrs.msg_id,
-                  &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_IDX]),
-                  ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
+                if(on_decode(raw_msg_id,
+                  &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_LEN]),
+                  ON_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable");
                 }
                 else
                 {
-                    oncli_send_msg("0x%02X", debug_pkt_ptrs.msg_id >> 2);
+                    debug_pkt_ptrs.msg_id = msg_id_buf_to_u16((on_raw_msg_id_t*)
+                      raw_msg_id);
+                    oncli_send_msg("0x%03X", debug_pkt_ptrs.msg_id);
                 }
             }
             else

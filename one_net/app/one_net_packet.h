@@ -851,8 +851,7 @@ enum
     //! Length of encoded message CRC
     ONE_NET_ENCODED_MSG_CRC_LEN = 1,
     
-    //! Length of encoded message id
-    ONE_NET_ENCODED_MSG_ID_LEN = 1,
+    // Note that ON_ENCODED_MSG_ID_LEN is defined as 2 in one_net_constants.h
     
     //! The size of the encoded Packet ID field
     ON_ENCODED_PID_SIZE = 1,
@@ -875,7 +874,7 @@ enum
     ON_ENCODED_MSG_ID_IDX = ON_ENCODED_DST_DID_IDX + ON_ENCODED_DID_LEN,
 
     //! The index into the encoded packet where the NID starts.
-    ON_ENCODED_NID_IDX = ON_ENCODED_MSG_ID_IDX + ONE_NET_ENCODED_MSG_ID_LEN,
+    ON_ENCODED_NID_IDX = ON_ENCODED_MSG_ID_IDX + ON_ENCODED_MSG_ID_LEN,
 
     //! The index into the encoded packet where the source DID starts.
     ON_ENCODED_SRC_DID_IDX = ON_ENCODED_NID_IDX + ON_ENCODED_NID_LEN,
@@ -1343,7 +1342,7 @@ typedef struct
 {
     UInt8* packet_bytes;
     UInt8 raw_pid;  //! raw pid of the packet
-    UInt8 msg_id; //! raw message id of the packet
+    UInt16 msg_id; //! raw message id of the packet (0 to 4095)
     UInt8 payload_len; //! length of the encoded payload in bytes
     
     // TODO -- can we get rid of these 2 hops fields?

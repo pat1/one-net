@@ -284,7 +284,7 @@ typedef struct
 typedef struct
 {
     UInt8 raw_pid; //! Raw PID of message
-    UInt8 msg_id; //! message id of this transaction
+    UInt16 msg_id; //! message id of this transaction(0 to 4095)
     UInt8 msg_type; //! message type (i.e. admin, app, etc.)
 } on_msg_hdr_t;
 

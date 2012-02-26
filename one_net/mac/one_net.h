@@ -125,9 +125,6 @@ enum
     //! The max nonce
     ON_MAX_NONCE = 63,
 
-    //! The max nonce
-    ON_MAX_MSG_ID = 63,
-
     //! Value to use to mark an invalid nonce
     ON_INVALID_NONCE = 0xFF,
 
@@ -139,6 +136,8 @@ enum
     ON_FIRST_MH_MAX_HOPS_COUNT = 2,
     #endif
 };
+
+#define ON_MAX_MSG_ID 4095
 
 
 extern const on_raw_did_t MASTER_RAW_DID;
@@ -613,7 +612,7 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
   const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
 
 one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
-  UInt8 msg_id, UInt8 pid);
+  UInt16 msg_id, UInt8 pid);
   
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);

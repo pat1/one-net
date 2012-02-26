@@ -69,6 +69,9 @@ enum
     //! Raw Device ID length (in bytes needed to store the value)
     ON_RAW_DID_LEN = 2,
 
+    //! Raw Message ID length (in bytes needed to store the value)
+    ON_RAW_MSG_ID_LEN = 2,
+
     //! Raw System ID length (in bytes)
     ON_RAW_SID_LEN = 6,
 
@@ -77,6 +80,9 @@ enum
 
     //! Encoded Device ID length (in bytes)
     ON_ENCODED_DID_LEN = 2,
+    
+    //! Encoded Msg ID length (in bytes)
+    ON_ENCODED_MSG_ID_LEN = 2,
 
     //! Encoded SID length (in bytes)
     ON_ENCODED_SID_LEN = 8,
@@ -92,6 +98,9 @@ typedef UInt8 on_raw_nid_t[ON_RAW_NID_LEN];
 //! type of a raw Device ID
 typedef UInt8 on_raw_did_t[ON_RAW_DID_LEN];
 
+//! type of a raw message ID
+typedef UInt8 on_raw_msg_id_t[ON_RAW_MSG_ID_LEN];
+
 //! type of a raw System ID
 typedef UInt8 on_raw_sid_t[ON_RAW_SID_LEN];
 
@@ -100,6 +109,9 @@ typedef UInt8 on_encoded_nid_t[ON_ENCODED_NID_LEN];
 
 //! type of an encoded Device ID
 typedef UInt8 on_encoded_did_t[ON_ENCODED_DID_LEN];
+
+//! type of an encoded Device ID
+typedef UInt8 on_encoded_msg_id_t[ON_ENCODED_MSG_ID_LEN];
 
 //! type of an encoded System ID
 typedef UInt8 on_encoded_sid_t[ON_ENCODED_SID_LEN];
