@@ -721,7 +721,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     // message CRC calculation length includes everything past the message CRC
     // and stops immediately BEFORE the hops field, if any, which is NOT part
     // of the message CRC.
-    msg_crc_start = pkt_ptrs->enc_msg_crc + ONE_NET_ENCODED_MSG_CRC_LEN;
+    msg_crc_start = &(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX]) +
+      ONE_NET_ENCODED_MSG_CRC_LEN;
     msg_crc_calc_len = (pkt_ptrs->payload + pkt_ptrs->payload_len) -
       msg_crc_start;
     
@@ -763,8 +764,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     // we are only interested in the 6 most significant bits, so mask them
     pkt_ptrs->msg_crc &= 0xFC; // 11111100 -- six most significant bits.
     // now encode for the message
-    on_encode(pkt_ptrs->enc_msg_crc, &(pkt_ptrs->msg_crc),
-      ONE_NET_ENCODED_MSG_ID_LEN);
+    on_encode(&(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX]),
+      &(pkt_ptrs->msg_crc), ONE_NET_ENCODED_MSG_ID_LEN);
       
     return ONS_SUCCESS;
 }
@@ -782,7 +783,9 @@ UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs)
     // message CRC calculation length includes everything past the message CRC
     // and stops immediately BEFORE the hops field, if any, which is NOT part
     // of the message CRC.
-    UInt8* msg_crc_start = pkt_ptrs->enc_msg_crc + ONE_NET_ENCODED_MSG_CRC_LEN;
+    UInt8* msg_crc_start =
+      &(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX]) +
+      ONE_NET_ENCODED_MSG_CRC_LEN;
     UInt8 msg_crc_calc_len = (pkt_ptrs->payload + pkt_ptrs->payload_len) -
       msg_crc_start;
       
@@ -812,7 +815,7 @@ BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs)
         return FALSE;
     }
     
-    return (*(pkt_ptrs->enc_msg_crc) == enc_crc);
+    return (pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX] == enc_crc);
 }
 
 
@@ -881,7 +884,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     pkt->raw_pid          = raw_pid;
     pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
-    pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
     pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
     pkt->enc_dst_did      = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX];
     pkt->enc_repeater_did = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX];
@@ -2782,8 +2784,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             return status;
         }
         (*this_pkt_ptrs)->msg_crc = calculate_msg_crc(*this_pkt_ptrs);
-        *((*this_pkt_ptrs)->enc_msg_crc) = decoded_to_encoded_byte(
-          (*this_pkt_ptrs)->msg_crc, TRUE);
+        (*this_pkt_ptrs)->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX] =
+          decoded_to_encoded_byte((*this_pkt_ptrs)->msg_crc, TRUE);
     }
     #endif
 

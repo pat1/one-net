@@ -1350,7 +1350,6 @@ typedef struct
 {
     UInt8* packet_bytes;
     UInt8 raw_pid;  //! raw pid of the packet
-    UInt8* enc_msg_crc; //! encoded message crc of the packet
     UInt8 msg_id; //! raw message id of the packet
     UInt8 msg_crc; //! raw message crc of the packet
     on_encoded_did_t* enc_src_did; //! encoded source did of the packet
