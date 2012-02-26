@@ -225,6 +225,13 @@ UInt8 next_data_rate = ONE_NET_DATA_RATE_38_4;
 UInt8 next_channel;
 #endif
 
+//! Boolean value denoting whether a key change should occur in the very
+//! near future
+BOOL key_change_requested = FALSE;
+
+//! Time of the last key change request
+tick_t key_change_request_time = 0;
+
 
 
 //                              PUBLIC VARIABLES
@@ -1721,6 +1728,23 @@ void one_net(on_txn_t ** txn)
             {
                 // transaction has been terminated either by ONE_NET
                 // or by the application code.
+                
+                // first check whether we are close to the end of our message
+                // IDs for the other device.  If so, request a key change for
+                // the network.  We'll define "close to" as within 300 just to
+                // pick a somewhat random number.
+                if((*txn)->device->msg_id > ON_MAX_MSG_ID - 300)
+                {
+                    // to avoid duplicate requests, only request a key change
+                    // at most every 60 seconds.
+                    // TODO -- what if this is within 60 seconds of 
+                    if(key_change_request_time + MS_TO_TICK(60000) <
+                      get_tick_count())
+                    {
+                        key_change_requested = TRUE;
+                    }
+                }
+                
                 
                 if((msg_status == ON_MSG_DEFAULT_BHVR || msg_status ==
                   ON_MSG_CONTINUE) && ack_nack.nack_reason !=

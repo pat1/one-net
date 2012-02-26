@@ -512,6 +512,14 @@ extern one_net_xtea_key_t invite_key;
 //! The current invite transaction
 extern on_txn_t invite_txn;
 
+//! Boolean value denoting whether a key change should occur in the very
+//! near future
+extern BOOL key_change_requested;
+
+//! Time of the last key change request
+extern tick_t key_change_request_time;
+
+
 // The buffer length required for both receiving and sending is...
 //
 // Both masters need to be able to store both an outgoing message and

@@ -195,7 +195,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
-
+static BOOL send_new_key_request(void);
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now);
@@ -1793,6 +1793,51 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
 
 /*!
+    \brief Checks to see whether the device needs to send the master a request
+      to change keys
+
+    \return TRUE if a message was sent
+            FALSE otherwise.
+*/
+static BOOL send_new_key_request(void)
+{
+    UInt8 admin_type = ON_REQUEST_KEY_CHANGE;
+
+    if(!key_change_requested)
+    {
+        return FALSE;
+    }
+
+    if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
+      ON_ADMIN_MSG, &admin_type, 1, ONE_NET_LOW_PRIORITY,
+      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
+      #ifdef _PEER
+      , FALSE,
+      ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+      , 0
+      #endif
+      ))
+    {
+        key_change_requested = FALSE;
+        // to avoid duplicate requests, only request a key change at most every
+        // 60 seconds.  This time will be checked elsewhere before setting the
+        // key_change_requested flag.
+        key_change_request_time = get_tick_count();
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+
+/*!
     \brief Checks to see whether the device needs to send a check-in message
       to the master and if so, sends it.
 
@@ -1802,6 +1847,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 static BOOL check_in_with_master(void)
 {
     UInt8 raw_pld[5];
+    
+    if(send_new_key_request())
+    {
+        return TRUE;
+    }
     
     if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
     {
