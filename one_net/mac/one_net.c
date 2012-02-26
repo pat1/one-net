@@ -336,14 +336,14 @@ one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops)
 /*!
     \brief Parses the encoded hops field for the packet.
 
-    \param[in] enc_hops_field The hops field to be sent with the pkt.
+    \param[in] pkt The packet to be parsed
     \param[out] hops The number of hops taken so far.
     \param[out] max_hops maximum number of hops the packet can take.
 
     \return ONS_SUCCESS If parsing the hops field was successful
             ONS_BAD_PARAM If any of the parameters are invalid.
 */
-one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
+one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
   UInt8* max_hops)
 {
     UInt8 raw_hops_field;
@@ -354,7 +354,8 @@ one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
         return ONS_BAD_PARAM;
     } // if any of the parameters are invalid //
     
-    if((status = on_decode(&raw_hops_field, &enc_hops_field,
+    if((status = on_decode(&raw_hops_field,
+      &(pkt->packet_bytes[ON_PLD_IDX]) + pkt->payload_len,
       ON_ENCODED_HOPS_SIZE)) != ONS_SUCCESS)
     {
         return status;
@@ -551,8 +552,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         }
         
         // put it back into the packet pointers.
-        on_parse_hops(*(pkt_ptrs->enc_hops_field), &(pkt_ptrs->hops),
-          &(pkt_ptrs->max_hops));        
+        on_parse_hops(pkt_ptrs, &(pkt_ptrs->hops), &(pkt_ptrs->max_hops));        
     }
     #endif
 

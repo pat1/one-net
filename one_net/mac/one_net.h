@@ -596,7 +596,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
 
 #ifdef _ONE_NET_MULTI_HOP
 one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops);
-one_net_status_t on_parse_hops(UInt8 enc_hops_field, UInt8* hops,
+one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
   UInt8* max_hops);
 #endif
 BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt);
