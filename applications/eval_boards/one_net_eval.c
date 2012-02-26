@@ -1077,7 +1077,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             oncli_send_msg("\n");
             oncli_send_msg("Enc. Msg CRC : 0x%02X",
-              debug_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX]);
+              debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX]);
             #if _DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
@@ -1085,7 +1085,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 
                 oncli_send_msg(" -- Decoded Msg. CRC : ");
                 if(on_decode(&debug_pkt_ptrs.msg_crc,
-                  &debug_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX],
+                  &debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX],
                   ONE_NET_ENCODED_MSG_CRC_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable\n");

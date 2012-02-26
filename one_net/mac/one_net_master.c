@@ -1079,7 +1079,7 @@ void one_net_master(void)
                     // or vice-versa, so we need to re-calculate the message
                     // crc.
                     data_pkt_ptrs.msg_crc = calculate_msg_crc(&data_pkt_ptrs);
-                    data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX] =
+                    data_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX] =
                       decoded_to_encoded_byte(data_pkt_ptrs.msg_crc, TRUE);
                 }
                 #endif
