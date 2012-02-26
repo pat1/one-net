@@ -1349,7 +1349,6 @@ enum
 typedef struct
 {
     UInt8* packet_bytes;
-    UInt8* enc_pid; //! pid of the packet
     UInt8 raw_pid;  //! raw pid of the packet
     UInt8* enc_msg_id; //! encoded message id of the packet
     UInt8* enc_msg_crc; //! encoded message crc of the packet

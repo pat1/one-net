@@ -450,7 +450,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // change pid if necessary
     pkt_ptrs->raw_pid = get_single_response_pid(pkt_ptrs->raw_pid, is_ack,
       stay_awake);
-    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
+    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+      decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
 
     // for all we know, ack_nack->payload is located at the same address
@@ -536,7 +537,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // change between multi-hop and non-multi-hop depending on whether 
     // txn->max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), txn->max_hops > 0);
-    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
+    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+      decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(txn->max_hops > 0)
     {
@@ -599,7 +601,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
-    *(pkt_ptrs->enc_pid) = decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
+    pkt_ptrs->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+      decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
     
     if(pkt_ptrs->max_hops > 0)
     {
@@ -874,9 +877,9 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     }
     
     pkt->packet_bytes     = &pkt_bytes[0];
-    pkt->enc_pid          = &pkt_bytes[ONE_NET_ENCODED_PID_IDX];
     pkt->raw_pid          = raw_pid;
-    *(pkt->enc_pid)       = decoded_to_encoded_byte(raw_pid, FALSE);
+    pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
+      decoded_to_encoded_byte(raw_pid, FALSE);
     pkt->enc_msg_id       = &pkt_bytes[ONE_NET_ENCODED_MSG_ID_IDX];
     pkt->enc_msg_crc      = &pkt_bytes[ONE_NET_ENCODED_MSG_CRC_IDX];
     pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
@@ -1468,8 +1471,10 @@ void one_net(on_txn_t ** txn)
                 (*txn)->send = TRUE;
                 
                 #ifdef _ROUTE
-                if(*(data_pkt_ptrs.enc_pid) == ONE_NET_ENCODED_ROUTE ||
-                  *(data_pkt_ptrs.enc_pid) == ONE_NET_ENCODED_MH_ROUTE)
+                if(data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_PID_IDX] ==
+                  ONE_NET_ENCODED_ROUTE ||
+                  data_pkt_ptrs.packet_bytes[ONE_NET_ENCODED_PID_IDX] ==
+                  ONE_NET_ENCODED_MH_ROUTE)
                 {
                     route_start_time = get_tick_count();
                 }
