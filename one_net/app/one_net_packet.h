@@ -1352,7 +1352,6 @@ typedef struct
     UInt8 raw_pid;  //! raw pid of the packet
     UInt8 msg_id; //! raw message id of the packet
     UInt8 msg_crc; //! raw message crc of the packet
-    UInt8* payload; //! encoded payload (if any) of the packet.
     UInt8 payload_len; //! length of the encoded payload in bytes
     #ifdef _ONE_NET_MULTI_HOP
     UInt8* enc_hops_field; //! encoded hops field of the packet

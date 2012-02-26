@@ -717,8 +717,8 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     }
     
     // encode the payload
-    if((status = on_encode(data_pkt_ptrs.payload, raw_invite,
-      ON_ENCODED_INVITE_SIZE)) != ONS_SUCCESS)
+    if((status = on_encode(&(data_pkt_ptrs.packet_bytes[ON_PLD_IDX]),
+      raw_invite, ON_ENCODED_INVITE_SIZE)) != ONS_SUCCESS)
     {
         return status;
     }

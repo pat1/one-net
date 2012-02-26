@@ -1124,7 +1124,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
               debug_pkt_ptrs.payload_len);
             for(i = 0; i < debug_pkt_ptrs.payload_len; i++)
             {
-                oncli_send_msg("%02X ", debug_pkt_ptrs.payload[i]);
+                oncli_send_msg("%02X ",
+                  debug_pkt_ptrs.packet_bytes[ON_PLD_IDX + i]);
     
                 if((i % 16) == 15)
                 {
@@ -1138,7 +1139,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 UInt8 raw_pld_len = get_raw_payload_len(raw_pid);
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
                   raw_pld_len);
-                if(on_decode(raw_payload_bytes, debug_pkt_ptrs.payload,
+                if(on_decode(raw_payload_bytes,
+                  &(debug_pkt_ptrs.packet_bytes[ON_PLD_IDX]),
                   debug_pkt_ptrs.payload_len) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not Decodable\n\n");
