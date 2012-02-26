@@ -765,7 +765,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     pkt_ptrs->msg_crc &= 0xFC; // 11111100 -- six most significant bits.
     // now encode for the message
     on_encode(&(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_CRC_IDX]),
-      &(pkt_ptrs->msg_crc), ONE_NET_ENCODED_MSG_ID_LEN);
+      &(pkt_ptrs->msg_crc), ONE_NET_ENCODED_MSG_CRC_LEN);
       
     return ONS_SUCCESS;
 }
