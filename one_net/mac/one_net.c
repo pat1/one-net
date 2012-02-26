@@ -738,7 +738,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
     // we shift in order to encode.  We saved the unshifted message id before
     // shifting.
     msg_id <<= 2;
-    on_encode(&(pkt_ptrs->packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]),
+    on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
       &msg_id, ONE_NET_ENCODED_MSG_ID_LEN);
     
     #ifdef _ONE_NET_MULTI_HOP
@@ -2711,7 +2711,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     
     // decode the message id and fill it in.
     if(on_decode(&((*this_pkt_ptrs)->msg_id),
-      &((*this_pkt_ptrs)->packet_bytes[ONE_NET_ENCODED_MSG_ID_IDX]),
+      &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
       ONE_NET_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
     {
         return ONS_BAD_ENCODING;
