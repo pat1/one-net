@@ -676,7 +676,7 @@ one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
       ON_ENCODED_DID_LEN);
     one_net_memmove(pkt_ptrs->enc_dst_did, *dst_did,
       ON_ENCODED_DID_LEN);
-    one_net_memmove(pkt_ptrs->enc_src_did, *src_did,
+    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_SRC_DID_IDX]), *src_did,
       ON_ENCODED_DID_LEN);
       
     return ONS_SUCCESS;
@@ -884,7 +884,6 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     pkt->raw_pid          = raw_pid;
     pkt->packet_bytes[ONE_NET_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
-    pkt->enc_src_did      = (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX];
     pkt->enc_dst_did      = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_DST_DID_IDX];
     pkt->enc_repeater_did = (on_encoded_did_t*) &pkt_bytes[ONE_NET_ENCODED_RPTR_DID_IDX];
     pkt->enc_nid          = (on_encoded_nid_t*) &pkt_bytes[ON_ENCODED_NID_IDX];
@@ -2743,7 +2742,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             return ONS_INTERNAL_ERR;
         }
-        if(on_decode(raw_src_did, *((*this_pkt_ptrs)->enc_src_did),
+        if(on_decode(raw_src_did,
+          &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
           ON_ENCODED_DID_LEN) != ONS_SUCCESS)
         {
             return ONS_BAD_ENCODING;

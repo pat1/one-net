@@ -1678,9 +1678,11 @@ static on_message_status_t on_master_single_data_hdlr(
     UInt8 response_pid;
     on_sending_device_t* device;
     on_client_t* client;
-    client = client_info(pkt->enc_src_did);
+    client = client_info(
+      (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]));
 
-    on_decode(raw_src_did, *(pkt->enc_src_did), ON_ENCODED_DID_LEN);
+    on_decode(raw_src_did, &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
+      ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, *(pkt->enc_repeater_did), ON_ENCODED_DID_LEN);
     
     msg_hdr.msg_type = *msg_type;
@@ -1688,7 +1690,8 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_id = pkt->msg_id;
     
     // we'll be sending it back to the source
-    if(!(device = sender_info(pkt->enc_src_did)))
+    if(!(device = sender_info(
+      (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
     {
         // I think we should have solved this problem before now, but abort if
         // we have not.
@@ -1708,8 +1711,9 @@ static on_message_status_t on_master_single_data_hdlr(
     switch(*msg_type)
     {
         case ON_ADMIN_MSG:
-            msg_status = handle_admin_pkt(pkt->enc_src_did,
-            &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
+            msg_status = handle_admin_pkt(
+              (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
+              &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
             break;
         #ifdef _ROUTE
         case ON_ROUTE_MSG:
@@ -1767,7 +1771,8 @@ static on_message_status_t on_master_single_data_hdlr(
     {
         one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-            ONE_NET_HIGH_PRIORITY, NULL, pkt->enc_src_did
+            ONE_NET_HIGH_PRIORITY, NULL,
+            (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
         #ifdef _PEER
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
