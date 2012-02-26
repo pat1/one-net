@@ -2576,10 +2576,20 @@ static void check_updates_in_progress(void)
 
         if(!key_update_in_progress)
         {
+            UInt8 i;
+            
             // we don't have any more updates for this, so notify the
             // application code
             one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL,
               &ack);
+              
+              
+            // now reset all message ids
+            for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+            {
+                client_list[i].device.msg_id = one_net_prand(get_tick_count(),
+                  ON_MAX_MSG_ID / 2);
+            }
             return;
         }
     }

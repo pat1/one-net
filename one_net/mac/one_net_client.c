@@ -1563,6 +1563,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
               &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
             {
+                UInt8 i;
                 // we are not using the correct key.  Copy it.
                 
                 // first shift the current key to the old.
@@ -1573,6 +1574,20 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_memmove(
                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                   &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                  
+                // We have changed a key.  We don't know why.  Some device,
+                // possibly us, may have run out of message ids and there was a
+                // key change to reset that.  Regardless of who wanted the key
+                // change and why, we'll reset all of our message IDs.  We'll
+                // assume someone is out of sync, so we'll sync back up later.
+                for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+                {
+                    sending_dev_list[i].sender.msg_id =
+                      one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
+                }
+                master->device.msg_id = one_net_prand(get_tick_count(),
+                  ON_MAX_MSG_ID / 2);
+                  
                 #ifdef _AUTO_SAVE
                 save = TRUE;
                 #endif
