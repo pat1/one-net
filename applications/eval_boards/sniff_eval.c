@@ -174,7 +174,7 @@ void sniff_eval(void)
 {
     tick_t packet_time_ms;
     UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
-    UInt8* pkt_wo_header = &pkt[ONE_NET_ENCODED_RPTR_DID_IDX];
+    UInt8* pkt_wo_header = &pkt[ON_ENCODED_RPTR_DID_IDX];
     UInt16 bytes_read = sizeof(pkt);
     
     one_net_memmove(pkt, HEADER, ONE_NET_PREAMBLE_HEADER_LEN);
@@ -214,7 +214,7 @@ void sniff_eval(void)
     
     #ifdef _RANGE_TESTING
     if(!device_in_range((on_encoded_did_t*)
-      &(pkt[ONE_NET_ENCODED_RPTR_DID_IDX])))
+      &(pkt[ON_ENCODED_RPTR_DID_IDX])))
     {
         // we are filtering the packets.  Ignore this one.
         return;

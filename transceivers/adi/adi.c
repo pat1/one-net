@@ -562,7 +562,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             // All packet size constants below are including the PREAMBLE &
             // SOF.  Since these cause the sync detect, these won't be read
             // in, so the packet size that is being read in is shorter, so
-            // subtract the ONE_NET_ENCODED_DST_DID_IDX since that is where the
+            // subtract the ON_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
             blks_to_rx = get_encoded_packet_len(encoded_to_decoded_byte(
               encoded_pkt_bytes[ONE_NET_ENCODED_PID_IDX], FALSE), FALSE);
