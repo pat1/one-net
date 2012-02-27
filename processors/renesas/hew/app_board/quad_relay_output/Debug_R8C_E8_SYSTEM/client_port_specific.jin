@@ -1,17 +1,16 @@
 #ASFILE
-"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\client_port_specific.a30"
+"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\client_port_specific.a30"
 #ASOPT
--. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
 #BRANCHINFO
-W,387,1,e,JSR,_pal_exit
-W,454,1,55,JSR,$erase_data_flash
-W,458,1,5d,JMP,$erase_data_flash
-W,516,1,91,JSR,$rx_led_blink
-W,539,1,a7,JSR,$tx_led_blink
-W,610,1,cc,JSR,_pal_exit
-W,624,1,e3,JSR,$erase_data_flash
-W,629,1,ee,JSR,$erase_data_flash
-W,637,1,f5,JSR,_pal_exit
-W,650,1,109,JSR,$write_data_flash
-W,661,1,11f,JSR,$write_data_flash
-W,671,1,12a,JSR,_pal_exit
+W,441,1,11,JSR,_pal_exit
+W,508,1,59,JSR,$erase_data_flash
+W,512,1,61,JMP,$erase_data_flash
+W,570,1,95,JSR,$rx_led_blink
+W,593,1,ab,JSR,$tx_led_blink
+W,653,1,dc,JSR,$erase_data_flash
+W,658,1,e7,JSR,$erase_data_flash
+W,678,1,100,JSR,$write_data_flash
+W,689,1,117,JSR,$write_data_flash
+W,709,1,135,JSR,$write_data_flash
+W,720,1,14c,JSR,$write_data_flash

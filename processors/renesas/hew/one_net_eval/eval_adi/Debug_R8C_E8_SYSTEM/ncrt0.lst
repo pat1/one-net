@@ -1,4 +1,4 @@
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Mon Oct 31 13:48:55 2011  PAGE 001
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Sun Feb 26 16:29:59 2012  PAGE 001
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 
@@ -64,7 +64,7 @@
     59  00037  AA0000r           1 M S  		mov.w		#(bss_NE_top & 0FFFFH), A1
     60  0003A  75C30000r         1 M    		mov.w		#sizeof bss_NE , R3
     61  0003E  7CEA              1 M    		sstr.b
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Mon Oct 31 13:48:55 2011  PAGE 002
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Sun Feb 26 16:29:59 2012  PAGE 002
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 
@@ -112,56 +112,52 @@
    103                                  ; heap area initialize
    104                                  ;---------------------------------------------------------------------
    105                                  .if __HEAPSIZE__ != 0
-   106                                  		.glb		__mnext
-   107                                  		.glb		__msize
-   108  00086  75CF0000r0000r           		mov.w		#(heap_top&0FFFFH), __mnext
-   109  0008C  75CF0000r8000            		mov.w		#(__HEAPSIZE__&0FFFFH), __msize
-   110                                  .endif
-   111                                  
-   112                                  ;=====================================================================
-   113                                  ; Initialize standard I/O
-   114                                  ;---------------------------------------------------------------------
-   115                                  .if __STANDARD_IO__ == 1
-   116                                  		.glb		__init
-   117                                  		.call		__init,G
-   118  00092  FD000000r             A  		jsr.a		__init
-   119                                  .endif
-   120                                  
-   121                                  ;=====================================================================
-   122                                  ; Call main() function
-   123                                  ;---------------------------------------------------------------------
-* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Mon Oct 31 13:48:55 2011  PAGE 003
+   106                                  .endif
+   107                                  
+   108                                  ;=====================================================================
+   109                                  ; Initialize standard I/O
+   110                                  ;---------------------------------------------------------------------
+   111                                  .if __STANDARD_IO__ == 1
+   112                                  		.glb		__init
+   113                                  		.call		__init,G
+   114  00086  FD000000r             A  		jsr.a		__init
+   115                                  .endif
+   116                                  
+   117                                  ;=====================================================================
+   118                                  ; Call main() function
+   119                                  ;---------------------------------------------------------------------
+   120  0008A  EB700000                 		ldc			#0h,fb				; for debuger
+   121                                  
+   122                                  		.glb		_main
+   123  0008E  FD000000r             A  		jsr.a		_main
+* R8C/Tiny,M16C/60 SERIES ASSEMBLER *   SOURCE LIST       Sun Feb 26 16:29:59 2012  PAGE 003
 
   SEQ.  LOC.   OBJ.              0XMSDA ....*....SOURCE STATEMENT....7....*....8....*....9....*....0....*....1....*....2....*....3....*....4....*....5....*....6....*....7....*....8....*....9....*....0
 
-   124  00096  EB700000                 		ldc			#0h,fb				; for debuger
-   125                                  
-   126                                  		.glb		_main
-   127  0009A  FD000000r             A  		jsr.a		_main
-   128                                  
-   129                                  ;=====================================================================
-   130                                  ; exit() function
-   131                                  ;---------------------------------------------------------------------
-   132                                  		.glb		_exit
-   133                                  		.glb		$exit
-   134  0009E                           _exit:									; End program
-   135  0009E                           $exit:
-   136  0009E  FEFF                  B  		jmp			_exit
-   137                                  		.einsf
-   138                                  ;=====================================================================
-   139                                  ; dummy interrupt function
-   140                                  ;---------------------------------------------------------------------
-   141                                  		.glb		dummy_int
-   142  000A0                           dummy_int:
-   143  000A0  FB                       		reit
-   144                                  
-   145                                  		.end
+   124                                  
+   125                                  ;=====================================================================
+   126                                  ; exit() function
+   127                                  ;---------------------------------------------------------------------
+   128                                  		.glb		_exit
+   129                                  		.glb		$exit
+   130  00092                           _exit:									; End program
+   131  00092                           $exit:
+   132  00092  FEFF                  B  		jmp			_exit
+   133                                  		.einsf
+   134                                  ;=====================================================================
+   135                                  ; dummy interrupt function
+   136                                  ;---------------------------------------------------------------------
+   137                                  		.glb		dummy_int
+   138  00094                           dummy_int:
+   139  00094  FB                       		reit
+   140                                  
+   141                                  		.end
 
 Information List
 
 TOTAL ERROR(S)    00000
 TOTAL WARNING(S)  00000
-TOTAL LINE(S)     00145   LINES
+TOTAL LINE(S)     00141   LINES
 
 Section List
 
@@ -174,9 +170,8 @@ DATA     0000000(00000H)  data_NE
 DATA     0000000(00000H)  bss_NE
 DATA     0000000(00000H)  data_NO
 DATA     0000000(00000H)  bss_NO
-DATA     0000128(00080H)  istack
-DATA     0000128(00080H)  stack
-DATA     0000128(00080H)  heap
+DATA     0000256(00100H)  istack
+DATA     0000576(00240H)  stack
 ROMDATA  0000000(00000H)  rom_NE
 ROMDATA  0000000(00000H)  rom_NO
 ROMDATA  0000000(00000H)  data_SEI
@@ -187,4 +182,4 @@ CODE     0000000(00000H)  program
 CODE     0000000(00000H)  interrupt
 ROMDATA  0000256(00100H)  vector
 ROMDATA  0000036(00024H)  fvector
-CODE     0000161(000A1H)  interrupt
+CODE     0000149(00095H)  interrupt

@@ -537,6 +537,14 @@
     #define _HAS_LEDS
 #endif
 
+// Enable _ONE_NET_MEMORY is you are implementing the ONE-NET versions of
+// malloc and free.  If _ONE_NET_MEMORY is enabled, you must define
+// ONE_NET_HEAP_SIZE and ONE_NET_HEAP_NUM_ENTRIES in
+// one_net_port_const.h.
+#ifndef _ONE_NET_MEMORY
+    #define _ONE_NET_MEMORY
+#endif
+
 
 
 // Use this feature to override any random channel searching and select a

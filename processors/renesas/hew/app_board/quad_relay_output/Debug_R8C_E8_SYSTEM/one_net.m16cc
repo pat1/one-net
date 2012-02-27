@@ -1,19 +1,19 @@
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\one_net\mac"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\one_net\utility"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\one_net\port_specific"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\one_net\app"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\src\adi_io_boards\quad_relay"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\src\adi_io_boards"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\src\common"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\applications\simple_io_board"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\transceivers\adi"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\..\..\transceivers"
--I"C:\HEWProj\kkn\processors\renesas\hew\app_board\..\..\src\r8c1"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\one_net\mac"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\one_net\utility"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\one_net\port_specific"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\one_net\app"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\src\adi_io_boards\quad_relay"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\src\adi_io_boards"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\src\common"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\applications\simple_io_board"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\transceivers\adi"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\..\..\transceivers"
+-I"C:\HEWProj\tr\processors\renesas\hew\app_board\..\..\src\r8c1"
 -D_ONE_NET_SIMPLE_CLIENT
 -D_QUAD_OUTPUT
 -c
 -finfo
--dir "C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"
+-dir "C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"
 -O5
 -OR -O5OA
 -OGJ
@@ -26,4 +26,4 @@
 -fUD
 -Wall
 -R8C1b
-"C:\HEWProj\kkn\one_net\mac\one_net.c"
+"C:\HEWProj\tr\one_net\mac\one_net.c"

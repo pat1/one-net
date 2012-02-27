@@ -1,10 +1,6 @@
 #ASFILE
-"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_port_specific.a30"
+"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_port_specific.a30"
 #ASOPT
--. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
 #BRANCHINFO
-W,768,1,130,JSR,_pal_exit
-W,817,1,154,JSR,_pal_exit
-W,856,1,16c,JSR,_pal_exit
-W,925,1,1bf,JSR,_pal_exit
-W,1026,1,1ea,JSR,$_n_n_strtol
+W,1075,1,1d9,JSR,$_n_n_strtol

@@ -4,9 +4,9 @@
 ;## ccom30 Version 5.31.30.001
 ;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
 ;## and Renesas Solutions Corp., All rights reserved.
-;## Compile Start Time Mon Jan 09 13:51:23 2012
+;## Compile Start Time Sun Feb 26 01:05:56 2012
 
-;## COMMAND_LINE: ccom30  C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.i -o C:\HEWProj\kkn\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+;## COMMAND_LINE: ccom30  C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.i -o C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_acknowledge.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
 
 
 ;## Normal Optimize		ON
@@ -20,54 +20,45 @@
 	.FB	0
 	._aopt	ON
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_acknowledge.c", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 
-	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 
-	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 
-	._inspect	'M', "C:/HEWProj/kkn/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 	._inspect	'F', 'p', "one_net_xtea_encipher", "$one_net_xtea_encipher", 'G', 155, 0, 00h, 0
 	._inspect	'F', 'p', "one_net_xtea_decipher", "$one_net_xtea_decipher", 'G', 157, 0, 00h, 0
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_packet.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
-	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 1382, 0, 00h, 0
-	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 1383, 0, 00h, 0
-	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 1384, 0, 00h, 0
-	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 1385, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 1386, 0, 00h, 0
-	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 1387, 0, 00h, 0
-	._inspect	'F', 'p', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 1388, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 1393, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 1395, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 1396, 0, 00h, 0
-	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 1398, 0, 00h, 0
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_packet.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
+	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 1380, 0, 00h, 0
+	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 1381, 0, 00h, 0
+	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 1382, 0, 00h, 0
+	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 1383, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 1384, 0, 00h, 0
+	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 1385, 0, 00h, 0
+	._inspect	'F', 'p', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 1386, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 1391, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 1393, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 1394, 0, 00h, 0
+	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 1396, 0, 00h, 0
 
 ;## #	FUNCTION packet_is_single
 
 ;## #	FUNCTION packet_is_invite
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_data_rate.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_data_rate.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_features.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_features.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 	._inspect	'V', 'e', "THIS_DEVICE_FEATURES", 'G', 196, 4, 0, 0, 00h
 	._inspect	'V', 'e', "FEATURES_UNKNOWN", 'G', 197, 4, 0, 0, 00h
 	._inspect	'F', 'p', "features_known", "_features_known", 'G', 210, 0, 00h, 0
-	._inspect	'F', 'p', "features_max_hops", "_features_max_hops", 'G', 211, 0, 00h, 0
-	._inspect	'F', 'p', "features_max_peers", "_features_max_peers", 'G', 212, 0, 00h, 0
-	._inspect	'F', 'p', "features_data_rate_capable", "_features_data_rate_capable", 'G', 213, 0, 00h, 0
-	._inspect	'F', 'p', "features_peer_capable", "_features_peer_capable", 'G', 214, 0, 00h, 0
-	._inspect	'F', 'p', "features_mh_capable", "_features_mh_capable", 'G', 215, 0, 00h, 0
-	._inspect	'F', 'p', "features_mh_repeat_capable", "_features_mh_repeat_capable", 'G', 216, 0, 00h, 0
-	._inspect	'F', 'p', "features_block_capable", "_features_block_capable", 'G', 217, 0, 00h, 0
-	._inspect	'F', 'p', "features_stream_capable", "_features_stream_capable", 'G', 218, 0, 00h, 0
-	._inspect	'F', 'p', "features_device_sleeps", "_features_device_sleeps", 'G', 219, 0, 00h, 0
-	._inspect	'F', 'p', "features_ack_nack_level", "_features_ack_nack_level", 'G', 220, 0, 00h, 0
+	._inspect	'F', 'p', "features_device_sleeps", "_features_device_sleeps", 'G', 211, 0, 00h, 0
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.h", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
-	._inspect	'F', 'p', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 258, 0, 00h, 0
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_acknowledge.h", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
+	._inspect	'F', 'p', "nack_reason_is_fatal", "$nack_reason_is_fatal", 'G', 262, 0, 00h, 0
 
-	._inspect	'M', "C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c", "C:/HEWProj/kkn/one_net/app/one_net_acknowledge"
+	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_acknowledge.c", "C:/HEWProj/tr/one_net/app/one_net_acknowledge"
 
 ;## #	FUNCTION nack_reason_is_fatal
 ;## #  REGISTER ARG    (nack_reason)   size   1,   REGISTER R1L
@@ -76,7 +67,7 @@
 
 	.SECTION	program,CODE
 	._inspect	'U', 2, "program", "program", 0
-	._file	'C:/HEWProj/kkn/one_net/app/one_net_acknowledge.c'
+	._file	'C:/HEWProj/tr/one_net/app/one_net_acknowledge.c'
 	._type	256,'T','UInt8',3
 	._type	257,'T','BOOL',256
 	._type	258,'N',''
@@ -186,16 +177,7 @@ M1:
 	.glb	_THIS_DEVICE_FEATURES
 	.glb	_FEATURES_UNKNOWN
 	.glb	_features_known
-	.glb	_features_max_hops
-	.glb	_features_max_peers
-	.glb	_features_data_rate_capable
-	.glb	_features_peer_capable
-	.glb	_features_mh_capable
-	.glb	_features_mh_repeat_capable
-	.glb	_features_block_capable
-	.glb	_features_stream_capable
 	.glb	_features_device_sleeps
-	.glb	_features_ack_nack_level
 ;#################################
 ;###  STATIC DATA INFORMATION  ###
 ;#################################
@@ -312,172 +294,129 @@ M1:
 	._type	294,'m','ONA_SWITCH',0
 	._type	295,'T','ona_msg_type_t',294
 	._type	297,'O',256
-	._type	298,'O',256
-	._type	299,'O',256
-	._type	300,'O',256
-	._type	301,'O',277
-	._type	302,'O',277
-	._type	303,'O',277
-	._type	304,'O',275
-	._type	305,'O',256
-	._type	296,'S','',22
-	._type	296,'m','packet_header',297,0
-	._type	296,'m','enc_pid',298,2
-	._type	296,'m','raw_pid',256,4
-	._type	296,'m','enc_msg_id',299,5
-	._type	296,'m','enc_msg_crc',300,7
-	._type	296,'m','msg_id',256,9
-	._type	296,'m','msg_crc',256,10
-	._type	296,'m','enc_src_did',301,11
-	._type	296,'m','enc_dst_did',302,13
-	._type	296,'m','enc_repeater_did',303,15
-	._type	296,'m','enc_nid',304,17
-	._type	296,'m','payload',305,19
-	._type	296,'m','payload_len',256,21
-	._type	306,'T','on_pkt_t',296
-	._type	307,'x',261,1
-	._type	307,'m','raw_pid',0,256
-	._var	'get_encoded_payload_len','F',307
-	._type	308,'x',261,1
+	._type	296,'S','',5
+	._type	296,'m','packet_bytes',297,0
+	._type	296,'m','raw_pid',256,2
+	._type	296,'m','msg_id',256,3
+	._type	296,'m','payload_len',256,4
+	._type	298,'T','on_pkt_t',296
+	._type	299,'x',261,1
+	._type	299,'m','raw_pid',0,256
+	._var	'get_encoded_payload_len','F',299
+	._type	300,'x',261,1
+	._type	300,'m','raw_pid',0,256
+	._var	'get_raw_payload_len','F',300
+	._type	301,'x',261,1
+	._type	301,'m','raw_pid',0,256
+	._var	'get_num_payload_blocks','F',301
+	._type	302,'x',256,2
+	._type	302,'m','raw_pid',0,256
+	._type	302,'m','include_header',0,257
+	._var	'get_encoded_packet_len','F',302
+	._type	303,'x',257,1
+	._type	303,'m','raw_pid',0,256
+	._var	'packet_is_stay_awake','F',303
+	._type	304,'O',256
+	._type	305,'x',257,2
+	._type	305,'m','raw_pid',0,304
+	._type	305,'m','is_ack',0,257
+	._var	'set_ack_or_nack_pid','F',305
+	._type	306,'O',256
+	._type	307,'x',257,2
+	._type	307,'m','raw_pid',0,306
+	._type	307,'m','stay_awake',0,257
+	._var	'set_stay_awake_pid','F',307
+	._type	308,'x',257,1
 	._type	308,'m','raw_pid',0,256
-	._var	'get_raw_payload_len','F',308
-	._type	309,'x',261,1
+	._var	'packet_is_data','F',308
+	._type	309,'x',257,1
 	._type	309,'m','raw_pid',0,256
-	._var	'get_num_payload_blocks','F',309
-	._type	310,'x',256,2
+	._var	'packet_is_ack','F',309
+	._type	310,'x',257,1
 	._type	310,'m','raw_pid',0,256
-	._type	310,'m','include_header',0,257
-	._var	'get_encoded_packet_len','F',310
-	._type	311,'x',257,1
-	._type	311,'m','raw_pid',0,256
-	._var	'packet_is_stay_awake','F',311
-	._type	312,'O',256
-	._type	313,'x',257,2
-	._type	313,'m','raw_pid',0,312
-	._type	313,'m','is_ack',0,257
-	._var	'set_ack_or_nack_pid','F',313
-	._type	314,'O',256
-	._type	315,'x',257,2
-	._type	315,'m','raw_pid',0,314
-	._type	315,'m','stay_awake',0,257
-	._var	'set_stay_awake_pid','F',315
-	._type	316,'x',257,1
-	._type	316,'m','raw_pid',0,256
-	._var	'packet_is_data','F',316
-	._type	317,'x',257,1
-	._type	317,'m','raw_pid',0,256
-	._var	'packet_is_ack','F',317
+	._var	'packet_is_nack','F',310
+	._type	311,'x',256,3
+	._type	311,'m','raw_single_pid',0,256
+	._type	311,'m','isACK',0,257
+	._type	311,'m','stay_awake',0,257
+	._var	'get_single_response_pid','F',311
+	._type	312,'N',''
+	._type	312,'m','ONE_NET_DATA_RATE_LIMIT',6
+	._type	312,'m','ONE_NET_DATA_RATE_230_4',5
+	._type	312,'m','ONE_NET_DATA_RATE_192_0',4
+	._type	312,'m','ONE_NET_DATA_RATE_153_6',3
+	._type	312,'m','ONE_NET_DATA_RATE_115_2',2
+	._type	312,'m','ONE_NET_DATA_RATE_76_8',1
+	._type	312,'m','ONE_NET_DATA_RATE_38_4',0
+	._type	313,'T','on_data_rate_t',312
+	._type	314,'N',''
+	._type	314,'m','ONE_NET_DATA_RATE_230_4_MASK',32
+	._type	314,'m','ONE_NET_DATA_RATE_192_0_MASK',16
+	._type	314,'m','ONE_NET_DATA_RATE_153_6_MASK',8
+	._type	314,'m','ONE_NET_DATA_RATE_115_2_MASK',4
+	._type	314,'m','ONE_NET_DATA_RATE_76_8_MASK',2
+	._type	314,'m','ONE_NET_DATA_RATE_38_4_MASK',1
+	._type	315,'T','on_data_rate_mask_t',314
+	._type	316,'S','',4
+	._type	316,'m','feature_flags',256,0
+	._type	316,'m','data_rates',256,1
+	._type	316,'m','queue_ack_nack_values',256,2
+	._type	316,'m','peers_hops',256,3
+	._type	317,'T','on_features_t',316
+	._var	'THIS_DEVICE_FEATURES','E',317
+	._var	'FEATURES_UNKNOWN','E',317
 	._type	318,'x',257,1
-	._type	318,'m','raw_pid',0,256
-	._var	'packet_is_nack','F',318
-	._type	319,'x',256,3
-	._type	319,'m','raw_single_pid',0,256
-	._type	319,'m','isACK',0,257
-	._type	319,'m','stay_awake',0,257
-	._var	'get_single_response_pid','F',319
+	._type	318,'m','features',0,317
+	._var	'features_known','F',318
+	._type	319,'x',257,1
+	._type	319,'m','features',0,317
+	._var	'features_device_sleeps','F',319
 	._type	320,'N',''
-	._type	320,'m','ONE_NET_DATA_RATE_LIMIT',6
-	._type	320,'m','ONE_NET_DATA_RATE_230_4',5
-	._type	320,'m','ONE_NET_DATA_RATE_192_0',4
-	._type	320,'m','ONE_NET_DATA_RATE_153_6',3
-	._type	320,'m','ONE_NET_DATA_RATE_115_2',2
-	._type	320,'m','ONE_NET_DATA_RATE_76_8',1
-	._type	320,'m','ONE_NET_DATA_RATE_38_4',0
-	._type	321,'T','on_data_rate_t',320
-	._type	322,'N',''
-	._type	322,'m','ONE_NET_DATA_RATE_230_4_MASK',32
-	._type	322,'m','ONE_NET_DATA_RATE_192_0_MASK',16
-	._type	322,'m','ONE_NET_DATA_RATE_153_6_MASK',8
-	._type	322,'m','ONE_NET_DATA_RATE_115_2_MASK',4
-	._type	322,'m','ONE_NET_DATA_RATE_76_8_MASK',2
-	._type	322,'m','ONE_NET_DATA_RATE_38_4_MASK',1
-	._type	323,'T','on_data_rate_mask_t',322
-	._type	324,'S','',4
-	._type	324,'m','feature_flags',256,0
-	._type	324,'m','data_rates',256,1
-	._type	324,'m','queue_ack_nack_values',256,2
-	._type	324,'m','peers_hops',256,3
-	._type	325,'T','on_features_t',324
-	._var	'THIS_DEVICE_FEATURES','E',325
-	._var	'FEATURES_UNKNOWN','E',325
-	._type	326,'x',257,1
-	._type	326,'m','features',0,325
-	._var	'features_known','F',326
-	._type	327,'x',256,1
-	._type	327,'m','features',0,325
-	._var	'features_max_hops','F',327
-	._type	328,'x',256,1
-	._type	328,'m','features',0,325
-	._var	'features_max_peers','F',328
-	._type	329,'x',257,2
-	._type	329,'m','features',0,325
-	._type	329,'m','data_rate',0,256
-	._var	'features_data_rate_capable','F',329
-	._type	330,'x',257,1
-	._type	330,'m','features',0,325
-	._var	'features_peer_capable','F',330
-	._type	331,'x',257,1
-	._type	331,'m','features',0,325
-	._var	'features_mh_capable','F',331
-	._type	332,'x',257,1
-	._type	332,'m','features',0,325
-	._var	'features_mh_repeat_capable','F',332
-	._type	333,'x',257,1
-	._type	333,'m','features',0,325
-	._var	'features_block_capable','F',333
-	._type	334,'x',257,1
-	._type	334,'m','features',0,325
-	._var	'features_stream_capable','F',334
-	._type	335,'x',257,1
-	._type	335,'m','features',0,325
-	._var	'features_device_sleeps','F',335
-	._type	336,'x',256,1
-	._type	336,'m','features',0,325
-	._var	'features_ack_nack_level','F',336
-	._type	337,'N',''
-	._type	337,'m','ON_ACK_MAX_APPLICATION_HANDLE',15
-	._type	337,'m','ON_ACK_MIN_APPLICATION_HANDLE',12
-	._type	337,'m','ON_ACK_STATUS',11
-	._type	337,'m','ON_ACK_KEY_FRAGMENT',10
-	._type	337,'m','ON_ACK_ADMIN_MSG',9
-	._type	337,'m','ON_ACK_PAUSE_TIME_MS',8
-	._type	337,'m','ON_ACK_SPEED_UP_TIME_MS',7
-	._type	337,'m','ON_ACK_SLOW_DOWN_TIME_MS',6
-	._type	337,'m','ON_ACK_TIMEOUT_MS',5
-	._type	337,'m','ON_ACK_TIME_MS',4
-	._type	337,'m','ON_ACK_VALUE',3
-	._type	337,'m','ON_ACK_DATA',2
-	._type	337,'m','ON_ACK_FEATURES',1
-	._type	337,'m','ON_ACK',0
-	._type	338,'T','on_ack_handle_t',337
-	._type	339,'T','on_ack_nack_handle_t',338
-	._type	340,'T','on_nack_handle_t',338
-	._type	341,'S','',5
-	._type	341,'m','uint8',256,0
-	._type	341,'m','uint32',264,1
-	._type	342,'T','ack_value_t',341
-	._type	344,'Z',5,256
-	._type	345,'Z',5,256
-	._type	346,'Z',5,256
-	._type	347,'Z',4,256
-	._type	343,'U','',5
-	._type	343,'m','status_resp',344,0
-	._type	343,'m','admin_msg',345,0
-	._type	343,'m','ack_payload',346,0
-	._type	343,'m','ack_value',342,0
-	._type	343,'m','ack_time_ms',267,0
-	._type	343,'m','nack_payload',347,0
-	._type	343,'m','nack_value',264,0
-	._type	343,'m','nack_time_ms',267,0
-	._type	343,'m','key_frag',283,0
-	._type	343,'m','features',325,0
-	._type	348,'T','ack_nack_payload_t',343
-	._type	350,'O',348
-	._type	349,'S','',4
-	._type	349,'m','nack_reason',259,0
-	._type	349,'m','handle',339,1
-	._type	349,'m','payload',350,2
-	._type	351,'T','on_ack_nack_t',349
+	._type	320,'m','ON_ACK_MAX_APPLICATION_HANDLE',15
+	._type	320,'m','ON_ACK_MIN_APPLICATION_HANDLE',14
+	._type	320,'m','ON_ACK_STATUS',13
+	._type	320,'m','ON_ACK_ROUTE',12
+	._type	320,'m','ON_ACK_KEY_FRAGMENT',11
+	._type	320,'m','ON_ACK_ADMIN_MSG',10
+	._type	320,'m','ON_ACK_RESPONSE_TIME_MS',9
+	._type	320,'m','ON_ACK_PAUSE_TIME_MS',8
+	._type	320,'m','ON_ACK_SPEED_UP_TIME_MS',7
+	._type	320,'m','ON_ACK_SLOW_DOWN_TIME_MS',6
+	._type	320,'m','ON_ACK_TIMEOUT_MS',5
+	._type	320,'m','ON_ACK_TIME_MS',4
+	._type	320,'m','ON_ACK_VALUE',3
+	._type	320,'m','ON_ACK_DATA',2
+	._type	320,'m','ON_ACK_FEATURES',1
+	._type	320,'m','ON_ACK',0
+	._type	321,'T','on_ack_handle_t',320
+	._type	322,'T','on_ack_nack_handle_t',321
+	._type	323,'T','on_nack_handle_t',321
+	._type	324,'S','',5
+	._type	324,'m','uint8',256,0
+	._type	324,'m','uint32',264,1
+	._type	325,'T','ack_value_t',324
+	._type	327,'Z',5,256
+	._type	328,'Z',5,256
+	._type	329,'Z',5,256
+	._type	330,'Z',4,256
+	._type	326,'U','',5
+	._type	326,'m','status_resp',327,0
+	._type	326,'m','admin_msg',328,0
+	._type	326,'m','ack_payload',329,0
+	._type	326,'m','ack_value',325,0
+	._type	326,'m','ack_time_ms',267,0
+	._type	326,'m','nack_payload',330,0
+	._type	326,'m','nack_value',264,0
+	._type	326,'m','nack_time_ms',267,0
+	._type	326,'m','key_frag',283,0
+	._type	326,'m','features',317,0
+	._type	331,'T','ack_nack_payload_t',326
+	._type	333,'O',331
+	._type	332,'S','',4
+	._type	332,'m','nack_reason',259,0
+	._type	332,'m','handle',322,1
+	._type	332,'m','payload',333,2
+	._type	334,'T','on_ack_nack_t',332
 ;#################################
 ;#################################
 ;#################################
@@ -503,43 +442,34 @@ M1:
 	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 293
 	._inspect	'V', 't', "ona_msg_type_t", 'O', 294
 	._inspect	'V', 't', "on_pkt_t", 'O', 296
-	._inspect	'F', 't', "get_encoded_payload_len", 'G', 307
-	._inspect	'F', 't', "get_raw_payload_len", 'G', 308
-	._inspect	'F', 't', "get_num_payload_blocks", 'G', 309
-	._inspect	'F', 't', "get_encoded_packet_len", 'G', 310
-	._inspect	'F', 't', "packet_is_stay_awake", 'G', 311
-	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 313
-	._inspect	'F', 't', "set_stay_awake_pid", 'G', 315
-	._inspect	'F', 't', "packet_is_data", 'G', 316
-	._inspect	'F', 't', "packet_is_ack", 'G', 317
-	._inspect	'F', 't', "packet_is_nack", 'G', 318
-	._inspect	'F', 't', "get_single_response_pid", 'G', 319
-	._inspect	'V', 't', "on_data_rate_t", 'O', 320
-	._inspect	'V', 't', "on_data_rate_mask_t", 'O', 322
-	._inspect	'V', 't', "on_features_t", 'O', 324
-	._inspect	'V', 't', "THIS_DEVICE_FEATURES", 'G', 325
-	._inspect	'V', 't', "FEATURES_UNKNOWN", 'G', 325
-	._inspect	'F', 't', "features_known", 'G', 326
-	._inspect	'F', 't', "features_max_hops", 'G', 327
-	._inspect	'F', 't', "features_max_peers", 'G', 328
-	._inspect	'F', 't', "features_data_rate_capable", 'G', 329
-	._inspect	'F', 't', "features_peer_capable", 'G', 330
-	._inspect	'F', 't', "features_mh_capable", 'G', 331
-	._inspect	'F', 't', "features_mh_repeat_capable", 'G', 332
-	._inspect	'F', 't', "features_block_capable", 'G', 333
-	._inspect	'F', 't', "features_stream_capable", 'G', 334
-	._inspect	'F', 't', "features_device_sleeps", 'G', 335
-	._inspect	'F', 't', "features_ack_nack_level", 'G', 336
+	._inspect	'F', 't', "get_encoded_payload_len", 'G', 299
+	._inspect	'F', 't', "get_raw_payload_len", 'G', 300
+	._inspect	'F', 't', "get_num_payload_blocks", 'G', 301
+	._inspect	'F', 't', "get_encoded_packet_len", 'G', 302
+	._inspect	'F', 't', "packet_is_stay_awake", 'G', 303
+	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 305
+	._inspect	'F', 't', "set_stay_awake_pid", 'G', 307
+	._inspect	'F', 't', "packet_is_data", 'G', 308
+	._inspect	'F', 't', "packet_is_ack", 'G', 309
+	._inspect	'F', 't', "packet_is_nack", 'G', 310
+	._inspect	'F', 't', "get_single_response_pid", 'G', 311
+	._inspect	'V', 't', "on_data_rate_t", 'O', 312
+	._inspect	'V', 't', "on_data_rate_mask_t", 'O', 314
+	._inspect	'V', 't', "on_features_t", 'O', 316
+	._inspect	'V', 't', "THIS_DEVICE_FEATURES", 'G', 317
+	._inspect	'V', 't', "FEATURES_UNKNOWN", 'G', 317
+	._inspect	'F', 't', "features_known", 'G', 318
+	._inspect	'F', 't', "features_device_sleeps", 'G', 319
 	._inspect	'V', 't', "on_nack_rsn_t", 'O', 258
-	._inspect	'V', 't', "on_ack_handle_t", 'O', 337
-	._inspect	'V', 't', "on_ack_nack_handle_t", 'O', 338
-	._inspect	'V', 't', "on_nack_handle_t", 'O', 338
-	._inspect	'V', 't', "ack_value_t", 'O', 341
-	._inspect	'V', 't', "ack_nack_payload_t", 'O', 343
-	._inspect	'V', 't', "on_ack_nack_t", 'O', 349
+	._inspect	'V', 't', "on_ack_handle_t", 'O', 320
+	._inspect	'V', 't', "on_ack_nack_handle_t", 'O', 321
+	._inspect	'V', 't', "on_nack_handle_t", 'O', 321
+	._inspect	'V', 't', "ack_value_t", 'O', 324
+	._inspect	'V', 't', "ack_nack_payload_t", 'O', 326
+	._inspect	'V', 't', "on_ack_nack_t", 'O', 332
 
 	.END
 
-;## Compile End Time Mon Jan 09 13:51:23 2012
+;## Compile End Time Sun Feb 26 01:05:56 2012
 
 

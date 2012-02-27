@@ -184,6 +184,20 @@ enum
 };
 
 
+#ifdef _ONE_NET_MEMORY
+// see one_net_memory.h
+enum
+{
+    // Size of the "heap".  one_net_memory provices a poor-man's "heap" for
+    // embedded systems when you want to use a heap but can't or don't want
+    // to use malloc, calloc, realloc, free from stdlib.h.
+    ONE_NET_HEAP_SIZE = 100,
+    
+    ONE_NET_HEAP_NUM_ENTRIES = 5
+};
+#endif
+
+
 // data rates -- uncomment any data rates that this device handles.
 // 38,400 must be enabled / uncommented
 #ifndef DATA_RATE_38_4_CAPABLE
