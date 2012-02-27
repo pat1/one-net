@@ -78,6 +78,9 @@
 
 #ifdef _DEBUGGING_TOOLS
 #include "one_net_timer.h"
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client_port_const.h"
+#endif
 #endif
 
 #include "tick.h"
@@ -161,6 +164,10 @@ typedef enum
 {
     DEBUG_MEMORY_ON_STATE,
     DEBUG_MEMORY_TIMER,
+    #ifdef _ONE_NET_CLIENT
+    DEBUG_MEMORY_SEND_LIST,
+    DEBUG_MEMORY_MASTER,
+    #endif
     #ifdef _PEER
     DEBUG_MEMORY_PEER,
     #endif
@@ -186,6 +193,10 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
 {
     "on_state",
     "timer",
+    #ifdef _ONE_NET_CLIENT
+    "send_list",
+    "master",
+    #endif
     #ifdef _PEER
     "peer",
     #endif    
@@ -3718,8 +3729,31 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             {
                 return -1; // error
             }
-            
             break;
+        #ifdef _ONE_NET_CLIENT
+        case DEBUG_MEMORY_SEND_LIST:
+            *mem_ptr = (UInt8*) &sending_dev_list[0];
+            if(index < 0)
+            {
+                len = ONE_NET_RX_FROM_DEVICE_COUNT *
+                  sizeof(on_sending_dev_list_item_t);
+            }
+            else if(index < ONE_NET_RX_FROM_DEVICE_COUNT)
+            {
+                len = sizeof(ont_timer_t);
+                *mem_ptr = (UInt8*) &sending_dev_list[index];
+            }
+            else
+            {
+                return -1; // error
+            }
+            break;
+        case DEBUG_MEMORY_MASTER:
+            *mem_ptr = (UInt8*) master;
+            len = sizeof(on_master_t);
+            break;            
+        #endif
+            
         #ifdef _PEER
         case DEBUG_MEMORY_PEER:
             *mem_ptr = (UInt8*) &peer[0];
@@ -3740,7 +3774,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             break;
         #endif
         case DEBUG_MEMORY_BASE_PARAM:
-            *mem_ptr = (UInt8*) &on_base_param;
+            *mem_ptr = (UInt8*) on_base_param;
             len = sizeof(on_base_param_t);
             break;
         case DEBUG_MEMORY_INVITE_TXN:
