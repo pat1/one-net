@@ -49,7 +49,6 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
-#include "one_net_port_const.h"
 
 
 #ifdef _ONE_NET_MEMORY
@@ -83,20 +82,7 @@ typedef struct
 //                                  TYPEDEFS END
 //==============================================================================
 
-//==============================================================================
-//                              PRIVATE VARIABLES
-//! \defgroup one_net_memory_pri_var
-//! \ingroup one_net_memory
-//! @{
 
-
-static UInt8 heap_buffer[ONE_NET_HEAP_SIZE];
-static heap_entry_t heap_entry[ONE_NET_HEAP_NUM_ENTRIES] = {0};
-
-
-//! @} one_net_memory_pub_var
-//                              PRIVATE VARIABLES END
-//==============================================================================
 
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS

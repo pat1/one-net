@@ -48,7 +48,9 @@
 
 #include "config_options.h"
 #include "one_net_types.h"
-#include <stdlib.h> // for NULL definition
+#include "one_net_port_const.h"
+#include "one_net_port_specific.h"
+#include "one_net_memory.h"
 
 
 #ifdef _ONE_NET_MEMORY
@@ -81,9 +83,14 @@
 //! \ingroup one_net_memory
 //! @{
 
-//! @} one_net_memory_pri_var
+
+static UInt8 heap_buffer[ONE_NET_HEAP_SIZE];
+static heap_entry_t heap_entry[ONE_NET_HEAP_NUM_ENTRIES] = {0};
+
+
+//! @} one_net_memory_pub_var
 //                              PRIVATE VARIABLES END
-//=============================================================================
+//==============================================================================
 
 //=============================================================================
 //                      PRIVATE FUNCTION DECLARATIONS
@@ -120,7 +127,76 @@
 */
 void* one_net_malloc(UInt8 size)
 {
-    // TODO -- write function
+    SInt8 i;
+
+    if(heap_entry[ONE_NET_HEAP_NUM_ENTRIES - 1].size != 0)
+    {
+        return NULL; // all slots taken
+    }
+    
+    if(size == 0 || size > ONE_NET_HEAP_SIZE)
+    {
+        return NULL; // requested size is 0 or bigger than buffer.
+    }
+    
+    // see if everything is empty
+    if(heap_entry[0].size == 0)
+    {
+        // use the first spot
+        heap_entry[0].index = 0;
+        heap_entry[0].size = size;
+        return &heap_buffer[0];
+    }
+    
+    // see if the last slot is free
+    for(i = 1; i < ONE_NET_HEAP_NUM_ENTRIES; i++)
+    {
+        if(heap_entry[i].size == 0)
+        {
+            if(size <= ONE_NET_HEAP_SIZE - heap_entry[i-1].index -
+              heap_entry[i-1].size)
+            {
+                heap_entry[i].index = heap_entry[i-1].index +
+                  heap_entry[i-1].size;
+                heap_entry[i].size = size;
+                return &heap_buffer[heap_entry[i].index];
+            }
+            break; // last slot is not free
+        }
+    }
+    
+    // now see if there are any gaps.  First check the first index.
+    if(size <= heap_entry[0].index)
+    {
+        // move everything up 1
+        one_net_memmove(&heap_entry[1], &heap_entry[0],
+          (ONE_NET_HEAP_NUM_ENTRIES - 1) * sizeof(heap_entry_t));
+        heap_entry[0].index = 0;
+        heap_entry[0].size = size;
+        return &heap_buffer[0];
+    }
+    
+    // now look elsewhere
+    for(i = 1; i < ONE_NET_HEAP_NUM_ENTRIES; i++)
+    {
+        if(heap_entry[i].size == 0)
+        {
+            return NULL; // no gaps
+        }
+        
+        if(size <= heap_entry[i].index - heap_entry[i-1].index -
+          heap_entry[i-1].size)
+        {
+            // move everything up 1
+            one_net_memmove(&heap_entry[i+1], &heap_entry[i],
+              (ONE_NET_HEAP_NUM_ENTRIES - 1) * sizeof(heap_entry_t));
+            heap_entry[i].index = heap_entry[i-1].index + heap_entry[i-1].size;
+            heap_entry[i].size = size;
+            return &heap_buffer[heap_entry[i].index];
+        }
+    }
+    
+    // should never get here?
     return NULL;
 }
 
@@ -144,7 +220,27 @@ void* one_net_malloc(UInt8 size)
 */
 void  one_net_free(void* ptr)
 {
-    // TODO -- write functon
+    UInt8 i;
+    if(!ptr)
+    {
+        return;
+    }
+    for(i = 0; i < ONE_NET_HEAP_NUM_ENTRIES; i++)
+    {
+        if(heap_entry[i].size > 0)
+        {
+            if(ptr == &heap_buffer[heap_entry[i].index])
+            {
+                if(i < ONE_NET_HEAP_NUM_ENTRIES - 1)
+                {
+                    one_net_memmove(&heap_entry[i], &heap_entry[i+1],
+                      (ONE_NET_HEAP_NUM_ENTRIES - i - 1) *
+                      sizeof(heap_entry_t));
+                }
+                heap_entry[ONE_NET_HEAP_NUM_ENTRIES - 1].size = 0;
+            }
+        }
+    }
 } // one_net_free //
 
 
