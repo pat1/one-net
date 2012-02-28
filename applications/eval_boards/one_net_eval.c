@@ -1062,7 +1062,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 on_raw_msg_id_t raw_msg_id;
                 oncli_send_msg(" -- Decoded : ");
                 if(on_decode(raw_msg_id,
-                  &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_LEN]),
+                  &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_ID_IDX]),
                   ON_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not decodable");
