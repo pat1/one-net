@@ -197,6 +197,11 @@ on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
         return NULL; // invalid parameter
     }
     
+    if(is_my_did(enc_dst))
+    {
+        return NULL; // sending to ourself.  Why bother?
+    }
+    
     #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     if(single_data_queue_size >= SINGLE_DATA_QUEUE_SIZE)
     {
