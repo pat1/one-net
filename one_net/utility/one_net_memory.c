@@ -244,6 +244,24 @@ void  one_net_free(void* ptr)
 } // one_net_free //
 
 
+// temporary debugging
+#ifdef _DEBUGGING_TOOLS
+#include "oncli.h"
+void print_mem(void)
+{
+    oncli_send_msg("Heap Entry\n");
+    xdump((UInt8*) &heap_entry[0], sizeof(heap_entry));
+    oncli_send_msg("Heap Buffer\n");
+    xdump((UInt8*) &heap_buffer[0], ONE_NET_HEAP_SIZE);
+}
+UInt8* get_loc(UInt8 index)
+{
+    return &heap_buffer[index];
+}
+#endif
+
+
+
 // TODO -- write one_net_calloc and one_net_realloc functions
 
 

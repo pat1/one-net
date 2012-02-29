@@ -94,6 +94,11 @@ typedef struct
 void* one_net_malloc(UInt8 size);
 void  one_net_free(void* ptr);
 
+// temporary debugging --  will be deleted
+#ifdef _DEBUGGING_TOOLS
+void print_mem(void);
+UInt8* get_loc(UInt8 index);
+#endif
 
 
 //! @} one_net_memory_pub_func
