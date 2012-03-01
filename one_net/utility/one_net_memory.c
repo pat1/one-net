@@ -240,6 +240,80 @@ void* one_net_calloc(UInt8 size, UInt8 value)
 
 
 /*
+    \brief Reallocate memory block
+
+    The size of the memory block pointed to by the ptr parameter is changed to
+    the size bytes, expanding or reducing the amount of memory available in the
+    block.
+
+    The function may move the memory block to a new location, in which case the
+    new location is returned. The content of the memory block is preserved up to
+    the lesser of the new and old sizes, even if the block is moved. If the new
+    size is larger, the value of the newly allocated portion is indeterminate.
+
+    In case that ptr is NULL, the function behaves exactly as malloc, assigning
+    a new block of size bytes and returning a pointer to the beginning of it.
+
+    In case that the size is 0, the memory previously allocated in ptr is
+    deallocated as if a call to free was made, and a NULL pointer is returned.
+
+
+    \param[in] ptr Pointer to a memory block previously allocated with malloc,
+      calloc or realloc to be reallocated.  If this is NULL, a new block is
+      allocated and a pointer to it is returned by the function.  If ptr is
+      NOT NULL and does NOT point to a memory block, NULL is returned.
+      
+    \param[in] size New size for the memory block, in bytes.
+      If it is 0 and ptr points to an existing block of memory, the memory
+      block pointed by ptr is deallocated and a NULL pointer is returned.
+   
+    \return A pointer to the reallocated memory block, which may be either the
+    same as the ptr argument or a new location.  The type of this pointer is
+    void*, which can be cast to the desired type of data pointer in order to be
+    dereferenceable.
+
+    If the function failed to allocate the requested block of memory, a NULL
+    pointer is returned, and the memory block pointed to by argument ptr is
+    left unchanged.
+*/
+void* one_net_realloc(void* ptr, UInt8 size)
+{
+    UInt8 i;
+    
+    if(ptr == NULL)
+    {
+        return one_net_malloc(size);
+    }
+    
+    for(i = 0; i < ONE_NET_HEAP_NUM_ENTRIES; i++)
+    {
+        if(heap_entry[i].size > 0 && ptr == &heap_buffer[heap_entry[i].index])
+        {
+            void* new_ptr;
+            UInt8 copy_size = (heap_entry[i].size < size ? heap_entry[i].size :
+              size); // lesser of the two sizes.
+
+            one_net_free(&heap_buffer[heap_entry[i].index]);
+            if(size == 0)
+            {
+                return NULL;
+            }
+            
+            new_ptr = one_net_malloc(size);
+            if(new_ptr == NULL)
+            {
+                return NULL;
+            }
+            one_net_memmove(new_ptr, ptr, copy_size);
+            return new_ptr;
+        }
+    }
+    
+    return NULL; // bad pointer
+}
+
+
+/*
     \brief Deallocate space in memory
 
     A block of memory previously allocated using a call to one_net_malloc,
@@ -256,7 +330,7 @@ void* one_net_calloc(UInt8 size, UInt8 value)
    
     \return none
 */
-void  one_net_free(void* ptr)
+void one_net_free(void* ptr)
 {
     UInt8 i;
     if(!ptr)

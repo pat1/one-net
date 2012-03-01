@@ -93,7 +93,8 @@ typedef struct
     
 void* one_net_malloc(UInt8 size);
 void* one_net_calloc(UInt8 size, UInt8 value);
-void  one_net_free(void* ptr);
+void* one_net_realloc(void* ptr, UInt8 size);
+void one_net_free(void* ptr);
 
 // temporary debugging --  will be deleted
 #ifdef _DEBUGGING_TOOLS
