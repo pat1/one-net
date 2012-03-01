@@ -516,11 +516,6 @@
 #endif
 
 
-// replace with named constants
-#ifndef _ACK_NACK_LEVEL
-    #define _ACK_NACK_LEVEL 3
-#endif
-
 // enable this when you want more ROMDATA or other meemory.
 // Shortens strings to save memory, but the strings won't make
 // much sense (i.e. "zo" instead of "STATUS QUERY".  Generally used for

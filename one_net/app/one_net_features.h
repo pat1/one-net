@@ -92,8 +92,7 @@ enum
     ON_QUEUE_SIZE_MASK = 0xF0,
     ON_QUEUE_SIZE_SHIFT = 4,
     ON_QUEUE_LEVEL_MASK = 0x0C,
-    ON_QUEUE_LEVEL_SHIFT = 2,
-    ON_ACK_NACK_LEVEL_MASK = 0x03
+    ON_QUEUE_LEVEL_SHIFT = 2
 };
 
 
@@ -157,8 +156,7 @@ enum
       #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
       + (SINGLE_DATA_QUEUE_SIZE << ON_QUEUE_SIZE_SHIFT)
       #endif
-      + (_SINGLE_QUEUE_LEVEL << ON_QUEUE_LEVEL_SHIFT)
-      + _ACK_NACK_LEVEL,
+      + (_SINGLE_QUEUE_LEVEL << ON_QUEUE_LEVEL_SHIFT),
 
 
     THIS_DEVICE_PEERS_HOPS = 0
@@ -218,7 +216,6 @@ BOOL features_mh_capable(on_features_t features);
 BOOL features_mh_repeat_capable(on_features_t features);
 BOOL features_block_capable(on_features_t features);
 BOOL features_stream_capable(on_features_t features);
-UInt8 features_ack_nack_level(on_features_t features);
 #endif
 
 //! @} ONE-NET_FEATURES_pub_func

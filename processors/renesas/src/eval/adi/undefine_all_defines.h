@@ -264,10 +264,6 @@
     #undef _EXTENDED_SINGLE
 #endif
 
-#ifdef _ACK_NACK_LEVEL
-    #undef _ACK_NACK_LEVEL
-#endif
-
 #ifdef _MINIMIZE_STRING_LENGTHS
    #undef _MINIMIZE_STRING_LENGTHS
 #endif

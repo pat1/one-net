@@ -161,12 +161,6 @@ BOOL features_stream_capable(on_features_t features)
 {
     return ((features.feature_flags & ON_STREAM_FEATURE_MASK) != 0);
 }
-
-
-UInt8 features_ack_nack_level(on_features_t features)
-{
-    return (features.queue_ack_nack_values & ON_ACK_NACK_LEVEL_MASK);
-}
 #endif
 
 

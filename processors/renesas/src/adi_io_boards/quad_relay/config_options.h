@@ -239,8 +239,6 @@
 #endif
 
 
-#define _ACK_NACK_LEVEL 3
-
 
 // Now test #defines for compatibility
 #include "test_defines.h"
