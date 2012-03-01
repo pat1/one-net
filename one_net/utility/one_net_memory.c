@@ -202,6 +202,44 @@ void* one_net_malloc(UInt8 size)
 
 
 /*
+    \brief Allocates memory and sets it to a certain value
+
+    This one is a little dangerous as it DOES NOT act like calloc from stdlib.h.
+    It's embedded programming and we previously had a one_net_memmove function
+    that failed when the memory overlapped in the wrong way, so it should have
+    been called memcpy(note : this bug has since been fixed).  Same here.  This
+    function takes ONE "size" variable, not TWO like calloc from stdlib.h, and
+    the second parameter is the value to set the memory to.
+    
+    // TODO -- People will expect "one_net_calloc" to behave like it does in
+    // stdlib.h.  Find another name for this
+    
+
+
+    \param[in] size Size of the requested memory block, in bytes.
+    \param[in] value Byte value to set the memory to.
+   
+    \return On success, a pointer to the memory block allocated by the function.
+            The type of this pointer is always void*, which can be cast to the
+            desired type of data pointer in order to be dereferenceable.  If the
+            function failed to allocate the requested block of memory, a null
+            pointer is returned.
+
+*/
+void* one_net_calloc(UInt8 size, UInt8 value)
+{
+    void* buf = one_net_malloc(size);
+    if(buf == NULL)
+    {
+        return NULL;
+    }
+    
+    one_net_memset(buf, value, size);
+    return buf;
+}
+
+
+/*
     \brief Deallocate space in memory
 
     A block of memory previously allocated using a call to one_net_malloc,
@@ -242,6 +280,9 @@ void  one_net_free(void* ptr)
         }
     }
 } // one_net_free //
+
+
+
 
 
 // temporary debugging
