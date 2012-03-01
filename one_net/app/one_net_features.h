@@ -216,6 +216,7 @@ BOOL features_mh_capable(on_features_t features);
 BOOL features_mh_repeat_capable(on_features_t features);
 BOOL features_block_capable(on_features_t features);
 BOOL features_stream_capable(on_features_t features);
+BOOL features_simple_client(on_features_t features);
 #endif
 
 //! @} ONE-NET_FEATURES_pub_func
