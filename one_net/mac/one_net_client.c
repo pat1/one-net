@@ -195,7 +195,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
+#ifndef _ONE_NET_SIMPLE_CLIENT
 static BOOL send_new_key_request(void);
+#endif
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now);
@@ -961,7 +963,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             case ON_ADD_DEV_RESP:
             case ON_REMOVE_DEV_RESP:
             case ON_CHANGE_SETTINGS_RESP:
+            #ifndef _ONE_NET_SIMPLE_CLIENT
             case ON_REQUEST_KEY_CHANGE:
+            #endif
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_CHANGE_FRAGMENT_DELAY_RESP:
             #endif
@@ -1808,6 +1812,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 }
 
 
+#ifndef _ONE_NET_SIMPLE_CLIENT
+// TODO -- not sure if it is OK to comment this out for Simple Clients.  If
+// two simple clients are communicating, it could be a problem.  If either
+// end is not a simple client, it won't be a problem.  Anyway, for now, we'll
+// comment it out for simple clients.  We're right up against the 16K boundary.
 /*!
     \brief Checks to see whether the device needs to send the master a request
       to change keys
@@ -1851,6 +1860,7 @@ static BOOL send_new_key_request(void)
         return FALSE;
     }
 }
+#endif
 
 
 /*!
@@ -1863,11 +1873,12 @@ static BOOL send_new_key_request(void)
 static BOOL check_in_with_master(void)
 {
     UInt8 raw_pld[5];
-    
+    #ifndef _ONE_NET_SIMPLE_CLIENT
     if(send_new_key_request())
     {
         return TRUE;
     }
+    #endif
     
     if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
     {

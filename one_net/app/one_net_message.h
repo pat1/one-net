@@ -204,11 +204,13 @@ typedef enum
     ON_CHANGE_DATA_RATE = 0x06,
     #endif
     
+    #ifndef _ONE_NET_SIMPLE_CLIENT
     //! Sent by a client when a new key is needed for whatever reason.
     //! Generally this is sent when a client is about to run out of message
     //! ids or feels there has been some breach of security or some attempted
     //! breach of security.
     ON_REQUEST_KEY_CHANGE = 0x07,
+    #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
