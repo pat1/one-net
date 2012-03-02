@@ -2394,7 +2394,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     BOOL repeat_route_packet = FALSE;
     #endif
     #endif
-    on_data_t type;
+    on_data_t type = ON_NO_TXN;
     UInt8* pkt_bytes;
     on_raw_msg_id_t msg_id_buf;
 
@@ -2587,6 +2587,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               {
                   return ONS_UNHANDLED_PKT;
               }
+              break;
+            default:
+              return ONS_UNHANDLED_PKT;
         }
     }
 
