@@ -237,7 +237,7 @@ ONE_NET_INLINE UInt16 get_payload_msg_id(const UInt8 *payload)
 }
 
 
-/* store the 12-bit mseesage id in the raw payload buffer */
+/* store the 12-bit message id in the raw payload buffer */
 ONE_NET_INLINE void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
 {
     payload[ON_PLD_MSG_ID_IDX] = (UInt8) ((msg_id & 0x0FF0) >> 4);
