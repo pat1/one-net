@@ -2069,8 +2069,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack)
 {
     UInt8 msg_type;
-    UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
-    UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
+    UInt16 msg_id = get_payload_msg_id(raw_payload_bytes); // unused at present.
     BOOL src_features_known;
     
     if(!txn || !(*txn) || !raw_payload || !ack_nack)
@@ -2081,6 +2080,8 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     ack_nack->payload = (ack_nack_payload_t*) &raw_payload[ON_PLD_DATA_IDX];
     
     
+    // March 2, 2012 -- Removing all nonce code!
+    
     // we'll do a little prep work here before actually sending the message
     // to the single data handler.  Anything we can handle here where the
     // application code does not need to be alerted will be handled here.
@@ -2090,7 +2091,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // Possibilities include...
     //
     // 1) Making sure that both ends have each others' features.
-    // 2) Verifying message ids and nonces.
+    // 2) Verifying message ids
     // 3) Figuring out what messages can definitely be aborted.
     
     
