@@ -1736,12 +1736,7 @@ static on_message_status_t on_master_single_data_hdlr(
         *txn = 0;
         return msg_status;
     }
-    
-    
-    // change the nonce we want.
-    device->last_nonce = device->expected_nonce;
-    device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-    
+        
     
     // if this was a normal query response, we'll send a message in addition
     // to the ACK.

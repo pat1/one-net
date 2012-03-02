@@ -771,11 +771,6 @@ static on_message_status_t on_client_single_data_hdlr(
         ack_nack->handle = ON_ACK;
     }
     
-    
-    // change the nonce we want.
-    device->last_nonce = device->expected_nonce;
-    device->expected_nonce = one_net_prand(get_tick_count(), ON_MAX_NONCE);
-    
 
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?
