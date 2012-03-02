@@ -277,9 +277,6 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
     #endif 
     master->flags = 0x00;
-    master->device.expected_nonce = one_net_prand(time_now, ON_MAX_NONCE);
-    master->device.last_nonce = one_net_prand(time_now, ON_MAX_NONCE);
-    master->device.send_nonce = one_net_prand(time_now, ON_MAX_NONCE);
     master->device.msg_id = 0;
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = FEATURES_UNKNOWN;
@@ -1357,12 +1354,6 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         match_idx = max_lru_idx;
         one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
           sizeof(sending_dev_list[match_idx].sender.did));
-        sending_dev_list[match_idx].sender.expected_nonce =
-          one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        sending_dev_list[match_idx].sender.send_nonce =
-          one_net_prand(get_tick_count(), ON_MAX_NONCE);
-        sending_dev_list[match_idx].sender.last_nonce =
-          one_net_prand(get_tick_count(), ON_MAX_NONCE);
         sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
         sending_dev_list[match_idx].sender.msg_id =
           one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
@@ -1735,10 +1726,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 on_sending_device_t* device = sender_info(removed_device);
                 device->features = FEATURES_UNKNOWN;
                 
-                // for security, change the nonces and the message id too.
-                device->send_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
-                device->expected_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
-                device->last_nonce = one_net_prand(tick_now, ON_MAX_NONCE);
+                // for security, change the the message id.
                 device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID / 2);
 
                 #ifdef _PEER

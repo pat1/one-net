@@ -740,12 +740,6 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
-    client->device.expected_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
-    client->device.last_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
-    client->device.send_nonce = one_net_prand(time_now,
-      ON_MAX_NONCE);
     client->device.msg_id = data_pkt_ptrs.msg_id;
     one_net_int16_to_byte_stream(master_param->next_client_did,
       raw_invite_did);
@@ -1169,12 +1163,6 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     //    
     client->device.msg_id = one_net_prand(get_tick_count(),
       ON_MAX_MSG_ID / 2);
-    client->device.expected_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    client->device.last_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
-    client->device.send_nonce = one_net_prand(get_tick_count(),
-      ON_MAX_NONCE);
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= ON_JOINED;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
@@ -1218,12 +1206,6 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
           client->device.did, ON_ENCODED_DID_LEN);
         one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
         out_master_param->device.features = THIS_DEVICE_FEATURES;
-        out_master_param->device.expected_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-        out_master_param->device.last_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
-        out_master_param->device.send_nonce = one_net_prand(get_tick_count(),
-          ON_MAX_NONCE);
         out_master_param->device.msg_id = one_net_prand(get_tick_count(),
           ON_MAX_MSG_ID / 2);
         #ifdef _ONE_NET_MULTI_HOP
