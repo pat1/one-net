@@ -564,7 +564,9 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     #endif
 
 
-    // build the packet      
+    // build the packet
+    put_payload_msg_id(device->msg_id, raw_payload_bytes);
+    
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
 	put_ack_nack_handle(ack_nack->handle, raw_payload_bytes);
 
@@ -621,6 +623,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #endif
 
     // build the packet
+    put_payload_msg_id(device->msg_id, raw_payload_bytes);
     #ifdef _ONE_NET_CLIENT
     // If features_override is true, the other device needs our features or we
     // need theirs, so we'll send ours, which will cause them to send theirs
@@ -1885,6 +1888,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     on_message_status_t msg_status;
+    UInt16 msg_id = get_payload_msg_id(raw_payload_bytes);
     BOOL verify_needed;
     BOOL message_ignore = TRUE;
     const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
@@ -1956,6 +1960,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     }
     #endif
 
+    // March 2, 2012 - changing rollover message ID protocol.
 
     // Now check the message IDs.  We should be getting a response to the one
     // we sent.  If we don't get a response to the one we sent, if we
@@ -2069,7 +2074,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack)
 {
     UInt8 msg_type;
-    UInt16 msg_id = get_payload_msg_id(raw_payload_bytes); // unused at present.
+    UInt16 msg_id;
     BOOL src_features_known;
     
     if(!txn || !(*txn) || !raw_payload || !ack_nack)
@@ -2078,7 +2083,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     }
 
     ack_nack->payload = (ack_nack_payload_t*) &raw_payload[ON_PLD_DATA_IDX];
-    
+    msg_id = get_payload_msg_id(raw_payload); // unused at present.
     
     // March 2, 2012 -- Removing all nonce code!
     
