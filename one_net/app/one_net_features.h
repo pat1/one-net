@@ -152,7 +152,7 @@ enum
         #endif
         ,
 
-    THIS_DEVICE_QUEUE_ACK_NACK_BITS = 0
+    THIS_DEVICE_QUEUE_BITS = 0
       #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
       + (SINGLE_DATA_QUEUE_SIZE << ON_QUEUE_SIZE_SHIFT)
       #endif
