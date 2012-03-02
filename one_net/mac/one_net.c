@@ -564,10 +564,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     #endif
 
 
-    // build the packet
-    put_payload_txn_nonce(device->send_nonce, raw_payload_bytes);
-    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);
-      
+    // build the packet      
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
 	put_ack_nack_handle(ack_nack->handle, raw_payload_bytes);
 
@@ -624,9 +621,6 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #endif
 
     // build the packet
-    put_payload_txn_nonce(device->send_nonce, raw_payload_bytes);
-    put_payload_resp_nonce(device->expected_nonce, raw_payload_bytes);
-    
     #ifdef _ONE_NET_CLIENT
     // If features_override is true, the other device needs our features or we
     // need theirs, so we'll send ours, which will cause them to send theirs
@@ -1891,8 +1885,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     on_message_status_t msg_status;
-    UInt8 txn_nonce = get_payload_txn_nonce(raw_payload_bytes);
-    UInt8 resp_nonce = get_payload_resp_nonce(raw_payload_bytes);
     BOOL verify_needed;
     BOOL message_ignore = TRUE;
     const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
@@ -1907,9 +1899,8 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     // Replay attacks are FAR more worriesome on the receiving side.
     // We are the sender, but both sides should always check
 
-    // first check the nonces and the message ID
-    // against the sending device info.  We may or may not need to
-    // verify anything.
+    // first check  the message ID against the sending device info.  We may
+    // or may not need to verify anything.
     verify_needed = TRUE;
 
     if((*txn)->device->verify_time != 0 && time_now >=
@@ -2010,29 +2001,10 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
                               // Ignore it.
     }
     
-    // regardless of whether the other side liked our nonces or we like
-    // theirs, if we made it this far we'll take the one they gave us to
-    // give back to them as OK
-    (*txn)->device->send_nonce = resp_nonce;
-    
     if(verify_needed)
     {
-        // we'll verify if the transaction nonce matches either the
-        // expected nonce or the last nonce.
-        if(txn_nonce == (*txn)->device->expected_nonce ||
-          txn_nonce == (*txn)->device->last_nonce)
-        {
-            // If they liked OUR nonces and the message 
-            (*txn)->device->verify_time = time_now;
-        }
-        else
-        {
-            // they gave us a bad nonce.  We accepted theirs.  We won't
-            // change ours unless it's invalid and we'll hope that we'll
-            // sync up the next time we send.  Set the NACK reason to a
-            // bad nonce.
-            ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
-        }
+        // If they liked the message 
+        (*txn)->device->verify_time = time_now;
     }
     
 
@@ -2040,9 +2012,9 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 	// with the ACK/NACK, including handle it itself.  If it wants to handle everything
 	// itself and cancel this transaction, it should return false.  It may decide
     // it wants to abort, in which case it should return ON_MSG_ABORT.  If
-    // there was a problem with the message ID or the nonces, we're simply
-    // calling the application code to notify it.  It should NOT change
-    // anything, but it may want to be aware of failures for its own needs.
+    // there was a problem with the message ID, we're simply calling the
+    // application code to notify it.  It should NOT change anything, but it may
+    // want to be aware of failures for its own needs.
     msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(&single_txn,
       &data_pkt_ptrs, single_msg_ptr->payload,
       &(single_msg_ptr->msg_type), ack_nack);
@@ -2050,21 +2022,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     if(msg_status == ON_MSG_ABORT)
     {
         return msg_status;
-    }
-    
-    
-    // if we have a nack reason of anything but a bad nonce or a bad message
-    // id AND a verification was needed, we'll change nonces.  We will also
-    // pick a new nonce if the expected nonce is illegal.  Otherwise the other
-    // device can never match it.
-    if((*txn)->device->expected_nonce > ON_MAX_NONCE || (verify_needed &&
-      (ack_nack->nack_reason != ON_NACK_RSN_NONCE_ERR &&
-      ack_nack->nack_reason != ON_NACK_RSN_INVALID_MSG_ID)))
-    {
-        // pick a new nonce
-        (*txn)->device->last_nonce = (*txn)->device->expected_nonce;
-        (*txn)->device->expected_nonce = one_net_prand(time_now,
-          ON_MAX_NONCE);
     }
     
     #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
