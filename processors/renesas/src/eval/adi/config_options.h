@@ -237,10 +237,6 @@
 
 
 #ifdef _ONE_NET_EVAL
-	#ifndef _SERIAL_ASSIGN_DEMO_PINS
-		#define _SERIAL_ASSIGN_DEMO_PINS
-	#endif
-	
 	// _AUTO_MODE should be defined if you want the Auto Mode option available
 	#ifndef _AUTO_MODE
 		#define _AUTO_MODE

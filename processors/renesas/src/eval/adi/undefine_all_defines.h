@@ -100,10 +100,6 @@
     #undef _DEBUG_VERBOSE_LEVEL
 #endif
 
-#ifdef _SERIAL_ASSIGN_DEMO_PINS
-	#undef _SERIAL_ASSIGN_DEMO_PINS
-#endif
-
 #ifdef _AUTO_MODE
 	#undef _AUTO_MODE
 #endif
