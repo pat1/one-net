@@ -231,18 +231,19 @@ ONE_NET_INLINE void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
 /* get the 12-bit message id from the payload buffer */
 ONE_NET_INLINE UInt16 get_payload_msg_id(const UInt8 *payload)
 {
-    UInt16 msg_id = (((UInt16)payload[1]) << 4) + (payload[2] >> 4);
+    UInt16 msg_id = (((UInt16)payload[ON_PLD_MSG_ID_IDX]) << 4)
+      + (payload[ON_PLD_MSG_ID_IDX + 1] >> 4);
     return msg_id;
-
 }
 
 
 /* store the 12-bit mseesage id in the raw payload buffer */
 ONE_NET_INLINE void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
 {
-    payload[1] = (UInt8) ((msg_id & 0x0FF0) >> 4);
-    payload[2] &= 0x0F;
-    payload[2] |= ((UInt8) ((msg_id & 0x000F) << 4));
+    payload[ON_PLD_MSG_ID_IDX] = (UInt8) ((msg_id & 0x0FF0) >> 4);
+    payload[ON_PLD_MSG_ID_IDX + 1] &= ON_RESP_HANDLE_BUILD_MASK;
+    payload[ON_PLD_MSG_ID_IDX + 1] |= ((UInt8) ((msg_id &
+      ON_RESP_HANDLE_BUILD_MASK) << 4));
 }
 
 

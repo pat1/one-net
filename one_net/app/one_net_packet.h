@@ -1043,6 +1043,9 @@ enum
 {
     //! Index into the payload where the crc starts
     ON_PLD_CRC_IDX = 0,
+    
+    //! Index into the payload of the Message ID
+    ON_PLD_MSG_ID_IDX = 1,
 
     //! Index for the ack / nack handle
     ON_PLD_RESP_HANDLE_IDX = 2,
@@ -1065,7 +1068,7 @@ enum
 
     //! The mask to use for the message type when building or parsing the
     //! payload field of a data packet
-    ON_PLD_MSG_TYPE_MASK = 0x0F
+    ON_PLD_MSG_TYPE_MASK = ON_RESP_HANDLE_BUILD_MASK
 };
 
 
