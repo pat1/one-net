@@ -302,13 +302,8 @@ BOOL eval_save(void)
     dfi_segment_type_t settings_segment_type;
     UInt16 nv_param_len;
     
-    #ifdef _ONE_NET_MASTER
-    one_net_master_condense_client_memory();
-    #endif
-    
     // first calculate the crc, length, and type of memory
     #ifdef _PEER
-    
     
     #if !defined(_ONE_NET_CLIENT)
     on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);

@@ -472,8 +472,7 @@ tick_t one_net_client(void)
                 removed = FALSE;
                 master->flags = 0;
                 #ifdef _AUTO_SAVE
-                one_net_client_save_settings();
-                save = FALSE;
+                save = TRUE;
                 #endif
                 one_net_client_client_removed(NULL, TRUE);
                 one_net_client_reset_client(one_net_client_get_invite_key());
@@ -571,9 +570,11 @@ tick_t one_net_client(void)
         }
     }
     
-    #ifdef _AUTO_SAVE
+    #ifdef _NON_VOLATILE_MEMORY
     // if we're going to do anything soon, don't save since things might change
     // soon.
+    
+    // TODO -- Do we want the sleep time check?
     if(sleep_time > MS_TO_TICK(1000) && save)
     {        
         one_net_client_save_settings();
