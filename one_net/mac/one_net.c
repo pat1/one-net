@@ -2249,8 +2249,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     
     
     // we've gotten this far, so we have each other's features.  Now we
-    // need to check the message id.  If THAT test passes, we'll process
-    // the nonces
+    // need to check the message id.
     
     // If the message ID is the same as the one we have on file, we'll
     // assume this is a repeat packet.  If we have not ACK'd it yet,
@@ -2262,25 +2261,20 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // NACK it and send back the NACK along with a message id that we WILL
     // accept.
     
-    // If the message is LESS THAN the message we have on file, there is
-    // possibly a rollover.  We only have six bits after all.  If the one we
-    // have on file is the maximum message id and the one we got is 0, we'll
-    // accept that as a new message.  Otherwise, we'll NACK it and tell the
-    // sender to use a message id of one greater than what we have on file.
+    // If the message is LESS THAN the message we have on file, there might be
+    // a problem.  If we care about replay attacks, we'll NACK it and tell the
+    // sender to use a message id greater than what we have on file.
     
     // If the message ID is GREATER than the one we have on file, we will
     // assume that this is a new message and accept it.
     {
         tick_t time_now = get_tick_count();
         const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
-        UInt16 one_greater = ((*txn)->device->msg_id >= ON_MAX_MSG_ID ?
-          0 : 1 + (*txn)->device->msg_id);
           
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_MSG_ID;
 
 
-        if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id ||
-          sing_pkt_ptr->msg_id == one_greater)
+        if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
         {
             // valid new message id for a new message we haven't seen before.
             (*txn)->device->msg_id = sing_pkt_ptr->msg_id;
@@ -2305,36 +2299,13 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         {
             ack_nack->handle = ON_NACK_VALUE;
             // this is a message id we will accept. 
-            ack_nack->payload->nack_value = one_greater;
+            ack_nack->payload->nack_value = 1 + (*txn)->device->msg_id;
             (*txn)->device->verify_time = 0; 
             return ON_MSG_CONTINUE;        
         }
     }
     
-    
     ack_nack->handle = ON_ACK;
-    
-    // The message ID check passed.  Now let's check the nonces.  First, we're
-    // far enough along in the process that we will accept the nonce that was
-    // given to us regardles of whether the other device gave US the right
-    // nonce.
-    (*txn)->device->send_nonce = resp_nonce;
-    
-    // now let's see if the other device gave US the correct nonce.
-    if((*txn)->device->expected_nonce != txn_nonce)
-    {
-        // Make sure that the expected nonce is a legal nonce.  If not, change
-        // it to a legal one or we'll never get a matching nonce.
-        if((*txn)->device->expected_nonce > ON_MAX_NONCE)
-        {
-            (*txn)->device->expected_nonce = one_net_prand(get_tick_count(),
-              ON_MAX_NONCE);
-        }
-        
-        // they gave us the wrong nonce.
-        ack_nack->nack_reason = ON_NACK_RSN_NONCE_ERR;
-    }
-
     return ON_MSG_CONTINUE;
 } // rx_single_data //
 
