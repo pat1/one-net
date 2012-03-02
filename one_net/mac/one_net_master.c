@@ -2372,11 +2372,7 @@ static SInt16 find_vacant_client_list_index(void)
 /*!
     \brief Finds the sender info.
 
-    The return value should be checked for 0.  The expected_nonce and last nonce
-    should then be compared.  If these two values are equal, then it is a new
-    location so a NACK should be sent to the sender, and the new nonce filled
-    out.  The last nonce value should not be a valid nonce value and should be
-    left unchanged for the time being.
+    Finds the sender info.
 
     \param[in] DID The device id of the device.
 

@@ -1277,7 +1277,7 @@ void one_net(on_txn_t ** txn)
                             ack_nack.payload = (ack_nack_payload_t*)
                               &raw_payload_bytes[ON_PLD_DATA_IDX];
                               
-                            // first check for nonces, message ids, features,
+                            // first check for message ids, features,
                             // etc.  We'll take care of that level of
                             // processing in rx_single_data().  Anything
                             // beyond that will take place in the single data
@@ -2269,8 +2269,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
-  UInt8 txn_nonce, UInt8 resp_nonce)
+one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload)
 {
     return ONS_SUCCESS;
 }
@@ -2278,8 +2277,7 @@ one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload,
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload,
-  UInt8 txn_nonce, UInt8 resp_nonce)
+one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload)
 {
     return ONS_SUCCESS;
 }

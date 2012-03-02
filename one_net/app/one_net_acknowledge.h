@@ -67,9 +67,8 @@ typedef enum
     // 0 is no error
     ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
 
-    // 00x01 through 0x17 are non-fatal ONE-NET errors
-    ON_NACK_RSN_NONCE_ERR,           //! received nonce does not match expected one
-	ON_NACK_RSN_RSRC_UNAVAIL_ERR,    //! resource(s) necessary to complete the transaction not currently available
+    // 00x02 through 0x17 are non-fatal ONE-NET errors
+	ON_NACK_RSN_RSRC_UNAVAIL_ERR = 2,//! resource(s) necessary to complete the transaction not currently available
 	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
 	ON_NACK_RSN_BUSY_TRY_AGAIN,      //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET.
 	ON_NACK_RSN_BUSY_TRY_AGAIN_TIME, //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET, but application code may override.

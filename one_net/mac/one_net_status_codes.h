@@ -66,7 +66,7 @@
 
 typedef enum
 {
-    ONS_SUCCESS,                    //!< [0] Functions was successful
+    ONS_SUCCESS,                    //!< [0] Function was successful
 
     ONS_BAD_PARAM,                  //!< [1] The parameters passed in are invalid
     ONS_NOT_INIT,                   //!< [2] Was not initialized
@@ -83,9 +83,8 @@ typedef enum
     ONS_CRC_FAIL,                   //!< [12] Computed crc did not match received
     ONS_RX_STAY_AWAKE,              //!< [13] A Stay Awake ACK was received.
     ONS_RX_NACK,                    //!< [14] Received a NACK
-    ONS_INCORRECT_NONCE,            //!< [15] The received nonce was not correct
 
-    ONS_SINGLE_END,                 //!< [16] The transaction completed successfully
+    ONS_SINGLE_END = 16,            //!< [16] The transaction completed successfully
     ONS_SINGLE_FAIL,                //!< [17] Single transaction failed.
 
     ONS_BLOCK_END,                  //!< [18] Block txn completed successfully

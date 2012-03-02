@@ -317,12 +317,6 @@ typedef struct
 typedef struct
 {
     on_encoded_did_t did;           //!< Encoded Device ID of the sender
-
-    UInt8 expected_nonce;           //!< The nonce expected.
-    UInt8 last_nonce;               //!< The last successful nonce received.
-
-    UInt8 send_nonce;               //!< nonce to use in case the device sends
-                                    //!< a response txn to the sender.
     on_features_t features;         //!< features of the device.
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 max_hops;                 //!< May be different from max_hops in features and may change and may vary
@@ -336,7 +330,7 @@ typedef struct
     #endif
     UInt8 data_rate;                //!< The current data rate the device is using
     UInt16 msg_id;                  //!< The message id of the current or next transaction with this device(0 - 4095).
-    tick_t verify_time;             //!< The last time the message id and nonces were verified for this device
+    tick_t verify_time;             //!< The last time the message id was verified for this device
 } on_sending_device_t;    
     
 

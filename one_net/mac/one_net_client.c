@@ -1293,12 +1293,6 @@ static one_net_status_t init_internal(void)
     device has not heard from the sender before, a new location shall be
     returned.
 
-    The return value should be checked for 0.  The expected_nonce and last nonce
-    should then be compared.  If these two values are equal, then it is a new
-    location so a NACK should be sent to the sender, and the new nonce filled
-    out.  The last nonce value should not be a valid nonce value and should be
-    left unchanged for the time being.
-
     \param[in] DID The device id of the sender.
 
     \return Pointer to location that holds the sender information (should be

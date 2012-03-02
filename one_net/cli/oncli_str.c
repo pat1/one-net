@@ -561,7 +561,7 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
 const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_NO_RESPONSE_TXN*/+ 1] =
 {
     "No Err",
-    "Nonce Err",
+    "",
     "Rsrc Unav",
     "Intern Err",
     "Busy TA",
