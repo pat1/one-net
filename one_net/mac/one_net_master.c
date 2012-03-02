@@ -424,20 +424,11 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     // initialized so far.
     static UInt16 nv_param_size_initialized = 0;
     static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-    static BOOL init_internal_called = FALSE;
     #ifdef _PEER
     static UInt8 peer_memory_size_initialized = 0;
     #endif
     
-    if(!init_internal_called)
-    {
-        if((status = init_internal()) != ONS_SUCCESS)
-        {
-            return status; // if initializing the internals failed //
-        }
-        init_internal_called = TRUE;
-    }
-    
+
     if(PARAM != NULL)
     {
         // initialization may take place with one call to this function if all
@@ -570,6 +561,10 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     #endif
     
     on_state = ON_LISTEN_FOR_DATA;
+    if((status = init_internal()) != ONS_SUCCESS)
+    {
+        return status; // if initializing the internals failed //
+    }
     return ONS_SUCCESS;
 } // one_net_master_init //
 
