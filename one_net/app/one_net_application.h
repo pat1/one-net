@@ -61,63 +61,6 @@
 
 
 
-ONE_NET_INLINE void get_three_message_bytes_from_payload(UInt8 *msg, const UInt8 *payload)
-{
-    *(msg++) = payload[ONA_MSG_FIRST_IDX];
-    *(msg++) = payload[ONA_MSG_SECOND_IDX];
-    *msg     = payload[ONA_MSG_THIRD_IDX];
-}
-
-ONE_NET_INLINE void put_three_message_bytes_to_payload(const UInt8 *msg, UInt8 *payload)
-{
-    payload[ONA_MSG_FIRST_IDX]  = *(msg++);
-    payload[ONA_MSG_SECOND_IDX] = *(msg++);
-    payload[ONA_MSG_THIRD_IDX]  = *msg;
-}
-
-
-ONE_NET_INLINE UInt8 get_first_msg_byte(const UInt8 *payload)
-{
-    return payload[ONA_MSG_FIRST_IDX];
-}
-
-ONE_NET_INLINE void put_first_msg_byte(UInt8 data, UInt8 *payload)
-{
-    payload[ONA_MSG_FIRST_IDX] = data;
-}
-
-ONE_NET_INLINE UInt8 get_second_msg_byte(const UInt8 *payload)
-{
-    return payload[ONA_MSG_SECOND_IDX];
-}
-
-ONE_NET_INLINE void put_second_msg_byte(UInt8 data, UInt8 *payload)
-{
-    payload[ONA_MSG_SECOND_IDX] = data;
-}
-
-ONE_NET_INLINE UInt8 get_third_msg_byte(const UInt8 *payload)
-{
-    return payload[ONA_MSG_THIRD_IDX];
-}
-
-ONE_NET_INLINE void put_third_msg_byte(const UInt8 data, UInt8 *payload)
-{
-    payload[ONA_MSG_THIRD_IDX] = data;
-}
-
-ONE_NET_INLINE UInt16 get_first_two_msg_bytes(const UInt8 *payload)
-{
-    return (((UInt16)payload[ONA_MSG_FIRST_IDX]<< 8) |
-             (UInt16)payload[ONA_MSG_SECOND_IDX]);
-}
-
-ONE_NET_INLINE void put_first_two_msg_bytes(UInt16 data, UInt8 *payload)
-{
-    payload[ONA_MSG_FIRST_IDX]  = data >> 8;
-    payload[ONA_MSG_SECOND_IDX] = data;
-}
-
 /* get the 16-bit message header (message class, message type) */
 ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8 *payload)
 {
