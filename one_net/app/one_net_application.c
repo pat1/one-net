@@ -101,30 +101,6 @@ extern const on_encoded_did_t ON_ENCODED_BROADCAST_DID;
 //! \ingroup ONE-NET_APP
 //! @{
 
-/*!
-    \brief Parse a single packet payload to obtain message class and type.
-
-    @depricates parse_msg_class_and_type
-
-    \param[in] MSG_DATA, msg data
-    \param[out] msg_class, the message class of the payload provided (MSG_DATA).
-    \param[out] msg_type, the message type of the payload provided (MSG_DATA).
-
-    \return the status of the parse
-*/
-one_net_status_t ona_parse_msg_class_and_type(const UInt8 *MSG_DATA,
-        ona_msg_class_t *msg_class, ona_msg_type_t *msg_type)
-{
-    UInt16 class_and_type;
-    
-    class_and_type = get_msg_hdr(MSG_DATA);
-
-    *msg_class = (ona_msg_class_t)class_and_type & ONA_MSG_CLASS_MASK;
-    *msg_type  = (ona_msg_type_t)class_and_type  & ONA_MSG_TYPE_MASK;
-
-    return ONS_SUCCESS;
-} // parse_msg_class_and_type //
-
 
 
 // address functions
