@@ -597,7 +597,7 @@ one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops);
 one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
   UInt8* max_hops);
 #endif
-BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt8 msg_id,
+BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt16 msg_id,
   on_pkt_t* pkt);
 
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,

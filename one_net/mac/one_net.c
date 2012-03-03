@@ -859,7 +859,7 @@ BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted)
     \return TRUE if the on_pkt structure was set up successfully.
             FALSE upon error.
 */
-BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt8 msg_id, on_pkt_t* pkt)
+BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pkt)
 {
     SInt8 len = get_encoded_payload_len(raw_pid);
     if(len < 0)
