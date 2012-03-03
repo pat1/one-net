@@ -887,8 +887,8 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0); // check-in with master immed.
         
             #ifdef _DEVICE_SLEEPS
-            // We're possibly in the middle of a key change, so stay awake
-            ont_set_timer(ONT_STAY_AWAKE_TIMER, 3000);
+            // We're possibly in the middle of a key change, so stay awake.
+            ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
             #endif
         }
         
@@ -1722,6 +1722,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // pending transactions so other devices won't miss any ACKs
                 // or NACKs, then delete ourselves.  Just use the invite
                 // timer.
+                
+                // TODO -- why the invite timer?
                 ont_set_timer(ONT_INVITE_TIMER,
                   MS_TO_TICK(3000));
             }
