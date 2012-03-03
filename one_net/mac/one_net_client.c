@@ -853,7 +853,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
     #endif
-
+    
 
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
@@ -875,7 +875,22 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         if(new_response_timeout > 0)
         {
             txn->response_timeout = (UInt16)new_response_timeout;
-        }        
+        }
+        
+        if(ack_nack->nack_reason == ON_NACK_RSN_BAD_KEY)
+        {
+            // We have a possible key change.  We need to abort this message and
+            // check in with the master.
+        
+            // TODO -- Perhaps stick this message back into the queue so we can
+            // send it immediately again after we get the new key?
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0); // check-in with master immed.
+        
+            #ifdef _DEVICE_SLEEPS
+            // We're possibly in the middle of a key change, so stay awake
+            ont_set_timer(ONT_STAY_AWAKE_TIMER, 3000);
+            #endif
+        }
         
         
         if(txn->retry >= ON_MAX_RETRY)

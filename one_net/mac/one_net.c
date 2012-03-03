@@ -2259,6 +2259,20 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     }
     
     ack_nack->handle = ON_ACK;
+    
+    // make sure the key used is the current key.  If it isn't, send back a
+    // NACK with a nack reason of ON_NACK_RSN_BAD_KEY.  This will cause the
+    // other device to check in with the master and get the new key.
+    if(one_net_memcmp(on_base_param->old_key, *((*txn)->key),
+      ONE_NET_XTEA_KEY_LEN) == 0)
+    {
+        ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
+        #ifdef _DEVICE_SLEEPS
+        // we'll stay awake in case there is a follow-up.
+        
+        #endif
+    }
+    
     return ON_MSG_CONTINUE;
 } // rx_single_data //
 
