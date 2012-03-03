@@ -781,7 +781,8 @@ ocsdh_build_resp:
     response_pid = get_single_response_pid(pkt->raw_pid,
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
-    if(!setup_pkt_ptr(response_pid, response_txn.pkt, 0, &response_pkt_ptrs))
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt->msg_id,
+      &response_pkt_ptrs))
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
@@ -1490,6 +1491,11 @@ static BOOL look_for_invite(void)
       &raw_payload_bytes[ON_INVITE_KEY_IDX], ONE_NET_XTEA_KEY_LEN);
     master->device.features =  
       *((on_features_t*)(&raw_payload_bytes[ON_INVITE_FEATURES_IDX]));
+    
+    // Set up a random message id.  We have no idea what the master id is.
+    this_pkt_ptrs->msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
+    master->device.msg_id = this_pkt_ptrs->msg_id;
+    
     #ifdef _ONE_NET_MULTI_HOP
     master->device.max_hops = features_max_hops(master->device.features);
     #endif

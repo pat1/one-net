@@ -565,7 +565,8 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 
 
     // build the packet
-    put_payload_msg_id(device->msg_id, raw_payload_bytes);
+    // Use the value stored in the on_pkt_t structure rather than the device
+    put_payload_msg_id(pkt_ptrs->msg_id, raw_payload_bytes);
     
     // fill in the ack/nack handle (The 4 LSB of raw data byte 2)
 	put_ack_nack_handle(ack_nack->handle, raw_payload_bytes);
@@ -622,8 +623,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     }
     #endif
 
-    // build the packet
-    put_payload_msg_id(device->msg_id, raw_payload_bytes);
+    // build the packet.  Use the on_pkt_t object message id, not the device
+    put_payload_msg_id(pkt_ptrs->msg_id, raw_payload_bytes);
     #ifdef _ONE_NET_CLIENT
     // If features_override is true, the other device needs our features or we
     // need theirs, so we'll send ours, which will cause them to send theirs
@@ -1359,6 +1360,7 @@ void one_net(on_txn_t ** txn)
                 device->verify_time = 0;
                 
 
+                // TODO -- look at rollover code.
                 // pick a message id.  Increment the last one.  If it
                 // rolls over, make it 0.
                 (device->msg_id)++;
@@ -1367,7 +1369,7 @@ void one_net(on_txn_t ** txn)
                     device->msg_id = 0;
                 }
                 
-                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, 0,
+                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, device->msg_id,
                   &data_pkt_ptrs))
                 {
                     // an error of some sort occurred.  We likely have
@@ -1679,7 +1681,8 @@ void one_net(on_txn_t ** txn)
             if(!terminate_txn && response_msg_or_timeout)
             {
                 // rebuild the packet                
-                if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, 0,
+                if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
+                  (*txn)->device->msg_id,
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
@@ -2657,6 +2660,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
     // set the key
     (*this_txn)->key = key;
+    
+    // message id is irrelevant for invite packets, but fill it in regardless.
+    (*this_pkt_ptrs)->msg_id = get_payload_msg_id(raw_payload_bytes);
     
     #if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_ROUTE)
     if(repeat_route_packet)

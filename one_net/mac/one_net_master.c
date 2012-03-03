@@ -272,7 +272,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   on_client_t ** client, on_ack_nack_t* ack_nack);
 
 static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
-
+static on_client_t* get_invite_client(void);
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
   
@@ -693,15 +693,12 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     } // if the invite was not created successfully //
 
 
-    // so far, so good.  Start building the packet.
-    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_txn.pkt, 0,
-      &data_pkt_ptrs))
+    // so far, so good.  Start building the packet and pick a random message id
+    if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_txn.pkt,
+      one_net_prand(time_now, ON_MAX_MSG_ID / 2), &data_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
     }
-
-    // pick a random message id
-    data_pkt_ptrs.msg_id = one_net_prand(time_now, ON_MAX_MSG_ID / 2);
 
     // fill in the addresses
     if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
@@ -954,6 +951,27 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
 }
 
 
+/*! \brief Returns a pointer to the client that is currently being invited
+    
+    \return A pointer to the client that is currently being invited, or NULL
+            if no client is being invited.
+*/
+static on_client_t* get_invite_client(void)
+{
+    UInt8 i;
+    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+    {
+        on_client_t* client = &client_list[i];
+        if(is_invite_did((const on_encoded_did_t* const)
+          client_list[i].device.did))
+        {
+            return client;
+        }
+    }
+    return NULL;
+}
+
+
 /*!
     \brief The main function for the ONE-NET MASTER.
 
@@ -1029,6 +1047,7 @@ void one_net_master(void)
               ont_inactive_or_expired(invite_txn.next_txn_timer))
             {
                 UInt8 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT;
+                on_client_t* invite_client;
                 
                 if(ont_expired(ONT_INVITE_TIMER))
                 {
@@ -1037,6 +1056,13 @@ void one_net_master(void)
                       (const one_net_xtea_key_t * const)&invite_key);
                     break;
                 } // if trying to add device timed out //
+                
+                if((invite_client = get_invite_client()) == NULL)
+                {
+                    // should never get here?
+                    break;
+                }
+
                 
                 txn = &invite_txn;
                 
@@ -1050,7 +1076,9 @@ void one_net_master(void)
                 } // if time to send a multi hop packet //
                 #endif
 
-                if(!setup_pkt_ptr(raw_pid, invite_txn.pkt, 0, &data_pkt_ptrs))
+                // set up the message id.
+                if(!setup_pkt_ptr(raw_pid, invite_txn.pkt,
+                  invite_client->device.msg_id, &data_pkt_ptrs))
                 {
                     break; // we should never get here
                 }
@@ -1789,7 +1817,8 @@ omsdh_build_resp:
     response_pid = get_single_response_pid(pkt->raw_pid,
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
-    if(!setup_pkt_ptr(response_pid, response_txn.pkt, 0, &response_pkt_ptrs))
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, pkt->msg_id,
+      &response_pkt_ptrs))
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
