@@ -549,9 +549,8 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     if(msg_class == ONA_COMMAND)
     {
         if(user_pin[dst_unit].pin_type != ON_OUTPUT_PIN)
-        {
-            // we'll use a user-defined fatal error for the reason            
-            ack_nack->nack_reason = ON_NACK_RSN_MIN_USR_FATAL;
+        {          
+            ack_nack->nack_reason = ON_NACK_RSN_UNIT_IS_INPUT;
             ack_nack->handle = ON_NACK;
             return ON_MSG_CONTINUE;
         }
@@ -1347,6 +1346,24 @@ void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate)
     oncli_send_msg("Changed to data rate %s, channel ",
       DATA_RATE_STR[new_data_rate]);
     oncli_print_channel();
+}
+#endif
+
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
+/*!
+    \brief Allows the application code to override whether a nack reason is fatal
+
+    If desired, the application code can change the is_fatal parameter.
+
+    
+    \param[in] nack_reason
+    \param[in/out] is_fatal Whether ONE-NET has determined a NACK Reason to be fatal.  To override
+                   ONE-NET's decision, change the is_fatal parameter.  Otherwise, do nothing
+*/
+void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
+{
+    // Empty function.  No adjustment.
 }
 #endif
 

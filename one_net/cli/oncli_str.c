@@ -55,8 +55,8 @@
 
 
 //==============================================================================
-//								CONSTANTS
-//! \defgroup oncli_str_const
+//								PUBLIC CONSTANTS
+//! \defgroup oncli_str_pub_const
 //! \ingroup oncli_str
 //! @{
    
@@ -554,59 +554,6 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
 };
 
 
-// ON_NACK_RSN_NO_RESPONSE_TXN is the largest nack reason with a name.  To add
-// strings, change the size of the array and add them here.  Make sure to
-// also change any other code that might use this array in order to avoid
-// segmentation faults and other problems.
-const char* const NACK_REASON_STR_ARRAY[ON_NACK_RSN_MIN_USR_FATAL/*ON_NACK_RSN_NO_RESPONSE_TXN*/+ 1] =
-{
-    "No Err",
-    "",
-    "Rsrc Unav",
-    "Intern Err",
-    "Busy TA",
-    "Busy TA Time",
-    "Bad Pos",
-    "Bad Size",
-    "Bad Add",
-    "Inv Max Hop",
-    "Inv Hop",
-    "Inv Peer",
-    "Out of Range",
-    "Route Err",
-    "Inv Data Rate",
-    "No Resp",
-    "Inv Msg ID",
-    "Need Feat",
-    "Features",
-    "Bad CRC",
-    "Bad Key",
-    "",
-    "Unset",
-    "Gen Err",
-    "Inv Len",
-    "Dev Func Err",
-    "Unit Func Err",
-    "Inv Unit",
-    "Mismatch Unit",
-    "Bad Data",
-    "Txn Err",
-    "Max Fail Rch'd",
-    "Busy",
-    "Txn No Resp",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "Not an output" // Eval Board application-specific 
-    
-    // TODO -- this is the main ONE-NET code. We need to make some
-    // application-specific place to store these strings
-};
-
-
 const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
   "Handle-->0x%02X(%s)";
 
@@ -639,10 +586,12 @@ const char* const ONCLI_VERBOSE_LEVEL_CMD_STR = "verbose level";
 const char* const ONCLI_ROUTE_CMD_STR = "route";
 #endif
 
+const char* const EMPTY_STRING = "";
+
   
 
-//! @} oncli_str_const
-//								CONSTANTS END
+//! @} oncli_str_pub_const
+//								PUBLIC CONSTANTS END
 //==============================================================================
 
 //==============================================================================
@@ -658,13 +607,63 @@ const char* const ONCLI_ROUTE_CMD_STR = "route";
 //==============================================================================
 
 //==============================================================================
-//                              PRIVATE VARIABLES
-//! \defgroup oncli_str_pri_var
+//                              PRIVATE CONSTANTS
+//! \defgroup oncli_str_pri_const
 //! \ingroup oncli_str
 //! @{
 
-//! @} oncli_str_pri_var
-//                              PRIVATE VARIABLES END
+
+#if _DEBUG_VERBOSE_LEVEL > 3
+static const char* const NON_FATAL_NACK_REASON_STR_ARRAY[ON_NACK_RSN_BAD_KEY + 1] =
+{
+    "No Err",
+    "Rsrc Unav",
+    "Intern Err",
+    "Busy TA",
+    "Busy TA Time",
+    "Bad Pos",
+    "Bad Size",
+    "Bad Add",
+    "Inv Max Hop",
+    "Inv Hop",
+    "Inv Peer",
+    "Out of Range",
+    "Route Err",
+    "Inv Data Rate",
+    "No Resp",
+    "Inv Msg ID",
+    "Need Feat",
+    "Features",
+    "Bad CRC",
+    "Bad Key"
+};
+
+
+static const char* const FATAL_NACK_REASON_STR_ARRAY[ON_NACK_RSN_UNIT_IS_OUTPUT - ON_NACK_RSN_MIN_FATAL + 1] =
+{
+    "Inv Len",
+    "Dev Func Err",
+    "Unit Func Err",
+    "Inv Unit",
+    "Mismatch Unit",
+    "Bad Data",
+    "Txn Err",
+    "Max Fail Rch'd",
+    "Busy",
+    "Txn No Resp",
+    "Unit Is Input",
+    "Unit Is Output"
+};
+
+
+static const char* const NACK_REASON_UNSET_STR = "Unset";
+static const char* const NACK_REASON_GENERAL_ERR_STR = "Gen Err";
+#endif
+
+
+
+//! @} oncli_str_pri_const
+//                              PRIVATE CONSTANTS END
 //==============================================================================
 
 
@@ -673,9 +672,6 @@ const char* const ONCLI_ROUTE_CMD_STR = "route";
 //! \defgroup oncli_str_pub_var
 //! \ingroup oncli_str
 //! @{
-
-
-
 
 
 //! @} oncli_str_pub_var
@@ -699,6 +695,34 @@ const char* const ONCLI_ROUTE_CMD_STR = "route";
 //! \defgroup oncli_str_pub_func
 //! \ingroup oncli_str
 //! @{
+
+
+#if _DEBUG_VERBOSE_LEVEL > 3
+const char* get_nack_reason_str(on_nack_rsn_t nack_reason)
+{
+    if(nack_reason <= ON_NACK_RSN_BAD_KEY)
+    {
+        return NON_FATAL_NACK_REASON_STR_ARRAY[nack_reason];
+    }
+    else if(nack_reason >= ON_NACK_RSN_MIN_FATAL && nack_reason <=
+      ON_NACK_RSN_UNIT_IS_OUTPUT)
+    {
+        return FATAL_NACK_REASON_STR_ARRAY[nack_reason - ON_NACK_RSN_MIN_FATAL];
+    }
+    else if(nack_reason == ON_NACK_RSN_UNSET)
+    {
+        return NACK_REASON_UNSET_STR;
+    }
+    else if(nack_reason == ON_NACK_RSN_GENERAL_ERR)
+    {
+        return NACK_REASON_GENERAL_ERR_STR;
+    }
+    
+    // add any other strings here.
+    
+    return EMPTY_STRING;
+}
+#endif
 
 
 //! @} oncli_str_pub_func

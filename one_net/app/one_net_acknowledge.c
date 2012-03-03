@@ -41,6 +41,7 @@
 
 #include "config_options.h"
 #include "one_net_acknowledge.h"
+#include "one_net_port_specific.h"
 
 
 
@@ -86,13 +87,18 @@
 
 
 BOOL nack_reason_is_fatal(const on_nack_rsn_t nack_reason)
-{		
-	if(nack_reason >= ON_NACK_RSN_MIN_FATAL && nack_reason <= ON_NACK_RSN_MAX_FATAL)
+{
+    BOOL is_fatal = FALSE;
+	if(nack_reason >= ON_NACK_RSN_MIN_FATAL)
 	{
-		return TRUE;
+		is_fatal = TRUE;
 	}
 	
-	return FALSE;
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    // call application code to see if it wants to change.
+	one_net_adjust_fatal_nack(nack_reason, &is_fatal);
+    #endif
+    return is_fatal;
 }
 
 

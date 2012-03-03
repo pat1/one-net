@@ -47,14 +47,15 @@
 
 
 #include "config_options.h"
+#include "one_net_acknowledge.h"
 
 
 #ifdef _UART
 
 
 //==============================================================================
-//								CONSTANTS
-//! \defgroup oncli_str_const
+//								PUBLIC CONSTANTS
+//! \defgroup oncli_str_pub_const
 //! \ingroup oncli_str
 //! @{
     
@@ -319,8 +320,6 @@ extern const char* const ONCLI_MSG_STATUS_STR[];
 extern const char* const ONCLI_ACK_STR;
 extern const char* const ONCLI_NACK_STR;
 extern const char* const ACK_NACK_HANDLE_STR_ARRAY[];
-extern const char* const NACK_REASON_STR_ARRAY[];
-
 extern const char* const ACK_NACK_DISPLAY_FMT;
 
 #endif
@@ -375,11 +374,11 @@ extern const char* const ONCLI_VERBOSE_LEVEL_CMD_STR;
 extern const char* const ONCLI_ROUTE_CMD_STR;
 #endif
 
+extern const char* const EMPTY_STRING;
 
 
-
-//! @} oncli_str_const
-//								CONSTANTS END
+//! @} oncli_str_pub_const
+//								PUBLIC CONSTANTS END
 //==============================================================================
 
 //==============================================================================
@@ -423,6 +422,10 @@ enum
 //! \defgroup oncli_str_pub_func
 //! \ingroup oncli_str
 //! @{
+
+#if _DEBUG_VERBOSE_LEVEL > 3
+const char* get_nack_reason_str(on_nack_rsn_t nack_reason);
+#endif
 
 //! @} oncli_str_pub_func
 //						PUBLIC FUNCTION DECLARATIONS END

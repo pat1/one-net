@@ -719,11 +719,9 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
     
     oncli_send_msg(ACK_NACK_DISPLAY_FMT, is_ack ? ONCLI_ACK_STR :
       ONCLI_NACK_STR, ack_nack->nack_reason,
-      ack_nack->nack_reason <= /*ON_NACK_RSN_NO_RESPONSE_TXN*/ON_NACK_RSN_MIN_USR_FATAL ?
-      NACK_REASON_STR_ARRAY[ack_nack->nack_reason] : "", ack_nack->handle,
-      
+      get_nack_reason_str(ack_nack->nack_reason), ack_nack->handle,
       ack_nack->handle < ON_ACK_MIN_APPLICATION_HANDLE ?
-      ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle] : "");
+      ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle] : EMPTY_STRING);
       
     oncli_send_msg(" : Payload : ");
 

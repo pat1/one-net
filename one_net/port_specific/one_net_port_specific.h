@@ -58,6 +58,7 @@
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
 #include "one_net_message.h"
+#include "one_net_acknowledge.h"
 
 
 //==============================================================================
@@ -342,6 +343,21 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 
 #ifdef _DATA_RATE
 void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate);
+#endif
+
+
+#ifndef _ONE_NET_SIMPLE_CLIENT
+/*!
+    \brief Allows the application code to override whether a nack reason is fatal
+
+    If desired, the application code can change the is_fatal parameter.
+
+    
+    \param[in] nack_reason
+    \param[in/out] is_fatal Whether ONE-NET has determined a NACK Reason to be fatal.  To override
+                   ONE-NET's decision, change the is_fatal parameter.  Otherwise, do nothing
+*/
+void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal);
 #endif
 
 

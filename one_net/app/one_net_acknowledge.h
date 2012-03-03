@@ -64,11 +64,21 @@
 */
 typedef enum
 {
+    // add more as needed in the gaps provided -- 0 = no error, 0x01 to 0x3F are ONE-NET
+    // non-fatal errors, 0x80 to 0xBF are ONE-NET fatal errors, 0x40 to 0x7F are user-
+    // defined non-fatal NACK Reasons, 0xC0 to 0xFF are user defined fatal NACK reasons.
+    // Any reason that can be either fatal OR non-fatal should be defined as non-fatal
+    // and application code will be called to adjust the fatality if the application
+    // code desires.
+    
     // 0 is no error
     ON_NACK_RSN_NO_ERROR,            //! Not an error.  Should not be part of a packet, but defined so that we can use it as "success" when coding
 
-    // 00x02 through 0x17 are non-fatal ONE-NET errors
-	ON_NACK_RSN_RSRC_UNAVAIL_ERR = 2,//! resource(s) necessary to complete the transaction not currently available
+    ON_NACK_RSN_MIN_NON_FATAL = 0x01,
+    ON_NACK_RSN_MIN_ONE_NET_NON_FATAL = ON_NACK_RSN_MIN_NON_FATAL,
+
+    // 0x01 through 0x3F are reserved for non-fatal ONE-NET-defined errors
+	ON_NACK_RSN_RSRC_UNAVAIL_ERR = ON_NACK_RSN_MIN_ONE_NET_NON_FATAL,    //! resource(s) necessary to complete the transaction not currently available
 	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
 	ON_NACK_RSN_BUSY_TRY_AGAIN,      //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET.
 	ON_NACK_RSN_BUSY_TRY_AGAIN_TIME, //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET, but application code may override.
@@ -87,15 +97,22 @@ typedef enum
     ON_NACK_RSN_FEATURES,            //! A general error involving features / capabilities other than not having them.
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
     ON_NACK_RSN_BAD_KEY,             //! Sent when the other device is using the wrong key
+    
+    // Add any more non-fatal ONE-NET Nack Reasons here
+    
+    ON_NACK_RSN_UNSET = 0x3E,        //! NACK Reason is not set yet.
+    ON_NACK_RSN_GENERAL_ERR = 0x3F,  //! If no specific reason is known
+    
+    // 0x40 through 0x7F are reserved for non-fatal user-defined errors
+    ON_NACK_RSN_MIN_USR_NON_FATAL = 0x40, //! User-defined non-fatal NACK code start
+    ON_NACK_RSN_MAX_USR_NON_FATAL = 0x7F, //! User-defined non-fatal NACK code start
 
-    ON_NACK_RSN_UNSET = 0x16,        //! NACK Reason is not set yet.
-    ON_NACK_RSN_GENERAL_ERR = 0x17,  //! If no specific reason is known
-
+    // 0x80 through 0xBF are reserved for fatal ONE-NET-defined errors
 
     // fatal ONE-NET Errors
-    ON_NACK_RSN_MIN_FATAL = 0x18,
+    ON_NACK_RSN_MIN_FATAL = 0x80,
     ON_NACK_RSN_MIN_ONE_NET_FATAL = ON_NACK_RSN_MIN_FATAL,
-	ON_NACK_RSN_INVALID_LENGTH_ERR = 0x18,  //! specified Device/Unit cannot handle a transaction with the specified length
+	ON_NACK_RSN_INVALID_LENGTH_ERR = ON_NACK_RSN_MIN_ONE_NET_FATAL,  //! specified Device/Unit cannot handle a transaction with the specified length
 	ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
 	ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
 	ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
@@ -105,24 +122,17 @@ typedef enum
     ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED, //! Attempted and failed too many times.
 	ON_NACK_RSN_BUSY,                //! Application level code specifying that the device cannot service the request at this time.  No specification of when to try again.  Considered "fatal" by ONE-NET.
     ON_NACK_RSN_NO_RESPONSE_TXN,     //! The transaction has timed out with no response.
+    ON_NACK_RSN_UNIT_IS_INPUT,       //! There was an attempt to do something to an input unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
+    ON_NACK_RSN_UNIT_IS_OUTPUT,      //! There was an attempt to do something to an output unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
     
-    // 0x22 through 0x26 are currently unused and are available for assignment as fatal ONE-NET NACKs 
+    // stick any more ONE-NET fatal errors here.
     
-    ON_NACK_RSN_FATAL_ERR = 0x27,    //! Some unspecified fatal error occurred.  Don't try to resend.
-    ON_NACK_RSN_MAX_ONE_NET_FATAL = 0x27,   
-	ON_NACK_RSN_MIN_USR_FATAL, //! NACK Reasons 0x28 through 0x2B are user-defined fatal NACKs
-	ON_NACK_RSN_MAX_USR_FATAL = 0x2B, //! NACK Reasons 0x28 through 0x2B are user-defined fatal NACKs
-    ON_NACK_RSN_MAX_FATAL = ON_NACK_RSN_MAX_USR_FATAL,
+    ON_NACK_RSN_FATAL_ERR = 0xBF,    //! Some unspecified fatal error occurred.  Don't try to resend.
     
-
-    // 0x2C through 0x33 are currently unused and are available for assignment.
-
     
-    ON_NACK_RSN_MIN_USR_GENERAL = 0x34, //! NACK Reasons 0x34 through 0x3B are user-defined NACKs.  They are not pre-defined as fatal or non-fatal.
-	ON_NACK_RSN_MAX_USR_GENERAL = 0x3B, //! NACK Reasons 0x34 through 0x3B are user-defined NACKs.  They are not pre-defined as fatal or non-fatal.
-	ON_NACK_RSN_MIN_USR_NON_FATAL = 0x3C, //! NACK Reasons 0x3C through 0x3F are user-defined non-fatal NACKs
-	ON_NACK_RSN_MAX_USR_NON_FATAL = 0x3F, //! NACK Reasons 0x3C through 0x3F are user-defined non-fatal NACKs
-	ON_NACK_RSN_MAX_NACK_RSN_VALUE = ON_NACK_RSN_MAX_USR_FATAL
+    // 0xC0 through 0xFF are reserved for fatal user-defined errors
+    ON_NACK_RSN_MIN_USR_FATAL = 0xC0, //! User-defined fatal NACK code start
+    ON_NACK_RSN_MAX_USR_FATAL = 0xFF //! User-defined fatal NACK code start
 } on_nack_rsn_t;
 
 
