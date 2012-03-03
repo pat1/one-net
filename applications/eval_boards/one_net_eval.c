@@ -1258,6 +1258,8 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         oncli_send_msg("Payload CRC = 0x%02X, Calculated "
                           "Payload CRC = 0x%02X, CRCs%s match.\n",
                           decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
+                        oncli_send_msg("Msg. ID=%03X\n", get_payload_msg_id(decrypted));
+                          
                         #ifdef _ONE_NET_MULTI_HOP
                         {
                             if(packet_is_multihop(raw_pid))
