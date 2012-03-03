@@ -852,12 +852,13 @@ BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted)
 
     \param[in] raw_pid the raw pid of the packet
     \param[in] pkt_bytes The array holding the packet bytes
+    \param[in] msg_id The msg id to use, if any.  If 0, this is ignored.
     \param[out] pkt The on_pkt_t structure to fill
 
     \return TRUE if the on_pkt structure was set up successfully.
             FALSE upon error.
 */
-BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
+BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt8 msg_id, on_pkt_t* pkt)
 {
     SInt8 len = get_encoded_payload_len(raw_pid);
     if(len < 0)
@@ -872,6 +873,10 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, on_pkt_t* pkt)
     
     pkt->packet_bytes     = &pkt_bytes[0];
     pkt->raw_pid          = raw_pid;
+    if(msg_id)
+    {
+        pkt->msg_id = msg_id;
+    }
     pkt->packet_bytes[ON_ENCODED_PID_IDX] =
       decoded_to_encoded_byte(raw_pid, FALSE);
     pkt->payload_len      = (UInt8) len;
@@ -1362,7 +1367,7 @@ void one_net(on_txn_t ** txn)
                     device->msg_id = 0;
                 }
                 
-                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
+                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, 0,
                   &data_pkt_ptrs))
                 {
                     // an error of some sort occurred.  We likely have
@@ -1674,7 +1679,7 @@ void one_net(on_txn_t ** txn)
             if(!terminate_txn && response_msg_or_timeout)
             {
                 // rebuild the packet                
-                if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
+                if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, 0,
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
@@ -2506,7 +2511,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         }
     }
 
-    if(!setup_pkt_ptr(raw_pid, (*this_txn)->pkt, *this_pkt_ptrs))
+    if(!setup_pkt_ptr(raw_pid, (*this_txn)->pkt, 0, *this_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
     }

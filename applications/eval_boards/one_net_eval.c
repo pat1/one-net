@@ -1037,7 +1037,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
         on_pkt_t debug_pkt_ptrs;
         oncli_send_msg("Raw PID=%02X", raw_pid);
 
-        if(!setup_pkt_ptr(raw_pid, packet_bytes, &debug_pkt_ptrs))
+        if(!setup_pkt_ptr(raw_pid, packet_bytes, 0, &debug_pkt_ptrs))
         {
             oncli_send_msg(" is invalid\n");
         }

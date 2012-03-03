@@ -781,7 +781,7 @@ ocsdh_build_resp:
     response_pid = get_single_response_pid(pkt->raw_pid,
       ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR, stay_awake);
 
-    if(!setup_pkt_ptr(response_pid, response_txn.pkt, &response_pkt_ptrs))
+    if(!setup_pkt_ptr(response_pid, response_txn.pkt, 0, &response_pkt_ptrs))
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
