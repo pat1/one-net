@@ -851,8 +851,6 @@ enum
     //! Length of encoded message CRC
     ONE_NET_ENCODED_MSG_CRC_LEN = 1,
     
-    // Note that ON_ENCODED_MSG_ID_LEN is defined as 2 in one_net_constants.h
-    
     //! The size of the encoded Packet ID field
     ON_ENCODED_PID_SIZE = 1,
 
@@ -869,12 +867,9 @@ enum
     ON_ENCODED_MSG_CRC_IDX = ON_ENCODED_RPTR_DID_IDX + ON_ENCODED_DID_LEN,
         
     ON_ENCODED_DST_DID_IDX = ON_ENCODED_MSG_CRC_IDX + ONE_NET_ENCODED_MSG_CRC_LEN,
-        
-    //! The index into the encoded packet where the message CRC lies
-    ON_ENCODED_MSG_ID_IDX = ON_ENCODED_DST_DID_IDX + ON_ENCODED_DID_LEN,
 
     //! The index into the encoded packet where the NID starts.
-    ON_ENCODED_NID_IDX = ON_ENCODED_MSG_ID_IDX + ON_ENCODED_MSG_ID_LEN,
+    ON_ENCODED_NID_IDX = ON_ENCODED_DST_DID_IDX + ON_ENCODED_DID_LEN,
 
     //! The index into the encoded packet where the source DID starts.
     ON_ENCODED_SRC_DID_IDX = ON_ENCODED_NID_IDX + ON_ENCODED_NID_LEN,
