@@ -720,8 +720,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     
     // now finish building the packet.
     if((status = on_complete_pkt_build(&data_pkt_ptrs,
-      data_pkt_ptrs.msg_id, ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT))
-      != ONS_SUCCESS)
+      ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)) != ONS_SUCCESS)
     {
         return status;                          
     }
@@ -1819,8 +1818,7 @@ omsdh_build_resp:
         return ON_MSG_INTERNAL_ERR;
     }
     
-    if(on_complete_pkt_build(&response_pkt_ptrs, msg_hdr.msg_id, response_pid)
-      != ONS_SUCCESS)
+    if(on_complete_pkt_build(&response_pkt_ptrs, response_pid) != ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;

@@ -706,8 +706,7 @@ one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
 }
 
 
-one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
-  UInt16 msg_id, UInt8 pid)
+one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid)
 {
     UInt8 msg_crc, msg_crc_calc_len;
     UInt8* msg_crc_start;
@@ -1429,8 +1428,8 @@ void one_net(on_txn_t ** txn)
                 }
 
                 // now finish building the packet.
-                if(on_complete_pkt_build(&data_pkt_ptrs,
-                  device->msg_id, single_msg.raw_pid) != ONS_SUCCESS)
+                if(on_complete_pkt_build(&data_pkt_ptrs, single_msg.raw_pid) !=
+                  ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
                     return; // no outstanding transaction                            
@@ -1679,8 +1678,7 @@ void one_net(on_txn_t ** txn)
                   &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
-                  &data_pkt_ptrs, (*txn)->device->msg_id, single_msg.raw_pid)
-                  == ONS_SUCCESS)
+                  &data_pkt_ptrs, single_msg.raw_pid) == ONS_SUCCESS)
                 {
                     // do nothing. everything worked.
                 }

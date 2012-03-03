@@ -813,8 +813,7 @@ ocsdh_build_resp:
         return ON_MSG_INTERNAL_ERR;
     }
     
-    if(on_complete_pkt_build(&response_pkt_ptrs, msg_hdr.msg_id, response_pid)
-      != ONS_SUCCESS)
+    if(on_complete_pkt_build(&response_pkt_ptrs, response_pid) != ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
