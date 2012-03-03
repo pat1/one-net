@@ -711,7 +711,6 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
 {
     UInt8 msg_crc, msg_crc_calc_len;
     UInt8* msg_crc_start;
-    on_raw_msg_id_t msg_id_buf;
     
     if(!pkt_ptrs)
     {
@@ -732,21 +731,6 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs,
       ONE_NET_ENCODED_MSG_CRC_LEN;
     msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_PLD_IDX]) +
       pkt_ptrs->payload_len) - msg_crc_start;
-    
-    // stick the message id into pkt_ptrs if it isn't already there.
-    // TODO - If we have the message ID and the CRC and the payload length
-    // in the packet pointers and the payload length, why not the pid?
-    // There are some redundancies and confusion about what structure should
-    // store what.  Whenever two structures store the same thing, you have to
-    // decide whether that is
-    // worth it and be careful to update BOTH structures when needed.
-    pkt_ptrs->msg_id = msg_id;
-    
-    // we shift in order to encode.  We saved the unshifted message id before
-    // shifting.
-    u16_to_msg_id_buf(msg_id, (on_raw_msg_id_t*) msg_id_buf);
-    on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
-      msg_id_buf, ON_ENCODED_MSG_ID_LEN);
     
     #ifdef _ONE_NET_MULTI_HOP
     // fill in hops if needed
@@ -2328,7 +2312,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     on_data_t type = ON_NO_TXN;
     UInt8* pkt_bytes;
-    on_raw_msg_id_t msg_id_buf;
 
     
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
@@ -2668,16 +2651,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         // try the old key
         key = (one_net_xtea_key_t*) &(on_base_param->old_key);
     }
-    
-    // decode the message id and fill it in.  
-    if(on_decode(msg_id_buf,
-      &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_MSG_ID_IDX]),
-      ON_ENCODED_MSG_ID_LEN) != ONS_SUCCESS)
-    {
-        return ONS_BAD_ENCODING;
-    }
-
-    (*this_pkt_ptrs)->msg_id = msg_id_buf_to_u16((on_raw_msg_id_t*) msg_id_buf);
 
     // set the key
     (*this_txn)->key = key;
