@@ -226,8 +226,6 @@ void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 */
 UInt16 did_to_u16(const on_raw_did_t *DID);
 
-#define msg_id_buf_to_u16 did_to_u16
-
 
 /*!
     \brief converts a U16 value to a raw DID
