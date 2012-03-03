@@ -2269,7 +2269,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
         #ifdef _DEVICE_SLEEPS
         // we'll stay awake in case there is a follow-up.
-        
+        ont_set_timer(STAY_AWAKE_TIMER, MS_TO_TICK(3000));
         #endif
     }
     
