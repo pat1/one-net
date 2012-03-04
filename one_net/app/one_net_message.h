@@ -137,36 +137,37 @@ typedef UInt16 ona_msg_class_t;
 
 //!< Status of a unit (not part of an ACK -- or part of an ACk but not
 //!< fit any of the categories below)
-#define ONA_STATUS                 0x0000
+#define ONA_STATUS                 0x000
 
 //!< Status of a unit has changed(i.e. switch has been flipped)
-#define ONA_STATUS_CHANGE          0x1000
+#define ONA_STATUS_CHANGE          0x100
 
 //!< Status of a unit (in the ACK in response to a query)
-#define ONA_STATUS_QUERY_RESP      0x2000
+#define ONA_STATUS_QUERY_RESP      0x200
 
 //!< Status of a unit (in the ACK in response to a fast query)
-#define ONA_STATUS_FAST_QUERY_RESP 0x3000
+#define ONA_STATUS_FAST_QUERY_RESP 0x300
 
 //!< Status of a unit (in the ACK in response to a command)
-#define ONA_STATUS_COMMAND_RESP    0x4000
+#define ONA_STATUS_COMMAND_RESP    0x400
 
 //!< Command to change status of a unit
-#define ONA_COMMAND                0x5000
+#define ONA_COMMAND                0x500
 
 //!< Query status of a unit
-#define ONA_QUERY                  0x6000
+#define ONA_QUERY                  0x600
 
 //!< Fast Query / "poll" status of a unit
-#define ONA_FAST_QUERY             0x7000
+#define ONA_FAST_QUERY             0x700
 
-// TODO - looks like we have a spare bit here.  Range is 0 to 7, but we have
-// 4 bits reserved.  Shall we reserve only 3 bits instead, leave 8 to 15 for
-// future use, or allow 8 to 15 to be user defined?
+// Message classes 0x800 to 0xF00 are currently unused
 
 
 //!< Used to mask message class bits
-#define ONA_MSG_CLASS_MASK         0xF000
+#define ONA_MSG_CLASS_MASK         0xF00
+
+//!< Used to shift the message class and message type bits
+#define ONA_MSG_CLASS_TYPE_SHIFT 4
 
 //!< Status Message Macro.  This can be used to quickly ascertain whether he message
 //!< is a status message if all status messages are to treated the same.

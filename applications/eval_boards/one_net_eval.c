@@ -424,9 +424,9 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
-    UInt8 src_unit, dst_unit;
+    UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
-    UInt16 msg_type, msg_data;
+    UInt16 msg_data;
 
 
     #ifndef _ONE_NET_MULTI_HOP

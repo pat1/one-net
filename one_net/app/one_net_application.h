@@ -61,47 +61,48 @@
 
 
 
-/* get the 16-bit message header (message class, message type) */
-ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8 *payload)
+/* get the 12-bit message header (message class, message type) */
+ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8* payload)
 {
-    return ((UInt16)payload[ONA_MSG_HDR_IDX]<< 8) | 
-            (UInt16)payload[ONA_MSG_HDR_IDX+1];
+    UInt16 msg_hdr = payload[ONA_MSG_HDR_IDX];
+    msg_hdr <<= ONA_MSG_CLASS_TYPE_SHIFT;
+    return msg_hdr + (payload[ONA_MSG_HDR_IDX + 1] >> ONA_MSG_CLASS_TYPE_SHIFT);
 }
 
-ONE_NET_INLINE void put_msg_hdr(UInt16 data, UInt8 *payload)
+/* put the 12-byte message header into the payload */
+ONE_NET_INLINE void put_msg_hdr(UInt16 hdr, UInt8* payload)
 {
-    payload[ONA_MSG_HDR_IDX]   = data >> 8;
-    payload[ONA_MSG_HDR_IDX+1] = data;
+    payload[ONA_MSG_HDR_IDX]   = hdr >> ONA_MSG_CLASS_TYPE_SHIFT;
+    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX+1] |= (hdr << ONA_MSG_CLASS_TYPE_SHIFT);
 }
 
-ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8 *payload)
+ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8* payload)
 {
-    UInt16 class_and_type = get_msg_hdr(payload);
-    return class_and_type & ONA_MSG_CLASS_MASK;
+    UInt16 class_no_shift = (payload[ONA_MSG_HDR_IDX] & 0xF0);
+    return (class_no_shift << ONA_MSG_CLASS_TYPE_SHIFT);
 }
 
 ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
   UInt8 *payload)
 {
-    UInt16 class_and_type = get_msg_hdr(payload);
-    class_and_type &= ~ONA_MSG_CLASS_MASK;
-    class_and_type |= msg_class;
-    put_msg_hdr(class_and_type, payload);
+    msg_class &= ONA_MSG_CLASS_MASK;
+    payload[ONA_MSG_HDR_IDX] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX] |= (msg_class >> ONA_MSG_CLASS_TYPE_SHIFT);
 }
 
-ONE_NET_INLINE UInt16 get_msg_type(const UInt8 *payload)
+ONE_NET_INLINE UInt8 get_msg_type(const UInt8 *payload)
 {
-    UInt16 class_and_type = get_msg_hdr(payload);
-    return class_and_type & ~ONA_MSG_CLASS_MASK;    
+    return ((payload[ONA_MSG_HDR_IDX] << ONA_MSG_CLASS_TYPE_SHIFT) +
+      (payload[ONA_MSG_HDR_IDX+1] >> ONA_MSG_CLASS_TYPE_SHIFT));
 }
 
-ONE_NET_INLINE void put_msg_type(ona_msg_class_t msg_type,
-  UInt8 *payload)
+ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
 {
-    UInt16 class_and_type = get_msg_hdr(payload);
-    class_and_type &= ONA_MSG_CLASS_MASK;
-    class_and_type |= msg_type;
-    put_msg_hdr(class_and_type, payload);
+    payload[ONA_MSG_HDR_IDX] &= 0xF0;
+    payload[ONA_MSG_HDR_IDX] |= (msg_type >> 4);
+    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
 }
 
 /* get the 16-bit message data from the payload buffer */
@@ -413,7 +414,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 
 // parsing functions
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
-  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt16* const
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, UInt16* const msg_data);
 
 
