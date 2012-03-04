@@ -1873,7 +1873,7 @@ static BOOL check_in_with_master(void)
     }
     #endif
     
-    if(!ont_inactive_or_expired(ONT_KEEP_ALIVE_TIMER))
+    if(!ont_expired(ONT_KEEP_ALIVE_TIMER))
     {
         return FALSE;
     }
