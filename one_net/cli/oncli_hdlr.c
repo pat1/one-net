@@ -1678,7 +1678,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt8 raw_pid, pld_len, msg_type;
     
     #ifdef _EXTENDED_SINGLE
-    UInt8* text_start_ptr = &raw_pld[ONA_MSG_SECOND_IDX];
+    UInt8* text_start_ptr = &raw_pld[ONA_TEXT_DATA_IDX];
     #endif
 
     if(!ASCII_PARAM_LIST)
@@ -1705,13 +1705,13 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if malformed parameter // 
 
     // get the data
-    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX;
+    data_len = sizeof(raw_pld) - ONA_TEXT_DATA_IDX;
     #ifdef _EXTENDED_SINGLE
-    data_len = sizeof(raw_pld) - ONA_MSG_DATA_IDX - 1;
+    data_len = sizeof(raw_pld) - ONA_TEXT_DATA_IDX - 1;
     #endif
     
-    if(!(PARAM_PTR = parse_ascii_tx_text_data(PARAM_PTR, &raw_pld[ONA_MSG_DATA_IDX],
-      &data_len)) || (*PARAM_PTR != '\n'))
+    if(!(PARAM_PTR = parse_ascii_tx_text_data(PARAM_PTR,
+      &raw_pld[ONA_TEXT_DATA_IDX], &data_len)) || (*PARAM_PTR != '\n'))
     {
         return ONCLI_PARSE_ERR;
     } // if parsing the data portion failed //
@@ -1721,12 +1721,12 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     msg_type = ONA_SIMPLE_TEXT;
 
     #ifdef _EXTENDED_SINGLE
-    if(data_len <= ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_MSG_DATA_IDX)
+    if(data_len <= ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_TEXT_DATA_IDX)
     {
         // pid, pld_len, msg_type already set.  Do nothing.
     }
     else if(data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN -
-      ONA_MSG_DATA_IDX -1)
+      ONA_TEXT_DATA_IDX -1)
     {
         raw_pid = ONE_NET_RAW_LARGE_SINGLE_DATA;
         pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;

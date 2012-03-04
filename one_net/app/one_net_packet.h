@@ -1123,28 +1123,28 @@ enum
     //! Byte 0 -- Source and destination units.  4 most significant bits are
     //!           source unit bits.  4 least significant bits are destination
     //!           unit bits.
-    //! Bytes 1 and 2 -- Message class and type.  Message class
-    //!           (i.e. ONA_COMMAND) are the 4 most significant bits of the
-    //!           bits of bytes 1 and 2.  The remaining 12 bits are the
-    //!           message type (i.e ONA_SWITCH)
-    //! Bytes 3 and 4 -- Message data.  The "data" of the message.  For a
-    //!           normal switch message, this would be ONA_ON, ONA_OFF, or
+    //! Bytes 1 and 2 -- Message class and type are the 12 left-most bytes.
+    //!           Message class (i.e. ONA_COMMAND) are the 4 most significant
+    //!           bits.  The remaining 8 bits are the message type
+    //!           (i.e ONA_SWITCH)
+    //! Bytes 2 thru 4 -- 20 bits.  Message data.  The "data" of the message.
+    //!           For a normal switch message, this would be ONA_ON, ONA_OFF, or
     //!           ONA_TOGGLE
     //!
     //!
-    //! Bytes 1 and 2(message type and class) are the "header".
+    //! First 12 bits(message type and class) are the "header".
     //!
     //!
     //! So a "Turn switch on command from unit 4 to unit 6 would be as follows
     //!
     //! Source Unit                 = 4 = 0100
     //! Destination Unit            = 6 = 0110
-    //! Message Class = ONA_COMMAND = 5 = 0101 (note ONA_COMMAND is 0x5000.
+    //! Message Class = ONA_COMMAND = 5 = 0101 (note ONA_COMMAND is 0x500.
     //!                                         We are isolating the left-most
     //!                                         4 bits.)
     //!
-    //! Message Type = ONA_SWITCH   = 0 = 000000000000 (12 bits)
-    //! Message Data = ONA_ON       = 1 = 0000000000000001 (16 bits)
+    //! Message Type = ONA_SWITCH   = 0 = 00000000 (8 bits)
+    //! Message Data = ONA_ON       = 1 = 00000000000000000001 (20 bits)
     //!
     //!
     //! 5 byte message is...
@@ -1182,10 +1182,10 @@ enum
     //!   put_msg_data(ONA_ON, payload);
     //!
     //!
-    //!   The message classes are shifted 12 bits precisely so that the "OR"
-    //!   operator will work as above.  ONA_COMMAND is defined as 0x5000, that
-    //!   is 5 followed by 12 empty bits.  ONA_SWITCH is 0x000, which is
-    //!   exactly 12 bits long.  Thus the message class and message type do
+    //!   The message classes are shifted 8 bits precisely so that the "OR"
+    //!   operator will work as above.  ONA_COMMAND is defined as 0x500, that
+    //!   is 5 followed by 12 empty bits.  ONA_SWITCH is 0x00, which is
+    //!   exactly 8 bits long.  Thus the message class and message type do
     //!   not overlap and the message class is shifted in such a way that the
     //!   | ("OR") operator can be used.
     //!
@@ -1197,37 +1197,37 @@ enum
     //!   This 5-byte payload is specified in the ONE-NET specification and
     //!   should be used whenever for all "ON_APP_MSG" messages.  Users can send
     //!   5-byte payloads which do not follow this layout, but they must not
-    //!   specify "ON_APP_MSG" when creating the message.
+    //!   specify "ON_APP_MSG" when creating the message.  Not ethat there are
+    //!   many message types that do not take full advantage of all 20 message
+    //!   data bytes.  Examples are switch messages, which use only 2, and text
+    //!   messages, which use 16 of the 20.  In fact, the majority of messages
+    //!   will not use all 20 bits, but some do.  If this is the case, it may
+    //!   be useful to change the code so taht message data does not use a
+    //!   UInt32, but rather a UInt8 or a UInt16.  That can save stack space and
+    //!   memory.
 
     
     
     //! Index of header within single packet payload (header is message
     //! class and message type
-    ONA_MSG_FIRST_IDX      = 0,
-    ONA_MSG_SECOND_IDX     = 3,
-    ONA_MSG_THIRD_IDX      = 4,
+    ONA_UNIT_IDX      = 0,
 
-    ONA_MSG_SRC_UNIT_IDX   = ONA_MSG_FIRST_IDX, // Where the byte is
+    ONA_MSG_SRC_UNIT_IDX   = ONA_UNIT_IDX, // Where the byte is
     ONA_MSG_SRC_UNIT_MASK  = 0xf0,  // Where the bits are in the byte
     ONA_MSG_SRC_UNIT_SHIFT = 4,     // Shift left this much to put them in
 
-    ONA_MSG_DST_UNIT_IDX   = ONA_MSG_FIRST_IDX,     // Where the byte is
+    ONA_MSG_DST_UNIT_IDX   = ONA_UNIT_IDX,     // Where the byte is
     ONA_MSG_DST_UNIT_MASK  = 0x0f,  // Where the bits are in the byte
     ONA_MSG_DST_UNIT_SHIFT = 0,     // Shift left this much to put them in
 
     // Header now follows src/dst addresses
     ONA_MSG_HDR_IDX = 1,
 
-    //! Length of the header within single packet payload
-    ONA_MSG_HDR_LEN = 2,
-
     //! Index of Message Data within payload
-    ONA_MSG_DATA_IDX = ONA_MSG_SECOND_IDX,
+    ONA_TEXT_DATA_IDX = 3,
 
     //! Length of Message Data
-    ONA_MSG_DATA_LEN = 2,
-
-    ONA_MSG_NUM_BYTES = 3, // three of the five bites are msg stuff
+    ONA_SIMPLE_TEXT_DATA_LEN = 2,
 };
 
 

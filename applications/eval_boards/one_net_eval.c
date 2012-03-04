@@ -482,7 +482,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         if(msg_type == ONA_TEXT)
         {
             // this is a NULL-terminated string, so find out how long it is;
-            const UInt8* ptr = &raw_pld[ONA_MSG_DATA_IDX];
+            const UInt8* ptr = &raw_pld[ONA_TEXT_DATA_IDX];
             text_len = 0;
             while(*ptr != 0)
             {
@@ -493,7 +493,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         #endif
         
         #ifdef _UART
-        print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_MSG_DATA_IDX]),
+        print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_TEXT_DATA_IDX]),
           text_len, src_did);
         #endif
         return ON_MSG_CONTINUE;
@@ -1548,9 +1548,10 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
     put_src_unit(src_unit, raw_pld);
     put_dst_unit(dst_unit, raw_pld);
     put_msg_hdr(ONA_COMMAND | ONA_SIMPLE_TEXT, raw_pld);    
-    // we won't use the put_msg_data function here due to
-    // endianness.  Instead use one_net_memmove
-    one_net_memmove(&raw_pld[ONA_MSG_DATA_IDX], text, ONA_MSG_DATA_LEN);
+
+    // simple text 
+    one_net_memmove(&raw_pld[ONA_TEXT_DATA_IDX], text,
+      ONA_SIMPLE_TEXT_DATA_LEN);
       
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,

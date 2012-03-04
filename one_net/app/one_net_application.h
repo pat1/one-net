@@ -108,8 +108,8 @@ ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
 /* get the 16-bit message data from the payload buffer */
 ONE_NET_INLINE UInt16 get_msg_data(const UInt8 *payload)
 {
-    return ((UInt16)payload[ONA_MSG_SECOND_IDX] << 8) |
-            (UInt16)payload[ONA_MSG_THIRD_IDX];
+    return ((UInt16)payload[3] << 8) |
+            (UInt16)payload[4];
 }
 
 /* store the 16-bit message data in the payload buffer
@@ -117,8 +117,8 @@ ONE_NET_INLINE UInt16 get_msg_data(const UInt8 *payload)
  */
 ONE_NET_INLINE void put_msg_data(UInt16 data, UInt8 *payload)
 {
-    payload[ONA_MSG_SECOND_IDX] = data >> 8;
-    payload[ONA_MSG_THIRD_IDX]  = data;
+    payload[3] = data >> 8;
+    payload[4]  = data;
 }
 
 /* get the 8-bit source unit data value from the payload buffer */
