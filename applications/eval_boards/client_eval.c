@@ -199,7 +199,7 @@ void init_auto_client(UInt8 index)
 
     on_encode(&on_base_param->sid[ON_ENCODED_NID_LEN],
       RAW_AUTO_CLIENT_DID[index], ON_ENCODED_DID_LEN);
-    master->keep_alive_interval = DEFAULT_EVAL_KEEP_ALIVE_MS;
+    master->keep_alive_interval = 0; // don't check in for auto mode
     master->flags = ON_JOINED;
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = THIS_DEVICE_FEATURES;

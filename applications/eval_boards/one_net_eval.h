@@ -31,7 +31,6 @@
 #ifdef _AUTO_MODE
 extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
 extern const on_encoded_did_t ENC_AUTO_CLIENT_DID[];
-extern const tick_t DEFAULT_EVAL_KEEP_ALIVE_MS;
 #endif
 
 #if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)

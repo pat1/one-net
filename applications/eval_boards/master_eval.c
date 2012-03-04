@@ -295,8 +295,7 @@ void init_auto_master(void)
         client_list[i].use_current_key = TRUE;
         client_list[i].device.msg_id = one_net_prand(get_tick_count(),
           ON_MAX_MSG_ID / 2);
-        client_list[i].keep_alive_interval = MS_TO_TICK(
-            DEFAULT_EVAL_KEEP_ALIVE_MS);
+        client_list[i].keep_alive_interval = 0; // don't check in for auto mode
     }
 
     #ifdef _PEER
