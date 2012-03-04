@@ -65,6 +65,7 @@
 */
 
 #include "config_options.h"
+#include "one_net_port_const.h"
 #include "one_net_timer_port_const.h"
 
 #include "tick.h"

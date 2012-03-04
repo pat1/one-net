@@ -2,6 +2,13 @@
 #define _ONE_NET_PORT_CONST_H
 
 #include "config_options.h"
+
+#ifdef _ONE_NET_CLIENT
+#include "one_net_client_port_const.h" // for the _DEVICE_SLEEPS constant, if
+                                       // defined.
+#endif
+
+
 #include "one_net_data_rate.h"
 
 

@@ -48,6 +48,11 @@
 //                                  CONSTANTS
 
 
+//! Define this if this device ever goes to sleep.
+#ifndef _DEVICE_SLEEPS
+    // #define _DEVICE_SLEEPS
+#endif
+
     
 enum
 {
@@ -61,7 +66,7 @@ enum
 //! 1s
 #define ONE_NET_SCAN_CHANNEL_TIME 1000
 
-//! Duration the client listens for an invite
+//! Duration the client listens for an invite.  10 minutes.
 #define ONE_NET_CLIENT_INVITE_DURATION 600000
 
 

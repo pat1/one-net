@@ -104,6 +104,10 @@ enum
 };
 
 
+// _DEVICE_SLEEPS should be defined in one_net_client_port_const.h if this
+// device EVER goes to sleep.  Note that one_net_port_const.h should #include
+// one_net_client_port_const.h if _ONE_NET_CLIENT is defined, so we don't need
+// to #include it here.
 enum
 {
     THIS_DEVICE_FEATURE_BITS =
