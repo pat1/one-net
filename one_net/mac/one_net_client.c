@@ -968,7 +968,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             #endif
             {
                 // success.  We'll check in immediately again.
-                master->keep_alive_interval = 0;
+                master->keep_alive_interval = 1;
                 break;
             }
             
@@ -1016,7 +1016,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 // experimentation is needed, but the random pause now seems
                 // more trouble than it's worth.  The comments above may be
                 // largely obsolete, but keeping them in anyway for now.
-                master->keep_alive_interval = 0;
+                master->keep_alive_interval = 1;
                                
                 if(ack_nack->handle == ON_ACK_ADMIN_MSG)
                 {
@@ -1175,9 +1175,13 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]))
       && ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
-        // We have checked in.  Reset the Keep-Alive Timer.
-        ont_set_timer(ONT_KEEP_ALIVE_TIMER,
-          MS_TO_TICK(master->keep_alive_interval));
+        // We have checked in.  Reset the Keep-Alive Timer if we are sending
+        // regular updates
+        if(master->keep_alive_interval > 0)
+        {
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER,
+              MS_TO_TICK(master->keep_alive_interval));
+        }
     }
     
     return ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR ? ON_MSG_SUCCESS :

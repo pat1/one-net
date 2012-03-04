@@ -3296,6 +3296,10 @@ static void check_clients_for_missed_check_ins(void)
     UInt8 pld[4];
     for(i = 0; i < master_param->client_count; i++)
     {
+        if(client_list[i].keep_alive_interval == 0)
+        {
+            continue; // this client is not expected to check in.
+        }
         if(client_list[i].next_check_in_time < time_now)
         {
             if(one_net_master_client_missed_check_in(&client_list[i]) &&

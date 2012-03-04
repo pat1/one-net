@@ -276,6 +276,10 @@ typedef struct
     on_sending_device_t device;
 
     //! Interval at which the device must communicate with the MASTER(in ms)
+    //! If the interval is 0, clients are NOT expected to check in regularly
+    //! with the master.  To force a client to check in immediately, you can
+    //! set this to 1.  Don't set it to 0.  Setting it to 0 will cause the
+    //! device to think it is not supposed to check-in regularly.
     UInt32 keep_alive_interval;
     
     //! Bitmap of communication and MASTER settable flags

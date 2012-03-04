@@ -77,14 +77,22 @@ enum
 //! busy channel.
 #define ONE_NET_MASTER_CHANNEL_SCAN_TIME 10000
 
-//! The default keep alive interval in ticks to assign to new clients.
+//! The default keep alive interval in ms to assign to new clients.  30 minutes
+//! If clients are not expected to check in regularly, change this value to 0.
 #define ONE_NET_MASTER_DEFAULT_KEEP_ALIVE 1800000
 
-//! Duration the MASTER sends the new CLIENT invite.
+//! Duration the MASTER sends the new CLIENT invite, in ms.  10 minutes
 #define ONE_NET_MASTER_INVITE_DURATION 600000
 
 //! Default of whether the master wants to the client to inform it when
-//! status is changed.  Should be TRUE or FALSE
+//! status is changed.  Should be TRUE or FALSE.  An example of this might
+//! be a motion sensor that is expected to inform the master whenever triggered.
+//! Note that one can also choose to set this value as FALSE and still inform
+//! the master when this happens via the application code.  Setting this value
+//! to TRUE will inform the master to tell all clients to send it updates of any
+//! status message.  Note that the master can choose to have some clients have
+//! this flag set, but not others and can change it at any time.  This value
+//! simply sets the INITIAL flag.
 #define ONE_NET_MASTER_SEND_TO_MASTER TRUE
 
 
