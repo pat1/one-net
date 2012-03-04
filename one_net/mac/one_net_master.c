@@ -195,9 +195,6 @@ static tick_t remove_device_start_time = 0;
 //! The time that the add device update started.
 static tick_t add_device_start_time = 0;
 
-//! The time that the change update started.
-static tick_t change_key_start_time = 0;
-
 
 
 //! @} ONE-NET_MASTER_pri_var
@@ -597,8 +594,6 @@ one_net_status_t one_net_master_change_key_fragment(
     }
     
     key_update_in_progress = TRUE;
-    change_key_start_time = get_tick_count();
-
     one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
     one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       key_fragment, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
@@ -2541,19 +2536,6 @@ static void check_updates_in_progress(void)
     {
         key_change_requested = FALSE; // already changing it.  No need to
                                       // flag it to change again.
-        if(time_now > add_device_start_time + UPDATE_TIME_LIMIT)
-        {
-            // time's up.  Set everyone's flag to "sent" even if they have not
-            // sent.  This does not include devices that sleep.
-            for(i = 0; i < master_param->client_count; i++)
-            {
-                if(!features_device_sleeps(client_list[i].device.features))
-                {
-                    client_list[i].send_add_device_message = FALSE;
-                }
-            }
-        }        
-        
         key_update_in_progress = FALSE;
 
         // now check if we're done with this update.
@@ -2561,12 +2543,19 @@ static void check_updates_in_progress(void)
         {
             if(!client_list[i].use_current_key)
             {
-                admin_msg_id = ON_NEW_KEY_FRAGMENT;
-                one_net_memmove(admin_payload, &(on_base_param->current_key[
-                  3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                key_update_in_progress = TRUE;
-                break; // we have one.
+                key_update_in_progress = TRUE; // at least one device has not
+                                               // been updated
+                                               
+                // if it doesn't sleep, send it out.  Otherwise we'll have to
+                // wait till it checks in.                
+                if(!features_device_sleeps(client_list[i].device.features))
+                {
+                    admin_msg_id = ON_NEW_KEY_FRAGMENT;
+                    one_net_memmove(admin_payload, &(on_base_param->current_key[
+                      3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                    break; // we have an update to send.
+                }
             }
         }
 
