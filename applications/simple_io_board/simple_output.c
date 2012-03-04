@@ -121,7 +121,7 @@ static UInt8 voltage_status = ONA_VOLTAGE_GOOD;
 //! @{
 
 static BOOL set_output(UInt8 unit, BOOL ON);
-static BOOL get_output(UInt8 unit, UInt16 *status);
+static BOOL get_output(UInt8 unit, UInt8* status);
 
 //! @} simple_relay_pri_func
 //                          PRIVATE FUNCTION DECLARATIONS END
@@ -146,9 +146,9 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     // Rough skeleton -- this will change!
     
     
-    UInt8 src_unit, dst_unit;
+    UInt8 src_unit, dst_unit, msg_type, msg_data, original_state;
     ona_msg_class_t msg_class;
-    UInt16 msg_type, msg_data, original_state;
+    UInt32 tmp;
     #ifdef _PEER
     ona_msg_class_t original_class;
     BOOL forward_to_peer = TRUE;
@@ -164,7 +164,8 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     }
     
     on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
-      &msg_data);
+      &tmp);
+    msg_data = (UInt8) tmp;
     
     #ifdef _PEER  
     original_class = msg_class;
@@ -391,7 +392,7 @@ static BOOL set_output(UInt8 unit, BOOL ON)
             FALSE if returning the status was not successful (invalid params or
               and invalid unit).
 */
-static BOOL get_output(UInt8 unit, UInt16 *status)
+static BOOL get_output(UInt8 unit, UInt8* status)
 {
     UInt8 stat8; /* local variable for get_output() */
 
