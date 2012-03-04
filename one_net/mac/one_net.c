@@ -2021,11 +2021,11 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     }
     
     #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
-    if(device_is_master && packet_is_stay_awake(*(pkt->pid)))
+    if(!device_is_master && packet_is_stay_awake(pkt->raw_pid))
     {
         // we received a stay-awake, so set the stay-awake timer
         // for 3 seconds
-        ont_set_timer(STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+        ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
     }
     #endif
 
@@ -2270,7 +2270,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
         #ifdef _DEVICE_SLEEPS
         // we'll stay awake in case there is a follow-up.
-        ont_set_timer(STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+        ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
         #endif
     }
     
