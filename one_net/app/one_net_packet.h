@@ -1184,7 +1184,7 @@ enum
     //!
     //!   The message classes are shifted 8 bits precisely so that the "OR"
     //!   operator will work as above.  ONA_COMMAND is defined as 0x500, that
-    //!   is 5 followed by 12 empty bits.  ONA_SWITCH is 0x00, which is
+    //!   is 5 followed by 8 empty bits.  ONA_SWITCH is 0x00, which is
     //!   exactly 8 bits long.  Thus the message class and message type do
     //!   not overlap and the message class is shifted in such a way that the
     //!   | ("OR") operator can be used.

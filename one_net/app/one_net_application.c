@@ -218,7 +218,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
 */
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
-  msg_type, UInt16* const msg_data)
+  msg_type, UInt32* const msg_data)
 {
     if(!payload || !src_unit || !dst_unit || !msg_class || !msg_type ||
       !msg_data)

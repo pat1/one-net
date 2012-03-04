@@ -813,7 +813,7 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 {
     UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
-    UInt16 msg_data;
+    UInt32 msg_data;
 
     on_parse_app_pld(pld, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);
@@ -824,7 +824,7 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
     oncli_send_msg(" : Src Unit-->0x%1X : Dst Unit-->0x%1X : ", src_unit,
       dst_unit);
     oncli_send_msg("Class-->0x%03X : Type-->0x%02X : ", msg_class, msg_type);
-    oncli_send_msg("Data:0x%04X\n", msg_data);
+    oncli_send_msg("Data:0x%05X\n", msg_data);
 }
 
 

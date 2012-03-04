@@ -105,20 +105,21 @@ ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
     payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
 }
 
-/* get the 16-bit message data from the payload buffer */
-ONE_NET_INLINE UInt16 get_msg_data(const UInt8 *payload)
+/* get the 32-bit message data from the payload buffer */
+ONE_NET_INLINE UInt32 get_msg_data(const UInt8* payload)
 {
-    return ((UInt16)payload[3] << 8) |
-            (UInt16)payload[4];
+    UInt16 lsb = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
+    return ((UInt32)(payload[2] & 0x0F) << 16) + lsb;
 }
 
-/* store the 16-bit message data in the payload buffer
- * Use platform-dependent function in one_net_port_specific.c
+/* store the 32-bit message data in the payload buffer
  */
-ONE_NET_INLINE void put_msg_data(UInt16 data, UInt8 *payload)
+ONE_NET_INLINE void put_msg_data(UInt32 data, UInt8 *payload)
 {
+    data &= 0x000FFFFF; // get rid of any illegal values.
+    payload[2] |= (data >> 16); 
     payload[3] = data >> 8;
-    payload[4]  = data;
+    payload[4] = data;
 }
 
 /* get the 8-bit source unit data value from the payload buffer */
@@ -415,7 +416,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 // parsing functions
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
-  msg_type, UInt16* const msg_data);
+  msg_type, UInt32* const msg_data);
 
 
 
