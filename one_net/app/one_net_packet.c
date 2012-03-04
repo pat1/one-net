@@ -266,8 +266,8 @@ BOOL packet_is_stay_awake(UInt8 raw_pid)
     raw_pid /= 5;
     #endif
     
-    return (raw_pid == ONE_NET_ENCODED_SINGLE_DATA_ACK_STAY_AWAKE ||
-            raw_pid == ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE);
+    return (raw_pid == ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE ||
+            raw_pid == ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE);
 }
 
 
