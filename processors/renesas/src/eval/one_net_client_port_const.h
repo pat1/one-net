@@ -61,6 +61,9 @@ enum
 //! 1s
 #define ONE_NET_SCAN_CHANNEL_TIME 1000
 
+//! Duration the client listens for an invite
+#define ONE_NET_CLIENT_INVITE_DURATION 600000
+
 
 
 

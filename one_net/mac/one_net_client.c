@@ -307,23 +307,12 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 	}
     else
     {
-        // TODO -- should this time out at all?  Seems like it should not?
-        // Regardless, this is a MASTER constant.  We don't want a MASTER
-        // constant in one_net_client.c.  Either get rid of it entirely or
-        // rename it and make it non-master-specific.  For now, hard-code
-        // 10 minutes (600,000 ms) as a value.
         ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(
-          /*ONE_NET_MASTER_INVITE_DURATION*/600000));
+          ONE_NET_CLIENT_INVITE_DURATION));
     }
     #else
     on_base_param->channel = one_net_prand(time_now, ONE_NET_MAX_CHANNEL);
-    // TODO -- should this time out at all?  Seems like it should not?
-    // Regardless, this is a MASTER constant.  We don't want a MASTER
-    // constant in one_net_client.c.  Either get rid of it entirely or
-    // rename it and make it non-master-specific.  For now, hard-code
-    // 10 minutes (600,000 ms) as a value.
-    ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(
-      /*ONE_NET_MASTER_INVITE_DURATION*/600000));
+    ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(ONE_NET_CLIENT_INVITE_DURATION));
     #endif
     
     // set up packet handlers, etc.
