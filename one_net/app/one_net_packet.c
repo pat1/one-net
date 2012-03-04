@@ -263,7 +263,7 @@ BOOL packet_is_stay_awake(UInt8 raw_pid)
     }
     
     #ifdef _EXTENDED_SINGLE
-    raw_pid /= 5;
+    raw_pid %= 5;
     #endif
     
     return (raw_pid == ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE ||
