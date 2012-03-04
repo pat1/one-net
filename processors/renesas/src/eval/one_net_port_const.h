@@ -60,6 +60,12 @@
 //! \defgroup ONE-NET_port_const_const
 //! \ingroup ONE-NET_port_const
 //! @{
+    
+  
+//! The amount of time a device that sleeps is expected to stay awake when there
+//! is "more to do" (in ms).  This needs to be defined for masters and for any
+//! client that sleeps.
+#define DEVICE_SLEEP_STAY_AWAKE_TIME 3000
 
 
 enum

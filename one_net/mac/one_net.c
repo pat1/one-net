@@ -2025,7 +2025,8 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     {
         // we received a stay-awake, so set the stay-awake timer
         // for 3 seconds
-        ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+        ont_set_timer(ONT_STAY_AWAKE_TIMER,
+          MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
     }
     #endif
 
@@ -2270,7 +2271,8 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
         #ifdef _DEVICE_SLEEPS
         // we'll stay awake in case there is a follow-up.
-        ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+        ont_set_timer(ONT_STAY_AWAKE_TIMER,
+          MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
         #endif
     }
     

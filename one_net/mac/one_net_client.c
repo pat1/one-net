@@ -49,7 +49,7 @@
 #ifdef _ONE_NET_CLIENT
 
 #include "one_net_client.h"
-#include "one_net_client_port_const.h"
+#include "one_net_port_const.h"
 #include "one_net.h"
 #include "one_net_port_specific.h"
 #include "one_net_client_port_specific.h"
@@ -877,7 +877,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         
             #ifdef _DEVICE_SLEEPS
             // We're possibly in the middle of a key change, so stay awake.
-            ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(3000));
+            ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
             #endif
         }
         
