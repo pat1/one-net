@@ -580,17 +580,10 @@ one_net_status_t one_net_master_change_key_fragment(
     
     // check to make sure the new key fragment doesn't match any of the old
     // ones.
+    if(check_keys_for_fragment(
+      (const one_net_xtea_key_fragment_t*)key_fragment))
     {
-        UInt8 i;
-        for(i = 0; i < 4; i++)
-        {
-            if(one_net_memcmp(key_fragment,
-              &(on_base_param->current_key[i*ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
-            {
-                return ONS_BAD_KEY_FRAGMENT;
-            }
-        }
+        return ONS_BAD_KEY_FRAGMENT;
     }
     
     key_update_in_progress = TRUE;
