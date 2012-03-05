@@ -712,6 +712,8 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     // now set up the next unused position in client_list for this client
     client = &client_list[vacant_index];
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
+    client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
+      ON_REJECT_INVALID_MSG_ID : 0);    
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
@@ -1169,6 +1171,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     //    
     client->device.msg_id = one_net_prand(get_tick_count(), 50);
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
+    client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
+      ON_REJECT_INVALID_MSG_ID : 0);
     client->flags |= ON_JOINED;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.features = features;

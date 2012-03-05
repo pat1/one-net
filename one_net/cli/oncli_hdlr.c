@@ -148,7 +148,11 @@ static const on_features_t add_master_features = {0x2E, 0x03, 0x3F, 0x87};
 static const on_raw_nid_t  add_nid = {0x00, 0x00, 0x00, 0x00, 0x10};
 static const one_net_xtea_key_t add_key = {0x00, 0x01, 0x02, 0x03, 0x04,
   0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+  
+// TODO -- change this to use the master port constant definitions?
+// Add the ON_REJECT_INVALID_MSG_ID flag too.
 static const UInt8 add_flags = ON_JOINED | ON_SEND_TO_MASTER;
+
 static const tick_t add_keep_alive = 1800000;
 static const UInt8 add_channel = 1;
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1392,8 +1396,10 @@ static oncli_status_t list_cmd_hdlr(void)
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
     {
-        oncli_send_msg("\n\nSend To Master: %s\n\n", master->flags &
+        oncli_send_msg("\n\nSend To Master: %s\n", master->flags &
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+        oncli_send_msg("Reject Bad Msg ID: %s\n", master->flags &
+          ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
         oncli_send_msg("\n\nMaster Features...\n\n");
         oncli_print_features(master->device.features);
         #if _DEBUG_VERBOSE_LEVEL > 5
@@ -1425,8 +1431,10 @@ static oncli_status_t list_cmd_hdlr(void)
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
             oncli_print_did(&(client->device.did));
             oncli_send_msg("\n");
-            oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
+            oncli_send_msg("\n\nSend To Master: %s\n",
               client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+            oncli_send_msg("Reject Bad Msg ID: %s\n\nFeatures...\n\n",
+              client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
             oncli_print_features(client->device.features);
             #if _DEBUG_VERBOSE_LEVEL > 5
             oncli_send_msg("\n\nCurrent Key: %s\n", client->use_current_key ?
