@@ -250,7 +250,6 @@ static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
 #endif
 
 static one_net_status_t init_internal(void);
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
 static void sort_client_list_by_encoded_did(void);
 static UInt16 find_lowest_vacant_did(void);
@@ -1519,56 +1518,31 @@ one_net_status_t one_net_master_change_frag_dly(
 
 
 /*!
-    \brief Sets the update MASTER flag in the CLIENT.
+    \brief Sets the MASTER flags in the CLIENT.
 
-    \param[in] UPDATE_MASTER TRUE if the device should update the MASTER
-                    when a status change occurs.  FALSE otherwise
-    \param[in] DST_DID The CLIENT to update.
+    \param[in] client The CLIENT to update.
+    \param[in] flags the new flags for the client
 
     \return ONS_SUCCESS if the command has successfully been queued.
             ONS_BAD_PARAM if any of the parameters are invalid.
-            ONS_INCORRECT_ADDR if the device does not exist.
             See the ONE-NET status codes for other possibilities for more
             return codes.
 */
-one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
-  const on_raw_did_t * const DST_DID)
+one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
 {
-    on_encoded_did_t did;
     one_net_status_t status;
-    on_client_t * client;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
 
-
-    if(!DST_DID)
+    if(!client)
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-
-    if((status = on_encode(did, *DST_DID, sizeof(did))) != ONS_SUCCESS)
-    {
-        return status;
-    } // if encoding was not successful //
-
-    if((client = client_info((const on_encoded_did_t * const)&did)) == 0)
-    {
-        return ONS_INCORRECT_ADDR;
-    } // if getting the client info was not successful //
     
+    client->flags = flags;
     pld[0] = client->flags;
-
-    if(UPDATE_MASTER)
-    {
-        pld[0] |= ON_SEND_TO_MASTER;
-    } // if the MASTER should be updated //
-    else
-    {
-        pld[0] &= ~ON_SEND_TO_MASTER;
-    } // else the MASTER does not want to be updated //
-
     return send_admin_pkt(ON_CHANGE_SETTINGS,
-      (const on_encoded_did_t * const)&did, pld, 0);
-} // one_net_master_set_update_master_flag //
+      (const on_encoded_did_t * const)client->device.did, pld, 0);
+} // one_net_master_set_flags //
 
 
 /*!
@@ -1637,6 +1611,44 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     return one_net_compute_crc(&param[CRC_LEN],
       expected_param_len - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
 } // master_nv_crc //
+
+
+/*!
+    \brief Returns the CLIENT information for the given CLIENT.
+
+    \param[in] CLIENT_DID The encoded device id of the CLIENT to retrieve the
+      information for.
+
+    \return The CLIENT information if the information was found
+            0 If an error occured.
+*/
+on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
+{
+    UInt16 i;
+
+    if(!CLIENT_DID)
+    {
+        return 0;
+    } // if the parameter is invalid //
+
+    for(i = 0; i < master_param->client_count; i++)
+    {
+        if(on_encoded_did_equal(CLIENT_DID,
+          (const on_encoded_did_t * const)&client_list[i].device.did))
+        {
+            return &(client_list[i]);
+        } // if the CLIENT was found //
+    } // loop to find the CLIENT //
+
+    // check to see if this is a device currently accepting an invite.
+    // If it is, then assign it the next DID
+    if(is_invite_did(CLIENT_DID))
+    {
+        return &client_list[master_param->client_count];
+    }
+
+    return 0;
+} // client_info //
 
 
 
@@ -2200,44 +2212,6 @@ static one_net_status_t init_internal(void)
     one_net_init();
     return ONS_SUCCESS;
 } // init_internal //
-
-
-/*!
-    \brief Returns the CLIENT information for the given CLIENT.
-
-    \param[in] CLIENT_DID The encoded device id of the CLIENT to retrieve the
-      information for.
-
-    \return The CLIENT information if the information was found
-            0 If an error occured.
-*/
-static on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
-{
-    UInt16 i;
-
-    if(!CLIENT_DID)
-    {
-        return 0;
-    } // if the parameter is invalid //
-
-    for(i = 0; i < master_param->client_count; i++)
-    {
-        if(on_encoded_did_equal(CLIENT_DID,
-          (const on_encoded_did_t * const)&client_list[i].device.did))
-        {
-            return &(client_list[i]);
-        } // if the CLIENT was found //
-    } // loop to find the CLIENT //
-
-    // check to see if this is a device currently accepting an invite.
-    // If it is, then assign it the next DID
-    if(is_invite_did(CLIENT_DID))
-    {
-        return &client_list[master_param->client_count];
-    }
-
-    return 0;
-} // client_info //
 
 
 /*!

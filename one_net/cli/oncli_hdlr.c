@@ -2661,7 +2661,9 @@ static oncli_status_t update_master_cmd_hdlr(
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_raw_did_t dst;
-    BOOL update_master = FALSE;
+    on_encoded_did_t enc_did;
+    on_client_t* client;
+    BOOL set_flag = FALSE;
     
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
@@ -2693,12 +2695,12 @@ static oncli_status_t update_master_cmd_hdlr(
     if(!strnicmp(ONCLI_SET_STR, PARAM_PTR, strlen(ONCLI_SET_STR)))
     {
         PARAM_PTR += strlen(ONCLI_SET_STR);
-        update_master = TRUE;
+        set_flag = TRUE;
     } // if updating the MASTER //
     else if(!strnicmp(ONCLI_CLR_STR, PARAM_PTR, strlen(ONCLI_CLR_STR)))
     {
         PARAM_PTR += strlen(ONCLI_CLR_STR);
-        update_master = FALSE;
+        set_flag = FALSE;
     } // else if not updating the MASTER //
     else
     {
@@ -2710,24 +2712,38 @@ static oncli_status_t update_master_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if the data is not formatted correctly //
     
+    if(on_encode(enc_did, dst, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_PARSE_ERR;
+    }
     
-    switch(one_net_master_set_update_master_flag(update_master, &dst))
+    client = client_info(&enc_did);
+    if(!client)
+    {
+        return ONCLI_INVALID_DST;
+    }
+    
+    if(set_flag)
+    {
+        client->flags |= ON_SEND_TO_MASTER;
+    }
+    else
+    {
+        client->flags &= ~ON_SEND_TO_MASTER;
+    }
+    
+    switch(one_net_master_set_flags(client, client->flags))
     {
         case ONS_SUCCESS:
         {
             return ONCLI_SUCCESS;
         } // success case //
 
-        case ONS_INCORRECT_ADDR:
-        {
-            return ONCLI_INVALID_DST;
-        } // incorrect address case //
-
         default:
         {
             return ONCLI_CMD_FAIL;
         } // default case //
-    } // switch(one_net_master_set_update_master_flag) //
+    } // switch(one_net_master_set_flaga) //
 }
 #endif
 

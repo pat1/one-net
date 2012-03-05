@@ -214,8 +214,7 @@ one_net_status_t one_net_master_change_frag_dly(
   const on_raw_did_t * const RAW_DST, const UInt16 LOW_DELAY,
   const UInt16 HIGH_DELAY);
 #endif
-one_net_status_t one_net_master_set_update_master_flag(const BOOL UPDATE_MASTER,
-  const on_raw_did_t * const DST_DID);
+one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags);
   
 #ifndef _PEER
 int master_nv_crc(const UInt8* param, int param_len);
@@ -226,6 +225,8 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
 
 one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did);
+  
+on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 
 
 
