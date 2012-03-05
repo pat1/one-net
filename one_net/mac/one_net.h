@@ -728,6 +728,9 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
 #endif
 
 
+BOOL check_keys_for_fragment(const one_net_xtea_key_fragment_t* const fragment);
+
+
 
 
 

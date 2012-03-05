@@ -3197,6 +3197,42 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
 #endif
 
 
+/*!
+    \brief Check whether a key fragment is currently in the base parameter
+           memory.
+           
+    \param fragment The fragment to check.
+
+    \return TRUE If the fragment is in the old key or the new key
+            FALSE If the fragment is not in the old key or the new key
+*/
+BOOL check_keys_for_fragment(const one_net_xtea_key_fragment_t* const fragment)
+{
+    UInt8 i;
+    const one_net_xtea_key_fragment_t* param_frag = &(on_base_param->old_key);
+    
+    if(!fragment)
+    {
+        return FALSE;
+    }
+    
+    // check whether the fragment matches anything we have already (Need to
+    // check the old key fragment and 4 from the new one.  1 + 4 = 5.
+    for(i = 0; i < 5; i++)
+    {
+        if(one_net_memcmp(*param_frag, *fragment,
+          ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+        {
+            oncli_send_msg("match\n");
+            return TRUE; // match
+        }
+        param_frag++;
+    }
+    
+    return FALSE;
+}
+
+
 
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
