@@ -514,12 +514,7 @@ tick_t one_net_client(void)
     // calculate the allowable sleep time for devices that sleep
     
     // first some cases where we cannot sleep at all.
-    #ifdef _DEVICE_SLEEPS
-    if(txn || ont_active(ONT_STAY_AWAKE_TIMER) || on_state !=
-      ON_LISTEN_FOR_DATA)
-    #else
     if(txn || on_state != ON_LISTEN_FOR_DATA)
-    #endif
     {
         sleep_time = 0;
     }
@@ -555,6 +550,13 @@ tick_t one_net_client(void)
             sleep_time = 0;
         }
     }
+    
+    #ifdef _DEVICE_SLEEPS
+    if(ont_get_timer(ONT_KEEP_ALIVE_TIMER))
+    {
+        sleep_time = 0;
+    }
+    #endif
     
     #ifdef _NON_VOLATILE_MEMORY
     // if we're going to do anything soon, don't save since things might change
