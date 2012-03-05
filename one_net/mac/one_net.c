@@ -2262,13 +2262,21 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     
     ack_nack->handle = ON_ACK;
     
-    // make sure the key used is the current key.  If it isn't, send back a
-    // NACK with a nack reason of ON_NACK_RSN_BAD_KEY.  This will cause the
-    // other device to check in with the master and get the new key.
+    // make sure the key used is the current key.  If it isn't, we may send back
+    // a NACK with a nack reason of ON_NACK_RSN_BAD_KEY.  This will cause the
+    // other device to check in with the master and get the new key.  If we ARE
+    // the master and the device IS checking in, then we'll let the message go a
+    // little farther because a main part of the check-in is to make sure the
+    // client has the right key.
     if(one_net_memcmp(on_base_param->old_key, *((*txn)->key),
       ONE_NET_XTEA_KEY_LEN) == 0)
     {
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
+        // fill in the new key fragment in the NACK reason.
+        ack_nack->handle = ON_NACK_KEY_FRAGMENT;
+        one_net_memmove(ack_nack->payload->key_frag,
+          &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+          ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
         #ifdef _DEVICE_SLEEPS
         // we'll stay awake in case there is a follow-up.
         ont_set_timer(ONT_STAY_AWAKE_TIMER,
