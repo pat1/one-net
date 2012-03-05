@@ -578,12 +578,13 @@ one_net_status_t one_net_master_change_key_fragment(
     // check to make sure the new key fragment doesn't match any of the old
     // ones.
     if(!new_key_fragment(
-      (const one_net_xtea_key_fragment_t*)key_fragment))
+      (const one_net_xtea_key_fragment_t*)key_fragment, TRUE))
     {
         return ONS_BAD_KEY_FRAGMENT;
     }
     
     key_update_in_progress = TRUE;
+    reset_msg_ids();
     for(i = 0; i < master_param->client_count; i++)
     {
         client_list[i].use_current_key = FALSE;
@@ -673,7 +674,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
     // so far, so good.  Start building the packet and pick a random message id
     if(!setup_pkt_ptr(ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT, invite_txn.pkt,
-      one_net_prand(time_now, ON_MAX_MSG_ID / 2), &data_pkt_ptrs))
+      one_net_prand(time_now, 50), &data_pkt_ptrs))
     {
         return ONS_INTERNAL_ERR;
     }
@@ -1166,8 +1167,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     //
     // initialize the fields in the client_t structure for this new client
     //    
-    client->device.msg_id = one_net_prand(get_tick_count(),
-      ON_MAX_MSG_ID / 2);
+    client->device.msg_id = one_net_prand(get_tick_count(), 50);
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= ON_JOINED;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
@@ -1211,8 +1211,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
           client->device.did, ON_ENCODED_DID_LEN);
         one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
         out_master_param->device.features = THIS_DEVICE_FEATURES;
-        out_master_param->device.msg_id = one_net_prand(get_tick_count(),
-          ON_MAX_MSG_ID / 2);
+        out_master_param->device.msg_id = one_net_prand(get_tick_count(), 50);
         #ifdef _ONE_NET_MULTI_HOP
         out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
         out_master_param->device.hops = 0;
@@ -2544,20 +2543,10 @@ static void check_updates_in_progress(void)
 
         if(!key_update_in_progress)
         {
-            UInt8 i;
-            
             // we don't have any more updates for this, so notify the
             // application code
             one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY, NULL,
               &ack);
-              
-              
-            // now reset all message ids
-            for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
-            {
-                client_list[i].device.msg_id = one_net_prand(get_tick_count(),
-                  ON_MAX_MSG_ID / 2);
-            }
             return;
         }
     }

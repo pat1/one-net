@@ -727,6 +727,7 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt8 new_data_rate);
 #endif
 
+void reset_msg_ids(void);
 
 BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
   BOOL copy_key);

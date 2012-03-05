@@ -1361,7 +1361,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
           sizeof(sending_dev_list[match_idx].sender.did));
         sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
         sending_dev_list[match_idx].sender.msg_id =
-          one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
+          one_net_prand(get_tick_count(), 50);
         
         #ifdef _ONE_NET_MULTI_HOP
         sending_dev_list[match_idx].sender.hops = 0;
@@ -1509,8 +1509,8 @@ static BOOL look_for_invite(void)
       *((on_features_t*)(&raw_payload_bytes[ON_INVITE_FEATURES_IDX]));
     
     // Set up a random message id.  We have no idea what the master id is.
-    this_pkt_ptrs->msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
-    master->device.msg_id = this_pkt_ptrs->msg_id;
+    reset_msg_ids();
+    this_pkt_ptrs->msg_id = master->device.msg_id;
     
     #ifdef _ONE_NET_MULTI_HOP
     master->device.max_hops = features_max_hops(master->device.features);
@@ -1574,13 +1574,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // key change to reset that.  Regardless of who wanted the key
                 // change and why, we'll reset all of our message IDs.  We'll
                 // assume someone is out of sync, so we'll sync back up later.
-                for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
-                {
-                    sending_dev_list[i].sender.msg_id =
-                      one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
-                }
-                master->device.msg_id = one_net_prand(get_tick_count(),
-                  ON_MAX_MSG_ID / 2);
+                reset_msg_ids();
+                master->device.msg_id = one_net_prand(get_tick_count(), 50);
                   
                 #ifdef _AUTO_SAVE
                 save = TRUE;
@@ -1727,7 +1722,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 device->features = FEATURES_UNKNOWN;
                 
                 // for security, change the the message id.
-                device->msg_id = one_net_prand(tick_now, ON_MAX_MSG_ID / 2);
+                device->msg_id = one_net_prand(tick_now, 50);
 
                 #ifdef _PEER
                 // delete any peer assignments for this device

@@ -2165,7 +2165,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           ON_ENCODED_DID_LEN);
         on_encode(on_base_param->sid, add_nid, ON_ENCODED_NID_LEN);
         master->device.features = add_master_features;
-        master->device.msg_id = one_net_prand(get_tick_count(), ON_MAX_MSG_ID / 2);
+        reset_msg_ids();
         one_net_memmove(master->device.did, MASTER_ENCODED_DID,
           ON_ENCODED_DID_LEN);
     #ifdef _ONE_NET_MULTI_HOP

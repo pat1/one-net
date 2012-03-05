@@ -183,6 +183,8 @@ UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
 #ifdef _ONE_NET_CLIENT
 extern BOOL client_joined_network; // declared extern in one_net_client.h but
      // we do not want to include one_net_client.h so we declare it here too.
+extern on_master_t * const master;
+extern on_sending_dev_list_item_t sending_dev_list[];
 #endif
 
 //! The current invite transaction
@@ -3198,6 +3200,47 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
 
 
 /*!
+    \brief Resets all message IDs to low values.
+
+    Resets all message IDs to low values.
+*/
+void reset_msg_ids(void)
+{
+    UInt16 i;
+    // set them randomly low.  Just make it a random number from 0 to 50.
+    #if !defined(_ONE_NET_MASTER)
+    master->device.msg_id = one_net_prand(get_tick_count(), 50);
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        sending_dev_list[i].sender.msg_id = one_net_prand(get_tick_count(), 50);
+    }
+    #elif !defined(_ONE_NET_CLIENT)
+    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+    {
+        client_list[i].device.msg_id = one_net_prand(get_tick_count(), 50);
+    }
+    #else
+    if(device_is_master)
+    {
+        for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+        {
+            client_list[i].device.msg_id = one_net_prand(get_tick_count(), 50);
+        }
+    }
+    else
+    {
+        master->device.msg_id = one_net_prand(get_tick_count(), 50);
+        for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+        {
+            sending_dev_list[i].sender.msg_id = one_net_prand(get_tick_count(),
+                50);
+        }        
+    }
+    #endif
+}
+
+
+/*!
     \brief Checks to see whether a fragment is in memory.  If not, moves the
            fragment into memory.
            
@@ -3231,11 +3274,12 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
     }
     
     if(copy_key)
-    {    
+    {
         one_net_memmove(on_base_param->old_key, on_base_param->current_key,
           ONE_NET_XTEA_KEY_LEN);
         one_net_memmove(&(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
           fragment, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+        reset_msg_ids();
     }
     
     return TRUE;

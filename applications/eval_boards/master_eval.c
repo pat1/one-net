@@ -293,8 +293,6 @@ void init_auto_master(void)
         #endif
         client_list[i].flags = ON_JOINED;
         client_list[i].use_current_key = TRUE;
-        client_list[i].device.msg_id = one_net_prand(get_tick_count(),
-          ON_MAX_MSG_ID / 2);
         client_list[i].keep_alive_interval = 0; // don't check in for auto mode
     }
 
@@ -302,6 +300,7 @@ void init_auto_master(void)
     one_net_reset_peers();
     #endif
     one_net_master_init(NULL, 0);
+    reset_msg_ids();
     
     // initialize timer for auto mode to send right away
     ont_set_timer(AUTO_MODE_TIMER, 0);
