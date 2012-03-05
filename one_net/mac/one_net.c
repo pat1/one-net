@@ -2069,7 +2069,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 {
     UInt8 msg_type;
     UInt16 msg_id;
-    BOOL src_features_known;
+    BOOL src_features_known, use_current_key;
     
     if(!txn || !(*txn) || !raw_payload || !ack_nack)
     {
@@ -2149,6 +2149,8 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 
     src_features_known = features_known((*txn)->device->features);
     msg_type = get_payload_msg_type(raw_payload);
+    use_current_key = (one_net_memcmp(on_base_param->current_key, (*txn)->key,
+      ONE_NET_XTEA_KEY_LEN) == 0);
     
     // If the source features are not known and it is NOT an admin message
     // telling us what those features are, we'll NACK the message.  We'll
@@ -2224,6 +2226,12 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     
     // If the message ID is GREATER than the one we have on file, we will
     // assume that this is a new message and accept it.
+    
+    // Accept the message ID if the old key is used.  We're in the middle of a
+    // key change.  The message IDs will be re-synced once we're both using the
+    // current key.  If we're not using it, we won't bother checking the message
+    // ID.  We'll NACK with a bad key nack reason instead.
+    if(use_current_key)
     {
         tick_t time_now = get_tick_count();
         const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
@@ -2270,8 +2278,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     // the master and the device IS checking in, then we'll let the message go a
     // little farther because a main part of the check-in is to make sure the
     // client has the right key.
-    if(one_net_memcmp(on_base_param->old_key, *((*txn)->key),
-      ONE_NET_XTEA_KEY_LEN) == 0)
+    if(!use_current_key)
     {
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
         // fill in the new key fragment in the NACK reason.
@@ -2284,6 +2291,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         ont_set_timer(ONT_STAY_AWAKE_TIMER,
           MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
         #endif
+        (*txn)->device->verify_time = 0; 
     }
     
     return ON_MSG_CONTINUE;
