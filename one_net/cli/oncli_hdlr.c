@@ -1396,6 +1396,12 @@ static oncli_status_t list_cmd_hdlr(void)
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
         oncli_send_msg("\n\nMaster Features...\n\n");
         oncli_print_features(master->device.features);
+        #if _DEBUG_VERBOSE_LEVEL > 5
+        oncli_send_msg("\n\n");
+        print_sending_device_t(&(master->device));
+        oncli_send_msg("\n\n");
+        #endif
+        
     }
     #endif
     
@@ -1422,6 +1428,16 @@ static oncli_status_t list_cmd_hdlr(void)
             oncli_send_msg("\n\nSend To Master: %s\n\nFeatures...\n\n",
               client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
             oncli_print_features(client->device.features);
+            #if _DEBUG_VERBOSE_LEVEL > 5
+            oncli_send_msg("\n\nCurrent Key: %s\n", client->use_current_key ?
+                TRUE_STR : FALSE_STR);
+            oncli_send_msg("Send Add Dev: %s\n", client->send_add_device_message
+                ? TRUE_STR : FALSE_STR);
+            oncli_send_msg("Send Remove Dev: %s\n",
+                client->send_remove_device_message ? TRUE_STR : FALSE_STR);
+            print_sending_device_t(&(client->device));
+            oncli_send_msg("\n\n");
+            #endif
             i++;
         }
     }
