@@ -1058,14 +1058,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         case ON_NEW_KEY_FRAGMENT:
                         {
                             // we MAY be using the wrong key.  The master is
-                            // giving us the right device to use.  If we are
+                            // giving us the right key to use.  If we are not
                             // already using it, copy it into the key and
                             // shift.
-                            if(one_net_memcmp(
-                              &(ack_nack->payload->admin_msg[1]),
-                              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+                            if(!check_keys_for_fragment(
+                              (const one_net_xtea_key_fragment_t*)
+                              &(ack_nack->payload->admin_msg[1])))
                             {
+                                // We do not have it yet, so copy it in.
                                 // shift the current key left.
                                 one_net_memmove(on_base_param->old_key,
                                   on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
@@ -1075,7 +1075,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                 one_net_memmove(
                                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                                   &(ack_nack->payload->admin_msg[1]),
-                                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);                                
                             }
                             break;
                         }
@@ -1587,9 +1587,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // replace anything.  If not, replace the last fragment with what
             // we received.
             
-            if(decrypt_using_current_key && one_net_memcmp(&DATA[1],
-              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) != 0)
+            if(!check_keys_for_fragment(
+              (const one_net_xtea_key_fragment_t* const)(&DATA[1])))
             {
                 UInt8 i;
                 // we are not using the correct key.  Copy it.
