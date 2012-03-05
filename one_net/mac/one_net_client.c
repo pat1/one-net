@@ -868,36 +868,47 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         
         if(ack_nack->nack_reason == ON_NACK_RSN_BAD_KEY)
         {
-            // We have a possible key change.  We need to abort this message and
-            // check in with the master if we are in fact using the wrong one.
-            if(one_net_memcmp(
-              &(ack_nack->payload->key_frag),
-              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+            // The other side thinks we have a bad key and have given us one to
+            // use.  We need to find out whether that is true.  If it is from
+            // the master and we are in fact using an old key, we will change
+            // keys and report to the master.  If it's from a client, we won't
+            // change keys.  The client may be right, but we'll check in with
+            // the master to make sure before changing.  Regardless, we want to
+            // abort this message and stick it back in the queue to re-send
+            // after any key changes.
+            BOOL to_master = is_master_did((const on_encoded_did_t*)
+              txn->device->did);
+            BOOL key_in_memory = check_keys_for_fragment(
+              (const one_net_xtea_key_fragment_t*) ack_nack->payload->key_frag);
+            
+            // if this already is a check-in message, don't requeue the
+            // message.
+            BOOL requeue_msg = FALSE; // TODO -- figure ou whether this is
+                                      // something that should / can be re-sent.
+            
+            if(to_master && !key_in_memory)
             {
-                // shift the current key left.
+                // Change the keys
                 one_net_memmove(on_base_param->old_key,
                   on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
-                  
-                // if this message came from the master, we'll change here.
-                if(is_master_did((const on_encoded_did_t*)(txn->device->did)))
-                {
-                    // replace the last fragment with the one we just received
-                    one_net_memmove(
-                      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                      ack_nack->payload->key_frag, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                }
+                // replace the last fragment with the one we just received
+                one_net_memmove(
+                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  ack_nack->payload->key_frag, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
             }
             
-        
-            // TODO -- Perhaps stick this message back into the queue so we can
-            // send it immediately again after we get the new key?
-            ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0); // check-in with master immed.
+            if(to_master || !key_in_memory)
+            {
+                ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0); // check-in with master
+            }
         
             #ifdef _DEVICE_SLEEPS
-            // We're possibly in the middle of a key change, so stay awake.
+            // We're in the middle of something, so stay awake.
             ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
             #endif
+            
+            txn = 0;  // cancel the current transaction.
+            return ON_MSG_ABORT;
         }
         
         
