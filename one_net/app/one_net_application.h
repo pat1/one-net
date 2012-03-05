@@ -343,9 +343,13 @@ enum
     //! Flag set when the device is part of the network
     ON_JOINED = 0x80,
 
-    //! Flag to indicate a CLIENT should send a message that it sent to its peer
-    //! to the MASTER too.
-    ON_SEND_TO_MASTER = 0x40
+    //! Flag to indicate a CLIENT should inform the master of all state changes
+    //! (i.e. pin changes)
+    ON_SEND_TO_MASTER = 0x40,
+    
+    //! Flag to indicate whether a client should reject invalid message ids
+    //! Mainly used to prevent replay attacks.
+    ON_REJECT_INVALID_MSG_ID = 0x20
 };
 
 
