@@ -176,6 +176,14 @@ void print_admin_payload(const UInt8* const pld);
 void print_route(const UInt8* const route);
 #endif
 void print_recipient_list(const on_recipient_list_t* const recip_list);
+void print_send_list(void);
+#ifdef _ONE_NET_CLIENT
+void print_client_send_list(void);
+#endif
+#ifdef _ONE_NET_MASTER
+void print_master_send_list(void);
+#endif
+void print_sending_device_t(const on_sending_device_t* const device);
 #endif
 
 

@@ -129,6 +129,15 @@ BOOL echo_on = TRUE;
 #endif
 
 
+#ifdef _ONE_NET_CLIENT
+extern on_master_t* const master;
+extern on_sending_dev_list_item_t sending_dev_list[];
+#endif
+#ifdef _ONE_NET_MASTER
+extern on_client_t * const client_list;
+#endif
+
+
 //! @} oncli_pub_var
 //							PUBLIC VARIABLES END
 //==============================================================================
@@ -914,6 +923,78 @@ void print_recipient_list(const on_recipient_list_t* const recip_list)
               recip_list->recipient_list[i].unit);
         }
     }
+}
+
+
+void print_send_list(void)
+{
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        print_master_send_list();
+    }
+    #endif
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        print_client_send_list();
+    }
+    #endif
+}
+
+
+#ifdef _ONE_NET_CLIENT
+void print_client_send_list(void)
+{
+    UInt16 i;
+    oncli_send_msg("Master:");
+    print_sending_device_t(&(master->device));
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        oncli_send_msg("Send List %d:", i);
+        print_sending_device_t(&(sending_dev_list[i].sender));
+        delay_ms(10);
+    }
+}
+#endif
+
+
+#ifdef _ONE_NET_MASTER
+void print_master_send_list(void)
+{
+    UInt16 i;
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        oncli_send_msg("Client %d:", i);
+        print_sending_device_t(&(client_list[i].device));
+        delay_ms(10);
+    }
+}
+#endif
+
+
+void print_sending_device_t(const on_sending_device_t* const device)
+{
+    on_raw_did_t raw_did;
+    oncli_send_msg("Enc. DID=0x%02X%02X, Raw DID=", device->did[0],
+        device->did[1]);
+    if(on_decode(raw_did, device->did, ON_ENCODED_DID_LEN) == ONS_SUCCESS)
+    {
+        oncli_send_msg("0x%03X", did_to_u16(&raw_did));
+    }
+    else
+    {
+        oncli_send_msg("Not Decodable");
+    }
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    oncli_send_msg(", Hops=%d, Max. Hops=%d", device->hops, device->max_hops);
+    #endif
+    
+    oncli_send_msg(", Data Rate=%d", device->data_rate);
+    oncli_send_msg(", Msg ID=%d", device->msg_id);
+    oncli_send_msg(", Cur. Time=%ld ms, Verify Time=%ld ms\n",
+      MS_TO_TICK(get_tick_count()), MS_TO_TICK(device->verify_time));
 }
 #endif
 
