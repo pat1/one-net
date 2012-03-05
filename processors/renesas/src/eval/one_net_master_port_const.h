@@ -95,6 +95,13 @@ enum
 //! simply sets the INITIAL flag.
 #define ONE_NET_MASTER_SEND_TO_MASTER TRUE
 
+//! Default of whether the master wants the client to reject invalid message
+//! ids.  Define this option TRUE only if you are worried about replay attacks.
+//! If this does not apply, define as FALSE.  Note that the master can choose
+//! to have some clients have this flag set, but not others and can change it at
+//! any time.  This value simply sets the INITIAL flag.
+#define ONE_NET_MASTER_REJECT_INVALID_MSG_ID TRUE
+
 
 
 //! @} on_master_port_const_const
