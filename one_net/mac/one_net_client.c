@@ -869,7 +869,26 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         if(ack_nack->nack_reason == ON_NACK_RSN_BAD_KEY)
         {
             // We have a possible key change.  We need to abort this message and
-            // check in with the master.
+            // check in with the master if we are in fact using the wrong one.
+            if(one_net_memcmp(
+              &(ack_nack->payload->key_frag),
+              &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+              ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
+            {
+                // shift the current key left.
+                one_net_memmove(on_base_param->old_key,
+                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
+                  
+                // if this message came from the master, we'll change here.
+                if(is_master_did((const on_encoded_did_t*)(txn->device->did)))
+                {
+                    // replace the last fragment with the one we just received
+                    one_net_memmove(
+                      &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                      ack_nack->payload->key_frag, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+                }
+            }
+            
         
             // TODO -- Perhaps stick this message back into the queue so we can
             // send it immediately again after we get the new key?
@@ -1046,7 +1065,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                   &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
                                   &(ack_nack->payload->admin_msg[1]),
                                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                            }                            
+                            }
                             break;
                         }
                         
