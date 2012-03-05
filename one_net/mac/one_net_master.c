@@ -2558,7 +2558,7 @@ static void check_updates_in_progress(void)
         while(!key_update_in_progress)
         {
             rand_num = one_net_prand(get_tick_count(),
-              0xFFFFFFFF);
+              0xFFFFFFFE);
             one_net_memmove(key_fragment, &rand_num,
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
             one_net_master_change_key_fragment(key_fragment);
