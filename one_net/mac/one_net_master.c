@@ -569,10 +569,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
 one_net_status_t one_net_master_change_key_fragment(
   const one_net_xtea_key_fragment_t key_fragment)
 {
-    // TODO -- do we need these two variables?
-    one_net_xtea_key_t* key = (one_net_xtea_key_t*)on_base_param->current_key;
-    one_net_xtea_key_t* old_key = (one_net_xtea_key_t*)on_base_param->old_key;
-    
+    UInt8 i;
     if(key_update_in_progress)
     {
         return ONS_ALREADY_IN_PROGRESS;
@@ -580,23 +577,16 @@ one_net_status_t one_net_master_change_key_fragment(
     
     // check to make sure the new key fragment doesn't match any of the old
     // ones.
-    if(check_keys_for_fragment(
+    if(!new_key_fragment(
       (const one_net_xtea_key_fragment_t*)key_fragment))
     {
         return ONS_BAD_KEY_FRAGMENT;
     }
     
     key_update_in_progress = TRUE;
-    one_net_memmove(*old_key, *key, ONE_NET_XTEA_KEY_LEN);
-    one_net_memmove(&((*key)[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-      key_fragment, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-    
+    for(i = 0; i < master_param->client_count; i++)
     {
-        UInt8 i;
-        for(i = 0; i < master_param->client_count; i++)
-        {
-            client_list[i].use_current_key = FALSE;
-        }
+        client_list[i].use_current_key = FALSE;
     }
     
     #ifdef _AUTO_SAVE

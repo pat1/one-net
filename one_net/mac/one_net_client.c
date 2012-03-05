@@ -880,29 +880,18 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             // after any key changes.
             BOOL to_master = is_master_did((const on_encoded_did_t*)
               txn->device->did);
-            BOOL key_in_memory = check_keys_for_fragment(
-              (const one_net_xtea_key_fragment_t*) ack_nack->payload->key_frag);
-            
-            // if this already is a check-in message, don't requeue the
-            // message.
-            BOOL requeue_msg = FALSE; // TODO -- figure ou whether this is
+            BOOL requeue_msg = FALSE; // TODO -- figure out whether this is
                                       // something that should / can be re-sent.
-            
-            if(to_master && !key_in_memory)
-            {
-                // Change the keys
-                one_net_memmove(on_base_param->old_key,
-                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
-                // replace the last fragment with the one we just received
-                one_net_memmove(
-                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  ack_nack->payload->key_frag, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-            }
-            
-            if(to_master || !key_in_memory)
+            BOOL new_key = new_key_fragment(
+              (const one_net_xtea_key_fragment_t*) ack_nack->payload->key_frag,
+              to_master);
+              
+            if(new_key)
             {
                 ont_set_timer(ONT_KEEP_ALIVE_TIMER, 0); // check-in with master
             }
+            
+            // TODO -- requeue the message?
         
             #ifdef _DEVICE_SLEEPS
             // We're in the middle of something, so stay awake.
@@ -1063,22 +1052,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             // giving us the right key to use.  If we are not
                             // already using it, copy it into the key and
                             // shift.
-                            if(!check_keys_for_fragment(
+                            new_key_fragment(
                               (const one_net_xtea_key_fragment_t*)
-                              &(ack_nack->payload->admin_msg[1])))
-                            {
-                                // We do not have it yet, so copy it in.
-                                // shift the current key left.
-                                one_net_memmove(on_base_param->old_key,
-                                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
-                                  
-                                // replace the last fragment with the one we
-                                // just received
-                                one_net_memmove(
-                                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                                  &(ack_nack->payload->admin_msg[1]),
-                                  ONE_NET_XTEA_KEY_FRAGMENT_SIZE);                                
-                            }
+                              &(ack_nack->payload->admin_msg[1]), TRUE);
                             break;
                         }
                         
@@ -1589,21 +1565,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // replace anything.  If not, replace the last fragment with what
             // we received.
             
-            if(!check_keys_for_fragment(
-              (const one_net_xtea_key_fragment_t* const)(&DATA[1])))
+            if(new_key_fragment(
+              (const one_net_xtea_key_fragment_t* const)(&DATA[1]), TRUE))
             {
                 UInt8 i;
-                // we are not using the correct key.  Copy it.
-                
-                // first shift the current key to the old.
-                one_net_memmove(on_base_param->old_key,
-                  on_base_param->current_key, ONE_NET_XTEA_KEY_LEN);
-                
-                // now copy in the new fragment we just received.
-                one_net_memmove(
-                  &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  &DATA[1], ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-                  
                 // We have changed a key.  We don't know why.  Some device,
                 // possibly us, may have run out of message ids and there was a
                 // key change to reset that.  Regardless of who wanted the key

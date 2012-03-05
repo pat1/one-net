@@ -3198,15 +3198,17 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
 
 
 /*!
-    \brief Check whether a key fragment is currently in the base parameter
-           memory.
+    \brief Checks to see whether a fragment is in memory.  If not, moves the
+           fragment into memory.
            
-    \param fragment The fragment to check.
+    \param[in] fragment The new key fragment.
+    \param[in] copy_key If true, copy the new key into memory if the key is new
 
-    \return TRUE If the fragment is in the old key or the new key
-            FALSE If the fragment is not in the old key or the new key
+    \return TRUE If memory was changed
+            FALSE if memory was not changed
 */
-BOOL check_keys_for_fragment(const one_net_xtea_key_fragment_t* const fragment)
+BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
+  BOOL copy_key)
 {
     UInt8 i;
     const one_net_xtea_key_fragment_t* param_frag = &(on_base_param->old_key);
@@ -3223,13 +3225,20 @@ BOOL check_keys_for_fragment(const one_net_xtea_key_fragment_t* const fragment)
         if(one_net_memcmp(*param_frag, *fragment,
           ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
         {
-            oncli_send_msg("match\n");
-            return TRUE; // match
+            return FALSE; // match
         }
         param_frag++;
     }
     
-    return FALSE;
+    if(copy_key)
+    {    
+        one_net_memmove(on_base_param->old_key, on_base_param->current_key,
+          ONE_NET_XTEA_KEY_LEN);
+        one_net_memmove(&(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+          fragment, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+    }
+    
+    return TRUE;
 }
 
 
