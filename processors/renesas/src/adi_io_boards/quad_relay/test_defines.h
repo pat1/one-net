@@ -127,7 +127,12 @@
     #endif
 #endif
 
-
+#ifdef _ONE_NET_CLIENT
+    #include "one_net_client_port_const.h"
+    #ifndef ONE_NET_CLIENT_INVITE_DURATION
+        #error "ONE_NET_CLIENT_INVITE_DURATION is not defined"
+    #endif
+#endif
 
 
 //! @{

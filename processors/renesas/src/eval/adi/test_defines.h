@@ -142,8 +142,24 @@
     #endif
 #endif
 
+#ifdef _ONE_NET_CLIENT
+    #include "one_net_client_port_const.h"
+    #ifndef ONE_NET_CLIENT_INVITE_DURATION
+        #error "ONE_NET_CLIENT_INVITE_DURATION is not defined"
+    #endif
+#endif
+#ifdef _ONE_NET_MASTER
+    #include "one_net_master_port_const.h"
+    #ifndef ONE_NET_MASTER_SEND_TO_MASTER
+        #error "ONE_NET_MASTER_SEND_TO_MASTER must be defined as TRUE or FALSE"
+    #endif
+    #ifndef ONE_NET_MASTER_REJECT_INVALID_MSG_ID
+        #error "ONE_NET_MASTER_REJECT_INVALID_MSG_ID must be defined as TRUE or FALSE"
+    #endif
+#endif
 
-// TODO -- add some CLI option tests.
+
+// TODO -- add more tests
 
 
 
