@@ -60,6 +60,7 @@
 #include "one_net_port_const.h"
 #ifdef _ONE_NET_CLIENT
 #include "one_net_client_port_specific.h"
+#include "one_net_client_port_const.h"
 #endif
 #ifdef _ONE_NET_MASTER
 #include "one_net_master.h"

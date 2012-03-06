@@ -53,6 +53,7 @@
 #include "one_net.h"
 #include "one_net_port_specific.h"
 #include "one_net_client_port_specific.h"
+#include "one_net_client_port_const.h"
 #include "tick.h"
 #include "one_net_timer.h"
 #include "tal.h"
