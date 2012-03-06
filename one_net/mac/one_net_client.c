@@ -908,10 +908,37 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         {
             #ifdef _ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops if there are
-            // any repeaters available
+            // any repeaters available.  If we aren't part of the network yet,
+            // we'll do a multi-hop.  If we are a device that sleeps, we may
+            // not have an accurate count of the number of repeaters, so we'll
+            // try multi-hop.
             
-            if((on_base_param->num_mh_repeaters || !client_joined_network) &&
-              txn->max_hops < txn->device->max_hops)
+            // TODO -- there really should be a better way to determine
+            // the number of repeaters for a device that sleeps.
+            
+            BOOL try_mh = features_device_sleeps(THIS_DEVICE_FEATURES) ||
+              !client_joined_network;
+              
+            if(!try_mh)
+            {
+                SInt8 num_repeat = (SInt8) on_base_param->num_mh_repeaters;
+                if(features_known(txn->device->features) &&
+                  features_mh_repeat_capable(txn->device->features) &&
+                  !is_master_did((const on_encoded_did_t*)(txn->device->did)))
+                {
+                    num_repeat--; // don't count the destination as a repeater.
+                }
+                
+                // do not count ourself either if we are one of the repeaters.
+                if(features_mh_repeat_capable(THIS_DEVICE_FEATURES))
+                {
+                    num_repeat--;
+                }
+                
+                try_mh = (num_repeat > 0); // give it a try if any are available
+            }
+            
+            if(try_mh && txn->max_hops < txn->device->max_hops)
             {
                 on_raw_did_t raw_did;
                 on_decode(raw_did,

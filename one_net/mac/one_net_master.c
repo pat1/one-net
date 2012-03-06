@@ -1906,10 +1906,19 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
         {
             #ifdef _ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops if there are
-            // any multi-hop clients.
-            if(on_base_param->num_mh_repeaters && txn->max_hops <
-              txn->device->max_hops)
+            // any multi-hop repeaters.  If there are repeaters out there
+            // (and the repeater isn't the device we're sending to), we'll
+            // give it a shot
+            SInt8 num_repeat = (SInt8) on_base_param->num_mh_repeaters;
+            if(features_known(txn->device->features) &&
+              features_mh_repeat_capable(txn->device->features))
             {
+                num_repeat--; // don't count the destination as a repeater.
+            }
+            
+            if(num_repeat > 0 && txn->max_hops < txn->device->max_hops)
+            {
+                // we have repeaters available, so we'll give it a shot
                 on_raw_did_t raw_did;
                 on_decode(raw_did,
                   &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
