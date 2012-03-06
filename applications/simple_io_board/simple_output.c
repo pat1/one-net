@@ -65,8 +65,6 @@
 //! to the network.
 // Changed to be able to use new cli invite command in the master.
 // The first two groups are duplicated in the upper two
-//const one_net_xtea_key_t DEV_KEY = {'4', '8', 'u', 't', 'p', 'u', 't',
-  //'r', 'e', '7', 'a', 'y', '2', '2', '2', '2'};
 const one_net_xtea_key_t DEV_KEY = {
     '4', '8', 'u', 't', 
     'p', 'u', 't', '7',
