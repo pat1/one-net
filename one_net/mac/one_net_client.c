@@ -420,7 +420,12 @@ tick_t one_net_client(void)
     {
         // shouldn't get here.  If we did, something very bad happened.
         // Reset everything and try again.
+        #ifndef _ENHANCED_INVITE
         one_net_client_reset_client(one_net_client_get_invite_key());
+        #else
+        one_net_client_reset_client(one_net_client_get_invite_key(), 0,
+          ONE_NET_MAX_CHANNEL, 0);
+        #endif
         return 0;
     }
 
@@ -462,7 +467,12 @@ tick_t one_net_client(void)
                 save = TRUE;
                 #endif
                 one_net_client_client_removed(NULL, TRUE);
+                #ifndef _ENHANCED_INVITE
                 one_net_client_reset_client(one_net_client_get_invite_key());
+                #else
+                one_net_client_reset_client(one_net_client_get_invite_key(), 0,
+                  ONE_NET_MAX_CHANNEL, 0);
+                #endif
                 return 0;
             }
             
@@ -470,8 +480,13 @@ tick_t one_net_client(void)
               ont_inactive_or_expired(ONT_GENERAL_TIMER))
             {
                 // we started to accept an invite, but for whatever reason
-                // we did not get 
+                // we did not finish
+                #ifdef _ENHANCED_INVITE
+                one_net_client_reset_client(one_net_client_get_invite_key(), 0,
+                  ONE_NET_MAX_CHANNEL, 0);
+                #else
                 one_net_client_reset_client(one_net_client_get_invite_key());
+                #endif
                 #ifdef _AUTO_SAVE
                 save = TRUE;
                 #endif

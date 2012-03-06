@@ -2556,7 +2556,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_JOIN_COMMAND
+#if defined(_ENABLE_JOIN_COMMAND) && defined(_ENHANCED_INVITE)
 /*!
     \brief Handles receiving the join command and all its parameters
     
@@ -2601,15 +2601,10 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 	if(*PARAM_PTR == '\n')
     {
-		return (one_net_client_reset_client(one_net_client_get_invite_key()) ==
-          ONS_SUCCESS) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
+		return (one_net_client_reset_client(one_net_client_get_invite_key(),
+          low_channel, high_channel, timeout) == ONS_SUCCESS) ? ONCLI_SUCCESS :
+          ONCLI_CMD_FAIL;
 	}
-    #ifndef _ENHANCED_INVITE
-    else
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    #else
 	 
     // Get the timeout if it's there
     if(isdigit(*PARAM_PTR))
@@ -2633,15 +2628,9 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 		high_channel = low_channel;
 	}
 
-    if(one_net_client_look_for_invite(invite_key, low_channel, high_channel,
-      timeout) != ONS_SUCCESS)
-	{
-		return ONCLI_INTERNAL_ERR;
-	}
-	
-	return ONCLI_SUCCESS;
-    
-    #endif // if _ENHANCED_INVITE is enabled //
+	return (one_net_client_reset_client(one_net_client_get_invite_key(),
+      low_channel, high_channel, timeout) == ONS_SUCCESS) ? ONCLI_SUCCESS :
+      ONCLI_CMD_FAIL;
 } // join_cmd_hdlr //
 #endif
 
