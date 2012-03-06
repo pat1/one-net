@@ -354,6 +354,13 @@ void init_serial_master(SInt8 channel)
 
     if(memory_loaded)
     {
+        // first initialize all clients to broadcast
+        UInt8 i;
+        for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
+        {
+            client_list[i].device.did[0] = 0xB4;
+            client_list[i].device.did[1] = 0xB4;
+        }
         memory_loaded = eval_load(DFI_ST_ONE_NET_MASTER_SETTINGS,
           &nv_memory_len, &nv_memory);
     }
