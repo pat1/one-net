@@ -98,8 +98,6 @@ extern const char * const ONCLI_EUR_STR;
 
 
 // Argument strings
-extern const char * const ONCLI_SET_STR;
-extern const char * const ONCLI_CLR_STR;
 extern const char * const ONCLI_ON_STR;
 extern const char * const ONCLI_OFF_STR;
 extern const char * const ONCLI_LOW_STR;
@@ -167,8 +165,8 @@ extern const char * const ONCLI_ASSIGN_PEER_CMD_STR;
 #ifdef _ENABLE_UNASSIGN_PEER_COMMAND
 extern const char * const ONCLI_UNASSIGN_PEER_CMD_STR;
 #endif
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-extern const char * const ONCLI_UPDATE_MASTER_CMD_STR;
+#ifdef _ENABLE_SET_FLAGS_COMMAND
+extern const char * const ONCLI_SET_FLAGS_CMD_STR;
 #endif
 #ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 extern const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;

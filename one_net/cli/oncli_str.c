@@ -111,12 +111,6 @@ const char * const ONCLI_EUR_STR = "EUR";
 
 
 // Argument strings
-//! set argument string
-const char * const ONCLI_SET_STR = "set";
-
-//! clear argument string
-const char * const ONCLI_CLR_STR = "clr";
-
 //! on argument string
 const char * const ONCLI_ON_STR = "on";
 
@@ -217,9 +211,9 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_UNASSIGN_PEER_CMD_STR = "unassign peer";
 #endif
 
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-	//! Update MASTER command string
-	const char * const ONCLI_UPDATE_MASTER_CMD_STR = "set update master flag";
+#ifdef _ENABLE_SET_FLAGS_COMMAND
+	//! Set flags command string
+	const char * const ONCLI_SET_FLAGS_CMD_STR = "set flags";
 #endif
 
 #ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND

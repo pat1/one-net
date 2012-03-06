@@ -337,8 +337,8 @@ typedef struct
 } ona_unit_type_count_t;
 
 
-//! flags for settings admin packet 
-enum
+//! settings flags
+typedef enum
 {
     //! Flag set when the device is part of the network
     ON_JOINED = 0x80,
@@ -350,7 +350,7 @@ enum
     //! Flag to indicate whether a client should reject invalid message ids
     //! Mainly used to prevent replay attacks.
     ON_REJECT_INVALID_MSG_ID = 0x20
-};
+} on_master_flag_t;
 
 
 enum

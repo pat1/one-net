@@ -413,9 +413,9 @@
 		    #define _ENABLE_REMOVE_DEVICE_COMMAND
 	    #endif
 
-	    // _ENABLE_UPDATE_MASTER_COMMAND should be defined if you are implementing the "set update master flag" command option
-	    #ifndef _ENABLE_UPDATE_MASTER_COMMAND
-		    #define _ENABLE_UPDATE_MASTER_COMMAND
+	    // _ENABLE_SET_FLAGS_COMMAND should be defined if you are implementing the "set flags" command option
+	    #ifndef _ENABLE_SET_FLAGS_COMMAND
+		    #define _ENABLE_SET_FLAGS_COMMAND
 	    #endif
 
 	    // _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option

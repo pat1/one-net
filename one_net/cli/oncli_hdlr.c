@@ -335,10 +335,11 @@ static oncli_change_peer_list(BOOL ASSIGN,
 	  const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-	static oncli_status_t update_master_cmd_hdlr(
+#ifdef _ENABLE_SET_FLAGS_COMMAND
+	static oncli_status_t set_flags_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif  
+
 #ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	static oncli_status_t change_keep_alive_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
@@ -848,22 +849,22 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the unassign peer command was received //
 	#endif
 
-	#ifdef _ENABLE_UPDATE_MASTER_COMMAND
-    else if(!strnicmp(ONCLI_UPDATE_MASTER_CMD_STR, CMD,
-      strlen(ONCLI_UPDATE_MASTER_CMD_STR)))
+	#ifdef _ENABLE_SET_FLAGS_COMMAND
+    else if(!strnicmp(ONCLI_SET_FLAGS_CMD_STR, CMD,
+      strlen(ONCLI_SET_FLAGS_CMD_STR)))
     {
-        *CMD_STR = ONCLI_UPDATE_MASTER_CMD_STR;
+        *CMD_STR = ONCLI_SET_FLAGS_CMD_STR;
 
-        if(CMD[strlen(ONCLI_UPDATE_MASTER_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        if(CMD[strlen(ONCLI_SET_FLAGS_CMD_STR)] != ONCLI_PARAM_DELIMITER)
         {
             return ONCLI_PARSE_ERR;
         } // if the end the command is not valid //
 
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &update_master_cmd_hdlr;
+        *cmd_hdlr = &set_flags_cmd_hdlr;
 
         return ONCLI_SUCCESS;
-    } // else if the update MASTER command was received //
+    } // else if the set flags command was received //
 	#endif
     
 	#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
@@ -2637,15 +2638,23 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_UPDATE_MASTER_COMMAND
+#ifdef _ENABLE_SET_FLAGS_COMMAND
 /*!
-    \brief Sets the update MASTER flag in a CLIENT.
+    \brief Sets the flags in a CLIENT.
 
-    The update_master_cmd_hdlr command has the form
+    The set_flags_cmd_hdlr command has the form
 
-    set update master flag:did:command
+    set flags:did:new_flags
 
-    where command is either "set" or "clear".  This is a MASTER only function.
+    where new_flags is the new flags value.  See the on_master_flag_t
+    options.  "OR" them for the options you want.  This is a MASTER only
+    function.  The flags value should be entered in hexadecimal.
+    
+    For example, if you want the ON_JOINED and ON_SEND_TO_MASTER flags set for
+    Raw DID 003, the ON_JOINED flag is 0x80  and the ON_SEND_TO_MASTER flag is
+    0x40.  "ORing" 0x80 and 0x40 results in 0xC0, so the command would be...
+    
+    set flags:003:C0
     
     \param ASCII_PARAM_LIST ASCII parameter list.
     
@@ -2654,16 +2663,15 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
               are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
               properly.
-            See set_update_master for more return values.
 */
-static oncli_status_t update_master_cmd_hdlr(
+static oncli_status_t set_flags_cmd_hdlr(
   const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_raw_did_t dst;
     on_encoded_did_t enc_did;
     on_client_t* client;
-    BOOL set_flag = FALSE;
+    UInt8 flags;
     
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
@@ -2691,21 +2699,15 @@ static oncli_status_t update_master_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
     
-    // get the flag
-    if(!strnicmp(ONCLI_SET_STR, PARAM_PTR, strlen(ONCLI_SET_STR)))
-    {
-        PARAM_PTR += strlen(ONCLI_SET_STR);
-        set_flag = TRUE;
-    } // if updating the MASTER //
-    else if(!strnicmp(ONCLI_CLR_STR, PARAM_PTR, strlen(ONCLI_CLR_STR)))
-    {
-        PARAM_PTR += strlen(ONCLI_CLR_STR);
-        set_flag = FALSE;
-    } // else if not updating the MASTER //
-    else
+    // read in the new flags value.  It's a UInt8, so two characters are
+    // expected for one byte
+    if(ascii_hex_to_byte_stream(PARAM_PTR, &flags, sizeof(UInt8) * 2)
+      != sizeof(UInt8) * 2)
     {
         return ONCLI_PARSE_ERR;
-    } // else invalid parameter //
+    } // if converting the flags value failed //
+    PARAM_PTR += (sizeof(UInt8) * 2);    
+
 
     if(*PARAM_PTR != '\n')
     {
@@ -2723,16 +2725,7 @@ static oncli_status_t update_master_cmd_hdlr(
         return ONCLI_INVALID_DST;
     }
     
-    if(set_flag)
-    {
-        client->flags |= ON_SEND_TO_MASTER;
-    }
-    else
-    {
-        client->flags &= ~ON_SEND_TO_MASTER;
-    }
-    
-    switch(one_net_master_set_flags(client, client->flags))
+    switch(one_net_master_set_flags(client, flags))
     {
         case ONS_SUCCESS:
         {
