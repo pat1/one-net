@@ -329,7 +329,7 @@ const char * const ONCLI_CHANNEL_INVALID_STR = "invalid channel";
 const char * const ONCLI_SINGLE_RESULT_FMT
   = "Single transaction with %03X; return status: %s\n";
   
-const char* const ONCLI_DEVICE_STATE_FMT = "Unit %d of %003d has state %00005X.\n";
+const char* const ONCLI_DEVICE_STATE_FMT = "Unit %d of %003d has state %lX.\n";
 const char* const ONCLI_CHANGE_PIN_STATE_FMT = "Pin %d has changed to state %d\n";
 
 // Text messages

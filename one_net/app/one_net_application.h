@@ -109,7 +109,7 @@ ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
 ONE_NET_INLINE UInt32 get_msg_data(const UInt8* payload)
 {
     UInt16 lsb = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
-    return ((UInt32)(payload[2] & 0x0F) << 16) + lsb;
+    return (((UInt32)(payload[2] & 0x0F)) << 16) + lsb;
 }
 
 /* store the 32-bit message data in the payload buffer
