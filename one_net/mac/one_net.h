@@ -102,19 +102,19 @@
 enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
-    ONE_NET_VERSION_MINOR =     0,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  3,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     103 //! ONE-NET build version number
+    ONE_NET_VERSION_MINOR =     1,  //! ONE-NET minor version number
+    ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     104 //! ONE-NET build version number
 };
 
 
 enum
 {
     //! The ONE-NET version
-    ON_VERSION = 0x06,
+    ON_VERSION = 0x07,
 
-    //! The version of the base parameter structures
-    ON_PARAM_VERSION = 0x05,
+    //! The version of the parameter structures
+    ON_PARAM_VERSION = 0x06,
 
     //! The version of the MASTER Invite New CLIENT packet.
     ON_INVITE_PKT_VERSION = 0x01,
