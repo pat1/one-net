@@ -111,12 +111,17 @@
 #ifdef _SNIFFER_MODE
 // constants for the sniffer
 //! Number of ms of inactivity before the prompt is displayed. 5s
-#define PROMPT_PERIOD 5000
+#define SNIFF_PROMPT_PERIOD 5000
 
 //! Number of ms to wait after user input has been detected before
 //! sniffing the channel again.  5s
-#define USER_INPUT_PAUSE_TIME 5000
+#define SNIFF_USER_INPUT_PAUSE_TIME 5000
 #endif
+
+//! Number of ms to wait after user input has been detected before
+//! sniffing the channel again.  5s
+#define SERIAL_PROMPT_PERIOD 5000
+
 
 
 
