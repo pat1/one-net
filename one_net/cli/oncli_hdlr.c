@@ -1397,6 +1397,8 @@ static oncli_status_t list_cmd_hdlr(void)
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
     {
+        oncli_send_msg("Keep-Alive Interval:%ld ms\n",
+          master->keep_alive_interval);
         oncli_send_msg("\n\nSend To Master: %s\n", master->flags &
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
         oncli_send_msg("Reject Bad Msg ID: %s\n", master->flags &
@@ -1431,8 +1433,9 @@ static oncli_status_t list_cmd_hdlr(void)
 
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
             oncli_print_did(&(client->device.did));
-            oncli_send_msg("\n");
-            oncli_send_msg("\n\nSend To Master: %s\n",
+            oncli_send_msg("\n\nKeep-Alive Interval:%ld ms\n",
+              client->keep_alive_interval);
+            oncli_send_msg("\nSend To Master: %s\n",
               client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
             oncli_send_msg("Reject Bad Msg ID: %s\n\nFeatures...\n\n",
               client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
