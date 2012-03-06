@@ -123,7 +123,7 @@ BOOL echo_on = TRUE;
 
 //! verbosity level
 #ifdef _DEBUG_VERBOSE_LEVEL
-    UInt8 verbose_level = _DEBUG_VERBOSE_LEVEL;
+    UInt8 verbose_level = /*_DEBUG_VERBOSE_LEVEL*/1; // March 6, 2012 -- start at level 1
 #else
     #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
 #endif
