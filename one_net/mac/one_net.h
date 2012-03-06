@@ -732,8 +732,7 @@ void reset_msg_ids(void);
 BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
   BOOL copy_key);
 
-
-
+BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 
 //! @} ONE-NET_pub_func

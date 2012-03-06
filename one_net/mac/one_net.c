@@ -1723,7 +1723,8 @@ void one_net(on_txn_t ** txn)
                 // IDs for the other device.  If so, request a key change for
                 // the network.  We'll define "close to" as within 300 just to
                 // pick a somewhat random number.
-                if((*txn)->device->msg_id > ON_MAX_MSG_ID - 300)
+                if(one_net_reject_bad_msg_id((*txn)->device) &&
+                  (*txn)->device->msg_id > ON_MAX_MSG_ID - 300)
                 {
                     // to avoid duplicate requests, only request a key change
                     // at most every 60 seconds.
@@ -2234,12 +2235,12 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     if(use_current_key)
     {
         tick_t time_now = get_tick_count();
-        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds         
-          
+        const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
+        
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_MSG_ID;
 
-
-        if(sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
+        if(one_net_reject_bad_msg_id((*txn)->device) ||
+          sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
         {
             // valid new message id for a new message we haven't seen before.
             (*txn)->device->msg_id = sing_pkt_ptr->msg_id;
@@ -3291,6 +3292,32 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
     }
     
     return TRUE;
+}
+
+
+BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
+{
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        return ((master->flags & ON_JOINED) && (master->flags &
+          ON_REJECT_INVALID_MSG_ID));
+    }
+    #endif
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        on_client_t* client = client_info((on_encoded_did_t*) device->did);
+        if(client == NULL)
+        {
+            return FALSE;;
+        }
+        return ((client->flags & ON_JOINED) && (client->flags &
+          ON_REJECT_INVALID_MSG_ID));
+    }
+    #endif
+    
+    return FALSE; // should never get here?
 }
 
 
