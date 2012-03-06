@@ -1713,6 +1713,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             master->keep_alive_interval = one_net_byte_stream_to_int32(
               &DATA[1]);
+            ont_set_timer(ONT_KEEP_ALIVE_TIMER, master->keep_alive_interval);
             #ifdef _AUTO_SAVE
             save = TRUE;
             #endif
