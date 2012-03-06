@@ -224,12 +224,12 @@
 
 // Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
 // 3 for more detailed printouts, etc.  The higher the number, the
-// more detailed the display will be.  This value must be set
+// more detailed the display will be.  This value must be positive
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
 #ifdef _UART
     // You can change the value below.
-    #define _DEBUG_VERBOSE_LEVEL 1
+    #define _DEBUG_VERBOSE_LEVEL 6
 #else
     // DO NOT change the value below.
     #define _DEBUG_VERBOSE_LEVEL 0
@@ -506,7 +506,7 @@
 
 
 #ifndef _DEBUGGING_TOOLS
-//    #define _DEBUGGING_TOOLS
+    #define _DEBUGGING_TOOLS
 #endif
 
 
