@@ -517,9 +517,12 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     if(ONA_IS_STATUS_MESSAGE(msg_class))
     {
         #ifdef _UART
-        oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(src_did),
-          msg_data);
-        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+        if(verbose_level)
+        {
+            oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit,
+              did_to_u16(src_did), msg_data);
+            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+        }
         #endif
         if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
           (msg_data == ONA_ON || msg_data == ONA_OFF) && dst_unit <
@@ -581,8 +584,11 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 
         default:
             #ifdef _UART
-            oncli_send_msg("Invalid dest. unit.\n");
-            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+            if(verbose_level)
+            {
+                oncli_send_msg("Invalid dest. unit.\n");
+                ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+            }
             #endif
             ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
             ack_nack->handle = ON_NACK;
@@ -595,8 +601,11 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         case ONA_COMMAND:
             msg_class = ONA_STATUS_COMMAND_RESP;
             #ifdef _UART
-            oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
-            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+            if(verbose_level)
+            {
+                oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
+                ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+            }
             #endif
             break;
         case ONA_QUERY:
@@ -883,8 +892,11 @@ void eval_single_txn_status(on_message_status_t status,
     }
     #endif
 
-    oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
-      oncli_msg_status_str(status));
+    if(verbose_level)
+    {
+        oncli_send_msg(ONCLI_SINGLE_RESULT_FMT, did_to_u16(dst),
+          oncli_msg_status_str(status));
+    }
 
     #if _DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
@@ -914,7 +926,10 @@ void eval_single_txn_status(on_message_status_t status,
           msg_data);
     }
     
-    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    if(verbose_level)
+    {
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    }
     #endif
 }
 

@@ -34,6 +34,9 @@
 #include "one_net_peer.h"
 #endif
 
+#include "one_net_timer.h"
+#include "hal.h"
+
 
 
 //=============================================================================
@@ -112,14 +115,17 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
     BOOL this_device_removed)
 {
     #ifdef _UART
-    if(this_device_removed)
+    if(verbose_level)
     {
-        oncli_send_msg("This device has been removed from the network.\n");
-    }
-    else
-    {
-        oncli_send_msg("Device %03d has been removed from the network.\n",
-          did_to_u16(raw_did));
+        if(this_device_removed)
+        {
+            oncli_send_msg("This device has been removed from the network.\n");
+        }
+        else
+        {
+            oncli_send_msg("Device %03d has been removed from the network.\n",
+              did_to_u16(raw_did));
+        }
     }
     #endif
 }
@@ -128,8 +134,11 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
 void one_net_client_client_added(const on_raw_did_t * const raw_did)
 {
     #ifdef _UART
-    oncli_send_msg("Device %03d has been added to the network.\n",
-      did_to_u16(raw_did));
+    if(verbose_level)
+    {
+        oncli_send_msg("Device %03d has been added to the network.\n",
+          did_to_u16(raw_did));
+    }
     #endif
 }
 
@@ -138,6 +147,12 @@ void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
   one_net_status_t status)
 {
     #ifdef _UART
+    if(!verbose_level)
+    {
+        return;
+    }
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    
     switch(status)
     {
         case ONS_CANCELED: oncli_send_msg("Invite process cancelled.\n");
@@ -176,8 +191,12 @@ one_net_status_t one_net_client_erase_settings(void)
 void one_net_client_client_remove_device(void)
 {
     #ifdef _UART
-    oncli_send_msg("Removed from network by master.  No longer joined.\n");
-    oncli_send_msg("Now resetting the device and looking for an invite.\n");
+    if(verbose_level)
+    {
+        oncli_send_msg("Removed from network by master.  No longer joined.\n");
+        oncli_send_msg("Now resetting the device and looking for an invite.\n");
+    }
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
 } // one_net_client_client_remove_device //
 

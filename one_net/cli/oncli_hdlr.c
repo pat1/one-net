@@ -1367,8 +1367,13 @@ static oncli_status_t list_cmd_hdlr(void)
         #endif
 	}
     
-    oncli_send_msg("\n\nDevice Features...\n");
-    oncli_print_features(on_base_param->features);
+    #if _DEBUG_VERBOSE_LEVEL > 3
+    if(verbose_level > 3)
+    {
+        oncli_send_msg("\n\nDevice Features...\n");
+        oncli_print_features(on_base_param->features);
+    }
+    #endif
     
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master && !client_joined_network)
@@ -1399,16 +1404,24 @@ static oncli_status_t list_cmd_hdlr(void)
     {
         oncli_send_msg("Keep-Alive Interval:%ld ms\n",
           master->keep_alive_interval);
-        oncli_send_msg("\n\nSend To Master: %s\n", master->flags &
+        oncli_send_msg("Send To Master: %s\n", master->flags &
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("Reject Bad Msg ID: %s\n", master->flags &
+        oncli_send_msg("Reject Bad Msg ID: %s\n\n", master->flags &
           ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("\n\nMaster Features...\n\n");
-        oncli_print_features(master->device.features);
+        #if _DEBUG_VERBOSE_LEVEL > 3
+        if(verbose_level > 3)
+        {
+            oncli_send_msg("\nMaster Features...\n");
+            oncli_print_features(master->device.features);
+        }
+        #endif
         #if _DEBUG_VERBOSE_LEVEL > 5
-        oncli_send_msg("\n\n");
-        print_sending_device_t(&(master->device));
-        oncli_send_msg("\n\n");
+        if(verbose_level > 5)
+        {
+            oncli_send_msg("\n\n");
+            print_sending_device_t(&(master->device));
+            oncli_send_msg("\n\n");
+        }
         #endif
         
     }
@@ -1433,23 +1446,45 @@ static oncli_status_t list_cmd_hdlr(void)
 
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
             oncli_print_did(&(client->device.did));
-            oncli_send_msg("\n\nKeep-Alive Interval:%ld ms\n",
-              client->keep_alive_interval);
-            oncli_send_msg("\nSend To Master: %s\n",
-              client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-            oncli_send_msg("Reject Bad Msg ID: %s\n\nFeatures...\n\n",
-              client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
-            oncli_print_features(client->device.features);
-            #if _DEBUG_VERBOSE_LEVEL > 5
-            oncli_send_msg("\n\nCurrent Key: %s\n", client->use_current_key ?
-                TRUE_STR : FALSE_STR);
-            oncli_send_msg("Send Add Dev: %s\n", client->send_add_device_message
-                ? TRUE_STR : FALSE_STR);
-            oncli_send_msg("Send Remove Dev: %s\n",
-                client->send_remove_device_message ? TRUE_STR : FALSE_STR);
-            print_sending_device_t(&(client->device));
             oncli_send_msg("\n\n");
+            #if _DEBUG_VERBOSE_LEVEL > 3
+            if(verbose_level > 3)
+            {
+                oncli_send_msg("Keep-Alive Interval:%ld ms\n",
+                  client->keep_alive_interval);
+                oncli_send_msg("Send To Master: %s\n\n",
+                  client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+                oncli_send_msg("Reject Bad Msg ID: %s\n\n",
+                  client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
+            }
             #endif
+            #if _DEBUG_VERBOSE_LEVEL > 4
+            if(verbose_level > 4)
+            {
+                oncli_send_msg("\n\nCurrent Key: %s\n", client->use_current_key ?
+                  TRUE_STR : FALSE_STR);
+                oncli_send_msg("Send Add Dev: %s\n", client->send_add_device_message
+                  ? TRUE_STR : FALSE_STR);
+                oncli_send_msg("Send Remove Dev: %s\n",
+                  client->send_remove_device_message ? TRUE_STR : FALSE_STR);
+                #if _DEBUG_VERBOSE_LEVEL > 5
+                if(verbose_level > 5)
+                {
+                    print_sending_device_t(&(client->device));
+                }
+                #endif
+                oncli_send_msg("\n\n");
+            }
+            #endif            
+            
+            #if _DEBUG_VERBOSE_LEVEL > 3
+            if(verbose_level > 3)
+            {
+                oncli_send_msg("\n\nFeatures...\n");
+                oncli_print_features(client->device.features);
+            }
+            #endif
+
             i++;
         }
     }

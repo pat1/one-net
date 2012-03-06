@@ -194,9 +194,12 @@ BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID)
 {
     #ifdef _UART
-    oncli_send_msg("Device %03X has checked in.\n", did_to_u16(DID));
+    if(verbose_level > 1)
+    {
+        oncli_send_msg("Device %03X has checked in.\n", did_to_u16(DID));
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    }
     #endif
-    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     return FALSE;
 } // one_net_master_device_is_awake //
 
@@ -205,57 +208,60 @@ void one_net_master_invite_result(one_net_status_t STATUS,
   one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID)
 {
     #ifdef _UART
-    if(!KEY)
+    if(verbose_level)
     {
-        oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
-          &one_net_master_invite_result);
-        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
-        return;
-    }
-
-    switch(STATUS)
-    {
-        case ONS_SUCCESS:
-        {
-            if(!CLIENT_DID)
-            {
-                oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
-                  &one_net_master_invite_result);
-            } // if the parameters are invalid //
-            else
-            {
-                oncli_send_msg(ONCLI_DEVICE_ADD_FMT, &((*KEY)[0]),
-                  &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-                  did_to_u16(CLIENT_DID));
-            } // else the parameter is valid //
-            break;
-        } // success case //
-        
-        case ONS_TIME_OUT:
-        {
-            oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
-              &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              "timed out.");
-            break;
-        } // timeout case // 
-               
-        case ONS_CANCELED:
-        {
-            oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
-              &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
-              "cancelled.");
-            break;
-        } // cancelled case //
-
-        default:
+        if(!KEY)
         {
             oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
               &one_net_master_invite_result);
-            break;
-        } // default case //
-    } // switch(STATUS) //
+            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+            return;
+        }
+
+        switch(STATUS)
+        {
+            case ONS_SUCCESS:
+            {
+                if(!CLIENT_DID)
+                {
+                    oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
+                      &one_net_master_invite_result);
+                } // if the parameters are invalid //
+                else
+                {
+                    oncli_send_msg(ONCLI_DEVICE_ADD_FMT, &((*KEY)[0]),
+                      &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                      did_to_u16(CLIENT_DID));
+                } // else the parameter is valid //
+                break;
+            } // success case //
+        
+            case ONS_TIME_OUT:
+            {
+                oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
+                  &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  "timed out.");
+                break;
+            } // timeout case // 
+               
+            case ONS_CANCELED:
+            {
+                oncli_send_msg(ONCLI_DEVICE_NOT_ADDED_FMT,
+                  &((*KEY)[0]), &((*KEY)[ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
+                  "cancelled.");
+                break;
+            } // cancelled case //
+
+            default:
+            {
+                oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
+                  &one_net_master_invite_result);
+                break;
+            } // default case //
+        } // switch(STATUS) //
     
-    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    }
     #endif
 } // one_net_master_invite_result //
 
