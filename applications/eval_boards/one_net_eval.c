@@ -45,6 +45,7 @@
     #include "one_net_client_port_specific.h"
 #endif
 
+#include "one_net_timer.h"
 
 
 //=============================================================================
@@ -391,11 +392,17 @@ int main(void)
     #endif
 #endif
 
-    #ifdef _UART 
-    oncli_print_prompt();
-    #endif   
+
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     while(1)
     {
+        #ifdef _UART
+        if(ont_expired(PROMPT_TIMER))
+        {
+            oncli_print_prompt();
+        }
+        #endif        
+        
         (*node_loop_func)();
         #ifdef _UART
         oncli();
@@ -453,6 +460,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         oncli_send_msg("eval_hdl_sng: ");
         print_app_payload(raw_pld, 5);
         oncli_send_msg("\n");
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     }
     #endif
 
@@ -489,6 +497,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         #ifdef _UART
         print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_TEXT_DATA_IDX]),
           text_len, src_did);
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
         #endif
         return ON_MSG_CONTINUE;
     }
@@ -510,6 +519,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         #ifdef _UART
         oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(src_did),
           msg_data);
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
         #endif
         if(msg_class == ONA_STATUS_CHANGE && msg_type == ONA_SWITCH &&
           (msg_data == ONA_ON || msg_data == ONA_OFF) && dst_unit <
@@ -572,6 +582,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         default:
             #ifdef _UART
             oncli_send_msg("Invalid dest. unit.\n");
+            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
             #endif
             ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
             ack_nack->handle = ON_NACK;
@@ -585,6 +596,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
             msg_class = ONA_STATUS_COMMAND_RESP;
             #ifdef _UART
             oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
+            ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
             #endif
             break;
         case ONA_QUERY:
@@ -655,6 +667,7 @@ on_message_status_t eval_handle_ack_nack_response(
     {
         oncli_send_msg("ehanr : ");
         print_ack_nack(resp_ack_nack, 5);
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
         delay_ms(10);
     }
     #endif
@@ -693,6 +706,7 @@ void send_user_pin_input(void)
     #ifdef _UART
     oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
       user_pin[user_pin_src_unit].old_state);
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
       
     send_switch_status_change_msg(user_pin_src_unit, 
@@ -865,7 +879,7 @@ void eval_single_txn_status(on_message_status_t status,
         #endif
 
         print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
-          ON_PLD_DATA_IDX);          
+          ON_PLD_DATA_IDX);
     }
     #endif
 
@@ -900,6 +914,7 @@ void eval_single_txn_status(on_message_status_t status,
           msg_data);
     }
     
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
 }
 

@@ -196,6 +196,7 @@ BOOL one_net_master_device_is_awake(BOOL responding,
     #ifdef _UART
     oncli_send_msg("Device %03X has checked in.\n", did_to_u16(DID));
     #endif
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     return FALSE;
 } // one_net_master_device_is_awake //
 
@@ -208,6 +209,7 @@ void one_net_master_invite_result(one_net_status_t STATUS,
     {
         oncli_send_msg(ONCLI_INTERNAL_ERR_FMT,
           &one_net_master_invite_result);
+        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
         return;
     }
 
@@ -252,6 +254,8 @@ void one_net_master_invite_result(one_net_status_t STATUS,
             break;
         } // default case //
     } // switch(STATUS) //
+    
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
 } // one_net_master_invite_result //
 
@@ -417,6 +421,7 @@ void init_serial_master(SInt8 channel)
 #ifdef _NON_VOLATILE_MEMORY
     }
 #endif
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
 } // init_serial_master //
 
 
@@ -544,6 +549,8 @@ void one_net_master_update_result(one_net_mac_update_t update,
     {
         oncli_send_msg(result_fmt, result_type, result_status);
     }
+    
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
 } // one_net_master_update_result //
 
@@ -554,6 +561,8 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
     on_raw_did_t raw_did;
     on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);
     oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16(&raw_did));
+    
+    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif
     return FALSE;
 }

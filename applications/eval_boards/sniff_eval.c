@@ -181,7 +181,8 @@ void sniff_eval(void)
 
     if(oncli_user_input())
     {
-        ont_set_timer(USER_INPUT_TIMER, MS_TO_TICK(USER_INPUT_PAUSE_TIME));
+        ont_set_timer(USER_INPUT_TIMER, MS_TO_TICK(
+          SNIFF_USER_INPUT_PAUSE_TIME));
         return;
     } // if there has been user input //
 
@@ -250,7 +251,7 @@ void sniff_eval(void)
     oncli_send_msg("\n\n");
 
     // update the time to display the prompt
-    ont_set_timer(PROMPT_TIMER, PROMPT_PERIOD);
+    ont_set_timer(PROMPT_TIMER, SNIFF_PROMPT_PERIOD);
 } // sniff_eval //
 
 
