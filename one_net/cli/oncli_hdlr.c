@@ -1178,7 +1178,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
 #ifdef _ENABLE_ECHO_COMMAND
 /*!
-    \brief Handles receiving the echo command and it's parameters
+    \brief Handles receiving the echo command and its parameters
     
     The echo command has the form
     
@@ -1574,11 +1574,15 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     The single command has the form
     
-    single:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:AABBCCDDEE
+    single:SRC UNIT:DST UNIT:RAW DST DID:AABBCCDDEE
     
     where AABBCCDDEE is the packet to send in ASCII hex characters ('0' - '9',
     'A' - 'F' (lower case is valid also)).  Only the parameters (starting with
     SRC UNIT) are passed in.
+    
+    
+    single:1:2:005:1250000002 would be a message from unit 1 to unit 2 telling
+                              it to toggle its relay.
     
     \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
       should be seperated by ':'.
@@ -1666,14 +1670,15 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 /*!
-    \brief Handles receiving the single text command and all it's parameters.
+    \brief Handles receiving the single text command and all its parameters.
     
     The single text command has the form
     
-    single txt:SRC UNIT:DST UNIT:RAW DST DID:PRIORITY:"abc"
+    single text:SRC UNIT:DST UNIT:RAW DST DID:text
     
-    where "abc" is the text to send.  Only the parameters (starting with
-    SRC UNIT) are passed in.
+    single text:2:3:004:"abcd" will send "abcd" from source unit 2 to dest. unit
+      3 of device 004.
+
     
     \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
       should be seperated by ':'.
@@ -2053,7 +2058,7 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 /*!
-    \brief Handles receiving the user pin command and all it's parameters.
+    \brief Handles receiving the user pin command and all its parameters.
 
     \param[in] ASCII_PARAM_LIST ASCII parameter list.
 
@@ -2987,7 +2992,7 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
 
 #ifdef _ENABLE_CHANNEL_COMMAND
 /*!
-    \brief Handles receiving the channel command and all it's parameters
+    \brief Handles receiving the channel command and all its parameters
     
     The channel command has the form
     
