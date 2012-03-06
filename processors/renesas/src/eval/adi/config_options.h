@@ -130,7 +130,8 @@
 	    #define _ONE_NET_MULTI_HOP
     #endif
     
-    #ifdef _ONE_NET_MULTI_HOP
+    // sleeping devices cannot be repeaters.
+    #if defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
 	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
 		    #define _ONE_NET_MH_CLIENT_REPEATER
 	    #endif
@@ -498,9 +499,6 @@
 
 // Other Options
 
-//#ifndef _NEED_XDUMP
-//	#define _NEED_XDUMP
-//#endif
 
 //#ifndef _EVAL_0005_NO_REVISION
 //	#define _EVAL_0005_NO_REVISION
@@ -518,6 +516,8 @@
 // developers.  You need to look at the arrays in "oncli.c" and elsewhere
 // to make sense of the shortens strings.  However, shortening the strings
 // can allow you to use the ebugger and use other debugging tools.
+
+// TODO  --  shorten some strings in oncli_str.c to save memory / code space.
 #ifndef _MINIMIZE_STRING_LENGTHS
  //   #define _MINIMIZE_STRING_LENGTHS
 #endif

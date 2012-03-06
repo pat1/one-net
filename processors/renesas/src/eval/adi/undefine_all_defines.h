@@ -240,10 +240,6 @@
     #undef _ENABLE_SET_DATA_RATE_COMMAND
 #endif
 
-#ifdef _NEED_XDUMP
-	#undef _NEED_XDUMP
-#endif
-
 #ifdef _EVAL_0005_NO_REVISION
 	#undef _EVAL_0005_NO_REVISION
 #endif

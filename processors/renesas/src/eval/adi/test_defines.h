@@ -158,6 +158,10 @@
     #endif
 #endif
 
+#if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_DEVICE_SLEEPS)
+    #error "_ONE_NET_MH_CLIENT_REPEATER and _DEVICE_SLEEPS cannot both be defined."
+#endif
+
 
 // TODO -- add more tests
 

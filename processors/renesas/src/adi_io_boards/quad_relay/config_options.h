@@ -102,34 +102,60 @@
 	#define _PEER
 #endif
 
-#ifndef _EXTENDED_SINGLE
-//    #define _EXTENDED_SINGLE
+// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
+// NO_SINGLE_QUEUE_LEVEL means no single queue is used
+// MIN_SINGLE_QUEUE_LEVEL means no "times".
+// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
+// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
+#ifndef _SINGLE_QUEUE_LEVEL
+    #define NO_SINGLE_QUEUE_LEVEL 0
+    #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
+	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
+	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
+	
+	#define _SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
 #endif
 
-// Extended Single must be enabled if Block messages is enabled.
-// Block Messages
-#ifdef _EXTENDED_SINGLE
+
+// Multi-Hop, Block, Extended Single, and Stream all require the master to
+// update them when the master adds a new client.  They also require
+// increased flexibility for timing options.  Therefore they should have the
+// ability to stagger messages.  Therefore their "queue level" must be greater
+// than MIN_SINGLE_QUEUE_LEVEL.
+#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    // Extended Single -- enable if this device can handle "extended"(i.e. large payload) single messages
+    #ifndef _EXTENDED_SINGLE
+    //    #define _EXTENDED_SINGLE
+    #endif
+    
+    // Multi-Hop 
+    #ifndef _ONE_NET_MULTI_HOP
+	 //   #define _ONE_NET_MULTI_HOP
+    #endif
+    
+    // sleeping devices cannot be repeaters.
+    #if defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
+	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+		    #define _ONE_NET_MH_CLIENT_REPEATER
+	    #endif
+    #endif
+    
+    #if defined(_ONE_NET_MULTI_HOP) && defined(_EXTENDED_SINGLE)
+        // define if this device handles routing
+    //    #define _ROUTE
+    #endif
+    
+    // Block Messages
     #ifndef _BLOCK_MESSAGES_ENABLED
     //	#define _BLOCK_MESSAGES_ENABLED
     #endif
-#endif
 
-// Stream Messages -- available only if block messages are enabled.
-#ifdef _BLOCK_MESSAGES_ENABLED
-    #ifndef _STREAM_MESSAGES_ENABLED
-//	    #define _STREAM_MESSAGES_ENABLED
-    #endif
-#endif
-
-// Multi-Hop
-#ifndef _ONE_NET_MULTI_HOP
-//	#define _ONE_NET_MULTI_HOP
-#endif
-
-#ifdef _ONE_NET_MULTI_HOP
-	#ifndef _ONE_NET_MH_CLIENT_REPEATER
-//		#define _ONE_NET_MH_CLIENT_REPEATER
-	#endif
+    // Stream Messages -- available only if block messages are enabled.
+    #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifndef _STREAM_MESSAGES_ENABLED
+        //	    #define _STREAM_MESSAGES_ENABLED
+        #endif
+    #endif    
 #endif
 
 #ifndef _RANGE_TESTING
@@ -144,20 +170,6 @@
     #endif
 #endif
 
-
-// SINGLE_QUEUE_LEVEL - different levels of options for a single queue
-// NO_SINGLE_QUEUE_LEVEL means no single queue is used
-// MIN_SINGLE_QUEUE_LEVEL means no "times".
-// MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
-// MAX_SINGLE_QUEUE_LEVEL means both send and expire times
-#ifndef _SINGLE_QUEUE_LEVEL
-    #define NO_SINGLE_QUEUE_LEVEL 0
-    #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
-	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
-	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
-	
-	#define _SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
-#endif
 
 // simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
