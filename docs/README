@@ -1,13 +1,15 @@
 README
 
-December 29, 2011
+March 6, 2012
 
 
-This is the official release of ONE-NET Version 2.0.2.  This release does not include Block, Stream, or Simple Client.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.  
+This is the official release of ONE-NET Version 2.1.0.  This release does not include Block or Stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.  The estimated release date for block and stream is March 15, 2012.
 
 
 In the meantime, more documentation and notes will be added regularly.  Also, please see the documentation at...
 
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.1.0
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/ONE_NET_2_0_0_alpha_with_block/docs  (some is out of date, but better than nothing).
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/trunk/docs
 http://www.one-net.info/index.php?option=com_content&view=category&layout=blog&id=9&Itemid=6
@@ -26,7 +28,7 @@ http://www.one-net.info/index.php?option=com_content&view=category&layout=blog&i
 For other downloads, please see http://www.one-net.info/index.php?option=com_content&view=section&layout=blog&id=9&Itemid=31
 
 
-For the 2.0 Beta API, please see http://www.one-net.info/api/html/index.html
+For the current and previous APIs, please see http://www.one-net.info/api/index.html
 For the 2.0 Alpha API, please see http://www.one-net.info/api_2_0_0_Alpha/html/
 For the ONE-NET Release 1.6 API, please see http://one-net.info/api_1_6/
 
