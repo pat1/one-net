@@ -5,6 +5,7 @@
 #include "one_net_types.h"
 #include "one_net_constants.h"
 #include "one_net_xtea.h"
+#include "one_net_encode.h"
 
 
 //! \defgroup ONE-NET_PACKET ONE-NET Packet Definitions and Lengths
@@ -874,7 +875,7 @@ enum
     ONE_NET_ENCODED_MSG_CRC_LEN = 1,
     
     //! The size of the encoded Packet ID field
-    ON_ENCODED_PID_SIZE = 1,
+    ON_ENCODED_PID_SIZE = 2,
 
     //! The number of bytes required to store the raw hops field
     ON_RAW_HOPS_SIZE = 1,
@@ -1508,6 +1509,30 @@ ONE_NET_INLINE BOOL packet_is_route(UInt8 raw_pid)
     }
 }
 #endif
+
+
+ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt8* raw_pid)
+{
+    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
+    if(on_decode(raw_pld_arr, payload, /*ON_ENCODED_PID_SIZE*/1)
+      != ONS_SUCCESS)
+    {
+        return FALSE;
+    }
+    
+    *raw_pid = (raw_pld_arr[0] >> 2);
+    return TRUE;
+}
+
+
+ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt8 raw_pid)
+{
+    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
+    raw_pld_arr[0] = raw_pid;
+    raw_pld_arr[1] = 0;
+    on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
+}
+
 
 
     
