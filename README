@@ -1,13 +1,15 @@
 README
 
-January 20, 2012
+March 6, 2012
 
 
-This is the official release of ONE-NET Version 2.0.3.  This release does not include Block or Stream.  It does include 16K Simple Client, unlike ONE-NET Beta 2.0.2 16K.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.  Please see the "docs" folder for documentation.  Please also see the ONE-NET_2_0_3_Beta_Release_Notes_Jan202011.doc document for ONE-NET Beta 2.0.3 Release notes within the "docs" folder.
+This is the official release of ONE-NET Version 2.1.0.  This release does not include Block or Stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.  The estimated release date for block and stream is March 15, 2012.
 
 
 In the meantime, more documentation and notes will be added regularly.  Also, please see the documentation at...
 
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.1.0
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/ONE_NET_2_0_0_alpha_with_block/docs  (some is out of date, but better than nothing).
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/trunk/docs
 http://www.one-net.info/index.php?option=com_content&view=category&layout=blog&id=9&Itemid=6
@@ -26,26 +28,14 @@ http://www.one-net.info/index.php?option=com_content&view=category&layout=blog&i
 For other downloads, please see http://www.one-net.info/index.php?option=com_content&view=section&layout=blog&id=9&Itemid=31
 
 
-For the 2.0.3 Beta API, please see http://www.one-net.info/api/html/index.html
-For the 2.0.2 Beta API, please see http://www.one-net.info/api_2_0_2/html/
+For the current and previous APIs, please see http://www.one-net.info/api/index.html
 For the 2.0 Alpha API, please see http://www.one-net.info/api_2_0_0_Alpha/html/
 For the ONE-NET Release 1.6 API, please see http://one-net.info/api_1_6/
 
-To create your OWN API of the code with different options using Doxygen, please see the "API" folder for a sample file.
+To create your OWN API of the code with different options, please see https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/API
+for how to do that in Doxygen.
 
-To download from subversion, please the address is https://one-net.svn.sourceforge.net/svnroot/one-net/trunk
-Prior releases are here... https://one-net.svn.sourceforge.net/svnroot/one-net/tags
-
-
-To have questions answered, please register on the forum at http://www.one-net.info and register on the forum.  You can also download ONE-NET here...
-
-http://sourceforge.net/projects/one-net/
-http://sourceforge.net/projects/one-net/files/
-
-and here...
-
-http://www.one-net.info/index.php?option=com_content&view=section&layout=blog&id=3&Itemid=5
-http://www.one-net.info/index.php?option=com_content&view=category&layout=blog&id=10&Itemid=7
+To have questions answered, please register on the forum at http://www.one-net.info.
 
 
 Thank you very much and please visit back often for updates!
