@@ -690,9 +690,6 @@ typedef enum _ona_msg_type
     //! Set/Query/Report Color
     ONA_COLOR = 0x0E,
 
-    //! Send Simple Text (2 ASCII chars, no NULL terminator)
-    ONA_SIMPLE_TEXT = 0x0F,
-
     //! Query/Report Date
     ONA_DATE = 0x10,
 
@@ -705,140 +702,165 @@ typedef enum _ona_msg_type
     //! Report Voltage (in volts)
     ONA_VOLTAGE_VOLTS = 0x13,
 
-    //! Report Voltage (in 10ths of a volt) 
-    ONA_VOLTAGE_10THS_VOLTS = 0x14,
-
     //! Report Voltage (in 100ths of a volt)
     ONA_VOLTAGE_100THS_VOLTS = 0x15,
 
     //! Report Voltage (in simple good/bad)
     ONA_VOLTAGE_SIMPLE = 0x16,
+    
+    
+    
+    //! Send Simple Text (2 ASCII chars, no NULL terminator)
+    ONA_SIMPLE_TEXT = 0x18,
+    
+    //! Send Text (ASCII string with C-Style NULL terminator)
+    ONA_TEXT = 0x19,
+
+
 
     //! Incremental Energy Query 
-    ONA_ENERGY = 0x17,
+    ONA_ENERGY = 0x20,
+    
+    //! Report Incremental Energy (in 1 Watt-Second units)
+    ONA_ENERGY_1_WATT_SECONDS = 0x21,
 
-    //! Report Incremental Energy (in 2 watt seconds units)
-    ONA_ENERGY_2_WATT_SECONDS = 0x18,
+    //! Report Incremental Energy (in 100 Watt-Seconds units)
+    ONA_ENERGY_100_WATT_SECONDS = 0x22,
 
-    //! Report Incremental Energy (in 20 watt seconds units)
-    ONA_ENERGY_20_WATT_SECONDS = 0x19,
+    //! Report Incremental Energy (in 10 Kilowatt-Seconds units)
+    ONA_ENERGY_10_KWATT_SECONDS = 0x23,
 
-    //! Report Incremental Energy (in 200 watt seconds units)
-    ONA_ENERGY_200_WATT_SECONDS = 0x1A,
+    //! Report Incremental Energy (in 1000 Kilowatt-Seconds units)
+    ONA_ENERGY_1000_KWATT_SECONDS = 0x24,
 
-    //! Report Incremental Energy (in 2000 watt seconds units)
-    ONA_ENERGY_2000_WATT_SECONDS = 0x1B,
+    //! Report Incremental Energy (in Kilowatt-Hour units)
+    ONA_ENERGY_1_KWATT_HOUR = 0x25,
 
-    //! Report Incremental Energy (in 20000 watt seconds units)
-    ONA_ENERGY_20000_WATT_SECONDS = 0x1C,
+    //! Report Incremental Energy (in 100 Kilowatt-Hour units)
+    ONA_ENERGY_100_KWATT_HOUR = 0x26,
+
+    //! Report Incremental Energy (in 10,000 Kilowatt-Hour units)
+    ONA_ENERGY_10000_KWATT_HOUR = 0x27,
+
+
 
     //! Accumulated Energy Query 
-    ONA_ACCUM_ENERGY = 0x1D,
-
-    //! Report Accumulated Energy (in 2 watt seconds units)
-    ONA_ACCUM_ENERGY_2_WATT_SECONDS = 0x1E,
-
-    //! Report Accumulated Energy (in 20 watt seconds units)
-    ONA_ACCUM_ENERGY_20_WATT_SECONDS = 0x1F,
-
-    //! Report Accumulated Energy (in 200 watt seconds units)
-    ONA_ACCUM_ENERGY_200_WATT_SECONDS = 0x20,
-
-    //! Report Accumulated Energy (in 2000 watt seconds units)
-    ONA_ACCUM_ENERGY_2000_WATT_SECONDS = 0x21,
-
-    //! Report Accumulated Energy (in 20000 watt seconds units)
-    ONA_ACCUM_ENERGY_20000_WATT_SECONDS = 0x22,
+    ONA_ACCUM_ENERGY = 0x28,
     
+    //! Report Accumulated Energy (in 1 Watt-Second units)
+    ONA_ACCUM_ENERGY_1_WATT_SECONDS = 0x29,
+
+    //! Report Accumulated Energy (in 100 Watt-Seconds units)
+    ONA_ACCUM_ENERGY_100_WATT_SECONDS = 0x2A,
+
+    //! Report Accumulated Energy (in 10 Kilowatt-Seconds units)
+    ONA_ACCUM_ENERGY_10_KWATT_SECONDS = 0x2B,
+
+    //! Report Accumulated Energy (in 1000 Kilowatt-Seconds units)
+    ONA_ACCUM_ENERGY_1000_KWATT_SECONDS = 0x2C,
+
+    //! Report Accumulated Energy (in Kilowatt-Hour units)
+    ONA_ACCUM_ENERGY_1_KWATT_HOUR = 0x2D,
+
+    //! Report Accumulated Energy (in 100 Kilowatt-Hour units)
+    ONA_ACCUM_ENERGY_100_KWATT_HOUR = 0x2E,
+
+    //! Report Accumulated Energy (in 10,000 Kilowatt-Hour units)
+    ONA_ACCUM_ENERGY_10000_KWATT_HOUR = 0x2F,
+    
+    
+
     //! Peak Energy Query 
-    ONA_PEAK_ENERGY = 0x23,
+    ONA_PEAK_ENERGY = 0x30,
+    
+    //! Report Peak Energy (in 1 Watt-Second units)
+    ONA_PEAK_ENERGY_1_WATT_SECONDS = 0x31,
 
-    //! Report Peak Energy (in 2 watt seconds units)
-    ONA_PEAK_ENERGY_2_WATT_SECONDS = 0x24,
+    //! Report Peak Energy (in 100 Watt-Seconds units)
+    ONA_PEAK_ENERGY_100_WATT_SECONDS = 0x32,
 
-    //! Report Peak Energy (in 20 watt seconds units)
-    ONA_PEAK_ENERGY_20_WATT_SECONDS = 0x25,
+    //! Report Peak Energy (in 10 Kilowatt-Seconds units)
+    ONA_PEAK_ENERGY_10_KWATT_SECONDS = 0x33,
 
-    //! Report Peak Energy (in 200 watt seconds units)
-    ONA_PEAK_ENERGY_200_WATT_SECONDS = 0x26,
+    //! Report Peak Energy (in 1000 Kilowatt-Seconds units)
+    ONA_PEAK_ENERGY_1000_KWATT_SECONDS = 0x34,
 
-    //! Report Peak Energy (in 2000 watt seconds units)
-    ONA_PEAK_ENERGY_2000_WATT_SECONDS = 0x27,
+    //! Report Peak Energy (in Kilowatt-Hour units)
+    ONA_PEAK_ENERGY_1_KWATT_HOUR = 0x35,
 
-    //! Report Peak Energy (in 20000 watt seconds units)
-    ONA_PEAK_ENERGY_20000_WATT_SECONDS = 0x28,
+    //! Report Peak Energy (in 100 Kilowatt-Hour units)
+    ONA_PEAK_ENERGY_100_KWATT_HOUR = 0x36,
+
+    //! Report Peak Energy (in 10,000 Kilowatt-Hour units)
+    ONA_PEAK_ENERGY_10000_KWATT_HOUR = 0x37,
+    
+    
+
+    //! Power Query 
+    ONA_POWER = 0x38,
+    
+    //! Report Power (in 1 Watt units)
+    ONA_POWER_1_WATT = 0x39,
+
+    //! Report Power (in 100 Watt units)
+    ONA_POWER_100_WATTS = 0x3A,
+
+    //! Report Power (in 10 Kilowatt units)
+    ONA_POWER_10_KWATTS = 0x3B,
+
+    //! Report Power (in 1000 Kilowatt units)
+    ONA_POWER_1000_KWATTS = 0x3C,
+
+
+
 
     //! Instantaneous Gas Query 
-    ONA_GAS = 0x29,
+    ONA_GAS = 0x40,
 
     //! Instantaneous Gas Therm-Seconds
-    ONA_GAS_THERM_SECS = 0x2A,
+    ONA_GAS_THERM_SECS = 0x41,
 
     //! Instantaneous Gas Therm-Minutes
-    ONA_GAS_THERM_MINS = 0x2B,
+    ONA_GAS_THERM_MINS = 0x42,
 
     //! Instantaneous Gas Therm-Hours
-    ONA_GAS_THERM_HRS = 0x2C,
+    ONA_GAS_THERM_HRS = 0x43,
 
     //! Accumulated Gas Query 
-    ONA_ACCUM_GAS = 0x2D,
+    ONA_ACCUM_GAS = 0x44,
 
     //! Accumulated Gas Therm-Seconds
-    ONA_ACCUM_GAS_THERM_SECS = 0x2E,
+    ONA_ACCUM_GAS_THERM_SECS = 0x45,
 
     //! Accumulated Gas Therm-Minutes
-    ONA_ACCUM_GAS_THERM_MINS = 0x2F,
+    ONA_ACCUM_GAS_THERM_MINS = 0x46,
 
     //! Accumulated Gas Therm-Hours
-    ONA_ACCUM_GAS_THERM_HRS = 0x30,
+    ONA_ACCUM_GAS_THERM_HRS = 0x47,
 
     //! Average Gas Query 
-    ONA_AVER_GAS = 0x31,
+    ONA_AVER_GAS = 0x48,
 
     //! Average Gas Therm-Seconds
-    ONA_AVER_GAS_THERM_SECS = 0x32,
+    ONA_AVER_GAS_THERM_SECS = 0x49,
 
     //! Average Gas Therm-Minutes
-    ONA_AVER_GAS_THERM_MINS = 0x33,
+    ONA_AVER_GAS_THERM_MINS = 0x4A,
 
     //! Average Gas Therm-Hours
-    ONA_AVER_GAS_THERM_HRS = 0x34,
+    ONA_AVER_GAS_THERM_HRS = 0x4B,
 
     //! Peak Gas Query 
-    ONA_PEAK_GAS = 0x35,
+    ONA_PEAK_GAS = 0x4C,
 
     //! Peak Gas Therm-Seconds
-    ONA_PEAK_GAS_THERM_SECS = 0x36,
+    ONA_PEAK_GAS_THERM_SECS = 0x4D,
 
     //! Peak Gas Therm-Minutes
-    ONA_PEAK_GAS_THERM_MINS = 0x37,
+    ONA_PEAK_GAS_THERM_MINS = 0x4E,
 
     //! Peak Gas Therm-Hours
-    ONA_PEAK_GAS_THERM_HRS = 0x38,
-    
-    //! Power Query
-    ONA_POWER = 0x39,
-
-    //! Power 2 Milliwatts
-    ONA_POWER_2_MILLIWATTS = 0x3A,
-    
-    //! Power 20 Milliwatts
-    ONA_POWER_20_MILLIWATTS = 0x3B,
-    
-    //! Power 50 Milliwatts
-    ONA_POWER_50_MILLIWATTS = 0x3C,
-    
-    //! Power 200 Milliwatts
-    ONA_POWER_200_MILLIWATTS = 0x3D,
-    
-    //! Power Watts
-    ONA_POWER_WATTS = 0x3E,
-    
-    //! Power 2 Watts
-    ONA_POWER_2_WATTS = 0x3F,
-    
-    //! Text with a NULL terminator
-    ONA_TEXT = 0x40
+    ONA_PEAK_GAS_THERM_HRS = 0x4F
 } ona_msg_type_t;
 
 
