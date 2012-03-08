@@ -570,6 +570,10 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             UInt8 raw_pid;
             if(!get_raw_pid(&encoded_pkt_bytes[ON_ENCODED_PID_IDX], &raw_pid))
             {
+                DISABLE_RX_BIT_INTERRUPTS();
+                #ifdef _HAS_LEDS
+                set_rx_led(FALSE);
+                #endif                
                 return ONS_BAD_ENCODING;
             }
               
