@@ -462,8 +462,9 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // change pid if necessary
     pkt_ptrs->raw_pid = get_single_response_pid(pkt_ptrs->raw_pid, is_ack,
       stay_awake);
-    pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX] =
-      decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
+
+    put_raw_pid(&(pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX]),
+      pkt_ptrs->raw_pid);
     
 
     // for all we know, ack_nack->payload is located at the same address
