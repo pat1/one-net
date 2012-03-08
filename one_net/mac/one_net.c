@@ -2339,10 +2339,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 {
     one_net_status_t status;
     one_net_xtea_key_t* key = NULL;
-    UInt8 raw_pid, enc_pid; // TODO -- make this one variable?  This can be
-                            // easily done, but it's a little confusing to
-                            // read the code, so I'll keep them as two
-                            // separate variables for now.
+    UInt8 raw_pid;
     BOOL dst_is_broadcast, dst_is_me, src_match;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL packet_is_mh;
@@ -2405,9 +2402,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     #endif
     
-    enc_pid = pkt_bytes[ON_ENCODED_PID_IDX];
-    raw_pid = encoded_to_decoded_byte(enc_pid, FALSE);
-    if(raw_pid >= 0x40)
+    if(!get_raw_pid(&pkt_bytes[ON_ENCODED_PID_IDX], &raw_pid))
     {
         return ONS_BAD_PKT_TYPE;
     }
@@ -2430,8 +2425,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_BAD_ADDR;
     }
     #else
-    if(!src_match || (!dst_is_me && !dst_is_broadcast) || (enc_pid ==
-      ONE_NET_ENCODED_MH_MASTER_INVITE_NEW_CLIENT && client_joined_network))
+    if(!src_match || (!dst_is_me && !dst_is_broadcast) || (raw_pid ==
+      ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT && client_joined_network))
     {
         // not to us, but maybe we'll repeat it if we're not the master,
         // not in the middle of our own transaction, it's a multi-hop
