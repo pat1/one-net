@@ -1528,7 +1528,7 @@ ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt8* raw_pid)
 ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt8 raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
-    raw_pld_arr[0] = raw_pid;
+    raw_pld_arr[0] = (raw_pid << 2);
     raw_pld_arr[1] = 0;
     on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
 }
