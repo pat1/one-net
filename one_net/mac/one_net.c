@@ -614,8 +614,8 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
-    pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX] =
-      decoded_to_encoded_byte(pkt_ptrs->raw_pid, FALSE);
+    put_raw_pid(&(pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX]),
+      pkt_ptrs->raw_pid);
     
     if(pkt_ptrs->max_hops > 0)
     {
