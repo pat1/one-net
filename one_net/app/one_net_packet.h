@@ -1514,7 +1514,7 @@ ONE_NET_INLINE BOOL packet_is_route(UInt8 raw_pid)
 ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt8* raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
-    if(on_decode(raw_pld_arr, payload, /*ON_ENCODED_PID_SIZE*/1)
+    if(on_decode(raw_pld_arr, payload, ON_ENCODED_PID_SIZE)
       != ONS_SUCCESS)
     {
         return FALSE;
