@@ -1490,10 +1490,17 @@ void one_net(on_txn_t ** txn)
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
-                one_net_write((*txn)->pkt, get_encoded_packet_len(
-                   encoded_to_decoded_byte(
-                   (*txn)->pkt[ON_ENCODED_PID_IDX], FALSE), TRUE));
-                on_state++;
+                UInt8 raw_pid;
+                if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid))
+                {
+                    UInt8 raw_pid;
+                    if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid))
+                    {
+                        one_net_write((*txn)->pkt, get_encoded_packet_len(raw_pid,
+                          TRUE));
+                        on_state++;
+                    }
+                }
             } // if the channel is clear //
             
             break;
