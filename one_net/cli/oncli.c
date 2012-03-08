@@ -62,6 +62,7 @@
 #ifdef _PEER
 #include "one_net_peer.h"
 #endif
+#include "one_net_timer.h"
 
 
 
@@ -1017,6 +1018,10 @@ static void echo(const char CH)
         return;
     } // if echoing is not enabled //
 
+    if(ont_active(PROMPT_TIMER))
+    {
+        oncli_print_prompt();
+    }
     oncli_send_msg("%c", CH);
     
 } // echo //

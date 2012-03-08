@@ -258,6 +258,7 @@ void check_user_pins(void)
 void oncli_print_prompt(void)
 {   
     oncli_send_msg("ocm%s> ", get_prompt_string());
+    ont_stop_timer(PROMPT_TIMER);
 } // oncli_print_prompt //
 #endif
 
@@ -393,7 +394,7 @@ int main(void)
 #endif
 
 
-    ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
+    ont_set_timer(PROMPT_TIMER, 0);
     while(1)
     {
         #ifdef _UART
