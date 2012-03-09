@@ -1231,6 +1231,13 @@ ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 #endif
 
 
+// don't #include one_net_port_specific.h here due to some circular
+// dependecies.  Just declare a few functions from it here to avoid compiler
+// errors.
+
+UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
+void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
+
 ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
@@ -1240,7 +1247,8 @@ ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
         return FALSE;
     }
     
-    *raw_pid = (raw_pld_arr[0] >> 2);
+    *raw_pid = one_net_byte_stream_to_int16(raw_pld_arr);
+    (*raw_pid) >>=  4;
     return TRUE;
 }
 
@@ -1248,8 +1256,8 @@ ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
 ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
-    raw_pld_arr[0] = (raw_pid << 2);
-    raw_pld_arr[1] = 0;
+    raw_pid <<= 4;
+    one_net_int16_to_byte_stream(raw_pid, raw_pld_arr);
     on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
 }
 
