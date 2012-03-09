@@ -1113,7 +1113,7 @@ void one_net(on_txn_t ** txn)
     {
         case ON_LISTEN_FOR_DATA:
         {
-            UInt8 raw_pid;
+            UInt16 raw_pid;
             #ifdef _ONE_NET_MULTI_HOP
             on_raw_did_t raw_did;
             #endif
@@ -1491,16 +1491,12 @@ void one_net(on_txn_t ** txn)
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
-                UInt8 raw_pid;
+                UInt16 raw_pid;
                 if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid))
                 {
-                    UInt8 raw_pid;
-                    if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid))
-                    {
-                        one_net_write((*txn)->pkt, get_encoded_packet_len(raw_pid,
-                          TRUE));
-                        on_state++;
-                    }
+                    one_net_write((*txn)->pkt, get_encoded_packet_len(raw_pid,
+                      TRUE));
+                    on_state++;
                 }
             } // if the channel is clear //
             
@@ -2348,7 +2344,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 {
     one_net_status_t status;
     one_net_xtea_key_t* key = NULL;
-    UInt8 raw_pid;
+    UInt16 raw_pid;
     BOOL dst_is_broadcast, dst_is_me, src_match;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL packet_is_mh;

@@ -98,7 +98,7 @@
     \return the length of the encoded payload if the pid is valid,
            -1 if the pid is not valid.
 */
-SInt8 get_encoded_payload_len(UInt8 raw_pid)
+SInt8 get_encoded_payload_len(UInt16 raw_pid)
 {
     SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
     switch(num_payload_blocks)
@@ -118,7 +118,7 @@ SInt8 get_encoded_payload_len(UInt8 raw_pid)
     \return the length of the raw payload if the pid is valid, -1 if the pid
            is not valid.
 */
-SInt8 get_raw_payload_len(UInt8 raw_pid)
+SInt8 get_raw_payload_len(UInt16 raw_pid)
 {
     // includes 1 byte for the encryption method
     SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
@@ -139,7 +139,7 @@ SInt8 get_raw_payload_len(UInt8 raw_pid)
     \return the number of XTEA blocks in the payload, -1 if the pid is
            not valid.
 */
-SInt8 get_num_payload_blocks(UInt8 raw_pid)
+SInt8 get_num_payload_blocks(UInt16 raw_pid)
 {
     // first change the PID so we have fewer things to check.  We're only
     // looking for the number of blocks, so ACKs and NACKs will be equivalent
@@ -219,7 +219,7 @@ SInt8 get_num_payload_blocks(UInt8 raw_pid)
     \return the length of the packet if the pid is valid, 0 if the pid is
            not valid.
 */
-UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header)
+UInt8 get_encoded_packet_len(UInt16 raw_pid, BOOL include_header)
 {
     SInt8 pld_len = get_encoded_payload_len(raw_pid);
     
@@ -251,7 +251,7 @@ UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header)
 
     \return True if encoded_pid is a stay-awake packet, false otherwise.
 */
-BOOL packet_is_stay_awake(UInt8 raw_pid)
+BOOL packet_is_stay_awake(UInt16 raw_pid)
 {
     #ifdef _ONE_NET_MULTI_HOP
     set_multihop_pid(&raw_pid, FALSE);
@@ -286,7 +286,7 @@ BOOL packet_is_stay_awake(UInt8 raw_pid)
       
     \return True if the pid changed, false otherwise
 */
-BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
+BOOL set_stay_awake_pid(UInt16* raw_pid, BOOL stay_awake)
 {
     BOOL pid_is_stay_awake;
     
@@ -335,7 +335,7 @@ BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake)
       
     \return True if the pid changed, false otherwise
 */
-BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack)
+BOOL set_ack_or_nack_pid(UInt16* raw_pid, BOOL is_ack)
 {
     BOOL pid_is_nack = packet_is_nack(*raw_pid);
     BOOL pid_is_ack  = packet_is_ack(*raw_pid);
@@ -374,7 +374,7 @@ BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack)
                False otherwise.
     \return True if the pid changed, false otherwise
 */
-BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop)
+BOOL set_multihop_pid(UInt16* raw_pid, BOOL is_multihop)
 {
     if(is_multihop)
     {
@@ -409,7 +409,7 @@ BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop)
 
     \return True if pid is a data packet, false otherwise.
 */
-BOOL packet_is_data(UInt8 raw_pid)
+BOOL packet_is_data(UInt16 raw_pid)
 {
     #ifdef _ONE_NET_MULTI_HOP
     set_multihop_pid(&raw_pid, FALSE);
@@ -448,7 +448,7 @@ BOOL packet_is_data(UInt8 raw_pid)
 
     \return True if pid is a NACK packet, false otherwise.
 */
-BOOL packet_is_nack(UInt8 raw_pid)
+BOOL packet_is_nack(UInt16 raw_pid)
 {
     if(packet_is_data(raw_pid))
     {
@@ -467,7 +467,7 @@ BOOL packet_is_nack(UInt8 raw_pid)
 
     \return True if pid is an ACK packet, false otherwise.
 */
-BOOL packet_is_ack(UInt8 raw_pid)
+BOOL packet_is_ack(UInt16 raw_pid)
 {
     #ifdef _ONE_NET_MULTI_HOP
     set_multihop_pid(&raw_pid, FALSE);
@@ -512,10 +512,10 @@ BOOL packet_is_ack(UInt8 raw_pid)
 
     \return the PID we should use to respond.
 */
-UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK,
+UInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK,
   BOOL stay_awake)
 {
-    UInt8 raw_resp_pid;
+    UInt16 raw_resp_pid;
     #ifdef _ONE_NET_MULTI_HOP
     BOOL pid_is_multi = packet_is_multihop(raw_single_pid);
     set_multihop_pid(&raw_single_pid, FALSE);

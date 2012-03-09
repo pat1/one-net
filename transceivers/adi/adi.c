@@ -421,7 +421,7 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
         #if _DEBUG_VERBOSE_LEVEL > 1
         if(verbose_level == 2)
         {
-            UInt8 raw_pid;
+            UInt16 raw_pid;
             if(get_raw_pid(&data[ON_ENCODED_PID_IDX], &raw_pid))
             {
                 oncli_send_msg("\n\nWrite Raw PID 0x%02X\n", raw_pid);
@@ -567,7 +567,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             // in, so the packet size that is being read in is shorter, so
             // subtract the ON_ENCODED_DST_DID_IDX since that is where the
             // read is being started.
-            UInt8 raw_pid;
+            UInt16 raw_pid;
             if(!get_raw_pid(&encoded_pkt_bytes[ON_ENCODED_PID_IDX], &raw_pid))
             {
                 DISABLE_RX_BIT_INTERRUPTS();

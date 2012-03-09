@@ -1056,7 +1056,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
         return;
     }
     {
-        UInt8 raw_pid;
+        UInt16 raw_pid;
         on_pkt_t debug_pkt_ptrs;
         
         if(!get_raw_pid(&packet_bytes[ON_ENCODED_PID_IDX], &raw_pid))

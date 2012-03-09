@@ -1072,23 +1072,23 @@ typedef struct
 //! \ingroup ONE-NET_PACKET
 //! @{
 
-SInt8 get_encoded_payload_len(UInt8 raw_pid);
-SInt8 get_raw_payload_len(UInt8 raw_pid);
-SInt8 get_num_payload_blocks(UInt8 raw_pid);
-UInt8 get_encoded_packet_len(UInt8 raw_pid, BOOL include_header);
-BOOL packet_is_stay_awake(UInt8 raw_pid);
-BOOL set_ack_or_nack_pid(UInt8* raw_pid, BOOL is_ack);
-BOOL set_stay_awake_pid(UInt8* raw_pid, BOOL stay_awake);
+SInt8 get_encoded_payload_len(UInt16 raw_pid);
+SInt8 get_raw_payload_len(UInt16 raw_pid);
+SInt8 get_num_payload_blocks(UInt16 raw_pid);
+UInt8 get_encoded_packet_len(UInt16 raw_pid, BOOL include_header);
+BOOL packet_is_stay_awake(UInt16 raw_pid);
+BOOL set_ack_or_nack_pid(UInt16* raw_pid, BOOL is_ack);
+BOOL set_stay_awake_pid(UInt16* raw_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP
-BOOL set_multihop_pid(UInt8* raw_pid, BOOL is_multihop);
+BOOL set_multihop_pid(UInt16* raw_pid, BOOL is_multihop);
 #endif
-BOOL packet_is_data(UInt8 raw_pid);
+BOOL packet_is_data(UInt16 raw_pid);
 
-BOOL packet_is_ack(UInt8 raw_pid);
-BOOL packet_is_nack(UInt8 raw_pid);
+BOOL packet_is_ack(UInt16 raw_pid);
+BOOL packet_is_nack(UInt16 raw_pid);
 
-UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK, BOOL stay_awake);
+UInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK, BOOL stay_awake);
 
 
 // inline function implementation below //
@@ -1104,7 +1104,7 @@ UInt8 get_single_response_pid(UInt8 raw_single_pid, BOOL isACK, BOOL stay_awake)
 
     \return True if encoded_pid is a multi-hop packet, false otherwise.
 */
-ONE_NET_INLINE BOOL packet_is_multihop(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_multihop(UInt16 raw_pid)
 {
     // if raw_pid is >= 0x20, then packet is multi-hop
     return (raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET);
@@ -1121,7 +1121,7 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt8 raw_pid)
 
     \return True if pid is a single packet, false otherwise.
 */
-ONE_NET_INLINE BOOL packet_is_single(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_single(UInt16 raw_pid)
 {
     #ifdef _ROUTE
     switch(raw_pid)
@@ -1199,7 +1199,7 @@ ONE_NET_INLINE BOOL packet_is_stream(UInt8 raw_pid)
 
     \return True if pid is an invite packet, false otherwise.
 */
-ONE_NET_INLINE BOOL packet_is_invite(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_invite(UInt16 raw_pid)
 {
     switch(raw_pid)
     {
@@ -1215,7 +1215,7 @@ ONE_NET_INLINE BOOL packet_is_invite(UInt8 raw_pid)
 
 
 #ifdef _ROUTE
-ONE_NET_INLINE BOOL packet_is_route(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 {
     set_multihop_pid(&raw_pid, FALSE);
     switch(raw_pid)
@@ -1231,7 +1231,7 @@ ONE_NET_INLINE BOOL packet_is_route(UInt8 raw_pid)
 #endif
 
 
-ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt8* raw_pid)
+ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
     if(on_decode(raw_pld_arr, payload, ON_ENCODED_PID_SIZE)
@@ -1245,7 +1245,7 @@ ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt8* raw_pid)
 }
 
 
-ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt8 raw_pid)
+ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
     raw_pld_arr[0] = (raw_pid << 2);
