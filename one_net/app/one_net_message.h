@@ -268,7 +268,7 @@ typedef enum
 //!< Single Message Data Queue Structure.
 typedef struct
 {
-    UInt8 raw_pid; 
+    UInt16 raw_pid; 
     UInt8 priority;   
 	on_encoded_did_t dst_did;
     UInt8 msg_type;
@@ -442,7 +442,7 @@ int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
 int single_data_queue_ready_to_send(void);
 #endif
 
-on_single_data_queue_t* push_queue_element(UInt8 pid,
+on_single_data_queue_t* push_queue_element(UInt16 pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst

@@ -1000,6 +1000,14 @@ void print_sending_device_t(const on_sending_device_t* const device)
 #endif
 
 
+void print_raw_pid(UInt16 raw_pid)
+{
+    oncli_send_msg("Raw PID=%03X(%02X)--MH=%s SA=%s\n", raw_pid, raw_pid & 0x3F,
+      (raw_pid & ONE_NET_RAW_PID_MH_MASK) ? TRUE_STR : FALSE_STR,
+      (raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK) ? TRUE_STR : FALSE_STR);
+}
+
+
 
 //! @} oncli_pub_func
 //						PUBLIC FUNCTION IMPLEMENTATION END

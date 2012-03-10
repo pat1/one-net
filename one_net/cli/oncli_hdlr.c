@@ -1736,14 +1736,14 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_encoded_did_t enc_dst;
-    UInt16 data_len;
+    UInt16 data_len, raw_pid, num_blocks;
     UInt8 src_unit, dst_unit;
     UInt8 raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN] = {0};
     #ifdef _PEER
     BOOL send_to_peer_list;
     #endif
     
-    UInt8 raw_pid, pld_len, msg_type;
+    UInt8 pld_len, msg_type;
     
     #ifdef _EXTENDED_SINGLE
     UInt8* text_start_ptr = &raw_pld[ONA_TEXT_DATA_IDX];
@@ -1785,6 +1785,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if parsing the data portion failed //
     
     raw_pid = ONE_NET_RAW_SINGLE_DATA;
+    num_blocks = 1;
     pld_len = ONA_SINGLE_PACKET_PAYLOAD_LEN;
     msg_type = ONA_SIMPLE_TEXT;
 
@@ -1796,7 +1797,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     else if(data_len < ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN -
       ONA_TEXT_DATA_IDX -1)
     {
-        raw_pid = ONE_NET_RAW_LARGE_SINGLE_DATA;
+        num_blocks = 2;
         pld_len = ONA_LARGE_SINGLE_PACKET_PAYLOAD_LEN;
         msg_type = ONA_TEXT;
         // add a NULL terminator
@@ -1804,7 +1805,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     else
     {
-        raw_pid = ONE_NET_RAW_EXTENDED_SINGLE_DATA;
+        num_blocks = 3;
         pld_len = ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN;
         msg_type = ONA_TEXT;
         // add a NULL terminator
@@ -1818,6 +1819,8 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     // store the source and destination unit numbers in the payload
     put_dst_unit(dst_unit, raw_pld);
     put_src_unit(src_unit, raw_pld);
+    
+    raw_pid |= (num_blocks << 8);
     
 
     if(one_net_send_single(raw_pid, ON_APP_MSG, raw_pld, pld_len,

@@ -503,12 +503,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         return ON_MSG_CONTINUE;
     }
     
-    #ifndef _ONE_NET_MULTI_HOP
-    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA)
-    #else
-    if(msg_hdr->raw_pid != ONE_NET_RAW_SINGLE_DATA &&
-       msg_hdr->raw_pid != ONE_NET_RAW_MH_SINGLE_DATA)
-    #endif
+    if((msg_hdr->raw_pid & 0x3F) != ONE_NET_RAW_SINGLE_DATA)
     {
         ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         ack_nack->handle = ON_NACK;
@@ -1064,7 +1059,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             return;
         }
         
-        oncli_send_msg("Raw PID=%02X", raw_pid);
+        print_raw_pid(raw_pid);
 
         if(!setup_pkt_ptr(raw_pid, packet_bytes, 0, &debug_pkt_ptrs))
         {

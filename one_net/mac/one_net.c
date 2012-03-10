@@ -824,7 +824,7 @@ BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs)
 
     \return TRUE if the message CRC is valid, FALSE otherwise
 */
-BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted)
+BOOL verify_payload_crc(UInt16 raw_pid, const UInt8* decrypted)
 {
     const UInt8* crc_calc_start;
     UInt8 crc_calc, crc_calc_len;
@@ -865,10 +865,10 @@ BOOL verify_payload_crc(UInt8 raw_pid, const UInt8* decrypted)
     \return TRUE if the on_pkt structure was set up successfully.
             FALSE upon error.
 */
-BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pkt)
+BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pkt)
 {
-    SInt8 len = get_encoded_payload_len(raw_pid);
-    if(len < 0)
+    SInt8 len;
+    if(raw_pid > 0xFFF)
     {
         return FALSE; // bad pid
     }
@@ -877,6 +877,25 @@ BOOL setup_pkt_ptr(UInt8 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pkt
     {
         return FALSE;
     }
+    
+    if(!packet_length_is_valid(raw_pid))
+    {
+        SInt16 default_num_blocks = get_default_num_blocks(raw_pid);
+        if(default_num_blocks < 0)
+        {
+            return FALSE;
+        }
+        
+        raw_pid &= 0xFF;
+        raw_pid |= (default_num_blocks << 8);
+    }
+    
+    len = get_encoded_payload_len(raw_pid);
+    if(len <= 0)
+    {
+        return FALSE;
+    }
+    
     
     pkt->packet_bytes     = &pkt_bytes[0];
     pkt->raw_pid          = raw_pid;
@@ -1468,8 +1487,7 @@ void one_net(on_txn_t ** txn)
                 
                 #ifdef _ROUTE
                 if(get_raw_pid(&(data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX]),
-                  &raw_pid) && (raw_pid == ONE_NET_RAW_ROUTE || raw_pid == 
-                  ONE_NET_RAW_MH_ROUTE))
+                  &raw_pid) && ((raw_pid & 0x3F) == ONE_NET_RAW_ROUTE))
                 {
                     route_start_time = get_tick_count();
                 }
@@ -2030,8 +2048,9 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     }
     
     #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
-    if(!device_is_master && packet_is_stay_awake(pkt->raw_pid))
+    if(!device_is_master && (pkt->raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK))
     {
+        // TODO -- should 3 seconds be hard-coded?
         // we received a stay-awake, so set the stay-awake timer
         // for 3 seconds
         ont_set_timer(ONT_STAY_AWAKE_TIMER,
@@ -2430,8 +2449,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_BAD_ADDR;
     }
     #else
-    if(!src_match || (!dst_is_me && !dst_is_broadcast) || (raw_pid ==
-      ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT && client_joined_network))
+    if(!src_match || (!dst_is_me && !dst_is_broadcast) || ((raw_pid & 0x3F) ==
+      ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT && client_joined_network))
     {
         // not to us, but maybe we'll repeat it if we're not the master,
         // not in the middle of our own transaction, it's a multi-hop
@@ -2628,7 +2647,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             {
                 // more needs to be done for route packets.  This is NOT a
                 // route packet or it is a route packet NACK, so we're done.
-                return ONS_PKT_RCVD;
+                return ONS_PKT_RCVD; // TODO -- what's with this if-statement.  Seems pointless.
             }
             #else  
             return ONS_PKT_RCVD;

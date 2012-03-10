@@ -1026,7 +1026,8 @@ void one_net_master(void)
             if(invite_txn.priority != ONE_NET_NO_PRIORITY &&
               ont_inactive_or_expired(invite_txn.next_txn_timer))
             {
-                UInt8 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT;
+                UInt16 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT |
+                  (3 << ONE_NET_RAW_PID_SIZE_SHIFT);
                 on_client_t* invite_client;
                 
                 if(ont_expired(ONT_INVITE_TIMER))
@@ -1052,7 +1053,7 @@ void one_net_master(void)
                   txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
                 {
                     txn->retry = 0;
-                    raw_pid = ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT;
+                    raw_pid |= ONE_NET_RAW_PID_MH_MASK;
                 } // if time to send a multi hop packet //
                 #endif
 
@@ -1064,7 +1065,7 @@ void one_net_master(void)
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
-                if(raw_pid == ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT)
+                if(raw_pid | ONE_NET_RAW_PID_MH_MASK)
                 {
                     on_build_hops(&data_pkt_ptrs, 0,
                       features_max_hops(THIS_DEVICE_FEATURES));

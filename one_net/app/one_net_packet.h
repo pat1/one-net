@@ -65,303 +65,96 @@
 //! @{
 
 
-#ifndef _ONA_MSG_TYPE_MASK
-    //! Mask the message type bits
-    #define ONA_MSG_TYPE_MASK 0xFFF
-#endif
 
+#define ONE_NET_RAW_PID_MH_MASK 0x80
+#define ONE_NET_RAW_PID_STAY_AWAKE_MASK 0x40
 
-#ifdef _ONE_NET_MULTI_HOP
-#define ONE_NET_RAW_PID_MULTI_HOP_OFFSET 0x20
-#endif
-
-
-
+#define ONE_NET_RAW_PID_SIZE_MASK 0xF00
+#define ONE_NET_RAW_PID_SIZE_SHIFT 8
 
 
 
 
 /*!
     \brief Raw Packet Types
-
-    
-    Non-Multi-Hop Single packets and their responses reside in raw PIDs 0x00
-    through 0x0A.  Block packets and their responses reside in raw PIDs 0x10
-    through 0x17.  Stream packets and ther responses reside in raw PIDs 0x18
-    through 0x1E.  The raw invite packet is 0x1F.
 */
 
-//! MASTER broadcast inviting a new CLIENT to join the network.
-#define ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT 0x1F
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of MASTER broadcast inviting a new CLIENT to join the
-//! network.
-#define ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT 0x3F
-#endif   
-
-
+ 
 
 //! Single Data Packet.
 #define ONE_NET_RAW_SINGLE_DATA 0x00
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Single Data Packet.
-#define ONE_NET_RAW_MH_SINGLE_DATA 0x20   
-#endif
 
 //! Acknowledgment of successful reception of a single data packet.
 #define ONE_NET_RAW_SINGLE_DATA_ACK 0x01
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgment of successful reception of a single
-//! data packet.
-#define ONE_NET_RAW_MH_SINGLE_DATA_ACK 0x21
-#endif
 
 //! Acknowledges that a single data packet was received, but an
 //! error was encountered. The NACK reason field on this NACK specifies
 //! the error condition that resulted in the NACK.
 #define ONE_NET_RAW_SINGLE_DATA_NACK_RSN 0x02
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_SINGLE_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_SINGLE_DATA_NACK_RSN 0x22
+
+
+
+#ifdef _ROUTE
+//! Route Packet
+#define ONE_NET_RAW_ROUTE      0x03
+
+//! Route Packet ACK
+#define ONE_NET_RAW_ROUTE_ACK  0x04
+
+//! Route Packet NACK
+#define ONE_NET_RAW_ROUTE_NACK 0x05
 #endif
-
-//! Acknowledgement of successful reception of a single data packet.  Also
-//! tells the sender of the single data packet not to go to sleep until
-//! a certain time.
-#define ONE_NET_RAW_SINGLE_DATA_ACK_STAY_AWAKE 0x03   
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement of successful reception of a single
-//! data packet.  Also tells the sender of the single data packet to listen
-//! for a single data packet from the CLIENT that received the single data
-//! packet.
-#define ONE_NET_RAW_MH_SINGLE_DATA_ACK_STAY_AWAKE 0x23
-#endif
-
-//! Acknowledges that a single data packet was received, but not 
-//! successfully parsed.  Also tells the sender of the single data packet
-//! not to go to sleep until a certain time.
-#define ONE_NET_RAW_SINGLE_DATA_NACK_STAY_AWAKE 0x04
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement that a single data packet was
-//! received, but not successfully parsed.
-#define ONE_NET_RAW_MH_SINGLE_DATA_NACK_STAY_AWAKE 0x24
-#endif
-
-
-
-
-#ifdef _EXTENDED_SINGLE
-//! Large Single Data Packet
-#define ONE_NET_RAW_LARGE_SINGLE_DATA 0x05
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop Large Single Data Packet
-#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA 0x25
-#endif
-
-//! Acknowledgment of successful reception of a large single data packet.
-#define ONE_NET_RAW_LARGE_SINGLE_DATA_ACK 0x06
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgment of successful reception of a large single
-//! data packet.
-#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK 0x26
-#endif
-
-//! Acknowledges that a large single data packet was received, but an
-//! error was encountered. The NACK reason field on this NACK specifies
-//! the error condition that resulted in the NACK.
-#define ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN 0x07
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_RSN 0x27
-#endif
-
-//! Acknowledgement of successful reception of a large single data packet.  Also
-//! tells the sender of the large single data packet not to go to sleep until
-//! a certain time.
-#define ONE_NET_RAW_LARGE_SINGLE_DATA_ACK_STAY_AWAKE 0x08
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement of successful reception of a large single
-//! data packet.  Also tells the sender of the single data packet to listen
-//! for a single data packet from the CLIENT that received the single data
-//! packet.
-#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_ACK_STAY_AWAKE 0x28
-#endif
-
-//! Acknowledges that a large single data packet was received, but not 
-//! successfully parsed.  Also tells the sender of the single data packet
-//! not to go to sleep until a certain time.
-#define ONE_NET_RAW_LARGE_SINGLE_DATA_NACK_STAY_AWAKE 0x09
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement that a large single data packet was
-//! received, but not successfully parsed.
-#define ONE_NET_RAW_MH_LARGE_SINGLE_DATA_NACK_STAY_AWAKE 0x29
-#endif
-
-
-
-//! Extended Single Data Packet
-#define ONE_NET_RAW_EXTENDED_SINGLE_DATA 0x0A
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop Extended Single Data Packet
-#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA 0x2A
-#endif
-
-//! Acknowledgment of successful reception of an extended single data packet.
-#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK 0x0B
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgment of successful reception of an extended single
-//! data packet.
-#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK 0x2B
-#endif
-
-//! Acknowledges that an extended single data packet was received, but an
-//! error was encountered. The NACK reason field on this NACK specifies
-//! the error condition that resulted in the NACK.
-#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN 0x0C
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_RSN 0x2C
-#endif
-
-//! Acknowledgement of successful reception of an extended single data packet.  Also
-//! tells the sender of the extended single data packet not to go to sleep until
-//! a certain time.
-#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE 0x0D
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement of successful reception of an extended single
-//! data packet.  Also tells the sender of the single data packet to listen
-//! for a single data packet from the CLIENT that received the single data
-//! packet.
-#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_ACK_STAY_AWAKE 0x2D
-#endif
-
-//! Acknowledges that an extended single data packet was received, but not 
-//! successfully parsed.  Also tells the sender of the single data packet
-//! not to go to sleep until a certain time.
-#define ONE_NET_RAW_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE 0x0E
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Acknowledgement that an extended single data packet was
-//! received, but not successfully parsed.
-#define ONE_NET_RAW_MH_EXTENDED_SINGLE_DATA_NACK_STAY_AWAKE 0x2E
-#endif
-#endif // if large and extended singles are allowed.
 
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 //! Block Data Packet
-#define ONE_NET_RAW_BLOCK_DATA 0x10
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-hop version of Block Data Packet
-#define ONE_NET_RAW_MH_BLOCK_DATA 0x30
-#endif
+#define ONE_NET_RAW_BLOCK_DATA 0x06
 
 //! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_BLOCK_DATA_ACK 0x11
-#ifdef _ONE_NET_MULTI_HOP
-//! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_MH_BLOCK_DATA_ACK 0x31
-#endif
+#define ONE_NET_RAW_BLOCK_DATA_ACK 0x07
 
 //! Acknowledges that a block data packet was received, but an
 //! error was encountered. The NACK reason field on this NACK specifies
 //! the error condition that resulted in the NACK.
-#define ONE_NET_RAW_BLOCK_DATA_NACK_RSN 0x12
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_BLOCK_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_BLOCK_DATA_NACK_RSN 0x32
-#endif
+#define ONE_NET_RAW_BLOCK_DATA_NACK_RSN 0x08
 
-//! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_LARGE_BLOCK_DATA_ACK 0x13
-#ifdef _ONE_NET_MULTI_HOP
-//! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_MH_LARGE_BLOCK_DATA_ACK 0x33
+//! A block transfer is being terminated for some reason.  This could be due
+//! to a problem or due to a successful completion.  This should not be
+//! assumed to be either an ACK or a NACK.  The packet must be parsed for
+//! further meaning.
+#define ONE_NET_RAW_BLOCK_TERMINATE 0x09
 #endif
-
-//! Acknowledges that a block data packet was received, but an
-//! error was encountered. The NACK reason field on this NACK specifies
-//! the error condition that resulted in the NACK.
-#define ONE_NET_RAW_LARGE_BLOCK_DATA_NACK_RSN 0x14
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_BLOCK_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_LARGE_BLOCK_DATA_NACK_RSN 0x34
-#endif
-
-//! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_EXTENDED_BLOCK_DATA_ACK 0x15
-#ifdef _ONE_NET_MULTI_HOP
-//! Acknowledgment of successful reception of a block data packet.
-#define ONE_NET_RAW_MH_EXTENDED_BLOCK_DATA_ACK 0x35
-#endif
-
-//! Acknowledges that a block data packet was received, but an
-//! error was encountered. The NACK reason field on this NACK specifies
-//! the error condition that resulted in the NACK.
-#define ONE_NET_RAW_EXTENDED_BLOCK_DATA_NACK_RSN 0x16
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_BLOCK_DATA_NACK_RSN
-#define ONE_NET_RAW_MH_EXTENDED_BLOCK_DATA_NACK_RSN 0x36
-#endif
-
-//! A "chunk" of a block transaction or the entire block transaction has
-//! either been completed successfully or is being terminated for whatever
-//! reason, either as a success or as a failure.  The payload should be
-//! parsed to determine the type of termination and whether to interpret
-//! it as an ACK or a NACK.  This can be sent by either side.
-#define ONE_NET_RAW_BLOCK_TERMINATE 0x17
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_BLOCK_TERMINATE
-#define ONE_NET_RAW_MH_BLOCK_TERMINATE 0x37
-#endif
-#endif // if block messages are enabled //
 
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
 //! Stream Data Packet
-#define ONE_NET_RAW_STREAM_DATA 0x18
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of Stream Data Packet
-#define ONE_NET_RAW_MH_STREAM_DATA 0x38
+#define ONE_NET_RAW_STREAM_DATA 0x0A
+
+//! Acknowledgment of successful reception of a stream data packet.
+#define ONE_NET_RAW_STREAM_DATA_ACK 0x0B
+
+//! Acknowledges that a stream data packet was received, but an
+//! error was encountered. The NACK reason field on this NACK specifies
+//! the error condition that resulted in the NACK.
+#define ONE_NET_RAW_STREAM_DATA_NACK_RSN 0x0C
+
+//! A stream transfer is being terminated for some reason.  This could be due
+//! to a problem or due to a successful completion.  This should not be
+//! assumed to be either an ACK or a NACK.  The packet must be parsed for
+//! further meaning.
+#define ONE_NET_RAW_STREAM_TERMINATE 0x0D
 #endif
 
-//! Sent by the receiver of a stream data packet to alert the sender that
-//! it is still receiving the stream and is "happy" with it.
-#define ONE_NET_RAW_STREAM_ACK_KEEP_ALIVE 0x19
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_STREAM_ACK_KEEP_ALIVE
-#define ONE_NET_RAW_MH_STREAM_ACK_KEEP_ALIVE 0x39
-#endif
-
-//! Sent by the receiver of a stream data packet to alert the sender that
-//! it is still receiving the stream and is "unhappy" with it.
-#define ONE_NET_RAW_STREAM_NACK_KEEP_ALIVE 0x1A
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_STREAM_NACK_KEEP_ALIVE
-#define ONE_NET_RAW_MH_STREAM_NACK_KEEP_ALIVE 0x3A
-#endif
-
-//! A stream transaction is being terminated.  This can be sent by either side
-//! and must be parsed further to determine whether the transaction is complete
-//! or is being aborted and if it was a success.  Either side of the transaction
-//! can send this.
-#define ONE_NET_RAW_STREAM_TERMINATE 0x1B
-#ifdef _ONE_NET_MULTI_HOP
-//! Multi-Hop version of ONE_NET_RAW_BLOCK_TERMINATE
-#define ONE_NET_RAW_MH_STREAM_TERMINATE 0x3B
-#endif
-#endif // if stream messages enabled //
 
 
-#ifdef _ROUTE
-#define ONE_NET_RAW_ROUTE      0x1C
-#define ONE_NET_RAW_ROUTE_ACK  0x1D
-#define ONE_NET_RAW_ROUTE_NACK 0x1E
-#define ONE_NET_RAW_MH_ROUTE      0x3C
-#define ONE_NET_RAW_MH_ROUTE_ACK  0x3D
-#define ONE_NET_RAW_MH_ROUTE_NACK 0x3E
-#endif
+//! MASTER broadcast inviting a new CLIENT to join the network.
+#define ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT 0x0E
+
+//! CLIENT message sent requesting an invitation
+#define ONE_NET_RAW_CLIENT_REQUEST_INVITE 0x0F
+
 
 
 typedef enum _ona_msg_type
@@ -1076,9 +869,7 @@ SInt8 get_encoded_payload_len(UInt16 raw_pid);
 SInt8 get_raw_payload_len(UInt16 raw_pid);
 SInt8 get_num_payload_blocks(UInt16 raw_pid);
 UInt8 get_encoded_packet_len(UInt16 raw_pid, BOOL include_header);
-BOOL packet_is_stay_awake(UInt16 raw_pid);
 BOOL set_ack_or_nack_pid(UInt16* raw_pid, BOOL is_ack);
-BOOL set_stay_awake_pid(UInt16* raw_pid, BOOL stay_awake);
 
 #ifdef _ONE_NET_MULTI_HOP
 BOOL set_multihop_pid(UInt16* raw_pid, BOOL is_multihop);
@@ -1088,7 +879,12 @@ BOOL packet_is_data(UInt16 raw_pid);
 BOOL packet_is_ack(UInt16 raw_pid);
 BOOL packet_is_nack(UInt16 raw_pid);
 
-UInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK, BOOL stay_awake);
+SInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK,
+  BOOL stay_awake);
+  
+BOOL packet_length_is_valid(UInt16 raw_pid);
+SInt8 get_default_num_blocks(UInt16 raw_pid);
+
 
 
 // inline function implementation below //
@@ -1106,8 +902,7 @@ UInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK, BOOL stay_awak
 */
 ONE_NET_INLINE BOOL packet_is_multihop(UInt16 raw_pid)
 {
-    // if raw_pid is >= 0x20, then packet is multi-hop
-    return (raw_pid >= ONE_NET_RAW_PID_MULTI_HOP_OFFSET);
+    return ((raw_pid & ONE_NET_RAW_PID_MH_MASK) > 0);
 }
 #endif
 
@@ -1123,26 +918,12 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt16 raw_pid)
 */
 ONE_NET_INLINE BOOL packet_is_single(UInt16 raw_pid)
 {
+    raw_pid &= 0x3F;
     #ifdef _ROUTE
-    switch(raw_pid)
-    {
-        case ONE_NET_RAW_ROUTE:
-        case ONE_NET_RAW_ROUTE_ACK:
-        case ONE_NET_RAW_ROUTE_NACK:
-        case ONE_NET_RAW_MH_ROUTE:
-        case ONE_NET_RAW_MH_ROUTE_ACK:
-        case ONE_NET_RAW_MH_ROUTE_NACK:
-            return TRUE;
-        default:
-            break;
-    }
+    return (raw_pid <= ONE_NET_RAW_ROUTE_NACK);
+    #else
+    return (raw_pid <= ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
     #endif
-    
-    #ifndef _ONE_NET_MULTI_HOP
-    return (raw_pid < 0x10);
-    #else  
-    return (raw_pid < 0x10 || (raw_pid >= 0x20 && raw_pid < 0x30));
-    #endif 
 }
 
 
@@ -1150,20 +931,17 @@ ONE_NET_INLINE BOOL packet_is_single(UInt16 raw_pid)
 /*!
     \brief Determines whether a given PID represents a block packet.
 
-    Determines whether a given PID represents a single packet.
+    Determines whether a given PID represents a block packet.
 
     \param[in] raw_pid The pid to check
 
     \return True if pid is a block packet, false otherwise.
 */
-ONE_NET_INLINE BOOL packet_is_block(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_block(UInt16 raw_pid)
 {
-    #ifndef _ONE_NET_MULTI_HOP
-    return (raw_pid >= 0x10 && raw_pid < 0x18);
-    #else  
-    return ((raw_pid >= 0x10 && raw_pid < 0x18) ||
-            (raw_pid >= 0x30 && raw_pid < 0x38));
-    #endif 
+    raw_pid &= 0x3F;
+    return (raw_pid >= ONE_NET_RAW_BLOCK_DATA &&
+      raw_pid <= ONE_NET_RAW_BLOCK_TERMINATE);
 }
 #endif
 
@@ -1178,14 +956,11 @@ ONE_NET_INLINE BOOL packet_is_block(UInt8 raw_pid)
 
     \return True if pid is a stream packet, false otherwise.
 */
-ONE_NET_INLINE BOOL packet_is_stream(UInt8 raw_pid)
+ONE_NET_INLINE BOOL packet_is_stream(UInt16 raw_pid)
 {
-    #ifndef _ONE_NET_MULTI_HOP
-    return (raw_pid >= 0x18 && raw_pid < 0x1F);
-    #else  
-    return ((raw_pid >= 0x18 && raw_pid < 0x1F) ||
-            (raw_pid >= 0x38 && raw_pid < 0x3F));
-    #endif 
+    raw_pid &= 0x3F;
+    return (raw_pid >= ONE_NET_RAW_STREAM_DATA &&
+      raw_pid <= ONE_NET_RAW_STREAM_TERMINATE);
 }
 #endif
 
@@ -1201,32 +976,16 @@ ONE_NET_INLINE BOOL packet_is_stream(UInt8 raw_pid)
 */
 ONE_NET_INLINE BOOL packet_is_invite(UInt16 raw_pid)
 {
-    switch(raw_pid)
-    {
-        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ONE_NET_RAW_MH_MASTER_INVITE_NEW_CLIENT:
-        #endif
-            return TRUE;
-        default:
-            return FALSE;
-    }
+    raw_pid &= 0x3F;
+    return (raw_pid == ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT);
 }
 
 
 #ifdef _ROUTE
 ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 {
-    set_multihop_pid(&raw_pid, FALSE);
-    switch(raw_pid)
-    {
-        case ONE_NET_RAW_ROUTE:
-        case ONE_NET_RAW_ROUTE_ACK:
-        case ONE_NET_RAW_ROUTE_NACK:
-            return TRUE;
-        default:
-            return FALSE;
-    }
+    raw_pid &= 0x3F;
+    return (raw_pid >= ONE_NET_RAW_ROUTE && raw_pid <= ONE_NET_RAW_ROUTE_NACK);
 }
 #endif
 
@@ -1255,7 +1014,7 @@ ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
 
 ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
 {
-    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
+    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];    
     raw_pid <<= 4;
     one_net_int16_to_byte_stream(raw_pid, raw_pld_arr);
     on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);

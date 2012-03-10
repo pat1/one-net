@@ -186,6 +186,8 @@ void print_master_send_list(void);
 void print_sending_device_t(const on_sending_device_t* const device);
 #endif
 
+void print_raw_pid(UInt16 raw_pid);
+
 
 
 

@@ -173,7 +173,7 @@ void empty_queue(void)
     \return pointer to the queue element if the queue add was successful
             NULL if error or no room in queue.
 */
-on_single_data_queue_t* push_queue_element(UInt8 raw_pid,
+on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
