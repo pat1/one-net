@@ -964,7 +964,7 @@ void print_client_send_list(void)
 void print_master_send_list(void)
 {
     UInt16 i;
-    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
     {
         oncli_send_msg("Client %d:", i);
         print_sending_device_t(&(client_list[i].device));
