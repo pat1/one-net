@@ -574,7 +574,6 @@ extern tick_t route_start_time;
 
 #ifdef _DATA_RATE
 extern dr_channel_stage_t dr_channel_stage;
-extern UInt16 data_rate_pause_time_ms;
 extern UInt16 dormant_data_rate_time_ms;
 extern UInt8 next_data_rate;
 extern UInt8 next_channel;

@@ -223,7 +223,6 @@ tick_t route_start_time = 0;
 
 #ifdef _DATA_RATE
 dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
-UInt16 data_rate_pause_time_ms = 0;
 UInt16 dormant_data_rate_time_ms = 0;
 UInt8 next_data_rate = ONE_NET_DATA_RATE_38_4;
 UInt8 next_channel;
