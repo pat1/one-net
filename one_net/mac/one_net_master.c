@@ -181,12 +181,12 @@ static on_encoded_did_t add_device_did = {0xB4, 0xB4};
 
 //! Flag for whether the device being added has been notified of its
 //! settings / flags.
-static BOOL settings_sent = FALSE;
+static BOOL settings_sent;
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 //! Flag for whether the device being added has been notified of its fragment
 //! delays.
-static BOOL fragment_delay_sent = FALSE;
+static BOOL fragment_delay_sent;
 #endif
 
 //! The time that the remove device update started.
@@ -724,6 +724,11 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client->device.features = FEATURES_UNKNOWN;
     
     one_net_memmove(add_device_did, client->device.did, ON_ENCODED_DID_LEN);
+    
+    settings_sent = FALSE;
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    fragment_delay_sent = FALSE;
+    #endif
     
     return ONS_SUCCESS;
 } // one_net_master_invite //
