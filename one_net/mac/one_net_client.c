@@ -1176,6 +1176,42 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             admin_msg_type = ON_CHANGE_SETTINGS_RESP;
                             break;
                         }
+                        
+                        #ifdef _BLOCK_MESSAGES_ENABLED
+                        case ON_CHANGE_FRAGMENT_DELAY:
+                        {
+                            // changing both within one message.  If a value is 0, then, it
+                            // is irrelevant.
+                            UInt16 new_frag_low = one_net_byte_stream_to_int16(
+                              &ack_nack->payload->admin_msg[1 + ON_FRAG_LOW_IDX]);
+                            UInt16 new_frag_high = one_net_byte_stream_to_int16(
+                              &ack_nack->payload->admin_msg[1 + ON_FRAG_HIGH_IDX]);
+              
+                            if(new_frag_low == 0)
+                            {
+                                new_frag_low = on_base_param->fragment_delay_low;
+                            }
+                            if(new_frag_high == 0)
+                            {
+                                new_frag_high = on_base_param->fragment_delay_high;
+                            }
+            
+                            if(new_frag_low < new_frag_high)
+                            {
+                                // Invalid.  Low priority cannot be less than high-priority
+                                // delay.
+                                ack_nack->nack_reason = ON_NACK_RSN_BAD_DATA_ERR;
+                                break;
+                            }
+            
+                            on_base_param->fragment_delay_low = new_frag_low;
+                            on_base_param->fragment_delay_high = new_frag_high;
+                            
+                            send_confirm_admin_msg = TRUE;
+                            admin_msg_type = ON_CHANGE_FRAGMENT_DELAY_RESP;                            
+                            break;
+                        } // update fragment delay(s) case //
+                        #endif                        
                     }
                     
                     if(send_confirm_admin_msg)
