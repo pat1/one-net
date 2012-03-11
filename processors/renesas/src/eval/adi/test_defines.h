@@ -68,12 +68,6 @@
 #endif
 
 
-// Dec. 16, 2011 -- testing defines.  This will change.  Some combinations are
-// unstable and so are disabled.  Not all bad combinatiions have been detected.
-#ifdef _BLOCK_MESSAGES_ENABLED
-    #error "Dec. 16, 2011 -- Block and stream are not currently available."
-#endif
-
 #if defined(_BLOCK_MESSAGES_ENABLED) && !defined(_EXTENDED_SINGLE)
     #error "_EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
 #endif
