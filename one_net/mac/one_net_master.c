@@ -2835,14 +2835,15 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }                
                 #ifdef _BLOCK_MESSAGES_ENABLED
-                else if(!fragment_delay_sent)
+                else if(features_block_capable((*client)->device.features)
+                  && !fragment_delay_sent)
                 {
                     ack_nack->payload->admin_msg[0] = ON_CHANGE_FRAGMENT_DELAY;
                     one_net_int16_to_byte_stream(
                       on_base_param->fragment_delay_low,
                       &(ack_nack->payload->admin_msg[1]));
                     one_net_int16_to_byte_stream(
-                      on_base_param->fragment_delay_low,
+                      on_base_param->fragment_delay_high,
                       &(ack_nack->payload->admin_msg[3]));
                     break;
                 }
