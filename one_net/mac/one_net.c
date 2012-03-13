@@ -1102,6 +1102,9 @@ void one_net_init(void)
     #ifdef _RANGE_TESTING
     reset_range_test_did_array();
     #endif
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    bs_msg.transfer_in_progress = FALSE;
+    #endif
 } // one_net_init //
     
 
