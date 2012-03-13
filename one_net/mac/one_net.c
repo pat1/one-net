@@ -2770,9 +2770,15 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         // Change the payload CRC, re-encrypt, re-encode, re-calculate the
         // message CRC.
         raw_payload_bytes[0] = one_net_compute_crc(&raw_payload_bytes[1], 23,
-            ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);    
+            ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+        #ifndef _STREAM_MESSAGES_ENABLED
         if((status = on_encrypt(raw_payload_bytes, key,
           get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        #else
+        // TODO -- Don't hard-code FALSE in there.  Check for stream.
+        if((status = on_encrypt(FALSE, raw_payload_bytes, key,
+          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        #endif
         {
             return status;
         }
