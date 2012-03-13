@@ -732,6 +732,9 @@ UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index);
 SInt8 find_raw_did_in_route(const UInt8* route,
   const on_raw_did_t* const raw_did, SInt8 minimum_index);
 SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did);
+BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
+  dst, const UInt8* route, UInt8* hops, UInt8* return_hops,
+  UInt8* num_repeaters, on_encoded_did_t* repeaters);
 #endif
 
 

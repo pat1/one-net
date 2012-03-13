@@ -3209,6 +3209,157 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
     
     return route_index;
 }
+
+
+/*!
+    \brief Extracts the repeaters from a route.
+    
+    Extracts the repeaters from a route.
+           
+    \param[in] dst The destination in this route
+    \param[in] route The route
+    \param[out] The number of hops that it took to get the message to the
+               receiving device.
+    \param[out] return_hops The number of hops it took for the ACK or NACK to get
+               back.
+    \param[out] num_repeaters The total number of repeaters involved.
+    \param[out] A list of the repeaters involved.
+
+    \return TRUE if the route was a valid route that could be parsed.
+            FALSE otherwise.
+*/
+BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
+  dst, const UInt8* route, UInt8* hops, UInt8* return_hops,
+  UInt8* num_repeaters, on_encoded_did_t* repeaters)
+{
+    const UInt8 MAX_NUM_DIDS = 14;
+    UInt8 i;
+    SInt8 idx, to_idx, return_idx, last_idx;
+    UInt16 raw_did_int, to_raw_did_int, return_raw_did_int;
+    on_raw_did_t raw_did;
+    
+    if(!dst || !route || !hops || !return_hops || !num_repeaters ||
+      !repeaters)
+    {
+        return FALSE;
+    }
+    
+    raw_did_int = extract_raw_did_from_route(route, 0);
+    u16_to_did(raw_did_int, (const on_raw_did_t*) raw_did);
+    last_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
+      raw_did, 1);
+    
+    if(last_idx < 2)
+    {
+        return FALSE;
+    }
+    
+    if(on_decode(raw_did, *dst, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return FALSE;
+    }
+    
+    idx = find_raw_did_in_route(route, (const on_raw_did_t* const) raw_did, 1);
+    if(idx < 0 || idx >= last_idx)
+    {
+        return FALSE;
+    }
+    
+    return_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
+      raw_did, idx + 1);
+      
+    if(return_idx >= 0)
+    {
+        return FALSE; // bad. Shows up twice.
+    }
+    
+    *hops = idx - 1;
+    *return_hops = last_idx - idx - 1;
+    return_idx = idx + 1;
+    to_idx = idx - 1;
+    *num_repeaters = 0;
+    
+    
+    while(to_idx > 0 || return_idx < last_idx)
+    {
+        on_encoded_did_t to_enc_did ;
+        on_encoded_did_t return_enc_did;
+        on_encoded_did_t* did_to_add = NULL;
+        BOOL found = FALSE;
+        
+        if(to_idx > 0)
+        {
+            to_raw_did_int = extract_raw_did_from_route(route, to_idx);
+            u16_to_did(to_raw_did_int, (on_raw_did_t*) raw_did);
+            on_encode(to_enc_did, raw_did, ON_ENCODED_DID_LEN);
+        }
+        if(return_idx < last_idx)
+        {
+            return_raw_did_int = extract_raw_did_from_route(route,
+              return_idx);
+            u16_to_did(return_raw_did_int, (on_raw_did_t*) raw_did);
+            on_encode(return_enc_did, raw_did, ON_ENCODED_DID_LEN);
+        }
+        
+        if(return_idx >= last_idx)
+        {
+            did_to_add = &to_enc_did;
+            to_idx--;
+        }
+        else if(to_idx == 0)
+        {
+            did_to_add = &return_enc_did;
+            return_idx++;
+        }
+        else if(on_encoded_did_equal((on_encoded_did_t*) to_enc_did,
+          (on_encoded_did_t*) return_enc_did))
+        {
+            // they are the same.  Just add one of them.
+            did_to_add = &to_enc_did;
+            to_idx--;
+            return_idx++;
+        }
+        else
+        {
+            // here is a case where the dids are different.  We need to pick
+            // one of them.
+            u16_to_did(to_raw_did_int, (on_raw_did_t*) raw_did);
+            if(find_raw_did_in_route(route, (const on_raw_did_t* const)
+              raw_did, return_idx + 1) < 0)
+            {
+                // the ACK route does not need the message device as the
+                // did so add the message device first
+                did_to_add = &to_enc_did;
+                to_idx--;
+            }
+            else
+            {
+                // the ACK route does not need the message route as the
+                // did so add it.
+                did_to_add = &return_enc_did;
+                return_idx++;
+            }
+        }
+        
+        // go through and make sure it is not already on the list.
+        for(i = 0; i < *num_repeaters; i++)
+        {
+            if(on_encoded_did_equal(did_to_add, &repeaters[i]))
+            {
+                found = TRUE;
+            }
+        }
+        
+        if(!found)
+        {
+            one_net_memmove(repeaters[*num_repeaters], *did_to_add,
+              ON_ENCODED_DID_LEN);
+            (*num_repeaters)++;
+        }
+    }    
+
+    return TRUE;
+}
 #endif
 
 
