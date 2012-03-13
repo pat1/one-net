@@ -463,6 +463,52 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client);
 */
 BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID);
+  
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Alerts the master when a device has requested that another device
+           should be reserved for service as a multi-hop repeater.
+    
+    Alerts the master when a device has requested that another device should be
+    reserved for service as a multi-hop repeater in a block or stream transfer.
+    The master is informed of the proposed parameters of this transfer.  The
+    master may accept these paraemters or reject the parameters and offer
+    acceptable parameters, or may decide to reject the transfer completely.  The
+    master should fill in the NACk reason and payload with the rejection reason
+    and the (if relevant) acceptable parameters.  To accept the parameters, the
+    master can do nothing in this function since the NACK reason is already set
+    as "no error".
+    
+    Possible reasons that a master might reject this request include...
+    
+    1. The master might be reserving the repeater or the requesting device for
+       something else.
+    2. The master anticipates that the proposed transfer might clog the airwaves
+    3. The repeater is busy.
+    4. The master doesn't like the data rate, channel, or duration of the
+       proposed transfer.
+    5. The master does not want any block or stream or multi-hop transfers to
+       proceed at the moment for whatever reason.
+    6. There is already another block / stream transfer going on somewhere and
+       the master only wants one at a time.
+    7. One or both clients are no longer in the network. or there is about to
+       be a key change.
+    8. Some application-specific reason.
+    
+    \param[in] requesting_client The device that is being proposed as a repeater.
+    \param[in] repeater_client The device that is being proposed as a repeater.
+    \param[in] channel The channel that the transfer shall proceed on.
+    \param[in] data_rate The data rate that the transfer shall proceed on.
+    \param[in] data_rate The priority that the transfer shall proceed on.
+    \param[in] estimated_time The best-guess by the sending device of how long
+               the transfer will take, in milliseconds.
+    \param[out] The NACK reason and payload if the master decides to reject this
+               request.
+*/
+void one_net_master_repeater_requested(on_client_t* requesting_client,
+  on_client_t* repeater_client, UInt8 channel, UInt8 data_rate, UInt8 priority,
+  UInt32 estimated_time, on_ack_nack_t* ack_nack);
+#endif
                  
 
 

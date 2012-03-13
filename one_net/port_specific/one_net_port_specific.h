@@ -57,7 +57,7 @@
 #include "one_net_types.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
-#include "one_net_message.h"
+#include "one_net.h"
 #include "one_net_acknowledge.h"
 
 
@@ -358,7 +358,41 @@ void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate);
                    ONE-NET's decision, change the is_fatal parameter.  Otherwise, do nothing
 */
 void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal);
+
+
+/*!
+    \brief Informs the application code when a single message has been loaded.
+
+    Informs the application code when a single message has been loaded.
+    The message can be changed, aborted, etc.
+
+    
+    \param[in/out] txn The transaction that is about to occur
+    \param[in/out] msg The message that has just been loaded.
+*/
+void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg);
 #endif
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Informs the application code what a block or stream transfer has
+           been requested and allows it to accept, modify, or reject the
+           request.
+
+           Informs the application code what a block or stream transfer has
+           been requested and allows it to accept, modify, or reject the
+           request.
+    
+    \param[in] bs_msg The parameters of the requested block or stream
+                     transfer.
+    \param[out] ack_nack An option to NACK the proposed transfer with a
+                reason and a payload.
+*/
+void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
+  bs_msg, on_ack_nack_t* ack_nack);
+#endif
+
 
 
 
