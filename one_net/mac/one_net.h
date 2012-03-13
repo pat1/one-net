@@ -736,7 +736,7 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did);
 
 
 #ifdef _DATA_RATE
-one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate);
 #endif

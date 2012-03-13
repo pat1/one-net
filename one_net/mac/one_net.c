@@ -3213,25 +3213,49 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
 
 
 #ifdef _DATA_RATE
-one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+/*!
+    \brief Sets up a data rate and channel change to occur in the future
+    
+    This function is called either to order other devices to change data rates
+    and channels or to change a device's own channel.
+           
+    \param[in] enc_did The device whose data rate should change (possibly this device)
+               If NULL, then it is this device.
+    \param[in] pause_time_ms Time to pause BEFORE changing data rates, in ms
+    \param[in] dormant_time_ms Amount of time in milliseconds, to spend waiting
+               for a relevant message, before reverting back to the original data
+               rate and channel.  Every time a relevant message is received, this
+               wait time starts again.
+    \param[in] new_channel The channel to change to.
+    \param[in] new_data_rate The data rate to change to.
+
+    \return Upon success and agreement to change according to the parameters,
+            ON_NACK_RSN_NO_ERROR.
+            If unable or unwilling to schedule the change, a NACK reason is
+            returned.
+*/
+on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate)
 {
     UInt8 pld[5];
-    if(!enc_did)
-    {
-        return ONS_BAD_PARAM;
-    }
     
-    if(is_my_did(enc_did))
+    if(!enc_did || is_my_did(enc_did))
     {
+        if(!features_data_rate_capable(THIS_DEVICE_FEATURES, new_data_rate))
+        {
+            return ON_NACK_RSN_INVALID_DATA_RATE;
+        }
+        
         next_data_rate = new_data_rate;
         next_channel = new_channel;
         dormant_data_rate_time_ms = dormant_time_ms;
         dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
         ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
-        return ONS_SUCCESS;
+        return ON_NACK_RSN_NO_ERROR;
     }
+    
+    // TODO -- check the other device's features before this attempt?
     
     pld[0] = ON_CHANGE_DATA_RATE;
     pld[1] = new_channel;
@@ -3239,8 +3263,8 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
     pld[3] = (UInt8) (pause_time_ms / 100);
     pld[4] = (UInt8) (dormant_time_ms / 100);
     
-    return (push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld, 5,
-      ONE_NET_LOW_PRIORITY, NULL, enc_did
+    return (one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
+      pld, 5, ONE_NET_LOW_PRIORITY, NULL, enc_did
       #ifdef _PEER
       , FALSE, ONE_NET_DEV_UNIT
       #endif
@@ -3250,7 +3274,7 @@ one_net_status_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
       #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , 0
       #endif
-      ) == NULL ? ONS_RSRC_FULL : ONS_SUCCESS);
+      ) == NULL ? ON_NACK_RSN_RSRC_UNAVAIL_ERR : ON_NACK_RSN_NO_ERROR);
 }
 #endif
 
