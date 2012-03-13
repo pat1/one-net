@@ -3215,27 +3215,106 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
 
 
 /*!
-    \brief Extracts the repeaters from a route.
+    \brief Calculates the estimated time for a block transfer to complete
     
-    Extracts the repeaters from a route.
-           
-    \param[in] dst The destination in this route
-    \param[in] route The route
-    \param[out] The number of hops that it took to get the message to the
-               receiving device.
-    \param[out] return_hops The number of hops it took for the ACK or NACK to get
-               back.
-    \param[out] num_repeaters The total number of repeaters involved.
-    \param[out] A list of the repeaters involved.
+    Calculates the estimated time for a block transfer to complete.  This can
+    be a very rough estimate.  Many of these parameters might change DURING
+    the transfer to improve reliablity, releive clogging, etc.  This function
+    returns a very optimistic time estimate assuming no collisons, delays, no
+    packet loss, and all packets are accpeted by each side as valid.
 
-    \return TRUE if the route was a valid route that could be parsed.
-            FALSE otherwise.
+    \param[in] dst The destination device
+    \param[in] route The route taken
+    \param[in] hops The number of hops between source and destination
+    \param[in] return_hops The number of hops in the ACK or NACK
+    \param[in] num_repeaters The number of devices which are functioning as
+               repeaters in this route.
+    \param[in] repeaters A list of the repeaters in the route.
+
+    \return TRUE if the route is valid.
+            FALSE otherwise
 */
 BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
   dst, const UInt8* route, UInt8* hops, UInt8* return_hops,
   UInt8* num_repeaters, on_encoded_did_t* repeaters)
 {
-    const UInt8 MAX_NUM_DIDS = 14;
+    // One of the main uses of this function is to change data rates and
+    // channels.  Not only do the repeaters have to be known, but the ORDER
+    // can be quite crucial.  The majority of the time, the route TO a
+    // device and the route BACK will be the same, but one cannot assume.
+     
+    // TODO -- do some research on the statement above.  CAN we assume that the
+    // route TO a device and FROM a device will be the same?  I imagine one
+    // can think of some situations where the positioning and direction of
+    // devices and antennas, plus the power of various transceivers as far as
+    // transmission and reception range would cause the return path to deviate
+    // from the original path.  For now, definitely do NOT make that assumption.
+    // However, we can save some code space and complexity and RAM if we only
+    // need to store a ONE-WAY route and can ignore the "oddball" situations
+    // where the routes are different (again, how "oddball" is this in real life
+    // and what are the pros and cons of assuming the same route?).
+    
+    // We'll likely be changing the data rates, so we'll want to change the
+    // farthest devices first, then go towards us because the close repeaters
+    // need to be available for repeating the distant repeaters, but not vice-
+    // versa, then work backwards one by one.  The route TO the device and the
+    // route BACK may be the same or may be different(see above).  Routes where
+    // the route back is different are currently not thoroughly tested, so it
+    // might not all work well at the moment.  More testing is needed.  In
+    // addition, a 38,400 baud route might not be achievable at higher routes,
+    // so more needs to be done with this.
+    // TODO -- address the issues above.
+    
+    // An example might be the following.  The source is 002, the
+    // destination is 006, and the route is
+    //
+    // 002-003-004-005-006-007-005-003-002.
+    //
+    // 006 is passed to us as the destiantion.  002 denotes the source.  The
+    // repeaters are therefore all the devices in the route other than 002 and
+    // 006.  We need to get them in the right order from far to near.  That
+    // order is 007,005,004,003.  The only compilcated one is 005 versus 007.
+    // has to be BEFORE 005 because it needs 005 to get an ACK back to 002.
+    // Therefore if we accidentally raise 005's data rate BEFORE 007, 007 will
+    // be unreachable because 005 will have raised its data rate already.  So
+    // we need to do some checking to make sure this does not happen.
+    //
+    // We need to always make sure that a device is not already in the list
+    // before adding it.  Invalid routes include...
+    //
+    // 1. Source does not appear exactly twice.
+    // 2. Destination does not appear exactly once.
+    // 3. A device appears AFTER the second time the source appears.
+    // 4. Any device appears more than once either BEFORE the destination or
+    //    AFTER the destination.
+    // 5. Any repeaters that mutually need each other to complete the route.
+    
+    // Algorith for the 002-003-004-005-006-007-005-003-002 example.
+    
+    // 1. Find the index of the recipient(006), which is 4.
+    // 2. The next possible additions will be indexes 3 or 5.  We'll test
+    //    and pick one of them.
+    // 3. Are the devices at index 3 and index 5 the same?
+    // 3a. If so, there is no conflict, add one of them.
+    // 3b. If they are different (as they are here, 005 and 007, we test to
+    //     see if one needs the other.
+    // 3c. If both show up exactly once in the route, neither needs the
+    //     other, so we can add both and it does not matter which order we
+    //     add.
+    // 3d. If both need each other, there is a problem with the route.
+    // 3e. If one of them needs the other, add the one that needs the other
+    //     first.
+    // 4.  In this case, 007 needs 005.  We decide that by noticing that 005
+    //     comes AFTER 007 on the return route.  Note that 007 does not come
+    //     BEFORE 005 on the source route.
+    // 5. Therefore add 007, then increment the return index from 5 to 6.
+    //    Index 6 is 005, so repeat steps 3 to 5 with indexes 3 and 6.
+    // 6. Eventually the route is all added.    
+
+    
+    
+    
+    const UInt8 MAX_NUM_DIDS = 14; // TODO -- why hard-coded?
     UInt8 i;
     SInt8 idx, to_idx, return_idx, last_idx;
     UInt16 raw_did_int, to_raw_did_int, return_raw_did_int;
