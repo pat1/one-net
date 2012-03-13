@@ -1394,42 +1394,12 @@ void one_net(on_txn_t ** txn)
                     device->msg_id = 0;
                 }
                 
-                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, device->msg_id,
-                  &data_pkt_ptrs))
-                {
-                    // an error of some sort occurred.  We likely have
-                    // a bad pid.  Unrecoverable.  Just abort.
-                    return; // no outstanding transaction
-                }
+                single_txn.priority = single_msg.priority;
+                *txn = &single_txn;
+                (*txn)->retry = 0;
+                (*txn)->response_timeout = one_net_response_time_out;
+                (*txn)->device = device;
                 
-                #ifdef _ONE_NET_MULTI_HOP
-                on_decode(raw_did, device->did, ON_ENCODED_DID_LEN);
-                single_txn.hops = 0;
-                single_txn.max_hops = device->hops;
-
-                // give the application code a chance to override if it
-                // wants to.
-                switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
-                {
-                    case ON_MSG_ABORT: return; // aborting
-                }
-                
-                data_pkt_ptrs.hops = single_txn.hops;
-                data_pkt_ptrs.max_hops = single_txn.max_hops;
-                #endif
-
-                
-                // now fill in the packet
-                
-                // fill in the addresses
-                if(on_build_my_pkt_addresses(&data_pkt_ptrs,
-                  (on_encoded_did_t*) single_msg.dst_did,
-                  (on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
-                {
-                    // An error of some sort occurred.  Abort.
-                    return; // no outstanding transaction
-                }
-
                 // we'll need to fill in the key.  We're dealing with
                 // a single transaction here.  Fill in the key.
                 #ifdef _ONE_NET_CLIENT
@@ -1445,6 +1415,56 @@ void one_net(on_txn_t ** txn)
                       (on_encoded_did_t*) single_msg.dst_did);
                 }
                 #endif
+                
+                #ifndef _ONE_NET_SIMPLE_CLIENT
+                // give the application code a chance to change whatever it
+                // wants or abort.
+                one_net_single_msg_loaded(txn, &single_msg);
+                if(*txn == NULL)
+                {
+                    // aborted by the application code
+                    return;
+                }
+                #endif
+                
+                if(!setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt, device->msg_id,
+                  &data_pkt_ptrs))
+                {
+                    // an error of some sort occurred.  We likely have
+                    // a bad pid.  Unrecoverable.  Just abort.
+                    return; // no outstanding transaction
+                }
+                
+                #ifdef _ONE_NET_MULTI_HOP
+                // TODO -- we already gave the applciation code a chance to
+                // change things above.  The code below seems redundant at best
+                // and conterproductive at worst in that changes previously made
+                // in the application code might be accidentally undone here?
+                on_decode(raw_did, device->did, ON_ENCODED_DID_LEN);
+                single_txn.hops = 0;
+                single_txn.max_hops = device->hops;
+
+                // give the application code a chance to override if it
+                // wants to.
+                switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
+                {
+                    case ON_MSG_ABORT: return; // aborting
+                }
+                
+                data_pkt_ptrs.hops = single_txn.hops;
+                data_pkt_ptrs.max_hops = single_txn.max_hops;
+                #endif                                
+                
+                // now fill in the packet
+                
+                // fill in the addresses
+                if(on_build_my_pkt_addresses(&data_pkt_ptrs,
+                  (on_encoded_did_t*) single_msg.dst_did,
+                  (on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
+                {
+                    // An error of some sort occurred.  Abort.
+                    return; // no outstanding transaction
+                }
                 
                 // It's a data packet.  Fill in the data portion
                 #ifdef _ONE_NET_CLIENT
@@ -1469,13 +1489,8 @@ void one_net(on_txn_t ** txn)
 
                 // packet was built successfully.  Set the transaction,
                 // state, etc.
-                single_txn.priority = single_msg.priority;
                 single_txn.data_len =
                   get_encoded_packet_len(single_msg.raw_pid, TRUE);
-                *txn = &single_txn;
-                (*txn)->retry = 0;
-                (*txn)->response_timeout = one_net_response_time_out;
-                (*txn)->device = device;
                 one_net_memmove(expected_src_did,
                   &(data_pkt_ptrs.packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
