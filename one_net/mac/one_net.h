@@ -752,6 +752,13 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
 BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+UInt32 estimate_block_transfer_time(UInt32 num_bytes, UInt8 chunk_size,
+  UInt8 hops, UInt16 fragment_delay, UInt16 chunk_pause_time, UInt8 data_rate);
+#endif
+
+
+
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================

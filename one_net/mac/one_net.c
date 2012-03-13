@@ -3543,6 +3543,59 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Calculates the estimated time for a block transfer to complete
+    
+    Calculates the estimated time for a block transfer to complete.  This can
+    be a very rough estimate.  Many of these parameters might change DURING
+    the transfer to improve reliablity, releive clogging, etc.  This function
+    returns a very optimistic time estimate assuming no collisons, delays, no
+    packet loss, and all packets are accpeted by each side as valid.
+
+    \param[in] num_bytes The number of bytes to be transferred.
+    \param[in] chunk_size The chunk size of the transfer.
+    \param[in] hops The number of hops between source and destination
+    \param[in] fragemnt_delay Fragment delay between data packets
+    \param[in] chunk_pause_time The pause time between chunks.
+    \param[in] data_rate The data rate of the transfer.
+
+    \return The estimated time in milliseconds of the transfer given no
+            collisions or extra delays and 0% packet loss
+*/
+UInt32 estimate_block_transfer_time(UInt32 num_bytes, UInt8 chunk_size,
+  UInt8 hops, UInt16 fragment_delay, UInt16 chunk_pause_time, UInt8 data_rate)
+{
+    // TODO -- this function can definitely be improved.  This is a REALLY
+    // rough estimate!  It also hasn't really been tested.
+    
+    const UInt32 num_data_packets = num_bytes / 25; // 25 payload bytes in packet
+    const UInt32 num_chunks = num_data_packets / chunk_size;
+    const UInt8 data_packet_len = 63; // TODO -- use constants.
+    const UInt8 ack_packet_len  = 30; // TODO -- use constants.
+    const double bytes_per_sec = (data_rate + 1) * 38400 / 8; // make it a
+                                            // double to avoid integer division
+    
+    // rounding off is OK.  This is all just an estimate.
+    double time_between_chunks = (((data_packet_len + ack_packet_len) *
+      (hops + 1)) / bytes_per_sec) * 1000.0;
+    double time_per_data_packet = fragment_delay + (data_packet_len /
+      bytes_per_sec) * 1000;
+    double time_per_chunk;
+    
+    if(time_between_chunks < chunk_pause_time)
+    {
+        time_between_chunks = chunk_pause_time;
+    }
+    
+    time_per_chunk = (chunk_size - 1) * time_per_data_packet +
+      time_between_chunks;
+      
+    return (UInt32)(num_chunks * time_per_chunk);
+}
+#endif
+
+
 
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
