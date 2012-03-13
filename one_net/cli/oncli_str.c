@@ -258,6 +258,16 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
     const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
 #endif
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+    //! Command to test block
+    const char* const ONCLI_BLOCK_CMD_STR = "block";
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+    //! Command to test stream
+    const char* const ONCLI_STREAM_CMD_STR = "stream";
+#endif
+
 #ifdef _PID_BLOCK
     //! Command to adjust pid blocking
     const char* const ONCLI_PID_BLOCK_CMD_STR = "pid block";

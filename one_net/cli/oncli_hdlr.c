@@ -369,6 +369,14 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#endif
+
 #ifdef _ONE_NET_MULTI_HOP
 // temporary debugging
 static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -920,6 +928,40 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the change key command was received //
 	#endif
     
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(!strnicmp(ONCLI_BLOCK_CMD_STR, CMD, strlen(ONCLI_BLOCK_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_BLOCK_CMD_STR;
+
+        if(CMD[strlen(ONCLI_BLOCK_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &block_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the "block" command was received //    
+    #endif
+    
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(!strnicmp(ONCLI_STREAM_CMD_STR, CMD, strlen(ONCLI_STREAM_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_STREAM_CMD_STR;
+
+        if(CMD[strlen(ONCLI_STREAM_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &stream_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the "stream" command was received //    
+    #endif
+  
 	#ifdef _ENABLE_CHANNEL_COMMAND
     if(!strnicmp(ONCLI_CHANNEL_CMD_STR, CMD,
       strlen(ONCLI_CHANNEL_CMD_STR)))
@@ -2942,6 +2984,153 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
     }
 } // change_frag_dly_cmd_hdlr //
 #endif
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Handles receiving the block command and all its
+      parameters.
+    
+    The change block command has the form
+    
+    block:did:transfer_size:priority:chunk_delay
+    
+    
+    For example, "block:006:5000:high:50" will send 5000 characters to device
+    006 with high priority and with a "chunk delay" of 50 milliseconds
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+              
+            See oncli_status_t for other errors
+            
+*/
+static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    UInt16 raw_did_int;
+    on_raw_did_t raw_did;
+    on_encoded_did_t dst;
+    UInt16 chunk_delay_ms;
+    UInt8 priority;
+    UInt32 size;
+    const char* ptr = ASCII_PARAM_LIST;
+    char* end_ptr;
+    
+    raw_did_int = one_net_strtol(ptr, &end_ptr, 16);
+    if(*end_ptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    ptr = end_ptr + 1;
+    size = one_net_strtol(ptr, &end_ptr, 10);
+    if(*end_ptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    ptr = end_ptr + 1;
+    // read in the priority
+    if(!strnicmp(ptr, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
+    {
+        priority = ONE_NET_LOW_PRIORITY;
+        ptr += strlen(ONCLI_LOW_STR);
+    } // if it's low priority //
+    else if(!strnicmp(ptr, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
+    {
+        priority = ONE_NET_HIGH_PRIORITY;
+        ptr += strlen(ONCLI_HIGH_STR);
+    } // else if it's high priority
+    else
+    {
+        return ONCLI_PARSE_ERR;
+    } // else the priority is invalid //
+    
+    // check the parameter delimiter
+    if(*ptr++ != ONCLI_PARAM_DELIMITER)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if malformed parameter //
+    chunk_delay_ms = one_net_strtol(ptr, &end_ptr, 10);
+    if(*end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(!u16_to_did(raw_did_int, (on_raw_did_t*) raw_did))
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    if(on_encode(dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    // just print out to make sure everything parsed correctly.
+    oncli_send_msg("parsed--block:%02X%02X:%ld:%u:%u\n", dst[0], dst[1], size,
+      priority, chunk_delay_ms);
+    return ONCLI_SUCCESS;
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Handles receiving the stream command and all its
+      parameters.
+    
+    The stream command has the form
+    
+    stream:did:time_ms
+    
+    
+    For example, "stream:006:5000" will send stream characters to device
+    006 for 5000 milliseconds
+    
+    \param ASCII_PARAM_LIST ASCII parameter list.
+    
+    \return ONCLI_SUCCESS if the command was succesful
+            ONCLI_BAD_PARAM If any of the parameters passed into this function
+              are invalid.
+              
+            See oncli_status_t for other errors
+*/
+static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    UInt16 raw_did_int;
+    on_raw_did_t raw_did;
+    on_encoded_did_t dst;
+    UInt16 time_ms;
+    const char* ptr = ASCII_PARAM_LIST;
+    char* end_ptr;
+    
+    raw_did_int = one_net_strtol(ptr, &end_ptr, 16);
+    if(*end_ptr != ':')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    ptr = end_ptr + 1;
+    time_ms = one_net_strtol(ptr, &end_ptr, 10);
+    if(*end_ptr != '\n')
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    
+    if(!u16_to_did(raw_did_int, (on_raw_did_t*) raw_did))
+    {
+        return ONCLI_PARSE_ERR;
+    }
+    if(on_encode(dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    {
+        return ONCLI_PARSE_ERR;
+    }    
+    
+    // just print out to make sure everything parsed correctly.
+    oncli_send_msg("parsed--stream:%02X%02X:%u\n", dst[0], dst[1], time_ms);
+    return ONCLI_SUCCESS;
+}
+#endif  
 
 
 #ifdef _ENABLE_CHANGE_KEY_COMMAND
