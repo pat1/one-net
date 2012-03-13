@@ -97,6 +97,8 @@ typedef enum
     ON_NACK_RSN_FEATURES,            //! A general error involving features / capabilities other than not having them.
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
     ON_NACK_RSN_BAD_KEY,             //! Sent when the other device is using the wrong key
+    ON_NACK_RSN_ALREADY_IN_PROGRESS, //! Similar to "Resouces Unavailable", but more detailed.
+    ON_NACK_RSN_INVALID_CHANNEL,     //! The channel requested is a channel that this device cannot access.
     
     // Add any more non-fatal ONE-NET Nack Reasons here
     

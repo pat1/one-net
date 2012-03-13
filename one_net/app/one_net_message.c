@@ -568,6 +568,11 @@ BOOL add_recipient_to_recipient_list(on_recipient_list_t* rec_list,
         return FALSE; // destination is "no destination", so don't add
     }
 
+    if(is_my_did(&(recipient_to_add->did)))
+    {
+        return FALSE; // message is to us.  Don't bother sending.
+    }
+
     for(i = 0; i < rec_list->num_recipients; i++)
     {
         if(did_and_unit_equal(&(rec_list->recipient_list[i]),

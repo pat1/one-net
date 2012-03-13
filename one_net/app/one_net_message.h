@@ -249,6 +249,12 @@ typedef enum
     
     //! Sent in response to a change settings message.
     ON_CHANGE_SETTINGS_RESP = 0x12,
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    ON_REQUEST_BLOCK_STREAM = 0x13,
+    
+    ON_REQUEST_REPEATER = 0x14,
+    #endif
 
     //! Sent by the MASTER when it is adding a device to the network
     ON_ADD_DEV = 0x21,
@@ -385,6 +391,104 @@ typedef struct
     // length of the regular expression
     UInt8 len;
 } single_reg_exp_t;
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+
+// we need to cram 3 parameters into 1 byte for the message.
+// hops will be the 3 least significant bbits(0 - 2).
+// priority will be the middle two bits(3 - 4)
+// Block / Stream flag will be bit 5(byte 0 defined as least significant).
+// 2 most significant bytes are unused in the actual message so we'll use them
+// as follows.  Byte 7(MSB) will be true if this device is the source.  Byte
+// 6 will be true if this device is the destination.  If neither are true,
+// then be default we must be functioning strictly as a repeater between the
+// source and the destination.  Or if we are the master, we are not involved
+// in the transaction at all.
+
+
+
+#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK  0x01
+#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT 7
+#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK  0x01
+#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT 6
+#define BLOCK_STREAM_SETUP_FLAGS_MASK          0x01
+#define BLOCK_STREAM_SETUP_FLAGS_SHIFT         5
+#define BLOCK_STREAM_SETUP_PRIORITY_MASK       0x03
+#define BLOCK_STREAM_SETUP_PRIORITY_SHIFT      3
+
+// relevant only for multi-hop, but should be filled in as 0 for non-multi-hop
+#define BLOCK_STREAM_SETUP_HOPS_MASK           0x07
+#define BLOCK_STREAM_SETUP_HOPS_SHIFT          0
+
+#define MAX_CHUNK_SIZE 40
+
+
+enum
+{
+    BLOCK_STREAM_SETUP_FLAGS_IDX = 0,
+    BLOCK_STREAM_SETUP_PRIORITY_IDX = 0,
+    BLOCK_STREAM_SETUP_HOPS_IDX = 0,
+    BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX = 1,
+    BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX = BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX +
+        sizeof(UInt32),
+    BLOCK_STREAM_SETUP_FRAG_DLY_IDX = BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX +
+        sizeof(UInt8),
+    BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX = BLOCK_STREAM_SETUP_FRAG_DLY_IDX +
+        sizeof(UInt16),
+    BLOCK_STREAM_SETUP_CHANNEL_IDX = BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX +
+        sizeof(UInt16),
+    BLOCK_STREAM_SETUP_DATA_RATE_IDX = BLOCK_STREAM_SETUP_CHANNEL_IDX +
+        sizeof(UInt8),
+    BLOCK_STREAM_SETUP_TIMEOUT_IDX = BLOCK_STREAM_SETUP_DATA_RATE_IDX +
+        sizeof(UInt8),
+    BLOCK_STREAM_SETUP_DST_IDX = BLOCK_STREAM_SETUP_TIMEOUT_IDX +
+        sizeof(UInt16),
+    BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX = BLOCK_STREAM_SETUP_DST_IDX +
+        ON_ENCODED_DID_LEN,
+    BLOCK_STREAM_SETUP_MESSAGE_SIZE = BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX +
+        sizeof(UInt32)
+};
+
+
+typedef struct
+{
+    // note -- repeaters will not be interested in many of these attributes
+    BOOL transfer_in_progress;
+    UInt8 flags;
+    UInt32 transfer_size;
+    UInt8 chunk_size;
+    UInt16 frag_dly;
+    UInt16 chunk_pause;
+    UInt8 priority;
+    UInt8 channel;
+    UInt8 data_rate;
+    UInt16 timeout;
+    on_encoded_did_t src; // originator of block message
+    on_encoded_did_t dst; // recipient of block message
+    tick_t estimated_completion_time;
+    
+    #ifdef _ONE_NET_MULTI_HOP
+    UInt8 hops;
+    UInt8 num_repeaters;
+    on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
+    #endif
+    UInt32 byte_idx;
+    SInt8 chunk_idx;
+    UInt8 complete[MAX_CHUNK_SIZE / 8]; // 8 its per byte.  "complete" is a
+           // bitwise "boolean" array, with each bit representing whether a
+           // certain packet within a chunk has been received.  0 means FALSE.
+           // 1 means TRUE.
+} block_stream_msg_t;
+
+
+typedef struct
+{
+    UInt32 byte_idx;
+    UInt8 data[25];
+} block_pkt_t;
+#endif
+
 
 
 //! @} ONE-NET_MESSAGE_typedefs
