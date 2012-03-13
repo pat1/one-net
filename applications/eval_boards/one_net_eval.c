@@ -1395,8 +1395,8 @@ void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 {
     #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE)
-    if(block_in_progress && msg->msg_type == ON_ADMIN_MSG && msg->payload[0] ==
-      ON_CHANGE_DATA_RATE)
+    if(bs_msg.transfer_in_progress && msg->msg_type == ON_ADMIN_MSG
+      && msg->payload[0] == ON_CHANGE_DATA_RATE)
     {
         // change the pause so everyone gets in at once.  The pause is byte 3
         // and the units are in tenths of a second

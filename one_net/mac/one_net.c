@@ -221,6 +221,13 @@ BOOL save = FALSE;
 tick_t route_start_time = 0;
 #endif
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef _ROUTE
+UInt8 route[ROUTE_SIZE];
+#endif
+block_stream_msg_t bs_msg;
+#endif
+
 #ifdef _DATA_RATE
 dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
 UInt16 dormant_data_rate_time_ms = 0;

@@ -572,6 +572,21 @@ extern BOOL save;
 extern tick_t route_start_time;
 #endif
 
+#if defined(_ROUTE) && defined(_BLOCK_MESSAGES_ENABLED)
+// Each DID takes up 3 nibbles, 2 bytes in a nibble.  Make the route
+// size 10.
+// TODO -- 10 is not a very good number.  Tie it to the max hops?  Something
+// else?
+#define ROUTE_SIZE 10*3/2
+#endif
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef _ROUTE
+extern UInt8 route[ROUTE_SIZE];
+#endif
+extern block_stream_msg_t bs_msg;
+#endif
+
 #ifdef _DATA_RATE
 extern dr_channel_stage_t dr_channel_stage;
 extern UInt16 dormant_data_rate_time_ms;
