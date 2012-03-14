@@ -98,7 +98,11 @@ typedef enum
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
     ON_NACK_RSN_BAD_KEY,             //! Sent when the other device is using the wrong key
     ON_NACK_RSN_ALREADY_IN_PROGRESS, //! Similar to "Resouces Unavailable", but more detailed.
-    ON_NACK_RSN_INVALID_CHANNEL,     //! The channel requested is a channel that this device cannot access.
+    ON_NACK_RSN_INVALID_CHANNEL,     //! The channel requested is a channel that this device cannot access or is invalid
+                                     //! for some other reason.
+    ON_NACK_RSN_INVALID_CHUNK_SIZE,  //! An invalid chunk size has been specified for a block / stream transfer
+    ON_NACK_RSN_INVALID_CHUNK_DELAY, //! An invalid chunk delay has been specified for a block / stream transfer
+    ON_NACK_RSN_INVALID_FRAG_DELAY,  //! An invalid fragemnt delay has been specified for a block / stream transfer
     
     // Add any more non-fatal ONE-NET Nack Reasons here
     
@@ -126,6 +130,9 @@ typedef enum
     ON_NACK_RSN_NO_RESPONSE_TXN,     //! The transaction has timed out with no response.
     ON_NACK_RSN_UNIT_IS_INPUT,       //! There was an attempt to do something to an input unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
     ON_NACK_RSN_UNIT_IS_OUTPUT,      //! There was an attempt to do something to an output unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
+
+    ON_NACK_RSN_DEVICE_NOT_IN_NETWORK, //! A device is not in the network
+    ON_NACK_RSN_DEVICE_IS_THIS_DEVICE, //! Attempting to do something with another device when the other device is yourself
     
     // stick any more ONE-NET fatal errors here.
     
