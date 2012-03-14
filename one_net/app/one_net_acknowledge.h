@@ -102,7 +102,8 @@ typedef enum
                                      //! for some other reason.
     ON_NACK_RSN_INVALID_CHUNK_SIZE,  //! An invalid chunk size has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_CHUNK_DELAY, //! An invalid chunk delay has been specified for a block / stream transfer
-    ON_NACK_RSN_INVALID_FRAG_DELAY,  //! An invalid fragemnt delay has been specified for a block / stream transfer
+    ON_NACK_RSN_INVALID_FRAG_DELAY,  //! An invalid fragment delay has been specified for a block / stream transfer
+    ON_NACK_RSN_INVALID_PRIORITY,    //! An invalid priority has been specified.
     
     // Add any more non-fatal ONE-NET Nack Reasons here
     
