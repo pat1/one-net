@@ -1448,8 +1448,19 @@ static oncli_status_t list_cmd_hdlr(void)
           master->keep_alive_interval);
         oncli_send_msg("Send To Master: %s\n", master->flags &
           ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("Reject Bad Msg ID: %s\n\n", master->flags &
+        oncli_send_msg("Reject Bad Msg ID: %s\n", master->flags &
           ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        oncli_send_msg("Blk/Strm Data Rate: %s\n", master->flags &
+          ON_BS_ELEVATE_DATA_RATE ? TRUE_STR : FALSE_STR);
+        oncli_send_msg("Blk/Strm Chg Channel: %s\n", master->flags &
+          ON_BS_CHANGE_CHANNEL ? TRUE_STR : FALSE_STR);
+        oncli_send_msg("Blk/Strm High Prior.: %s\n", master->flags &
+          ON_BS_HIGH_PRIORITY ? TRUE_STR : FALSE_STR);
+        #endif
+          
+          
+          
         #if _DEBUG_VERBOSE_LEVEL > 3
         if(verbose_level > 3)
         {
@@ -1494,10 +1505,22 @@ static oncli_status_t list_cmd_hdlr(void)
             {
                 oncli_send_msg("Keep-Alive Interval:%ld ms\n",
                   client->keep_alive_interval);
-                oncli_send_msg("Send To Master: %s\n\n",
+                oncli_send_msg("Send To Master: %s\n",
                   client->flags & ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-                oncli_send_msg("Reject Bad Msg ID: %s\n\n",
+                oncli_send_msg("Reject Bad Msg ID: %s\n",
                   client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
+                
+                #ifdef _BLOCK_MESSAGES_ENABLED
+                if(features_block_capable(client->device.features))
+                {
+                    oncli_send_msg("Blk/Strm Data Rate: %s\n", client->flags &
+                      ON_BS_ELEVATE_DATA_RATE ? TRUE_STR : FALSE_STR);
+                    oncli_send_msg("Blk/Strm Chg Channel: %s\n", client->flags
+                      & ON_BS_CHANGE_CHANNEL ? TRUE_STR : FALSE_STR);
+                    oncli_send_msg("Blk/Strm High Prior.: %s\n", client->flags
+                      & ON_BS_HIGH_PRIORITY ? TRUE_STR : FALSE_STR);
+                }
+                #endif
             }
             #endif
             #if _DEBUG_VERBOSE_LEVEL > 4

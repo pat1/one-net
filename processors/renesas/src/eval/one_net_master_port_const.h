@@ -84,7 +84,7 @@ enum
 //! Duration the MASTER sends the new CLIENT invite, in ms.  10 minutes
 #define ONE_NET_MASTER_INVITE_DURATION 600000
 
-//! Default of whether the master wants to the client to inform it when
+//! Default of whether the master wants the client to inform it when
 //! status is changed.  Should be TRUE or FALSE.  An example of this might
 //! be a motion sensor that is expected to inform the master whenever triggered.
 //! Note that one can also choose to set this value as FALSE and still inform
@@ -101,6 +101,32 @@ enum
 //! to have some clients have this flag set, but not others and can change it at
 //! any time.  This value simply sets the INITIAL flag.
 #define ONE_NET_MASTER_REJECT_INVALID_MSG_ID TRUE
+
+//! Default of whether the master wants the client to change data rates when
+//! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.
+#define ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE TRUE
+
+//! Default of whether the master wants the client to change channels when
+//! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.  It is also only relevant for devices that can change data rates.
+#define ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL TRUE
+
+//! Default of whether the master wants the client to use high priority when
+//! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.
+#define ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY TRUE
+
+
 
 
 

@@ -349,7 +349,20 @@ typedef enum
     
     //! Flag to indicate whether a client should reject invalid message ids
     //! Mainly used to prevent replay attacks.
-    ON_REJECT_INVALID_MSG_ID = 0x20
+    ON_REJECT_INVALID_MSG_ID = 0x20,
+    
+    //! Flag to indicate whether the data rate should elevate during long block
+    //! / stream msgs.  Relevant only when block / stream is enabled.
+    ON_BS_ELEVATE_DATA_RATE = 0x10,
+    
+    //! Flag to indicate whether the channel should change during long block
+    //! / stream msgs.  Relevant only when block / stream is enabled.
+    ON_BS_CHANGE_CHANNEL = 0x08,
+    
+    //! Flag to indicate whether long block / stream transfers should proceed
+    //! at low or high priority.  When flag is set, high prioriity is the
+    //! default.  Relevant only when block / stream is enabled.
+    ON_BS_HIGH_PRIORITY = 0x04
 } on_master_flag_t;
 
 

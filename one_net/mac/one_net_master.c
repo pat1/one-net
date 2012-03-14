@@ -712,7 +712,19 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client = &client_list[vacant_index];
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
-      ON_REJECT_INVALID_MSG_ID : 0);    
+      ON_REJECT_INVALID_MSG_ID : 0);
+      
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef _DATA_RATE
+    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
+      ON_BS_ELEVATE_DATA_RATE : 0); 
+    #endif
+    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
+      ON_BS_CHANGE_CHANNEL : 0); 
+    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
+      ON_BS_HIGH_PRIORITY : 0); 
+    #endif
+      
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
@@ -1178,6 +1190,19 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
       ON_REJECT_INVALID_MSG_ID : 0);
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(features_block_capable(client->device.features))
+    {
+        #ifdef _DATA_RATE
+        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
+          ON_BS_ELEVATE_DATA_RATE : 0); 
+        #endif
+        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
+          ON_BS_CHANGE_CHANNEL : 0); 
+        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
+          ON_BS_HIGH_PRIORITY : 0); 
+    }
+    #endif
     client->flags |= ON_JOINED;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.features = features;
