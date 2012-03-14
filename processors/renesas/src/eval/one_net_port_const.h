@@ -237,6 +237,13 @@ enum
 #endif
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! Default chunk size for block / stream transfers.  Must be between 1 and
+//! 40, inclusive.
+#define DEFAULT_BS_CHUNK_SIZE 40
+#endif
+
+
 
 //! @} ONE-NET_port_const_const
 //                                  CONSTANTS END
