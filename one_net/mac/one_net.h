@@ -194,23 +194,110 @@ typedef enum
 
     //! Waits for the write to end
     ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT,
+    
+    //! State used when determining a route for a block / stream trans.
+    ON_BS_FIND_ROUTE = 0x40,
+    
+    //! Wait for response for finding route
+    ON_BS_SEND_FIND_ROUTE,
+    
+    //! Wait for the write to end
+    ON_BS_SEND_FIND_ROUTE_WRITE_WAIT,
+    
+    //! Waits for a response to a find route packet
+    ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
+    
+    //! State used when changing a data rate and channel for block / stream
+    ON_BS_CHANGE_DR_CHANNEL,
+    
+    //! State used when changing a data rate and channel for block / stream
+    //! and sending a message
+    ON_BS_SEND_CHANGE_DR_CHANNEL,
+    
+    //! State used when changing a data rate and channel for block / stream
+    //! and waiting for the write to complete
+    ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT,
+    
+    //! State used when changing a data rate and channel for block / stream
+    //! and waiting for a response
+    ON_BS_SEND_CHANGE_DR_CHANNEL_RESP,
+    
+    //! State used when confirming a route for a block / stream trans.
+    ON_BS_CONFIRM_ROUTE,
+    
+    //! Wait for response for confirming route
+    ON_BS_SEND_CONFIRM_ROUTE,
+    
+    //! Wait for the write to end
+    ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT,
+    
+    //! Waits for a response to a confirm route packet
+    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,
 
-
+    //! Ask the device for permission
+    ON_BS_DEVICE_PERMISSION,
+    
+    //! Send device permission packet
+    ON_BS_SEND_DEVICE_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from device
+    ON_BS_WAIT_FOR_DEVICE_RESP,
+    
+    //! Ask the master for device permission
+    ON_BS_MASTER_DEVICE_PERMISSION,
+    
+    //! Send master device permission packet
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,
+    
+    //! Ask the master for repeater permission
+    ON_BS_MASTER_REPEATER_PERMISSION,
+    
+    //! Send master repeater permission packet
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
+    
+    //! Ask the master for repeater permission
+    ON_BS_REPEATER_PERMISSION,
+    
+    //! Send master repeater permission packet
+    ON_BS_SEND_REPEATER_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from repeater
+    ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP,
+    
+    //! Block or stream transactionready to commence
+    ON_BS_COMMENCE,
+    
 #ifdef _IDLE	
 	//! do nothing
-	ON_IDLE,
+	ON_IDLE = 0xF0,
 #endif
-
 
     //! State when the device has not yet joined the netwrok.  If the device is
     //! a client, it looks for the invite from the MASTER.  If the device is a
     //! MASTER, it looks for a clear channel to establish its network on.
-    ON_JOIN_NETWORK = 100,
-
+    ON_JOIN_NETWORK,
 
     //! The default state when the device starts up (to ensure the proper
     //! initialization routines are called)
-    ON_INIT_STATE = 200
+    ON_INIT_STATE
 } on_state_t;
 
 
