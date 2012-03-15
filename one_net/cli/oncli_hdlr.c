@@ -184,10 +184,7 @@ typedef enum
     DEBUG_MEMORY_RESPONSE_TXN,
     DEBUG_MEMORY_SINGLE_TXN,
     #ifdef _BLOCK_MESSAGES_ENABLED
-    DEBUG_MEMORY_BLOCK_TXN,
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    DEBUG_MEMORY_STREAM_TXN,
+    DEBUG_MEMORY_BS_TXN,
     #endif
     DEBUG_MEMORY_COUNT
 } debug_memory_t;
@@ -213,10 +210,7 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
     "response_txn",
     "single_txn",
     #ifdef _BLOCK_MESSAGES_ENABLED
-    "block_txn",
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    "stream_txn",
+    "bs_txn",
     #endif
 };
 
@@ -4057,14 +4051,8 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             len = sizeof(on_txn_t);
             break; 
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case DEBUG_MEMORY_BLOCK_TXN:
-            *mem_ptr = (UInt8*) &block_txn;
-            len = sizeof(on_txn_t);
-            break; 
-        #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
-        case DEBUG_MEMORY_STREAM_TXN:
-            *mem_ptr = (UInt8*) &stream_txn;
+        case DEBUG_MEMORY_BS_TXN:
+            *mem_ptr = (UInt8*) &bs_txn;
             len = sizeof(on_txn_t);
             break; 
         #endif

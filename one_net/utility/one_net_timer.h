@@ -108,11 +108,7 @@ enum
     #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
-    ONT_BLOCK_TIMER,
-    #endif
-    
-    #ifdef _STREAM_MESSAGES_ENABLED
-    ONT_STREAM_TIMER,
+    ONT_BS_TIMER,
     #endif
 
     #ifdef _ONE_NET_MH_CLIENT_REPEATER

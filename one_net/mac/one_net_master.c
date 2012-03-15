@@ -810,13 +810,7 @@ one_net_status_t one_net_master_remove_device(
     }
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    if(block_txn.priority != ONE_NET_NO_PRIORITY)
-    {
-        return ONS_BUSY;
-    }
-    #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-    if(stream_txn.priority != ONE_NET_NO_PRIORITY)
+    if(bs_txn.priority != ONE_NET_NO_PRIORITY)
     {
         return ONS_BUSY;
     }

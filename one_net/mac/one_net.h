@@ -545,10 +545,7 @@ extern on_base_param_t* const on_base_param;
 extern on_txn_t response_txn;
 extern on_txn_t single_txn;
 #ifdef _BLOCK_MESSAGES_ENABLED
-extern on_txn_t block_txn;
-#endif
-#ifdef _STREAM_MESSAGES_ENABLED
-extern on_txn_t stream_txn;
+extern on_txn_t bs_txn;
 #endif
 
 

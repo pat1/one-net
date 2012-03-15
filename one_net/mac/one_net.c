@@ -134,16 +134,9 @@ on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
     //! The current block transaction
-    on_txn_t block_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
-      ONT_BLOCK_TIMER, 0, 0, NULL, NULL, NULL};
-
-    #ifdef _STREAM_MESSAGES_ENABLED
-    
-    //! The current stream transaction
-    on_txn_t stream_txn = {ON_STREAM, ONE_NET_NO_PRIORITY, 0,
-      ONT_STREAM_TIMER, 0, 0, NULL, NULL, NULL};    
-    #endif
-#endif // if block messages are not enabled //
+    on_txn_t bs_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
+      ONT_BS_TIMER, 0, 0, NULL, NULL, NULL};
+#endif // if block messages are enabled //
 
 
 
@@ -2566,15 +2559,10 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               break;
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_BLOCK:
-              if(*this_txn != &block_txn)
-              {
-                  return ONS_UNHANDLED_PKT;
-              }
-              break;
-            #endif
             #ifdef _STREAM_MESSAGES_ENABLED
             case ON_STREAM:
-              if(*this_txn != &stream_txn)
+            #endif
+              if(*this_txn != &bs_txn)
               {
                   return ONS_UNHANDLED_PKT;
               }
