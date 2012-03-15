@@ -723,6 +723,8 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       ON_BS_CHANGE_CHANNEL : 0); 
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
       ON_BS_HIGH_PRIORITY : 0); 
+    client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
+      ON_BS_ALLOWED : 0); 
     #endif
       
     client->use_current_key = TRUE;
@@ -1201,6 +1203,8 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
           ON_BS_CHANGE_CHANNEL : 0); 
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
           ON_BS_HIGH_PRIORITY : 0); 
+        client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
+          ON_BS_ALLOWED : 0); 
     }
     #endif
     client->flags |= ON_JOINED;
@@ -2523,6 +2527,20 @@ static one_net_status_t init_internal(void)
     get_sender_info = &sender_info;
     device_is_master = TRUE;
     one_net_init();
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef _DATA_RATE
+    master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
+      ON_BS_ELEVATE_DATA_RATE : 0); 
+    #endif
+    master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
+      ON_BS_CHANGE_CHANNEL : 0); 
+    master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
+      ON_BS_HIGH_PRIORITY : 0); 
+    master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_ALLOW_LONG_BLOCK_STREAM ?
+      ON_BS_ALLOWED : 0); 
+    #endif    
+    
     return ONS_SUCCESS;
 } // init_internal //
 
