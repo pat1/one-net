@@ -222,9 +222,6 @@ tick_t route_start_time = 0;
 #endif
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-#ifdef _ROUTE
-UInt8 route[ROUTE_SIZE];
-#endif
 block_stream_msg_t bs_msg;
 #endif
 
