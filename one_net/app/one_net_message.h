@@ -406,14 +406,20 @@ typedef struct
 // source and the destination.  Or if we are the master, we are not involved
 // in the transaction at all.
 
+typedef enum
+{
+    ON_BLK_TRANSFER,
+    ON_STREAM_TRANSFER
+} on_bs_transfer_type_t;
+
 
 
 #define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK  0x01
 #define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT 7
 #define BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK  0x01
 #define BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT 6
-#define BLOCK_STREAM_SETUP_FLAGS_MASK          0x01
-#define BLOCK_STREAM_SETUP_FLAGS_SHIFT         5
+#define BLOCK_STREAM_SETUP_TYPE_MASK           0x01
+#define BLOCK_STREAM_SETUP_TYPE_SHIFT          5
 #define BLOCK_STREAM_SETUP_PRIORITY_MASK       0x03
 #define BLOCK_STREAM_SETUP_PRIORITY_SHIFT      3
 
@@ -580,6 +586,84 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
   on_recipient_list_t* recipient_list);
   
 BOOL device_should_stay_awake(const on_encoded_did_t* const did);
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+ONE_NET_INLINE void set_bs_transfer_type(UInt8* flags,
+  on_bs_transfer_type_t type)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_TYPE_MASK <<
+      BLOCK_STREAM_SETUP_TYPE_SHIFT);
+    (*flags) |= (type << BLOCK_STREAM_SETUP_TYPE_SHIFT);
+}
+
+
+ONE_NET_INLINE UInt8 get_bs_transfer_type(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_TYPE_SHIFT) &
+      BLOCK_STREAM_SETUP_TYPE_MASK);
+}
+
+
+ONE_NET_INLINE void set_bs_priority(UInt8* flags, UInt8 priority)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_PRIORITY_MASK <<
+      BLOCK_STREAM_SETUP_PRIORITY_SHIFT);
+    (*flags) |= (priority << BLOCK_STREAM_SETUP_PRIORITY_SHIFT);
+}
+
+
+ONE_NET_INLINE UInt8 get_bs_priority(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_PRIORITY_SHIFT) &
+      BLOCK_STREAM_SETUP_PRIORITY_MASK);
+}
+
+
+ONE_NET_INLINE void set_bs_hops(UInt8* flags, UInt8 hops)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_HOPS_MASK <<
+      BLOCK_STREAM_SETUP_HOPS_SHIFT);
+    (*flags) |= (hops << BLOCK_STREAM_SETUP_HOPS_SHIFT);
+}
+
+
+ONE_NET_INLINE UInt8 get_bs_hops(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_HOPS_SHIFT) &
+      BLOCK_STREAM_SETUP_HOPS_MASK);
+}
+
+
+ONE_NET_INLINE void set_bs_device_is_src(UInt8* flags, BOOL is_src)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK <<
+      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
+    (*flags) |= (is_src << BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
+}
+
+
+ONE_NET_INLINE BOOL get_bs_device_is_src(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT) &
+      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK);
+}
+
+
+ONE_NET_INLINE void set_bs_device_is_dst(UInt8* flags, BOOL is_dst)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK <<
+      BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
+    (*flags) |= (is_dst << BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
+}
+
+
+ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT) &
+      BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
+}
+#endif
 
 
 
