@@ -110,7 +110,7 @@ enum
 //! not others and can change it at any time.  This value simply sets the
 //! INITIAL flag.  Note that this flag is only relevant for block / stream
 //! transfers.
-#define ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM
+#define ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM TRUE
 
 // The constants below pertain to default CLIENT-TO-CLIENT transfers.  In
 // other words, transfers where the master is not involved at all.
