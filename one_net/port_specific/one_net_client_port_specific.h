@@ -445,6 +445,20 @@ void one_net_client_single_txn_status(on_message_status_t status,
 #endif
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+BOOL one_net_client_get_default_block_transfer_values(
+  const on_encoded_did_t* src, const on_encoded_did_t* dst,
+  UInt32 transfer_size, UInt8* priority, UInt8* chunk_size, UInt16* frag_delay,
+  UInt16* chunk_delay, UInt8* data_rate, UInt8* channel);
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL one_net_client_get_default_stream_transfer_values(
+  const on_encoded_did_t* src, const on_encoded_did_t* dst, UInt32 time_ms,
+  UInt8* data_rate, UInt8* channel);
+#endif
+
+
 
 //! @} ON_CLIENT_port_specific_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

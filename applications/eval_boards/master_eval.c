@@ -580,6 +580,25 @@ void one_net_master_repeater_requested(on_client_t* requesting_client,
   UInt32 estimated_time, on_ack_nack_t* ack_nack)
 {
 }
+
+
+BOOL one_net_master_get_default_block_transfer_values(
+  const on_encoded_did_t* src, const on_encoded_did_t* dst,
+  UInt32 transfer_size, UInt8* priority, UInt8* chunk_size, UInt16* frag_delay,
+  UInt16* chunk_delay, UInt8* data_rate, UInt8* channel)
+{
+    return TRUE;
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL one_net_master_get_default_stream_transfer_values(
+  const on_encoded_did_t* src, const on_encoded_did_t* dst, UInt32 time_ms,
+  UInt8* data_rate, UInt8* channel)
+{
+    return TRUE;
+}
 #endif
 
 

@@ -1682,6 +1682,31 @@ on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 } // client_info //
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+BOOL on_master_get_default_block_transfer_values(const on_encoded_did_t* src,
+  const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
+  UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
+  UInt8* channel)
+{
+    // TODO -- fill in values
+    return one_net_master_get_default_block_transfer_values(src, dst,
+      transfer_size, priority, chunk_size, frag_delay, chunk_delay, data_rate,
+      channel);
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL on_master_get_default_stream_transfer_values(const on_encoded_did_t* src,
+  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel)
+{
+    // TODO -- fill in values
+    return one_net_master_get_default_stream_transfer_values(src, dst, time_ms,
+      data_rate, channel);
+}
+#endif
+
+
 
 //! @} ONE-NET_MASTER_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
