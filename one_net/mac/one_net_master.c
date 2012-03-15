@@ -1688,6 +1688,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, on_ack_nack_t* ack_nack)
 {
+    BOOL master_involved = FALSE;
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_client_t* src_client= client_info(src);
     on_client_t* dst_client= client_info(dst);
@@ -1714,23 +1715,105 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
         return *nr;
     }
     
+    *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+    if(src_client)
+    {
+        if(!features_stream_capable(src_client->device.features))
+        {
+            return *nr;
+        }
+    }
+    if(dst_client)
+    {
+        if(!features_stream_capable(dst_client->device.features))
+        {
+            return *nr;
+        }
+    }    
     
     *nr =  ON_NACK_RSN_NO_ERROR;
+    master_involved = (!src_client || !dst_client);
     
-    if(!src_client || !dst_client)
+    if(master_involved)
     {
-        // the master is involved in this transfer.
         if(bs_msg.transfer_in_progress)
         {
             *nr = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
             return *nr;
         }
-
-        // TODO -- more
     }
     
-    // TODO -- more
+    if(transfer_size <= 1000)
+    {
+        // if it's <= 1000 bytes, use the base parameters no matter what
+        *data_rate = ONE_NET_DATA_RATE_38_4;
+        *channel = on_base_param->channel;
+        *priority = ONE_NET_HIGH_PRIORITY;
+    }
+    else
+    {
+        UInt8 src_flags, dst_flags;
+        on_features_t src_features, dst_features;
+        
+        if(src_client)
+        {
+            src_flags = src_client->flags;
+            src_features = src_client->device.features;
+        }
+        else
+        {
+            src_flags = master_param->block_stream_flags;
+            src_features = THIS_DEVICE_FEATURES;
+        }
+        if(dst_client)
+        {
+            dst_flags = dst_client->flags;
+            dst_features = dst_client->device.features;
+        }
+        else
+        {
+            dst_flags = master_param->block_stream_flags;
+            dst_features = THIS_DEVICE_FEATURES;
+        }
 
+        if(!(src_flags & ON_BS_ALLOWED) || !(dst_flags & ON_BS_ALLOWED))
+        {
+            *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            return *nr;
+        }
+        
+        if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
+          ON_BS_ELEVATE_DATA_RATE))
+        {
+            *data_rate = ONE_NET_DATA_RATE_38_4;
+        }
+        else
+        {
+            *data_rate = features_highest_matching_data_rate(src_features,
+              dst_features);
+        }
+        
+        if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
+          ON_BS_CHANGE_CHANNEL))
+        {
+            *channel = on_base_param->channel;
+        }
+        else
+        {
+            SInt8 alternate_channel = one_net_get_alternate_channel();
+            if(alternate_channel >= 0)
+            {
+                *channel = (UInt8) alternate_channel;
+            }
+        }        
+    }
+    
+    if(master_involved)
+    {
+        *frag_delay = (*priority == ONE_NET_HIGH_PRIORITY) ?
+          on_base_param->fragment_delay_high :
+          on_base_param->fragment_delay_low;
+    }
 
     *nr = one_net_master_get_default_block_transfer_values(src_client,
       dst_client, transfer_size, priority, chunk_size, frag_delay, chunk_delay,
@@ -1802,8 +1885,8 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
     
     if(time_ms > 0 && time_ms < 2000)
     {
-        // if it's known and less than 2 seconds, use the base parameters no matter
-        // what        
+        // if it's known and less than 2 seconds, use the base parameters no
+        // matter what        
         *data_rate = ONE_NET_DATA_RATE_38_4;
         *channel = on_base_param->channel;
     }
