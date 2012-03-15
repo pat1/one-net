@@ -102,13 +102,18 @@ enum
 //! any time.  This value simply sets the INITIAL flag.
 #define ONE_NET_MASTER_REJECT_INVALID_MSG_ID TRUE
 
+
+// The three constants below pertain to default CLIENT-TO-CLIENT transfers.  In
+// other words, transfers where the master is not involved at all.
+
+
 //! Default of whether the master wants the client to change data rates when
 //! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
 //! Note that the master can choose to have some clients have this flag set, but
 //! not others and can change it at any time.  This value simply sets the
 //! INITIAL flag.  Note that this flag is only relevant for block / stream
 //! transfers.
-#define ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE TRUE
+#define ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE TRUE
 
 //! Default of whether the master wants the client to change channels when
 //! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
@@ -116,7 +121,7 @@ enum
 //! not others and can change it at any time.  This value simply sets the
 //! INITIAL flag.  Note that this flag is only relevant for block / stream
 //! transfers.  It is also only relevant for devices that can change data rates.
-#define ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL TRUE
+#define ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL TRUE
 
 //! Default of whether the master wants the client to use high priority when
 //! sending block / stream transfers of long duration.  Should be TRUE or FALSE.
@@ -124,7 +129,43 @@ enum
 //! not others and can change it at any time.  This value simply sets the
 //! INITIAL flag.  Note that this flag is only relevant for block / stream
 //! transfers.
-#define ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY TRUE
+#define ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY TRUE
+
+
+// The four constants below pertain to default long MASTER-TO-CLIENT and
+// CLIENT-TO-MASTER transfers.
+
+//! Default of whether long block / stream transfers involving the master at
+//! all
+#define ONE_NET_MASTER_MASTER_ALLOW_LONG_BLOCK_STREAM TRUE
+
+
+//! Default of whether the master wants to change data rates when involved in
+//! block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.
+#define ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE TRUE
+
+//! Default of whether the master wants to change channels when involved in
+//! block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.  It is also only relevant for devices that can change data rates.
+#define ONE_NET_MASTER_MASTER_BLOCK_STREAM_CHANGE_CHANNEL TRUE
+
+//! Default of whether the master wants to use high priority when involved in
+//! block / stream transfers of long duration.  Should be TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.
+#define ONE_NET_MASTER_MASTER_BLOCK_STREAM_HIGH_PRIORITY TRUE
+
+
+
 
 
 

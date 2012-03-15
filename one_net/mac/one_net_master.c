@@ -716,12 +716,12 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       
     #ifdef _BLOCK_MESSAGES_ENABLED
     #ifdef _DATA_RATE
-    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
+    client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
     #endif
-    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
+    client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
       ON_BS_CHANGE_CHANNEL : 0); 
-    client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
+    client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
       ON_BS_HIGH_PRIORITY : 0); 
     #endif
       
@@ -1194,12 +1194,12 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     if(features_block_capable(client->device.features))
     {
         #ifdef _DATA_RATE
-        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
+        client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
           ON_BS_ELEVATE_DATA_RATE : 0); 
         #endif
-        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
+        client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
           ON_BS_CHANGE_CHANNEL : 0); 
-        client->flags |= (ONE_NET_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
+        client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
           ON_BS_HIGH_PRIORITY : 0); 
     }
     #endif
