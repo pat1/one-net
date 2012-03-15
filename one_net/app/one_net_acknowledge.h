@@ -134,6 +134,7 @@ typedef enum
 
     ON_NACK_RSN_DEVICE_NOT_IN_NETWORK, //! A device is not in the network
     ON_NACK_RSN_DEVICE_IS_THIS_DEVICE, //! Attempting to do something with another device when the other device is yourself
+    ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME, //! Attempting to send a message where the sender and the recipient are the same device
     
     // stick any more ONE-NET fatal errors here.
     
