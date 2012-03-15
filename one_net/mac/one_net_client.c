@@ -656,10 +656,11 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, on_ack_nack_t* ack_nack)
 {
-    // TODO -- fill in values
-    return one_net_client_get_default_block_transfer_values(dst, transfer_size,
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    *nr = one_net_client_get_default_block_transfer_values(dst, transfer_size,
       priority, chunk_size, frag_delay, chunk_delay, data_rate, channel,
       ack_nack);
+    return *nr;
 }
 #endif
 
@@ -669,9 +670,10 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- fill in values
-    return one_net_client_get_default_stream_transfer_values(dst, time_ms,
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
       data_rate, channel, ack_nack);
+    return *nr;
 }
 #endif
 
