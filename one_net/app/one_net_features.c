@@ -133,6 +133,22 @@ BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 }
 
 
+// TODO -- add #ifdef check for _DATA_RATE?
+UInt8 features_highest_data_rate(on_features_t features)
+{
+    UInt8 dr;
+    for(dr = ONE_NET_DATA_RATE_LIMIT; dr > ONE_NET_DATA_RATE_38_4; dr--)
+    {
+        if(features_data_rate_capable(features, dr))
+        {
+            return dr;
+        }
+    }
+    
+    return ONE_NET_DATA_RATE_38_4;
+}
+
+
 BOOL features_peer_capable(on_features_t features)
 {
     return ((features.feature_flags & ON_PEER_FEATURE_MASK) != 0);
