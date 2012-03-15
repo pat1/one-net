@@ -149,6 +149,23 @@ UInt8 features_highest_data_rate(on_features_t features)
 }
 
 
+UInt8 features_highest_matching_data_rate(on_features_t dev1_features,
+  on_features_t dev2_features)
+{
+    UInt8 dr;
+    for(dr = ONE_NET_DATA_RATE_LIMIT; dr > ONE_NET_DATA_RATE_38_4; dr--)
+    {
+        if(features_data_rate_capable(dev1_features, dr) &&
+          features_data_rate_capable(dev2_features, dr))
+        {
+            return dr;
+        }
+    }
+    
+    return ONE_NET_DATA_RATE_38_4;
+}
+
+
 BOOL features_peer_capable(on_features_t features)
 {
     return ((features.feature_flags & ON_PEER_FEATURE_MASK) != 0);

@@ -217,6 +217,8 @@ UInt8 features_max_peers(on_features_t features);
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate);
 // TODO -- add #ifdef check for _DATA_RATE?
 UInt8 features_highest_data_rate(on_features_t features);
+UInt8 features_highest_matching_data_rate(on_features_t dev1_features,
+  on_features_t dev2_features);
 BOOL features_peer_capable(on_features_t features);
 BOOL features_mh_capable(on_features_t features);
 BOOL features_mh_repeat_capable(on_features_t features);
