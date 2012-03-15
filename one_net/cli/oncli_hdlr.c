@@ -3016,11 +3016,11 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
     
     The change block command has the form
     
-    block:did:transfer_size:priority:chunk_delay
+    block:did:transfer_size:chunk_delay
     
     
-    For example, "block:006:5000:high:50" will send 5000 characters to device
-    006 with high priority and with a "chunk delay" of 50 milliseconds
+    For example, "block:006:5000:50" will send 5000 characters to device
+    006 with a "chunk delay" of 50 milliseconds
     
     \param ASCII_PARAM_LIST ASCII parameter list.
     
@@ -3037,7 +3037,6 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     on_raw_did_t raw_did;
     on_encoded_did_t dst;
     UInt16 chunk_delay_ms;
-    UInt8 priority;
     UInt32 size;
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
@@ -3054,21 +3053,6 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     ptr = end_ptr + 1;
-    // read in the priority
-    if(!strnicmp(ptr, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
-    {
-        priority = ONE_NET_LOW_PRIORITY;
-        ptr += strlen(ONCLI_LOW_STR);
-    } // if it's low priority //
-    else if(!strnicmp(ptr, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
-    {
-        priority = ONE_NET_HIGH_PRIORITY;
-        ptr += strlen(ONCLI_HIGH_STR);
-    } // else if it's high priority
-    else
-    {
-        return ONCLI_PARSE_ERR;
-    } // else the priority is invalid //
     
     // check the parameter delimiter
     if(*ptr++ != ONCLI_PARAM_DELIMITER)
@@ -3091,8 +3075,8 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     
     // just print out to make sure everything parsed correctly.
-    oncli_send_msg("parsed--block:%02X%02X:%ld:%u:%u\n", dst[0], dst[1], size,
-      priority, chunk_delay_ms);
+    oncli_send_msg("parsed--block:%02X%02X:%ld:%u\n", dst[0], dst[1], size,
+      chunk_delay_ms);
     return ONCLI_SUCCESS;
 }
 #endif
