@@ -394,6 +394,9 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 #endif
 
 
+SInt8 one_net_get_alternate_channel(void);
+
+
 
 
 //! @} ONE-NET_port_specific_pub_func

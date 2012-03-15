@@ -1415,6 +1415,24 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 #endif
 
 
+// negative value means no valid alternate channel could be found.
+SInt8 one_net_get_alternate_channel(void)
+{
+    // TODO -- We need to find a much better way to get alternate channels.
+    // For now, just pick one at random.  Don't even bother to check whether
+    // it is clear.
+    while(1)
+    {
+        SInt8 new_channel = (SInt8) one_net_prand(get_tick_count(),
+          ONE_NET_MAX_CHANNEL);
+        if((UInt8) new_channel != on_base_param->channel)
+        {
+            return new_channel;
+        }
+    }
+}
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
