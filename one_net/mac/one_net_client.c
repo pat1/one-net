@@ -657,6 +657,68 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
   UInt8* channel, on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    on_sending_device_t* device = &master->device;
+    if(!is_master_did(dst))
+    {
+        device = sender_info(dst);
+    }
+    
+    if(bs_msg.transfer_in_progress)
+    {
+        *nr = ON_NACK_RSN_BUSY;
+        return *nr;
+    }
+
+    *nr = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK;
+    // Set to the current parameters first.
+    *data_rate = ONE_NET_DATA_RATE_38_4;
+    *channel = on_base_param->channel;
+    *priority = ONE_NET_HIGH_PRIORITY;
+    *chunk_size = DEFAULT_BS_CHUNK_SIZE;
+    *chunk_delay = DEFAULT_BS_CHUNK_DELAY;
+    
+    
+    // fist see if this is a long transfer.  If it is not, there's not much to
+    // do.
+    if(transfer_size > 2000)
+    {
+        // this is a long transfer.  We may or may not want to switch data
+        // rates
+        if(!(master->flags & ON_BS_ALLOWED))
+        {
+            // long transfers not allowed at all.
+            *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            return *nr;
+        }
+        
+        // See if we are to switch channels.
+        if(master->flags & ON_BS_CHANGE_CHANNEL)
+        {
+            SInt8 alternate_channel = one_net_get_alternate_channel();
+            if(alternate_channel >= 0)
+            {
+                *channel = (UInt8) alternate_channel;
+            }
+        }
+        
+        // See if we are to switch data rates
+        #ifdef _DATA_RATE
+        if(master->flags & ON_BS_ELEVATE_DATA_RATE)
+        {
+            *data_rate = features_highest_data_rate(THIS_DEVICE_FEATURES);
+        }
+        #endif
+        
+        if(!(master->flags & ON_BS_HIGH_PRIORITY))
+        {
+            *priority = ONE_NET_LOW_PRIORITY;
+        }
+    }
+
+    *frag_delay = (*priority == ONE_NET_LOW_PRIORITY) ?
+      on_base_param->fragment_delay_low : on_base_param->fragment_delay_high;
+
     *nr = one_net_client_get_default_block_transfer_values(dst, transfer_size,
       priority, chunk_size, frag_delay, chunk_delay, data_rate, channel,
       ack_nack);
