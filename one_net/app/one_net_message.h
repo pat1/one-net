@@ -466,7 +466,6 @@ typedef struct
     UInt8 chunk_size;
     UInt16 frag_dly;
     UInt16 chunk_pause;
-    UInt8 priority;
     UInt8 channel;
     UInt8 data_rate;
     UInt16 timeout;
@@ -475,7 +474,6 @@ typedef struct
     tick_t estimated_completion_time;
     
     #ifdef _ONE_NET_MULTI_HOP
-    UInt8 hops;
     UInt8 num_repeaters;
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
     #endif
