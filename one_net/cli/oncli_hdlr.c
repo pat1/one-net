@@ -1365,6 +1365,7 @@ static oncli_status_t list_cmd_hdlr(void)
 {
     oncli_status_t status;
     UInt16 i;
+    UInt8 flags;
     
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
       ONE_NET_VERSION_MINOR);
@@ -1377,6 +1378,7 @@ static oncli_status_t list_cmd_hdlr(void)
         oncli_print_invite();
     }
     #endif
+    
     
     #ifdef _ONE_NET_MULTI_HOP
     oncli_send_msg("# of Network MH Devices : %d\n", on_base_param->num_mh_devices);
@@ -1441,25 +1443,35 @@ static oncli_status_t list_cmd_hdlr(void)
         return status;
     }
     
-    #ifdef _ONE_NET_CLIENT
-    if(!device_is_master)
     {
-        oncli_send_msg("Keep-Alive Interval:%ld ms\n",
-          master->keep_alive_interval);
-        oncli_send_msg("Send To Master: %s\n", master->flags &
-          ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("Reject Bad Msg ID: %s\n", master->flags &
-          ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
+        if(!device_is_master)
+        {       
+            #ifdef _ONE_NET_CLIENT
+            flags = master->flags;
+            oncli_send_msg("Keep-Alive Interval:%ld ms\n",
+              master->keep_alive_interval);
+            oncli_send_msg("Send To Master: %s\n", flags &
+              ON_SEND_TO_MASTER ? TRUE_STR : FALSE_STR);
+            oncli_send_msg("Reject Bad Msg ID: %s\n", flags &
+              ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
+            #endif
+        }
+        else
+        {
+            #if defined(_ONE_NET_MASTER) && defined(_BLOCK_MESSAGES_ENABLED)
+            flags = master_param->block_stream_flags;
+            #endif
+        }
         #ifdef _BLOCK_MESSAGES_ENABLED
-        oncli_send_msg("Blk/Strm Data Rate: %s\n", master->flags &
+        oncli_send_msg("Blk/Strm Data Rate: %s\n", flags &
           ON_BS_ELEVATE_DATA_RATE ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("Blk/Strm Chg Channel: %s\n", master->flags &
+        oncli_send_msg("Blk/Strm Chg Channel: %s\n", flags &
           ON_BS_CHANGE_CHANNEL ? TRUE_STR : FALSE_STR);
-        oncli_send_msg("Blk/Strm High Prior.: %s\n", master->flags &
+        oncli_send_msg("Blk/Strm High Prior.: %s\n", flags &
           ON_BS_HIGH_PRIORITY ? TRUE_STR : FALSE_STR);
+        oncli_send_msg("Blk/Strm Allow Long.: %s\n", flags &
+          ON_BS_ALLOWED ? TRUE_STR : FALSE_STR);
         #endif
-          
-          
           
         #if _DEBUG_VERBOSE_LEVEL > 3
         if(verbose_level > 3)
@@ -1478,7 +1490,6 @@ static oncli_status_t list_cmd_hdlr(void)
         #endif
         
     }
-    #endif
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
@@ -1519,6 +1530,8 @@ static oncli_status_t list_cmd_hdlr(void)
                       & ON_BS_CHANGE_CHANNEL ? TRUE_STR : FALSE_STR);
                     oncli_send_msg("Blk/Strm High Prior.: %s\n", client->flags
                       & ON_BS_HIGH_PRIORITY ? TRUE_STR : FALSE_STR);
+                    oncli_send_msg("Blk/Strm Allow Long.: %s\n", client->flags
+                      & ON_BS_ALLOWED ? TRUE_STR : FALSE_STR);
                 }
                 #endif
             }
@@ -2785,7 +2798,7 @@ static oncli_status_t set_flags_cmd_hdlr(
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
 
-    // read in the peer did
+    // read in the device did
     if(ascii_hex_to_byte_stream(PARAM_PTR, dst, ONCLI_ASCII_RAW_DID_SIZE)
       != ONCLI_ASCII_RAW_DID_SIZE)
     {
@@ -2818,6 +2831,14 @@ static oncli_status_t set_flags_cmd_hdlr(
     {
         return ONCLI_PARSE_ERR;
     }
+    
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(is_master_did(&enc_did))
+    {
+        master_param->block_stream_flags = flags;
+        return ONCLI_SUCCESS;
+    }
+    #endif
     
     client = client_info(&enc_did);
     if(!client)
