@@ -475,11 +475,15 @@ typedef struct
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 num_repeaters;
+    #ifndef _ONE_NET_MEMORY
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
+    #else
+    on_encoded_did_t* repeaters; // rarely used.  Use "ONE-NET "heap".
+    #endif
     #endif
     UInt32 byte_idx;
     SInt8 chunk_idx;
-    UInt8 complete[MAX_CHUNK_SIZE / 8]; // 8 its per byte.  "complete" is a
+    UInt8 complete[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
            // bitwise "boolean" array, with each bit representing whether a
            // certain packet within a chunk has been received.  0 means FALSE.
            // 1 means TRUE.
