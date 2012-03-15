@@ -241,6 +241,9 @@ enum
 //! Default chunk size for block / stream transfers.  Must be between 1 and
 //! 40, inclusive.
 #define DEFAULT_BS_CHUNK_SIZE 40
+
+//! Default chunk delay for block / stream.
+#define DEFAULT_BS_CHUNK_DELAY 100
 #endif
 
 
