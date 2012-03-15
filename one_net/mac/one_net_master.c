@@ -1688,10 +1688,54 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, on_ack_nack_t* ack_nack)
 {
-    // TODO -- fill in values
-    return one_net_master_get_default_block_transfer_values(src, dst,
-      transfer_size, priority, chunk_size, frag_delay, chunk_delay, data_rate,
-      channel, ack_nack);
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    on_client_t* src_client= client_info(src);
+    on_client_t* dst_client= client_info(dst);
+    ack_nack->handle = ON_ACK;
+    
+    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
+    if(!src_client)
+    {
+        if(!is_master_did(src))
+        {
+            return *nr;
+        }
+    }
+    else if(!dst_client)
+    {
+        if(!is_master_did(dst))
+        {
+            return *nr;
+        }
+    }
+    else if(src_client == dst_client)
+    {
+        *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
+        return *nr;
+    }
+    
+    
+    *nr =  ON_NACK_RSN_NO_ERROR;
+    
+    if(!src_client || !dst_client)
+    {
+        // the master is involved in this transfer.
+        if(bs_msg.transfer_in_progress)
+        {
+            *nr = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
+            return *nr;
+        }
+
+        // TODO -- more
+    }
+    
+    // TODO -- more
+
+
+    *nr = one_net_master_get_default_block_transfer_values(src_client,
+      dst_client, transfer_size, priority, chunk_size, frag_delay, chunk_delay,
+      data_rate, channel, ack_nack);
+    return *nr;
 }
 #endif
 
@@ -1701,9 +1745,53 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- fill in values
-    return one_net_master_get_default_stream_transfer_values(src, dst, time_ms,
-      data_rate, channel, ack_nack);
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    on_client_t* src_client= client_info(src);
+    on_client_t* dst_client= client_info(dst);
+    ack_nack->handle = ON_ACK;
+    
+    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
+    if(!src_client)
+    {
+        if(!is_master_did(src))
+        {
+            return *nr;
+        }
+    }
+    else if(!dst_client)
+    {
+        if(!is_master_did(dst))
+        {
+            return *nr;
+        }
+    }
+    else if(src_client == dst_client)
+    {
+        *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
+        return *nr;
+    }
+    
+    
+    *nr =  ON_NACK_RSN_NO_ERROR;
+    
+    if(!src_client || !dst_client)
+    {
+        // the master is involved in this transfer.
+        if(bs_msg.transfer_in_progress)
+        {
+            *nr = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
+            return *nr;
+        }
+
+        // TODO -- more
+    }
+    
+    // TODO -- more
+    
+    
+    *nr = one_net_master_get_default_stream_transfer_values(src_client,
+      dst_client, time_ms, data_rate, channel, ack_nack);
+    return *nr;
 }
 #endif
 
