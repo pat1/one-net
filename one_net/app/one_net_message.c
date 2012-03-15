@@ -683,6 +683,59 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 }
 
 
+void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
+  bs_msg)
+{
+    // msg buffer must be at least 21 bytes
+    bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
+    bs_msg->transfer_size = one_net_byte_stream_to_int32(
+      &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
+    bs_msg->chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
+    bs_msg->frag_dly = one_net_byte_stream_to_int16(
+      &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+    bs_msg->channel = msg[BLOCK_STREAM_SETUP_CHANNEL_IDX];
+    bs_msg->data_rate = msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
+    bs_msg->timeout = one_net_byte_stream_to_int16(
+      &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
+    one_net_memmove(bs_msg->dst, &msg[BLOCK_STREAM_SETUP_DST_IDX],
+      ON_ENCODED_DID_LEN);
+    bs_msg->estimated_completion_time = get_tick_count() +
+      MS_TO_TICK(one_net_byte_stream_to_int32(
+      &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));  
+}
+
+
+void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
+  bs_msg)
+{
+    // msg buffer must be at least 21 bytes
+    msg[0] = ON_REQUEST_BLOCK_STREAM;
+    msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;
+    one_net_int32_to_byte_stream(bs_msg->transfer_size,
+      &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
+    msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->chunk_size;
+    one_net_int16_to_byte_stream(bs_msg->frag_dly,
+      &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+    msg[BLOCK_STREAM_SETUP_CHANNEL_IDX] = bs_msg->channel;
+    msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
+    one_net_int16_to_byte_stream(bs_msg->timeout,
+      &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
+    one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst,
+      ON_ENCODED_DID_LEN);
+      
+    {
+        tick_t est_tick = 0;
+        tick_t cur_tick = get_tick_count();
+        if(cur_tick < bs_msg->estimated_completion_time)
+        {
+            est_tick = bs_msg->estimated_completion_time - cur_tick;
+        }
+        one_net_int32_to_byte_stream(TICK_TO_MS(est_tick),
+          &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
+    }
+}
+
+
 //! @} ONE-NET_MESSAGE_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

@@ -432,10 +432,10 @@ typedef enum
 
 enum
 {
-    BLOCK_STREAM_SETUP_FLAGS_IDX = 0,
-    BLOCK_STREAM_SETUP_PRIORITY_IDX = 0,
-    BLOCK_STREAM_SETUP_HOPS_IDX = 0,
-    BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX = 1,
+    BLOCK_STREAM_SETUP_FLAGS_IDX = 1,
+    BLOCK_STREAM_SETUP_PRIORITY_IDX = 1,
+    BLOCK_STREAM_SETUP_HOPS_IDX = 1,
+    BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX = 2,
     BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX = BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX +
         sizeof(UInt32),
     BLOCK_STREAM_SETUP_FRAG_DLY_IDX = BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX +
@@ -662,6 +662,12 @@ ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
       BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
 }
 #endif
+
+
+void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
+  bs_msg);
+void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
+  bs_msg);
 
 
 
