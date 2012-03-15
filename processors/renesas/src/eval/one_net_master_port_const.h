@@ -103,7 +103,16 @@ enum
 #define ONE_NET_MASTER_REJECT_INVALID_MSG_ID TRUE
 
 
-// The three constants below pertain to default CLIENT-TO-CLIENT transfers.  In
+//! Default of whether the master allows client to engage in sending block /
+//! stream transfers of long duration under any circumstances.  Should be
+//! TRUE or FALSE.
+//! Note that the master can choose to have some clients have this flag set, but
+//! not others and can change it at any time.  This value simply sets the
+//! INITIAL flag.  Note that this flag is only relevant for block / stream
+//! transfers.
+#define ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM
+
+// The constants below pertain to default CLIENT-TO-CLIENT transfers.  In
 // other words, transfers where the master is not involved at all.
 
 

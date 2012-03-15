@@ -362,7 +362,11 @@ typedef enum
     //! Flag to indicate whether long block / stream transfers should proceed
     //! at low or high priority.  When flag is set, high prioriity is the
     //! default.  Relevant only when block / stream is enabled.
-    ON_BS_HIGH_PRIORITY = 0x04
+    ON_BS_HIGH_PRIORITY = 0x04,
+    
+    //! Flag to indicate whether long block / stream transfers should proceed
+    //! at all for this device
+    ON_BS_ALLOWED = 0x02
 } on_master_flag_t;
 
 

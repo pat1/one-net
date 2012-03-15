@@ -379,6 +379,10 @@ typedef struct
 //! Parameters specific to the MASTER
 typedef struct
 {
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    UInt8 block_stream_flags;
+    #endif
+    
     //! The next available DID to be handed to a CLIENT that joins the network.
     UInt16 next_client_did;
     
