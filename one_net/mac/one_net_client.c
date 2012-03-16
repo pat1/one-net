@@ -719,6 +719,23 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
 
     return *nr;
 }
+
+
+on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
+  UInt8 priority, on_ack_nack_t* ack_nack)
+{
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    ack_nack->handle = ON_ACK;
+    if(bs_msg.transfer_in_progress)
+    {
+        *nr = ON_NACK_RSN_BUSY;
+    }
+    else
+    {
+        *nr = ON_NACK_RSN_NO_ERROR;
+    }
+    return *nr;
+}
 #endif
 
 
@@ -772,6 +789,23 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
 
     *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
       data_rate, channel, ack_nack);
+    return *nr;
+}
+
+
+on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* txn,
+  on_ack_nack_t* ack_nack)
+{
+    on_nack_rsn_t* nr = &ack_nack->nack_reason;
+    ack_nack->handle = ON_ACK;
+    if(bs_msg.transfer_in_progress)
+    {
+        *nr = ON_NACK_RSN_BUSY;
+    }
+    else
+    {
+        *nr = ON_NACK_RSN_NO_ERROR;
+    }
     return *nr;
 }
 #endif

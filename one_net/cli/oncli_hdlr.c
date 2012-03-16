@@ -3050,11 +3050,16 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     UInt16 raw_did_int;
     on_raw_did_t raw_did;
-    on_encoded_did_t dst;
     UInt16 chunk_delay_ms;
-    UInt32 size;
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
+    on_ack_nack_t ack_nack;
+    UInt8 priority;
+    
+    if(bs_msg.transfer_in_progress)
+    {
+        return ONCLI_RSRC_UNAVAILABLE;
+    }
     
     raw_did_int = one_net_strtol(ptr, &end_ptr, 16);
     if(*end_ptr != ':')
@@ -3062,18 +3067,14 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     ptr = end_ptr + 1;
-    size = one_net_strtol(ptr, &end_ptr, 10);
+    
+    bs_msg.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != ':')
     {
         return ONCLI_PARSE_ERR;
     }
     ptr = end_ptr + 1;
     
-    // check the parameter delimiter
-    if(*ptr++ != ONCLI_PARAM_DELIMITER)
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
     chunk_delay_ms = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != '\n')
     {
@@ -3084,15 +3085,56 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     }
-    if(on_encode(dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    if(on_encode(bs_msg.dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
     }
     
-    // just print out to make sure everything parsed correctly.
-    oncli_send_msg("parsed--block:%02X%02X:%ld:%u\n", dst[0], dst[1], size,
-      chunk_delay_ms);
-    return ONCLI_SUCCESS;
+    // We'll use the defaults for most things, but override at least one default
+    // with our own parameters.  The functions need parameters, even for
+    // values we are throwing away, so we'll let fill them in and throw away.
+    // We'll use a few obsolete variables to avoid having to declare new ones
+    // and avoid overwriting values where we don't want to.
+    
+    // We aren't using the defaults for the chunk delay, so fill it in now and
+    // pass the function a variable we're throwing away (chunk_delay_ms).  Thus
+    // it is NOT a mistake that we are passing the function several elements of
+    // the bs_msg structure, but passing it the local variable chunk_delay_ms.
+    // That's because we are not interested in the default value there.
+    bs_msg.chunk_pause = chunk_delay_ms;
+    
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {     
+        if(on_master_get_default_block_transfer_values(NULL, &bs_msg.dst,
+          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
+          &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
+          &bs_msg.channel, &ack_nack) != ON_NACK_RSN_NO_ERROR)
+        {
+            return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
+                                   // reasons?
+        }
+        
+        return (on_master_initiate_block_msg(&bs_msg, priority, &ack_nack)
+          == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
+    }
+    #endif
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        if(on_client_get_default_block_transfer_values(&bs_msg.dst,
+          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
+          &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
+          &bs_msg.channel, &ack_nack) != ON_NACK_RSN_NO_ERROR)
+        {
+            return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
+                                   // reasons?
+        }
+        
+        return (on_client_initiate_block_msg(&bs_msg, priority, &ack_nack)
+          == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
+    }
+    #endif
 }
 #endif
 
@@ -3122,10 +3164,15 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     UInt16 raw_did_int;
     on_raw_did_t raw_did;
-    on_encoded_did_t dst;
     UInt16 time_ms;
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
+    on_ack_nack_t ack_nack;
+    
+    if(bs_msg.transfer_in_progress)
+    {
+        return ONCLI_RSRC_UNAVAILABLE;
+    }    
     
     raw_did_int = one_net_strtol(ptr, &end_ptr, 16);
     if(*end_ptr != ':')
@@ -3143,14 +3190,41 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     }
-    if(on_encode(dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    if(on_encode(bs_msg.dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
-    }    
+    }
     
-    // just print out to make sure everything parsed correctly.
-    oncli_send_msg("parsed--stream:%02X%02X:%u\n", dst[0], dst[1], time_ms);
-    return ONCLI_SUCCESS;
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        if(on_master_get_default_stream_transfer_values(NULL, &bs_msg.dst,
+          time_ms, &bs_msg.data_rate, &bs_msg.channel, &ack_nack) !=
+          ON_NACK_RSN_NO_ERROR)
+        {
+            return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
+                                   // reasons?
+        }
+        
+        return on_master_initiate_stream_msg(&bs_msg, &ack_nack)
+          == ON_NACK_RSN_NO_ERROR ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
+    }
+    #endif
+    #ifdef _ONE_NET_CLIENT
+    if(!device_is_master)
+    {
+        if(on_client_get_default_stream_transfer_values(&bs_msg.dst, time_ms,
+          &bs_msg.data_rate, &bs_msg.channel, &ack_nack) !=
+          ON_NACK_RSN_NO_ERROR)
+        {
+            return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
+                                   // reasons?
+        }
+        
+        return on_client_initiate_stream_msg(&bs_msg, &ack_nack)
+          == ON_NACK_RSN_NO_ERROR ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
+    }
+    #endif
 }
 #endif  
 
