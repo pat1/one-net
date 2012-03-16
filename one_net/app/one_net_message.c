@@ -192,6 +192,35 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     on_single_data_queue_t* element = NULL;
     tick_t time_now = get_tick_count();
     
+    #ifdef _BLOCK_MESSAGES
+    if(bs_msg.transfer_in_progress)
+    {
+        // certain things can go through, certain things cannot depending
+        // on the priorities and other things.  For now, we will use the
+        // following criteria...
+        // 1. All messages that come in as low priority are rejected
+        // 2. If the block / stream transfer is high priority, no application
+        //    messages are accepted.
+        // 3. If the block / stream transfer is low priority, application
+        //    messages are allowed, but are made low priority.
+        //
+        // TODO -- More control of what can and can't go through and when.
+        //
+        if(priority < ONE_NET_HIGH_PRIORITY)
+        {
+            return NULL;
+        }
+        if(msg_type == ON_APP_MSG)
+        {
+            priority = ONE_NET_LOW_PRIORITY;
+            if(bs_msg.priority == ONE_NET_HIGH_PRIORITY)
+            {
+                return NULL;
+            }
+        }
+    }
+    #endif
+    
     if(!raw_data)
     {
         return NULL; // invalid parameter
