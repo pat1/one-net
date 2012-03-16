@@ -1732,15 +1732,6 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
     *nr =  ON_NACK_RSN_NO_ERROR;
     master_involved = (!src_client || !dst_client);
     
-    if(master_involved)
-    {
-        if(bs_msg.transfer_in_progress)
-        {
-            *nr = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
-            return *nr;
-        }
-    }
-    
     if(transfer_size <= 1000)
     {
         // if it's <= 1000 bytes, use the base parameters no matter what
@@ -1871,15 +1862,6 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
     
     *nr =  ON_NACK_RSN_NO_ERROR;
     master_involved = (!src_client || !dst_client);
-    
-    if(master_involved)
-    {
-        if(bs_msg.transfer_in_progress)
-        {
-            *nr = ON_NACK_RSN_RSRC_UNAVAIL_ERR;
-            return *nr;
-        }
-    }
     
     if(time_ms > 0 && time_ms < 2000)
     {

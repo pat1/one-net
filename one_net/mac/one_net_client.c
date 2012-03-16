@@ -662,12 +662,6 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
     {
         device = sender_info(dst);
     }
-    
-    if(bs_msg.transfer_in_progress)
-    {
-        *nr = ON_NACK_RSN_BUSY;
-        return *nr;
-    }
 
     *nr = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
@@ -722,6 +716,7 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
     *nr = one_net_client_get_default_block_transfer_values(dst, transfer_size,
       priority, chunk_size, frag_delay, chunk_delay, data_rate, channel,
       ack_nack);
+
     return *nr;
 }
 #endif
@@ -737,12 +732,6 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
     if(!is_master_did(dst))
     {
         device = sender_info(dst);
-    }
-    
-    if(bs_msg.transfer_in_progress)
-    {
-        *nr = ON_NACK_RSN_BUSY;
-        return *nr;
     }
 
     *nr = ON_NACK_RSN_NO_ERROR;
