@@ -1685,27 +1685,30 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, on_ack_nack_t* ack_nack)
-{
-    BOOL master_involved = FALSE;
+{    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_client_t* src_client= client_info(src);
     on_client_t* dst_client= client_info(dst);
     ack_nack->handle = ON_ACK;
     
-    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
-    if(!src_client)
+    if(is_master_did(src))
     {
-        if(!is_master_did(src))
-        {
-            return *nr;
-        }
+        src = NULL;
     }
-    else if(!dst_client)
+    if(is_master_did(dst))
     {
-        if(!is_master_did(dst))
-        {
-            return *nr;
-        }
+        dst = NULL;
+    }
+    
+    
+    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
+    if(src && !src_client)
+    {
+        return *nr;
+    }
+    else if(dst && !dst_client)
+    {
+        return *nr;
     }
     else if(src_client == dst_client)
     {
@@ -1730,8 +1733,6 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
     }    
     
     *nr =  ON_NACK_RSN_NO_ERROR;
-    master_involved = (!src_client || !dst_client);
-    
     if(transfer_size <= 1000)
     {
         // if it's <= 1000 bytes, use the base parameters no matter what
@@ -1797,8 +1798,9 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
         }        
     }
     
-    if(master_involved)
+    if(!src || !dst)
     {
+        // master is involved, so assign the frag delay.
         *frag_delay = (*priority == ONE_NET_HIGH_PRIORITY) ?
           on_base_param->fragment_delay_high :
           on_base_param->fragment_delay_low;
@@ -1880,27 +1882,29 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
 on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_t* src,
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
   on_ack_nack_t* ack_nack)
-{
-    BOOL master_involved = FALSE;
+{    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_client_t* src_client= client_info(src);
     on_client_t* dst_client= client_info(dst);
     ack_nack->handle = ON_ACK;
     
-    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
-    if(!src_client)
+    if(is_master_did(src))
     {
-        if(!is_master_did(src))
-        {
-            return *nr;
-        }
+        src = NULL;
     }
-    else if(!dst_client)
+    if(is_master_did(dst))
     {
-        if(!is_master_did(dst))
-        {
-            return *nr;
-        }
+        dst = NULL;
+    }    
+    
+    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
+    if(src && !src_client)
+    {
+        return *nr;
+    }
+    else if(dst && !dst_client)
+    {
+        return *nr;
     }
     else if(src_client == dst_client)
     {
@@ -1925,7 +1929,6 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
     }    
     
     *nr =  ON_NACK_RSN_NO_ERROR;
-    master_involved = (!src_client || !dst_client);
     
     if(time_ms > 0 && time_ms < 2000)
     {
