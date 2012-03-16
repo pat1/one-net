@@ -460,6 +460,7 @@ enum
 typedef struct
 {
     // note -- repeaters will not be interested in many of these attributes
+    UInt8 bs_on_state;
     BOOL transfer_in_progress;
     UInt8 flags;
     UInt32 transfer_size; // also used for the time in a stream transaction
