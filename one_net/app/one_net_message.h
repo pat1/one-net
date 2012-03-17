@@ -594,6 +594,12 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
+  bs_msg);
+void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
+  bs_msg);
+
+
 ONE_NET_INLINE void set_bs_transfer_type(UInt8* flags,
   on_bs_transfer_type_t type)
 {
@@ -669,12 +675,6 @@ ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
       BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
 }
 #endif
-
-
-void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
-  bs_msg);
-void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
-  bs_msg);
 
 
 
