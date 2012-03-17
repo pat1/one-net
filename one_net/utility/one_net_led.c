@@ -53,6 +53,11 @@
 #include "led_hal.h"
 #include "tick.h"
 #include "one_net_status_codes.h"
+#include "config_options.h"
+
+#ifdef _R8C_TINY
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 
 //==============================================================================

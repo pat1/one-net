@@ -54,6 +54,11 @@
 #include "one_net_timer.h"
 #include "one_net_timer_port_const.h"
 #include "one_net_port_specific.h"
+#include "config_options.h"
+
+#ifdef _R8C_TINY
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 
 //==============================================================================

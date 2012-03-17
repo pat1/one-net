@@ -46,8 +46,13 @@
       updated.
 */
 
+#include "config_options.h"
 #include "one_net_port_specific.h"
 #include "one_net_xtea.h"
+
+#ifdef _R8C_TINY
+    #pragma section program program_high_rom
+#endif // ifdef _R8C_TINY //
 
 
 //==============================================================================
