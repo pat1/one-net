@@ -712,6 +712,7 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
   bs_msg)
 {
@@ -763,6 +764,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
     }
 }
+#endif
 
 
 //! @} ONE-NET_MESSAGE_pub_func
