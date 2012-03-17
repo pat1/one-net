@@ -3123,10 +3123,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #ifdef _DATA_RATE
         case ON_CHANGE_DATA_RATE:
         {
-            ack_nack->nack_reason = one_net_change_data_rate(
-              (const on_encoded_did_t*)
-              &on_base_param->sid[ON_ENCODED_NID_LEN], DATA[3] * 100,
-              DATA[4] * 100, DATA[1], DATA[2]);
+            UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
+            UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
+            ack_nack->nack_reason = one_net_change_data_rate(NULL,
+              pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }
         #endif

@@ -1131,6 +1131,9 @@ void one_net(on_txn_t ** txn)
     {
         #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
         case ON_BS_FIND_ROUTE:
+        #ifdef _DATA_RATE
+        case ON_BS_CONFIRM_ROUTE:
+        #endif
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -1252,6 +1255,9 @@ void one_net(on_txn_t ** txn)
                             {
                                 #ifdef _ONE_NET_MULTI_HOP
                                 case ON_BS_FIND_ROUTE:
+                                #ifdef _DATA_RATE
+                                case ON_BS_CONFIRM_ROUTE:
+                                #endif
                                 {
                                     send_route_msg(&raw_did);
                                     break;
@@ -3517,7 +3523,8 @@ on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate)
 {
-    UInt8 pld[5];
+    UInt8 pld[7];
+    on_sending_device_t* device;
     
     if(!enc_did || is_my_did(enc_did))
     {
@@ -3534,16 +3541,28 @@ on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
         return ON_NACK_RSN_NO_ERROR;
     }
     
-    // TODO -- check the other device's features before this attempt?
+    device = (*get_sender_info)(enc_did);
+    
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master && !device)
+    {
+        return ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
+    }
+    #endif
+    if(device && !features_data_rate_capable(device->features, new_data_rate))
+    {
+        return ON_NACK_RSN_INVALID_DATA_RATE;
+    }
+    
     
     pld[0] = ON_CHANGE_DATA_RATE;
     pld[1] = new_channel;
     pld[2] = new_data_rate;
-    pld[3] = (UInt8) (pause_time_ms / 100);
-    pld[4] = (UInt8) (dormant_time_ms / 100);
+    one_net_int16_to_byte_stream(pause_time_ms, &pld[3]);
+    one_net_int16_to_byte_stream(dormant_time_ms, &pld[5]);
     
     return (one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
-      pld, 5, ONE_NET_LOW_PRIORITY, NULL, enc_did
+      pld, 7, ONE_NET_LOW_PRIORITY, NULL, enc_did
       #ifdef _PEER
       , FALSE, ONE_NET_DEV_UNIT
       #endif
