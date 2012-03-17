@@ -930,6 +930,24 @@ void eval_single_txn_status(on_message_status_t status,
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+// TODO -- document
+void eval_block_txn_status(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack)
+{
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+// TODO -- document
+void eval_stream_txn_status(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack)
+{
+}
+#endif
+
+
 
 // Packet Display Funcitonality
 // TODO -- Should these functions be in oncli.c instead of here?

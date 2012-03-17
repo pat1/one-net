@@ -2561,6 +2561,7 @@ static on_message_status_t on_master_handle_block_ack_nack_response(
 static void on_master_block_txn_hdlr(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack)
 {
+    one_net_master_block_txn_status(msg, status, ack_nack);
 }
 #endif
 
@@ -2590,6 +2591,7 @@ static on_message_status_t on_master_handle_stream_ack_nack_response(
 static void on_master_stream_txn_hdlr(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack)
 {
+    one_net_master_stream_txn_status(msg, status, ack_nack);
 }
 #endif
 
