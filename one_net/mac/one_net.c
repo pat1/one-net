@@ -1133,6 +1133,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_FIND_ROUTE:
         #ifdef _DATA_RATE
         case ON_BS_CONFIRM_ROUTE:
+        case ON_BS_CHANGE_DR_CHANNEL:
         #endif
         #endif
         case ON_LISTEN_FOR_DATA:
@@ -1217,8 +1218,30 @@ void one_net(on_txn_t ** txn)
                             #endif
                             
                             #ifndef _ONE_NET_SIMPLE_CLIENT
-                            (*pkt_hdlr.adj_recip_list_hdlr)(&single_msg, 
-                              &recipient_send_list_ptr);
+                            #if defined(_BLOCK_MESSAGES_ENABLED)
+                            if(bs_msg.transfer_in_progress &&
+                              single_msg.msg_type == ON_ADMIN_MSG &&
+                              single_msg.payload[0] == ON_CHANGE_DATA_RATE)
+                            {
+                                // add any repeaters.
+                                UInt8 i;
+                                on_did_unit_t did_unit;
+                                
+                                did_unit.unit = ONE_NET_DEV_UNIT;
+                                for(i = 0; i < bs_msg.num_repeaters; i++)
+                                {
+                                    one_net_memmove(did_unit.did,
+                                      bs_msg.repeaters[i], ON_ENCODED_DID_LEN);
+                                    add_recipient_to_recipient_list(
+                                      recipient_send_list_ptr, &did_unit);
+                                }
+                            }
+                            else
+                            #endif
+                            {
+                                (*pkt_hdlr.adj_recip_list_hdlr)(&single_msg,
+                                  &recipient_send_list_ptr);
+                            }
                             #endif
 
                             if(recipient_send_list_ptr)
@@ -1262,6 +1285,15 @@ void one_net(on_txn_t ** txn)
                                     send_route_msg(&raw_did);
                                     break;
                                 }
+                                #endif
+                                #ifdef _DATA_RATE
+                                case ON_BS_CHANGE_DR_CHANNEL:
+                                    // No pause?  What if we miss an ACK?
+                                    // Just make the dormant time 3000 ms.  Should
+                                    // be plenty of time?
+                                    one_net_change_data_rate(&bs_msg.dst, 0, 3000,
+                                      bs_msg.channel, bs_msg.data_rate);
+                                    break;
                                 #endif
                                 default: break;
                             }
