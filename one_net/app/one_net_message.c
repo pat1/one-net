@@ -192,6 +192,24 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     on_single_data_queue_t* element = NULL;
     tick_t time_now = get_tick_count();
     
+    #ifdef _EXTENDED_SINGLE
+    // check the pid length to make sure it's long enough
+    UInt8 pid_passed_blocks = ((raw_pid & ONE_NET_RAW_PID_SIZE_MASK) >>
+      ONE_NET_RAW_PID_SIZE_SHIFT);
+    UInt8 pid_data_len_blocks = (data_len + ONA_DATA_INDEX) /
+      ONE_NET_XTEA_BLOCK_SIZE;
+    if((data_len + ONA_DATA_INDEX) % ONE_NET_XTEA_BLOCK_SIZE)
+    {
+        pid_data_len_blocks++; // always round up if needed.
+    }
+    if(pid_passed_blocks < pid_data_len_blocks)
+    {
+        // set the number of blocks to be long enough
+        raw_pid &= ~ONE_NET_RAW_PID_SIZE_MASK;
+        raw_pid |= (pid_data_len_blocks << ONE_NET_RAW_PID_SIZE_SHIFT);
+    }
+    #endif
+    
     #ifdef _BLOCK_MESSAGES
     if(bs_msg.transfer_in_progress)
     {
