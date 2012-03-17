@@ -662,9 +662,19 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_sending_device_t* device = &master->device;
+    BOOL dst_features_known;
+    
     if(!is_master_did(dst))
     {
         device = sender_info(dst);
+    }
+    
+    dst_features_known = device && features_known(device->features);
+    
+    if(dst_features_known && !features_block_capable(
+      device->features))
+    {
+        return ON_NACK_RSN_DEVICE_FUNCTION_ERR;
     }
 
     *nr = ON_NACK_RSN_NO_ERROR;
@@ -677,7 +687,7 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
     *chunk_delay = DEFAULT_BS_CHUNK_DELAY;
     
     
-    // fist see if this is a long transfer.  If it is not, there's not much to
+    // first see if this is a long transfer.  If it is not, there's not much to
     // do.
     if(transfer_size > 2000)
     {
@@ -704,7 +714,15 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
         #ifdef _DATA_RATE
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
-            *data_rate = features_highest_data_rate(THIS_DEVICE_FEATURES);
+            if(!dst_features_known)
+            {
+                *data_rate = features_highest_data_rate(THIS_DEVICE_FEATURES);
+            }
+            else
+            {
+                *data_rate = features_highest_matching_data_rate(
+                  THIS_DEVICE_FEATURES, device->features);
+            }
         }
         #endif
         
@@ -750,9 +768,19 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_sending_device_t* device = &master->device;
+    BOOL dst_features_known;
+    
     if(!is_master_did(dst))
     {
         device = sender_info(dst);
+    }
+    
+    dst_features_known = device && features_known(device->features);
+    
+    if(dst_features_known && !features_stream_capable(
+      device->features))
+    {
+        return ON_NACK_RSN_DEVICE_FUNCTION_ERR;
     }
 
     *nr = ON_NACK_RSN_NO_ERROR;
@@ -761,7 +789,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
     *data_rate = ONE_NET_DATA_RATE_38_4;
     *channel = on_base_param->channel;
     
-    // fist see if this is a long transfer.  If it is not, there's nothing to
+    // first see if this is a long transfer.  If it is not, there's nothing to
     // do.
     if(time_ms == 0 || time_ms > 2000)
     {
@@ -787,7 +815,15 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
         // See if we are to switch data rates
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
-            *data_rate = features_highest_data_rate(THIS_DEVICE_FEATURES);
+            if(!dst_features_known)
+            {
+                *data_rate = features_highest_data_rate(THIS_DEVICE_FEATURES);
+            }
+            else
+            {
+                *data_rate = features_highest_matching_data_rate(
+                  THIS_DEVICE_FEATURES, device->features);
+            }
         }
     }
 

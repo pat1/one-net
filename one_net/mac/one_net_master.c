@@ -1717,14 +1717,14 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
     *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
     if(src_client)
     {
-        if(!features_stream_capable(src_client->device.features))
+        if(!features_block_capable(src_client->device.features))
         {
             return *nr;
         }
     }
     if(dst_client)
     {
-        if(!features_stream_capable(dst_client->device.features))
+        if(!features_block_capable(dst_client->device.features))
         {
             return *nr;
         }
@@ -1831,7 +1831,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
         }
         
-        if(!features_stream_capable(client->device.features))
+        if(!features_block_capable(client->device.features))
         {
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         }
