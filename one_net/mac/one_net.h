@@ -466,10 +466,15 @@ typedef void (*on_recip_list_hdlr_t)(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
 #endif
 
-//! Transaction handler
+//! Single Transaction handler
 typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
+
+//! Block / Stream Transaction Handler
+typedef void (*on_bs_txn_hdlr_t)(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack);
+  
   
 //! The set of needed packet handlers
 typedef struct
@@ -495,7 +500,7 @@ typedef struct
 	on_ack_nack_hdlr_t block_ack_nack_hdlr;
 
     //! Single transaction handler
-    on_txn_hdlr_t block_txn_hdlr;
+    on_bs_txn_hdlr_t block_txn_hdlr;
     #endif
 
     #ifdef _STREAM_MESSAGES_ENABLED
@@ -506,7 +511,7 @@ typedef struct
 	on_ack_nack_hdlr_t stream_ack_nack_hdlr;
 
     //! Stream transaction handler
-    on_txn_hdlr_t stream_txn_hdlr;
+    on_bs_txn_hdlr_t stream_txn_hdlr;
     #endif
 } on_pkt_hdlr_set_t;
 

@@ -232,9 +232,8 @@ static on_message_status_t on_master_block_data_hdlr(
 static on_message_status_t on_master_handle_block_ack_nack_response(
   on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack);
+static void on_master_block_txn_hdlr(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack);
 #endif
 
 #ifdef _STREAM_MESSAGES_ENABLED
@@ -244,9 +243,8 @@ static on_message_status_t on_master_stream_data_hdlr(
 static on_message_status_t on_master_handle_stream_ack_nack_response(
   on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
-static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack);
+static void on_master_stream_txn_hdlr(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack);
 #endif
 
 static one_net_status_t init_internal(void);
@@ -2560,11 +2558,9 @@ static on_message_status_t on_master_handle_block_ack_nack_response(
 
 
 // TODO -- document 
-static on_message_status_t on_master_block_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack)
+static void on_master_block_txn_hdlr(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
 }
 #endif
 
@@ -2591,11 +2587,9 @@ static on_message_status_t on_master_handle_stream_ack_nack_response(
   
 
 // TODO -- document 
-static on_message_status_t on_master_stream_txn_hdlr(on_txn_t ** txn,
-  on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
-  const on_message_status_t status, on_ack_nack_t* ack_nack)
+static void on_master_stream_txn_hdlr(block_stream_msg_t* msg,
+  on_message_status_t status, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
 }
 #endif
 
