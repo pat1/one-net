@@ -2522,6 +2522,41 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
       raw_pld, &dst, ack_nack, pkt->hops);
     #endif
     
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+    if(bs_msg.transfer_in_progress)
+    {
+        ack_nack->handle = ON_ACK;
+        if(*msg_type == ON_ROUTE_MSG)
+        {
+            UInt8 hops, return_hops;
+            if(ack_nack->nack_reason ||
+              !extract_repeaters_and_hops_from_route(&bs_msg.dst,
+              ack_nack->payload->ack_payload, &hops,
+              &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
+            {
+                // route failed for some reason.
+                ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
+                #ifndef _STREAM_MESSAGES_ENABLED
+                on_master_block_txn_hdlr(&bs_msg, ON_MSG_FAIL, ack_nack);
+                #else
+                if(get_bs_transfer_type(bs_msg.flags) == ON_BLK_TRANSFER)
+                {
+                    on_master_block_txn_hdlr(&bs_msg, ON_MSG_FAIL, ack_nack);
+                }
+                else
+                {
+                    on_master_stream_txn_hdlr(&bs_msg, ON_MSG_FAIL, ack_nack);
+                }
+                #endif
+            }
+            else
+            {
+                // change on_state here.
+            }
+        }
+    }
+    #endif    
+    
     if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
         // device has checked in, so reset the next check-in time
@@ -2562,6 +2597,7 @@ static void on_master_block_txn_hdlr(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack)
 {
     one_net_master_block_txn_status(msg, status, ack_nack);
+    bs_msg.transfer_in_progress = FALSE;
 }
 #endif
 
@@ -2592,6 +2628,7 @@ static void on_master_stream_txn_hdlr(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack)
 {
     one_net_master_stream_txn_status(msg, status, ack_nack);
+    bs_msg.transfer_in_progress = FALSE;
 }
 #endif
 
