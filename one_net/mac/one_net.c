@@ -3363,11 +3363,19 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
     {
         return FALSE;
     }
-    
+        
     raw_did_int = extract_raw_did_from_route(route, 0);
     u16_to_did(raw_did_int, (const on_raw_did_t*) raw_did);
-    last_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
-      raw_did, 1);
+    
+    while((last_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
+      raw_did, 1)) < 0)
+    {
+        if(append_raw_did_to_route(route, (const on_raw_did_t* const) raw_did)
+          < 0)
+        {
+            return FALSE;
+        }
+    }
     
     if(last_idx < 2)
     {
