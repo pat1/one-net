@@ -1867,6 +1867,8 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
             bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
         }        
         #endif
+        
+        ont_set_timer(ONT_BS_TIMER, 0);
     }
     
     if(*nr == ON_NACK_RSN_NO_ERROR)
@@ -2055,6 +2057,7 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
             bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
         }        
         #endif
+        ont_set_timer(ONT_BS_TIMER, 0);
     }
     
     if(*nr == ON_NACK_RSN_NO_ERROR)

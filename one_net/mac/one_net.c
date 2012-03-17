@@ -1129,6 +1129,9 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
+        #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+        case ON_BS_FIND_ROUTE:
+        #endif
         case ON_LISTEN_FOR_DATA:
         {
             UInt16 raw_pid;
@@ -1231,6 +1234,35 @@ void one_net(on_txn_t ** txn)
                     // we are either done or we never had anything to send in
                     // the first place.  Clear it and return TRUE.
                     single_msg_ptr = NULL;
+                    
+                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    if(bs_msg.transfer_in_progress)
+                    {
+                        if(!ont_get_timer(ONT_BS_TIMER) &&
+                          single_data_queue_size == 0)
+                        {
+                            on_raw_did_t raw_did;
+                            on_decode(raw_did, bs_msg.dst, ON_ENCODED_DID_LEN);
+                            
+                            // we are through waiting for things, so it's
+                            // time to revert back to or start our block /
+                            // stream transaction.
+                            on_state = bs_msg.bs_on_state;
+                            switch(on_state)
+                            {
+                                #ifdef _ONE_NET_MULTI_HOP
+                                case ON_BS_FIND_ROUTE:
+                                {
+                                    send_route_msg(&raw_did);
+                                    break;
+                                }
+                                #endif
+                                default: break;
+                            }
+                            break;
+                        }
+                    }
+                    #endif
                     
                     #ifdef _ONE_NET_CLIENT
                     #ifdef _ONE_NET_MASTER
@@ -1494,7 +1526,20 @@ void one_net(on_txn_t ** txn)
                 one_net_memmove(expected_src_did,
                   &(data_pkt_ptrs.packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
+                
+                #ifndef _BLOCK_MESSAGES_ENABLED
                 on_state = ON_SEND_SINGLE_DATA_PKT;
+                #else
+                if(on_state == ON_LISTEN_FOR_DATA)
+                {
+                    on_state = ON_SEND_SINGLE_DATA_PKT;
+                }
+                else
+                {
+                    on_state++;
+                }
+                #endif
+                
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
                 single_msg_ptr = &single_msg;
@@ -1519,6 +1564,9 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_SEND_SINGLE_DATA_PKT:
         case ON_SEND_SINGLE_DATA_RESP:
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BS_SEND_FIND_ROUTE:
+        #endif
         {
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
@@ -1541,6 +1589,9 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
+        #endif
         {
             if(one_net_write_done())
             {
@@ -1602,7 +1653,9 @@ void one_net(on_txn_t ** txn)
             } // if write is complete //
             break;
         } // send single data write wait case //
-        
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
+        #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
             on_message_status_t msg_status;
