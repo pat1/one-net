@@ -196,7 +196,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     // check the pid length to make sure it's long enough
     UInt8 pid_passed_blocks = ((raw_pid & ONE_NET_RAW_PID_SIZE_MASK) >>
       ONE_NET_RAW_PID_SIZE_SHIFT);
-    UInt8 pid_data_len_blocks = (data_len + ONA_DATA_INDEX) /
+    UInt16 pid_data_len_blocks = (data_len + ONA_DATA_INDEX) /
       ONE_NET_XTEA_BLOCK_SIZE;
     if((data_len + ONA_DATA_INDEX) % ONE_NET_XTEA_BLOCK_SIZE)
     {
