@@ -231,6 +231,16 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
         return NULL; // sending to ourself.  Why bother?
     }
     
+    #ifdef _ONE_NET_MASTER
+    if(device_is_master)
+    {
+        if(!client_info(enc_dst))
+        {
+            return NULL; // invalid destination
+        }
+    }
+    #endif
+    
     #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     if(single_data_queue_size >= SINGLE_DATA_QUEUE_SIZE)
     {
