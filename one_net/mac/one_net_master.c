@@ -1848,24 +1848,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
           ON_ENCODED_DID_LEN);
         set_bs_device_is_src(&bs_msg.flags, TRUE);
         set_bs_device_is_dst(&bs_msg.flags, FALSE);
-        
-        #ifdef _ONE_NET_MULTI_HOP
-        bs_msg.num_repeaters = 0;
-        #endif
-        bs_msg.bs_on_state = ON_BS_DEVICE_PERMISSION;
-        if(bs_msg.channel != on_base_param->channel || bs_msg.data_rate !=
-          on_base_param->data_rate)
-        {
-            bs_msg.bs_on_state = ON_BS_CHANGE_DR_CHANNEL;
-        }
-        
-        #ifdef _ONE_NET_MULTI_HOP
-        if(features_mh_capable(client->device.features))
-        {
-            bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
-        }        
-        #endif
-        
+        bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
     
@@ -2038,23 +2021,7 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
           ON_ENCODED_DID_LEN);
         set_bs_device_is_src(&bs_msg.flags, TRUE);
         set_bs_device_is_dst(&bs_msg.flags, FALSE);
-        
-        #ifdef _ONE_NET_MULTI_HOP
-        bs_msg.num_repeaters = 0;
-        #endif
-        bs_msg.bs_on_state = ON_BS_DEVICE_PERMISSION;
-        if(bs_msg.channel != on_base_param->channel || bs_msg.data_rate !=
-          on_base_param->data_rate)
-        {
-            bs_msg.bs_on_state = ON_BS_CHANGE_DR_CHANNEL;
-        }
-        
-        #ifdef _ONE_NET_MULTI_HOP
-        if(features_mh_capable(client->device.features))
-        {
-            bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
-        }        
-        #endif
+        bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
     

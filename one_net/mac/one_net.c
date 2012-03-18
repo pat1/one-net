@@ -1262,7 +1262,8 @@ void one_net(on_txn_t ** txn)
                     single_msg_ptr = NULL;
                     
                     #ifdef _BLOCK_MESSAGES_ENABLED
-                    if(bs_msg.transfer_in_progress)
+                    if(bs_msg.transfer_in_progress && get_bs_device_is_src(
+                      bs_msg.flags))
                     {
                         if(!ont_get_timer(ONT_BS_TIMER) &&
                           single_data_queue_size == 0)
@@ -1272,31 +1273,60 @@ void one_net(on_txn_t ** txn)
                             
                             // we are through waiting for things, so it's
                             // time to revert back to or start our block /
-                            // stream transaction.
-                            on_state = bs_msg.bs_on_state;
-                            switch(on_state)
+                            // stream transaction.  Let's see where we are.
+                            
+                            switch(bs_msg.bs_on_state)
                             {
-                                #ifdef _ONE_NET_MULTI_HOP
+                                case ON_LISTEN_FOR_DATA:
+                                    bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
                                 case ON_BS_FIND_ROUTE:
-                                #ifdef _DATA_RATE
+                                    #ifdef _ONE_NET_MULTI_HOP
+                                    bs_msg.num_repeaters = 0;
+                                    #endif
                                 case ON_BS_CONFIRM_ROUTE:
-                                #endif
-                                {
                                     send_route_msg(&raw_did);
                                     break;
-                                }
-                                #endif
-                                #ifdef _DATA_RATE
                                 case ON_BS_CHANGE_DR_CHANNEL:
-                                    // No pause?  What if we miss an ACK?
-                                    // Just make the dormant time 3000 ms.  Should
-                                    // be plenty of time?
-                                    one_net_change_data_rate(&bs_msg.dst, 0, 3000,
-                                      bs_msg.channel, bs_msg.data_rate);
+                                    if(bs_msg.channel == on_base_param->channel
+                                      && bs_msg.data_rate ==
+                                      on_base_param->data_rate)
+                                    {
+                                        // no need to change anything
+                                        bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
+                                    }
+                                    else
+                                    {
+                                        // add short pause of 125 ms to allow for any
+                                        // missed ACKs or NACKs.  3000 ms should be
+                                        // plenty long enough to get things done elsewhere
+                                        // if need be.
+                                        one_net_change_data_rate(&bs_msg.dst, 125, 3000,
+                                          bs_msg.channel, bs_msg.data_rate);
+                                    }
                                     break;
-                                #endif
-                                default: break;
+                                case ON_BS_CHANGE_MY_DATA_RATE:
+                                    // everyone else's data rate and channel has
+                                    // been changed, so change ours now and give a
+                                    // 125 ms pause not before the change, but before sending
+                                    // any messages.
+                                    one_net_change_data_rate(NULL, 0, 3000,
+                                      bs_msg.channel, bs_msg.data_rate);
+                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
+                                    bs_msg.bs_on_state = ON_BS_SEND_CONFIRM_ROUTE;
+                                    break;
+                                case ON_BS_DEVICE_PERMISSION:
+                                    send_bs_setup_msg(&bs_msg, &bs_msg.dst);
+                                    break;
+                                default:
+                                {
+                                    // abort for now.
+                                    bs_msg.transfer_in_progress = FALSE;
+                                    bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
+                                    oncli_send_msg("Aborting block / stream\n");
+                                }
                             }
+
+                            on_state = bs_msg.bs_on_state;
                             break;
                         }
                     }
@@ -1406,10 +1436,9 @@ void one_net(on_txn_t ** txn)
                             if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
                             {
                                 UInt8 temp = on_base_param->data_rate;
-                                
                                 if(one_net_set_data_rate(next_data_rate) ==
                                   ONS_SUCCESS)
-                                {                                    
+                                {                            
                                     on_base_param->data_rate = next_data_rate;
                                     next_data_rate = temp;
                                     temp = on_base_param->channel;
@@ -1921,7 +1950,19 @@ void one_net(on_txn_t ** txn)
                 // clear the transaction.
                 (*txn)->priority = ONE_NET_NO_PRIORITY;
                 *txn = 0;
-                on_state = ON_LISTEN_FOR_DATA;
+                
+                #ifdef _BLOCK_MESSAGES_ENABLED
+                if(bs_msg.transfer_in_progress && get_bs_device_is_src(
+                  bs_msg.flags) && on_state >= ON_BS_WAIT_FOR_FIND_ROUTE_RESP)
+                {
+                    bs_msg.bs_on_state = on_state + 1;
+                    on_state -= 3;
+                }
+                else
+                #endif
+                {
+                    on_state = ON_LISTEN_FOR_DATA;
+                }
                 one_net(txn); // we may have another message to send.
                               // send it before going back to the master
                               // or client code.
