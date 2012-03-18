@@ -220,7 +220,7 @@ typedef enum
     
     //! State used when changing a data rate and channel for block / stream
     //! and waiting for a response
-    ON_BS_SEND_CHANGE_DR_CHANNEL_RESP,
+    ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP,
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,

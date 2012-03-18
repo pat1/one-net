@@ -1604,6 +1604,8 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
+        case ON_BS_SEND_CONFIRM_ROUTE:
+        case ON_BS_SEND_CHANGE_DR_CHANNEL:
         #endif
         {
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
@@ -1629,6 +1631,8 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
+        case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
+        case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
         #endif
         {
             if(one_net_write_done())
@@ -1693,6 +1697,8 @@ void one_net(on_txn_t ** txn)
         } // send single data write wait case //
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
+        case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
+        case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
