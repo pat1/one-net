@@ -573,6 +573,9 @@ on_single_data_queue_t* push_queue_element(UInt16 pid,
   #endif
   );
   
+on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
+  const on_encoded_did_t* dst);
+  
 
 #ifdef _ONE_NET_CLIENT
 BOOL must_send_to_master(const on_single_data_queue_t* const element);

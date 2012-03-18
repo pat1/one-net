@@ -741,6 +741,27 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
+  const on_encoded_did_t* dst)
+{
+    UInt8 setup_msg[21];
+    block_stream_msg_t_to_admin_msg(setup_msg, bs_msg);
+    return push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, setup_msg,
+      21, ONE_NET_HIGH_PRIORITY, NULL, dst
+      #ifdef _PEER
+          , FALSE,
+          ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+    	  , 0
+      #endif
+  );
+}
+
+
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
   bs_msg)
 {
