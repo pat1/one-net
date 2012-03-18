@@ -2516,18 +2516,6 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
                 }
                 #endif
             }
-            else
-            {
-                if(bs_msg.bs_on_state == ON_BS_FIND_ROUTE && bs_msg.data_rate !=
-                  ONE_NET_DATA_RATE_38_4)
-                {
-                    bs_msg.bs_on_state = ON_BS_CHANGE_DR_CHANNEL;
-                }
-                else
-                {
-                    bs_msg.bs_on_state = ON_BS_DEVICE_PERMISSION;
-                }
-            }
         }
     }
     #endif    

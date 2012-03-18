@@ -248,7 +248,7 @@ typedef enum
     ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT,
     
     //! Wait for response from device
-    ON_BS_WAIT_FOR_DEVICE_RESP,
+    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,
     
     //! Ask the master for device permission
     ON_BS_MASTER_DEVICE_PERMISSION,

@@ -1131,12 +1131,13 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
-        #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+        #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
-        #ifdef _DATA_RATE
         case ON_BS_CONFIRM_ROUTE:
         case ON_BS_CHANGE_DR_CHANNEL:
-        #endif
+        case ON_BS_CHANGE_MY_DATA_RATE:
+        case ON_BS_DEVICE_PERMISSION:
+        case ON_BS_MASTER_DEVICE_PERMISSION:
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -1316,9 +1317,12 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_SEND_CONFIRM_ROUTE;
                                     break;
+                                #if 0
+                                // TODO -- not ready for this stage
                                 case ON_BS_DEVICE_PERMISSION:
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst);
                                     break;
+                                #endif
                                 default:
                                 {
                                     // abort for now.
@@ -1329,7 +1333,6 @@ void one_net(on_txn_t ** txn)
                             }
 
                             on_state = bs_msg.bs_on_state;
-                            break;
                         }
                     }
                     #endif
@@ -1609,6 +1612,8 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_FIND_ROUTE:
         case ON_BS_SEND_CONFIRM_ROUTE:
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
+        case ON_BS_SEND_DEVICE_PERMISSION:
+        case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         #endif
         {
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
@@ -1636,6 +1641,8 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
+        case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
+        case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
         #endif
         {
             if(one_net_write_done())
@@ -1702,6 +1709,8 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
+        case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
+        case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
