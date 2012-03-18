@@ -290,7 +290,9 @@ static BOOL features_override = FALSE;
 //! @{
 
 
-
+#ifdef _DATA_RATE
+static void check_dr_channel_change(void);
+#endif
 static BOOL check_for_clr_channel(void);
 static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   on_txn_t** const this_txn, on_pkt_t* const pkt,
@@ -1430,35 +1432,7 @@ void one_net(on_txn_t ** txn)
                     if(*txn == 0)
                     {
                         // see if we need to change data rates.
-                        if(dr_channel_stage !=
-                          ON_DR_CHANNEL_NO_SCHEDULED_CHANGE)
-                        {
-                            if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
-                            {
-                                UInt8 temp = on_base_param->data_rate;
-                                if(one_net_set_data_rate(next_data_rate) ==
-                                  ONS_SUCCESS)
-                                {                            
-                                    on_base_param->data_rate = next_data_rate;
-                                    next_data_rate = temp;
-                                    temp = on_base_param->channel;
-                                    on_base_param->channel = next_channel;
-                                    one_net_set_channel(next_channel);
-                                    next_channel = temp;
-                                    one_net_data_rate_changed(
-                                      on_base_param->channel,
-                                      on_base_param->data_rate);
-                                    dr_channel_stage++;
-                                    ont_set_timer(ONT_DATA_RATE_TIMER,
-                                      MS_TO_TICK(dormant_data_rate_time_ms));
-                                    if(dr_channel_stage == NUM_DR_CHANNEL_STAGES)
-                                    {
-                                        dr_channel_stage =
-                                          ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
-                                    }  
-                                }
-                            }
-                        }
+                        check_dr_channel_change();
                     }
                     #endif
                     break;
@@ -3873,6 +3847,41 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
 //! \ingroup ONE-NET
 //! @{
 
+
+
+#ifdef _DATA_RATE
+static void check_dr_channel_change(void)
+{
+    // see if we need to change data rates.
+    if(dr_channel_stage !=
+      ON_DR_CHANNEL_NO_SCHEDULED_CHANGE)
+    {
+        if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
+        {
+            UInt8 temp = on_base_param->data_rate;
+            if(one_net_set_data_rate(next_data_rate) ==
+              ONS_SUCCESS)
+            {                            
+                on_base_param->data_rate = next_data_rate;
+                next_data_rate = temp;
+                temp = on_base_param->channel;
+                on_base_param->channel = next_channel;
+                one_net_set_channel(next_channel);
+                next_channel = temp;
+                one_net_data_rate_changed(on_base_param->channel,
+                  on_base_param->data_rate);
+                dr_channel_stage++;
+                ont_set_timer(ONT_DATA_RATE_TIMER,
+                  MS_TO_TICK(dormant_data_rate_time_ms));
+                if(dr_channel_stage == NUM_DR_CHANNEL_STAGES)
+                {
+                    dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
+                }  
+            }
+        }
+    }
+}
+#endif
 
 
 /*!
