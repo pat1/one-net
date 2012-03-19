@@ -1315,7 +1315,7 @@ void one_net(on_txn_t ** txn)
                                     one_net_change_data_rate(NULL, 0, 3000,
                                       bs_msg.channel, bs_msg.data_rate);
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
-                                    bs_msg.bs_on_state = ON_BS_SEND_CONFIRM_ROUTE;
+                                    bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
                                 #if 0
                                 // TODO -- not ready for this stage
