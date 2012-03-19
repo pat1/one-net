@@ -1438,6 +1438,7 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     
     {
+        #ifdef _ONE_NET_CLIENT
         if(!device_is_master)
         {       
             #ifdef _ONE_NET_CLIENT
@@ -1451,6 +1452,7 @@ static oncli_status_t list_cmd_hdlr(void)
             #endif
         }
         else
+        #endif
         {
             #if defined(_ONE_NET_MASTER) && defined(_BLOCK_MESSAGES_ENABLED)
             flags = master_param->block_stream_flags;
@@ -1466,23 +1468,24 @@ static oncli_status_t list_cmd_hdlr(void)
         oncli_send_msg("Blk/Strm Allow Long.: %s\n", flags &
           ON_BS_ALLOWED ? TRUE_STR : FALSE_STR);
         #endif
-          
+        
+        #ifdef _ONE_NET_CLIENT
         #if _DEBUG_VERBOSE_LEVEL > 3
-        if(verbose_level > 3)
+        if(!device_is_master && verbose_level > 3)
         {
             oncli_send_msg("\nMaster Features...\n");
             oncli_print_features(master->device.features);
         }
         #endif
         #if _DEBUG_VERBOSE_LEVEL > 5
-        if(verbose_level > 5)
+        if(!device_is_master && verbose_level > 5)
         {
             oncli_send_msg("\n\n");
             print_sending_device_t(&(master->device));
             oncli_send_msg("\n\n");
         }
         #endif
-        
+        #endif
     }
     
     #ifdef _ONE_NET_MASTER
