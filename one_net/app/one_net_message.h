@@ -572,10 +572,7 @@ on_single_data_queue_t* push_queue_element(UInt16 pid,
 	  , tick_t expire_time_from_now
   #endif
   );
-  
-on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
-  const on_encoded_did_t* dst);
-  
+
 
 #ifdef _ONE_NET_CLIENT
 BOOL must_send_to_master(const on_single_data_queue_t* const element);
@@ -597,6 +594,8 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
+  const on_encoded_did_t* dst);
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
   bs_msg);
 void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
