@@ -94,6 +94,10 @@
 //! The current ONE-NET channel
 extern UInt8 current_channel; // current_channel should be declared in
                               // the transceiver .c file.
+                              
+//! The current data rate
+extern UInt8 current_data_rate; // current_data_rate should be declared in
+                                // the transceiver .c file.
 
 
 //! @} TAL_pub_var

@@ -237,6 +237,9 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
 
+//! The current data rate
+UInt8 current_data_rate = ONE_NET_DATA_RATE_38_4;
+
 //! number of bytes received that have been requested from ONE-NET code
 UInt16 rx_rf_idx = 0;
 
@@ -632,9 +635,11 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
     }
     #endif
     
-    if((status = init_rf_interrupts(data_rate)) == ONS_SUCCESS)
+    current_data_rate = data_rate;
+    
+    if((status = init_rf_interrupts(current_data_rate)) == ONS_SUCCESS)
     {
-        write_reg(DATA_RATE_SETTING[data_rate], TRUE);
+        write_reg(DATA_RATE_SETTING[current_data_rate], TRUE);
     } // if the data rate is valid //    
     
     return status;

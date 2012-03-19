@@ -221,8 +221,8 @@ block_stream_msg_t bs_msg;
 #ifdef _DATA_RATE
 dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
 UInt16 dormant_data_rate_time_ms = 0;
-UInt8 next_data_rate = ONE_NET_DATA_RATE_38_4;
-UInt8 next_channel;
+UInt8 alternate_data_rate = ONE_NET_DATA_RATE_38_4;
+UInt8 alternate_channel;
 #endif
 
 //! Boolean value denoting whether a key change should occur in the very
@@ -3592,8 +3592,8 @@ on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
             return ON_NACK_RSN_INVALID_DATA_RATE;
         }
         
-        next_data_rate = new_data_rate;
-        next_channel = new_channel;
+        alternate_data_rate = new_data_rate;
+        alternate_channel = new_channel;
         dormant_data_rate_time_ms = dormant_time_ms;
         dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
         ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
@@ -3858,32 +3858,28 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
 #ifdef _DATA_RATE
 static void check_dr_channel_change(void)
 {
-    // see if we need to change data rates.
-    if(dr_channel_stage !=
-      ON_DR_CHANNEL_NO_SCHEDULED_CHANGE)
+    // see if we need to possible change data rates.
+    if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
     {
-        if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
+        UInt8 new_data_rate = ONE_NET_DATA_RATE_38_4;
+        UInt8 new_channel = on_base_param->channel;
+        switch(dr_channel_stage)
         {
-            UInt8 temp = on_base_param->data_rate;
-            if(one_net_set_data_rate(next_data_rate) ==
-              ONS_SUCCESS)
-            {                            
-                on_base_param->data_rate = next_data_rate;
-                next_data_rate = temp;
-                temp = on_base_param->channel;
-                on_base_param->channel = next_channel;
-                one_net_set_channel(next_channel);
-                next_channel = temp;
-                one_net_data_rate_changed(on_base_param->channel,
-                  on_base_param->data_rate);
+            case ON_DR_CHANNEL_CHANGE_SCHEDULED:
+                // Change to the alternate channel and data rate
+                new_data_rate = alternate_data_rate;
+                new_channel = alternate_channel;
+                ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                  dormant_data_rate_time_ms));
+                // intentional fall-through           
+            case ON_DR_CHANNEL_CHANGE_DONE:
+                one_net_set_channel(new_channel);
+                one_net_set_data_rate(new_data_rate);
                 dr_channel_stage++;
-                ont_set_timer(ONT_DATA_RATE_TIMER,
-                  MS_TO_TICK(dormant_data_rate_time_ms));
-                if(dr_channel_stage == NUM_DR_CHANNEL_STAGES)
-                {
-                    dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
-                }  
-            }
+                one_net_data_rate_changed(new_channel, new_data_rate);
+                // intentional fall-through
+            default:
+                break;
         }
     }
 }
