@@ -216,10 +216,20 @@ enum
 #ifndef DATA_RATE_38_4_CAPABLE
     #define DATA_RATE_38_4_CAPABLE
 #endif
+
+// TODO -- Derek_S 3/19/2012 -- 76,800 seems to be partially capable,
+// but drops far too many messages, particularly long messages of 52
+// bytes or more, where the drop rate is above 50% in rapid messages,
+// which is not nearly good enough.  For shorter messages of 30 bytes, the
+// failure rate is lower, but still quite high (i.e. more messages require
+// retries than do not, compared to the 38,400 rate, where the vast majority
+// of the time, even long messages are not garbled.  Hence I am disabling the
+// 76,800 data rate for now.
 #ifndef DATA_RATE_76_8_CAPABLE
-    #define DATA_RATE_76_8_CAPABLE
+//    #define DATA_RATE_76_8_CAPABLE
 #endif
-// 115,200 is supposed to be possible, but there is a bug somewhere.
+// 115,200 is supposed to be possible, but there is a bug somewhere.  It seems
+// to work 0% of the time.
 // TODO - fix
 #ifndef DATA_RATE_115_2_CAPABLE
 //    #define DATA_RATE_115_2_CAPABLE
@@ -230,7 +240,8 @@ enum
 #ifndef DATA_RATE_192_0_CAPABLE
 //    #define DATA_RATE_192_0_CAPABLE
 #endif
-// 230,400 is supposed to be possible, but there is a bug somewhere.
+// 230,400 is supposed to be possible, but there is a bug somewhere.  This bug
+// actually causes the program to crash.
 // TODO - fix
 #ifndef DATA_RATE_230_4_CAPABLE
 //    #define DATA_RATE_230_4_CAPABLE
