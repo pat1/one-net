@@ -608,27 +608,10 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
     #ifndef _DATA_RATE
     if(data_rate != ONE_NET_DATA_RATE_38_4)
     {
-        return ONS_DEVICE_NOT_CAPABLE;;
-    }
-    #else
-    // all checking for valid data rates occurs BEFORE calling
-    // init_rf_interrupts.  TODO -- should this check happen here
-    // or in the init_rf_interrupts() function?
-    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
-    {
-        // invalid data rate.
-        return ONS_BAD_PARAM;
-    }
-    
-    if(data_rate == ONE_NET_DATA_RATE_153_6 ||
-      data_rate == ONE_NET_DATA_RATE_192_0)
-    {
-        // cannot be achieved by the ADI?
-        // TODO -- confirm this.  Also, is this ALL ADI transceivers or just
-        // one of them?  Perhaps this should not be in adi.c but rather in
-        // tal_adi.c?
         return ONS_DEVICE_NOT_CAPABLE;
     }
+    #else
+    
     if(!features_data_rate_capable(THIS_DEVICE_FEATURES, data_rate))
     {
         return ONS_DEVICE_NOT_CAPABLE;

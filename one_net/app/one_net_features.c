@@ -129,6 +129,10 @@ UInt8 features_max_peers(on_features_t features)
 
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 {
+    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
+    {
+        return ONS_BAD_PARAM;
+    }
     return (((features.data_rates >> data_rate) & 0x01) != 0);
 }
 
