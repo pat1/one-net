@@ -3086,6 +3086,37 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         }
         #endif
         
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_REQUEST_BLOCK_STREAM:
+        {
+            // check if we are already in the middle of a block transaction.  If
+            // we are and the source is NOT the sending device of this message,
+            // NACK it.  If the source IS the sending device of this message and
+            // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
+            if(bs_msg.transfer_in_progress)
+            {
+                if(!on_encoded_did_equal(&bs_msg.src, SRC_DID))
+                {
+                    ack_nack->nack_reason = ON_NACK_RSN_BUSY;
+                    break;
+                }
+                
+                if(bs_msg.byte_idx >= 0)
+                {
+                    // we have already started receiving data
+                    ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
+                    break;                    
+                }
+            }
+            
+            one_net_memmove(bs_msg.src, *SRC_DID, ON_ENCODED_DID_LEN);
+            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg);
+            bs_msg.transfer_in_progress = TRUE;
+            bs_msg.byte_idx = -1;
+            break;
+        }
+        #endif
+        
         case ON_REQUEST_KEY_CHANGE:
         {
             if(!key_update_in_progress)

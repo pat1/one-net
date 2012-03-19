@@ -780,7 +780,9 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
       ON_ENCODED_DID_LEN);
     bs_msg->estimated_completion_time = get_tick_count() +
       MS_TO_TICK(one_net_byte_stream_to_int32(
-      &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));  
+      &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));
+    set_bs_device_is_src(&(bs_msg->flags), is_my_did(&(bs_msg->src)));
+    set_bs_device_is_dst(&(bs_msg->flags), is_my_did(&(bs_msg->dst)));
 }
 
 

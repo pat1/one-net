@@ -484,7 +484,7 @@ typedef struct
     on_encoded_did_t* repeaters; // rarely used.  Use "ONE-NET "heap".
     #endif
     #endif
-    UInt32 byte_idx;
+    SInt32 byte_idx;
     SInt8 chunk_idx;
     UInt8 complete[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
            // bitwise "boolean" array, with each bit representing whether a

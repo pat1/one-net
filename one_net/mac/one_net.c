@@ -1317,12 +1317,9 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
-                                #if 0
-                                // TODO -- not ready for this stage
                                 case ON_BS_DEVICE_PERMISSION:
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst);
                                     break;
-                                #endif
                                 default:
                                 {
                                     // abort for now.
