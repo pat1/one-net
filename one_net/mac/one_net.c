@@ -3973,7 +3973,7 @@ on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
   const on_encoded_did_t* repeater)
 {
-    UInt8 pld[11];
+    UInt8 pld[14];
     UInt32 est_transfer_time = estimate_block_transfer_time(
       bs_msg->transfer_size, bs_msg->chunk_size, get_bs_hops(bs_msg->flags),
       bs_msg->frag_dly, bs_msg->chunk_pause, bs_msg->data_rate);
@@ -3983,9 +3983,12 @@ on_single_data_queue_t* request_reserve_repeater(
     one_net_memmove(&pld[3], bs_msg->src, ON_ENCODED_DID_LEN);
     one_net_memmove(&pld[5], bs_msg->dst, ON_ENCODED_DID_LEN);
     one_net_int32_to_byte_stream(est_transfer_time, &pld[7]);
-    
+    pld[11] = bs_msg->channel;
+    pld[12] = bs_msg->data_rate;
+    pld[13] = get_bs_priority(bs_msg->flags);
+ 
     return one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld,
-      11, ONE_NET_HIGH_PRIORITY, NULL, dst
+      14, ONE_NET_HIGH_PRIORITY, NULL, dst
       #ifdef _PEER
           , FALSE,
           ONE_NET_DEV_UNIT

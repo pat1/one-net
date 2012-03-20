@@ -575,11 +575,14 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-void one_net_master_repeater_requested(on_client_t* requesting_client,
-  on_client_t* repeater_client, UInt8 channel, UInt8 data_rate, UInt8 priority,
-  UInt32 estimated_time, on_ack_nack_t* ack_nack)
+#ifdef _ONE_NET_MULTI_HOP
+void one_net_master_repeater_requested(on_client_t* src_client,
+  on_client_t* dst_client, on_client_t* repeater_client, UInt8 channel,
+  UInt8 data_rate, UInt8 priority, UInt32 estimated_time,
+  on_ack_nack_t* ack_nack)
 {
 }
+#endif
 
 
 on_nack_rsn_t one_net_master_get_default_block_transfer_values(

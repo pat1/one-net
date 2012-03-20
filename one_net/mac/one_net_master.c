@@ -3115,6 +3115,106 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             bs_msg.byte_idx = -1;
             break;
         }
+        #ifdef _ONE_NET_MULTI_HOP
+        case ON_REQUEST_REPEATER:
+        {
+            UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
+            on_client_t* rptr_client = client_info((on_encoded_did_t*) &DATA[1]);
+            on_client_t* src_client = client_info((on_encoded_did_t*) &DATA[3]);
+            on_client_t* dst_client = client_info((on_encoded_did_t*) &DATA[5]);
+            on_sending_device_t* dst_device;
+            on_encoded_did_t* invalid_device_did = NULL;
+            
+            // we need to make sure the source and the destinations are clients
+            // in the network and are different and that the repeater is
+            // capable.  The destination will eiher be this device, the master,
+            // in which case we need to have already set up our block / stream
+            // meassage and we are the recipient.  If it's not us, we also want
+            // to make sure everyone involved is capable.
+            
+            // TODO -- there are more things to check too.
+            
+            if(!rptr_client)
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
+                invalid_device_did = (on_encoded_did_t*) &DATA[1];
+            }
+            else if(!features_mh_repeat_capable(rptr_client->device.features))
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+                invalid_device_did = (on_encoded_did_t*) &DATA[1];
+            }
+            else if(!src_client)
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
+                invalid_device_did = (on_encoded_did_t*) &DATA[3];
+            }
+            else if(!features_mh_capable(src_client->device.features))
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+                invalid_device_did = (on_encoded_did_t*) &DATA[3];
+            }
+            else if(!dst_client)
+            {
+                invalid_device_did = (on_encoded_did_t*) &DATA[5];
+                if(is_master_did(invalid_device_did))
+                {
+                    // this is to us.
+                    if(!bs_msg.transfer_in_progress)
+                    {
+                        // they should have set up the block transfer with us
+                        // prior to asking us for permission for a repeater.
+                        // We will deny permission, but make it non-fatal since
+                        // there may have been some mistake on the requesting
+                        // side.  We are not denying this request, but merely
+                        // NACKing it because it may have come in the wrong
+                        // wrong order.  The sending device, getting this error,
+                        // can hopefully re-request everything in the correct
+                        // order and that may allow approval.  We can't approve
+                        // this because the request makes no sense.
+                        ack_nack->nack_reason =
+                          ON_NACK_RSN_NOT_ALREADY_IN_PROGRESS;
+                    }
+                    else
+                    {
+                        // make sure the source and destinations match what we
+                        // think they should.  If they don't, NACK with an
+                        // "already in progress" reason.
+                        if(!get_bs_device_is_dst(bs_msg.flags) ||
+                          !on_encoded_did_equal(&bs_msg.src,
+                          &src_client->device.did))
+                        {
+                            ack_nack->nack_reason =
+                              ON_NACK_RSN_ALREADY_IN_PROGRESS;
+                        }
+                    }
+                }
+                else
+                {
+                    ack_nack->nack_reason = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
+                }
+            }
+            else if(!features_mh_capable(dst_client->device.features))
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            }
+            
+            if(ack_nack->nack_reason)
+            {
+                ack_nack->handle = ON_NACK_DATA;
+                one_net_memmove(ack_nack->payload->nack_payload,
+                  *invalid_device_did, ON_ENCODED_DID_LEN);
+                break;
+            }
+            
+            // So far, so good, now inform / ask the application code and give
+            // it a chance to veto this request.
+            one_net_master_repeater_requested(src_client, dst_client,
+              rptr_client, DATA[11], DATA[12], DATA[13], estimated_time,
+              ack_nack);
+            break;
+        }
+        #endif
         #endif
         
         case ON_REQUEST_KEY_CHANGE:

@@ -399,6 +399,14 @@ on_nack_rsn_t one_net_client_get_default_block_transfer_values(
 {
     return ON_NACK_RSN_NO_ERROR;
 }
+
+
+#ifdef _ONE_NET_MH_CLIENT_REPEATER
+void one_net_client_repeater_requested(const on_encoded_did_t* src_did,
+  const on_encoded_did_t* dst_did, UInt8 channel, UInt8 data_rate,
+  UInt8 priority, UInt32 estimated_time, on_ack_nack_t* ack_nack)
+{
+}
 #endif
 
 
@@ -409,6 +417,7 @@ on_nack_rsn_t one_net_client_get_default_stream_transfer_values(
 {
     return ON_NACK_RSN_NO_ERROR;
 }
+#endif
 #endif
 
 

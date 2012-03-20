@@ -98,12 +98,17 @@ typedef enum
     ON_NACK_RSN_BAD_CRC,             //! A CRC calculation failed
     ON_NACK_RSN_BAD_KEY,             //! Sent when the other device is using the wrong key
     ON_NACK_RSN_ALREADY_IN_PROGRESS, //! Similar to "Resouces Unavailable", but more detailed.
+    ON_NACK_RSN_NOT_ALREADY_IN_PROGRESS, //! Similar to the "alredy in progress" error, but sort of inverted.
+                                         //! A request is being made that cannot be complied with because something else
+                                         //! needed to happen first which has not yet happened.
     ON_NACK_RSN_INVALID_CHANNEL,     //! The channel requested is a channel that this device cannot access or is invalid
                                      //! for some other reason.
     ON_NACK_RSN_INVALID_CHUNK_SIZE,  //! An invalid chunk size has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_CHUNK_DELAY, //! An invalid chunk delay has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_FRAG_DELAY,  //! An invalid fragment delay has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_PRIORITY,    //! An invalid priority has been specified.
+    ON_NACK_RSN_PERMISSION_DENIED_NON_FATAL, //! Generic "Permission denied" non-fatal error.
+
     
     // Add any more non-fatal ONE-NET Nack Reasons here
     
@@ -135,6 +140,7 @@ typedef enum
     ON_NACK_RSN_DEVICE_NOT_IN_NETWORK, //! A device is not in the network
     ON_NACK_RSN_DEVICE_IS_THIS_DEVICE, //! Attempting to do something with another device when the other device is yourself
     ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME, //! Attempting to send a message where the sender and the recipient are the same device
+    ON_NACK_RSN_PERMISSION_DENIED_FATAL, //! Generic "Permission denied" fatal error.
     
     // stick any more ONE-NET fatal errors here.
     

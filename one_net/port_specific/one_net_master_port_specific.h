@@ -465,6 +465,7 @@ BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID);
   
 #ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef _ONE_NET_MULTI_HOP
 /*!
     \brief Alerts the master when a device has requested that another device
            should be reserved for service as a multi-hop repeater.
@@ -495,19 +496,22 @@ BOOL one_net_master_device_is_awake(BOOL responding,
        be a key change.
     8. Some application-specific reason.
     
-    \param[in] requesting_client The device that is being proposed as a repeater.
+    \param[in] src_client The device that is asking for permission.
+    \param[in] dst_client The device that is being sent to
     \param[in] repeater_client The device that is being proposed as a repeater.
     \param[in] channel The channel that the transfer shall proceed on.
     \param[in] data_rate The data rate that the transfer shall proceed on.
-    \param[in] data_rate The priority that the transfer shall proceed on.
+    \param[in] priority The priority that the transfer shall proceed on.
     \param[in] estimated_time The best-guess by the sending device of how long
                the transfer will take, in milliseconds.
     \param[out] The NACK reason and payload if the master decides to reject this
                request.
 */
-void one_net_master_repeater_requested(on_client_t* requesting_client,
-  on_client_t* repeater_client, UInt8 channel, UInt8 data_rate, UInt8 priority,
-  UInt32 estimated_time, on_ack_nack_t* ack_nack);
+void one_net_master_repeater_requested(on_client_t* src_client,
+  on_client_t* dst_client, on_client_t* repeater_client, UInt8 channel,
+  UInt8 data_rate, UInt8 priority, UInt32 estimated_time,
+  on_ack_nack_t* ack_nack);
+#endif
   
 on_nack_rsn_t one_net_master_get_default_block_transfer_values(
   const on_client_t* src, const on_client_t* dst,
