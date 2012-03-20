@@ -250,7 +250,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     }
     
     #ifdef _ONE_NET_MASTER
-    if(device_is_master)
+    if(enc_dst && device_is_master)
     {
         if(!(*get_sender_info)(enc_dst))
         {
