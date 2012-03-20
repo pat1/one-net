@@ -1273,11 +1273,11 @@ void one_net(on_txn_t ** txn)
                         {
                             static UInt8 rptr_idx;
                             on_raw_did_t raw_did;
-                            on_decode(raw_did, bs_msg.dst, ON_ENCODED_DID_LEN);
-                            
                             BOOL master_involved = (device_is_master ||
                               is_master_did(&bs_msg.dst));
                             
+                            on_decode(raw_did, bs_msg.dst, ON_ENCODED_DID_LEN);
+                                                        
                             // we are through waiting for things, so it's
                             // time to revert back to or start our block /
                             // stream transaction.  Let's see where we are.
@@ -1335,7 +1335,7 @@ void one_net(on_txn_t ** txn)
                                         // destination, we'll get the master's
                                         // permission when we ask the
                                         // destination device's permission.
-                                        bs_msg.on_state =
+                                        bs_msg.bs_on_state =
                                           ON_BS_REPEATER_PERMISSION;
                                     }
                                     else
@@ -1388,7 +1388,7 @@ void one_net(on_txn_t ** txn)
                                         // there is no need to request
                                         // permission for repeaters, so skip
                                         // this state.
-                                        bs_msg.on_state =
+                                        bs_msg.bs_on_state =
                                           ON_BS_REPEATER_PERMISSION_START;
                                     }
                                     break;                                
@@ -1410,7 +1410,7 @@ void one_net(on_txn_t ** txn)
                                     // intentional fall-through
                                 case ON_BS_REPEATER_PERMISSION:
                                     one_net_set_data_rate(bs_msg.data_rate);
-                                    one_net_set_channel(bs_msg->channel);
+                                    one_net_set_channel(bs_msg.channel);
                                     if(bs_msg.num_repeaters)
                                     {
                                         request_reserve_repeater(&bs_msg,
@@ -1419,7 +1419,7 @@ void one_net(on_txn_t ** txn)
                                     }
                                     else
                                     {
-                                        bs_msg.on_state = ON_BS_COMMENCE;
+                                        bs_msg.bs_on_state = ON_BS_COMMENCE;
                                     }
                                     break;
                                 case ON_BS_REPEATER_PERMISSION_END:
@@ -3962,7 +3962,7 @@ on_single_data_queue_t* request_reserve_repeater(
   const on_encoded_did_t* repeater)
 {
     UInt8 pld[11];
-    UInt32 est_transfer_timer = estimate_block_transfer_time(
+    UInt32 est_transfer_time = estimate_block_transfer_time(
       bs_msg->transfer_size, bs_msg->chunk_size, get_bs_hops(bs_msg->flags),
       bs_msg->frag_dly, bs_msg->chunk_pause, bs_msg->data_rate);
       
