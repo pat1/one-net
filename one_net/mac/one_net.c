@@ -1131,6 +1131,7 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
+        // TODO -- more #define guards for states
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
         case ON_BS_CONFIRM_ROUTE:
@@ -1138,6 +1139,13 @@ void one_net(on_txn_t ** txn)
         case ON_BS_CHANGE_MY_DATA_RATE:
         case ON_BS_DEVICE_PERMISSION:
         case ON_BS_MASTER_DEVICE_PERMISSION:
+        case ON_BS_REPEATER_PERMISSION_START:
+        case ON_BS_REPEATER_PERMISSION:
+        case ON_BS_REPEATER_PERMISSION_END:
+        case ON_BS_MASTER_REPEATER_PERMISSION_START:
+        case ON_BS_MASTER_REPEATER_PERMISSION:
+        case ON_BS_MASTER_REPEATER_PERMISSION_END:
+        case ON_BS_COMMENCE:
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -1336,7 +1344,7 @@ void one_net(on_txn_t ** txn)
                                         // permission when we ask the
                                         // destination device's permission.
                                         bs_msg.bs_on_state =
-                                          ON_BS_REPEATER_PERMISSION;
+                                          ON_BS_REPEATER_PERMISSION_START;
                                     }
                                     else
                                     {
@@ -1434,6 +1442,10 @@ void one_net(on_txn_t ** txn)
                                       ON_BS_COMMENCE;
                                     break;
                                 #endif
+                                case ON_BS_COMMENCE:
+                                    oncli_send_msg(
+                                      "Commencing block / transfer\n");
+                                    // fall-through
                                 default:
                                 {
                                     // abort for now.
