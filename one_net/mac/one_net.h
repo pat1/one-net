@@ -262,6 +262,9 @@ typedef enum
     //! Wait for response from master
     ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,
     
+    //! Start state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_START,
+    
     //! Ask the master for repeater permission
     ON_BS_MASTER_REPEATER_PERMISSION,
     
@@ -274,6 +277,12 @@ typedef enum
     //! Wait for response from master
     ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
     
+    //! End state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_END,
+    
+    //! Start state of requesting repeater permission
+    ON_BS_REPEATER_PERMISSION_START,
+        
     //! Ask the master for repeater permission
     ON_BS_REPEATER_PERMISSION,
     
@@ -285,6 +294,9 @@ typedef enum
     
     //! Wait for response from repeater
     ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP,
+    
+    //! End state of requesting repeater permission
+    ON_BS_REPEATER_PERMISSION_END,
     
     //! Block or stream transactionready to commence
     ON_BS_COMMENCE,
@@ -846,6 +858,11 @@ UInt32 estimate_block_transfer_time(UInt32 num_bytes, UInt8 chunk_size,
 void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
   recipient_send_list, UInt8 num_repeaters, const on_encoded_did_t* const dst,
   const on_encoded_did_t* repeaters);
+#ifdef _ONE_NET_MULTI_HOP
+on_single_data_queue_t* request_reserve_repeater(
+  const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
+  const on_encoded_did_t* repeater);
+#endif
 #endif
 
 

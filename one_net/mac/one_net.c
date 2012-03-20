@@ -1271,8 +1271,12 @@ void one_net(on_txn_t ** txn)
                         if(!ont_get_timer(ONT_BS_TIMER) &&
                           single_data_queue_size == 0)
                         {
+                            static UInt8 rptr_idx;
                             on_raw_did_t raw_did;
                             on_decode(raw_did, bs_msg.dst, ON_ENCODED_DID_LEN);
+                            
+                            BOOL master_involved = (device_is_master ||
+                              is_master_did(&bs_msg.dst));
                             
                             // we are through waiting for things, so it's
                             // time to revert back to or start our block /
@@ -1320,6 +1324,116 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_DEVICE_PERMISSION:
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst);
                                     break;
+                                case ON_BS_MASTER_DEVICE_PERMISSION:
+                                    if(master_involved)
+                                    {
+                                        // Master is involved, so we either ARE
+                                        // the master or the master is the
+                                        // device we are sending to, so if we
+                                        // are the master, we don't need our
+                                        // permission.  If the master is the
+                                        // destination, we'll get the master's
+                                        // permission when we ask the
+                                        // destination device's permission.
+                                        bs_msg.on_state =
+                                          ON_BS_REPEATER_PERMISSION;
+                                    }
+                                    else
+                                    {
+                                        // ask the master for permission.
+                                        // We'll need to drop back down
+                                        // to the base channel and data rate
+                                        one_net_set_channel(
+                                          on_base_param->channel);
+                                        one_net_set_data_rate(
+                                          ONE_NET_DATA_RATE_38_4);
+                                        send_bs_setup_msg(&bs_msg,
+                                          &MASTER_ENCODED_DID);
+                                    }
+                                    break;
+                                case ON_BS_MASTER_REPEATER_PERMISSION_START:
+                                #ifndef _ONE_NET_MULTI_HOP
+                                    bs_msg.bs_on_state = ON_BS_COMMENCE;
+                                    break;
+                                #else
+                                    rptr_idx = 0;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_MASTER_REPEATER_PERMISSION;
+                                    // intentional fall-through
+                                case ON_BS_MASTER_REPEATER_PERMISSION:
+                                    if(!master_involved && bs_msg.num_repeaters)
+                                    {
+                                        // The master is at the main data rate
+                                        // and channel, so change to them.
+                                        one_net_set_data_rate(
+                                          ONE_NET_DATA_RATE_38_4);
+                                        one_net_set_channel(
+                                          on_base_param->channel);
+                                        request_reserve_repeater(&bs_msg,
+                                          &(bs_msg.repeaters[rptr_idx]),
+                                          &MASTER_ENCODED_DID);
+                                    }
+                                    else
+                                    {
+                                        // If the master is involved, then we
+                                        // either ARE the master or the master
+                                        // is the device we are sending to, so
+                                        // if we are the master, we don't need
+                                        // the master's permission since we have
+                                        // it already.  If the master is the
+                                        // destination, we'll get the master's
+                                        // permission when we ask the
+                                        // destination device's permission.
+                                        // Also, if there are no repeaters,
+                                        // there is no need to request
+                                        // permission for repeaters, so skip
+                                        // this state.
+                                        bs_msg.on_state =
+                                          ON_BS_REPEATER_PERMISSION_START;
+                                    }
+                                    break;                                
+                                case ON_BS_MASTER_REPEATER_PERMISSION_END:
+                                    rptr_idx++;
+                                    if(rptr_idx < bs_msg.num_repeaters)
+                                    {
+                                        bs_msg.bs_on_state =
+                                          ON_BS_MASTER_REPEATER_PERMISSION;
+                                        break;
+                                    }
+                                    bs_msg.bs_on_state =
+                                      ON_BS_MASTER_REPEATER_PERMISSION;
+                                    // intentional fall-through
+                                case ON_BS_REPEATER_PERMISSION_START:
+                                    rptr_idx = 0;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_REPEATER_PERMISSION;
+                                    // intentional fall-through
+                                case ON_BS_REPEATER_PERMISSION:
+                                    one_net_set_data_rate(bs_msg.data_rate);
+                                    one_net_set_channel(bs_msg->channel);
+                                    if(bs_msg.num_repeaters)
+                                    {
+                                        request_reserve_repeater(&bs_msg,
+                                          &(bs_msg.repeaters[rptr_idx]),
+                                          &(bs_msg.repeaters[rptr_idx]));
+                                    }
+                                    else
+                                    {
+                                        bs_msg.on_state = ON_BS_COMMENCE;
+                                    }
+                                    break;
+                                case ON_BS_REPEATER_PERMISSION_END:
+                                    rptr_idx++;
+                                    if(rptr_idx < bs_msg.num_repeaters)
+                                    {
+                                        bs_msg.bs_on_state =
+                                          ON_BS_MASTER_REPEATER_PERMISSION;
+                                        break;
+                                    }
+                                    bs_msg.bs_on_state =
+                                      ON_BS_COMMENCE;
+                                    break;
+                                #endif
                                 default:
                                 {
                                     // abort for now.
@@ -3839,8 +3953,41 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
         add_recipient_to_recipient_list(*recipient_send_list, &dest);
     }
 }
-#endif
 
+
+
+#ifdef _ONE_NET_MULTI_HOP
+on_single_data_queue_t* request_reserve_repeater(
+  const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
+  const on_encoded_did_t* repeater)
+{
+    UInt8 pld[11];
+    UInt32 est_transfer_timer = estimate_block_transfer_time(
+      bs_msg->transfer_size, bs_msg->chunk_size, get_bs_hops(bs_msg->flags),
+      bs_msg->frag_dly, bs_msg->chunk_pause, bs_msg->data_rate);
+      
+    pld[0] = ON_REQUEST_REPEATER;
+    one_net_memmove(&pld[1], *repeater, ON_ENCODED_DID_LEN);
+    one_net_memmove(&pld[3], bs_msg->src, ON_ENCODED_DID_LEN);
+    one_net_memmove(&pld[5], bs_msg->dst, ON_ENCODED_DID_LEN);
+    one_net_int32_to_byte_stream(est_transfer_time, &pld[7]);
+    
+    return one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld,
+      11, ONE_NET_HIGH_PRIORITY, NULL, dst
+      #ifdef _PEER
+          , FALSE,
+          ONE_NET_DEV_UNIT
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          , 0
+      #endif
+      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+    	  , 0
+      #endif
+      );
+}
+#endif
+#endif
 
 
 //! @} ONE-NET_pub_func
