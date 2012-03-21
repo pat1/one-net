@@ -1762,6 +1762,8 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_CONFIRM_ROUTE:
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
         case ON_BS_SEND_DEVICE_PERMISSION:
+        case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
+        case ON_BS_SEND_REPEATER_PERMISSION:
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         #endif
         {
@@ -1792,6 +1794,8 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
+        case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
+        case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
         #endif
         {
             if(one_net_write_done())
@@ -1859,6 +1863,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
+        case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
