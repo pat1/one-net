@@ -402,10 +402,13 @@ on_nack_rsn_t one_net_client_get_default_block_transfer_values(
 
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
-void one_net_client_repeater_requested(const on_encoded_did_t* src_did,
-  const on_encoded_did_t* dst_did, UInt8 channel, UInt8 data_rate,
-  UInt8 priority, UInt32 estimated_time, on_ack_nack_t* ack_nack)
+void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
+  on_ack_nack_t* ack_nack)
 {
+    // just some debugging for now.
+    oncli_send_msg("src=%02X%02X dst=%02X%02X est=%ld to=%d\n",
+      bs_msg->src[0],bs_msg->src[1], bs_msg->dst[0],bs_msg->dst[1],
+      bs_msg->timeout);
 }
 #endif
 

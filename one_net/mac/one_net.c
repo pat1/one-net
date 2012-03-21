@@ -1128,6 +1128,18 @@ void one_net(on_txn_t ** txn)
     ack_nack_payload_t ack_nack_payload;
     ack_nack.payload = &ack_nack_payload;
 
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(bs_msg.transfer_in_progress && !get_bs_device_is_src(bs_msg.flags) &&
+      ont_inactive_or_expired(ONT_BS_TIMER))
+    {
+        // TODO -- this is only temporary.
+        oncli_send_msg("Block message timed out\n");
+        bs_msg.transfer_in_progress = FALSE;
+        one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
+        one_net_set_channel(on_base_param->channel);
+        on_state = ON_LISTEN_FOR_DATA;
+    }
+    #endif
     
     switch(on_state)
     {
@@ -1421,8 +1433,14 @@ void one_net(on_txn_t ** txn)
                                     one_net_set_channel(bs_msg.channel);
                                     if(bs_msg.num_repeaters)
                                     {
+                                        // repeaters now get the regular
+                                        // setup message
+                                        #if 0
                                         request_reserve_repeater(&bs_msg,
                                           &(bs_msg.repeaters[rptr_idx]),
+                                          &(bs_msg.repeaters[rptr_idx]));
+                                        #endif
+                                        send_bs_setup_msg(&bs_msg,
                                           &(bs_msg.repeaters[rptr_idx]));
                                     }
                                     else
