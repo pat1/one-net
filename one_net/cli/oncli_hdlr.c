@@ -3112,7 +3112,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         if(on_master_get_default_block_transfer_values(NULL, &bs_msg.dst,
           bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
-          &bs_msg.channel, &ack_nack) != ON_NACK_RSN_NO_ERROR)
+          &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
@@ -3128,7 +3128,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         if(on_client_get_default_block_transfer_values(&bs_msg.dst,
           bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
-          &bs_msg.channel, &ack_nack) != ON_NACK_RSN_NO_ERROR)
+          &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
@@ -3202,8 +3202,8 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(device_is_master)
     {
         if(on_master_get_default_stream_transfer_values(NULL, &bs_msg.dst,
-          time_ms, &bs_msg.data_rate, &bs_msg.channel, &ack_nack) !=
-          ON_NACK_RSN_NO_ERROR)
+          time_ms, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
+          &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
@@ -3217,7 +3217,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!device_is_master)
     {
         if(on_client_get_default_stream_transfer_values(&bs_msg.dst, time_ms,
-          &bs_msg.data_rate, &bs_msg.channel, &ack_nack) !=
+          &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout, &ack_nack) !=
           ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK

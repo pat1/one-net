@@ -1682,7 +1682,7 @@ on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t* src,
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
-  UInt8* channel, on_ack_nack_t* ack_nack)
+  UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
 {    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_client_t* src_client= client_info(src);
@@ -1697,6 +1697,8 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
     {
         dst = NULL;
     }
+    
+    *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
     
     
     *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
@@ -1806,7 +1808,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
 
     *nr = one_net_master_get_default_block_transfer_values(src_client,
       dst_client, transfer_size, priority, chunk_size, frag_delay, chunk_delay,
-      data_rate, channel, ack_nack);
+      data_rate, channel, timeout, ack_nack);
     return *nr;
 }
 
@@ -1864,7 +1866,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
 #ifdef _STREAM_MESSAGES_ENABLED
 on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_t* src,
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
-  on_ack_nack_t* ack_nack)
+  UInt16* timeout, on_ack_nack_t* ack_nack)
 {    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_client_t* src_client= client_info(src);
@@ -1879,6 +1881,8 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
     {
         dst = NULL;
     }    
+    
+    *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
     
     *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
     if(src && !src_client)
@@ -1979,7 +1983,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
     }
     
     *nr = one_net_master_get_default_stream_transfer_values(src_client,
-      dst_client, time_ms, data_rate, channel, ack_nack);
+      dst_client, time_ms, data_rate, channel, timeout, ack_nack);
     return *nr;
 }
 

@@ -133,6 +133,9 @@ enum
 
 #define ON_MAX_MSG_ID 4095
 
+//! Default timeout in milliseconds for block / stream
+#define DEFAULT_BLOCK_STREAM_TIMEOUT 3000
+
 
 extern const on_raw_did_t MASTER_RAW_DID;
 extern const on_encoded_did_t MASTER_ENCODED_DID;

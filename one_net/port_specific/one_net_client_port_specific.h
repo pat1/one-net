@@ -449,7 +449,7 @@ void one_net_client_single_txn_status(on_message_status_t status,
 on_nack_rsn_t one_net_client_get_default_block_transfer_values(
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
-  UInt8* channel, on_ack_nack_t* ack_nack);
+  UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
   
 void one_net_client_block_txn_status(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack);
@@ -463,7 +463,7 @@ void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
 #ifdef _STREAM_MESSAGES_ENABLED
 on_nack_rsn_t one_net_client_get_default_stream_transfer_values(
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
-  on_ack_nack_t* ack_nack);
+  UInt16* timeout, on_ack_nack_t* ack_nack);
   
 void one_net_client_stream_txn_status(block_stream_msg_t* msg,
   on_message_status_t status, on_ack_nack_t* ack_nack);
