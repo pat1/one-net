@@ -772,6 +772,8 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
     bs_msg->chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
     bs_msg->frag_dly = one_net_byte_stream_to_int16(
       &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+    bs_msg->chunk_pause = one_net_byte_stream_to_int16(
+      &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
     bs_msg->channel = msg[BLOCK_STREAM_SETUP_CHANNEL_IDX];
     bs_msg->data_rate = msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
     bs_msg->timeout = one_net_byte_stream_to_int16(
@@ -797,6 +799,8 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->chunk_size;
     one_net_int16_to_byte_stream(bs_msg->frag_dly,
       &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+    one_net_int16_to_byte_stream(bs_msg->chunk_pause,
+      &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
     msg[BLOCK_STREAM_SETUP_CHANNEL_IDX] = bs_msg->channel;
     msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
     one_net_int16_to_byte_stream(bs_msg->timeout,
