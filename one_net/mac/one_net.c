@@ -1310,6 +1310,12 @@ void one_net(on_txn_t ** txn)
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.num_repeaters = 0;
                                     #endif
+                                    bs_msg.estimated_completion_time =
+                                      MS_TO_TICK(estimate_block_transfer_time(
+                                      bs_msg.transfer_size, bs_msg.chunk_size,
+                                      get_bs_hops(bs_msg.flags), bs_msg.frag_dly,
+                                      bs_msg.chunk_pause, bs_msg.data_rate)) +
+                                      get_tick_count();
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
