@@ -1310,9 +1310,6 @@ void one_net(on_txn_t ** txn)
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.num_repeaters = 0;
                                     #endif
-                                    bs_msg.estimated_completion_time =
-                                      MS_TO_TICK(estimate_block_transfer_time(
-                                      &bs_msg)) + get_tick_count();
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
@@ -1345,6 +1342,14 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
                                 case ON_BS_DEVICE_PERMISSION:
+                                    if(get_bs_transfer_type(bs_msg.flags) ==
+                                      ON_BLK_TRANSFER)
+                                    {
+                                        bs_msg.estimated_completion_time =
+                                          get_tick_count() + MS_TO_TICK(
+                                          estimate_block_transfer_time(
+                                          &bs_msg));
+                                    }                              
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst);
                                     break;
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
