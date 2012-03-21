@@ -870,17 +870,31 @@ void eval_single_txn_status(on_message_status_t status,
     #if _DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
+        SInt8 i;
+        SInt8 num_payload_blocks = get_num_payload_blocks(msg_hdr.raw_pid);
+        SInt8 num_data_bytes = num_payload_blocks * ONE_NET_XTEA_BLOCK_SIZE
+          - ON_PLD_DATA_IDX;
+        
         oncli_send_msg("ests start:");
-        oncli_send_msg("message:%02X%02X%02X%02X%02X\n",
-          data[0], data[1], data[2], data[3], data[4]);
         oncli_send_msg("Hdr-->");
         print_msg_hdr(&msg_hdr);
+        
+        if(num_data_bytes > 0)
+        {
+            // TODO -- What do we do about invalid PIDs?
+            oncli_send_msg("Message Data:");
+            for(i = 0; i < num_data_bytes; i++)
+            {
+                oncli_send_msg("%02X", data[i]);
+            }
+        }
+        
         #ifndef _ONE_NET_MULTI_HOP
-        oncli_send_msg("retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
+        oncli_send_msg(", retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
           (*dst)[0], (*dst)[1]);
         #else
-        oncli_send_msg("retry=%d,hops=%d,dst=%02X%02X\nack_nack-->", retry_count,
-          hops, (*dst)[0], (*dst)[1]);
+        oncli_send_msg(", retry=%d,hops=%d,dst=%02X%02X\nack_nack-->",
+          retry_count, hops, (*dst)[0], (*dst)[1]);
         #endif
 
         print_ack_nack(ack_nack, get_raw_payload_len(msg_hdr.raw_pid) -  1 -
