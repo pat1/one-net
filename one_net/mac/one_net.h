@@ -856,8 +856,7 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-UInt32 estimate_block_transfer_time(UInt32 num_bytes, UInt8 chunk_size,
-  UInt8 hops, UInt16 fragment_delay, UInt16 chunk_pause_time, UInt8 data_rate);
+UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg);
 void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
   recipient_send_list, UInt8 num_repeaters, const on_encoded_did_t* const dst,
   const on_encoded_did_t* repeaters);
