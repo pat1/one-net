@@ -522,34 +522,38 @@ oncli_status_t oncli_print_features(on_features_t features)
 
 
 /*!
-    \brief Prints the current channel
+    \brief Prints a channel
+    
+    \param[in] channel The channel to print.
         
     \return ONCLI_SUCCESS If the channel was successfully output.
     \return ONCLI_CMD_FAIL If the cahnnel is invalid.
 */
-oncli_status_t oncli_print_channel(void)
+oncli_status_t oncli_print_channel(UInt8 channel)
 {
+    // Typecasts are here to override some "always true" warnings
+    // given certain configuration options dealing with channels.
     #ifdef _US_CHANNELS
-    if((SInt8)on_base_param->channel >= (SInt8)ONE_NET_MIN_US_CHANNEL &&
-      on_base_param->channel <= ONE_NET_MAX_US_CHANNEL)
+    if((SInt8) channel >= (SInt8)ONE_NET_MIN_US_CHANNEL &&
+      (SInt8) channel <= ONE_NET_MAX_US_CHANNEL)
     {
         // +1 since channels are stored 0 based, but output 1 based
         oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_US_STR,
-          on_base_param->channel - ONE_NET_MIN_US_CHANNEL + 1);
+          channel - ONE_NET_MIN_US_CHANNEL + 1);
     } // if a US channel //
     #endif
     #ifdef _EUROPE_CHANNELS
     #ifdef _US_CHANNELS
-    else if(on_base_param->channel >= ONE_NET_MIN_EUR_CHANNEL
-      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
+    else if(channel >= ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
     #else
-    if((SInt8) on_base_param->channel >= (SInt8)ONE_NET_MIN_EUR_CHANNEL
-      && on_base_param->channel <= ONE_NET_MAX_EUR_CHANNEL)
+    if((SInt8) channel >= (SInt8)ONE_NET_MIN_EUR_CHANNEL
+      && channel <= ONE_NET_MAX_EUR_CHANNEL)
     #endif
     {
         // +1 since channels are stored 0 based, but output 1 based
         oncli_send_msg(ONCLI_GET_CHANNEL_RESPONSE_FMT, ONCLI_EUR_STR,
-          on_base_param->channel - ONE_NET_MIN_EUR_CHANNEL + 1);
+          channel - ONE_NET_MIN_EUR_CHANNEL + 1);
     } // else if a European channel //
     #endif
     else

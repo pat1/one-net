@@ -1432,7 +1432,8 @@ static oncli_status_t list_cmd_hdlr(void)
     
     // print channel
     oncli_send_msg("\n\nChannel: ");
-    if((status = oncli_print_channel()) != ONCLI_SUCCESS)
+    if((status = oncli_print_channel(on_base_param->channel))
+      != ONCLI_SUCCESS)
     {
         return status;
     }
