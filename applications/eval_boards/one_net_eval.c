@@ -1468,6 +1468,16 @@ SInt8 one_net_get_alternate_channel(void)
 }
 
 
+one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer)
+{
+    // just a quick load function for testing.  Loads with values from 'a'
+    // to 'y' depending on the packet index.
+    one_net_memset(buffer, 'a' + (bs_msg->byte_idx % 25), ON_BS_DATA_PLD_SIZE);
+    return ONS_SUCCESS;
+}
+
+
 
 //! @} ONE-NET_eval_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END

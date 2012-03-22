@@ -391,6 +391,20 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg);
 */
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack);
+  
+
+/*!
+    \brief Retrieves the next block payload to send
+    
+    \param[in] bs_msg The parameters of the requested block or stream transfer,
+               which includes the packet index we want.
+    \param[out] buffer Buffer containing the bytes to send in the next packet
+                
+    \return ONS_SUCCESS if the buffer to send is acceptable and has been loaded.
+            The error code if there was a problem.
+*/
+one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer);
 #endif
 
 
