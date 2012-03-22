@@ -3907,6 +3907,69 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+// TODO -- Do we really want to require block messages for this function?
+
+
+/*!
+    \brief Calculates the estimated time, in milliseconds that it should take
+    for a response after a message is sent.
+    
+    Calculates the estimated time, in milliseconds that it should take
+    for a response after a message is sent.  This can be a very rough estimate.
+    The clock starts when the source device has sent the last bit of the data packet.
+    The clock stops when the last repeater sends the last bit of the response.
+
+    \param[in] data_len The length, in bytes, of the encoded data packet
+    \param[in] response_len The length, in bytes, of the encoded response packet
+    \param[in] dst_process_time The amount of the time the destination is expected
+               to take processing the packet (i.e. encrypting, decrypting, etc.,
+               including any time spent looking for a clear channel.  Does not include
+               the time that it takes to receive from / write to the transceiver.
+    \param[in] dst_process_time The amount of the time a repeater is expected
+               to take processing the packet (generally there is less work for a
+               repeater to do than the recipient because repeaters generally will
+               not need to decrypt or encrypt the packet), including any time spent
+               looking for a clear channel.  Does not include the time that it takes
+               to receive from / write to the transceiver.
+    \param[in] The data rate that the devices are receiving / transmitting at.
+
+    \return The estimated time in milliseconds between when the source sends the data
+            packet and receives the response packet.
+*/
+#ifdef _ONE_NET_MULTI_HOP
+UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
+  UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
+  UInt8 data_rate)
+#else
+UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
+  UInt8 dst_process_time, UInt8 data_rate)
+#endif 
+{
+    // The time between when a message is sent and when the response
+    // should be received is based on these factors...
+    // 
+    // 1. Amount of time devices are actually sending a message to
+    //    the transceiver.
+    // 2. The amount of time spent processing the message between receiving it
+    //    and sending it.
+    double dst_write_time = (1000 * response_len * 8) /
+      (38400 * (data_rate + 1));
+    double dst_time = dst_write_time + dst_process_time;
+    #ifndef _ONE_NET_MULTI_HOP
+    return (UInt16) dst_time;
+    #else
+    double rptr_data_write_time = hops * (1000 * data_len * 8) /
+      (38400 * (data_rate + 1));
+    double rptr_response_write_time = hops * (1000 * response_len * 8) /
+      (38400 * (data_rate + 1));
+    double rptr_process_time = 2 * hops * repeater_process_time;
+    return (UInt16) (dst_time + rptr_data_write_time +
+      rptr_response_write_time + rptr_process_time);
+    #endif
+    
+}
+
+
 /*!
     \brief Calculates the estimated time for a block transfer to complete
     

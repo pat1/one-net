@@ -211,7 +211,7 @@ typedef enum
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
     //! State used when changing a data rate and channel for block / stream
-    ON_BS_CHANGE_DR_CHANNEL,
+    ON_BS_CHANGE_DR_CHANNEL,//44
     
     //! State used when changing a data rate and channel for block / stream
     //! and sending a message
@@ -227,7 +227,7 @@ typedef enum
     
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
-    ON_BS_CHANGE_MY_DATA_RATE,
+    ON_BS_CHANGE_MY_DATA_RATE,//48
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,
@@ -239,7 +239,7 @@ typedef enum
     ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT,
     
     //! Waits for a response to a confirm route packet
-    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,
+    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,//4C
 
     //! Ask the device for permission
     ON_BS_DEVICE_PERMISSION,
@@ -251,7 +251,7 @@ typedef enum
     ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT,
     
     //! Wait for response from device
-    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,
+    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,//50
     
     //! Ask the master for device permission
     ON_BS_MASTER_DEVICE_PERMISSION,
@@ -263,7 +263,7 @@ typedef enum
     ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
     
     //! Wait for response from master
-    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,
+    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,//54
     
     //! Start state of requesting repeaters from master
     ON_BS_MASTER_REPEATER_PERMISSION_START,
@@ -275,7 +275,7 @@ typedef enum
     ON_BS_SEND_MASTER_REPEATER_PERMISSION,
     
     //! Wait for write to complete
-    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,//58
     
     //! Wait for response from master
     ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
@@ -287,7 +287,7 @@ typedef enum
     ON_BS_REPEATER_PERMISSION_START,
         
     //! Ask the master for repeater permission
-    ON_BS_REPEATER_PERMISSION,
+    ON_BS_REPEATER_PERMISSION,//5C
     
     //! Send master repeater permission packet
     ON_BS_SEND_REPEATER_PERMISSION,
@@ -864,6 +864,16 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
 on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
   const on_encoded_did_t* repeater);
+#endif
+
+// TODO -- Do we really want to require block messages for this function?
+#ifdef _ONE_NET_MULTI_HOP
+UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
+  UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
+  UInt8 data_rate);
+#else
+UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
+  UInt8 dst_process_time, UInt8 data_rate);
 #endif
 #endif
 
