@@ -653,9 +653,28 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #endif
     {
         // sending the real message
+        #ifndef _BLOCK_MESSAGES_ENABLED
         put_payload_msg_type(msg_type, raw_payload_bytes);
         one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
           (raw_pld_len - 1) - ON_PLD_DATA_IDX);
+        #else
+        UInt8 pld_idx = bs_msg ? ON_BS_DATA_PLD_SIZE : ON_PLD_DATA_IDX;
+        if(!bs_msg)
+        {
+            put_payload_msg_type(msg_type, raw_payload_bytes);
+        }
+        else
+        {
+            UInt32 blk_stream_value = ((txn->txn_type == ON_STREAM) ?
+              TICK_TO_MS(get_tick_count() - bs_msg->time) : bs_msg->byte_idx);
+            put_bs_chunk_idx(bs_msg->chunk_idx, raw_pld);
+            put_bs_chunk_size(bs_msg->chunk_idx, raw_pld);
+            put_block_pkt_idx(blk_stream_value, raw_pld);
+        }
+        
+        one_net_memmove(&raw_payload_bytes[pld_idx], raw_pld,
+          (raw_pld_len - 1) - pld_idx);
+        #endif
     }
       
     // compute the crc
