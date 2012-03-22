@@ -1498,7 +1498,12 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_COMMENCE:
                                     oncli_send_msg(
                                       "Commencing block / transfer\n");
-                                    // fall-through
+                                    bs_msg.byte_idx = 0;
+                                    bs_msg.chunk_idx = 0;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_PREPARE_DATA_PACKET;
+                                    ont_set_timer(ONT_BS_TIMER, 0);
+                                    break;
                                 default:
                                 {
                                     // abort for now.
@@ -1784,6 +1789,62 @@ void one_net(on_txn_t ** txn)
             break;
         } // case ON_LISTEN_FOR_DATA //
         
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BS_PREPARE_DATA_PACKET:
+        {
+            UInt8 transfer_type = get_bs_transfer_type(bs_msg.flags);
+            UInt16 raw_pid = ((transfer_type == ON_BLK_TRANSFER) ?
+              ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);
+              
+            one_net_status_t status;
+            // TODO -- I thinkt here's a global buffer somewhere so we don't
+            // need to set our own buffer.  However, the stack size shouldn't
+            // be very high here so it's no big deal.
+            UInt8 buffer[ON_BS_DATA_PLD_SIZE];
+            // TODO - consider making the on_sending_device_t* pointer
+            // part of block_stream_msg_t;
+            on_sending_device_t* device = (*get_sender_info)(&bs_msg.dst);
+            if(!device)
+            {
+                break; // should never get here.
+            }   
+            
+            if(!ont_expired(ONT_BS_TIMER))
+            {
+                break;
+            }
+            
+            if(!setup_pkt_ptr(raw_pid, buffer, device->msg_id, &data_pkt_ptrs))
+            {
+                break; // should never get here?
+            }
+            
+            if(transfer_type == ON_BLK_TRANSFER)
+            {
+                status = one_net_block_get_next_payload(&bs_msg, buffer);
+                if(status == ONS_SUCCESS)
+                {
+                    // just print out the payload and cancel for now.
+                    buffer[24] = 0; // add a NULL terminator if it isn't there
+                    oncli_send_msg("on_state = %02X buffer=%s. Terminate blk\n",
+                      on_state, buffer);
+                    bs_msg.transfer_in_progress = FALSE;
+                    on_state = ON_LISTEN_FOR_DATA;
+                }
+                else if(status == ONS_CANCELED)
+                {
+                    // TODO -- add cancel code.
+                }
+            }
+            else
+            {
+                // TODO -- get stream packet raw data.
+            }
+            
+            break;
+        }
+        #endif
+        
         case ON_SEND_PKT:
         #ifdef _ONE_NET_MASTER
         case ON_SEND_INVITE_PKT:
@@ -1798,8 +1859,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
         case ON_BS_SEND_REPEATER_PERMISSION:
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
+        case ON_BS_SEND_DATA_PKT:
         #endif
         {
+            // TODO -- add block / stream handling.
+            
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
@@ -1829,8 +1893,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
+        case ON_BS_SEND_DATA_WRITE_WAIT:
         #endif
         {
+            // TODO -- add handling for block / stream
+            
             if(one_net_write_done())
             {
                 UInt32 new_timeout_ms;
@@ -1898,9 +1965,12 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
+        case ON_BS_WAIT_FOR_DATA_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
+            // TODO -- add block /stream response handling
+            
             on_message_status_t msg_status;
             BOOL terminate_txn = FALSE;
             BOOL response_msg_or_timeout = FALSE; // will be set to true if
@@ -2410,7 +2480,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     \brief Finishes reception of a single data pkt
 
     \param[in/out] txn The single transaction
-    \param[in] sing_pkt_ptr A pointer to elemens of the parsed packet
+    \param[in] sing_pkt_ptr A pointer to elements of the parsed packet
     \param[in] raw_payload The decoded, decrypted payload
     \param[out] ack_nack The ACK or NACK reason, handle, and payload
 

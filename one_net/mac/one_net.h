@@ -301,8 +301,25 @@ typedef enum
     //! End state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_END,
     
-    //! Block or stream transactionready to commence
+    //! Block or stream transaction ready to commence
     ON_BS_COMMENCE,
+    
+    //! Ready or waiting to prepare a block or stream packet
+    ON_BS_PREPARE_DATA_PACKET,
+    
+    //! Sends a Block / Stream Data Packet
+    ON_BS_SEND_DATA_PKT,
+
+    //! Waits for the write to end
+    ON_BS_SEND_DATA_WRITE_WAIT,
+
+    //! Wait for the response to a block / stream data packet
+    ON_BS_WAIT_FOR_DATA_RESP,
+    
+    //! Pausing between chunks in a block / stream packet
+    ON_BS_CHUNK_PAUSE,
+
+
     
 #ifdef _IDLE	
 	//! do nothing
