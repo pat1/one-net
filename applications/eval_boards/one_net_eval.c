@@ -1468,6 +1468,7 @@ SInt8 one_net_get_alternate_channel(void)
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
 one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer)
 {
@@ -1476,6 +1477,23 @@ one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
     one_net_memset(buffer, 'a' + (bs_msg->byte_idx % 25), ON_BS_DATA_PLD_SIZE);
     return ONS_SUCCESS;
 }
+
+
+one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
+  on_ack_nack_t* ack_nack)
+{
+    oncli_send_msg("Block transaction cancelled\n");
+}
+
+  
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
+  on_ack_nack_t* ack_nack)
+{
+    oncli_send_msg("Stream transaction cancelled\n");
+}
+#endif
+#endif
 
 
 

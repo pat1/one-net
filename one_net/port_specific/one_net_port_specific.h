@@ -405,6 +405,15 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 */
 one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer);
+  
+  
+one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
+  on_ack_nack_t* ack_nack);
+  
+#ifdef _STREAM_MESSAGES_ENABLED
+one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
+  on_ack_nack_t* ack_nack);
+#endif
 #endif
 
 
