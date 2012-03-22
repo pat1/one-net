@@ -1498,6 +1498,8 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_COMMENCE:
                                     oncli_send_msg(
                                       "Commencing block / transfer\n");
+                                    bs_txn.key = (const one_net_xtea_key_t*)
+                                      on_base_param->current_key;
                                     bs_msg.byte_idx = 0;
                                     bs_msg.chunk_idx = 0;
                                     bs_msg.bs_on_state =
@@ -1819,11 +1821,19 @@ void one_net(on_txn_t ** txn)
                 break; // should never get here?
             }
             
+            bs_txn.pkt = encoded_pkt_bytes;
+            
             if(transfer_type == ON_BLK_TRANSFER)
             {
                 status = one_net_block_get_next_payload(&bs_msg, buffer);
                 if(status == ONS_SUCCESS)
                 {
+                    if(on_build_data_pkt(buffer, ON_APP_MSG, &data_pkt_ptrs,
+                      &bs_txn, device, &bs_msg) != ONS_SUCCESS)
+                    {
+                        break;
+                    }
+                    
                     // just print out the payload and cancel for now.
                     buffer[24] = 0; // add a NULL terminator if it isn't there
                     oncli_send_msg("on_state = %02X buffer=%s. Terminate blk\n",
