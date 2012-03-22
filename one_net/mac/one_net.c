@@ -1352,7 +1352,8 @@ void one_net(on_txn_t ** txn)
                                     if(get_bs_transfer_type(bs_msg.flags) ==
                                       ON_BLK_TRANSFER)
                                     {
-                                        bs_msg.estimated_completion_time =
+                                        // estimated completion time
+                                        bs_msg.time =
                                           get_tick_count() + MS_TO_TICK(
                                           estimate_block_transfer_time(
                                           &bs_msg));

@@ -474,7 +474,12 @@ typedef struct
     UInt16 timeout;
     on_encoded_did_t src; // originator of block message
     on_encoded_did_t dst; // recipient of block message
-    tick_t estimated_completion_time;
+    tick_t time; // this value can represent a variety of things.  Generally
+                 // for a repeater, it will represent the estimated time of
+                 // completion.  For the sender or the recipient of a stream
+                 // message, it will represent the start time of the stream
+                 // transfer.  For block transfers, it will also generally
+                 // represent the estimated completion tim eof the transfer.
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 num_repeaters;

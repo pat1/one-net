@@ -780,7 +780,7 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
     one_net_memmove(bs_msg->dst, &msg[BLOCK_STREAM_SETUP_DST_IDX],
       ON_ENCODED_DID_LEN);
-    bs_msg->estimated_completion_time = get_tick_count() +
+    bs_msg->time = get_tick_count() +
       MS_TO_TICK(one_net_byte_stream_to_int32(
       &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));
     set_bs_device_is_src(&(bs_msg->flags), is_my_did(&(bs_msg->src)));
@@ -811,9 +811,9 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     {
         tick_t est_tick = 0;
         tick_t cur_tick = get_tick_count();
-        if(cur_tick < bs_msg->estimated_completion_time)
+        if(cur_tick < bs_msg->time)
         {
-            est_tick = bs_msg->estimated_completion_time - cur_tick;
+            est_tick = bs_msg->time - cur_tick;
         }
         one_net_int32_to_byte_stream(TICK_TO_MS(est_tick),
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
