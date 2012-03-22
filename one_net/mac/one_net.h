@@ -721,8 +721,14 @@ one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
 BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id,
   on_pkt_t* pkt);
 
+#ifndef _BLOCK_MESSAGES_ENABLED
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+#else
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  block_stream_msg_t* bs_msg);
+#endif
 
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,

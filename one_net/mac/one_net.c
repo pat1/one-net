@@ -596,9 +596,16 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 }
 
 
+#ifndef _BLOCK_MESSAGES_ENABLED
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+#else
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  block_stream_msg_t* bs_msg)
+#endif
 {
+    // TODO -- add block / stream packet building code.
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
     SInt8 num_words = get_encoded_payload_len(pkt_ptrs->raw_pid);
@@ -1696,9 +1703,15 @@ void one_net(on_txn_t ** txn)
                 features_override = features_override ||
                   !features_known(device->features);
                 #endif
+                #ifndef _BLOCK_MESSAGES_ENABLED
                 if(on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   device)!= ONS_SUCCESS)
+                #else
+                if(on_build_data_pkt(single_msg.payload,
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
+                  device, NULL)!= ONS_SUCCESS)
+                #endif
                 {
                     // An error of some sort occurred.  Abort.
                     return; // no outstanding transaction
@@ -1987,9 +2000,17 @@ void one_net(on_txn_t ** txn)
                 // rebuild the packet                
                 if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
                   (*txn)->device->msg_id,
-                  &data_pkt_ptrs) && on_build_data_pkt(single_msg.payload,
+                  &data_pkt_ptrs) &&
+                  #ifndef _BLOCK_MESSAGES_ENABLED
+                  on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  (*txn)->device) == ONS_SUCCESS && on_complete_pkt_build(
+                  (*txn)->device) == ONS_SUCCESS &&
+                  #else
+                  on_build_data_pkt(single_msg.payload,
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
+                  (*txn)->device, NULL) == ONS_SUCCESS &&
+                  #endif
+                  on_complete_pkt_build(
                   &data_pkt_ptrs, single_msg.raw_pid) == ONS_SUCCESS)
                 {
                     // do nothing. everything worked.
