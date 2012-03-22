@@ -192,6 +192,62 @@ ONE_NET_INLINE void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
 }
 
 
+/* stores the chunk index in the raw payload buffer */
+ONE_NET_INLINE void put_bs_chunk_idx(UInt8 chunk_idx, UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX] & 0xF0) | (chunk_idx >> 2));
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F) | (chunk_idx << 6));
+}
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt8 get_bs_chunk_idx(UInt8* payload)
+{
+    UInt8 chunk_idx = ((payload[ON_BS_PLD_CHUNK_IDX] & 0x0F) << 2);
+    chunk_idx += (payload[ON_BS_PLD_CHUNK_IDX+1] >> 6);
+    return chunk_idx;
+}
+
+
+/* stores the chunk index in the raw payload buffer */
+ONE_NET_INLINE void put_bs_chunk_size(UInt8 chunk_size, UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | (chunk_size & 0x3F));
+}
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
+{
+    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
+}
+
+
+/* stores the packet index in the raw payload buffer */
+ONE_NET_INLINE void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
+{
+    UInt8 temp = payload[ON_BLOCK_PKT_PLD_IDX-1];
+    pkt_idx &= 0x00FFFFFF;
+    one_net_int32_to_byte_stream(pkt_idx, &payload[ON_BLOCK_PKT_PLD_IDX-1]);
+    payload[ON_BLOCK_PKT_PLD_IDX-1] = temp;
+}
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt8 get_block_pkt_idx(UInt8* payload)
+{
+    UInt32 pkt_idx = one_net_byte_stream_to_int32(
+      &payload[ON_BLOCK_PKT_PLD_IDX-1]);
+    return (pkt_idx & 0x00FFFFFF);
+}
+
+#define put_stream_pkt_time put_block_pkt_idx
+#define get_stream_pkt_time get_block_pkt_idx
+
+
 
 //! @} ONE-NET_APP_const
 //                                  CONSTANTS END

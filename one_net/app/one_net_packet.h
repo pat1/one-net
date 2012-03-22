@@ -603,6 +603,27 @@ enum
 };
 
 
+enum
+{
+    //! Index for the payload chunk index and size
+    ON_BS_PLD_CHUNK_IDX = ON_PLD_MSG_TYPE_IDX,
+    
+    //! Index for the block packet number or the stream time
+    ON_BLOCK_PKT_PLD_IDX = 4,
+    
+    //! Index for the packet index of time in a block payload
+    ON_BLOCK_PKT_IDX = ON_PLD_DATA_IDX + 2,
+    
+    //! Index for the time in a stream payload
+    ON_STREAM_TIME_IDX = ON_BLOCK_PKT_PLD_IDX,
+    
+    //! Index for the data
+    ON_BS_DATA_PLD_IDX = ON_BLOCK_PKT_IDX + 3,
+    
+    //! Data size in a block / stream data packet
+    ON_BS_DATA_PLD_SIZE = 4 * ONE_NET_XTEA_BLOCK_SIZE - ON_BS_DATA_PLD_IDX
+};
+
 
 //! Admin packet indexes
 enum
@@ -996,6 +1017,9 @@ ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 
 UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
 void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
+UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
+void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
+
 
 ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
 {
@@ -1020,8 +1044,7 @@ ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
     on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
 }
 
-
-
+    
     
 //! @} ONE-NET_PACKET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
