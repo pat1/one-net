@@ -229,10 +229,10 @@ ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
 /* stores the packet index in the raw payload buffer */
 ONE_NET_INLINE void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
 {
-    UInt8 temp = payload[ON_BLOCK_PKT_PLD_IDX-1];
+    UInt8 temp = payload[ON_BS_PLD_PKT_IDX-1];
     pkt_idx &= 0x00FFFFFF;
-    one_net_int32_to_byte_stream(pkt_idx, &payload[ON_BLOCK_PKT_PLD_IDX-1]);
-    payload[ON_BLOCK_PKT_PLD_IDX-1] = temp;
+    one_net_int32_to_byte_stream(pkt_idx, &payload[ON_BS_PLD_PKT_IDX-1]);
+    payload[ON_BS_PLD_PKT_IDX-1] = temp;
 }
 
 
@@ -240,7 +240,7 @@ ONE_NET_INLINE void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
 ONE_NET_INLINE UInt8 get_block_pkt_idx(UInt8* payload)
 {
     UInt32 pkt_idx = one_net_byte_stream_to_int32(
-      &payload[ON_BLOCK_PKT_PLD_IDX-1]);
+      &payload[ON_BS_PLD_PKT_IDX-1]);
     return (pkt_idx & 0x00FFFFFF);
 }
 

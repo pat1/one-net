@@ -608,17 +608,14 @@ enum
     //! Index for the payload chunk index and size
     ON_BS_PLD_CHUNK_IDX = ON_PLD_MSG_TYPE_IDX,
     
-    //! Index for the block packet number or the stream time
-    ON_BLOCK_PKT_PLD_IDX = 4,
-    
     //! Index for the packet index of time in a block payload
-    ON_BLOCK_PKT_IDX = ON_PLD_DATA_IDX + 2,
+    ON_BS_PLD_PKT_IDX = 4,
     
     //! Index for the time in a stream payload
-    ON_STREAM_TIME_IDX = ON_BLOCK_PKT_PLD_IDX,
+    ON_BS_STREAM_TIME_IDX = ON_BS_PLD_PKT_IDX,
     
     //! Index for the data
-    ON_BS_DATA_PLD_IDX = ON_BLOCK_PKT_IDX + 3,
+    ON_BS_DATA_PLD_IDX = ON_BS_PLD_PKT_IDX + 3,
     
     //! Data size in a block / stream data packet
     ON_BS_DATA_PLD_SIZE = 4 * ONE_NET_XTEA_BLOCK_SIZE - ON_BS_DATA_PLD_IDX
