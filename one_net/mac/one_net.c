@@ -1502,10 +1502,11 @@ void one_net(on_txn_t ** txn)
                                       on_base_param->current_key;
                                     bs_msg.byte_idx = 0;
                                     bs_msg.chunk_idx = 0;
-                                    bs_msg.bs_on_state =
-                                      ON_BS_PREPARE_DATA_PACKET;
+                                    on_state = ON_BS_PREPARE_DATA_PACKET;
                                     ont_set_timer(ONT_BS_TIMER, 0);
-                                    break;
+                                    one_net_memset(bs_msg.sent, 0,
+                                      sizeof(bs_msg.sent));
+                                    break;;
                                 default:
                                 {
                                     // abort for now.
@@ -1796,8 +1797,7 @@ void one_net(on_txn_t ** txn)
         {
             UInt8 transfer_type = get_bs_transfer_type(bs_msg.flags);
             UInt16 raw_pid = ((transfer_type == ON_BLK_TRANSFER) ?
-              ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);
-              
+              ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);              
             one_net_status_t status;
             // TODO -- I thinkt here's a global buffer somewhere so we don't
             // need to set our own buffer.  However, the stack size shouldn't
@@ -1823,7 +1823,7 @@ void one_net(on_txn_t ** txn)
                 break; // should never get here?
             }
             
-            
+            *txn = &bs_txn;
             if(transfer_type == ON_BLK_TRANSFER)
             {
                 status = one_net_block_get_next_payload(&bs_msg, buffer);
@@ -1835,12 +1835,7 @@ void one_net(on_txn_t ** txn)
                         break;
                     }
                     
-                    // just print out the payload and cancel for now.
-                    buffer[24] = 0; // add a NULL terminator if it isn't there
-                    oncli_send_msg("on_state = %02X buffer=%s. Terminate blk\n",
-                      on_state, buffer);
-                    bs_msg.transfer_in_progress = FALSE;
-                    on_state = ON_LISTEN_FOR_DATA;
+                    on_state++;
                 }
                 else if(status == ONS_CANCELED)
                 {
@@ -1872,9 +1867,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         case ON_BS_SEND_DATA_PKT:
         #endif
-        {
-            // TODO -- add block / stream handling.
-            
+        {            
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             {
@@ -1912,6 +1905,69 @@ void one_net(on_txn_t ** txn)
             if(one_net_write_done())
             {
                 UInt32 new_timeout_ms;
+                
+                #ifdef _BLOCK_MESSAGES_ENABLED
+                if(on_state == ON_BS_SEND_DATA_WRITE_WAIT)
+                {
+                    BOOL need_response = FALSE;
+                    new_timeout_ms = MS_TO_TICK(bs_msg.frag_dly);
+                    
+                    // save the state so we can get back to it if need be
+                    bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
+                    #ifdef _STREAM_MESSAGES_ENABLED
+                    if(get_bs_transfer_type(bs_msg.flags) == ON_STREAM_TRANSFER)
+                    {
+                        
+                    }
+                    else
+                    #endif
+                    {
+                        // mark the packet as sent.
+                        ont_set_timer(MS_TO_TICK(bs_msg.frag_dly));
+                        on_state = ON_BS_PREPARE_DATA_PACKET;
+                        
+                        // add a little debugging
+                        oncli_send_msg(
+                          "Sent block packet byte %ld chunk %d of %d.\n",
+                          bs_msg.byte_idx, bs_msg.chunk_idx, bs_msg.chunk_size);
+                        
+                        block_set_index_sent(bs_msg.chunk_idx, TRUE,
+                          bs_msg.sent);
+                        bs_msg.chunk_idx = block_get_lowest_unsent_index(
+                          bs_msg.sent, bs_msg.chunk_idx);
+
+                        // We need a response if any of the following is true...
+                        // 1. We are near the beginning (first 1000 bytes).
+                        // 2. We are in the last chunk of the transfer.
+                        // 3. We have transferred all the packets in this chunk.
+                        if(bs_msg.byte_idx < 40 ||
+                           (bs_msg.byte_idx + bs_msg.chunk_size *
+                           ON_BS_DATA_PLD_SIZE <= bs_msg.transfer_size))
+                        {
+                            bs_msg.chunk_idx =  -1;
+                        }
+                        
+                        need_response = (bs_msg.chunk_idx != -1);
+                    }
+                    
+                    if(need_response)
+                    {
+                        // TODO -- handle this.
+                        // For now just terminate.
+                        bs_msg.transfer_in_progress = FALSE;
+                        on_state = ON_LISTEN_FOR_DATA;
+                        
+                        // add a little debugging.
+                        oncli_send_msg("Block / Stream terminated.\n");
+                    }
+                    else
+                    {
+                        // this is for high priority.
+                        // TODO -- low priority.
+                        break;
+                    }
+                }
+                #endif
                 
                 #ifdef _DATA_RATE
                 if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)

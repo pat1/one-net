@@ -472,6 +472,11 @@ typedef struct
     UInt8 channel;
     UInt8 data_rate;
     UInt16 timeout;
+    UInt16 expected_time; // can mean different things depending on whther
+                         // you're the recipient or the sender.  For the
+                         // sender, it should be the average time between
+                         // sending a packet and getting a response.
+                         // Currently it has not meaning for anyone else.
     on_encoded_did_t src; // originator of block message
     on_encoded_did_t dst; // recipient of block message
     tick_t time; // this value can represent a variety of things.  Generally
@@ -491,7 +496,7 @@ typedef struct
     #endif
     SInt32 byte_idx;
     SInt8 chunk_idx;
-    UInt8 complete[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
+    UInt8 sent[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
            // bitwise "boolean" array, with each bit representing whether a
            // certain packet within a chunk has been received.  0 means FALSE.
            // 1 means TRUE.
@@ -680,6 +685,58 @@ ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
 {
     return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT) &
       BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
+}
+
+
+ONE_NET_INLINE BOOL block_get_index_sent(UInt8 index, const UInt8 array[5])
+{
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return FALSE;
+    }
+    
+    if(array[index / 8] & mask)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+ONE_NET_INLINE void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5])
+{
+    UInt8 array_index;
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return;
+    }
+    
+    array_index = index / 8;
+    
+    array[array_index] &= ~mask;
+    if(!rcvd)
+    {
+        return;
+    }
+    array[array_index] |= mask;
+}
+
+
+// returns -1 if all are sent
+ONE_NET_INLINE SInt8 block_get_lowest_unsent_index(const UInt8 array[5],
+  UInt8 chunk_size)
+{
+    UInt8 i;
+    for(i = 0; i < chunk_size; i++)
+    {
+        if(!block_get_index_sent(i, array))
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 #endif
 
