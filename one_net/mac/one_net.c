@@ -1923,6 +1923,10 @@ void one_net(on_txn_t ** txn)
                     else
                     #endif
                     {
+                        // there is some rounding error when dealing with UInt8,
+                        // so use a UInt32.
+                        UInt32 chunk_size_32 = bs_msg.chunk_size;
+                        
                         // mark the packet as sent.
                         ont_set_timer(ONT_BS_TIMER,
                           MS_TO_TICK(bs_msg.frag_dly));
@@ -1932,19 +1936,18 @@ void one_net(on_txn_t ** txn)
                         oncli_send_msg(
                           "Sent block packet byte %ld chunk %d of %d.\n",
                           bs_msg.byte_idx, bs_msg.chunk_idx, bs_msg.chunk_size);
-                        
                         block_set_index_sent(bs_msg.chunk_idx, TRUE,
                           bs_msg.sent);
                         bs_msg.chunk_idx = block_get_lowest_unsent_index(
                           bs_msg.sent, bs_msg.chunk_size);
-
+                          
                         // We need a response if any of the following is true...
                         // 1. We are near the beginning (first 1000 bytes).
                         // 2. We are in the last chunk of the transfer.
                         // 3. We have transferred all the packets in this chunk.
                         if(bs_msg.byte_idx < 40 ||
-                           (bs_msg.byte_idx + bs_msg.chunk_size *
-                           ON_BS_DATA_PLD_SIZE <= bs_msg.transfer_size))
+                           (bs_msg.byte_idx + chunk_size_32 *
+                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
                         {
                             bs_msg.chunk_idx =  -1;
                         }
