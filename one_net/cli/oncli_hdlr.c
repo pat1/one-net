@@ -3139,6 +3139,8 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
+    
+    return ONCLI_SNGH_INTERNAL_ERR;
 }
 #endif
 
@@ -3229,6 +3231,8 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           == ON_NACK_RSN_NO_ERROR ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
+    
+    return ONCLI_SNGH_INTERNAL_ERR;
 }
 #endif  
 

@@ -1699,6 +1699,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
     }
     
     *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
+    *chunk_size = DEFAULT_BS_CHUNK_SIZE;
     
     
     *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;

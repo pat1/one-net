@@ -1498,7 +1498,7 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_COMMENCE:
                                     oncli_send_msg(
                                       "Commencing block / transfer\n");
-                                    bs_txn.key = (const one_net_xtea_key_t*)
+                                    bs_txn.key = (one_net_xtea_key_t*)
                                       on_base_param->current_key;
                                     bs_msg.byte_idx = 0;
                                     bs_msg.chunk_idx = 0;
@@ -1923,7 +1923,8 @@ void one_net(on_txn_t ** txn)
                     #endif
                     {
                         // mark the packet as sent.
-                        ont_set_timer(MS_TO_TICK(bs_msg.frag_dly));
+                        ont_set_timer(ONT_BS_TIMER,
+                          MS_TO_TICK(bs_msg.frag_dly));
                         on_state = ON_BS_PREPARE_DATA_PACKET;
                         
                         // add a little debugging
