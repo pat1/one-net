@@ -1952,7 +1952,7 @@ void one_net(on_txn_t ** txn)
                             bs_msg.chunk_idx =  -1;
                         }
                         
-                        need_response = (bs_msg.chunk_idx != -1);
+                        need_response = (bs_msg.chunk_idx == -1);
                     }
                     
                     if(need_response)
