@@ -1811,18 +1811,18 @@ void one_net(on_txn_t ** txn)
                 break; // should never get here.
             }   
             
-            if(!ont_expired(ONT_BS_TIMER))
+            if(!ont_inactive_or_expired(ONT_BS_TIMER))
             {
                 break;
             }
             
+            bs_txn.pkt = encoded_pkt_bytes;
             if(!setup_pkt_ptr(raw_pid, bs_txn.pkt, device->msg_id,
               &data_pkt_ptrs))
             {
                 break; // should never get here?
             }
             
-            bs_txn.pkt = encoded_pkt_bytes;
             
             if(transfer_type == ON_BLK_TRANSFER)
             {
