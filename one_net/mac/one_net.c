@@ -1816,7 +1816,8 @@ void one_net(on_txn_t ** txn)
                 break;
             }
             
-            if(!setup_pkt_ptr(raw_pid, buffer, device->msg_id, &data_pkt_ptrs))
+            if(!setup_pkt_ptr(raw_pid, bs_txn.pkt, device->msg_id,
+              &data_pkt_ptrs))
             {
                 break; // should never get here?
             }
