@@ -1502,7 +1502,8 @@ void one_net(on_txn_t ** txn)
                                       on_base_param->current_key;
                                     bs_msg.byte_idx = 0;
                                     bs_msg.chunk_idx = 0;
-                                    on_state = ON_BS_PREPARE_DATA_PACKET;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_PREPARE_DATA_PACKET;
                                     ont_set_timer(ONT_BS_TIMER, 0);
                                     one_net_memset(bs_msg.sent, 0,
                                       sizeof(bs_msg.sent));
@@ -1935,7 +1936,7 @@ void one_net(on_txn_t ** txn)
                         block_set_index_sent(bs_msg.chunk_idx, TRUE,
                           bs_msg.sent);
                         bs_msg.chunk_idx = block_get_lowest_unsent_index(
-                          bs_msg.sent, bs_msg.chunk_idx);
+                          bs_msg.sent, bs_msg.chunk_size);
 
                         // We need a response if any of the following is true...
                         // 1. We are near the beginning (first 1000 bytes).
