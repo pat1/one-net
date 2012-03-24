@@ -842,6 +842,35 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 }
 
 
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Displays the contents of a block packet
+    
+    Displays the contents of a block packet
+
+    \param[in] blk_pkt The block packet to print.
+    \param[in] print_msg_id If true, print the message id.  If false, do not.
+*/
+void print_block_pkt(const block_pkt_t* blk_pkt, BOOL print_msg_id)
+{
+    oncli_send_msg("Block payload : 0x");
+    uart_write_int8_hex_array(blk_pkt->data, FALSE, ON_BS_DATA_PLD_SIZE);
+    
+    if(print_msg_id)
+    {
+        oncli_send_msg("\nMsg Id-->0x%03X : ", blk_pkt->msg_id);
+    }
+    else
+    {
+        oncli_send_msg("\n");
+    }
+
+    oncli_send_msg("Chunk Idx-->%d : Chunk Size-->%d : Byte Idx-->%ld\n",
+      blk_pkt->chunk_idx, blk_pkt->chunk_size, blk_pkt->byte_idx);
+}
+#endif
+
+
 #if _DEBUG_VERBOSE_LEVEL > 4
 void print_single(UInt8 pid, const UInt8* raw_payload)
 {
