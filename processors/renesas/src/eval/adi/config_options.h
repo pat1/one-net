@@ -131,7 +131,7 @@
     #endif
     
     // sleeping devices cannot be repeaters.
-    #if defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
+    #if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
 	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
 		    #define _ONE_NET_MH_CLIENT_REPEATER
 	    #endif
