@@ -1870,17 +1870,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             else
             {
                 // we are being requested as a repeater
-                if(!features_mh_repeat_capable(THIS_DEVICE_FEATURES))
-                {
-                    ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
-                }
-                else
-                {
-                    // TODO -- anything to check?
-                    
-                    // check application code
-                    one_net_client_repeater_requested(&bs_msg, ack_nack);
-                }
+                #ifndef _ONE_NET_MH_CLIENT_REPEATER
+                ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+                #else
+                // We are capable.  check application code
+                one_net_client_repeater_requested(&bs_msg, ack_nack);
+                #endif
             }
             
             if(!ack_nack->nack_reason)
