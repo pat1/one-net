@@ -505,8 +505,11 @@ typedef struct
 
 typedef struct
 {
+    UInt8 msg_id;
+    UInt8 chunk_idx;
+    UInt8 chunk_size;
     UInt32 byte_idx;
-    UInt8 data[25];
+    UInt8* data;
 } block_pkt_t;
 #endif
 
