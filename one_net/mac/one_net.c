@@ -668,7 +668,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
             UInt32 blk_stream_value = ((txn->txn_type == ON_STREAM) ?
               TICK_TO_MS(get_tick_count() - bs_msg->time) : bs_msg->byte_idx);
             put_bs_chunk_idx(bs_msg->chunk_idx, raw_payload_bytes);
-            put_bs_chunk_size(bs_msg->chunk_idx, raw_payload_bytes);
+            put_bs_chunk_size(bs_msg->chunk_size, raw_payload_bytes);
             put_block_pkt_idx(blk_stream_value, raw_payload_bytes);
         }
         
