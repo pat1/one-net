@@ -1499,6 +1499,23 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 #endif
                                 case ON_BS_COMMENCE:
+                                {
+                                    on_sending_device_t* device =
+                                      (*get_sender_info)(&bs_msg.dst);
+                                    if(!device)
+                                    {
+                                        // somehow we lost track of the device.
+                                        // Abort here?
+                                        
+                                        // TODO -- worry about it later (but soon!)
+                                        // Just abort for now in a non-graceful way
+                                        bs_msg.transfer_in_progress = FALSE;
+                                        on_state = ON_LISTEN_FOR_DATA;
+                                        return;
+                                    }
+                                    device->msg_id++;
+                                    
+                                    
                                     oncli_send_msg(
                                       "Commencing block / transfer\n");
                                     bs_txn.key = (one_net_xtea_key_t*)
@@ -1510,7 +1527,8 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, 0);
                                     one_net_memset(bs_msg.sent, 0,
                                       sizeof(bs_msg.sent));
-                                    break;;
+                                    break;
+                                }
                                 default:
                                 {
                                     // abort for now.
@@ -1849,12 +1867,26 @@ void one_net(on_txn_t ** txn)
                 status = one_net_block_get_next_payload(&bs_msg, buffer);
                 if(status == ONS_SUCCESS)
                 {
+                    // fill in the addresses
+                    if(on_build_my_pkt_addresses(&data_pkt_ptrs, &bs_msg.dst,
+                      NULL) != ONS_SUCCESS)
+                    {
+                        break;
+                    }                    
                     if(on_build_data_pkt(buffer, ON_APP_MSG, &data_pkt_ptrs,
                       &bs_txn, device, &bs_msg) != ONS_SUCCESS)
                     {
                         break;
                     }
                     
+                    // now finish building the packet.
+                    if(on_complete_pkt_build(&data_pkt_ptrs, raw_pid) !=
+                      ONS_SUCCESS)
+                    {
+                        break;                        
+                    }
+                    
+                    bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
                     on_state++;
                 }
                 else if(status == ONS_CANCELED)
