@@ -1272,6 +1272,7 @@ void one_net(on_txn_t ** txn)
                               single_msg.msg_type == ON_ADMIN_MSG &&
                               single_msg.payload[0] == ON_CHANGE_DATA_RATE)
                             {
+                                #ifdef _ONE_NET_MULTI_HOP
                                 // add any repeaters.
                                 UInt8 i;
                                 on_did_unit_t did_unit;
@@ -1284,6 +1285,7 @@ void one_net(on_txn_t ** txn)
                                     add_recipient_to_recipient_list(
                                       recipient_send_list_ptr, &did_unit);
                                 }
+                                #endif
                             }
                             else
                             #endif
