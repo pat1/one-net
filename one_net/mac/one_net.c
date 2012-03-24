@@ -2848,8 +2848,18 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     on_data_t type = ON_NO_TXN;
     UInt8* pkt_bytes;
-
+    BOOL src_is_master;
     
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    BOOL high_priority_bs = (bs_msg.transfer_in_progress && get_bs_priority(
+      bs_msg.flags) > ONE_NET_LOW_PRIORITY);
+    BOOL src_is_bs_endpoint;
+    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    BOOL dst_is_master, dst_is_bs_endpoint;
+    #endif
+    #endif
+
+
     if(one_net_look_for_pkt(ONE_NET_WAIT_FOR_SOF_TIME) != ONS_SUCCESS)
     {
         return ONS_READ_ERR;
@@ -2910,6 +2920,25 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     src_match = is_broadcast_did(&expected_src_did) ||
       on_encoded_did_equal(&expected_src_did,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+      
+    // TODO -- should master messages ever be discarded?
+    src_is_master = is_master_did(&bs_msg.src,
+      &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+      
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    src_is_bs_endpoint = on_encoded_did_equal(&bs_msg.src,
+      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
+      on_encoded_did_equal(&bs_msg.dst,
+      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    dst_is_bs_endpoint = on_encoded_did_equal(&bs_msg.src,
+      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
+      on_encoded_did_equal(&bs_msg.dst,
+      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+    dst_is_master = is_master_did(&bs_msg.src,
+      &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+    #endif
+    #endif
     
     #ifdef _ONE_NET_MULTI_HOP
     packet_is_mh = packet_is_multihop(raw_pid);
@@ -2930,6 +2959,26 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         if(dst_is_me || device_is_master || txn || !packet_is_mh)
         {
             return ONS_BAD_PARAM;
+        }
+        
+        // if we are a repeater in the middle of a high-priority block / stream
+        // message and neither the source or the destination is an endpoint or
+        // the master, we won't repeat the packet.
+        if(high_priority_bs)
+        {
+            if(get_bs_device_is_src(bs_msg.flags) ||
+              get_bs_device_is_dst(bs_msg.flags))
+            {
+                return ONS_BUSY; // we don't repeat packets if we are an
+                                 // endpoint
+            }
+            
+            if(!src_is_master && !src_is_bs_endpoint && !dst_is_master &&
+              !dst_is_bs_endpoint)
+            {
+                return ONS_BUSY; // only repeat packets that might be part of
+                                 // the block / stream transaction.
+            }
         }
         
         // we'll repeat it if there are any hops left.
