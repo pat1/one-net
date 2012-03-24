@@ -820,10 +820,12 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack);
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload);
+on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
 #endif
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload);
+on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
 #endif
 #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,

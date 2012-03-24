@@ -511,6 +511,26 @@ typedef struct
     UInt32 byte_idx;
     UInt8* data;
 } block_pkt_t;
+
+
+// exact same as block_pkt_t except it has time instead of byte_idx.  You
+// can typecast easily from one to the other given that the sizes and order of
+// the elements are the same.
+typedef struct
+{
+    UInt16 msg_id;
+    UInt8 chunk_idx; // not really used much for stream packets
+    UInt8 chunk_size; // not really used much for stream packets
+    UInt32 time; // in milliseconds, not ticks
+    UInt8* data;
+} stream_pkt_t;
+
+
+typedef union
+{
+    block_pkt_t block_pkt;
+    stream_pkt_t stream_pkt;
+} block_stream_pkt_t;
 #endif
 
 

@@ -1647,9 +1647,65 @@ void one_net(on_txn_t ** txn)
                         
                         if(this_txn == &bs_txn)
                         {
-                            // For now, just print something out.
-                            oncli_send_msg("Rcv block / stream packet\n");
+                            BOOL respond = FALSE;
+                            on_message_status_t msg_status = ON_MSG_IGNORE;
+                            block_stream_pkt_t bs_pkt;
+                            BOOL reject_msg_id; // TODO -- check message id.
+                            
+                            #ifdef _STREAM_MESSAGES_ENABLED
+                            BOOL is_stream_txn = (get_bs_transfer_type(
+                              bs_msg.flags) == ON_STREAM_TRANSFER);
+                            #endif
                             *txn = 0;
+                            
+                            if(!on_parse_bs_pld(bs_txn.pkt, &bs_pkt))
+                            {
+                                break;
+                            }
+                            
+                            #ifdef _STREAM_MESSAGES_ENABLED
+                            if(is_stream_txn)
+                            {
+                                msg_status = rx_stream_data(&bs_txn, &bs_msg,
+                                  &bs_pkt.stream_pkt, &ack_nack);
+                            }
+                            else
+                            #endif
+                            {
+                                BOOL accept_packet = FALSE;
+                                respond = (bs_pkt.block_pkt.chunk_idx + 1 ==
+                                  bs_pkt.block_pkt.chunk_size);
+                                msg_status = rx_block_data(&bs_txn, &bs_msg,
+                                  &bs_pkt.block_pkt, &ack_nack);
+                                switch(msg_status)
+                                {
+                                    case ON_MSG_ACCEPT_CHUNK:
+                                        accept_packet = TRUE;
+                                    case ON_MSG_REJECT_CHUNK:
+                                        one_net_memset(bs_msg.sent,
+                                          (accept_packet ? 0xFF : 0),
+                                          sizeof(bs_msg.sent));
+                                        break;
+                                    case ON_MSG_ACCEPT_PACKET:
+                                        accept_packet = TRUE;
+                                    case ON_MSG_REJECT_PACKET:
+                                        block_set_index_sent(bs_msg.chunk_idx,
+                                          accept_packet, bs_msg.sent);
+                                }
+                            }
+                            
+                            if(respond)
+                            {
+                                // TODO -- build the response!
+                                
+                                // we'll send back a reply.
+                                *txn = &response_txn;
+                                on_state = ON_SEND_SINGLE_DATA_RESP;
+                                response_txn.priority = ONE_NET_HIGH_PRIORITY;
+                                
+                                // send the response immediately.
+                                ont_set_timer((*txn)->next_txn_timer, 0);
+                            }
                         }
                     }
                     
@@ -2848,17 +2904,19 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t rx_block_data(on_txn_t** txn, UInt8* raw_payload)
+on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    return ONS_SUCCESS;
+    return ON_MSG_IGNORE;
 }
 #endif
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t rx_stream_data(on_txn_t** txn, UInt8* raw_payload)
+on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
-    return ONS_SUCCESS;
+    return ON_MSG_IGNORE;
 }
 #endif
 

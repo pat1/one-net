@@ -495,7 +495,7 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, UInt32* const msg_data);
 #ifdef _BLOCK_MESSAGES_ENABLED
-BOOL on_parse_block_pld(const UInt8* buffer, block_pkt_t* block_pkt);
+BOOL on_parse_bs_pld(const UInt8* buffer, block_stream_pkt_t* bs_pkt);
 #endif
 
 

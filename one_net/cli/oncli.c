@@ -844,29 +844,47 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 /*!
-    \brief Displays the contents of a block packet
+    \brief Displays the contents of a block / stream packet
     
-    Displays the contents of a block packet
+    Displays the contents of a block / stream packet
 
-    \param[in] blk_pkt The block packet to print.
+    \param[in] blk_pkt The block or stream packet to print.
     \param[in] print_msg_id If true, print the message id.  If false, do not.
+    \param[in] packet_is_stream If true, this is a stream packet.  Otherwise is
+               is a block packet.
 */
-void print_block_pkt(const block_pkt_t* blk_pkt, BOOL print_msg_id)
+#ifndef _STREAM_MESSAGES_ENABLED
+void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id)
+#else
+void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
+  BOOL packet_is_stream)
+#endif
 {
+    #ifndef _STREAM_MESSAGES_ENABLED
     oncli_send_msg("Block payload : 0x");
-    uart_write_int8_hex_array(blk_pkt->data, FALSE, ON_BS_DATA_PLD_SIZE);
+    #else
+    oncli_send_msg("%s payload : 0x", packet_is_stream ? "Stream" : "Block");
+    #endif
+    
+    uart_write_int8_hex_array(bs_pkt->block_pkt.data, FALSE,
+      ON_BS_DATA_PLD_SIZE);
     
     if(print_msg_id)
     {
-        oncli_send_msg("\nMsg Id-->0x%03X : ", blk_pkt->msg_id);
+        oncli_send_msg(" : Msg Id-->0x%03X", bs_pkt->block_pkt.msg_id);
     }
-    else
-    {
-        oncli_send_msg("\n");
-    }
-
-    oncli_send_msg("Chunk Idx-->%d : Chunk Size-->%d : Byte Idx-->%ld\n",
-      blk_pkt->chunk_idx, blk_pkt->chunk_size, blk_pkt->byte_idx);
+    
+    oncli_send_msg(" : Chunk Idx-->%d : Chunk Size-->%d : ",
+      bs_pkt->block_pkt.chunk_idx, bs_pkt->block_pkt.chunk_size);    
+    
+    #ifndef _STREAM_MESSAGES_ENABLED
+    oncli_send_msg("Byte Idx-->%ld\n", bs_pkt->block_pkt.byte_idx);
+    #else
+    // note that stream_pkt.time and block_pkt.byte_idx are both UInt32, so
+    // just print block_pkt.byte_idx.
+    oncli_send_msg("%s-->%ld\n",
+      (packet_is_stream ? "Time" : "Byte Idx"), bs_pkt->block_pkt.byte_idx);
+    #endif
 }
 #endif
 

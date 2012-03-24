@@ -168,7 +168,12 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
 #ifdef _BLOCK_MESSAGES_ENABLED
-void print_block_pkt(const block_pkt_t* blk_pkt, BOOL print_msg_id);
+#ifndef _STREAM_MESSAGES_ENABLED
+void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id);
+#else
+void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
+  BOOL packet_is_stream);
+#endif
 #endif
 #if _DEBUG_VERBOSE_LEVEL > 4
 void print_single(UInt8 pid, const UInt8* raw_payload);

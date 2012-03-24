@@ -160,6 +160,13 @@ typedef enum
     ON_MSG_IGNORE, //! Message should be ignored.  ONE-NET should not send a response.
                //! This doesn't mean a response won't be sent.  It could be sent
                //! by the application code later.
+    ON_MSG_ACCEPT_PACKET, //! A block / stream packet should be marked as received
+    ON_MSG_REJECT_PACKET, //! A block / stream packet should be marked as not received
+    ON_MSG_ACCEPT_CHUNK, //! A block / stream chunk should be marked as received
+    ON_MSG_REJECT_CHUNK, //! A block / stream chunk should be marked as not received
+    ON_MSG_TERMINATE,    //! A block / stream transfer should terminate.  Basically the
+                         //! same as ON_MSG_ABORT.  ONE-NET will treat these as identical.
+                         //! The application code may treat them differently.
     ON_MSG_INTERNAL_ERR, //! Represents an internal error
     ON_NUM_MESSAGE_STATUS_CODES,
     
