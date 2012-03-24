@@ -2922,8 +2922,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
     // TODO -- should master messages ever be discarded?
-    src_is_master = is_master_did(&bs_msg.src,
-      &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+    src_is_master = is_master_did(
+      (const on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
     #ifdef _BLOCK_MESSAGES_ENABLED
     src_is_bs_endpoint = on_encoded_did_equal(&bs_msg.src,
@@ -2935,7 +2935,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
       on_encoded_did_equal(&bs_msg.dst,
       (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
-    dst_is_master = is_master_did(&bs_msg.src,
+    dst_is_master = is_master_did((const on_encoded_did_t*)
       &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
     #endif
     #endif
