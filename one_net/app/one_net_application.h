@@ -237,7 +237,7 @@ ONE_NET_INLINE void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
 
 
 /* gets the chunk index from the raw payload buffer */
-ONE_NET_INLINE UInt8 get_block_pkt_idx(UInt8* payload)
+ONE_NET_INLINE UInt32 get_block_pkt_idx(UInt8* payload)
 {
     UInt32 pkt_idx = one_net_byte_stream_to_int32(
       &payload[ON_BS_PLD_PKT_IDX-1]);
