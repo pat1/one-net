@@ -1184,6 +1184,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_MASTER_REPEATER_PERMISSION:
         case ON_BS_MASTER_REPEATER_PERMISSION_END:
         case ON_BS_COMMENCE:
+        case ON_BS_CHUNK_PAUSE:
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -1546,6 +1547,15 @@ void one_net(on_txn_t ** txn)
                       &encoded_pkt_bytes[ON_MAX_ENCODED_DATA_PKT_SIZE];
                     single_txn.pkt = encoded_pkt_bytes;
                     this_txn = &single_txn;
+                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    bs_txn.pkt = encoded_pkt_bytes;
+                    if(bs_msg.transfer_in_progress &&
+                      get_bs_device_is_dst(bs_msg.flags))
+                    {
+                        this_txn = &bs_txn;
+                    }
+                    #endif
+
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
 
@@ -1615,6 +1625,13 @@ void one_net(on_txn_t ** txn)
                             {
                                 *txn = 0;
                             }
+                        }
+                        
+                        if(this_txn == &bs_txn)
+                        {
+                            // For now, just print something out.
+                            oncli_send_msg("Rcv block / stream packet\n");
+                            *txn = 0;
                         }
                     }
                     
@@ -3061,8 +3078,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               #endif
               break;
             case ON_SINGLE:
-              if(*this_txn != &single_txn)
+              if(*this_txn != &single_txn && *this_txn != &bs_txn)
               {
+                  *this_txn = &single_txn;
                   return ONS_UNHANDLED_PKT;
               }
               break;
