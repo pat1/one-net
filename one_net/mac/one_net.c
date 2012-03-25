@@ -65,6 +65,7 @@
 #ifdef _ONE_NET_MASTER
 #include "one_net_master.h"
 #endif
+#include "one_net_timer.h"
 
 //==============================================================================
 //                                  CONSTANTS
@@ -1669,6 +1670,18 @@ void one_net(on_txn_t ** txn)
                             {
                                 msg_status = rx_stream_data(&bs_txn, &bs_msg,
                                   &bs_pkt.stream_pkt, &ack_nack);
+                                  
+                                if(msg_status == ON_MSG_RESPOND)
+                                {
+                                    // Now reset some timers so we don't timeout.
+                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #ifdef _DATA_RATE
+                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #endif
+                                }
+                                                                  
                                 respond = (bs_pkt.stream_pkt.chunk_idx == 0 &&
                                   bs_pkt.stream_pkt.chunk_size == 0 &&
                                   msg_status == ON_MSG_RESPOND);
@@ -1678,6 +1691,18 @@ void one_net(on_txn_t ** txn)
                             {
                                 msg_status = rx_block_data(&bs_txn, &bs_msg,
                                   &bs_pkt.block_pkt, &ack_nack);
+                                  
+                                if(msg_status == ON_MSG_RESPOND)
+                                {
+                                    // Now reset some timers so we don't timeout.
+                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #ifdef _DATA_RATE
+                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #endif
+                                }  
+                                  
                                 respond = (bs_pkt.block_pkt.chunk_idx + 1 ==
                                   bs_pkt.block_pkt.chunk_size) &&
                                   (msg_status == ON_MSG_RESPOND);

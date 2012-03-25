@@ -1503,6 +1503,7 @@ on_message_status_t eval_block_chunk_received(
   on_ack_nack_t* ack_nack)
 {
     // TODO -- display the chunk
+    oncli_send_msg("Rcvd Chunk %ld-%d\n", byte_idx, chunk_size);
     return ON_MSG_ACCEPT_CHUNK;
 }
 
@@ -1523,6 +1524,11 @@ on_message_status_t eval_block_chunk_received(
 on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
+    #ifndef _STREAM_MESSAGES_ENABLED
+    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
+    #else
+    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
+    #endif
     return ON_MSG_ACCEPT_PACKET;
 }
 
