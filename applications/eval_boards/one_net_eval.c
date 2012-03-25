@@ -1485,12 +1485,72 @@ one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
     oncli_send_msg("Block transaction cancelled\n");
 }
 
+
+/*!
+    \brief Called when a chunk of a block has been received.
+	
+    \param[in] bs_msg The block / stream message
+    \param[in] byte_idx The byte index of the start of the chunk
+    \param[in] chunk_size The size of the chunk
+    \param[out] The ACK or NACK that should be returned in the response, if any
+                 
+    \return ON_MSG_ACCEPT_CHUNK to mark the chunk as valid and move on.
+            ON_MSG_REJECT_CHUNK to force the other side to send the entire chunk again.
+            See on_message_status_t for other options.
+*/
+on_message_status_t eval_block_chunk_received(
+  block_stream_msg_t* bs_msg, UInt32 byte_idx, UInt8 chunk_size,
+  on_ack_nack_t* ack_nack)
+{
+    // TODO -- display the chunk
+    return ON_MSG_RESPOND;
+}
+
+
+/*!
+    \brief Handles the received block packet.
+	
+    \param[in] txn The block / stream transaction
+    \param[in] bs_msg The block / stream message
+    \param[in] block_pkt The packet received
+    \param[out] The ACK or NACK that should be returned in the response, if any
+                 
+    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+            See on_message_status_t for other options.
+*/
+on_message_status_t eval_handle_block(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_RESPOND;
+}
+
   
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
   on_ack_nack_t* ack_nack)
 {
     oncli_send_msg("Stream transaction cancelled\n");
+}
+
+
+/*!
+    \brief Handles the received stream packet.
+	
+    \param[in] txn The block / stream transaction
+    \param[in] bs_msg The block / stream message
+    \param[in] stream_pkt The packet received
+    \param[out] The ACK or NACK that should be returned in the response, if any
+                 
+    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+            See on_message_status_t for other options.
+*/
+on_message_status_t eval_handle_stream(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
+{
+    // TODO -- print the packet
+    return ON_MSG_RESPOND;
 }
 #endif
 #endif
