@@ -2972,7 +2972,8 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
     ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
     if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
     {
-        // TODO -- pass it to the application code.
+        msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
+          ack_nack);
         switch(msg_status)
         {
             case ON_MSG_ACCEPT_PACKET:
@@ -2987,16 +2988,39 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
     if(block_get_lowest_unsent_index(bs_msg->sent, expected_chunk_size) == -1)
     {
         // chunk has been received.
-        // TODO -- call application code.
-        bs_msg->byte_idx += expected_chunk_size;
-        one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
-        if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+        #if !defined(_ONE_NET_MASTER)
+        msg_status = one_net_client_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        #elif !defined(_ONE_NET_CLIENT)
+        msg_status = one_net_master_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        #else
+        if(device_is_master)
         {
-            // not really a NACK, but that's OK.  The sending device will now
-            // sync.
-            ack_nack->handle = ON_NACK_VALUE;
-            ack_nack->payload->nack_value = bs_msg->byte_idx;
-            ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+            msg_status = one_net_master_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        }
+        else
+        {
+            msg_status = one_net_client_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        }
+        #endif
+        
+        switch(msg_status)
+        {
+            case ON_MSG_ACCEPT_CHUNK:
+                bs_msg->byte_idx += expected_chunk_size;
+                if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+                {
+                    // not really a NACK, but that's OK.  The sending device will now
+                    // sync.
+                    ack_nack->handle = ON_NACK_VALUE;
+                    ack_nack->payload->nack_value = bs_msg->byte_idx;
+                    ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+                }
+            case ON_MSG_REJECT_CHUNK:
+                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
         }
     }
     

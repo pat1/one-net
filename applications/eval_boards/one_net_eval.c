@@ -1503,7 +1503,7 @@ on_message_status_t eval_block_chunk_received(
   on_ack_nack_t* ack_nack)
 {
     // TODO -- display the chunk
-    return ON_MSG_RESPOND;
+    return ON_MSG_ACCEPT_CHUNK;
 }
 
 
@@ -1516,13 +1516,14 @@ on_message_status_t eval_block_chunk_received(
     \param[out] The ACK or NACK that should be returned in the response, if any
                  
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_ACCEPT_PACKET if the packet is valid and a response should be sent
             ON_MSG_IGNORE if no reponse should occur.
             See on_message_status_t for other options.
 */
 on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_RESPOND;
+    return ON_MSG_ACCEPT_PACKET;
 }
 
   
