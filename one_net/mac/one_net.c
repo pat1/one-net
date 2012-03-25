@@ -1914,9 +1914,13 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_PREPARE_DATA_PACKET:
         {
+            #ifdef _STREAM_MESSAGES_ENABLED
             UInt8 transfer_type = get_bs_transfer_type(bs_msg.flags);
             UInt16 raw_pid = ((transfer_type == ON_BLK_TRANSFER) ?
-              ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);              
+              ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);
+            #else
+            UInt16 raw_pid = ONE_NET_RAW_BLOCK_DATA;
+            #endif            
             one_net_status_t status;
             // TODO -- I thinkt here's a global buffer somewhere so we don't
             // need to set our own buffer.  However, the stack size shouldn't
@@ -1943,7 +1947,9 @@ void one_net(on_txn_t ** txn)
             }
             
             *txn = &bs_txn;
+            #ifdef _STREAM_MESSAGES_ENABLED
             if(transfer_type == ON_BLK_TRANSFER)
+            #endif
             {
                 status = one_net_block_get_next_payload(&bs_msg, buffer);
                 if(status == ONS_SUCCESS)
@@ -1975,10 +1981,12 @@ void one_net(on_txn_t ** txn)
                     // TODO -- add cancel code.
                 }
             }
+            #ifdef _STREAM_MESSAGES_ENABLED
             else
             {
                 // TODO -- get stream packet raw data.
             }
+            #endif
             
             break;
         }
