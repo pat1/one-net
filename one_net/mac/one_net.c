@@ -1645,6 +1645,7 @@ void one_net(on_txn_t ** txn)
                             }
                         }
                         
+                        #ifdef _BLOCK_MESSAGES_ENABLED
                         if(this_txn == &bs_txn)
                         {
                             BOOL respond;
@@ -1730,6 +1731,7 @@ void one_net(on_txn_t ** txn)
                                 *txn = &response_txn;
                             }
                         }
+                        #endif
                     }
                     
                     #ifdef _DATA_RATE
@@ -3159,6 +3161,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             return ONS_BAD_PARAM;
         }
         
+        #ifdef _BLOCK_MESSAGES_ENABLED
         // if we are a repeater in the middle of a high-priority block / stream
         // message and neither the source or the destination is an endpoint or
         // the master, we won't repeat the packet.
@@ -3178,6 +3181,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
                                  // the block / stream transaction.
             }
         }
+        #endif
         
         // we'll repeat it if there are any hops left.
         repeat_this_packet = TRUE;
@@ -3257,9 +3261,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               #endif
               break;
             case ON_SINGLE:
+              #ifdef _BLOCK_MESSAGES_ENABLED
               if(*this_txn != &single_txn && *this_txn != &bs_txn)
+              #else
+              if(*this_txn != &single_txn)
+              #endif
               {
-                  *this_txn = &single_txn;
+                  *this_txn = &single_txn; // TODO -- why is this line here for BAD packets?
                   return ONS_UNHANDLED_PKT;
               }
               break;
