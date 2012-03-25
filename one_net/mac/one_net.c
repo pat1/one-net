@@ -1501,8 +1501,20 @@ void one_net(on_txn_t ** txn)
                                 #endif
                                 case ON_BS_COMMENCE:
                                 {
+                                    #ifdef _ONE_NET_MULTI_HOP
+                                    UInt16 data_pid = ONE_NET_RAW_BLOCK_DATA;
+                                    #endif
+                                    UInt16 response_pid =
+                                      ONE_NET_RAW_SINGLE_DATA_ACK;
                                     on_sending_device_t* device =
                                       (*get_sender_info)(&bs_msg.dst);
+                                    #ifdef _ONE_NET_MULTI_HOP
+                                    data_pid |= (get_default_num_blocks(
+                                      data_pid) << 8);
+                                    #endif
+                                    response_pid |= (get_default_num_blocks(
+                                      response_pid) << 8);
+                                      
                                     if(!device)
                                     {
                                         // somehow we lost track of the device.
@@ -1528,6 +1540,25 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, 0);
                                     one_net_memset(bs_msg.sent, 0,
                                       sizeof(bs_msg.sent));
+                                    
+                                    // we'll make fairly long process times.
+                                    // Things will get corrected soon enough
+                                    // anyway.  JUst make the processing time
+                                    // 20 ms for end devices and 10 ms for
+                                    // repeaters.
+                                    #if 0
+                                    #ifdef _ONE_NET_MULTI_HOP
+                                    bs_msg.time = estimate_response_time(
+                                      get_encoded_packet_len(data_pid, TRUE),
+                                      get_encoded_packet_len(response_pid, TRUE),
+                                      get_bs_hops(bs_msg.flags), 20, 10,
+                                      bs_msg.data_rate);
+                                    #else
+                                    bs_msg.time = estimate_response_time(
+                                      get_encoded_packet_len(response_pid, TRUE),
+                                      20, bs_msg.data_rate);
+                                    #endif
+                                    #endif
                                     break;
                                 }
                                 default:
@@ -2122,13 +2153,11 @@ void one_net(on_txn_t ** txn)
                     
                     if(need_response)
                     {
-                        // TODO -- handle this.
-                        // For now just terminate.
-                        bs_msg.transfer_in_progress = FALSE;
-                        on_state = ON_LISTEN_FOR_DATA;
-                        
-                        // add a little debugging.
-                        oncli_send_msg("Block / Stream terminated.\n");
+                        ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                        ont_set_timer(ONT_RESPONSE_TIMER,
+                          MS_TO_TICK(bs_msg.time));
+                        on_state = ON_BS_WAIT_FOR_DATA_RESP;
+                        break;
                     }
                     else
                     {
@@ -2230,6 +2259,33 @@ void one_net(on_txn_t ** txn)
                 ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE;
                 #endif
                 
+                #ifdef _BLOCK_MESSAGES_ENABLED
+                if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
+                {
+                    if(ont_inactive_or_expired(ONT_BS_TIMER))
+                    {
+                        // we have timed out without a response.  Just abort
+                        // for now.
+                        oncli_send_msg("Block / stream transfer timed out.\n");
+                        #ifdef _DATA_RATE
+                        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+                        bs_msg.transfer_in_progress = FALSE;
+                        on_state = ON_LISTEN_FOR_DATA;
+                        #endif
+                    }
+                    else
+                    {
+                        // set for triple the expected response time and send
+                        // again
+                        ont_set_timer(ONT_RESPONSE_TIMER,
+                          MS_TO_TICK(2 * bs_msg.time));
+                        on_state = ON_BS_SEND_DATA_PKT;
+                    }
+                    
+                    break;
+                }
+                #endif
+                
                 response_msg_or_timeout = TRUE;
                 (*txn)->retry++;
                 
@@ -2290,6 +2346,20 @@ void one_net(on_txn_t ** txn)
             
                 if(status == ONS_PKT_RCVD)
                 {
+                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
+                    {
+                        // just terminate for now.
+                        oncli_send_msg("Rcv'd response packet.  Aborting.\n");
+                        #ifdef _DATA_RATE
+                        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+                        bs_msg.transfer_in_progress = FALSE;
+                        on_state = ON_LISTEN_FOR_DATA;
+                        #endif
+                        break;
+                    }
+                    #endif
+                    
                     response_msg_or_timeout = TRUE;
                     msg_status = rx_single_resp_pkt(txn, &this_txn,
                       this_pkt_ptrs, raw_payload_bytes, &ack_nack);
