@@ -1545,10 +1545,9 @@ void one_net(on_txn_t ** txn)
                                     
                                     // we'll make fairly long process times.
                                     // Things will get corrected soon enough
-                                    // anyway.  JUst make the processing time
+                                    // anyway.  Just make the processing time
                                     // 20 ms for end devices and 10 ms for
                                     // repeaters.
-                                    #if 0
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.time = estimate_response_time(
                                       get_encoded_packet_len(data_pid, TRUE),
@@ -1559,7 +1558,6 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.time = estimate_response_time(
                                       get_encoded_packet_len(response_pid, TRUE),
                                       20, bs_msg.data_rate);
-                                    #endif
                                     #endif
                                     break;
                                 }
@@ -2017,11 +2015,36 @@ void one_net(on_txn_t ** txn)
                       NULL) != ONS_SUCCESS)
                     {
                         break;
-                    }                    
-                    if(on_build_data_pkt(buffer, ON_APP_MSG, &data_pkt_ptrs,
-                      &bs_txn, device, &bs_msg) != ONS_SUCCESS)
+                    }
                     {
-                        break;
+                        // We need a response if any of the following is true so
+                        // we may temporarily change the chunk size when building
+                        // the packet, then immediately change it back.
+                        UInt32 original_chunk_size = bs_msg.chunk_size;
+                        one_net_status_t status;
+                
+                        // 1. We are near the beginning (first 1000 bytes).
+                        // 2. We are in the last chunk of the transfer.
+                        // 3. We have transferred all the packets in this chunk.
+                        if(bs_msg.byte_idx < 40 ||
+                           (bs_msg.byte_idx + original_chunk_size *
+                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
+                        {
+                            // quick change.  We'll change back immediately after
+                            // the function call.
+                            bs_msg.chunk_size = 1;
+                        }                    
+                        
+                        status = on_build_data_pkt(buffer, ON_APP_MSG,
+                          &data_pkt_ptrs, &bs_txn, device, &bs_msg);
+                          
+                        // change back if it was changed before.
+                        bs_msg.chunk_size = (UInt8) original_chunk_size;  
+                        
+                        if(status != ONS_SUCCESS)
+                        {
+                            break;
+                        }
                     }
                     
                     // now finish building the packet.
@@ -2066,9 +2089,19 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         case ON_BS_SEND_DATA_PKT:
         #endif
-        {            
+        {
+            #ifndef _BLOCK_MESSAGES_ENABLED
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
+            #else
+            // We don't do "retries" with block / stream data packets.  We
+            // do "re-sends" and we timeout based on criteria other than having
+            // too many retries, so the timer test is counterproductive.  We
+            // handle it elsewhere.  If it got to this state and the channel
+            // is clear, it's ready to go.  We checked timers elsewhere.
+            if((on_state == ON_BS_SEND_DATA_PKT || ont_inactive_or_expired(
+              (*txn)->next_txn_timer)) && check_for_clr_channel())
+            #endif
             {
                 UInt16 raw_pid;
                 if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid))
@@ -2124,21 +2157,8 @@ void one_net(on_txn_t ** txn)
                         // there is some rounding error when dealing with UInt8,
                         // so use a UInt32.
                         UInt32 chunk_size_32 = bs_msg.chunk_size;
+                        UInt8 current_chunk_size = bs_msg.chunk_size;
                         
-                        // mark the packet as sent.
-                        ont_set_timer(ONT_BS_TIMER,
-                          MS_TO_TICK(bs_msg.frag_dly));
-                        on_state = ON_BS_PREPARE_DATA_PACKET;
-                        
-                        // add a little debugging
-                        oncli_send_msg(
-                          "Sent block packet byte %ld chunk %d of %d.\n",
-                          bs_msg.byte_idx, bs_msg.chunk_idx, bs_msg.chunk_size);
-                        block_set_index_sent(bs_msg.chunk_idx, TRUE,
-                          bs_msg.sent);
-                        bs_msg.chunk_idx = block_get_lowest_unsent_index(
-                          bs_msg.sent, bs_msg.chunk_size);
-                          
                         // We need a response if any of the following is true...
                         // 1. We are near the beginning (first 1000 bytes).
                         // 2. We are in the last chunk of the transfer.
@@ -2147,10 +2167,24 @@ void one_net(on_txn_t ** txn)
                            (bs_msg.byte_idx + chunk_size_32 *
                            ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
                         {
-                            bs_msg.chunk_idx =  -1;
+                            current_chunk_size = 1;
                         }
                         
-                        need_response = (bs_msg.chunk_idx == -1);
+                        // add a little debugging
+                        oncli_send_msg(
+                          "Sent block packet byte %ld chunk %d of %d.\n",
+                          bs_msg.byte_idx, bs_msg.chunk_idx, current_chunk_size);
+                        block_set_index_sent(bs_msg.chunk_idx, TRUE,
+                          bs_msg.sent);
+                        bs_msg.chunk_idx = block_get_lowest_unsent_index(
+                          bs_msg.sent, current_chunk_size);
+                        if(bs_msg.chunk_idx == -1)
+                        {
+                            bs_msg.chunk_idx = current_chunk_size - 1;
+                        }
+                        
+                        need_response = (bs_msg.chunk_idx ==
+                          current_chunk_size - 1);
                     }
                     
                     if(need_response)
@@ -2165,6 +2199,11 @@ void one_net(on_txn_t ** txn)
                     {
                         // this is for high priority.
                         // TODO -- low priority.
+                        
+                        // mark the packet as sent.
+                        ont_set_timer(ONT_BS_TIMER,
+                          MS_TO_TICK(bs_msg.frag_dly));
+                        on_state = ON_BS_PREPARE_DATA_PACKET;
                         break;
                     }
                 }
@@ -2280,7 +2319,7 @@ void one_net(on_txn_t ** txn)
                         // set for triple the expected response time and send
                         // again
                         ont_set_timer(ONT_RESPONSE_TIMER,
-                          MS_TO_TICK(2 * bs_msg.time));
+                          MS_TO_TICK(3 * bs_msg.time));
                         on_state = ON_BS_SEND_DATA_PKT;
                     }
                     
