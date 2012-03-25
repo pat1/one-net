@@ -1647,7 +1647,7 @@ void one_net(on_txn_t ** txn)
                         
                         if(this_txn == &bs_txn)
                         {
-                            BOOL respond = FALSE;
+                            BOOL respond;
                             on_message_status_t msg_status = ON_MSG_IGNORE;
                             block_stream_pkt_t bs_pkt;
                             BOOL reject_msg_id; // TODO -- check message id.
@@ -1668,43 +1668,66 @@ void one_net(on_txn_t ** txn)
                             {
                                 msg_status = rx_stream_data(&bs_txn, &bs_msg,
                                   &bs_pkt.stream_pkt, &ack_nack);
+                                respond = (bs_pkt.stream_pkt.chunk_idx == 0 &&
+                                  bs_pkt.stream_pkt.chunk_size == 0 &&
+                                  msg_status == ON_MSG_RESPOND);
                             }
                             else
                             #endif
                             {
-                                BOOL accept_packet = FALSE;
-                                respond = (bs_pkt.block_pkt.chunk_idx + 1 ==
-                                  bs_pkt.block_pkt.chunk_size);
                                 msg_status = rx_block_data(&bs_txn, &bs_msg,
                                   &bs_pkt.block_pkt, &ack_nack);
-                                switch(msg_status)
-                                {
-                                    case ON_MSG_ACCEPT_CHUNK:
-                                        accept_packet = TRUE;
-                                    case ON_MSG_REJECT_CHUNK:
-                                        one_net_memset(bs_msg.sent,
-                                          (accept_packet ? 0xFF : 0),
-                                          sizeof(bs_msg.sent));
-                                        break;
-                                    case ON_MSG_ACCEPT_PACKET:
-                                        accept_packet = TRUE;
-                                    case ON_MSG_REJECT_PACKET:
-                                        block_set_index_sent(bs_msg.chunk_idx,
-                                          accept_packet, bs_msg.sent);
-                                }
+                                respond = (bs_pkt.block_pkt.chunk_idx + 1 ==
+                                  bs_pkt.block_pkt.chunk_size) &&
+                                  (msg_status == ON_MSG_RESPOND);
                             }
                             
                             if(respond)
-                            {
-                                // TODO -- build the response!
-                                
+                            {                                
                                 // we'll send back a reply.
-                                *txn = &response_txn;
-                                on_state = ON_SEND_SINGLE_DATA_RESP;
+                                on_sending_device_t* device = (*get_sender_info)
+                                  (&bs_msg.src);
+                                UInt16 response_pid = ((ack_nack.nack_reason ==
+                                  ON_NACK_RSN_NO_ERROR) ?
+                                  ONE_NET_RAW_SINGLE_DATA_ACK :
+                                  ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
+                                  
+                                if(!device || !setup_pkt_ptr(response_pid,
+                                  response_txn.pkt, bs_pkt.block_pkt.msg_id,
+                                  &response_pkt_ptrs))
+                                {
+                                    break;
+                                }
+    
+                                if(on_build_my_pkt_addresses(&response_pkt_ptrs,
+                                  &bs_msg.src, NULL) != ONS_SUCCESS)
+                                {
+                                    break;
+                                }
+
+                                #ifdef _ONE_NET_MULTI_HOP
+                                response_txn.hops = bs_txn.hops;
+                                response_txn.max_hops = bs_txn.max_hops;
+                                #endif
+                                response_txn.key = bs_txn.key;
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
+                                
+                                if(on_build_response_pkt(&ack_nack, 
+                                  &response_pkt_ptrs, &response_txn, device,
+                                  FALSE) != ONS_SUCCESS)
+                                {
+                                    break;
+                                }
+                                if(on_complete_pkt_build(&response_pkt_ptrs,
+                                  response_pid) != ONS_SUCCESS)
+                                {
+                                    break;
+                                }
                                 
                                 // send the response immediately.
                                 ont_set_timer((*txn)->next_txn_timer, 0);
+                                on_state = ON_SEND_SINGLE_DATA_RESP;
+                                *txn = &response_txn;
                             }
                         }
                     }
@@ -2907,7 +2930,73 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_IGNORE;
+    UInt32 chunk_size_32 = bs_msg->chunk_size;
+    on_message_status_t msg_status;
+    BOOL rcvd_full_chunk;
+    UInt8 expected_chunk_size = 
+      ((bs_msg->byte_idx < 40 || (bs_msg->byte_idx + chunk_size_32 *
+      ON_BS_DATA_PLD_SIZE >= bs_msg->transfer_size)) ? 1 :
+      bs_msg->chunk_size);
+      
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_NACK_VALUE;
+    if(block_pkt->byte_idx != bs_msg->byte_idx)
+    {
+        ack_nack->payload->nack_value = bs_msg->byte_idx;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+        return ON_MSG_RESPOND;
+    }
+    
+    if(block_pkt->chunk_size != expected_chunk_size)
+    {
+        ack_nack->payload->nack_value = expected_chunk_size;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
+        return ON_MSG_RESPOND;
+    }
+    
+    if(block_pkt->chunk_idx >= expected_chunk_size)
+    {
+        return ON_MSG_IGNORE;
+    }
+    
+    ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
+    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
+    {
+        // TODO -- pass it to the application code.
+        switch(msg_status)
+        {
+            case ON_MSG_ACCEPT_PACKET:
+                block_set_index_sent(bs_msg->chunk_idx, TRUE, bs_msg->sent);
+            case ON_MSG_RESPOND:
+                break;
+            default:
+                return ON_MSG_IGNORE;
+        }
+    }
+
+    if(block_get_lowest_unsent_index(bs_msg->sent, expected_chunk_size) == -1)
+    {
+        // chunk has been received.
+        // TODO -- call application code.
+        bs_msg->byte_idx += expected_chunk_size;
+        one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+        if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+        {
+            // not really a NACK, but that's OK.  The sending device will now
+            // sync.
+            ack_nack->handle = ON_NACK_VALUE;
+            ack_nack->payload->nack_value = bs_msg->byte_idx;
+            ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+        }
+    }
+    
+    if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+    {
+        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
+          sizeof(bs_msg->sent));
+    }
+    
+    return ON_MSG_RESPOND;
 }
 #endif
 

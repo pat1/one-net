@@ -105,6 +105,7 @@ typedef enum
                                      //! for some other reason.
     ON_NACK_RSN_INVALID_CHUNK_SIZE,  //! An invalid chunk size has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_CHUNK_DELAY, //! An invalid chunk delay has been specified for a block / stream transfer
+    ON_NACK_RSN_INVALID_BYTE_INDEX,  //! An invalid byte index has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_FRAG_DELAY,  //! An invalid fragment delay has been specified for a block / stream transfer
     ON_NACK_RSN_INVALID_PRIORITY,    //! An invalid priority has been specified.
     ON_NACK_RSN_PERMISSION_DENIED_NON_FATAL, //! Generic "Permission denied" non-fatal error.
@@ -181,10 +182,12 @@ typedef enum
 	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to pause in milliseconds.
     ON_ACK_RESPONSE_TIME_MS, // Same as ON_ACK_TIME_MS, but represents a request to set the response timeout / fragment delay
                              //! to this exact value.
-    ON_ACK_ADMIN_MSG,     //! Sending back an Admin message with an ACK
-    ON_ACK_KEY_FRAGMENT, //! This ACK or NACK is sent when sending a key fragment.
+    ON_ACK_ADMIN_MSG,      //! Sending back an Admin message with an ACK
+    ON_ACK_KEY_FRAGMENT,   //! This ACK or NACK is sent when sending a key fragment.
+    ON_ACK_BLK_PKTS_RCVD,  //! This is an ACK accompanied by a bitwise boolean array representing which packet indexes have and have not been received.
+                           //! Valid only for block transactions.  Always sent as an ACK even if it represents a problem.
     ON_ACK_ROUTE,
-	ON_ACK_STATUS,        //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
+	ON_ACK_STATUS,         //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
     ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
                                   //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
                                   //! but their meanings are to be interpreted by the application code.
