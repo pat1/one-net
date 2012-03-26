@@ -1690,8 +1690,8 @@ void one_net(on_txn_t ** txn)
                               bs_msg.flags) == ON_STREAM_TRANSFER);
                             #endif
                             *txn = 0;
-                            
-                            if(!on_parse_bs_pld(bs_txn.pkt, &bs_pkt))
+
+                            if(!on_parse_bs_pld(raw_payload_bytes, &bs_pkt))
                             {
                                 break;
                             }
@@ -1782,9 +1782,9 @@ void one_net(on_txn_t ** txn)
                                 }
                                 
                                 // send the response immediately.
+                                *txn = &response_txn;
                                 ont_set_timer((*txn)->next_txn_timer, 0);
                                 on_state = ON_SEND_SINGLE_DATA_RESP;
-                                *txn = &response_txn;
                             }
                         }
                         #endif
