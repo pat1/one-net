@@ -2056,6 +2056,7 @@ void one_net(on_txn_t ** txn)
                     
                     bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
                     on_state++;
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
                 }
                 else if(status == ONS_CANCELED)
                 {
@@ -2189,9 +2190,9 @@ void one_net(on_txn_t ** txn)
                     
                     if(need_response)
                     {
-                        ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                        // Set timer for triple the expected time?
                         ont_set_timer(ONT_RESPONSE_TIMER,
-                          MS_TO_TICK(bs_msg.time));
+                          MS_TO_TICK(3 * bs_msg.time));
                         on_state = ON_BS_WAIT_FOR_DATA_RESP;
                         break;
                     }
@@ -2199,8 +2200,8 @@ void one_net(on_txn_t ** txn)
                     {
                         // this is for high priority.
                         // TODO -- low priority.
-                        
-                        // mark the packet as sent.
+                        // No response needed, so use the fragment
+                        // delay as the pause.
                         ont_set_timer(ONT_BS_TIMER,
                           MS_TO_TICK(bs_msg.frag_dly));
                         on_state = ON_BS_PREPARE_DATA_PACKET;
