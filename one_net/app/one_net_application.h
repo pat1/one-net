@@ -311,31 +311,6 @@ typedef struct
 } on_base_param_t;
 
 
-/*!
-    \brief Info for receiving from a device.
-
-    This structure holds the information needed to receive from a device.
-*/
-typedef struct
-{
-    on_encoded_did_t did;           //!< Encoded Device ID of the sender
-    on_features_t features;         //!< features of the device.
-    #ifdef _ONE_NET_MULTI_HOP
-    UInt8 max_hops;                 //!< May be different from max_hops in features and may change and may vary
-                                    //!< between devices depending on distance, noise, past experience, etc.
-                                    //!< This is the CURRENT maximum number of hops these two devices use
-                                    //!< if / when they use multi-hop
-    UInt8 hops;                     //!< The expected "best guess" of the current number of hops between the
-                                    //!< two devices.  This may or may not change often. If conditions, distances,
-                                    //!< and packet lengths tend to remain the same,this value will likely remain
-                                    //!< the same.
-    #endif
-    UInt8 data_rate;                //!< The current data rate the device is using
-    UInt16 msg_id;                  //!< The message id of the current or next transaction with this device(0 - 4095).
-    tick_t verify_time;             //!< The last time the message id was verified for this device
-} on_sending_device_t;    
-    
-
 typedef enum _ona_unit_type
 {
     //! Simple ON/OFF switch
