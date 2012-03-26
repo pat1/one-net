@@ -763,7 +763,7 @@ on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
 
 
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
-  bs_msg)
+  bs_msg, const on_encoded_did_t* src_did)
 {
     // msg buffer must be at least 21 bytes
     bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
@@ -778,13 +778,23 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
     bs_msg->data_rate = msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
     bs_msg->timeout = one_net_byte_stream_to_int16(
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
-    one_net_memmove(bs_msg->dst, &msg[BLOCK_STREAM_SETUP_DST_IDX],
-      ON_ENCODED_DID_LEN);
+
+    bs_msg->src = NULL;
+    bs_msg->dst = NULL;
+    if(!is_my_did((on_encoded_did_t*) &msg[BLOCK_STREAM_SETUP_DST_IDX]))
+    {
+        bs_msg->dst = (*get_sender_info)((on_encoded_did_t*)
+          &msg[BLOCK_STREAM_SETUP_DST_IDX]);
+    }
+    
+    if(src_did)
+    {
+        bs_msg->src = (*get_sender_info)(src_did);
+    }
+      
     bs_msg->time = get_tick_count() +
       MS_TO_TICK(one_net_byte_stream_to_int32(
       &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));
-    set_bs_device_is_src(&(bs_msg->flags), is_my_did(&(bs_msg->src)));
-    set_bs_device_is_dst(&(bs_msg->flags), is_my_did(&(bs_msg->dst)));
 }
 
 

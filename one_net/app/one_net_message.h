@@ -503,8 +503,8 @@ typedef struct
                          // sender, it should be the average time between
                          // sending a packet and getting a response.
                          // Currently it has not meaning for anyone else.
-    on_encoded_did_t src; // originator of block message
-    on_encoded_did_t dst; // recipient of block message
+    on_sending_device_t* src; // originator of block message
+    on_sending_device_t* dst; // recipient of block message
     tick_t time; // this value can represent a variety of things.  Generally
                  // for a repeater, it will represent the estimated time of
                  // completion.  For the sender or the recipient of a stream
@@ -656,7 +656,7 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
   const on_encoded_did_t* dst);
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
-  bs_msg);
+  bs_msg, const on_encoded_did_t* src_did);
 void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
   bs_msg);
 

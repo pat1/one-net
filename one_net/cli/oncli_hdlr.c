@@ -3059,6 +3059,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     char* end_ptr;
     on_ack_nack_t ack_nack;
     UInt8 priority;
+    on_encoded_did_t enc_dst_did;
     
     if(bs_msg.transfer_in_progress)
     {
@@ -3089,9 +3090,15 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     }
-    if(on_encode(bs_msg.dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    if(on_encode(enc_dst_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
+    }
+    
+    bs_msg.dst = (*get_sender_info)(&enc_dst_did);
+    if(!bs_msg.dst)
+    {
+        return ONCLI_INVALID_DST;
     }
     
     // We'll use the defaults for most things, but override at least one default
@@ -3109,8 +3116,14 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
-    {     
-        if(on_master_get_default_block_transfer_values(NULL, &bs_msg.dst,
+    {
+        on_client_t* dst_client = client_info(&enc_dst_did);
+        if(!dst_client)
+        {
+            return ONCLI_INVALID_DST;
+        }
+                
+        if(on_master_get_default_block_transfer_values(NULL, dst_client,
           bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
@@ -3126,7 +3139,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
     {
-        if(on_client_get_default_block_transfer_values(&bs_msg.dst,
+        if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
           bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
@@ -3174,6 +3187,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
     on_ack_nack_t ack_nack;
+    on_encoded_did_t enc_dst_did;
     
     if(bs_msg.transfer_in_progress)
     {
@@ -3195,16 +3209,29 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!u16_to_did(raw_did_int, (on_raw_did_t*) raw_did))
     {
         return ONCLI_PARSE_ERR;
-    }
-    if(on_encode(bs_msg.dst, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
+    }  
+    
+    if(on_encode(enc_dst_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
+    }
+    
+    bs_msg.dst = (*get_sender_info)(&enc_dst_did);    
+    if(!bs_msg.dst)
+    {
+        return ONCLI_INVALID_DST;
     }
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
-        if(on_master_get_default_stream_transfer_values(NULL, &bs_msg.dst,
+        on_client_t* dst_client = client_info(&enc_dst_did);
+        if(!dst_client)
+        {
+            return ONCLI_INVALID_DST;
+        }
+        
+        if(on_master_get_default_stream_transfer_values(NULL, dst_client,
           time_ms, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
           &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
@@ -3219,9 +3246,9 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef _ONE_NET_CLIENT
     if(!device_is_master)
     {
-        if(on_client_get_default_stream_transfer_values(&bs_msg.dst, time_ms,
-          &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout, &ack_nack) !=
-          ON_NACK_RSN_NO_ERROR)
+        if(on_client_get_default_stream_transfer_values(&(bs_msg.dst->did),
+          time_ms, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
+          &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?

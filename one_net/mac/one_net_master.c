@@ -1677,39 +1677,18 @@ on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t* src,
-  const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
-  UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
-  UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_master_get_default_block_transfer_values(
+  on_client_t* src_client, on_client_t* dst_client, UInt32 transfer_size,
+  UInt8* priority, UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay,
+  UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
 {    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
-    on_client_t* src_client= client_info(src);
-    on_client_t* dst_client= client_info(dst);
     ack_nack->handle = ON_ACK;
-    
-    if(is_master_did(src))
-    {
-        src = NULL;
-    }
-    if(is_master_did(dst))
-    {
-        dst = NULL;
-    }
     
     *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
     *chunk_size = DEFAULT_BS_CHUNK_SIZE;
     
-    
-    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
-    if(src && !src_client)
-    {
-        return *nr;
-    }
-    else if(dst && !dst_client)
-    {
-        return *nr;
-    }
-    else if(src_client == dst_client)
+    if(src_client == dst_client)
     {
         *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
         return *nr;
@@ -1797,7 +1776,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(const on_encoded_did_t
         }        
     }
     
-    if(!src || !dst)
+    if(!src_client || !dst_client)
     {
         // master is involved, so assign the frag delay.
         *frag_delay = (*priority == ONE_NET_HIGH_PRIORITY) ?
@@ -1825,7 +1804,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
     }
     else
     {
-        on_client_t* client = client_info(&txn->dst);
+        on_client_t* client = client_info(&(txn->dst->did));
         one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));    
         if(!client)
         {
@@ -1845,10 +1824,8 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
         }
         
         set_bs_transfer_type(&bs_msg.flags, ON_BLK_TRANSFER);
-        one_net_memmove(bs_msg.src, &on_base_param->sid[ON_ENCODED_NID_LEN],
-          ON_ENCODED_DID_LEN);
-        set_bs_device_is_src(&bs_msg.flags, TRUE);
-        set_bs_device_is_dst(&bs_msg.flags, FALSE);
+        bs_msg.src = NULL;
+        bs_msg.dst = &(client->device);
         bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
@@ -1863,36 +1840,16 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
-on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_t* src,
-  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
-  UInt16* timeout, on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_master_get_default_stream_transfer_values(
+  const on_client_t* src_client, const on_client_t* dst_client, UInt32 time_ms,
+  UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
 {    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
-    on_client_t* src_client= client_info(src);
-    on_client_t* dst_client= client_info(dst);
-    ack_nack->handle = ON_ACK;
-    
-    if(is_master_did(src))
-    {
-        src = NULL;
-    }
-    if(is_master_did(dst))
-    {
-        dst = NULL;
-    }    
+    ack_nack->handle = ON_ACK;  
     
     *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
     
-    *nr = ON_NACK_RSN_BAD_ADDRESS_ERR;
-    if(src && !src_client)
-    {
-        return *nr;
-    }
-    else if(dst && !dst_client)
-    {
-        return *nr;
-    }
-    else if(src_client == dst_client)
+    if(src_client == dst_client)
     {
         *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
         return *nr;
@@ -1912,7 +1869,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(const on_encoded_did_
         {
             return *nr;
         }
-    }    
+    }  
     
     *nr =  ON_NACK_RSN_NO_ERROR;
     
@@ -2000,7 +1957,7 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
     }
     else
     {
-        on_client_t* client = client_info(&txn->dst);
+        on_client_t* client = client_info(&(txn->dst->did));
         one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));        
         if(!client)
         {
@@ -2020,10 +1977,8 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
         }
         
         set_bs_transfer_type(&bs_msg.flags, ON_STREAM_TRANSFER);
-        one_net_memmove(bs_msg.src, &on_base_param->sid[ON_ENCODED_NID_LEN],
-          ON_ENCODED_DID_LEN);
-        set_bs_device_is_src(&bs_msg.flags, TRUE);
-        set_bs_device_is_dst(&bs_msg.flags, FALSE);
+        bs_msg.src = NULL;
+        bs_msg.dst = &(client->device);
         bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
@@ -2500,7 +2455,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         {
             UInt8 hops, return_hops;
             if(ack_nack->nack_reason ||
-              !extract_repeaters_and_hops_from_route(&bs_msg.dst,
+              !extract_repeaters_and_hops_from_route(&(bs_msg.dst->did),
               ack_nack->payload->ack_payload, &hops,
               &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
             {
@@ -3096,7 +3051,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
             if(bs_msg.transfer_in_progress)
             {
-                if(!on_encoded_did_equal(&bs_msg.src, SRC_DID))
+                if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
+                  SRC_DID))
                 {
                     ack_nack->nack_reason = ON_NACK_RSN_BUSY;
                     break;
@@ -3106,12 +3062,20 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 {
                     // we have already started receiving data
                     ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                    break;                    
+                    break;
                 }
             }
             
-            one_net_memmove(bs_msg.src, *SRC_DID, ON_ENCODED_DID_LEN);
-            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg);
+            // make sure it's to us.
+            if(!is_my_did((const on_encoded_did_t*)
+              &DATA[BLOCK_STREAM_SETUP_DST_IDX]))
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_BAD_ADDRESS_ERR;
+                break;
+            }
+            
+            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg,
+              (const on_encoded_did_t*) (*client)->device.did);
             bs_msg.transfer_in_progress = TRUE;
             bs_msg.byte_idx = 0;
             break;
@@ -3123,7 +3087,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             on_client_t* rptr_client = client_info((on_encoded_did_t*) &DATA[1]);
             on_client_t* src_client = client_info((on_encoded_did_t*) &DATA[3]);
             on_client_t* dst_client = client_info((on_encoded_did_t*) &DATA[5]);
-            on_sending_device_t* dst_device;
             on_encoded_did_t* invalid_device_did = NULL;
             
             // we need to make sure the source and the destinations are clients
@@ -3181,9 +3144,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                         // make sure the source and destinations match what we
                         // think they should.  If they don't, NACK with an
                         // "already in progress" reason.
-                        if(!get_bs_device_is_dst(bs_msg.flags) ||
-                          !on_encoded_did_equal(&bs_msg.src,
-                          &src_client->device.did))
+                        if(&(src_client->device) != bs_msg.src)
                         {
                             ack_nack->nack_reason =
                               ON_NACK_RSN_ALREADY_IN_PROGRESS;

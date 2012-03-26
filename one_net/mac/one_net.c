@@ -69,6 +69,7 @@
 #endif
 #include "one_net_timer.h"
 
+
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup ONE-NET_const
@@ -1158,11 +1159,12 @@ void one_net(on_txn_t ** txn)
     ack_nack.payload = &ack_nack_payload;
 
     #ifdef _BLOCK_MESSAGES_ENABLED
-    if(bs_msg.transfer_in_progress && !get_bs_device_is_src(bs_msg.flags) &&
+    if(bs_msg.transfer_in_progress && bs_msg.src &&
       ont_inactive_or_expired(ONT_BS_TIMER))
     {
-        // TODO -- this is only temporary.
-        oncli_send_msg("Block message timed out\n");
+        // A block or stream message where we were not the source has timed
+        // out.
+        oncli_send_msg("Block / Stream timed out\n");
         bs_msg.transfer_in_progress = FALSE;
         one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
         one_net_set_channel(on_base_param->channel);
@@ -1317,8 +1319,7 @@ void one_net(on_txn_t ** txn)
                     single_msg_ptr = NULL;
                     
                     #ifdef _BLOCK_MESSAGES_ENABLED
-                    if(bs_msg.transfer_in_progress && get_bs_device_is_src(
-                      bs_msg.flags))
+                    if(bs_msg.transfer_in_progress && !bs_msg.src)
                     {
                         if(!ont_get_timer(ONT_BS_TIMER) &&
                           single_data_queue_size == 0)
@@ -1326,9 +1327,10 @@ void one_net(on_txn_t ** txn)
                             static UInt8 rptr_idx;
                             on_raw_did_t raw_did;
                             BOOL master_involved = (device_is_master ||
-                              is_master_did(&bs_msg.dst));
+                              is_master_did(&(bs_msg.dst->did)));
                             
-                            on_decode(raw_did, bs_msg.dst, ON_ENCODED_DID_LEN);
+                            on_decode(raw_did, bs_msg.dst->did,
+                              ON_ENCODED_DID_LEN);
                                                         
                             // we are through waiting for things, so it's
                             // time to revert back to or start our block /
@@ -1359,7 +1361,8 @@ void one_net(on_txn_t ** txn)
                                         // missed ACKs or NACKs.  3000 ms should be
                                         // plenty long enough to get things done elsewhere
                                         // if need be.
-                                        one_net_change_data_rate(&bs_msg.dst, 125, 3000,
+                                        one_net_change_data_rate(
+                                          &(bs_msg.dst->did), 125, 3000,
                                           bs_msg.channel, bs_msg.data_rate);
                                     }
                                     break;
@@ -1383,7 +1386,7 @@ void one_net(on_txn_t ** txn)
                                           estimate_block_transfer_time(
                                           &bs_msg));
                                     }                              
-                                    send_bs_setup_msg(&bs_msg, &bs_msg.dst);
+                                    send_bs_setup_msg(&bs_msg, &bs_msg.dst->did);
                                     break;
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
                                     if(master_involved)
@@ -1508,8 +1511,6 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     UInt16 response_pid =
                                       ONE_NET_RAW_SINGLE_DATA_ACK;
-                                    on_sending_device_t* device =
-                                      (*get_sender_info)(&bs_msg.dst);
                                     #ifdef _ONE_NET_MULTI_HOP
                                     data_pid |= (get_default_num_blocks(
                                       data_pid) << 8);
@@ -1528,7 +1529,7 @@ void one_net(on_txn_t ** txn)
                                         on_state = ON_LISTEN_FOR_DATA;
                                         return;
                                     }
-                                    device->msg_id++;
+                                    bs_msg.dst->msg_id++;
                                     
                                     
                                     oncli_send_msg(
@@ -1599,8 +1600,7 @@ void one_net(on_txn_t ** txn)
                     this_txn = &single_txn;
                     #ifdef _BLOCK_MESSAGES_ENABLED
                     bs_txn.pkt = encoded_pkt_bytes;
-                    if(bs_msg.transfer_in_progress &&
-                      get_bs_device_is_dst(bs_msg.flags))
+                    if(bs_msg.transfer_in_progress && !bs_msg.dst)
                     {
                         this_txn = &bs_txn;
                     }
@@ -1742,14 +1742,12 @@ void one_net(on_txn_t ** txn)
                             if(respond)
                             {                                
                                 // we'll send back a reply.
-                                on_sending_device_t* device = (*get_sender_info)
-                                  (&bs_msg.src);
                                 UInt16 response_pid = ((ack_nack.nack_reason ==
                                   ON_NACK_RSN_NO_ERROR) ?
                                   ONE_NET_RAW_SINGLE_DATA_ACK :
                                   ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
                                   
-                                if(!device || !setup_pkt_ptr(response_pid,
+                                if(!setup_pkt_ptr(response_pid,
                                   response_txn.pkt, bs_pkt.block_pkt.msg_id,
                                   &response_pkt_ptrs))
                                 {
@@ -1757,7 +1755,7 @@ void one_net(on_txn_t ** txn)
                                 }
     
                                 if(on_build_my_pkt_addresses(&response_pkt_ptrs,
-                                  &bs_msg.src, NULL) != ONS_SUCCESS)
+                                  &(bs_msg.src->did), NULL) != ONS_SUCCESS)
                                 {
                                     break;
                                 }
@@ -1770,7 +1768,7 @@ void one_net(on_txn_t ** txn)
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
                                 
                                 if(on_build_response_pkt(&ack_nack, 
-                                  &response_pkt_ptrs, &response_txn, device,
+                                  &response_pkt_ptrs, &response_txn, bs_msg.src,
                                   FALSE) != ONS_SUCCESS)
                                 {
                                     break;
@@ -1982,13 +1980,6 @@ void one_net(on_txn_t ** txn)
             // need to set our own buffer.  However, the stack size shouldn't
             // be very high here so it's no big deal.
             UInt8 buffer[ON_BS_DATA_PLD_SIZE];
-            // TODO - consider making the on_sending_device_t* pointer
-            // part of block_stream_msg_t;
-            on_sending_device_t* device = (*get_sender_info)(&bs_msg.dst);
-            if(!device)
-            {
-                break; // should never get here.
-            }   
             
             if(!ont_inactive_or_expired(ONT_BS_TIMER))
             {
@@ -1996,7 +1987,7 @@ void one_net(on_txn_t ** txn)
             }
             
             bs_txn.pkt = encoded_pkt_bytes;
-            if(!setup_pkt_ptr(raw_pid, bs_txn.pkt, device->msg_id,
+            if(!setup_pkt_ptr(raw_pid, bs_txn.pkt, bs_msg.dst->msg_id,
               &data_pkt_ptrs))
             {
                 break; // should never get here?
@@ -2011,8 +2002,8 @@ void one_net(on_txn_t ** txn)
                 if(status == ONS_SUCCESS)
                 {
                     // fill in the addresses
-                    if(on_build_my_pkt_addresses(&data_pkt_ptrs, &bs_msg.dst,
-                      NULL) != ONS_SUCCESS)
+                    if(on_build_my_pkt_addresses(&data_pkt_ptrs,
+                      &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
                     {
                         break;
                     }
@@ -2036,7 +2027,7 @@ void one_net(on_txn_t ** txn)
                         }                    
                         
                         status = on_build_data_pkt(buffer, ON_APP_MSG,
-                          &data_pkt_ptrs, &bs_txn, device, &bs_msg);
+                          &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
                           
                         // change back if it was changed before.
                         bs_msg.chunk_size = (UInt8) original_chunk_size;  
@@ -2549,8 +2540,8 @@ void one_net(on_txn_t ** txn)
                 *txn = 0;
                 
                 #ifdef _BLOCK_MESSAGES_ENABLED
-                if(bs_msg.transfer_in_progress && get_bs_device_is_src(
-                  bs_msg.flags) && on_state >= ON_BS_WAIT_FOR_FIND_ROUTE_RESP)
+                if(bs_msg.transfer_in_progress && !bs_msg.src && on_state
+                  >= ON_BS_WAIT_FOR_FIND_ROUTE_RESP)
                 {
                     bs_msg.bs_on_state = on_state + 1;
                     on_state -= 3;
@@ -3295,18 +3286,28 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
       (const on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
     #ifdef _BLOCK_MESSAGES_ENABLED
-    src_is_bs_endpoint = on_encoded_did_equal(&bs_msg.src,
-      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
-      on_encoded_did_equal(&bs_msg.dst,
-      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
-    dst_is_bs_endpoint = on_encoded_did_equal(&bs_msg.src,
-      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
-      on_encoded_did_equal(&bs_msg.dst,
-      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
-    dst_is_master = is_master_did((const on_encoded_did_t*)
-      &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
-    #endif
+    {
+        // note that these values might be garbage if we are not in the
+        // middle of a block / stream transfer.  It's OK if they are because
+        // the values will only be used if we are in a block / stream transfer.
+        on_encoded_did_t* bs_src_did = get_encoded_did_from_sending_device(
+          bs_msg.src);
+        on_encoded_did_t* bs_dst_did = get_encoded_did_from_sending_device(
+          bs_msg.dst);
+        
+        src_is_bs_endpoint = on_encoded_did_equal(bs_src_did,
+          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
+          on_encoded_did_equal(bs_dst_did,
+          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        dst_is_bs_endpoint = on_encoded_did_equal(bs_src_did,
+          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
+          on_encoded_did_equal(bs_dst_did,
+          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+        dst_is_master = is_master_did((const on_encoded_did_t*)
+          &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+        #endif
+    }
     #endif
     
     #ifdef _ONE_NET_MULTI_HOP
@@ -3336,8 +3337,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         // the master, we won't repeat the packet.
         if(high_priority_bs)
         {
-            if(get_bs_device_is_src(bs_msg.flags) ||
-              get_bs_device_is_dst(bs_msg.flags))
+            if(!bs_msg.src || !bs_msg.dst)
             {
                 return ONS_BUSY; // we don't repeat packets if we are an
                                  // endpoint

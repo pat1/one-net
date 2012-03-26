@@ -1842,7 +1842,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
             if(bs_msg.transfer_in_progress)
             {
-                if(!on_encoded_did_equal(&bs_msg.src, SRC_DID))
+                if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
+                  SRC_DID))
                 {
                     ack_nack->nack_reason = ON_NACK_RSN_BUSY;
                     break;
@@ -1856,14 +1857,16 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 }
             }
             
-            one_net_memmove(bs_msg.src, *SRC_DID, ON_ENCODED_DID_LEN);
-            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg);
-            
-            if(get_bs_device_is_dst(bs_msg.flags))
+            bs_msg.src = sender_info(SRC_DID);
+            if(!bs_msg.src)
             {
-                // we are the destination
+                ack_nack->nack_reason = ON_NACK_RSN_INTERNAL_ERR;
+                break;
             }
-            else
+            
+            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg, SRC_DID);
+            
+            if(bs_msg.dst)
             {
                 // we are being requested as a repeater
                 #ifndef _ONE_NET_MH_CLIENT_REPEATER
