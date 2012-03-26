@@ -3113,7 +3113,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             one_net_memmove(bs_msg.src, *SRC_DID, ON_ENCODED_DID_LEN);
             admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg);
             bs_msg.transfer_in_progress = TRUE;
-            bs_msg.byte_idx = -1;
+            bs_msg.byte_idx = 0;
             break;
         }
         #ifdef _ONE_NET_MULTI_HOP
