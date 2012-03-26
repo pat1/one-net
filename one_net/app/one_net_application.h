@@ -474,6 +474,18 @@ BOOL on_parse_bs_pld(const UInt8* buffer, block_stream_pkt_t* bs_pkt);
 #endif
 
 
+extern on_base_param_t* const on_base_param;
+ONE_NET_INLINE on_encoded_did_t* get_encoded_did_from_sending_device(
+  const on_sending_device_t* device)
+{
+    if(!device)
+    {
+        return (on_encoded_did_t*) (&on_base_param->sid[ON_ENCODED_NID_LEN]);
+    }
+    return &(device->did);
+}
+
+
 
 //! @} ONE-NET_APP_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
