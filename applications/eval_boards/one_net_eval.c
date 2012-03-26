@@ -945,25 +945,84 @@ void eval_single_txn_status(on_message_status_t status,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-// TODO -- document
-void eval_block_txn_status(block_stream_msg_t* msg,
-  on_message_status_t status, on_ack_nack_t* ack_nack)
+/*!
+    \brief Callback function called when a block transaction is complete.
+    
+    Several things can cause this function to be called.
+    
+    1. We are the source and everything transferred successfully and we are
+       informing the application code that this is the case, and we will also
+       immediately inform the destination device, any repeaters, and possibly
+       the master.
+    2. We are the source and we need to terminate prematurely on our end.  We
+       need to inform our application code as well as the other device(s).
+    3. We are the destination and everything transferred successfully and we are
+       informing the application code that this is the case.  No other messages
+       are needed.
+    4. We are the destination and we need to terminate prematurely on our end.
+       Any ACKs or NACKs to the sending device have been handled elsewhere.
+    5. We are the master and the destinatoion or another device terminated the
+       transaction prematurely.  We are informing the application code that this
+       is the case, and we will also immediately inform the destination device,
+       any repeaters, and possibly the master.
+       
+    If we are the source, then the ack_nack message will be non-NULL and
+    will be pre-loaded with what ONE-NET intends to send the other device(s) in
+    the termination message.  This function can either leave the ack_nack
+    alone, it can change it, or it tell ONE-NET NOT TO send this termination
+    message.  It does that by returning anything but ON_MSG_RESPOND.
+    
+    The termination message should be changed if it is something that would
+    not make sense to the other devices.
+    
+    Note that the status can also be changed if desired by this application code.
+       
+
+    \param[in] msg The block / stream message that is being terminated.
+    \param[in] terminating_device The device that terminated this transaction.
+    \param[in] status The status of the message that was just completed.
+    \param[in] ack_nack Any ACK or NACK associated with this termination.
+    
+    \return void
+*/
+on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
+  const on_encoded_did_t* terminating_device, on_message_status_t* status,
+  on_ack_nack_t* ack_nack)
 {
+    // if we are a repeater, don't do anything.
+    if(!bs_msg.src && !bs_msg.dst)
+    {
+        return ON_MSG_DEFAULT_BHVR; // return type is irrelevant here
+    }
+    #if _DEBUG_VERBOSE_LEVEL > 0
+    if(verbose_level > 0)
+    {
+        BOOL a = TRUE;
+        #ifndef _STREAM_MESSAGES_ENABLED
+        const char* transfer_type = "Block";
+        #else
+        const char* transfer_type = ((get_bs_transfer_type(msg->flags) ==
+          ON_BLK_TRANSFER) ? "Block" : "Stream");
+        #endif
+        const char* result_str = ((*status == ON_MSG_SUCCESS) ?
+          "successfully" : "prematurely");
+          
+          
+        on_encoded_did_t* other_device = (bs_msg.src ? &bs_msg.src->did :
+          &bs_msg.dst->did);
+        on_raw_did_t raw_did;        
+        on_decode(raw_did, *other_device, ON_ENCODED_DID_LEN);
+        oncli_send_msg("%s message with %03X terminated %s\n", transfer_type,
+          did_to_u16(&raw_did), result_str);
+    }
+    #endif
+    
+    return ON_MSG_RESPOND; // irrelevant if we are not the source.
 }
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
-// TODO -- document
-void eval_stream_txn_status(block_stream_msg_t* msg,
-  on_message_status_t status, on_ack_nack_t* ack_nack)
-{
-}
-#endif
-
-
-
-// Packet Display Funcitonality
+// Packet Display Functionality
 // TODO -- Should these functions be in oncli.c instead of here?
 #if _DEBUG_VERBOSE_LEVEL > 0
 
