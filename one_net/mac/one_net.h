@@ -318,9 +318,22 @@ typedef enum
     
     //! Pausing between chunks in a block / stream packet
     ON_BS_CHUNK_PAUSE,
-
-
     
+    //! First stage of the termination process for block / stream
+    ON_BS_TERMINATE,
+    
+    //! Sending the termination packet
+    ON_BS_SEND_TERMINATE_PACKET,
+    
+    //! Waits for the write to end
+    ON_BS_SEND_TERMINATE_WRITE_WAIT,
+    
+    //! Waits for a response for the termination
+    ON_BS_WAIT_FOR_TERMINATE_RESP,
+    
+    //! Termination is complete
+    ON_BS_TERMINATE_COMPLETE,
+
 #ifdef _IDLE	
 	//! do nothing
 	ON_IDLE = 0xF0,
