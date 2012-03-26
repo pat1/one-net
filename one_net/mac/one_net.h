@@ -491,9 +491,11 @@ typedef on_sending_device_t* (*one_net_get_sender_info_func_t)
 typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
   on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
-  
+
+#ifdef _BLOCK_MESSAGES_ENABLED
 typedef on_message_status_t (*on_bs_pkt_hdlr_t)(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
+#endif
 
 //! Packet Handling Function for responses
 typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t* txn,
