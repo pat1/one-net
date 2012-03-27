@@ -1007,7 +1007,6 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
     #if _DEBUG_VERBOSE_LEVEL > 0
     if(verbose_level > 0)
     {
-        BOOL a = TRUE;
         #ifndef _STREAM_MESSAGES_ENABLED
         const char* transfer_type = "Block";
         #else
@@ -1015,14 +1014,14 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
           ON_BLK_TRANSFER) ? "Block" : "Stream");
         #endif
         const char* result_str = ((*status == ON_MSG_SUCCESS) ?
-          "successfully" : "prematurely");
-          
+          "terminated successfully" : (*status == ON_MSG_TIMEOUT) ?
+          "timed out" : "terminated prematurely");
           
         on_encoded_did_t* other_device = (bs_msg.src ? &bs_msg.src->did :
           &bs_msg.dst->did);
         on_raw_did_t raw_did;        
         on_decode(raw_did, *other_device, ON_ENCODED_DID_LEN);
-        oncli_send_msg("%s message with %03X terminated %s\n", transfer_type,
+        oncli_send_msg("%s message with %03X %s.\n", transfer_type,
           did_to_u16(&raw_did), result_str);
     }
     #endif
