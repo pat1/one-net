@@ -527,8 +527,9 @@ typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 //! Block / Stream Transaction Handler
-typedef void (*on_bs_txn_hdlr_t)(block_stream_msg_t* msg,
-  on_message_status_t status, on_ack_nack_t* ack_nack);
+typedef on_message_status_t (*on_bs_txn_hdlr_t)(const block_stream_msg_t* msg,
+  const on_encoded_did_t* terminating_device, on_message_status_t* status,
+  on_ack_nack_t* ack_nack);
 #endif
   
   
@@ -918,6 +919,10 @@ UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
 UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 dst_process_time, UInt8 data_rate);
 #endif
+
+void terminate_bs_msg(block_stream_msg_t* bs_msg,
+  const on_encoded_did_t* terminating_did, on_message_status_t status,
+  on_ack_nack_t* ack_nack);
 #endif
 
 

@@ -1162,13 +1162,8 @@ void one_net(on_txn_t ** txn)
     if(bs_msg.transfer_in_progress && bs_msg.src &&
       ont_inactive_or_expired(ONT_BS_TIMER))
     {
-        // A block or stream message where we were not the source has timed
-        // out.
-        oncli_send_msg("Block / Stream timed out\n");
-        bs_msg.transfer_in_progress = FALSE;
-        one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
-        one_net_set_channel(on_base_param->channel);
-        on_state = ON_LISTEN_FOR_DATA;
+        terminate_bs_msg(&bs_msg, NULL, ON_MSG_TIMEOUT, NULL);
+        return;
     }
     #endif
     
@@ -4696,6 +4691,88 @@ on_single_data_queue_t* request_reserve_repeater(
       );
 }
 #endif
+
+
+void terminate_bs_msg(block_stream_msg_t* bs_msg,
+  const on_encoded_did_t* terminating_did, on_message_status_t status,
+  on_ack_nack_t* ack_nack)
+{
+    #ifdef _STREAM_MESSAGES_ENABLED
+    on_bs_txn_hdlr_t txn_hdlr = (get_bs_transfer_type(bs_msg->flags) ==
+      ON_BLK_TRANSFER) ? pkt_hdlr.block_txn_hdlr : pkt_hdlr.stream_txn_hdlr;
+    #else
+    on_bs_txn_hdlr_t txn_hdlr = pkt_hdlr.block_txn_hdlr;
+    #endif
+    
+    // see comment below.  We use the bs_txn.pkt buffer as temporary storage.
+    on_ack_nack_t* response_ack_nack = (on_ack_nack_t*)
+      &bs_txn.pkt[ON_ENCODED_DID_LEN+1];
+    response_ack_nack->payload = (ack_nack_payload_t*)
+      &bs_txn.pkt[ON_ENCODED_DID_LEN+3];
+      
+    if(!ack_nack)
+    {
+        ack_nack = response_ack_nack;
+        ack_nack->handle = ON_ACK;
+        ack_nack->nack_reason = ON_NACK_RSN_UNSET;
+        ack_nack->payload = response_ack_nack->payload;
+    }
+    
+    // First inform the application code and give it a chance to change.
+    if((*txn_hdlr)(bs_msg, terminating_did, &status, ack_nack) !=
+      ON_MSG_RESPOND)
+    {
+        // abort immediately
+        on_state = ON_LISTEN_FOR_DATA;
+        bs_msg->transfer_in_progress = FALSE;
+        #ifdef _DATA_RATE
+        one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
+        one_net_set_channel(on_base_param->channel);
+        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+        #endif
+        return;
+    }
+    
+    // we'll use the bs_txn.pkt buffer as temporary storage for the termination
+    // message.  We'll change states to ON_BS_TERMINATE and make sure that
+    // memory is not accidentally overwritten.
+    one_net_memmove(bs_txn.pkt, &on_base_param->sid[ON_ENCODED_NID_LEN],
+      ON_ENCODED_NID_LEN);
+    if(terminating_did)
+    {
+        one_net_memmove(bs_txn.pkt, *terminating_did, ON_ENCODED_DID_LEN);
+    }
+    bs_txn.pkt[ON_ENCODED_DID_LEN] = status;
+    response_ack_nack->nack_reason = ack_nack->nack_reason;
+    response_ack_nack->handle = ack_nack->handle;
+    
+    if(ack_nack->payload)
+    {
+        one_net_memmove(response_ack_nack->payload, ack_nack->payload,
+          5);
+    }
+    
+    bs_msg->bs_on_state = ON_BS_TERMINATE;
+    on_state = ON_BS_TERMINATE;
+    
+    if(bs_msg->dst)
+    {
+        // We are the source.  Push a single message onto the queue.
+        push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
+          bs_txn.pkt, 10, ONE_NET_HIGH_PRIORITY, NULL, &bs_msg->dst->did
+          #ifdef _PEER
+              , FALSE,
+              ONE_NET_DEV_UNIT
+          #endif
+          #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+              , 0
+          #endif
+          #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+        	  , 0
+          #endif
+          );
+    }
+}
 #endif
 
 

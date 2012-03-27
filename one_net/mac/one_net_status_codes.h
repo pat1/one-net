@@ -153,8 +153,8 @@ typedef enum
                   //! depend on the application -- for example it could be
                   //! interpreted as "I have all the information I need.  No "
                   //! need to send any more")
-    ON_MSG_SUCCESS, //! Successful completion.  Transaction should terminate.
-    ON_MSG_FAIL, //! Failure.  Transation should terminate.
+    ON_MSG_SUCCESS, //! Successful completion.
+    ON_MSG_FAIL, //! Failure.
     ON_MSG_RESPOND, //! Message should be responded to with an ACK or a NACK.
     ON_MSG_TIMEOUT, //! Message has timed out.
     ON_MSG_IGNORE, //! Message should be ignored.  ONE-NET should not send a response.
@@ -168,6 +168,7 @@ typedef enum
                          //! same as ON_MSG_ABORT.  ONE-NET will treat these as identical.
                          //! The application code may treat them differently.
     ON_MSG_INTERNAL_ERR, //! Represents an internal error
+    ON_MSG_ROUTE_UNAVAILABLE, //! No route to the device and back is available
     ON_NUM_MESSAGE_STATUS_CODES,
     
     //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to

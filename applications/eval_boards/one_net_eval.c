@@ -969,8 +969,16 @@ void eval_single_txn_status(on_message_status_t status,
     If we are the source, then the ack_nack message will be non-NULL and
     will be pre-loaded with what ONE-NET intends to send the other device(s) in
     the termination message.  This function can either leave the ack_nack
-    alone, it can change it, or it tell ONE-NET NOT TO send this termination
+    alone, it can change it, or it tells ONE-NET NOT TO send this termination
     message.  It does that by returning anything but ON_MSG_RESPOND.
+    
+    If we are not the source, we might either abort immediately or "hang around"
+    as a service to any other device(s) and give them an ACK or a NACK or
+    stay as a repeater or whatever. In that case, this function should return
+    ON_MSG_RESPOND and we will, if we are the destination and we are the ones
+    terminating the device, at least tell the sending device that we are
+    terminating and why.  On the other hand, we can also simply "drop out" of
+    the message and the other device(s) will eventually time out.
     
     The termination message should be changed if it is something that would
     not make sense to the other devices.
@@ -983,7 +991,9 @@ void eval_single_txn_status(on_message_status_t status,
     \param[in] status The status of the message that was just completed.
     \param[in] ack_nack Any ACK or NACK associated with this termination.
     
-    \return void
+    \return ON_MSG_RESPOND if this device should inform the other devices
+              of the termination.
+            All other return types abort immediately with no further messages.
 */
 on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
   const on_encoded_did_t* terminating_device, on_message_status_t* status,
