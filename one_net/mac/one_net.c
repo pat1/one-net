@@ -305,6 +305,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
+static void terminate_bs_complete(block_stream_msg_t* bs_msg);
 #endif
 
 
@@ -1167,6 +1168,12 @@ void one_net(on_txn_t ** txn)
     if(bs_msg.transfer_in_progress && bs_msg.src &&
       ont_inactive_or_expired(ONT_BS_TIMER))
     {
+        if(on_state >= ON_BS_TERMINATE || bs_msg.bs_on_state >=
+          ON_BS_TERMINATE)
+        {
+            terminate_bs_complete(&bs_msg);
+            return;
+        }
         terminate_bs_msg(&bs_msg, NULL, ON_MSG_TIMEOUT, NULL);
         return;
     }
@@ -4796,6 +4803,11 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     response_ack_nack->payload = (ack_nack_payload_t*)
       &bs_txn.pkt[ON_ENCODED_DID_LEN+4];
       
+    if(on_state >= ON_BS_TERMINATE || bs_msg->bs_on_state>= ON_BS_TERMINATE)
+    {
+        return; // already in the process of terminating.
+    }
+      
     if(!ack_nack)
     {
         ack_nack = response_ack_nack;
@@ -4808,14 +4820,15 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     if((*txn_hdlr)(bs_msg, terminating_did, &status, ack_nack) !=
       ON_MSG_RESPOND)
     {
-        // abort immediately
-        on_state = ON_LISTEN_FOR_DATA;
-        bs_msg->transfer_in_progress = FALSE;
-        #ifdef _DATA_RATE
-        one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
-        one_net_set_channel(on_base_param->channel);
-        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
-        #endif
+        terminate_bs_complete(bs_msg);
+        return;
+    }
+    
+    if(status == ON_MSG_TIMEOUT)
+    {
+        // if this was a timeout, then presumably communication has been lost
+        // so abort immediately.
+        terminate_bs_complete(bs_msg);
         return;
     }
     
@@ -4841,8 +4854,9 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     
     bs_msg->bs_on_state = ON_BS_TERMINATE;
     on_state = ON_BS_TERMINATE;
+    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
     
-    if(bs_msg->dst)
+    if(!bs_msg->src)
     {
         // We are the source.  Push a single message onto the queue.
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
@@ -4858,6 +4872,16 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
         	  , 0
           #endif
           );
+    }
+    else if(!bs_msg->dst)
+    {
+        // we are the destination.
+        if(terminating_did)
+        {
+            // someone else initiated this termination, so wait a VERY
+            // short time to see if any ACKs might be missed, then terminate
+            ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(500));
+        }
     }
 }
 #endif
@@ -4928,6 +4952,21 @@ static BOOL check_for_clr_channel(void)
 
     return FALSE;
 } // check_for_clr_channel //
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+static void terminate_bs_complete(block_stream_msg_t* bs_msg)
+{
+    // abort immediately
+    on_state = ON_LISTEN_FOR_DATA;
+    bs_msg->transfer_in_progress = FALSE;
+    #ifdef _DATA_RATE
+    one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
+    one_net_set_channel(on_base_param->channel);
+    ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+    #endif
+}
+#endif
 
 
 
