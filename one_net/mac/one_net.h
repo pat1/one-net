@@ -508,6 +508,11 @@ typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
 #ifdef _BLOCK_MESSAGES_ENABLED
 typedef on_message_status_t (*on_bs_pkt_hdlr_t)(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
+  
+//! Packet Handling Function for block / stream responses
+typedef on_message_status_t (*on_bs_ack_nack_hdlr_t)(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  on_ack_nack_t* ack_nack);
 #endif
 
 //! Packet Handling Function for responses
@@ -554,7 +559,7 @@ typedef struct
     on_bs_pkt_hdlr_t block_data_hdlr;
 	
 	//! Single Data ACK/NACK Handler
-	on_ack_nack_hdlr_t block_ack_nack_hdlr;
+	on_bs_ack_nack_hdlr_t block_ack_nack_hdlr;
 
     //! Single transaction handler
     on_bs_txn_hdlr_t block_txn_hdlr;
@@ -565,7 +570,7 @@ typedef struct
     on_bs_pkt_hdlr_t stream_data_hdlr;
 	
 	//! Stream Data ACK/NACK Handler
-	on_ack_nack_hdlr_t stream_ack_nack_hdlr;
+	on_bs_ack_nack_hdlr_t stream_ack_nack_hdlr;
 
     //! Stream transaction handler
     on_bs_txn_hdlr_t stream_txn_hdlr;

@@ -301,6 +301,11 @@ static BOOL check_for_clr_channel(void);
 static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   on_txn_t** const this_txn, on_pkt_t* const pkt,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack);
+#ifdef _BLOCK_MESSAGES_ENABLED
+static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  on_ack_nack_t* ack_nack);
+#endif
 
 
 
@@ -1525,10 +1530,6 @@ void one_net(on_txn_t ** txn)
                                         return;
                                     }
                                     bs_msg.dst->msg_id++;
-                                    
-                                    
-                                    oncli_send_msg(
-                                      "Commencing block / transfer\n");
                                     bs_txn.key = (one_net_xtea_key_t*)
                                       on_base_param->current_key;
                                     bs_msg.byte_idx = 0;
@@ -1557,12 +1558,22 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     break;
                                 }
+                                
+                                case ON_BS_CHUNK_PAUSE:
+                                {
+                                    if(ont_expired(ONT_BS_TIMER))
+                                    {
+                                        bs_msg.bs_on_state =
+                                          ON_BS_PREPARE_DATA_PACKET;
+                                    }
+                                    break;
+                                }
                                 default:
                                 {
                                     // abort for now.
-                                    bs_msg.transfer_in_progress = FALSE;
-                                    bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
-                                    oncli_send_msg("Aborting block / stream\n");
+                                    terminate_bs_msg(&bs_msg, NULL, ON_MSG_FAIL,
+                                      NULL);
+                                    return;
                                 }
                             }
 
@@ -2292,14 +2303,7 @@ void one_net(on_txn_t ** txn)
                 {
                     if(ont_inactive_or_expired(ONT_BS_TIMER))
                     {
-                        // we have timed out without a response.  Just abort
-                        // for now.
-                        oncli_send_msg("Block / stream transfer timed out.\n");
-                        #ifdef _DATA_RATE
-                        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
-                        bs_msg.transfer_in_progress = FALSE;
-                        on_state = ON_LISTEN_FOR_DATA;
-                        #endif
+                        terminate_bs_msg(&bs_msg, NULL, ON_MSG_TIMEOUT, NULL);
                     }
                     else
                     {
@@ -2373,18 +2377,21 @@ void one_net(on_txn_t ** txn)
                 #endif
             
                 if(status == ONS_PKT_RCVD)
-                {
+                {                    
                     #ifdef _BLOCK_MESSAGES_ENABLED
                     if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                     {
-                        // just terminate for now.
-                        oncli_send_msg("Rcv'd response packet.  Aborting.\n");
-                        #ifdef _DATA_RATE
-                        ont_set_timer(ONT_DATA_RATE_TIMER, 0);
-                        bs_msg.transfer_in_progress = FALSE;
-                        on_state = ON_LISTEN_FOR_DATA;
-                        #endif
-                        break;
+                        msg_status = rx_block_resp_pkt(*txn, &bs_msg, this_pkt_ptrs,
+                          raw_payload_bytes, &ack_nack);           
+                        
+                        if(msg_status == ON_MSG_CONTINUE)
+                        {
+                            // At least one packet was not received, so
+                            // send again immediately.
+                            on_state = ON_BS_PREPARE_DATA_PACKET;
+                            ont_set_timer(ONT_BS_TIMER, 0);
+                        }
+                        return;
                     }
                     #endif
                     
@@ -3060,6 +3067,85 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  on_ack_nack_t* ack_nack)
+{
+    on_message_status_t status;
+    
+    if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
+      ONS_SUCCESS)
+    {
+        return ON_MSG_IGNORE; // undecipherable
+    }
+    
+    // send it up to the application code.
+    status = (*pkt_hdlr.block_ack_nack_hdlr)(txn, bs_msg, pkt,
+      raw_payload_bytes, ack_nack);
+      
+    switch(status)
+    {
+        case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
+          terminate_bs_msg(bs_msg, NULL, status, ack_nack);
+          return ON_MSG_TERMINATE;
+        case ON_MSG_IGNORE:
+          return ON_MSG_IGNORE;
+    }
+    
+    switch(ack_nack->handle)
+    {
+        case ON_ACK_SLOW_DOWN_TIME_MS:
+          bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
+          break;
+        case ON_ACK_SPEED_UP_TIME_MS:
+          bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
+          break;
+        case ON_ACK_PAUSE_TIME_MS:
+          ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+            ack_nack->payload->nack_time_ms));
+          break;
+        case ON_ACK_BLK_PKTS_RCVD:
+          one_net_memmove(bs_msg->sent, ack_nack->payload->ack_payload,
+            sizeof(bs_msg->sent));
+          return ON_MSG_CONTINUE;
+        default:
+        {
+            switch(ack_nack->nack_reason)
+            {
+                // TODO -- handle speed up and slow down?
+                case ON_NACK_RSN_INVALID_CHUNK_DELAY:
+                    bs_msg->chunk_pause = ack_nack->payload->nack_time_ms;
+                    break;
+                case ON_NACK_RSN_INVALID_BYTE_INDEX:
+                    bs_msg->byte_idx = ack_nack->payload->nack_value;
+                    
+                    if(bs_msg->byte_idx >= bs_msg->transfer_size)
+                    {
+                        terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
+                          ack_nack);
+                        return ON_MSG_IGNORE;
+                    }
+                    
+                    one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+                    on_state = ON_BS_CHUNK_PAUSE;
+                    bs_msg->bs_on_state = ON_BS_CHUNK_PAUSE;
+                    ont_set_timer(ONT_BS_TIMER, 0);
+                    break;
+                case ON_NACK_RSN_INVALID_FRAG_DELAY:
+                    bs_msg->frag_dly = ack_nack->payload->nack_time_ms;
+                    break;
+                case ON_NACK_RSN_INVALID_PRIORITY:
+                    set_bs_priority(&bs_msg->flags,
+                      ack_nack->payload->nack_value);
+                    break;
+            }
+        }
+    }
+    
+    return ON_MSG_IGNORE;
+}
+
+
 on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
@@ -4706,9 +4792,9 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     
     // see comment below.  We use the bs_txn.pkt buffer as temporary storage.
     on_ack_nack_t* response_ack_nack = (on_ack_nack_t*)
-      &bs_txn.pkt[ON_ENCODED_DID_LEN+1];
+      &bs_txn.pkt[ON_ENCODED_DID_LEN+2];
     response_ack_nack->payload = (ack_nack_payload_t*)
-      &bs_txn.pkt[ON_ENCODED_DID_LEN+3];
+      &bs_txn.pkt[ON_ENCODED_DID_LEN+4];
       
     if(!ack_nack)
     {
@@ -4736,13 +4822,14 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     // we'll use the bs_txn.pkt buffer as temporary storage for the termination
     // message.  We'll change states to ON_BS_TERMINATE and make sure that
     // memory is not accidentally overwritten.
-    one_net_memmove(bs_txn.pkt, &on_base_param->sid[ON_ENCODED_NID_LEN],
+    bs_txn.pkt[0] = ON_TERMINATE_BLOCK_STREAM;
+    one_net_memmove(&bs_txn.pkt[1], &on_base_param->sid[ON_ENCODED_NID_LEN],
       ON_ENCODED_NID_LEN);
     if(terminating_did)
     {
         one_net_memmove(bs_txn.pkt, *terminating_did, ON_ENCODED_DID_LEN);
     }
-    bs_txn.pkt[ON_ENCODED_DID_LEN] = status;
+    bs_txn.pkt[ON_ENCODED_DID_LEN+1] = status;
     response_ack_nack->nack_reason = ack_nack->nack_reason;
     response_ack_nack->handle = ack_nack->handle;
     
@@ -4759,7 +4846,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     {
         // We are the source.  Push a single message onto the queue.
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
-          bs_txn.pkt, 10, ONE_NET_HIGH_PRIORITY, NULL, &bs_msg->dst->did
+          bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL, &bs_msg->dst->did
           #ifdef _PEER
               , FALSE,
               ONE_NET_DEV_UNIT

@@ -255,6 +255,8 @@ typedef enum
     ON_REQUEST_BLOCK_STREAM = 0x13,
     
     ON_REQUEST_REPEATER = 0x14,
+    
+    ON_TERMINATE_BLOCK_STREAM = 0x15,
     #endif
 
     //! Sent by the MASTER when it is adding a device to the network
