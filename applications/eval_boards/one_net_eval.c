@@ -1592,10 +1592,12 @@ on_message_status_t eval_block_chunk_received(
 on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
+    #if _DEBUG_VERBOSE_LEVEL > 3
     #ifndef _STREAM_MESSAGES_ENABLED
     print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
     #else
     print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
+    #endif
     #endif
     return ON_MSG_ACCEPT_PACKET;
 }
