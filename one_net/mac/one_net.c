@@ -1207,7 +1207,14 @@ void one_net(on_txn_t ** txn)
             
             // we are listening for data.  Make sure we have nothing
             // pending
+            #ifndef _BLOCK_MESSAGES_ENABLED
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY)
+            #else
+            if((*txn == NULL || ((*txn == &bs_txn &&
+              bs_msg.transfer_in_progress) && (on_state == ON_BS_CHUNK_PAUSE ||
+              get_bs_priority(bs_msg.flags) < ONE_NET_HIGH_PRIORITY))) &&
+              single_txn.priority == ONE_NET_NO_PRIORITY)
+            #endif
             {
                 on_sending_device_t* device;
                 #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -1568,7 +1575,7 @@ void one_net(on_txn_t ** txn)
                                 
                                 case ON_BS_CHUNK_PAUSE:
                                 {
-                                    if(ont_expired(ONT_BS_TIMER))
+                                    if(ont_inactive_or_expired(ONT_BS_TIMER))
                                     {
                                         bs_msg.bs_on_state =
                                           ON_BS_PREPARE_DATA_PACKET;
@@ -3119,7 +3126,6 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         {
             switch(ack_nack->nack_reason)
             {
-                // TODO -- handle speed up and slow down?
                 case ON_NACK_RSN_INVALID_CHUNK_DELAY:
                     bs_msg->chunk_pause = ack_nack->payload->nack_time_ms;
                     break;
@@ -3136,7 +3142,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                     one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
                     on_state = ON_BS_CHUNK_PAUSE;
                     bs_msg->bs_on_state = ON_BS_CHUNK_PAUSE;
-                    ont_set_timer(ONT_BS_TIMER, 0);
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->chunk_pause));
                     break;
                 case ON_NACK_RSN_INVALID_FRAG_DELAY:
                     bs_msg->frag_dly = ack_nack->payload->nack_time_ms;
