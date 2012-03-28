@@ -1883,14 +1883,16 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             if(!ack_nack->nack_reason)
             {
+                one_net_block_stream_transfer_requested(&bs_msg, ack_nack);
+            }
+            
+            if(!ack_nack->nack_reason)
+            {
                 bs_msg.transfer_in_progress = TRUE;
                 bs_msg.byte_idx = 0;
                 
                 // Set the block / stream timer to the timeout
                 ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
-                
-                // temporary debugging
-                oncli_send_msg("BS Message: to=%d\n", bs_msg.timeout);
             }
             break;
         }

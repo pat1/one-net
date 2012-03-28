@@ -55,6 +55,11 @@
 //! @{
 
 
+enum
+{
+    BLOCK_STREAM_CHUNK_SIZE = 4
+}; // TODO -- what about DEFAULT_BS_CHUNK_SIZE in one_net_port_const.h?
+
 
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
@@ -178,7 +183,9 @@ UInt8 user_pin_src_unit;
 //! \defgroup ONE-NET_eval_pri_var
 //! \ingroup ONE-NET_eval
 //! @{
-  
+
+//! Buffer to hold block (and possibly stream) values.
+static char bs_buffer[BLOCK_STREAM_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE + 1];
 
 
 //! @} ONE-NET_eval_pri_var
@@ -1514,6 +1521,8 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
+    oncli_send_msg("bs requested\n");
+    one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
 }
 #endif
 
@@ -1570,8 +1579,9 @@ on_message_status_t eval_block_chunk_received(
   block_stream_msg_t* bs_msg, UInt32 byte_idx, UInt8 chunk_size,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- display the chunk
     oncli_send_msg("Rcvd Chunk %ld-%d\n", byte_idx, chunk_size);
+    oncli_send_msg("%s\n", bs_buffer);
+    one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
     return ON_MSG_ACCEPT_CHUNK;
 }
 
@@ -1599,6 +1609,14 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
     print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
     #endif
     #endif
+    
+    // TODO -- what if chunk index is too high?
+    if(block_pkt->chunk_idx < BLOCK_STREAM_CHUNK_SIZE - 1)
+    {
+        one_net_memmove(&bs_buffer[ON_BS_DATA_PLD_SIZE * block_pkt->chunk_idx],
+          block_pkt->data, ON_BS_DATA_PLD_SIZE);
+    }
+    
     return ON_MSG_ACCEPT_PACKET;
 }
 
