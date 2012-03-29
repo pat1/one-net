@@ -3136,7 +3136,8 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                 case ON_NACK_RSN_INVALID_BYTE_INDEX:
                     bs_msg->byte_idx = ack_nack->payload->nack_value;
                     
-                    if(bs_msg->byte_idx >= bs_msg->transfer_size)
+                    if(bs_msg->byte_idx >= bs_msg->transfer_size /
+                      ON_BS_DATA_PLD_SIZE)
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
                           ack_nack);
