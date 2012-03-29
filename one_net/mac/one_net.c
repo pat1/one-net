@@ -3211,7 +3211,7 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
         }
     }
 
-    if(block_get_lowest_unsent_index(block_pkt->sent, expected_chunk_size) == -1)
+    if(block_get_lowest_unsent_index(bs_msg->sent, expected_chunk_size) == -1)
     {
         // chunk has been received.
         #if !defined(_ONE_NET_MASTER)
