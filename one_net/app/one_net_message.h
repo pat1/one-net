@@ -789,6 +789,34 @@ ONE_NET_INLINE SInt8 block_get_lowest_unsent_index(const UInt8 array[5],
     }
     return -1;
 }
+
+
+// returns the chunk size to be used. For the first and last 40 packets,
+// the chunk size is 1.  Otherwise it is whatever is stored in the message
+ONE_NET_INLINE UInt8 get_bs_chunk_size_to_send(const block_stream_msg_t* bs_msg)
+{
+    UInt32 num_packets_total = bs_msg->transfer_size / ON_BS_DATA_PLD_SIZE;
+    UInt32 num_packets_left;
+    
+    if(bs_msg->byte_idx < 40)
+    {
+        return 1;
+    }
+    
+    num_packets_left = num_packets_total - bs_msg->byte_idx;
+    
+    if(num_packets_left <= 40)
+    {
+        return 1;
+    }
+    
+    if(num_packets_left >= 40 + bs_msg->chunk_size)
+    {
+        return bs_msg->chunk_size;
+    }
+    
+    return num_packets_left - 40;
+}
 #endif
 
 
