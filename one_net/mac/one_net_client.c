@@ -750,13 +750,52 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
+    *nr = ON_NACK_RSN_NO_ERROR;
+    
     if(bs_msg.transfer_in_progress)
     {
         *nr = ON_NACK_RSN_BUSY;
     }
     else
     {
-        *nr = ON_NACK_RSN_NO_ERROR;
+        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));  
+        
+        if(!txn->dst)
+        {
+            *nr = ON_NACK_RSN_INTERNAL_ERR;
+            return *nr;
+        }
+        
+        if(!features_data_rate_capable(THIS_DEVICE_FEATURES,
+          bs_msg.data_rate))
+        {
+            *nr = ON_NACK_RSN_INVALID_DATA_RATE;
+            return *nr;
+        }        
+        
+        if(features_known(bs_msg.dst->features))
+        {
+            if(!features_block_capable(bs_msg.dst->features))
+            {
+                *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            }
+        
+            if(!features_data_rate_capable(txn->dst->features,
+              bs_msg.data_rate))
+            { 
+                *nr = ON_NACK_RSN_INVALID_DATA_RATE;
+            }
+        }
+        
+        set_bs_transfer_type(&bs_msg.flags, ON_BLK_TRANSFER);
+        bs_msg.src = NULL;
+        bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
+        ont_set_timer(ONT_BS_TIMER, 0);
+    }
+    
+    if(*nr == ON_NACK_RSN_NO_ERROR)
+    {
+        bs_msg.transfer_in_progress = TRUE;
     }
     return *nr;
 }
