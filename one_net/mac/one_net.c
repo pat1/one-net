@@ -3535,9 +3535,17 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               if(*this_txn != &single_txn)
               #endif
               {
-                  *this_txn = &single_txn; // TODO -- why is this line here for BAD packets?
                   return ONS_UNHANDLED_PKT;
               }
+              #ifdef _BLOCK_MESSAGES_ENABLED
+              else
+              {
+                  one_net_memmove(&(single_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
+                    &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
+                    ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);                  
+                  *this_txn = &single_txn;
+              }
+              #endif
               break;
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_BLOCK:
