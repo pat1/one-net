@@ -1521,8 +1521,11 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
-    oncli_send_msg("bs requested\n");
-    one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
+    if(!bs_msg->dst)
+    {
+        // we are the recipient, so clear.
+        one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
+    }
 }
 #endif
 
@@ -1612,11 +1615,14 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
     #if _DEBUG_VERBOSE_LEVEL > 3
-    #ifndef _STREAM_MESSAGES_ENABLED
-    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
-    #else
-    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
-    #endif
+    if(verbose_level > 3)
+    {
+        #ifndef _STREAM_MESSAGES_ENABLED
+        print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
+        #else
+        print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
+        #endif
+    }
     #endif
     
     // TODO -- what if chunk index is too high?
