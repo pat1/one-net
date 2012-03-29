@@ -3051,6 +3051,17 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #endif
         
         #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_TERMINATE_BLOCK_STREAM:
+        {
+            on_ack_nack_t* received_ack_nack = (on_ack_nack_t*)
+              &DATA[ON_ENCODED_DID_LEN+2];
+            received_ack_nack->payload = (ack_nack_payload_t*)
+              &DATA[ON_ENCODED_DID_LEN+4];
+            terminate_bs_msg(&bs_msg, (const on_encoded_did_t*) &DATA[1],
+              DATA[ON_ENCODED_DID_LEN+1], received_ack_nack);
+            break;
+        }        
+        
         case ON_REQUEST_BLOCK_STREAM:
         {
             // check if we are already in the middle of a block transaction.  If

@@ -1197,6 +1197,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_MASTER_REPEATER_PERMISSION_END:
         case ON_BS_COMMENCE:
         case ON_BS_CHUNK_PAUSE:
+        case ON_BS_TERMINATE:
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -2100,6 +2101,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_REPEATER_PERMISSION:
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         case ON_BS_SEND_DATA_PKT:
+        case ON_BS_SEND_TERMINATE_PACKET:
         #endif
         {
             #ifndef _BLOCK_MESSAGES_ENABLED
@@ -2142,6 +2144,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_DATA_WRITE_WAIT:
+        case ON_BS_SEND_TERMINATE_WRITE_WAIT:
         #endif
         {
             // TODO -- add handling for block / stream
@@ -2289,6 +2292,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_DATA_RESP:
+        case ON_BS_WAIT_FOR_TERMINATE_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
@@ -2565,6 +2569,10 @@ void one_net(on_txn_t ** txn)
                 {
                     bs_msg.bs_on_state = on_state + 1;
                     on_state -= 3;
+                    if(on_state == ON_BS_TERMINATE)
+                    {
+                        on_state = ON_BS_TERMINATE_COMPLETE;
+                    }
                 }
                 else
                 #endif
@@ -2578,6 +2586,11 @@ void one_net(on_txn_t ** txn)
             
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
+        
+        #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_BS_TERMINATE_COMPLETE:
+           terminate_bs_complete(&bs_msg);
+        #endif
     }
 } // one_net //
 
@@ -4859,7 +4872,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
       ON_ENCODED_NID_LEN);
     if(terminating_did)
     {
-        one_net_memmove(bs_txn.pkt, *terminating_did, ON_ENCODED_DID_LEN);
+        one_net_memmove(&bs_txn.pkt[1], *terminating_did, ON_ENCODED_DID_LEN);
     }
     bs_txn.pkt[ON_ENCODED_DID_LEN+1] = status;
     response_ack_nack->nack_reason = ack_nack->nack_reason;
