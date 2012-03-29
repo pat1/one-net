@@ -3064,11 +3064,29 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_REQUEST_BLOCK_STREAM:
         {
-            // check if we are already in the middle of a block transaction.  If
+            on_encoded_did_t* dst_did = (const on_encoded_did_t*)
+              &DATA[BLOCK_STREAM_SETUP_DST_IDX];
+            on_client_t* recipient = client_info(dst_did);
+            BOOL master_is_recipient = (is_my_did(dst_did));
+            block_stream_msg_t proposed_msg;
+            block_stream_msg_t* bs_ptr = &bs_msg;
+              
+            if(!master_is_recipient)
+            {
+                bs_ptr = &proposed_msg; // we don't want to write our own
+                                        // message, if any.
+                if(!recipient)
+                {
+                    ack_nack->nack_reason = ON_NACK_RSN_BAD_ADDRESS_ERR;
+                    break;
+                }
+            }
+            
+            // Check if we are already in the middle of a block transaction.  If
             // we are and the source is NOT the sending device of this message,
             // NACK it.  If the source IS the sending device of this message and
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
-            if(bs_msg.transfer_in_progress)
+            if(master_is_recipient && bs_msg.transfer_in_progress)
             {
                 if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
                   SRC_DID))
@@ -3085,23 +3103,18 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 }
             }
             
-            // make sure it's to us.
-            if(!is_my_did((const on_encoded_did_t*)
-              &DATA[BLOCK_STREAM_SETUP_DST_IDX]))
-            {
-                ack_nack->nack_reason = ON_NACK_RSN_BAD_ADDRESS_ERR;
-                break;
-            }
-            
-            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg,
+            admin_msg_to_block_stream_msg_t(&DATA[0], bs_ptr,
               (const on_encoded_did_t*) (*client)->device.did);
-              
-            if(!ack_nack->nack_reason)
-            {
-                one_net_block_stream_transfer_requested(&bs_msg, ack_nack);
-            }
             
             if(!ack_nack->nack_reason)
+            {
+                one_net_block_stream_transfer_requested(bs_ptr, ack_nack);
+            }
+            
+            // we could check other things like features, but the client
+            // device will check that anyway.
+            
+            if(master_is_recipient && !ack_nack->nack_reason)
             {
                 bs_msg.transfer_in_progress = TRUE;
                 bs_msg.byte_idx = 0;
