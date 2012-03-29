@@ -2170,6 +2170,7 @@ void one_net(on_txn_t ** txn)
                         // so use a UInt32.
                         UInt32 chunk_size_32 = bs_msg.chunk_size;
                         UInt8 current_chunk_size = bs_msg.chunk_size;
+                        SInt8 new_chunk_idx;
                         
                         // We need a response if any of the following is true...
                         // 1. We are near the beginning (first 1000 bytes).
@@ -2188,15 +2189,18 @@ void one_net(on_txn_t ** txn)
                           bs_msg.byte_idx, bs_msg.chunk_idx, current_chunk_size);
                         block_set_index_sent(bs_msg.chunk_idx, TRUE,
                           bs_msg.sent);
-                        bs_msg.chunk_idx = block_get_lowest_unsent_index(
+                          
+                        new_chunk_idx = block_get_lowest_unsent_index(
                           bs_msg.sent, current_chunk_size);
-                        if(bs_msg.chunk_idx == -1)
+                          
+                        if(new_chunk_idx == -1)
                         {
-                            bs_msg.chunk_idx = current_chunk_size - 1;
+                            need_response = (bs_msg.chunk_idx ==
+                              current_chunk_size - 1);
+                            new_chunk_idx = current_chunk_size - 1;
                         }
-                        
-                        need_response = (bs_msg.chunk_idx ==
-                          current_chunk_size - 1);
+
+                        bs_msg.chunk_idx = new_chunk_idx;
                     }
                     
                     if(need_response)
