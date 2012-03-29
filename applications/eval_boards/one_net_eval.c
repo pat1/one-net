@@ -185,7 +185,7 @@ UInt8 user_pin_src_unit;
 //! @{
 
 //! Buffer to hold block (and possibly stream) values.
-static char bs_buffer[BLOCK_STREAM_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE + 1];
+static char bs_buffer[BLOCK_STREAM_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
 
 
 //! @} ONE-NET_eval_pri_var
@@ -1551,7 +1551,8 @@ one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 {
     // just a quick load function for testing.  Loads with values from 'a'
     // to 'y' depending on the packet index.
-    one_net_memset(buffer, 'a' + (bs_msg->byte_idx % 25), ON_BS_DATA_PLD_SIZE);
+    one_net_memset(buffer, 'a' + ((bs_msg->byte_idx + bs_msg->chunk_idx) % 25),
+      ON_BS_DATA_PLD_SIZE);
     return ONS_SUCCESS;
 }
 
@@ -1579,8 +1580,16 @@ on_message_status_t eval_block_chunk_received(
   block_stream_msg_t* bs_msg, UInt32 byte_idx, UInt8 chunk_size,
   on_ack_nack_t* ack_nack)
 {
-    oncli_send_msg("Rcvd Chunk %ld-%d\n", byte_idx, chunk_size);
-    oncli_send_msg("%s\n", bs_buffer);
+    UInt16 i;
+    for(i = 0; i < chunk_size; i++)
+    {
+        if(i >= BLOCK_STREAM_CHUNK_SIZE)
+        {
+            // should never get here.
+            break;
+        }
+        uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], ON_BS_DATA_PLD_SIZE);
+    }
     one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
     return ON_MSG_ACCEPT_CHUNK;
 }
@@ -1611,7 +1620,7 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
     #endif
     
     // TODO -- what if chunk index is too high?
-    if(block_pkt->chunk_idx < BLOCK_STREAM_CHUNK_SIZE - 1)
+    if(block_pkt->chunk_idx < BLOCK_STREAM_CHUNK_SIZE)
     {
         one_net_memmove(&bs_buffer[ON_BS_DATA_PLD_SIZE * block_pkt->chunk_idx],
           block_pkt->data, ON_BS_DATA_PLD_SIZE);

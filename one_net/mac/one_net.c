@@ -3123,6 +3123,12 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_IGNORE;
     }
     
+    #ifdef _DATA_RATE
+    // we got a response, so reset the data rate change timer to the
+    // timeout
+    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg->timeout));
+    #endif
+    
     switch(ack_nack->handle)
     {
         case ON_ACK_SLOW_DOWN_TIME_MS:
@@ -3134,6 +3140,11 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         case ON_ACK_PAUSE_TIME_MS:
           ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
             ack_nack->payload->nack_time_ms));
+        #ifdef _DATA_RATE
+        // Adjust the data rate timer too.
+        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+          ack_nack->payload->nack_time_ms + bs_msg->timeout));
+        #endif
           break;
         case ON_ACK_BLK_PKTS_RCVD:
           one_net_memmove(bs_msg->sent, ack_nack->payload->ack_payload,
@@ -3218,6 +3229,8 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
         {
             case ON_MSG_ACCEPT_PACKET:
                 block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
+                // reset the timeout timer since we received a packet.
+                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
             case ON_MSG_RESPOND:
                 break;
             default:
