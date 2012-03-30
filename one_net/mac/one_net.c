@@ -5043,6 +5043,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 {
     // abort immediately
     on_state = ON_LISTEN_FOR_DATA;
+    bs_msg->bs_on_state = ON_LISTEN_FOR_DATA;
     bs_msg->transfer_in_progress = FALSE;
     #ifdef _DATA_RATE
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
