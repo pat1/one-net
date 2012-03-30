@@ -1903,7 +1903,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                if(bs_msg.byte_idx >= 0)
+                if(bs_msg.byte_idx > 0)
                 {
                     // we have already started receiving data
                     ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
