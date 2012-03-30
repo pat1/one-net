@@ -2480,6 +2480,11 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
                 }
                 #endif
             }
+            else
+            {
+                set_bs_hops(&bs_msg.flags, hops > return_hops ? hops :
+                  return_hops);
+            }
         }
     }
     #endif    
