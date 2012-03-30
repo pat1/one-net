@@ -2429,6 +2429,9 @@ void one_net(on_txn_t ** txn)
                         case ON_MSG_IGNORE:
                             response_msg_or_timeout = FALSE;
                             break;
+                        case ON_BS_MSG_SETUP_CHANGE:
+                            terminate_txn = TRUE;
+                            break;
                         default:
                             terminate_txn = ((*txn)->retry >= ON_MAX_RETRY ||
                               this_txn == 0);
@@ -2575,6 +2578,16 @@ void one_net(on_txn_t ** txn)
                     if(on_state == ON_BS_TERMINATE)
                     {
                         on_state = ON_BS_TERMINATE_COMPLETE;
+                    }
+                    else if(msg_status == ON_BS_MSG_SETUP_CHANGE)
+                    {
+                        // try again with the new parameters.
+                        on_state = ON_BS_FIND_ROUTE;
+                        bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
+                    }
+                    else if(msg_status != ON_MSG_SUCCESS)
+                    {
+                        terminate_bs_msg(&bs_msg, NULL, msg_status, &ack_nack);
                     }
                 }
                 else
@@ -2818,9 +2831,9 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
       &data_pkt_ptrs, single_msg_ptr->payload,
       &(single_msg_ptr->msg_type), ack_nack);
     
-    if(msg_status == ON_MSG_ABORT)
+    if(msg_status == ON_BS_MSG_SETUP_CHANGE)
     {
-        return msg_status;
+        return ON_BS_MSG_SETUP_CHANGE;
     }
     
     #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)

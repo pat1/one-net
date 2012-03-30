@@ -169,6 +169,8 @@ typedef enum
                          //! The application code may treat them differently.
     ON_MSG_INTERNAL_ERR, //! Represents an internal error
     ON_MSG_ROUTE_UNAVAILABLE, //! No route to the device and back is available
+    ON_BS_MSG_SETUP_CHANGE,  //! The Block / Stream parameters have changed and the
+                             //! setup process should start again with the new parameters.
     ON_NUM_MESSAGE_STATUS_CODES,
     
     //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to

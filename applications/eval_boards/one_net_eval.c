@@ -55,12 +55,6 @@
 //! @{
 
 
-enum
-{
-    BLOCK_STREAM_CHUNK_SIZE = 4
-}; // TODO -- what about DEFAULT_BS_CHUNK_SIZE in one_net_port_const.h?
-
-
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
 //=============================================================================
@@ -185,7 +179,7 @@ UInt8 user_pin_src_unit;
 //! @{
 
 //! Buffer to hold block (and possibly stream) values.
-static char bs_buffer[BLOCK_STREAM_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
+static char bs_buffer[DEFAULT_BS_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
 
 
 //! @} ONE-NET_eval_pri_var
@@ -655,6 +649,35 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(bs_msg.transfer_in_progress && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
+    {
+        // Check a few things and see if we need to try again with different
+        // parameters.
+        BOOL parameter_change = TRUE;
+        switch(resp_ack_nack->nack_reason)
+        {
+            case ON_NACK_RSN_INVALID_CHUNK_DELAY:
+                bs_msg.chunk_pause = resp_ack_nack->payload->nack_value;
+                break;
+            case ON_NACK_RSN_INVALID_FRAG_DELAY:
+                bs_msg.frag_dly = resp_ack_nack->payload->nack_value;
+                break;
+            case ON_NACK_RSN_INVALID_CHUNK_SIZE:
+                bs_msg.chunk_size = resp_ack_nack->payload->nack_value;
+                oncli_send_msg("bad cs:%d\n", bs_msg.chunk_size);
+                break;
+            default:
+                parameter_change = FALSE;
+        }
+        
+        if(parameter_change)
+        {
+            return ON_BS_MSG_SETUP_CHANGE;
+        }
+    }
+    #endif  
+    
     #if 0
     // just to prove we can pause and change the response timeout.
     if(resp_ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE)
@@ -1523,6 +1546,15 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 {
     if(!bs_msg->dst)
     {
+        if(bs_msg->chunk_size > DEFAULT_BS_CHUNK_SIZE)
+        {
+            // make sure we can handle the chunk size.
+            ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
+            ack_nack->handle = ON_NACK_VALUE;
+            ack_nack->payload->nack_value = DEFAULT_BS_CHUNK_SIZE;
+            return;
+        }        
+        
         // we are the recipient, so clear.
         one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
     }
@@ -1586,7 +1618,7 @@ on_message_status_t eval_block_chunk_received(
     UInt16 i;
     for(i = 0; i < chunk_size; i++)
     {
-        if(i >= BLOCK_STREAM_CHUNK_SIZE)
+        if(i >= DEFAULT_BS_CHUNK_SIZE)
         {
             // should never get here.
             break;
@@ -1626,7 +1658,7 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
     #endif
     
     // TODO -- what if chunk index is too high?
-    if(block_pkt->chunk_idx < BLOCK_STREAM_CHUNK_SIZE)
+    if(block_pkt->chunk_idx < DEFAULT_BS_CHUNK_SIZE)
     {
         one_net_memmove(&bs_buffer[ON_BS_DATA_PLD_SIZE * block_pkt->chunk_idx],
           block_pkt->data, ON_BS_DATA_PLD_SIZE);
