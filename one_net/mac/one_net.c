@@ -3215,6 +3215,11 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
       ON_BS_DATA_PLD_SIZE >= bs_msg->transfer_size)) ? 1 :
       bs_msg->chunk_size);
       
+    if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
+    {
+        goto bs_build_terminate_ack;
+    }
+      
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_NACK_VALUE;
     if(block_pkt->byte_idx != bs_msg->byte_idx)
@@ -3243,6 +3248,9 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
           ack_nack);
         switch(msg_status)
         {
+            case ON_MSG_TERMINATE: case ON_MSG_ABORT:
+                terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
+                goto bs_build_terminate_ack;
             case ON_MSG_ACCEPT_PACKET:
                 block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
                 // reset the timeout timer since we received a packet.
@@ -3299,6 +3307,12 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
           sizeof(bs_msg->sent));
     }
     
+    return ON_MSG_RESPOND;
+    
+bs_build_terminate_ack:
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK_ADMIN_MSG;
+    one_net_memmove(ack_nack->payload->admin_msg, bs_txn.pkt, 11);
     return ON_MSG_RESPOND;
 }
 #endif
