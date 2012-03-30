@@ -516,11 +516,7 @@ typedef struct
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 num_repeaters;
-    #ifndef _ONE_NET_MEMORY
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
-    #else
-    on_encoded_did_t* repeaters; // rarely used.  Use "ONE-NET "heap".
-    #endif
     #endif
     SInt32 byte_idx;
     SInt8 chunk_idx;
