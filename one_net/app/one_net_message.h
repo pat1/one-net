@@ -498,14 +498,9 @@ typedef struct
     UInt8 channel;
     UInt8 data_rate;
     UInt16 timeout;
-    UInt16 expected_time; // can mean different things depending on whther
-                         // you're the recipient or the sender.  For the
-                         // sender, it should be the average time between
-                         // sending a packet and getting a response.
-                         // Currently it has not meaning for anyone else.
     on_sending_device_t* src; // originator of block message
     on_sending_device_t* dst; // recipient of block message
-    tick_t time; // this value can represent a variety of things.  Generally
+    UInt32 time; // this value can represent a variety of things.  Generally
                  // for a repeater, it will represent the estimated time of
                  // completion.  For the sender or the recipient of a stream
                  // message, it will represent the start time of the stream

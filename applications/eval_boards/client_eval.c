@@ -407,8 +407,8 @@ void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
 {
     // just some debugging for now.
     oncli_send_msg("src=%02X%02X dst=%02X%02X est=%ld to=%d\n",
-      bs_msg->src[0],bs_msg->src[1], bs_msg->dst[0],bs_msg->dst[1],
-      bs_msg->timeout);
+      bs_msg->src->did[0], bs_msg->src->did[1], bs_msg->dst->did[0],
+      bs_msg->dst->did[1], bs_msg->time, bs_msg->timeout);
 }
 #endif
 
