@@ -2043,25 +2043,17 @@ void one_net(on_txn_t ** txn)
                     {
                         // We need a response if any of the following is true so
                         // we may temporarily change the chunk size when building
-                        // the packet, then immediately change it back.
-                        UInt32 original_chunk_size = bs_msg.chunk_size;
+                        // the packet, then immediately change it back.  If we
+                        // are in the first or last 1000 bytes in the transfer,
+                        // we'll change the chunk sizeto 1.
+                        UInt8 original_chunk_size = bs_msg.chunk_size;
                         one_net_status_t status;
                 
-                        // 1. We are near the beginning (first 1000 bytes).
-                        // 2. We are in the last chunk of the transfer.
-                        // 3. We have transferred all the packets in this chunk.
-                        if(bs_msg.byte_idx < 40 ||
-                           (bs_msg.byte_idx + original_chunk_size *
-                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
-                        {
-                            // quick change.  We'll change back immediately after
-                            // the function call.
-                            bs_msg.chunk_size = 1;
-                        }                    
-                        
+                        // possible quick change.  We'll change back immediately
+                        // after the function call.
+                        bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
                         status = on_build_data_pkt(buffer, ON_APP_MSG,
                           &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
-                          
                         // change back if it was changed before.
                         bs_msg.chunk_size = (UInt8) original_chunk_size;  
                         
@@ -2187,22 +2179,15 @@ void one_net(on_txn_t ** txn)
                     else
                     #endif
                     {
-                        // there is some rounding error when dealing with UInt8,
-                        // so use a UInt32.
-                        UInt32 chunk_size_32 = bs_msg.chunk_size;
-                        UInt8 current_chunk_size = bs_msg.chunk_size;
+                        // Chunk sizes are always 1 in the first and last 1000
+                        // bytes of a message.  The get_current_bs_chunk_size()
+                        // function will determine the current chunk size.
+                        // If the current chunk index is 1 less than that value,
+                        // we want a response.  If all packets within a chunk
+                        // have been sent, we need a response.
+                        UInt8 current_chunk_size = get_current_bs_chunk_size(
+                          &bs_msg);
                         SInt8 new_chunk_idx;
-                        
-                        // We need a response if any of the following is true...
-                        // 1. We are near the beginning (first 1000 bytes).
-                        // 2. We are in the last chunk of the transfer.
-                        // 3. We have transferred all the packets in this chunk.
-                        if(bs_msg.byte_idx < 40 ||
-                           (bs_msg.byte_idx + chunk_size_32 *
-                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
-                        {
-                            current_chunk_size = 1;
-                        }
                         
                         // add a little debugging
                         oncli_send_msg(
