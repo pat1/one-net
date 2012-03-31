@@ -178,8 +178,11 @@ UInt8 user_pin_src_unit;
 //! \ingroup ONE-NET_eval
 //! @{
 
+
+#ifdef _BLOCK_MESSAGES_ENABLED
 //! Buffer to hold block (and possibly stream) values.
 static char bs_buffer[DEFAULT_BS_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
+#endif
 
 
 //! @} ONE-NET_eval_pri_var

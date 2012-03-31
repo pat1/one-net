@@ -2128,6 +2128,7 @@ void one_net(on_txn_t ** txn)
                       TRUE));
                     on_state++;
                 }
+                #ifdef _BLOCK_MESSAGES_ENABLED
                 else if(on_state == ON_BS_SEND_DATA_PKT)
                 {
                     // TODO -- why are we getting here?
@@ -2135,6 +2136,7 @@ void one_net(on_txn_t ** txn)
                     on_state--;  // something happened.  Not sure what.  Re-prepare
                                  // packet
                 }
+                #endif
             } // if the channel is clear //
             
             break;
