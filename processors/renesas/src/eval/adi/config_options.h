@@ -143,8 +143,10 @@
     #endif
     
     // Block Messages
-    #ifndef _BLOCK_MESSAGES_ENABLED
-    //	#define _BLOCK_MESSAGES_ENABLED
+    #ifdef _ROUTE
+        #ifndef _BLOCK_MESSAGES_ENABLED
+        //	#define _BLOCK_MESSAGES_ENABLED
+        #endif
     #endif
 
     // Stream Messages -- available only if block messages are enabled.
