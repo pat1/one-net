@@ -829,7 +829,36 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
     }
 }
+
+
+UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg)
+{
+    UInt32 num_packets_total = bs_msg->transfer_size / ON_BS_DATA_PLD_SIZE;
+    UInt32 num_packets_left;
+    
+    if(bs_msg->byte_idx < 40)
+    {
+        return 1;
+    }
+    
+    num_packets_left = num_packets_total - bs_msg->byte_idx;
+    
+    if(num_packets_left <= 40)
+    {
+        return 1;
+    }
+    
+    if(num_packets_left >= 40 + bs_msg->chunk_size)
+    {
+        return bs_msg->chunk_size;
+    }
+    
+    return num_packets_left - 40;
+}
 #endif
+
+
+
 
 
 //! @} ONE-NET_MESSAGE_pub_func
