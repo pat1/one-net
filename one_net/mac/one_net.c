@@ -1777,6 +1777,13 @@ void one_net(on_txn_t ** txn)
                                   ONE_NET_RAW_SINGLE_DATA_ACK :
                                   ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
                                   
+                                #ifdef _ONE_NET_MULTI_HOP
+                                response_txn.hops = get_bs_hops(bs_msg.flags);
+                                response_txn.max_hops = response_txn.hops;
+                                set_multihop_pid(&response_pid,
+                                  response_txn.max_hops);
+                                #endif
+                                  
                                 if(!setup_pkt_ptr(response_pid,
                                   response_txn.pkt, bs_pkt.block_pkt.msg_id,
                                   &response_pkt_ptrs))
@@ -1790,10 +1797,6 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 }
 
-                                #ifdef _ONE_NET_MULTI_HOP
-                                response_txn.hops = bs_txn.hops;
-                                response_txn.max_hops = bs_txn.max_hops;
-                                #endif
                                 response_txn.key = bs_txn.key;
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
                                 
