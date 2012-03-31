@@ -855,6 +855,57 @@ UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg)
     
     return num_packets_left - 40;
 }
+
+
+BOOL block_get_index_sent(UInt8 index, const UInt8 array[5])
+{
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return FALSE;
+    }
+    
+    if(array[index / 8] & mask)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5])
+{
+    UInt8 array_index;
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return;
+    }
+    
+    array_index = index / 8;
+    
+    array[array_index] &= ~mask;
+    if(!rcvd)
+    {
+        return;
+    }
+    array[array_index] |= mask;
+}
+
+
+// returns -1 if all are sent
+SInt8 block_get_lowest_unsent_index(const UInt8 array[5], UInt8 chunk_size)
+{
+    UInt8 i;
+    for(i = 0; i < chunk_size; i++)
+    {
+        if(!block_get_index_sent(i, array))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 #endif
 
 
