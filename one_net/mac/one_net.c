@@ -3225,13 +3225,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
 on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    UInt32 chunk_size_32 = bs_msg->chunk_size;
     on_message_status_t msg_status;
-    BOOL rcvd_full_chunk;
-    UInt8 expected_chunk_size = 
-      ((bs_msg->byte_idx < 40 || (bs_msg->byte_idx + chunk_size_32 *
-      ON_BS_DATA_PLD_SIZE >= bs_msg->transfer_size)) ? 1 :
-      bs_msg->chunk_size);
       
     if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
     {
@@ -3247,16 +3241,11 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
         return ON_MSG_RESPOND;
     }
     
-    if(block_pkt->chunk_size != expected_chunk_size)
+    if(block_pkt->chunk_size > bs_msg->chunk_size)
     {
-        ack_nack->payload->nack_value = expected_chunk_size;
+        ack_nack->payload->nack_value = bs_msg->chunk_size;
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
         return ON_MSG_RESPOND;
-    }
-    
-    if(block_pkt->chunk_idx >= expected_chunk_size)
-    {
-        return ON_MSG_IGNORE;
     }
     
     ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
@@ -3280,32 +3269,32 @@ on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
         }
     }
 
-    if(block_get_lowest_unsent_index(bs_msg->sent, expected_chunk_size) == -1)
+    if(block_get_lowest_unsent_index(bs_msg->sent, block_pkt->chunk_size) == -1)
     {
         // chunk has been received.
         #if !defined(_ONE_NET_MASTER)
         msg_status = one_net_client_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
         #elif !defined(_ONE_NET_CLIENT)
         msg_status = one_net_master_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
         #else
         if(device_is_master)
         {
             msg_status = one_net_master_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
         }
         else
         {
             msg_status = one_net_client_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
         }
         #endif
         
         switch(msg_status)
         {
             case ON_MSG_ACCEPT_CHUNK:
-                bs_msg->byte_idx += expected_chunk_size;
+                bs_msg->byte_idx += block_pkt->chunk_size;
                 if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
                 {
                     // not really a NACK, but that's OK.  The sending device will now
