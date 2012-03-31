@@ -137,7 +137,7 @@
 	    #endif
     #endif
     
-    #if defined(_ONE_NET_MULTI_HOP) && defined(_EXTENDED_SINGLE)
+    #ifdef _EXTENDED_SINGLE
         // define if this device handles routing
         #define _ROUTE
     #endif

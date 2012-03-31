@@ -921,8 +921,8 @@ UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate);
 #else
-UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
-  UInt8 dst_process_time, UInt8 data_rate);
+UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
+  UInt8 data_rate);
 #endif
 
 void terminate_bs_msg(block_stream_msg_t* bs_msg,

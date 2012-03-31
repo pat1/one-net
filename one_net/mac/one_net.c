@@ -1577,9 +1577,10 @@ void one_net(on_txn_t ** txn)
                                       bs_msg.data_rate);
                                     #else
                                     bs_msg.time = estimate_response_time(
-                                      get_encoded_packet_len(response_pid, TRUE),
-                                      20, bs_msg.data_rate);
+                                      get_encoded_packet_len( response_pid,
+                                      TRUE), 20, bs_msg.data_rate);
                                     #endif
+                                    
                                     break;
                                 }
                                 
@@ -4713,8 +4714,8 @@ UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate)
 #else
-UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
-  UInt8 dst_process_time, UInt8 data_rate)
+UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
+  UInt8 data_rate)
 #endif 
 {
     // The time between when a message is sent and when the response
