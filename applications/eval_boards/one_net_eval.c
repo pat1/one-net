@@ -1051,7 +1051,7 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
           &bs_msg.dst->did);
         on_raw_did_t raw_did;        
         on_decode(raw_did, *other_device, ON_ENCODED_DID_LEN);
-        oncli_send_msg("%s message with %03X %s.\n", transfer_type,
+        oncli_send_msg("\n%s message with %03X %s.\n", transfer_type,
           did_to_u16(&raw_did), result_str);
     }
     #endif

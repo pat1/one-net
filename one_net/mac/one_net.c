@@ -2093,8 +2093,7 @@ void one_net(on_txn_t ** txn)
                 // TODO -- get stream packet raw data.
             }
             #endif
-            
-            break;
+            // Intentional fall-through.  TODO -- Is this good?
         }
         #endif
         
@@ -2135,6 +2134,13 @@ void one_net(on_txn_t ** txn)
                     one_net_write((*txn)->pkt, get_encoded_packet_len(raw_pid,
                       TRUE));
                     on_state++;
+                }
+                else if(on_state == ON_BS_SEND_DATA_PKT)
+                {
+                    // TODO -- why are we getting here?
+                    ont_set_timer(ONT_BS_TIMER, 0);
+                    on_state--;  // something happened.  Not sure what.  Re-prepare
+                                 // packet
                 }
             } // if the channel is clear //
             
@@ -3574,6 +3580,15 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
     {
+        #ifdef  _BLOCK_MESSAGES_ENABLED
+        if(bs_msg.transfer_in_progress)
+        {
+            ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+            #ifdef _DATA_RATE
+            ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg.timeout));
+            #endif
+        }
+        #endif
         one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);
