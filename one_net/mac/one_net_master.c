@@ -3126,7 +3126,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
                 
                 // Set the block / stream timer to the timeout
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
             }
             break;
         }

@@ -109,10 +109,11 @@ enum
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     ONT_BS_TIMER,
+    
+    ONT_BS_TIMEOUT_TIMER,
     #endif
 
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
-    //! The number of multi-hop packets that need a timer.
     ONT_MH_TIMER,
     #endif // ifdef _ONE_NET_MH_CLIENT_REPEATER //
 

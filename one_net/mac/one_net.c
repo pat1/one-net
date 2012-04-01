@@ -1175,7 +1175,7 @@ void one_net(on_txn_t ** txn)
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     if(bs_msg.transfer_in_progress && bs_msg.src &&
-      ont_inactive_or_expired(ONT_BS_TIMER))
+      ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
     {
         if(on_state >= ON_BS_TERMINATE || bs_msg.bs_on_state >=
           ON_BS_TERMINATE)
@@ -1736,8 +1736,8 @@ void one_net(on_txn_t ** txn)
                                 if(msg_status == ON_MSG_RESPOND)
                                 {
                                     // Now reset some timers so we don't timeout.
-                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
                                     ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
                                       MS_TO_TICK(bs_msg.timeout));
@@ -1757,8 +1757,8 @@ void one_net(on_txn_t ** txn)
                                 if(msg_status == ON_MSG_RESPOND)
                                 {
                                     // Now reset some timers so we don't timeout.
-                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
                                     ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
                                       MS_TO_TICK(bs_msg.timeout));
@@ -2073,7 +2073,8 @@ void one_net(on_txn_t ** txn)
                     
                     bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
                     on_state++;
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
+                      bs_msg.timeout));
                 }
                 else if(status == ONS_CANCELED)
                 {
@@ -2332,7 +2333,7 @@ void one_net(on_txn_t ** txn)
                 #ifdef _BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                 {
-                    if(ont_inactive_or_expired(ONT_BS_TIMER))
+                    if(ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
                     {
                         terminate_bs_msg(&bs_msg, NULL, ON_MSG_TIMEOUT, NULL);
                     }
@@ -3560,7 +3561,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         #ifdef  _BLOCK_MESSAGES_ENABLED
         if(bs_msg.transfer_in_progress)
         {
-            ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+            ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
             #ifdef _DATA_RATE_CHANNEL
             ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
               MS_TO_TICK(bs_msg.timeout));
