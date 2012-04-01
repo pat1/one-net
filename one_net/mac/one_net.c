@@ -1195,7 +1195,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_FIND_ROUTE:
         case ON_BS_CONFIRM_ROUTE:
         case ON_BS_CHANGE_DR_CHANNEL:
-        case ON_BS_CHANGE_MY_DATA_RATE:
+        case ON_BS_CHANGE_MY_DR_CHANNEL:
         case ON_BS_DEVICE_PERMISSION:
         case ON_BS_MASTER_DEVICE_PERMISSION:
         case ON_BS_REPEATER_PERMISSION_START:
@@ -1300,7 +1300,8 @@ void one_net(on_txn_t ** txn)
                             #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
-                              single_msg.payload[0] == ON_CHANGE_DATA_RATE)
+                              single_msg.payload[0] ==
+                              ON_CHANGE_DATA_RATE_CHANNEL)
                             {
                                 #ifdef _ONE_NET_MULTI_HOP
                                 // add any repeaters.
@@ -1390,7 +1391,7 @@ void one_net(on_txn_t ** txn)
                                           bs_msg.data_rate);
                                     }
                                     break;
-                                case ON_BS_CHANGE_MY_DATA_RATE:
+                                case ON_BS_CHANGE_MY_DR_CHANNEL:
                                     // everyone else's data rate and channel has
                                     // been changed, so change ours now and give a
                                     // 125 ms pause not before the change, but before sending
@@ -4554,7 +4555,7 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
     }
     
     
-    pld[0] = ON_CHANGE_DATA_RATE;
+    pld[0] = ON_CHANGE_DATA_RATE_CHANNEL;
     pld[1] = new_channel;
     pld[2] = new_data_rate;
     one_net_int16_to_byte_stream(pause_time_ms, &pld[3]);

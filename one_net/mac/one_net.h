@@ -227,7 +227,7 @@ typedef enum
     
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
-    ON_BS_CHANGE_MY_DATA_RATE,//48
+    ON_BS_CHANGE_MY_DR_CHANNEL,//48
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,

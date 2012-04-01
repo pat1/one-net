@@ -1866,7 +1866,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     switch(DATA[0])
     {
         #ifdef _DATA_RATE_CHANNEL
-        case ON_CHANGE_DATA_RATE:
+        case ON_CHANGE_DATA_RATE_CHANNEL:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
