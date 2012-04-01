@@ -210,6 +210,7 @@ typedef enum
     //! Waits for a response to a find route packet
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
+    #ifdef _DATA_RATE_CHANNEL
     //! State used when changing a data rate and channel for block / stream
     ON_BS_CHANGE_DR_CHANNEL,//44
     
@@ -228,6 +229,7 @@ typedef enum
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
     ON_BS_CHANGE_MY_DATA_RATE,//48
+    #endif
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,

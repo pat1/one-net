@@ -1194,8 +1194,10 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
         case ON_BS_CONFIRM_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_CHANGE_DR_CHANNEL:
         case ON_BS_CHANGE_MY_DATA_RATE:
+        #endif
         case ON_BS_DEVICE_PERMISSION:
         case ON_BS_MASTER_DEVICE_PERMISSION:
         case ON_BS_REPEATER_PERMISSION_START:
@@ -1296,8 +1298,8 @@ void one_net(on_txn_t ** txn)
                             }
                             #endif
                             
-                            #ifndef _ONE_NET_SIMPLE_CLIENT
-                            #if defined(_BLOCK_MESSAGES_ENABLED)
+                            #ifdef _ONE_NET_SIMPLE_CLIENT
+                            #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
                               single_msg.payload[0] ==
@@ -1372,6 +1374,7 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
+                                #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CHANGE_DR_CHANNEL:
                                     if(bs_msg.channel == on_base_param->channel
                                       && bs_msg.data_rate ==
@@ -1401,6 +1404,7 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
+                                #endif
                                 case ON_BS_DEVICE_PERMISSION:
                                     if(get_bs_transfer_type(bs_msg.flags) ==
                                       ON_BLK_TRANSFER)
@@ -1740,8 +1744,8 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #endif
                                 }
                                                                   
@@ -1761,8 +1765,8 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #endif
                                 }  
                                   
@@ -2100,7 +2104,9 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
         case ON_BS_SEND_CONFIRM_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
+        #endif
         case ON_BS_SEND_DEVICE_PERMISSION:
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
         case ON_BS_SEND_REPEATER_PERMISSION:
@@ -2152,7 +2158,9 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
+        #endif
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
@@ -2238,7 +2246,7 @@ void one_net(on_txn_t ** txn)
                 #ifdef _DATA_RATE_CHANNEL
                 if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)
                 {
-                    ont_set_timer(ONT_DATA_RATE_TIMER,
+                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
                         MS_TO_TICK(dormant_data_rate_time_ms));
                 }
                 #endif                
@@ -2294,7 +2302,9 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
+        #endif
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
         #ifdef _ONE_NET_CLIENT
         case ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP:
@@ -3149,7 +3159,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     #ifdef _DATA_RATE_CHANNEL
     // we got a response, so reset the data rate change timer to the
     // timeout
-    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg->timeout));
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(bs_msg->timeout));
     #endif
     
     switch(ack_nack->handle)
@@ -3165,7 +3175,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
             ack_nack->payload->nack_time_ms));
         #ifdef _DATA_RATE_CHANNEL
         // Adjust the data rate timer too.
-        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
           ack_nack->payload->nack_time_ms + bs_msg->timeout));
         #endif
           break;
@@ -3563,7 +3573,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
             #ifdef _DATA_RATE_CHANNEL
-            ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg.timeout));
+            ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+              MS_TO_TICK(bs_msg.timeout));
             #endif
         }
         #endif
@@ -4529,7 +4540,7 @@ on_nack_rsn_t one_net_change_data_rate_channel(const on_encoded_did_t* enc_did,
         alternate_channel = new_channel;
         dormant_data_rate_time_ms = dormant_time_ms;
         dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
-        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
+        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(pause_time_ms));
         return ON_NACK_RSN_NO_ERROR;
     }
     
@@ -4983,7 +4994,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 static void check_dr_channel_change(void)
 {
     // see if we need to possible change data rates.
-    if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
+    if(ont_inactive_or_expired(ONT_DATA_RATE_CHANNEL_TIMER))
     {
         UInt8 new_data_rate = ONE_NET_DATA_RATE_38_4;
         UInt8 new_channel = on_base_param->channel;
@@ -4993,7 +5004,7 @@ static void check_dr_channel_change(void)
                 // Change to the alternate channel and data rate
                 new_data_rate = alternate_data_rate;
                 new_channel = alternate_channel;
-                ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
                   dormant_data_rate_time_ms));
                 // intentional fall-through           
             case ON_DR_CHANNEL_CHANGE_DONE:
@@ -5044,7 +5055,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
     #ifdef _DATA_RATE_CHANNEL
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
     one_net_set_channel(on_base_param->channel);
-    ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, 0);
     #endif
 }
 #endif
