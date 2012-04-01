@@ -76,15 +76,6 @@
     #error "_BLOCK_MESSAGES_ENABLED must be defined if _STREAM_MESSAGES_ENABLED is defined."
 #endif
 
-// Mar. 21, 2012 -- not sure what these two #define guards need, but for now it's
-// both or neither (_BLOCK_MESSAGES_ENABLED and _DATA_RATE_CHANNEL).
-#if !defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
-    #error "_BLOCK_MESSAGES_ENABLED must be defined if _DATA_RATE_CHANNEL is defined."
-#endif
-#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(_DATA_RATE_CHANNEL)
-    #error "_DATA_RATE_CHANNEL must be defined if _BLOCK_MESSAGES_ENABLED is defined."
-#endif
-
 #if !defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_MASTER)
     #error "_ONE_NET_CLIENT and _ONE_NET_MASTER cannot both be undefined."
 #endif

@@ -273,7 +273,9 @@
 #endif
 
 
-// Enable this if data rates can be changed to anything besides the 38,400 base.
+// Enable this if data rates can be changed to anything besides the 38,400 base
+// or the channel can be changed back and forth at run-time for anything but the
+// invite process.
 #ifndef _DATA_RATE_CHANNEL
 //    #define _DATA_RATE_CHANNEL
 #endif
