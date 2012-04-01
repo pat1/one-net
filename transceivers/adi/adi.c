@@ -605,7 +605,7 @@ one_net_status_t tal_set_data_rate(UInt8 data_rate)
 {
     one_net_status_t status;
     
-    #ifndef _DATA_RATE
+    #ifndef _DATA_RATE_CHANNEL
     if(data_rate != ONE_NET_DATA_RATE_38_4)
     {
         return ONS_DEVICE_NOT_CAPABLE;

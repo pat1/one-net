@@ -137,9 +137,9 @@ BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 }
 
 
-// TODO -- add #ifdef check for _DATA_RATE?
 UInt8 features_highest_data_rate(on_features_t features)
 {
+    #ifdef _DATA_RATE_CHANNEL
     UInt8 dr;
     for(dr = ONE_NET_DATA_RATE_LIMIT; dr > ONE_NET_DATA_RATE_38_4; dr--)
     {
@@ -148,7 +148,7 @@ UInt8 features_highest_data_rate(on_features_t features)
             return dr;
         }
     }
-    
+    #endif
     return ONE_NET_DATA_RATE_38_4;
 }
 
@@ -156,6 +156,7 @@ UInt8 features_highest_data_rate(on_features_t features)
 UInt8 features_highest_matching_data_rate(on_features_t dev1_features,
   on_features_t dev2_features)
 {
+    #ifdef _DATA_RATE_CHANNEL
     UInt8 dr;
     for(dr = ONE_NET_DATA_RATE_LIMIT; dr > ONE_NET_DATA_RATE_38_4; dr--)
     {
@@ -165,7 +166,7 @@ UInt8 features_highest_matching_data_rate(on_features_t dev1_features,
             return dr;
         }
     }
-    
+    #endif
     return ONE_NET_DATA_RATE_38_4;
 }
 

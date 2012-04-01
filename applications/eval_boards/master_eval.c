@@ -509,7 +509,7 @@ void one_net_master_update_result(one_net_mac_update_t update,
     switch(update)
     {
         case ONE_NET_UPDATE_DATA_RATE:
-            result_type = ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
+            result_type = ONCLI_M_UPDATE_RESULT_DATA_RATE_STR; // TODO -- where is this used?
             break;
         case ONE_NET_UPDATE_NETWORK_KEY:
             result_type = ONCLI_M_UPDATE_RESULT_KEY_STR;

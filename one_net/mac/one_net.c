@@ -222,7 +222,7 @@ tick_t route_start_time = 0;
 block_stream_msg_t bs_msg;
 #endif
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
 UInt16 dormant_data_rate_time_ms = 0;
 UInt8 alternate_data_rate = ONE_NET_DATA_RATE_38_4;
@@ -294,7 +294,7 @@ static BOOL features_override = FALSE;
 //! @{
 
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 static void check_dr_channel_change(void);
 #endif
 static BOOL check_for_clr_channel(void);
@@ -1300,7 +1300,8 @@ void one_net(on_txn_t ** txn)
                             #if defined(_BLOCK_MESSAGES_ENABLED)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
-                              single_msg.payload[0] == ON_CHANGE_DATA_RATE)
+                              single_msg.payload[0] ==
+                              ON_CHANGE_DATA_RATE_CHANNEL)
                             {
                                 #ifdef _ONE_NET_MULTI_HOP
                                 // add any repeaters.
@@ -1385,7 +1386,7 @@ void one_net(on_txn_t ** txn)
                                         // missed ACKs or NACKs.  3000 ms should be
                                         // plenty long enough to get things done elsewhere
                                         // if need be.
-                                        one_net_change_data_rate(
+                                        one_net_change_data_rate_channel(
                                           &(bs_msg.dst->did), 125, 3000,
                                           bs_msg.channel, bs_msg.data_rate);
                                     }
@@ -1395,7 +1396,7 @@ void one_net(on_txn_t ** txn)
                                     // been changed, so change ours now and give a
                                     // 125 ms pause not before the change, but before sending
                                     // any messages.
-                                    one_net_change_data_rate(NULL, 0, 3000,
+                                    one_net_change_data_rate_channel(NULL, 0, 3000,
                                       bs_msg.channel, bs_msg.data_rate);
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
@@ -1738,7 +1739,7 @@ void one_net(on_txn_t ** txn)
                                     // Now reset some timers so we don't timeout.
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
-                                    #ifdef _DATA_RATE
+                                    #ifdef _DATA_RATE_CHANNEL
                                     ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #endif
@@ -1759,7 +1760,7 @@ void one_net(on_txn_t ** txn)
                                     // Now reset some timers so we don't timeout.
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
-                                    #ifdef _DATA_RATE
+                                    #ifdef _DATA_RATE_CHANNEL
                                     ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #endif
@@ -1822,7 +1823,7 @@ void one_net(on_txn_t ** txn)
                         #endif
                     }
                     
-                    #ifdef _DATA_RATE
+                    #ifdef _DATA_RATE_CHANNEL
                     if(*txn == 0)
                     {
                         // see if we need to change data rates.
@@ -2234,7 +2235,7 @@ void one_net(on_txn_t ** txn)
                 }
                 #endif
                 
-                #ifdef _DATA_RATE
+                #ifdef _DATA_RATE_CHANNEL
                 if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)
                 {
                     ont_set_timer(ONT_DATA_RATE_TIMER,
@@ -3145,7 +3146,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_IGNORE;
     }
     
-    #ifdef _DATA_RATE
+    #ifdef _DATA_RATE_CHANNEL
     // we got a response, so reset the data rate change timer to the
     // timeout
     ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg->timeout));
@@ -3162,7 +3163,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         case ON_ACK_PAUSE_TIME_MS:
           ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
             ack_nack->payload->nack_time_ms));
-        #ifdef _DATA_RATE
+        #ifdef _DATA_RATE_CHANNEL
         // Adjust the data rate timer too.
         ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
           ack_nack->payload->nack_time_ms + bs_msg->timeout));
@@ -3561,7 +3562,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         if(bs_msg.transfer_in_progress)
         {
             ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
-            #ifdef _DATA_RATE
+            #ifdef _DATA_RATE_CHANNEL
             ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg.timeout));
             #endif
         }
@@ -4488,7 +4489,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 #endif
 
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 /*!
     \brief Sets up a data rate and channel change to occur in the future
     
@@ -4510,7 +4511,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
             If unable or unwilling to schedule the change, a NACK reason is
             returned.
 */
-on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+on_nack_rsn_t one_net_change_data_rate_channel(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate)
 {
@@ -4546,7 +4547,7 @@ on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
     }
     
     
-    pld[0] = ON_CHANGE_DATA_RATE;
+    pld[0] = ON_CHANGE_DATA_RATE_CHANNEL;
     pld[1] = new_channel;
     pld[2] = new_data_rate;
     one_net_int16_to_byte_stream(pause_time_ms, &pld[3]);
@@ -4978,7 +4979,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 
 
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 static void check_dr_channel_change(void)
 {
     // see if we need to possible change data rates.
@@ -4999,7 +5000,7 @@ static void check_dr_channel_change(void)
                 one_net_set_channel(new_channel);
                 one_net_set_data_rate(new_data_rate);
                 dr_channel_stage++;
-                one_net_data_rate_changed(new_channel, new_data_rate);
+                one_net_data_rate_channel_changed(new_channel, new_data_rate);
                 // intentional fall-through
             default:
                 break;
@@ -5040,7 +5041,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
     on_state = ON_LISTEN_FOR_DATA;
     bs_msg->bs_on_state = ON_LISTEN_FOR_DATA;
     bs_msg->transfer_in_progress = FALSE;
-    #ifdef _DATA_RATE
+    #ifdef _DATA_RATE_CHANNEL
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
     one_net_set_channel(on_base_param->channel);
     ont_set_timer(ONT_DATA_RATE_TIMER, 0);

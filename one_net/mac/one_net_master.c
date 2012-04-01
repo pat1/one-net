@@ -713,12 +713,12 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       ON_REJECT_INVALID_MSG_ID : 0);
       
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE
+    #ifdef _DATA_RATE_CHANNEL
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
-    #endif
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
       ON_BS_CHANGE_CHANNEL : 0); 
+    #endif
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
       ON_BS_HIGH_PRIORITY : 0); 
     client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
@@ -1187,12 +1187,12 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     #ifdef _BLOCK_MESSAGES_ENABLED
     if(features_block_capable(client->device.features))
     {
-        #ifdef _DATA_RATE
+        #ifdef _DATA_RATE_CHANNEL
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
           ON_BS_ELEVATE_DATA_RATE : 0); 
-        #endif
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
           ON_BS_CHANGE_CHANNEL : 0); 
+        #endif
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
           ON_BS_HIGH_PRIORITY : 0); 
         client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
@@ -1752,6 +1752,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             return *nr;
         }
         
+        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
@@ -1775,7 +1776,11 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }        
+        } 
+        #else
+        *data_rate = ONE_NET_DATA_RATE_38_4;
+        *channel = on_base_param->channel;
+        #endif       
     }
     
     if(!src_client || !dst_client)
@@ -1914,6 +1919,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             return *nr;
         }
         
+        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
@@ -1937,7 +1943,11 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }        
+        }
+        #else
+        *data_rate = ONE_NET_DATA_RATE_38_4;
+        *channel = on_base_param->channel;
+        #endif       
     }
     
     *nr = one_net_master_get_default_stream_transfer_values(src_client,
@@ -2604,12 +2614,12 @@ static one_net_status_t init_internal(void)
     one_net_init();
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE
+    #ifdef _DATA_RATE_CHANNEL
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
-    #endif
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
       ON_BS_CHANGE_CHANNEL : 0); 
+    #endif
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
       ON_BS_HIGH_PRIORITY : 0); 
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_ALLOW_LONG_BLOCK_STREAM ?
@@ -3044,12 +3054,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE
-        case ON_CHANGE_DATA_RATE:
+        #ifdef _DATA_RATE_CHANNEL
+        case ON_CHANGE_DATA_RATE_CHANNEL:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
-            ack_nack->nack_reason = one_net_change_data_rate(NULL,
+            ack_nack->nack_reason = one_net_change_data_rate_channel(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }
