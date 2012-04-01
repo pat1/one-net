@@ -1527,18 +1527,6 @@ void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 
 void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 {
-    // TODO -- where is ONT_BS_TIMER being set and why is this timer being
-    // used for this?
-    
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
-    if(bs_msg.transfer_in_progress && msg->msg_type == ON_ADMIN_MSG
-      && msg->payload[0] == ON_CHANGE_DATA_RATE_CHANNEL)
-    {
-        // change the pause so everyone gets in at once.  The pause is byte 3
-        // and the units are in tenths of a second
-        msg->payload[3] = TICK_TO_MS(ont_get_timer(ONT_BS_TIMER)) / 100;
-    }
-    #endif
 }
 #endif
 
