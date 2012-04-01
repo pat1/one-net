@@ -1498,7 +1498,7 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate)
 {
     oncli_send_msg("Changed to data rate %s, channel ",
@@ -1530,7 +1530,7 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
     // TODO -- where is ONT_BS_TIMER being set and why is this timer being
     // used for this?
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE)
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
     if(bs_msg.transfer_in_progress && msg->msg_type == ON_ADMIN_MSG
       && msg->payload[0] == ON_CHANGE_DATA_RATE)
     {

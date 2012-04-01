@@ -136,7 +136,7 @@ enum
     WRITE_PAUSE_TIMER,
     #endif
     
-    #ifdef _DATA_RATE
+    #ifdef _DATA_RATE_CHANNEL
     ONT_DATA_RATE_TIMER,
     #endif
 

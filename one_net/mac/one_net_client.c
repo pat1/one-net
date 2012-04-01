@@ -713,7 +713,7 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
         }
         
         // See if we are to switch data rates
-        #ifdef _DATA_RATE
+        #ifdef _DATA_RATE_CHANNEL
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
             if(!dst_features_known)
@@ -1865,7 +1865,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE
+        #ifdef _DATA_RATE_CHANNEL
         case ON_CHANGE_DATA_RATE:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
