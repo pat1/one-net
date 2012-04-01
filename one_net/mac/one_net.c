@@ -1579,6 +1579,9 @@ void one_net(on_txn_t ** txn)
                                     // anyway.  Just make the processing time
                                     // 20 ms for end devices and 10 ms for
                                     // repeaters.
+                                    
+                                    // TODO -- perhaps do more with the time
+                                    // estimate?
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.time = estimate_response_time(
                                       get_encoded_packet_len(data_pid, TRUE),
@@ -2211,10 +2214,6 @@ void one_net(on_txn_t ** txn)
                           &bs_msg);
                         SInt8 new_chunk_idx;
                         
-                        // add a little debugging
-                        oncli_send_msg(
-                          "Sent block packet byte %ld chunk %d of %d.\n",
-                          bs_msg.byte_idx, bs_msg.chunk_idx, current_chunk_size);
                         block_set_index_sent(bs_msg.chunk_idx, TRUE,
                           bs_msg.sent);
                           
