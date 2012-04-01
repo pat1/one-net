@@ -342,7 +342,7 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 
 
 #ifdef _DATA_RATE_CHANNEL
-void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate);
+void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate);
 #endif
 
 

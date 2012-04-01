@@ -891,7 +891,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 
 
 #ifdef _DATA_RATE_CHANNEL
-on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate);
 #endif

@@ -152,7 +152,7 @@
     // Stream Messages -- available only if block messages are enabled.
     #ifdef _BLOCK_MESSAGES_ENABLED
         #ifndef _STREAM_MESSAGES_ENABLED
-        //	    #define _STREAM_MESSAGES_ENABLED
+       	//    #define _STREAM_MESSAGES_ENABLED
         #endif
     #endif    
 #endif
@@ -470,10 +470,10 @@
 		#define _ENABLE_ECHO_COMMAND
 	#endif
     
-    // _ENABLE_SET_DATA_RATE_COMMAND should be defined if you are implementing the "set data rate" command option
+    // _ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
     #ifdef _DATA_RATE_CHANNEL
-        #ifndef _ENABLE_SET_DATA_RATE_COMMAND
-    //        #define _ENABLE_SET_DATA_RATE_COMMAND
+        #ifndef _ENABLE_SET_DR_CHANNEL_COMMAND
+        //    #define _ENABLE_SET_DR_CHANNEL_COMMAND
         #endif
     #endif
     

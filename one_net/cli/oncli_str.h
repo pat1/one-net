@@ -140,8 +140,8 @@ extern const char * const ONCLI_ERASE_CMD_STR;
 extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
-#ifdef _ENABLE_SET_DATA_RATE_COMMAND
-extern const char * const ONCLI_SET_DATA_RATE_CMD_STR;
+#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+extern const char * const ONCLI_SET_DR_CHANNEL_CMD_STR;
 #endif
 
 #ifdef _ENABLE_USER_PIN_COMMAND

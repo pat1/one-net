@@ -1385,9 +1385,9 @@ void one_net(on_txn_t ** txn)
                                         // missed ACKs or NACKs.  3000 ms should be
                                         // plenty long enough to get things done elsewhere
                                         // if need be.
-                                        one_net_change_data_rate(
-                                          &(bs_msg.dst->did), 125, 3000,
-                                          bs_msg.channel, bs_msg.data_rate);
+                                        on_change_dr_channel(&(bs_msg.dst->did),
+                                          125, 3000, bs_msg.channel,
+                                          bs_msg.data_rate);
                                     }
                                     break;
                                 case ON_BS_CHANGE_MY_DATA_RATE:
@@ -1395,7 +1395,7 @@ void one_net(on_txn_t ** txn)
                                     // been changed, so change ours now and give a
                                     // 125 ms pause not before the change, but before sending
                                     // any messages.
-                                    one_net_change_data_rate(NULL, 0, 3000,
+                                    on_change_dr_channel(NULL, 0, 3000,
                                       bs_msg.channel, bs_msg.data_rate);
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
@@ -4511,7 +4511,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
             If unable or unwilling to schedule the change, a NACK reason is
             returned.
 */
-on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate)
 {
@@ -5000,7 +5000,7 @@ static void check_dr_channel_change(void)
                 one_net_set_channel(new_channel);
                 one_net_set_data_rate(new_data_rate);
                 dr_channel_stage++;
-                one_net_data_rate_changed(new_channel, new_data_rate);
+                one_net_data_rate_channel_changed(new_channel, new_data_rate);
                 // intentional fall-through
             default:
                 break;

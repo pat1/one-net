@@ -3049,7 +3049,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
-            ack_nack->nack_reason = one_net_change_data_rate(NULL,
+            ack_nack->nack_reason = on_change_dr_channel(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }

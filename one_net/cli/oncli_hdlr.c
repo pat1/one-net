@@ -292,8 +292,8 @@ static oncli_status_t parse_and_send_pin_msg(
   const char * const ASCII_PARAM_LIST, UInt16 msg_class);
 #endif
 
-#ifdef _ENABLE_SET_DATA_RATE_COMMAND
-oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef _ENABLE_USER_PIN_COMMAND
@@ -677,22 +677,22 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the set pin command was received //
 	#endif // _ENABLE_SINGLE_COMMAND //
 
-	#ifdef _ENABLE_SET_DATA_RATE_COMMAND
-    else if(!strnicmp(ONCLI_SET_DATA_RATE_CMD_STR, CMD,
-      strlen(ONCLI_SET_DATA_RATE_CMD_STR)))
+	#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+    else if(!strnicmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
+      strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)))
     {
-        *CMD_STR = ONCLI_SET_DATA_RATE_CMD_STR;
+        *CMD_STR = ONCLI_SET_DR_CHANNEL_CMD_STR;
         
-        if(CMD[strlen(ONCLI_SET_DATA_RATE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        if(CMD[strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)] != ONCLI_PARAM_DELIMITER)
         {
             return ONCLI_PARSE_ERR;
         } // if the end of the command is not valid //
         
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &set_data_rate_cmd_hdlr;
+        *cmd_hdlr = &set_dr_channel_cmd_hdlr;
 
         return ONCLI_SUCCESS;
-    } // else if the set data rate command was received //
+    } // else if the set data rate/channel command was received //
 	#endif
     
     #ifdef _ENABLE_BAUD_COMMAND
@@ -2100,12 +2100,12 @@ static oncli_status_t parse_and_send_pin_msg(
 #endif // _ENABLE_SINGLE_COMMAND //
 
 
-#ifdef _ENABLE_SET_DATA_RATE_COMMAND
-// set data rate:1:003:4000:1500:US:7 will send a message to device DID 003 to
+#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+// set dr_channel:1:003:4000:1500:US:7 will send a message to device DID 003 to
 // set data rate to 76,800 KHz and the channel to US Channel 7 in 4000
 // milliseconds and to set the data rate back to where it was if it does not
 // see a relevant message in a 1500 millisecond period.
-oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     SInt8 new_data_rate, new_channel;
     oncli_status_t status;
@@ -2166,7 +2166,7 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return status;
     }
       
-    switch(one_net_change_data_rate((on_encoded_did_t*) enc_did, pause_time_ms,
+    switch(on_change_dr_channel((on_encoded_did_t*) enc_did, pause_time_ms,
       dormant_time_ms, new_channel, (UInt8) new_data_rate))
     {
         case ON_NACK_RSN_NO_ERROR: return ONCLI_SUCCESS;
