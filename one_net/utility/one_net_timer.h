@@ -137,7 +137,8 @@ enum
     #endif
     
     #ifdef _DATA_RATE_CHANNEL
-    ONT_DATA_RATE_TIMER,
+    //! Timer to keep track of when to change data rates and channels.
+    ONT_DATA_RATE_CHANNEL_TIMER,
     #endif
 
     //! The total number of timers in use

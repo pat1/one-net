@@ -1739,8 +1739,8 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #endif
                                 }
                                                                   
@@ -1760,8 +1760,8 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
                                       bs_msg.timeout));
                                     #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
-                                      bs_msg.timeout));
+                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     #endif
                                 }  
                                   
@@ -2237,7 +2237,7 @@ void one_net(on_txn_t ** txn)
                 #ifdef _DATA_RATE_CHANNEL
                 if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)
                 {
-                    ont_set_timer(ONT_DATA_RATE_TIMER,
+                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
                         MS_TO_TICK(dormant_data_rate_time_ms));
                 }
                 #endif                
@@ -3148,7 +3148,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     #ifdef _DATA_RATE_CHANNEL
     // we got a response, so reset the data rate change timer to the
     // timeout
-    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg->timeout));
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(bs_msg->timeout));
     #endif
     
     switch(ack_nack->handle)
@@ -3164,7 +3164,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
             ack_nack->payload->nack_time_ms));
         #ifdef _DATA_RATE_CHANNEL
         // Adjust the data rate timer too.
-        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
           ack_nack->payload->nack_time_ms + bs_msg->timeout));
         #endif
           break;
@@ -3562,7 +3562,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
             #ifdef _DATA_RATE_CHANNEL
-            ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(bs_msg.timeout));
+            ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+              MS_TO_TICK(bs_msg.timeout));
             #endif
         }
         #endif
@@ -4528,7 +4529,7 @@ on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
         alternate_channel = new_channel;
         dormant_data_rate_time_ms = dormant_time_ms;
         dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
-        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
+        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(pause_time_ms));
         return ON_NACK_RSN_NO_ERROR;
     }
     
@@ -4982,7 +4983,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 static void check_dr_channel_change(void)
 {
     // see if we need to possible change data rates.
-    if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
+    if(ont_inactive_or_expired(ONT_DATA_RATE_CHANNEL_TIMER))
     {
         UInt8 new_data_rate = ONE_NET_DATA_RATE_38_4;
         UInt8 new_channel = on_base_param->channel;
@@ -4992,7 +4993,7 @@ static void check_dr_channel_change(void)
                 // Change to the alternate channel and data rate
                 new_data_rate = alternate_data_rate;
                 new_channel = alternate_channel;
-                ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
                   dormant_data_rate_time_ms));
                 // intentional fall-through           
             case ON_DR_CHANNEL_CHANGE_DONE:
@@ -5043,7 +5044,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
     #ifdef _DATA_RATE_CHANNEL
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
     one_net_set_channel(on_base_param->channel);
-    ont_set_timer(ONT_DATA_RATE_TIMER, 0);
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, 0);
     #endif
 }
 #endif
