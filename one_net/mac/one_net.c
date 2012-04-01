@@ -2053,6 +2053,16 @@ void one_net(on_txn_t ** txn)
                         // possible quick change.  We'll change back immediately
                         // after the function call.
                         bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
+                        
+                        // If we are sending anything but the last packet, we'll
+                        // reset the timeout timer.  Otherwise we expect a
+                        // response, so we'll reset it when / if we get one.
+                        if(bs_msg.chunk_idx + 1 != bs_msg.chunk_size)
+                        {
+                            ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
+                              bs_msg.timeout));
+                        }
+                        
                         status = on_build_data_pkt(buffer, ON_APP_MSG,
                           &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
                         // change back if it was changed before.
@@ -2073,8 +2083,6 @@ void one_net(on_txn_t ** txn)
                     
                     bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
                     on_state++;
-                    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
-                      bs_msg.timeout));
                 }
                 else if(status == ONS_CANCELED)
                 {
@@ -2339,11 +2347,9 @@ void one_net(on_txn_t ** txn)
                     }
                     else
                     {
-                        // set for triple the expected response time and send
-                        // again
-                        ont_set_timer(ONT_RESPONSE_TIMER,
-                          MS_TO_TICK(3 * bs_msg.time));
-                        on_state = ON_BS_SEND_DATA_PKT;
+                        // no response, so prepare the next packet, which may
+                        // may or may not be this one.
+                        on_state = ON_BS_PREPARE_DATA_PACKET;
                     }
                     
                     break;
@@ -3146,12 +3152,12 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_IGNORE;
     }
     
-    #ifdef _DATA_RATE_CHANNEL
     // we got a response, so reset the data rate change timer to the
     // timeout
+    #ifdef _DATA_RATE_CHANNEL
     ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(bs_msg->timeout));
     #endif
-    
+    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg->timeout));
     switch(ack_nack->handle)
     {
         case ON_ACK_SLOW_DOWN_TIME_MS:
