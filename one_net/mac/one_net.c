@@ -1297,7 +1297,7 @@ void one_net(on_txn_t ** txn)
                             #endif
                             
                             #ifndef _ONE_NET_SIMPLE_CLIENT
-                            #if defined(_BLOCK_MESSAGES_ENABLED)
+                            #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
                               single_msg.payload[0] == ON_CHANGE_DATA_RATE)
