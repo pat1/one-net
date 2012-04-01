@@ -702,7 +702,6 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
             return *nr;
         }
         
-        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -714,6 +713,7 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
         }
         
         // See if we are to switch data rates
+        #ifdef _DATA_RATE
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
             if(!dst_features_known)
@@ -845,7 +845,6 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
             return *nr;
         }
         
-        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -869,7 +868,6 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
                   THIS_DEVICE_FEATURES, device->features);
             }
         }
-        #endif
     }
 
     *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
@@ -1867,12 +1865,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE_CHANNEL
-        case ON_CHANGE_DATA_RATE_CHANNEL:
+        #ifdef _DATA_RATE
+        case ON_CHANGE_DATA_RATE:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
-            ack_nack->nack_reason = one_net_change_data_rate_channel(NULL,
+            ack_nack->nack_reason = one_net_change_data_rate(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }

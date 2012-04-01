@@ -2166,7 +2166,7 @@ oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return status;
     }
       
-    switch(one_net_change_data_rate_channel((on_encoded_did_t*) enc_did, pause_time_ms,
+    switch(one_net_change_data_rate((on_encoded_did_t*) enc_did, pause_time_ms,
       dormant_time_ms, new_channel, (UInt8) new_data_rate))
     {
         case ON_NACK_RSN_NO_ERROR: return ONCLI_SUCCESS;

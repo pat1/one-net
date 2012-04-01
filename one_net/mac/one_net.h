@@ -210,7 +210,6 @@ typedef enum
     //! Waits for a response to a find route packet
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
-    #ifdef _DATA_RATE_CHANNEL
     //! State used when changing a data rate and channel for block / stream
     ON_BS_CHANGE_DR_CHANNEL,//44
     
@@ -229,7 +228,6 @@ typedef enum
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
     ON_BS_CHANGE_MY_DATA_RATE,//48
-    #endif
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,
@@ -580,7 +578,6 @@ typedef struct
 } on_pkt_hdlr_set_t;
 
 
-#ifdef _DATA_RATE_CHANNEL
 typedef enum
 {
     ON_DR_CHANNEL_NO_SCHEDULED_CHANGE,
@@ -588,7 +585,6 @@ typedef enum
     ON_DR_CHANNEL_CHANGE_DONE,
     NUM_DR_CHANNEL_STAGES
 } dr_channel_stage_t;
-#endif
 
 
 //! @} ONE-NET_typedefs
@@ -735,7 +731,7 @@ extern tick_t route_start_time;
 extern block_stream_msg_t bs_msg;
 #endif
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef _DATA_RATE
 extern dr_channel_stage_t dr_channel_stage;
 extern UInt16 dormant_data_rate_time_ms;
 extern UInt8 next_data_rate;
@@ -894,8 +890,8 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
-on_nack_rsn_t one_net_change_data_rate_channel(const on_encoded_did_t* enc_did,
+#ifdef _DATA_RATE
+on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate);
 #endif

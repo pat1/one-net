@@ -341,8 +341,8 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
-void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate);
+#ifdef _DATA_RATE
+void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate);
 #endif
 
 
@@ -417,9 +417,7 @@ one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
 SInt8 one_net_get_alternate_channel(void);
-#endif
 
 
 

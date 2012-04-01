@@ -1498,8 +1498,8 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
-#ifdef _DATA_RATE_CHANNEL
-void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
+#ifdef _DATA_RATE
+void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate)
 {
     oncli_send_msg("Changed to data rate %s, channel ",
       DATA_RATE_STR[new_data_rate]);
@@ -1530,14 +1530,10 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
     // TODO -- where is ONT_BS_TIMER being set and why is this timer being
     // used for this?
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE)
     if(bs_msg.transfer_in_progress && msg->msg_type == ON_ADMIN_MSG
-      && msg->payload[0] == ON_CHANGE_DATA_RATE_CHANNEL)
+      && msg->payload[0] == ON_CHANGE_DATA_RATE)
     {
-        // TODO -- is this still the message format?  This message might be
-        // obsolete?
-        
-        
         // change the pause so everyone gets in at once.  The pause is byte 3
         // and the units are in tenths of a second
         msg->payload[3] = TICK_TO_MS(ont_get_timer(ONT_BS_TIMER)) / 100;
@@ -1569,7 +1565,6 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
 // negative value means no valid alternate channel could be found.
 SInt8 one_net_get_alternate_channel(void)
 {
@@ -1586,7 +1581,6 @@ SInt8 one_net_get_alternate_channel(void)
         }
     }
 }
-#endif
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED

@@ -69,7 +69,7 @@
 typedef enum
 {
     //! Update a device's data rate
-    ONE_NET_UPDATE_DATA_RATE = 0x00, // TODO -- where is this used?
+    ONE_NET_UPDATE_DATA_RATE = 0x00,
     
     //! Updating the network key is complete
     ONE_NET_UPDATE_NETWORK_KEY = 0x01,

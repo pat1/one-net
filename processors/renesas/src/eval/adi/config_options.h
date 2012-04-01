@@ -273,10 +273,9 @@
 #endif
 
 
-// Enable this if data rates can be changed to anything besides the 38,400 base
-// or the channel can be changed
-#ifndef _DATA_RATE_CHANNEL
-//    #define _DATA_RATE_CHANNEL
+// Enable this if data rates can be changed to anything besides the 38,400 base.
+#ifndef _DATA_RATE
+//    #define _DATA_RATE
 #endif
 
 
@@ -470,7 +469,7 @@
 	#endif
     
     // _ENABLE_SET_DATA_RATE_COMMAND should be defined if you are implementing the "set data rate" command option
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef _DATA_RATE
         #ifndef _ENABLE_SET_DATA_RATE_COMMAND
     //        #define _ENABLE_SET_DATA_RATE_COMMAND
         #endif
