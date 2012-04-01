@@ -537,7 +537,7 @@
 // ONE_NET_HEAP_SIZE and ONE_NET_HEAP_NUM_ENTRIES in
 // one_net_port_const.h.
 #ifndef _ONE_NET_MEMORY
-    #define _ONE_NET_MEMORY
+//    #define _ONE_NET_MEMORY
 #endif
 
 
