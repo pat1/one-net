@@ -1565,6 +1565,8 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.bs_on_state =
                                       ON_BS_PREPARE_DATA_PACKET;
                                     ont_set_timer(ONT_BS_TIMER, 0);
+                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
+                                      MS_TO_TICK(bs_msg.timeout));
                                     one_net_memset(bs_msg.sent, 0,
                                       sizeof(bs_msg.sent));
                                     
