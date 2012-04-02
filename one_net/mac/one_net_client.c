@@ -1500,7 +1500,46 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     one_net_client_single_txn_status(status, (*txn)->retry,
       msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
     #endif
-
+    
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+    if(bs_msg.transfer_in_progress)
+    {
+        ack_nack->handle = ON_ACK;
+        if(*msg_type == ON_ROUTE_MSG)
+        {
+            UInt8 hops, return_hops;
+            if(ack_nack->nack_reason ||
+              !extract_repeaters_and_hops_from_route(&(bs_msg.dst->did),
+              ack_nack->payload->ack_payload, &hops,
+              &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
+            {
+                on_message_status_t status = ON_MSG_FAIL;
+                
+                // route failed for some reason.
+                ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
+                #ifndef _STREAM_MESSAGES_ENABLED
+                on_client_block_txn_hdlr(&bs_msg, NULL, &status, ack_nack);
+                #else
+                if(get_bs_transfer_type(bs_msg.flags) == ON_BLK_TRANSFER)
+                {
+                    on_client_block_txn_hdlr(&bs_msg, NULL, &status,
+                      ack_nack);
+                }
+                else
+                {
+                    on_client_stream_txn_hdlr(&bs_msg, NULL, &status,
+                      ack_nack);
+                }
+                #endif
+            }
+            else
+            {
+                set_bs_hops(&bs_msg.flags, hops > return_hops ? hops :
+                  return_hops);
+            }
+        }
+    }
+    #endif    
 
     if(is_master_did((on_encoded_did_t*)
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]))
