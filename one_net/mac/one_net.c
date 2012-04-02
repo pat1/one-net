@@ -1487,8 +1487,7 @@ void one_net(on_txn_t ** txn)
                                       on_base_param->channel);
                                     #endif
                                     request_reserve_repeater(&bs_msg,
-                                      &(bs_msg.repeaters[rptr_idx]),
-                                      &MASTER_ENCODED_DID);
+                                      &(bs_msg.repeaters[rptr_idx]));
                                     break;                                
                                 case ON_BS_MASTER_REPEATER_PERMISSION_END:
                                     rptr_idx++;
@@ -4866,10 +4865,9 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
 
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#if defined(_ONE_NET_MULTI_HOP) && defined(_ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
 on_single_data_queue_t* request_reserve_repeater(
-  const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
-  const on_encoded_did_t* repeater)
+  const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater)
 {
     UInt8 pld[14];
     UInt32 est_transfer_time = estimate_block_transfer_time(bs_msg);
@@ -4884,7 +4882,7 @@ on_single_data_queue_t* request_reserve_repeater(
     pld[13] = get_bs_priority(bs_msg->flags);
  
     return one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld,
-      14, ONE_NET_HIGH_PRIORITY, NULL, dst
+      14, ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
       #ifdef _PEER
           , FALSE,
           ONE_NET_DEV_UNIT
