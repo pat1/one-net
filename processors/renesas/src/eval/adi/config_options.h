@@ -149,12 +149,22 @@
         #endif
     #endif
 
-    // Stream Messages -- available only if block messages are enabled.
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef _BLOCK_MESSAGES_ENABLED    
+        // Stream Messages -- available only if block messages are enabled.
         #ifndef _STREAM_MESSAGES_ENABLED
        	//    #define _STREAM_MESSAGES_ENABLED
         #endif
-    #endif    
+    #endif  
+
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_CLIENT)
+        // Relevant only for clients initiating block / stream.  Enable if the
+        // client has the ability to request permission from the master for
+        // long block and stream transfers.  Do not enable if the device cannot
+        // request permission from the client.
+        #ifndef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+       	    #define _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #endif
+    #endif
 #endif
 
 
