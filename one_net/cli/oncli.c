@@ -512,6 +512,8 @@ oncli_status_t oncli_print_features(on_features_t features)
       features_block_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
     oncli_send_msg("Stream : %s\n",
       features_stream_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
+    oncli_send_msg("Data Rate / Channel Chg. : %s\n",
+      features_dr_channel_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
     oncli_send_msg("Device Sleeps : %s\n",
       features_device_sleeps(features) ? TRUE_STR : FALSE_STR);
     oncli_send_msg("\nData Rates...\n\n");
