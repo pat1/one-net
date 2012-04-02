@@ -1385,6 +1385,7 @@ void one_net(on_txn_t ** txn)
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.num_repeaters = 0;
                                     #endif
+                                #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
@@ -1417,6 +1418,9 @@ void one_net(on_txn_t ** txn)
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
+                                #endif
+                                
+                                
                                 case ON_BS_DEVICE_PERMISSION:
                                     if(get_bs_transfer_type(bs_msg.flags) ==
                                       ON_BLK_TRANSFER)
@@ -1429,6 +1433,8 @@ void one_net(on_txn_t ** txn)
                                     }                              
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst->did);
                                     break;
+                                    
+                                #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
                                     if(master_involved)
                                     {
@@ -1440,11 +1446,11 @@ void one_net(on_txn_t ** txn)
                                         // destination, we'll get the master's
                                         // permission when we ask the
                                         // destination device's permission.
-                                        bs_msg.bs_on_state =
-                                          ON_BS_REPEATER_PERMISSION_START;
+                                        bs_msg.bs_on_state += 4;
                                     }
                                     else
                                     {
+                                        #ifdef _DATA_RATE_CHANNEL
                                         // ask the master for permission.
                                         // We'll need to drop back down
                                         // to the base channel and data rate
@@ -1452,99 +1458,80 @@ void one_net(on_txn_t ** txn)
                                           on_base_param->channel);
                                         one_net_set_data_rate(
                                           ONE_NET_DATA_RATE_38_4);
+                                        #endif
                                         send_bs_setup_msg(&bs_msg,
                                           &MASTER_ENCODED_DID);
                                     }
                                     break;
+                                #endif
+                                    
+                                #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
-                                #ifndef _ONE_NET_MULTI_HOP
-                                    bs_msg.bs_on_state = ON_BS_COMMENCE;
-                                    break;
-                                #else
+                                    if(device_is_master || bs_msg.num_repeaters
+                                      == 0)
+                                    {
+                                        bs_msg.bs_on_state += 6;
+                                        break;
+                                    }
+
                                     rptr_idx = 0;
-                                    bs_msg.bs_on_state =
-                                      ON_BS_MASTER_REPEATER_PERMISSION;
-                                    // intentional fall-through
+                                    bs_msg.bs_on_state++;
+                                    break;
                                 case ON_BS_MASTER_REPEATER_PERMISSION:
-                                    if(!master_involved && bs_msg.num_repeaters)
-                                    {
-                                        // The master is at the main data rate
-                                        // and channel, so change to them.
-                                        one_net_set_data_rate(
-                                          ONE_NET_DATA_RATE_38_4);
-                                        one_net_set_channel(
-                                          on_base_param->channel);
-                                        request_reserve_repeater(&bs_msg,
-                                          &(bs_msg.repeaters[rptr_idx]),
-                                          &MASTER_ENCODED_DID);
-                                    }
-                                    else
-                                    {
-                                        // If the master is involved, then we
-                                        // either ARE the master or the master
-                                        // is the device we are sending to, so
-                                        // if we are the master, we don't need
-                                        // the master's permission since we have
-                                        // it already.  If the master is the
-                                        // destination, we'll get the master's
-                                        // permission when we ask the
-                                        // destination device's permission.
-                                        // Also, if there are no repeaters,
-                                        // there is no need to request
-                                        // permission for repeaters, so skip
-                                        // this state.
-                                        bs_msg.bs_on_state =
-                                          ON_BS_REPEATER_PERMISSION_START;
-                                    }
+                                    #ifdef _DATA_RATE_CHANNEL
+                                    // The master is at the main data rate
+                                    // and channel, so change to them.
+                                    one_net_set_data_rate(
+                                      ONE_NET_DATA_RATE_38_4);
+                                    one_net_set_channel(
+                                      on_base_param->channel);
+                                    #endif
+                                    request_reserve_repeater(&bs_msg,
+                                      &(bs_msg.repeaters[rptr_idx]),
+                                      &MASTER_ENCODED_DID);
                                     break;                                
                                 case ON_BS_MASTER_REPEATER_PERMISSION_END:
                                     rptr_idx++;
                                     if(rptr_idx < bs_msg.num_repeaters)
                                     {
-                                        bs_msg.bs_on_state =
-                                          ON_BS_MASTER_REPEATER_PERMISSION;
+                                        bs_msg.bs_on_state -= 4;
                                         break;
                                     }
-                                    bs_msg.bs_on_state =
-                                      ON_BS_MASTER_REPEATER_PERMISSION;
-                                    // intentional fall-through
+                                    bs_msg.bs_on_state++;
+                                    break;
+                                #endif
+                                
+                                #ifdef _ONE_NET_MULTI_HOP
                                 case ON_BS_REPEATER_PERMISSION_START:
+                                    if(bs_msg.num_repeaters == 0)
+                                    {
+                                        bs_msg.bs_on_state += 6;
+                                        break;
+                                    }                                
+
                                     rptr_idx = 0;
-                                    bs_msg.bs_on_state =
-                                      ON_BS_REPEATER_PERMISSION;
-                                    // intentional fall-through
+                                    bs_msg.bs_on_state++;
+                                    break;
                                 case ON_BS_REPEATER_PERMISSION:
+                                    #ifdef _DATA_RATE_CHANNEL
                                     one_net_set_data_rate(bs_msg.data_rate);
                                     one_net_set_channel(bs_msg.channel);
-                                    if(bs_msg.num_repeaters)
-                                    {
-                                        // repeaters now get the regular
-                                        // setup message
-                                        #if 0
-                                        request_reserve_repeater(&bs_msg,
-                                          &(bs_msg.repeaters[rptr_idx]),
-                                          &(bs_msg.repeaters[rptr_idx]));
-                                        #endif
-                                        send_bs_setup_msg(&bs_msg,
-                                          &(bs_msg.repeaters[rptr_idx]));
-                                    }
-                                    else
-                                    {
-                                        bs_msg.bs_on_state = ON_BS_COMMENCE;
-                                    }
+                                    #endif
+                                    send_bs_setup_msg(&bs_msg,
+                                      &(bs_msg.repeaters[rptr_idx]));
                                     break;
                                 case ON_BS_REPEATER_PERMISSION_END:
                                     rptr_idx++;
                                     if(rptr_idx < bs_msg.num_repeaters)
                                     {
-                                        bs_msg.bs_on_state =
-                                          ON_BS_MASTER_REPEATER_PERMISSION;
+                                        bs_msg.bs_on_state -= 4;
                                         break;
                                     }
-                                    bs_msg.bs_on_state =
-                                      ON_BS_COMMENCE;
+                                    bs_msg.bs_on_state++;
                                     break;
                                 #endif
+                                
+                                
                                 case ON_BS_COMMENCE:
                                 {
                                     #ifdef _ONE_NET_MULTI_HOP

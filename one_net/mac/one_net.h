@@ -210,8 +210,10 @@ typedef enum
     //! Waits for a response to a find route packet
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
+    
+    #ifdef _DATA_RATE_CHANNEL
     //! State used when changing a data rate and channel for block / stream
-    ON_BS_CHANGE_DR_CHANNEL,//44
+    ON_BS_CHANGE_DR_CHANNEL,
     
     //! State used when changing a data rate and channel for block / stream
     //! and sending a message
@@ -227,7 +229,7 @@ typedef enum
     
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
-    ON_BS_CHANGE_MY_DR_CHANNEL,//48
+    ON_BS_CHANGE_MY_DR_CHANNEL,
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,
@@ -239,7 +241,9 @@ typedef enum
     ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT,
     
     //! Waits for a response to a confirm route packet
-    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,//4C
+    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,
+    #endif
+
 
     //! Ask the device for permission
     ON_BS_DEVICE_PERMISSION,
@@ -251,43 +255,15 @@ typedef enum
     ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT,
     
     //! Wait for response from device
-    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,//50
+    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,
     
-    //! Ask the master for device permission
-    ON_BS_MASTER_DEVICE_PERMISSION,
     
-    //! Send master device permission packet
-    ON_BS_SEND_MASTER_DEVICE_PERMISSION,
-    
-    //! Wait for write to complete
-    ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
-    
-    //! Wait for response from master
-    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,//54
-    
-    //! Start state of requesting repeaters from master
-    ON_BS_MASTER_REPEATER_PERMISSION_START,
-    
-    //! Ask the master for repeater permission
-    ON_BS_MASTER_REPEATER_PERMISSION,
-    
-    //! Send master repeater permission packet
-    ON_BS_SEND_MASTER_REPEATER_PERMISSION,
-    
-    //! Wait for write to complete
-    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,//58
-    
-    //! Wait for response from master
-    ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
-    
-    //! End state of requesting repeaters from master
-    ON_BS_MASTER_REPEATER_PERMISSION_END,
-    
+    #ifdef _ONE_NET_MULTI_HOP
     //! Start state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_START,
         
     //! Ask the master for repeater permission
-    ON_BS_REPEATER_PERMISSION,//5C
+    ON_BS_REPEATER_PERMISSION,
     
     //! Send master repeater permission packet
     ON_BS_SEND_REPEATER_PERMISSION,
@@ -301,6 +277,44 @@ typedef enum
     //! End state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_END,
     
+    
+    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    //! Start state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_START,
+    
+    //! Ask the master for repeater permission
+    ON_BS_MASTER_REPEATER_PERMISSION,
+    
+    //! Send master repeater permission packet
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
+    
+    //! End state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_END,
+    #endif
+    #endif
+    
+    
+    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    //! Ask the master for device permission
+    ON_BS_MASTER_DEVICE_PERMISSION,
+    
+    //! Send master device permission packet
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,
+    #endif
+    
+
     //! Block or stream transaction ready to commence
     ON_BS_COMMENCE,
     
