@@ -815,7 +815,9 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
     one_net_int16_to_byte_stream(bs_msg->timeout,
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
-    one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst,
+    
+    
+    one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst->did,
       ON_ENCODED_DID_LEN);
       
     {
