@@ -1201,8 +1201,8 @@ void one_net(on_txn_t ** txn)
     {
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_CONFIRM_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_CHANGE_DR_CHANNEL:
         case ON_BS_CHANGE_MY_DR_CHANNEL:
         #endif
@@ -1385,10 +1385,10 @@ void one_net(on_txn_t ** txn)
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.num_repeaters = 0;
                                     #endif
-                                #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
+                                #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CHANGE_DR_CHANNEL:
                                     if(bs_msg.channel == on_base_param->channel
                                       && bs_msg.data_rate ==
@@ -2116,8 +2116,8 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CONFIRM_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
         #endif
         case ON_BS_SEND_DEVICE_PERMISSION:
@@ -2176,8 +2176,8 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
         #endif
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
@@ -2322,8 +2322,8 @@ void one_net(on_txn_t ** txn)
         } // send single data write wait case //
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
         #endif
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:

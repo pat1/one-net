@@ -230,6 +230,8 @@ typedef enum
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
     ON_BS_CHANGE_MY_DR_CHANNEL,
+    #endif
+    
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,
@@ -242,7 +244,6 @@ typedef enum
     
     //! Waits for a response to a confirm route packet
     ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,
-    #endif
 
 
     //! Ask the device for permission
