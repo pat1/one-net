@@ -1199,20 +1199,27 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
-        // TODO -- more #define guards for states
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_CONFIRM_ROUTE:
         case ON_BS_CHANGE_DR_CHANNEL:
         case ON_BS_CHANGE_MY_DR_CHANNEL:
+        #endif
         case ON_BS_DEVICE_PERMISSION:
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_DEVICE_PERMISSION:
-        case ON_BS_REPEATER_PERMISSION_START:
-        case ON_BS_REPEATER_PERMISSION:
-        case ON_BS_REPEATER_PERMISSION_END:
+        #endif
+        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_REPEATER_PERMISSION_START:
         case ON_BS_MASTER_REPEATER_PERMISSION:
         case ON_BS_MASTER_REPEATER_PERMISSION_END:
+        #endif
+        case ON_BS_REPEATER_PERMISSION_START:
+        case ON_BS_REPEATER_PERMISSION:
+        case ON_BS_REPEATER_PERMISSION_END:
+        #endif
         case ON_BS_COMMENCE:
         case ON_BS_CHUNK_PAUSE:
         case ON_BS_TERMINATE:
@@ -2120,12 +2127,20 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CONFIRM_ROUTE:
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
+        #endif
         case ON_BS_SEND_DEVICE_PERMISSION:
-        case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
-        case ON_BS_SEND_REPEATER_PERMISSION:
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
+        #endif
+        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
+        #endif
+        case ON_BS_SEND_REPEATER_PERMISSION:
+        #endif
         case ON_BS_SEND_DATA_PKT:
         case ON_BS_SEND_TERMINATE_PACKET:
         #endif
@@ -2172,12 +2187,20 @@ void one_net(on_txn_t ** txn)
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
+        #endif
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
+        #endif
+        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
+        #endif
         case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
+        #endif
         case ON_BS_SEND_DATA_WRITE_WAIT:
         case ON_BS_SEND_TERMINATE_WRITE_WAIT:
         #endif
@@ -2310,14 +2333,20 @@ void one_net(on_txn_t ** txn)
         } // send single data write wait case //
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
+        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
+        #endif
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
-        #ifdef _ONE_NET_CLIENT
+        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP:
+        #ifdef _ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         #endif
+        #endif
+        #ifdef _ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
+        #endif
         case ON_BS_WAIT_FOR_DATA_RESP:
         case ON_BS_WAIT_FOR_TERMINATE_RESP:
         #endif
