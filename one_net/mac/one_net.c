@@ -1506,7 +1506,7 @@ void one_net(on_txn_t ** txn)
                                     {
                                         bs_msg.bs_on_state += 6;
                                         break;
-                                    }                                
+                                    }
 
                                     rptr_idx = 0;
                                     bs_msg.bs_on_state++;
@@ -1544,7 +1544,6 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     response_pid |= (get_default_num_blocks(
                                       response_pid) << 8);
-                                      
                                     if(!device)
                                     {
                                         // somehow we lost track of the device.
@@ -4874,8 +4873,10 @@ on_single_data_queue_t* request_reserve_repeater(
       
     pld[0] = ON_REQUEST_REPEATER;
     one_net_memmove(&pld[1], *repeater, ON_ENCODED_DID_LEN);
-    one_net_memmove(&pld[3], bs_msg->src, ON_ENCODED_DID_LEN);
-    one_net_memmove(&pld[5], bs_msg->dst, ON_ENCODED_DID_LEN);
+    one_net_memmove(&pld[3], &on_base_param->sid[ON_ENCODED_NID_LEN],
+      ON_ENCODED_DID_LEN);
+    one_net_memmove(&pld[5], bs_msg->dst->did, ON_ENCODED_DID_LEN);
+    
     one_net_int32_to_byte_stream(est_transfer_time, &pld[7]);
     pld[11] = bs_msg->channel;
     pld[12] = bs_msg->data_rate;
