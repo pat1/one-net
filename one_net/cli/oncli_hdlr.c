@@ -3140,7 +3140,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
         }
-        
+        set_bs_priority(&bs_msg.flags, priority);
         return (on_master_initiate_block_msg(&bs_msg, priority, &ack_nack)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
@@ -3156,7 +3156,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
         }
-        
+        set_bs_priority(&bs_msg.flags, priority);
         return (on_client_initiate_block_msg(&bs_msg, priority, &ack_nack)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
