@@ -1418,14 +1418,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         
                         case ON_RM_DEV:
                         {
-                            on_raw_did_t raw_did_added;
-                            if(on_decode(raw_did_added,
+                            on_raw_did_t raw_did_removed;
+                            if(on_decode(raw_did_removed,
                               &(ack_nack->payload->admin_msg)[1],
                               ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                             {
                                 break;
                             }
-                            one_net_client_client_removed(&raw_did_added,
+                            one_net_client_client_removed(&raw_did_removed,
                               is_my_did((on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
                               
@@ -2300,9 +2300,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         case ON_RM_DEV:
         {
             // first check if we are the one being removed.
-            on_encoded_did_t* removed_device = (on_encoded_did_t*) &DATA[1];
+            on_encoded_did_t* removed_did = (on_encoded_did_t*) &DATA[1];
 
-            if(is_my_did(removed_device))
+            if(is_my_did(removed_did))
             {
                 // we're the ones being removed
                 removed = TRUE;
@@ -2316,27 +2316,31 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 ont_set_timer(ONT_INVITE_TIMER,
                   MS_TO_TICK(3000));
             }
+            // TODO -- #define guard here?  Do clients that sleep, don't
+            // have multi-hop, and don't have block messages enabled get this
+            // message?
             else
             {
-                // Remove the device from the list of sending devices,
-                // if applicable.  Just make the features unknown and that
-                // will force a revalidation next time any device tries to
-                // use this did.
+                // Remove the device from the list of sending devices
                 tick_t tick_now = get_tick_count();
-                on_sending_device_t* device = sender_info(removed_device);
-                device->features = FEATURES_UNKNOWN;
                 
-                // for security, change the the message id.
-                device->msg_id = one_net_prand(tick_now, 50);
+                #ifndef _ONE_NET_SIMPLE_CLIENT
+                on_sending_dev_list_item_t* removed_item =
+                  get_sending_dev_list_item_t(removed_did);
+                if(removed_item)
+                {
+                    removed_item->lru = 0;
+                }
+                #endif
 
                 #ifdef _PEER
                 // delete any peer assignments for this device
                 one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
-                  removed_device, ONE_NET_DEV_UNIT);
+                  removed_did, ONE_NET_DEV_UNIT);
                 #endif
                 {
                     on_raw_did_t raw_did;
-                    on_decode(raw_did, *removed_device, ON_ENCODED_DID_LEN);
+                    on_decode(raw_did, *removed_did, ON_ENCODED_DID_LEN);
                     one_net_client_client_removed(&raw_did, FALSE);
                 }
                 
