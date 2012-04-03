@@ -907,6 +907,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
 on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* txn,
   on_ack_nack_t* ack_nack)
 {
+    // TODO -- write this.
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     if(bs_msg.transfer_in_progress)
@@ -1282,7 +1283,16 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.msg_type = *msg_type;
     on_decode(dst , &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    
+   
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(*msg_type == ON_ADMIN_MSG && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
+    {
+        // prevent the device from "sliding off" the device list
+        on_client_set_device_slideoff((on_encoded_did_t*)
+          &pkt->packet_bytes[ON_ENCODED_DST_DID_IDX],
+          ON_DEVICE_PROHIBIT_SLIDEOFF);
+    }
+    #endif
     
     if(status == ON_MSG_SUCCESS && *msg_type == ON_ADMIN_MSG)
     {
@@ -1612,6 +1622,28 @@ static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
+    // allow devicesto "slide off" again.
+    if(msg->dst)
+    {
+        on_client_set_device_slideoff(&msg->dst->did,
+          ON_DEVICE_ALLOW_SLIDEOFF);
+        #ifdef _ONE_NET_MULTI_HOP
+        {
+            UInt8 i;
+            for(i = 0; i < msg->num_repeaters; i++)
+            {
+                on_client_set_device_slideoff(&msg->repeaters[i],
+                  ON_DEVICE_ALLOW_SLIDEOFF);
+            }
+        }
+        #endif
+    }
+    if(msg->src)
+    {
+        on_client_set_device_slideoff(&msg->src->did,
+          ON_DEVICE_ALLOW_SLIDEOFF);
+    }
+    
     return one_net_client_block_txn_status(msg, terminating_device, status,
       ack_nack);
 }
