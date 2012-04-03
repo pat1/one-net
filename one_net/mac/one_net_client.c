@@ -144,7 +144,7 @@ on_master_t * const master
 
 //! The ONE_NET_RX_FROM_DEVICE_COUNT devices that have most recently sent data
 //! to this device.
-on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
+on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT] = {0};
 
 //! Set to true upon being deleted from the network.  There will be a slight
 //! two second pause before this device actually removes itself to give any
@@ -1676,20 +1676,19 @@ static one_net_status_t init_internal(void)
     \return Pointer to location that holds the sender information (should be
       checked for 0, and should be checked if a new location).
 */
+#ifndef _ONE_NET_SIMPLE_CLIENT
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 {
-    // indexes
-    UInt8 i, match_idx, max_lru_idx;
-
-    // either the lru of the matched device, or the max lru in the list
-    UInt8 lru = 0;
+    SInt8 i;
+    SInt8 vacant_index = -1;
+    SInt8 replace_index = -1;
+    SInt8 device_index = -1;
+    UInt8 device_lru = ONE_NET_RX_FROM_DEVICE_COUNT;
 
     if(!DID)
     {
         return 0;
     } // if parameter is invalid //
-
-    max_lru_idx = match_idx = 0;
 
     if(on_encoded_did_equal(DID,
       (const on_encoded_did_t * const)&(master->device.did)))
@@ -1697,58 +1696,140 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         return &master->device;
     } // if the MASTER is the sender //
 
-    // loop through and find the sender's information
+
+
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
-        if(on_encoded_did_equal(DID,
-          (const on_encoded_did_t * const)&(sending_dev_list[i].sender.did)))
+        if(sending_dev_list[i].lru)
         {
-            match_idx = i;
-            lru = sending_dev_list[i].lru;
-            break;
-        } // if the sender info was found //
-
-        if(lru < sending_dev_list[i].lru)
+            if(on_encoded_did_equal(DID,
+              (const on_encoded_did_t * const)
+              &(sending_dev_list[i].sender.did)))
+            {
+                device_index = i;
+                device_lru = sending_dev_list[i].lru;
+            }
+            else
+            {
+                if(!sending_dev_list[i].prohibit_slide_off)
+                {
+                    if(replace_index == -1 || sending_dev_list[i].lru >
+                      sending_dev_list[replace_index].lru)
+                    {
+                        replace_index = i;
+                    }
+                }
+            }
+        }
+        else
         {
-            lru = sending_dev_list[i].lru;
-            max_lru_idx = i;
-        } // if the device has a higher lru than the current max //
-    } // loop to find sender info //
-
-    if(match_idx != i)
+            vacant_index = i;
+        }
+    }
+    
+    if(device_index == -1)
     {
-        // replace the least recently used device
-        match_idx = max_lru_idx;
-        one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
-          sizeof(sending_dev_list[match_idx].sender.did));
-        sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
-        sending_dev_list[match_idx].sender.msg_id =
+        if(vacant_index != -1)
+        {
+            replace_index = vacant_index;
+        }
+        
+        device_index = replace_index;
+        if(device_index == -1)
+        {
+            goto adjust_lru_list; // no room on list
+        }
+        
+        one_net_memmove(sending_dev_list[device_index].sender.did, *DID,
+          sizeof(sending_dev_list[device_index].sender.did));
+        sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
+        sending_dev_list[device_index].sender.msg_id =
           one_net_prand(get_tick_count(), 50);
         
         #ifdef _ONE_NET_MULTI_HOP
-        sending_dev_list[match_idx].sender.hops = 0;
-        sending_dev_list[match_idx].sender.max_hops = ON_MAX_HOPS_LIMIT;
+        sending_dev_list[device_index].sender.hops = 0;
+        sending_dev_list[device_index].sender.max_hops = ON_MAX_HOPS_LIMIT;
         #endif
-    } // if the device was not found in the list //
-
-    if(lru)
+    }
+    sending_dev_list[device_index].lru = 1;
+    
+adjust_lru_list:
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
-        // update the lru's in the list
-        for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+        if(i == device_index || sending_dev_list[i].lru == 0)
         {
-            if(i == match_idx)
-            {
-                sending_dev_list[i].lru = 0;
-            } // if it is the index that matched //
-            else
-            {
-                sending_dev_list[i].lru++;
-            } // else it is not the index that matched //
-        } // loop through devices and update the lrus //
-    } // if the device was not the least recently used //
+            continue;
+        }
+        if(sending_dev_list[i].lru < device_lru)
+        {
+            sending_dev_list[i].lru++;
+        }
+    }
 
-    return &(sending_dev_list[match_idx].sender);
+    if(device_index == -1)
+    {
+        return NULL;
+    }
+    return &(sending_dev_list[device_index].sender);
 } // sender_info //
+#else
+static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
+{
+    SInt8 i;
+    SInt8 vacant_index = -1;
+    SInt8 device_index = -1;
+
+    if(!DID)
+    {
+        return 0;
+    } // if parameter is invalid //
+
+    if(on_encoded_did_equal(DID,
+      (const on_encoded_did_t * const)&(master->device.did)))
+    {
+        return &master->device;
+    } // if the MASTER is the sender //
+
+
+
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        if(on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)
+          &(sending_dev_list[i].sender.did)))
+        {
+            device_index = i;
+        }
+        else if(sending_dev_list[i].sender.did[0] == 0 &&
+          sending_dev_list[i].sender.did[1] == 0)
+        {
+            vacant_index = i;
+        }
+    }
+    
+    if(device_index == -1)
+    {
+        if(vacant_index != -1)
+        {
+            device_index = vacant_index;
+        }
+        else
+        {
+            device_index = one_net_prand(get_tick_count(),
+              ONE_NET_RX_FROM_DEVICE_COUNT);
+        }
+        
+        one_net_memmove(sending_dev_list[device_index].sender.did, *DID,
+          sizeof(sending_dev_list[device_index].sender.did));
+        sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
+        sending_dev_list[device_index].sender.msg_id =
+          one_net_prand(get_tick_count(), 50);
+    }
+
+    return &(sending_dev_list[device_index].sender);
+} // sender_info //
+#endif
+
 
 
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL

@@ -368,7 +368,10 @@ typedef enum
 typedef struct
 {
     on_sending_device_t sender;     //!< did, etc. from sender.
-    UInt8 lru;                      //!< least recently used value   
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    UInt8 lru;                      //!< least recently used value
+    BOOL prohibit_slide_off;        //!< If true, this entry should not slide off the table.  Not currently used.
+    #endif
 } on_sending_dev_list_item_t;
 
 
