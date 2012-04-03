@@ -1711,7 +1711,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
             }
             else
             {
-                if(!sending_dev_list[i].prohibit_slide_off)
+                if(!sending_dev_list[i].slide_off == ON_DEVICE_ALLOW_SLIDEOFF)
                 {
                     if(replace_index == -1 || sending_dev_list[i].lru >
                       sending_dev_list[replace_index].lru)
@@ -1745,6 +1745,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
         sending_dev_list[device_index].sender.msg_id =
           one_net_prand(get_tick_count(), 50);
+        sending_dev_list[device_index].slide_off = ON_DEVICE_ALLOW_SLIDEOFF;
         
         #ifdef _ONE_NET_MULTI_HOP
         sending_dev_list[device_index].sender.hops = 0;

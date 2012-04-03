@@ -1006,6 +1006,8 @@ void print_client_send_list(void)
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
         oncli_send_msg("Send List %d:", i);
+        oncli_send_msg("LRU(%d) PSO(%d):", sending_dev_list[i].lru,
+          sending_dev_list[i].slide_off);
         print_sending_device_t(&(sending_dev_list[i].sender));
         delay_ms(10);
     }
