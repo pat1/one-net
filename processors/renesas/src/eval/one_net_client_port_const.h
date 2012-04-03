@@ -54,11 +54,8 @@
 #endif
 
     
-enum
-{
-    //! The number of remembered devices that communicate with this device.
-    ONE_NET_RX_FROM_DEVICE_COUNT = 3
-};
+//! The number of remembered devices that communicate with this device.
+#define ONE_NET_RX_FROM_DEVICE_COUNT 3
 
 
 //! Time constants
