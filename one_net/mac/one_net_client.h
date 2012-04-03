@@ -153,6 +153,12 @@ on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* txn,
   on_ack_nack_t* ack_nack);
 #endif
 
+#ifndef _ONE_NET_SIMPLE_CLIENT
+void on_client_set_device_slideoff(const on_encoded_did_t* enc_did,
+  device_slideoff_t slideoff);
+void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did);
+#endif
+
 
 
 //! @} ONE-NET_CLIENT_pub_func

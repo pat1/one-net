@@ -365,13 +365,13 @@ typedef enum
 } on_state_t;
 
 
+// relevant only for non-simple clients
 typedef enum
 {
     ON_DEVICE_ALLOW_SLIDEOFF, //! Set if the device should be allowed to "slide off" the list.
     ON_DEVICE_PROHIBIT_SLIDEOFF, //! Set if the device should not be allowed to "slide off" the list.
     ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, //! Set if the device should not be allowed to "slide off" the list and
-                                      //! is "locked".  This can be "unlocked" by setting to ON_DEVICE_SLIDEOFF_UNLOCK
-    ON_DEVICE_SLIDEOFF_UNLOCK //! Unlocks any lock that has been set.
+                                      //! is "locked".  This can be unlocked with a call to on_client_unlock_device_slideoff()
 } device_slideoff_t;
 
 
@@ -380,7 +380,7 @@ typedef struct
     on_sending_device_t sender;     //!< did, etc. from sender.
     #ifndef _ONE_NET_SIMPLE_CLIENT
     UInt8 lru;                      //!< least recently used value
-    device_slideoff_t slide_off;    //!< Whether the device can "slide off" the list when the list gets full.
+    device_slideoff_t slideoff;    //!< Whether the device can "slide off" the list when the list gets full.
     #endif
 } on_sending_dev_list_item_t;
 

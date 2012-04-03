@@ -1007,7 +1007,7 @@ void print_client_send_list(void)
     {
         oncli_send_msg("Send List %d:", i);
         oncli_send_msg("LRU(%d) PSO(%d):", sending_dev_list[i].lru,
-          sending_dev_list[i].slide_off);
+          sending_dev_list[i].slideoff);
         print_sending_device_t(&(sending_dev_list[i].sender));
         delay_ms(10);
     }

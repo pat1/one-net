@@ -197,7 +197,10 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
-
+#ifndef _ONE_NET_SIMPLE_CLIENT
+static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
+  const on_encoded_did_t* DID);
+#endif
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
 #ifndef _ONE_NET_SIMPLE_CLIENT
@@ -235,6 +238,31 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 //! \defgroup ONE-NET_CLIENT_pub_func
 //! \ingroup ONE-NET_CLIENT
 //! @{
+    
+    
+#ifndef _ONE_NET_SIMPLE_CLIENT
+void on_client_set_device_slideoff(on_encoded_did_t* enc_did, device_slideoff_t
+  slideoff)
+{
+    on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
+    if(!item || item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
+    {
+        return;
+    }
+    
+    item->slideoff = slideoff;
+}
+
+
+void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
+{
+    on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
+    if(item && item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
+    {
+        item->slideoff = ON_DEVICE_PROHIBIT_SLIDEOFF;
+    }
+}
+#endif
 
 /*!
     \brief Initializes a CLIENT to start looking for an invite message.
@@ -1664,6 +1692,24 @@ static one_net_status_t init_internal(void)
 } // init_internal //
 
 
+#ifndef _ONE_NET_SIMPLE_CLIENT
+static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
+  const on_encoded_did_t* DID)
+{
+    UInt8 i;
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        if(on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)
+          &(sending_dev_list[i].sender.did)))
+        {
+            return &sending_dev_list[i];
+        }
+    }
+    return NULL;
+}
+
+
 /*!
     \brief Finds the sender info (or a location for the sender info).
 
@@ -1676,7 +1722,6 @@ static one_net_status_t init_internal(void)
     \return Pointer to location that holds the sender information (should be
       checked for 0, and should be checked if a new location).
 */
-#ifndef _ONE_NET_SIMPLE_CLIENT
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 {
     SInt8 i;
@@ -1711,7 +1756,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
             }
             else
             {
-                if(sending_dev_list[i].slide_off == ON_DEVICE_ALLOW_SLIDEOFF)
+                if(sending_dev_list[i].slideoff == ON_DEVICE_ALLOW_SLIDEOFF)
                 {
                     if(replace_index == -1 || sending_dev_list[i].lru >
                       sending_dev_list[replace_index].lru)
@@ -1745,7 +1790,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
         sending_dev_list[device_index].sender.msg_id =
           one_net_prand(get_tick_count(), 50);
-        sending_dev_list[device_index].slide_off = ON_DEVICE_ALLOW_SLIDEOFF;
+        sending_dev_list[device_index].slideoff = ON_DEVICE_ALLOW_SLIDEOFF;
         
         #ifdef _ONE_NET_MULTI_HOP
         sending_dev_list[device_index].sender.hops = 0;
