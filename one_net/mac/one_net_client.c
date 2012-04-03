@@ -1711,7 +1711,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
             }
             else
             {
-                if(!sending_dev_list[i].slide_off == ON_DEVICE_ALLOW_SLIDEOFF)
+                if(sending_dev_list[i].slide_off == ON_DEVICE_ALLOW_SLIDEOFF)
                 {
                     if(replace_index == -1 || sending_dev_list[i].lru >
                       sending_dev_list[replace_index].lru)
