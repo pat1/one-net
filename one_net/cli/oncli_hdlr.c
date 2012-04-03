@@ -3097,6 +3097,13 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     
+    if(is_my_did(&enc_dst_did))
+    {
+        return ONCLI_INVALID_DST;
+    }
+    
+    
+    
     bs_msg.dst = (*get_sender_info)(&enc_dst_did);
     if(!bs_msg.dst)
     {
@@ -3216,6 +3223,11 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(on_encode(enc_dst_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
+    }
+    
+    if(is_my_did(&enc_dst_did))
+    {
+        return ONCLI_INVALID_DST;
     }
     
     bs_msg.dst = (*get_sender_info)(&enc_dst_did);    
