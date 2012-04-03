@@ -2142,6 +2142,18 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 
                 // Set the block / stream timer to the timeout
                 ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
+                
+                // prevent device list slideoff
+                if(bs_msg.dst)
+                {
+                    on_client_set_device_slideoff(&bs_msg.dst->did,
+                      ON_DEVICE_PROHIBIT_SLIDEOFF);
+                }
+                if(bs_msg.src)
+                {
+                    on_client_set_device_slideoff(&bs_msg.src->did,
+                      ON_DEVICE_PROHIBIT_SLIDEOFF);
+                }
             }
             break;
         }
