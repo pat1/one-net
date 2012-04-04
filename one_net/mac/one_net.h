@@ -365,7 +365,10 @@ typedef enum
 } on_state_t;
 
 
-// relevant only for non-simple clients
+//! Relevant only for non-simple clients.  This structure controls whether a client device can
+//! "slide off"(i.e. be replaced by another device) of a client's device list.  If the flag is
+//! set to ON_DEVICE_ALLOW_SLIDEOFF, it can be replaced.  If its value is ON_DEVICE_PROHIBIT_SLIDEOFF
+//! or ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, it cannot.
 typedef enum
 {
     ON_DEVICE_ALLOW_SLIDEOFF, //! Set if the device should be allowed to "slide off" the list.

@@ -241,10 +241,37 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
     
     
 #ifndef _ONE_NET_SIMPLE_CLIENT
+/*!
+    \brief Sets the "slideoff" flag in the client device list for a device.
+    
+    See the comments for the on_client_unlock_device_slideoff() function for
+    more information.
+    
+    To prevent internal errors, replay attacks, and any other problems resulting
+    from a client being bumped off of the client device list, a flag can be
+    set to retain that client's position in the list.  If this flag is set, the device
+    will not be removed from the list if a new device needs to be placed on the list.
+    The flag is the "slideoff" element of the "on_sending_dev_list_item_t" structure.
+    
+    That flag can be one of three values.  See the "device_slideoff_t" structure for
+    more details on the values of this flag.  This function sets that flag.
+    
+    If the flag is already set to ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, this function does
+    nothing.  If the device is not already on the table, this function does nothing.
+    Otherwise the "slideoff" flag is set to the parameter passed to this function.
+
+    \param[in] enc_did The DID of the device.
+    \param[in] slideoff The value to set the device's slideoff flag to.
+
+    \return none
+*/
 void on_client_set_device_slideoff(on_encoded_did_t* enc_did, device_slideoff_t
   slideoff)
 {
     on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
+    
+    // if the devide's flag is "locked", you must call on_client_unlock_device_slideoff()
+    // to unlock.
     if(!item || item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
     {
         return;
@@ -254,6 +281,46 @@ void on_client_set_device_slideoff(on_encoded_did_t* enc_did, device_slideoff_t
 }
 
 
+/*!
+    \brief Removes a "lock" on a device in the client's device list.  This
+    function should be called only from the application code.
+
+    To prevent internal errors, replay attacks, and any other problems resulting
+    from a client being bumped off of the client device list, a "lock" can be
+    placed on that client's position in the list.  Examples of when it is important
+    for a device to not be allowed to slide off of the device list are...
+    
+    1. We are in the middle of a transaction (generally a block or stream transaction)
+       and a pointer has been set somewhere to point to another device.  If the device
+       falls off of the list, that pointer may no longer be valid.
+    2. We expect to communicate with this device a lot and we don't want to have to
+       "re-sync" with it to get its features, the number of hops, etc.
+    3. Security concerns involving replay attacks.  When a device falls off of the
+       list, its pairwise message id is no longer stored and it is therefore more vulnerable
+       to replay attacks because it may not recognize that a message id is being re-used.
+       
+    This function "unlocks" a lock that has already been placed on it.  If no "lock" is on
+    the device, the function has no effect except that it might rearrange the
+    least-recent-used values.  To actually set the flag so that the device can
+    "slide off", a subsequent call to the on_client_set_device_slideoff() function must
+    be called with a parameter of ON_DEVICE_ALLOW_SLIDEOFF.
+    
+    To LOCK a device, this function should not be called.  Instead, call
+    on_client_set_device_slideoff() and pass it the ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK
+    parameter.
+    
+    Note that the master will never slide off the devicelist under any circumstances.
+    
+    Also note that devices requiring high levels of protection against replay attacks
+    should be locked by the application code and remain locked.  Developers should, if
+    the device has enough RAM, make the device list large enough so that devices will never
+    fall off.
+    
+
+    \param[in] enc_did The DID of the device to unlock.
+
+    \return none
+*/
 void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
 {
     on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
