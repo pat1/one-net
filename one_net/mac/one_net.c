@@ -1238,8 +1238,9 @@ void one_net(on_txn_t ** txn)
             #else
             if((*txn == NULL || ((*txn == &bs_txn &&
               bs_msg.transfer_in_progress) && (on_state == ON_BS_CHUNK_PAUSE ||
-              get_bs_priority(bs_msg.flags) < ONE_NET_HIGH_PRIORITY))) &&
-              single_txn.priority == ONE_NET_NO_PRIORITY)
+              on_state == ON_BS_TERMINATE || get_bs_priority(bs_msg.flags) <
+              ONE_NET_HIGH_PRIORITY))) && single_txn.priority ==
+              ONE_NET_NO_PRIORITY)
             #endif
             {
                 on_sending_device_t* device;
