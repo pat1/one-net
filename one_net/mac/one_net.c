@@ -4593,6 +4593,47 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
 }
 
 
+/*!
+    \brief Determines whether an invalid message ID should be rejected by a device.
+    
+    Generally, devices which are NOT at risk of a replay attack should not care
+    about bad message IDs.  A very large number of devices would likely not
+    have security concerns and in particular, not be concerned about relay attacks.
+    
+    There are always exceptions, but generally these devices would not be thetarget
+    of replay attacks.
+    
+    1. Devices that control whether a television or stereo or lights is on or off.
+    2. Motion sensors that determine when someone walks into a store.
+    3. Temperature / humidity sensors.
+    
+    
+    The following devices likely WOULD be subject to replay attacks and should reject
+    messages with invalid message ids.
+    
+    1. Garage door openers or any device that opens and closes something that has a lock.
+    2. Any sort of device that is part of an anti-trespassing or other intruder-detection
+       or prevention system.
+    3. Any other device that is part of a security system.
+    
+
+    If a device should reject an invalid message ID, it should have the
+    ON_REJECT_INVALID_MSG_ID bit of its flags set.  Otherwise it should not.
+    
+    
+    Currently the master controls whether this is true and the default setting
+    is determined by whether the ONE_NET_MASTER_REJECT_INVALID_MSG_ID in
+    one_net_mster_port_const.h true or false.
+    
+    
+    TODO -- More fine-tuning of this flag needs to be done.
+
+
+    \param[in] device -- The device that is being checked.
+
+    \return TRUE if the device should reject invalid message IDs
+            FALSE otherwise.
+*/
 BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 {
     #ifdef _ONE_NET_CLIENT
@@ -4701,6 +4742,9 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 {
     // TODO -- this function can definitely be improved.  This is a REALLY
     // rough estimate!  It also hasn't really been tested.
+
+    // TODO -- where is this function called?
+
     
     const UInt32 num_data_packets = bs_msg->transfer_size / 25; // 25 payload bytes in packet
     const UInt32 num_chunks = num_data_packets / bs_msg->chunk_size;
