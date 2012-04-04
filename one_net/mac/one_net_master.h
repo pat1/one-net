@@ -82,28 +82,25 @@ typedef enum
     ONE_NET_UPDATE_UNASSIGN_PEER = 0x03,
     #endif
 
-    //! Updating reporting status changes to the MASTER
-    ONE_NET_UPDATE_REPORT_TO_MASTER = 0x04,
-
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Fragment delays update
-    ONE_NET_UPDATE_FRAGMENT_DELAY = 0x05,
+    ONE_NET_UPDATE_FRAGMENT_DELAY = 0x04,
     #endif
 
     //! Updates the keep alive interval for a device
-    ONE_NET_UPDATE_KEEP_ALIVE = 0x07,
+    ONE_NET_UPDATE_KEEP_ALIVE = 0x05,
 
     //! Indicates an attempt to remove a device from the network
-    ONE_NET_UPDATE_REMOVE_DEVICE = 0x08,
+    ONE_NET_UPDATE_REMOVE_DEVICE = 0x06,
     
-    ONE_NET_UPDATE_SETTINGS = 0x0A,
+    ONE_NET_UPDATE_SETTINGS = 0x07,
 
     //! Indicates an attempt to add a device to the network    
-    ONE_NET_UPDATE_ADD_DEVICE = 0x0B,
+    ONE_NET_UPDATE_ADD_DEVICE = 0x08,
 
     //! This is to mark nothing was updated.  This item should ALWAYS be
     //! LAST IN THE LIST
-    ONE_NET_UPDATE_NOTHING = 0x0C
+    ONE_NET_UPDATE_NOTHING = 0x09
 } one_net_mac_update_t;
 
 
