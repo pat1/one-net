@@ -731,7 +731,7 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
     }
     #endif
     
-    // TODO -- check everything else.  This funciton probably needs to be
+    // TODO -- check everything else.  This function probably needs to be
     //         moved from one_net_message.c to one_net.c so more things
     //         can be checked.
     //
