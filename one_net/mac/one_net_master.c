@@ -1710,15 +1710,16 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         {
             return *nr;
         }
-    }    
+    }
+    
+    *priority = ONE_NET_HIGH_PRIORITY;
     
     *nr =  ON_NACK_RSN_NO_ERROR;
-    if(transfer_size <= 1000)
+    if(transfer_size <= 2000)
     {
-        // if it's <= 1000 bytes, use the base parameters no matter what
+        // if it's <= 2000 bytes, use the base parameters no matter what
         *data_rate = ONE_NET_DATA_RATE_38_4;
         *channel = on_base_param->channel;
-        *priority = ONE_NET_HIGH_PRIORITY;
     }
     else
     {
@@ -1752,6 +1753,11 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             return *nr;
         }
         
+        if(!(src_flags & ON_BS_HIGH_PRIORITY))
+        {
+            *priority = ONE_NET_LOW_PRIORITY;
+        }        
+        
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
@@ -1775,7 +1781,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }        
+        }
     }
     
     if(!src_client || !dst_client)
