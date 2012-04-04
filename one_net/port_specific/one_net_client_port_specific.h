@@ -442,6 +442,32 @@ void one_net_client_single_txn_status(on_message_status_t status,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Application-level code called by ONE-NET when initiating a block
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] dst The destination of the transfer.
+    \param[in] transfer_size The number of bytes to be transferred.
+    \param[in/out] priority The priority of the transfer.
+    \param[in/out] chunk_size The "chunk size" involved in the transfer.
+    \param[in/out] frag_delay The time to wait between packet sends.
+    \param[in/out] chunk_delay The time to pause between "chunks" of the message.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_client_get_default_block_transfer_values(
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
@@ -499,12 +525,63 @@ on_message_status_t one_net_client_block_txn_status(
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
+/*!
+    \brief Application-level code called byu ONE-NET when this device is
+           requested to function as a repeater for a block / stream message
+    
+    This function is called when another device is attempting to set up a
+    block / stream message and has requested this device to reserve itself
+    as a repeater for that purpose. This function will be passed the parameters
+    of the proposed block / stream transfer.  Possible parameters of interest
+    will be the estimated time of the transfer and the devices involved.
+    
+    Generally this function should reject the request if it feels it cannot
+    comply for any reason.  Reasons could include not being reasonably certain
+    that it will be able to function as a repeater for at least the time
+    requested for whatever reason (low power, busy with its own messages,
+    not expected to be powered up for the entire message, a high percentage
+    of dropped message, it is reserved as a repeater for someone else, etc.)
+    
+    The ack_nack parameter is pre-loaded to assume acceptance.  If the repeater
+    rejects, it should change the ack_nack variable to indicate rejection along
+    with a reason, if any, is to be sent.
+    
+    \param[in] bs_msg The paramters of the block/ stream message this device is
+               supposed to serve as a repeater for.
+    \param[out] ack_nack This is pre-loaded for acceptance.  If accepting, no
+                changes are needed.  If rejecting, the ack_nack variable should
+                be changed in this function.
+    
+    \return void
+*/
 void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
   on_ack_nack_t* ack_nack);
 #endif
 #endif
 
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Application-level code called by ONE-NET when initiating a stream
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] dst The destination of the transfer.
+    \param[in] time_ms Proposed duration of the stream transfer.  If time is 0, then the time is unknown.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_client_get_default_stream_transfer_values(
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
   UInt16* timeout, on_ack_nack_t* ack_nack);

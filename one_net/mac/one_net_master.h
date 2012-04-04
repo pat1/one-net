@@ -226,16 +226,50 @@ one_net_xtea_key_t* master_get_encryption_key(
 on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Fills in some default values determined by ONE-NET for a proposed block transfer.
+    
+    \param[in] src_client The source of the transfer.  If NULL, the device is this device.
+    \param[in] dst_client The destination of the transfer.
+    \param[in] transfer_size The number of bytes to be transferred.
+    \param[out] priority The priority of the transfer.
+    \param[out] chunk_size The "chunk size" involved in the transfer.
+    \param[out] frag_delay The time to wait between packet sends.
+    \param[out] chunk_delay The time to pause between "chunks" of the message.
+    \param[out] data_rate The data rate to use for the transfer.
+    \param[out] channel The channel to use for the transfer.
+    \param[out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out] ack_nack If rejecting the transfer and there is an ack or nack associated
+                   with it, this value will be filled in.
+    
+    \return The nack reason if rejecting the transfer.  
+*/
 on_nack_rsn_t on_master_get_default_block_transfer_values(
-  on_client_t* src_client, on_client_t* dst_client,
-  UInt32 transfer_size, UInt8* priority, UInt8* chunk_size, UInt16* frag_delay,
-  UInt16* chunk_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
-  on_ack_nack_t* ack_nack);
+  on_client_t* src_client, on_client_t* dst_client, UInt32 transfer_size,
+  UInt8* priority, UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay,
+  UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
+
 on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
   UInt8 priority, on_ack_nack_t* ack_nack);
 #endif
 
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Fills in some default values determined by ONE-NET for a proposed stream transfer.
+    
+    \param[in] src_client The source of the transfer.  If NULL, the device is this device.
+    \param[in] dst_client The destination of the transfer.
+    \param[in] time_ms Proposed duration of the stream transfer.  If time is 0, then the time is unknown.
+    \param[out] data_rate The data rate to use for the transfer.
+    \param[out] channel The channel to use for the transfer.
+    \param[out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out] ack_nack If rejecting the transfer and there is an ack or nack associated
+                   with it, this value will be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+*/
 on_nack_rsn_t on_master_get_default_stream_transfer_values(
   const on_client_t* src, const on_client_t* dst, UInt32 time_ms,
   UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);

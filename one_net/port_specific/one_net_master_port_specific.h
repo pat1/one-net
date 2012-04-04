@@ -508,7 +508,35 @@ void one_net_master_repeater_requested(on_client_t* src_client,
   UInt8 data_rate, UInt8 priority, UInt32 estimated_time,
   on_ack_nack_t* ack_nack);
 #endif
-  
+
+
+/*!
+    \brief Application-level code called by ONE-NET when initiating a block
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] src The destination of the transfer.  If NULL, then the source is this device.
+    \param[in] dst The destination of the transfer.
+    \param[in] transfer_size The number of bytes to be transferred.
+    \param[in/out] priority The priority of the transfer.
+    \param[in/out] chunk_size The "chunk size" involved in the transfer.
+    \param[in/out] frag_delay The time to wait between packet sends.
+    \param[in/out] chunk_delay The time to pause between "chunks" of the message.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_master_get_default_block_transfer_values(
   const on_client_t* src, const on_client_t* dst,
   UInt32 transfer_size, UInt8* priority, UInt8* chunk_size, UInt16* frag_delay,
@@ -571,7 +599,31 @@ on_message_status_t one_net_master_block_txn_status(
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 #endif
 
+
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Application-level code called by ONE-NET when initiating a stream
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] src The destination of the transfer.  If NULL, then the source is this device.
+    \param[in] dst The destination of the transfer.
+    \param[in] time_ms Proposed duration of the stream transfer.  If time is 0, then the time is unknown.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_master_get_default_stream_transfer_values(
   const on_client_t* src, const on_client_t* dst, UInt32 time_ms,
   UInt8* data_rate, UInt8* channel, UInt16* timeout,
