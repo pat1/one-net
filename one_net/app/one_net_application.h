@@ -116,7 +116,8 @@ ONE_NET_INLINE UInt32 get_msg_data(const UInt8* payload)
  */
 ONE_NET_INLINE void put_msg_data(UInt32 data, UInt8 *payload)
 {
-    data &= 0x000FFFFF; // get rid of any illegal values.
+    data &= 0x000FFFFF;
+    payload[2] &= 0xF0;
     payload[2] |= (data >> 16); 
     payload[3] = data >> 8;
     payload[4] = data;
