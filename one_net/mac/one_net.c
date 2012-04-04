@@ -4769,7 +4769,17 @@ void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
 
 
 
-#if defined(_ONE_NET_MULTI_HOP) && defined(_ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
+#if defined(_ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
+/*!
+    \brief Called by a client initiating a block or stream message.  Requests the master's
+           permission to reserve a multi-hop repeater for use as a repeater in
+           its block / stream message.
+    
+    \param[in] bs_msg The block / stream message that the repeater is needed for.
+    \param[in] repeater The repeater that is requested.
+    
+    \return void
+*/
 on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater)
 {
