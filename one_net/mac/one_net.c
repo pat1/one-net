@@ -4728,47 +4728,6 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 }
 
 
-/*!
-    \brief Setting up the recipient list for the destination and any repeaters
-           for a block or stream transfer
-    
-    Setting up the recipient list for the destination and any repeaters
-    for a block or stream transfer
-
-    \param[out] recipient_send_list The list of recipients that this message
-                will go to.
-    \param[in] num_repeaters The number of repeaters in this transaction
-    \param[in] dst The destination of the block transfer
-    \param[in] repeaters The list of repeaters that this message will go to.
-*/
-void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
-  recipient_send_list, UInt8 num_repeaters, const on_encoded_did_t* const dst,
-  const on_encoded_did_t* repeaters)
-{
-    UInt8 i;
-    on_did_unit_t dest;
-    dest.unit = ONE_NET_DEV_UNIT;
-     
-    clear_recipient_list(*recipient_send_list);
-    if(dst)
-    {
-        one_net_memmove(dest.did, *dst, ON_ENCODED_DID_LEN);
-        add_recipient_to_recipient_list(*recipient_send_list, &dest);
-    }
-
-    if(!repeaters || num_repeaters == 0)
-    {
-        return;
-    }
-    for(i = 0; i < num_repeaters; i++)
-    {
-        one_net_memmove(dest.did, repeaters[i], ON_ENCODED_DID_LEN);
-        add_recipient_to_recipient_list(*recipient_send_list, &dest);
-    }
-}
-
-
-
 #if defined(_ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
 /*!
     \brief Called by a client initiating a block or stream message.  Requests the master's
