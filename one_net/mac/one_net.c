@@ -1357,7 +1357,7 @@ void one_net(on_txn_t ** txn)
                     }
                     
                     // we are either done or we never had anything to send in
-                    // the first place.  Clear it and return TRUE.
+                    // the first place.  Clear the single message pointer.
                     single_msg_ptr = NULL;
                     
                     #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1979,6 +1979,14 @@ void one_net(on_txn_t ** txn)
                 #ifndef _BLOCK_MESSAGES_ENABLED
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 #else
+                if(on_state > ON_BS_COMMENCE && on_state < ON_BS_TERMINATE)
+                {
+                    bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
+                    on_state = ON_LISTEN_FOR_DATA;
+                    // make the pasue half the timeout
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout / 2));
+                }
+                
                 if(on_state == ON_LISTEN_FOR_DATA)
                 {
                     on_state = ON_SEND_SINGLE_DATA_PKT;
