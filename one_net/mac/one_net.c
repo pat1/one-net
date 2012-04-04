@@ -305,7 +305,14 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
+static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
 static void terminate_bs_complete(block_stream_msg_t* bs_msg);
+#endif
+
+#ifdef _STREAM_MESSAGES_ENABLED
+static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
 #endif
 
 
@@ -3249,153 +3256,6 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     
     return ON_MSG_IGNORE;
 }
-
-
-/*!
-    \brief Receives a block data packet.
-
-    This function is called when this device is the destination in a block
-    transfer.  This function will either reject or accept a packet, pass it to
-    the application code if it looks like it should be accepted, and send a
-    response to the source device if needed.
-
-    \param[in] txn The transactionbeing carried out.
-    \param[in/out] bs_msg The block message associated with this packet.
-    \param[in] block_pkt The block data packet received fom the source, including indexes and the data itself.
-    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
-
-    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
-            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
-            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
-            NOT returned, no response will be sent.
-*/
-on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
-{
-    on_message_status_t msg_status;
-      
-    if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
-    {
-        goto bs_build_terminate_ack;
-    }
-      
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_NACK_VALUE;
-    if(block_pkt->byte_idx != bs_msg->byte_idx)
-    {
-        ack_nack->payload->nack_value = bs_msg->byte_idx;
-        ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
-        return ON_MSG_RESPOND;
-    }
-    
-    if(block_pkt->chunk_size > bs_msg->chunk_size)
-    {
-        ack_nack->payload->nack_value = bs_msg->chunk_size;
-        ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
-        return ON_MSG_RESPOND;
-    }
-    
-    ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
-    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
-    {
-        msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
-          ack_nack);
-        switch(msg_status)
-        {
-            case ON_MSG_TERMINATE: case ON_MSG_ABORT:
-                terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
-                goto bs_build_terminate_ack;
-            case ON_MSG_ACCEPT_PACKET:
-                block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
-                // reset the timeout timer since we received a packet.
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
-            case ON_MSG_RESPOND:
-                break;
-            default:
-                return ON_MSG_IGNORE;
-        }
-    }
-
-    if(block_get_lowest_unsent_index(bs_msg->sent, block_pkt->chunk_size) == -1)
-    {
-        // chunk has been received.
-        #if !defined(_ONE_NET_MASTER)
-        msg_status = one_net_client_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        #elif !defined(_ONE_NET_CLIENT)
-        msg_status = one_net_master_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        #else
-        if(device_is_master)
-        {
-            msg_status = one_net_master_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        }
-        else
-        {
-            msg_status = one_net_client_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        }
-        #endif
-        
-        switch(msg_status)
-        {
-            case ON_MSG_ACCEPT_CHUNK:
-                bs_msg->byte_idx += block_pkt->chunk_size;
-                if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
-                {
-                    // not really a NACK, but that's OK.  The sending device will now
-                    // sync.
-                    ack_nack->handle = ON_NACK_VALUE;
-                    ack_nack->payload->nack_value = bs_msg->byte_idx;
-                    ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
-                }
-            case ON_MSG_REJECT_CHUNK:
-                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
-        }
-    }
-    
-    if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
-    {
-        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
-          sizeof(bs_msg->sent));
-    }
-    
-    return ON_MSG_RESPOND;
-    
-bs_build_terminate_ack:
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK_ADMIN_MSG;
-    one_net_memmove(ack_nack->payload->admin_msg, bs_txn.pkt, 11);
-    return ON_MSG_RESPOND;
-}
-#endif
-
-
-#ifdef _STREAM_MESSAGES_ENABLED
-/*!
-    \brief Receives a stream data packet.
-
-    This function is called when this device is the destination in a stream
-    transfer.  This function will either reject or accept a packet, pass it to
-    the application code if it looks like it should be accepted, and send a
-    response to the source device if needed.
-
-    \param[in] txn The transactionbeing carried out.
-    \param[in/out] bs_msg The stream message associated with this packet.
-    \param[in] block_pkt The stream data packet received fom the source.
-    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
-
-    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
-            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
-            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
-            NOT returned, no response will be sent.
-*/
-on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_IGNORE;
-}
 #endif
 
 
@@ -5139,6 +4999,126 @@ static BOOL check_for_clr_channel(void)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Receives a block data packet.
+
+    This function is called when this device is the destination in a block
+    transfer.  This function will either reject or accept a packet, pass it to
+    the application code if it looks like it should be accepted, and send a
+    response to the source device if needed.
+
+    \param[in] txn The transactionbeing carried out.
+    \param[in/out] bs_msg The block message associated with this packet.
+    \param[in] block_pkt The block data packet received fom the source, including indexes and the data itself.
+    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
+
+    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
+            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
+            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
+            NOT returned, no response will be sent.
+*/
+static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
+{
+    on_message_status_t msg_status;
+      
+    if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
+    {
+        goto bs_build_terminate_ack;
+    }
+      
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_NACK_VALUE;
+    if(block_pkt->byte_idx != bs_msg->byte_idx)
+    {
+        ack_nack->payload->nack_value = bs_msg->byte_idx;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+        return ON_MSG_RESPOND;
+    }
+    
+    if(block_pkt->chunk_size > bs_msg->chunk_size)
+    {
+        ack_nack->payload->nack_value = bs_msg->chunk_size;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
+        return ON_MSG_RESPOND;
+    }
+    
+    ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
+    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
+    {
+        msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
+          ack_nack);
+        switch(msg_status)
+        {
+            case ON_MSG_TERMINATE: case ON_MSG_ABORT:
+                terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
+                goto bs_build_terminate_ack;
+            case ON_MSG_ACCEPT_PACKET:
+                block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
+                // reset the timeout timer since we received a packet.
+                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
+            case ON_MSG_RESPOND:
+                break;
+            default:
+                return ON_MSG_IGNORE;
+        }
+    }
+
+    if(block_get_lowest_unsent_index(bs_msg->sent, block_pkt->chunk_size) == -1)
+    {
+        // chunk has been received.
+        #if !defined(_ONE_NET_MASTER)
+        msg_status = one_net_client_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+        #elif !defined(_ONE_NET_CLIENT)
+        msg_status = one_net_master_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+        #else
+        if(device_is_master)
+        {
+            msg_status = one_net_master_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+        }
+        else
+        {
+            msg_status = one_net_client_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+        }
+        #endif
+        
+        switch(msg_status)
+        {
+            case ON_MSG_ACCEPT_CHUNK:
+                bs_msg->byte_idx += block_pkt->chunk_size;
+                if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+                {
+                    // not really a NACK, but that's OK.  The sending device will now
+                    // sync.
+                    ack_nack->handle = ON_NACK_VALUE;
+                    ack_nack->payload->nack_value = bs_msg->byte_idx;
+                    ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+                }
+            case ON_MSG_REJECT_CHUNK:
+                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+        }
+    }
+    
+    if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+    {
+        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
+          sizeof(bs_msg->sent));
+    }
+    
+    return ON_MSG_RESPOND;
+    
+bs_build_terminate_ack:
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK_ADMIN_MSG;
+    one_net_memmove(ack_nack->payload->admin_msg, bs_txn.pkt, 11);
+    return ON_MSG_RESPOND;
+}
+
+
 static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 {
     // abort immediately
@@ -5150,6 +5130,33 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
     one_net_set_channel(on_base_param->channel);
     ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, 0);
     #endif
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Receives a stream data packet.
+
+    This function is called when this device is the destination in a stream
+    transfer.  This function will either reject or accept a packet, pass it to
+    the application code if it looks like it should be accepted, and send a
+    response to the source device if needed.
+
+    \param[in] txn The transactionbeing carried out.
+    \param[in/out] bs_msg The stream message associated with this packet.
+    \param[in] block_pkt The stream data packet received fom the source.
+    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
+
+    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
+            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
+            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
+            NOT returned, no response will be sent.
+*/
+static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_IGNORE;
 }
 #endif
 
