@@ -773,8 +773,8 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
 }
 
 
-on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
-  UInt8 priority, on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
+  on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
@@ -786,9 +786,9 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
     }
     else
     {
-        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));  
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));  
         
-        if(!txn->dst)
+        if(!msg->dst)
         {
             *nr = ON_NACK_RSN_INTERNAL_ERR;
             return *nr;
@@ -808,7 +808,7 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
                 *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             }
         
-            if(!features_data_rate_capable(txn->dst->features,
+            if(!features_data_rate_capable(bs_msg.dst->features,
               bs_msg.data_rate))
             { 
                 *nr = ON_NACK_RSN_INVALID_DATA_RATE;

@@ -160,10 +160,29 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
   
-  
-on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
-  UInt8 priority, on_ack_nack_t* ack_nack);
+
+/*!
+    \brief Called when this device desires to send another device a block message
+           AFTER the block message parameters have been loaded.
+    
+    This function is called (usually by the by the application code) after the
+    parameters have been filled in.  In this function, ONE-NEt sets up the
+    state machine tofind a route to the source, request permissions and inform
+    any other devices of the transfers, switch data rates, then start sending
+    the actual packets.  This function is called by the SOURCE of the message.
+    
+    \param[in] msg The parameters of the block message that is to be
+                   transferred.  These parameters should be filled in before
+                   this function is called.
+    \param[out] ack_nack If rejecting the transfer and there is an ack or nack associated
+                   with it, this value will be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+*/
+on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
+  on_ack_nack_t* ack_nack);
 #endif
+
 
 #ifdef _STREAM_MESSAGES_ENABLED
 /*!

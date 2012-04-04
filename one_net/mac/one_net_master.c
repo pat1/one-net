@@ -1795,12 +1795,18 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
 }
 
 
-on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
-  UInt8 priority, on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
+  on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     *nr = ON_NACK_RSN_NO_ERROR;
+    
+    if(!msg->dst)
+    {
+        *nr = ON_NACK_RSN_INTERNAL_ERR;
+        return *nr;
+    }    
     
     if(bs_msg.transfer_in_progress)
     {
@@ -1808,13 +1814,13 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
     }
     else
     {
-        on_client_t* client = client_info(&(txn->dst->did));
-        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));    
+        on_client_t* client = client_info(&(msg->dst->did));
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
         }
-        
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));    
+
         if(!features_block_capable(client->device.features))
         {
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
