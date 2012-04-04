@@ -41,9 +41,10 @@
 
 #ifdef _UART
 
-#ifdef _R8C_TINY
+// TODO -- this is a bit messy.  Find a better #define test.
+#if defined(_R8C_TINY) && !defined(_QUAD_OUTPUT)
     #pragma section program program_high_rom
-#endif // ifdef _R8C_TINY //
+#endif // if _R8C_TINY and not a 16K chip //
 
 
 #include "oncli_hdlr.h"
