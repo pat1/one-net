@@ -3075,7 +3075,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_REQUEST_BLOCK_STREAM:
         {
-            on_encoded_did_t* dst_did = (const on_encoded_did_t*)
+            const on_encoded_did_t* dst_did = (const on_encoded_did_t*)
               &DATA[BLOCK_STREAM_SETUP_DST_IDX];
             on_client_t* recipient = client_info(dst_did);
             BOOL master_is_recipient = (is_my_did(dst_did));
