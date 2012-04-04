@@ -1609,12 +1609,17 @@ on_message_status_t eval_block_chunk_received(
     UInt16 i;
     for(i = 0; i < chunk_size; i++)
     {
+        UInt32 remaining;
         if(i >= DEFAULT_BS_CHUNK_SIZE)
         {
             // should never get here.
             break;
         }
-        uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], ON_BS_DATA_PLD_SIZE);
+        
+        remaining = block_get_bytes_remaining(bs_msg->transfer_size, byte_idx,
+          i);
+        uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], remaining <
+          ON_BS_DATA_PLD_SIZE ? remaining : ON_BS_DATA_PLD_SIZE);
     }
     one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
     return ON_MSG_ACCEPT_CHUNK;

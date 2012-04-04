@@ -908,6 +908,20 @@ SInt8 block_get_lowest_unsent_index(const UInt8 array[5], UInt8 chunk_size)
     }
     return -1;
 }
+
+
+UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
+  UInt8 chunk_index)
+{
+    UInt32 byte_number_start = (byte_index + chunk_index) * ON_BS_DATA_PLD_SIZE;
+    if(byte_number_start > transfer_size)
+    {
+        return 0;
+    }
+    transfer_size -= byte_number_start;
+    return (transfer_size < ON_BS_DATA_PLD_SIZE ? transfer_size :
+      ON_BS_DATA_PLD_SIZE );
+}
 #endif
 
 

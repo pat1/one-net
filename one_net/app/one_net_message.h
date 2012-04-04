@@ -696,6 +696,8 @@ ONE_NET_INLINE UInt8 get_bs_hops(UInt8 flags)
 BOOL block_get_index_sent(UInt8 index, const UInt8 array[5]);
 void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5]);
 SInt8 block_get_lowest_unsent_index(const UInt8 array[5], UInt8 chunk_size);
+UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
+  UInt8 chunk_index);
 
 
 // returns the chunk size to be used. For the first and last 40 packets,
