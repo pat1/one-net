@@ -196,14 +196,14 @@ typedef enum
     ON_NEW_KEY_FRAGMENT = 0x02,
     
     //! Response from a client when a device has been added.
-    ON_ADD_DEV_RESP = 0x04,
+    ON_ADD_DEV_RESP = 0x03,
     
     //! Response from a client when a device has been removed.
-    ON_REMOVE_DEV_RESP = 0x05,
+    ON_REMOVE_DEV_RESP = 0x04,
     
     #ifdef _DATA_RATE_CHANNEL
     //! Change data rate and channel
-    ON_CHANGE_DATA_RATE_CHANNEL = 0x06,
+    ON_CHANGE_DATA_RATE_CHANNEL = 0x05,
     #endif
     
     #ifndef _ONE_NET_SIMPLE_CLIENT
@@ -211,59 +211,59 @@ typedef enum
     //! Generally this is sent when a client is about to run out of message
     //! ids or feels there has been some breach of security or some attempted
     //! breach of security.
-    ON_REQUEST_KEY_CHANGE = 0x07,
+    ON_REQUEST_KEY_CHANGE = 0x06,
     #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
-    ON_CHANGE_FRAGMENT_DELAY = 0x08,
+    ON_CHANGE_FRAGMENT_DELAY = 0x07,
     
     //! Response to changing of fragment delays
-    ON_CHANGE_FRAGMENT_DELAY_RESP = 0x09,
+    ON_CHANGE_FRAGMENT_DELAY_RESP = 0x08,
     #endif
     
     //! Sent to change the keep alive interval
-    ON_CHANGE_KEEP_ALIVE = 0x0B,
+    ON_CHANGE_KEEP_ALIVE = 0x09,
 
     #ifdef _PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
-    ON_ASSIGN_PEER = 0x0C,
+    ON_ASSIGN_PEER = 0x0A,
 
     //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
     //! CLIENT must not send directly to that peer anymore.
-    ON_UNASSIGN_PEER = 0x0D,
+    ON_UNASSIGN_PEER = 0x0B,
     #endif
 
     //! Query for the Keep Alive Timeout.  This is the interval at which a
     //! CLIENT must attempt to check in with the MASTER.  Any communication
     //! with the MASTER resets this timer.
-    ON_KEEP_ALIVE_QUERY = 0x0E,
+    ON_KEEP_ALIVE_QUERY = 0x0C,
     
     //! Sent by a client to check in with the master whenever the keep-alive
     //! timer expires.
-    ON_KEEP_ALIVE_RESP = 0x0F,
+    ON_KEEP_ALIVE_RESP = 0x0D,
     
     //! Sent to change a device's settings.  The devices settings should not
     //! be considered changed until a SETTINGS_RESP is received.
-    ON_CHANGE_SETTINGS = 0x10,
+    ON_CHANGE_SETTINGS = 0x0E,
     
     //! Sent in response to a change settings message.
-    ON_CHANGE_SETTINGS_RESP = 0x12,
+    ON_CHANGE_SETTINGS_RESP = 0x0F,
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    ON_REQUEST_BLOCK_STREAM = 0x13,
+    ON_REQUEST_BLOCK_STREAM = 0x10,
     
-    ON_REQUEST_REPEATER = 0x14,
+    ON_REQUEST_REPEATER = 0x11,
     
-    ON_TERMINATE_BLOCK_STREAM = 0x15,
+    ON_TERMINATE_BLOCK_STREAM = 0x12,
     #endif
 
     //! Sent by the MASTER when it is adding a device to the network
-    ON_ADD_DEV = 0x21,
+    ON_ADD_DEV = 0x13,
 
     //! Sent by the MASTER when it is removing a device from the network
-    ON_RM_DEV = 0x22
+    ON_RM_DEV = 0x14
 } on_admin_msg_t;
 
 
