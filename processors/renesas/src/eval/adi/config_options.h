@@ -287,7 +287,7 @@
 // or the channel can be changed back and forth at run-time for anything but the
 // invite process.
 #ifndef _DATA_RATE_CHANNEL
-//    #define _DATA_RATE_CHANNEL
+    #define _DATA_RATE_CHANNEL
 #endif
 
 
