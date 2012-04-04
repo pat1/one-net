@@ -906,7 +906,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
 }
 
 
-on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* txn,
+on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack)
 {
     // TODO -- write this.

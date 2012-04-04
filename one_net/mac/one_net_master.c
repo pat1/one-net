@@ -1948,7 +1948,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
 }
 
 
-on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
+on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
@@ -1961,8 +1961,8 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
     }
     else
     {
-        on_client_t* client = client_info(&(txn->dst->did));
-        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));        
+        on_client_t* client = client_info(&(msg->dst->did));
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));        
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;

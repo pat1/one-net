@@ -256,8 +256,8 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
            AFTER the block message parameters have been loaded.
     
     This function is called (usually by the by the application code) after the
-    parameters have been filled in.  In this function, ONE-NEt sets up the
-    state machine tofind a route to the source, request permissions and inform
+    parameters have been filled in.  In this function, ONE-NET sets up the
+    state machine to find a route to the source, request permissions and inform
     any other devices of the transfers, switch data rates, then start sending
     the actual packets.  This function is called by the SOURCE of the message.
     
@@ -292,7 +292,27 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
 on_nack_rsn_t on_master_get_default_stream_transfer_values(
   const on_client_t* src, const on_client_t* dst, UInt32 time_ms,
   UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
-on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
+  
+  
+/*!
+    \brief Called when this device desires to send another device a stream message
+           AFTER the block message parameters have been loaded.
+    
+    This function is called (usually by the by the application code) after the
+    parameters have been filled in.  In this function, ONE-NET sets up the
+    state machine to find a route to the source, request permissions and inform
+    any other devices of the transfers, switch data rates, then start sending
+    the actual packets.  This function is called by the SOURCE of the message.
+    
+    \param[in] msg The parameters of the stream message that is to be
+                   transferred.  These parameters should be filled in before
+                   this function is called.
+    \param[out] ack_nack If rejecting the transfer and there is an ack or nack associated
+                   with it, this value will be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+*/
+on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack);
 #endif
 
