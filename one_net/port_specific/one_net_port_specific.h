@@ -342,6 +342,14 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 
 
 #ifdef _DATA_RATE_CHANNEL
+/*!
+    \brief Called by ONE-NET to inform the application-level code that the
+           data rate and/or channel has been changed.
+
+    \param[in] new_channel The channel that ONE-NET has changed to.
+    \param[in] new_data_rate The data rate that ONE-NET has changed to.
+
+*/
 void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate);
 #endif
 
@@ -405,18 +413,16 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 */
 one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer);
-  
-  
-one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack);
-  
-#ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack);
-#endif
 #endif
 
 
+/*!
+    \brief Finds an alternate channel to use.  This is an application-level
+           function.
+
+    \return The alternate channel to use.If negative, then no alternate channel
+            could be found.
+*/
 SInt8 one_net_get_alternate_channel(void);
 
 

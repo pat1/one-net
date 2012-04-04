@@ -880,6 +880,23 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
 #endif
 
 
+/*!
+    \brief The status of a single transaction.
+
+    Callback to report the status of sending an application single data packet.
+
+    \param[in] status The status of the transaction.
+    \param[in] retry_count The number of times that the packet had to be sent.
+    \param[in] msg_hdr message id, message type, and pid of the message.
+    \param[in] data The data that was sent.
+    \param[in] dst The raw did of where the packet was sent.
+    \param[in] ack_nack The reason for failure, if relevant.  A response
+               payload, if relevant.
+    \param[in] hops Number of hops it took to deliver the message, if
+               known and relevant.  Negative number implies unknown or
+               not relevant / reliable.
+    \return void
+*/
 #ifndef _ONE_NET_MULTI_HOP
 void eval_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
@@ -1021,8 +1038,8 @@ void eval_single_txn_status(on_message_status_t status,
 
     \param[in] msg The block / stream message that is being terminated.
     \param[in] terminating_device The device that terminated this transaction.
-    \param[in] status The status of the message that was just completed.
-    \param[in] ack_nack Any ACK or NACK associated with this termination.
+    \param[in/out] status The status of the message that was just completed.
+    \param[in/out] ack_nack Any ACK or NACK associated with this termination.
     
     \return ON_MSG_RESPOND if this device should inform the other devices
               of the termination.
@@ -1583,13 +1600,6 @@ one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 }
 
 
-one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack)
-{
-    oncli_send_msg("Block transaction cancelled\n");
-}
-
-
 /*!
     \brief Called when a chunk of a block has been received.
 	
@@ -1665,13 +1675,6 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
 
   
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack)
-{
-    oncli_send_msg("Stream transaction cancelled\n");
-}
-
-
 /*!
     \brief Handles the received stream packet.
 	
