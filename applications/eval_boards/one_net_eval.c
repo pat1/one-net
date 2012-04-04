@@ -1570,7 +1570,7 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 #endif
 
 
-// negative value means no valid alternate channel could be found.
+#ifdef _DATA_RATE_CHANNEL
 SInt8 one_net_get_alternate_channel(void)
 {
     // TODO -- We need to find a much better way to get alternate channels.
@@ -1586,6 +1586,7 @@ SInt8 one_net_get_alternate_channel(void)
         }
     }
 }
+#endif
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED

@@ -1715,11 +1715,13 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
     *priority = ONE_NET_HIGH_PRIORITY;
     
     *nr =  ON_NACK_RSN_NO_ERROR;
+    
+    *data_rate = ONE_NET_DATA_RATE_38_4;
+    *channel = on_base_param->channel;    
+    
     if(transfer_size <= 2000)
     {
         // if it's <= 2000 bytes, use the base parameters no matter what
-        *data_rate = ONE_NET_DATA_RATE_38_4;
-        *channel = on_base_param->channel;
     }
     else
     {
@@ -1758,12 +1760,9 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             *priority = ONE_NET_LOW_PRIORITY;
         }        
         
+        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
-        {
-            *data_rate = ONE_NET_DATA_RATE_38_4;
-        }
-        else
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
@@ -1772,16 +1771,13 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
-            *channel = on_base_param->channel;
-        }
-        else
-        {
             SInt8 alternate_channel = one_net_get_alternate_channel();
             if(alternate_channel >= 0)
             {
                 *channel = (UInt8) alternate_channel;
             }
         }
+        #endif
     }
     
     if(!src_client || !dst_client)
@@ -1880,13 +1876,13 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
     }  
     
     *nr =  ON_NACK_RSN_NO_ERROR;
+    *data_rate = ONE_NET_DATA_RATE_38_4;
+    *channel = on_base_param->channel;
     
     if(time_ms > 0 && time_ms < 2000)
     {
         // if it's known and less than 2 seconds, use the base parameters no
         // matter what        
-        *data_rate = ONE_NET_DATA_RATE_38_4;
-        *channel = on_base_param->channel;
     }
     else
     {
@@ -1920,12 +1916,9 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             return *nr;
         }
         
+        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
-        {
-            *data_rate = ONE_NET_DATA_RATE_38_4;
-        }
-        else
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
@@ -1934,16 +1927,13 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
         if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
-            *channel = on_base_param->channel;
-        }
-        else
-        {
             SInt8 alternate_channel = one_net_get_alternate_channel();
             if(alternate_channel >= 0)
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }        
+        }
+        #endif
     }
     
     *nr = one_net_master_get_default_stream_transfer_values(src_client,

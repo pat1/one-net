@@ -416,6 +416,7 @@ one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 #endif
 
 
+#ifdef _DATA_RATE_CHANNEL
 /*!
     \brief Finds an alternate channel to use.  This is an application-level
            function.
@@ -424,6 +425,7 @@ one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
             could be found.
 */
 SInt8 one_net_get_alternate_channel(void);
+#endif
 
 
 

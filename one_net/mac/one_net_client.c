@@ -729,7 +729,8 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             return *nr;
         }
-        
+
+        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -741,7 +742,6 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
         }
         
         // See if we are to switch data rates
-        #ifdef _DATA_RATE_CHANNEL
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
             if(!dst_features_known)
@@ -873,6 +873,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
             return *nr;
         }
         
+        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -896,6 +897,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
                   THIS_DEVICE_FEATURES, device->features);
             }
         }
+        #endif
     }
 
     *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
