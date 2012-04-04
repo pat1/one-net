@@ -2157,52 +2157,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             break;
         }
-        
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
-        // TODO -- delete this case!  Repeaters will be requested with a
-        // message of type ON_REQUEST_BLOCK_STREAM.  For now, just comment
-        // it out.
-        #if 0
-        case ON_REQUEST_REPEATER:
-        {
-            UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
-            on_encoded_did_t* rptr_did = (on_encoded_did_t*) &DATA[1];
-            on_encoded_did_t* src_did = (on_encoded_did_t*) &DATA[3];
-            on_encoded_did_t* dst_did = (on_encoded_did_t*) &DATA[5];
-            
-            // we need to make sure that we are the repeater and that we are
-            // not the source or the destination 
-            if(!is_my_did((const on_encoded_did_t*) rptr_did) ||
-              is_my_did((const on_encoded_did_t*) src_did) ||
-              is_my_did((const on_encoded_did_t*) dst_did))
-            {
-                ack_nack->nack_reason = ON_NACK_RSN_BAD_DATA_ERR;
-                break;
-            }            
-            
-            // if we have already accepted a request from someone else, we'll
-            // reject this one.
-            if(bs_msg.transfer_in_progress)
-            {
-                if(!on_encoded_did_equal(&bs_msg.src, SRC_DID))
-                {
-                    ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                    break;
-                }
-            }
-            
-            // now check in with the application code
-            one_net_client_repeater_requested(src_did, dst_did, DATA[11],
-              DATA[12], DATA[13], estimated_time, ack_nack);
-
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                bs_msg.transfer_in_progress = TRUE;
-            }
-            break;
-        }
-        #endif
-        #endif
         #endif
                     
         case ON_NEW_KEY_FRAGMENT:

@@ -441,11 +441,6 @@ typedef enum
 } on_bs_transfer_type_t;
 
 
-
-#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK  0x01
-#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT 7
-#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK  0x01
-#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT 6
 #define BLOCK_STREAM_SETUP_TYPE_MASK           0x01
 #define BLOCK_STREAM_SETUP_TYPE_SHIFT          5
 #define BLOCK_STREAM_SETUP_PRIORITY_MASK       0x03
@@ -695,36 +690,6 @@ ONE_NET_INLINE UInt8 get_bs_hops(UInt8 flags)
 {
     return ((flags >> BLOCK_STREAM_SETUP_HOPS_SHIFT) &
       BLOCK_STREAM_SETUP_HOPS_MASK);
-}
-
-
-ONE_NET_INLINE void set_bs_device_is_src(UInt8* flags, BOOL is_src)
-{
-    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK <<
-      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
-    (*flags) |= (is_src << BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
-}
-
-
-ONE_NET_INLINE BOOL get_bs_device_is_src(UInt8 flags)
-{
-    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT) &
-      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK);
-}
-
-
-ONE_NET_INLINE void set_bs_device_is_dst(UInt8* flags, BOOL is_dst)
-{
-    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK <<
-      BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
-    (*flags) |= (is_dst << BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
-}
-
-
-ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
-{
-    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT) &
-      BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
 }
 
 
