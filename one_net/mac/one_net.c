@@ -3251,6 +3251,24 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
 }
 
 
+/*!
+    \brief Receives a block data packet.
+
+    This function is called when this device is the destination in a block
+    transfer.  This function will either reject or accept a packet, pass it to
+    the application code if it looks like it should be accepted, and send a
+    response to the source device if needed.
+
+    \param[in] txn The transactionbeing carried out.
+    \param[in/out] bs_msg The block message associated with this packet.
+    \param[in] block_pkt The block data packet received fom the source, including indexes and the data itself.
+    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
+
+    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
+            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
+            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
+            NOT returned, no response will be sent.
+*/
 on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
@@ -3355,6 +3373,24 @@ bs_build_terminate_ack:
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Receives a stream data packet.
+
+    This function is called when this device is the destination in a stream
+    transfer.  This function will either reject or accept a packet, pass it to
+    the application code if it looks like it should be accepted, and send a
+    response to the source device if needed.
+
+    \param[in] txn The transactionbeing carried out.
+    \param[in/out] bs_msg The stream message associated with this packet.
+    \param[in] block_pkt The stream data packet received fom the source.
+    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
+
+    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
+            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
+            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
+            NOT returned, no response will be sent.
+*/
 on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
@@ -4908,6 +4944,32 @@ on_single_data_queue_t* request_reserve_repeater(
 #endif
 
 
+/*!
+    \brief Called when a block or stream message is terminated
+    
+    This function may be called either by ONE-NET code or by the application code.
+    It can be called either when this device decides to terminate the block or
+    stream message or when another device had done so.
+    
+    The application level block or stream transaction handler can change the
+    behavior of this function.  It can choose whether to inform other devices
+    to terminate or it can terminate immediately without telling anyone.  Generally
+    it is best to inform the other devices.  ONE-NET will determine whether and
+    how to do so.  Otherwise the other devices may attempt to continue this
+    transaction and fail with no idea why.
+    
+    To allow this default termination behavior to occur, the application-level
+    block / stream transaction handler should return ON_MSG_RESPOND.  To abort
+    immediately, it should return anything OTHER THAN ON_MSG_RESPOND.
+    
+    \param[in] bs_msg The block / stream message that is terminating.
+    \param[in] terminating_did The DID of the device terminating the block / stream message.
+                               If NULL, then this device is the device terminating.
+    \param[in] status The reason for the termination (i.e. cancelled, successful, timeout)
+    \param[in/out] ack_nack The reason and payload attached to the termination, if any.
+    
+    \return void
+*/
 void terminate_bs_msg(block_stream_msg_t* bs_msg,
   const on_encoded_did_t* terminating_did, on_message_status_t status,
   on_ack_nack_t* ack_nack)
