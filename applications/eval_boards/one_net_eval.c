@@ -1590,14 +1590,14 @@ SInt8 one_net_get_alternate_channel(void)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
-  UInt8* buffer)
+on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer, on_ack_nack_t* ack_nack)
 {
     // just a quick load function for testing.  Loads with values from 'a'
     // to 'y' depending on the packet index.
     one_net_memset(buffer, 'a' + ((bs_msg->byte_idx + bs_msg->chunk_idx) % 25),
       ON_BS_DATA_PLD_SIZE);
-    return ONS_SUCCESS;
+    return ON_MSG_CONTINUE;
 }
 
 

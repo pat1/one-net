@@ -1190,6 +1190,14 @@ void one_net(on_txn_t ** txn)
     ack_nack.payload = &ack_nack_payload;
 
     #ifdef _BLOCK_MESSAGES_ENABLED
+    if(on_state <= ON_BS_COMMENCE || on_state >= ON_BS_CHUNK_PAUSE)
+    {
+        if(*txn == &bs_txn)
+        {
+            *txn = NULL; //clear if not already clearedso we do not get
+                         // stuck.
+        }
+    }
     if(bs_msg.transfer_in_progress && bs_msg.src &&
       ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
     {
@@ -2040,7 +2048,7 @@ void one_net(on_txn_t ** txn)
             UInt16 raw_pid = ONE_NET_RAW_BLOCK_DATA;
             #endif            
             one_net_status_t status;
-            // TODO -- I thinkt here's a global buffer somewhere so we don't
+            // TODO -- I think there's a global buffer somewhere so we don't
             // need to set our own buffer.  However, the stack size shouldn't
             // be very high here so it's no big deal.
             UInt8 buffer[ON_BS_DATA_PLD_SIZE];
@@ -2062,8 +2070,11 @@ void one_net(on_txn_t ** txn)
             if(transfer_type == ON_BLK_TRANSFER)
             #endif
             {
-                status = one_net_block_get_next_payload(&bs_msg, buffer);
-                if(status == ONS_SUCCESS)
+                ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+                ack_nack.handle = ON_ACK;
+                status = one_net_block_get_next_payload(&bs_msg, buffer,
+                  &ack_nack);
+                if(status == ON_MSG_CONTINUE)
                 {
                     // fill in the addresses
                     if(on_build_my_pkt_addresses(&data_pkt_ptrs,
@@ -2118,9 +2129,20 @@ void one_net(on_txn_t ** txn)
                     #endif
                     on_state++;
                 }
-                else if(status == ONS_CANCELED)
+                else if(status == ON_MSG_PAUSE)
                 {
-                    // TODO -- add cancel code.
+                    UInt32 pause_time = bs_msg.chunk_pause;
+                    if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
+                    {
+                        pause_time = ack_nack.payload->ack_time_ms;
+                    }
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(pause_time));
+                    on_state = ON_BS_CHUNK_PAUSE;
+                    bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
+                }
+                else
+                {
+                    terminate_bs_msg(&bs_msg, NULL, status, &ack_nack);
                 }
             }
             #ifdef _STREAM_MESSAGES_ENABLED
@@ -2129,7 +2151,7 @@ void one_net(on_txn_t ** txn)
                 // TODO -- get stream packet raw data.
             }
             #endif
-            // Intentional fall-through.  TODO -- Is this good?
+            break;
         }
         #endif
         
