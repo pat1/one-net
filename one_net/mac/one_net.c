@@ -1444,7 +1444,7 @@ void one_net(on_txn_t ** txn)
                                     
                                 #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
-                                    if(master_involved)
+                                    if(master_involved || bs_msg.transfer_size <= 2000)
                                     {
                                         // Master is involved, so we either ARE
                                         // the master or the master is the
@@ -1454,6 +1454,10 @@ void one_net(on_txn_t ** txn)
                                         // destination, we'll get the master's
                                         // permission when we ask the
                                         // destination device's permission.
+                                        
+                                        // On the other hand, if this is a short transfer
+                                        // of less than 2000 bytes, we won't bother to
+                                        // ask for the master's permission either.
                                         bs_msg.bs_on_state += 4;
                                     }
                                     else
@@ -1476,8 +1480,11 @@ void one_net(on_txn_t ** txn)
                                 #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
-                                      == 0)
+                                      == 0 || bs_msg.transfer_size <= 2000)
                                     {
+                                        // master is involved or it is a short
+                                        // transfer of less than 2000 bytes, so
+                                        // don't bother asking the master.
                                         bs_msg.bs_on_state += 6;
                                         break;
                                     }
