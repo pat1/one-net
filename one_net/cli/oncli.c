@@ -892,7 +892,7 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
 
 
 #if _DEBUG_VERBOSE_LEVEL > 4
-void print_single(UInt8 pid, const UInt8* raw_payload)
+void print_single(UInt16 pid, const UInt8* raw_payload)
 {
     UInt8 msg_pld_type = get_payload_msg_type(raw_payload);
     UInt8 pld_len = ONE_NET_XTEA_BLOCK_SIZE * get_num_payload_blocks(pid) -
@@ -922,7 +922,7 @@ void print_single(UInt8 pid, const UInt8* raw_payload)
 }
 
 
-void print_response(UInt8 pid, const UInt8* raw_payload)
+void print_response(UInt16 pid, const UInt8* raw_payload)
 {
     on_ack_nack_t ack_nack;
     UInt8 pld_len = get_num_payload_blocks(pid) - ON_PLD_DATA_IDX;
