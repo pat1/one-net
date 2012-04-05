@@ -2105,6 +2105,10 @@ void one_net(on_txn_t ** txn)
                     }
                     
                     bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
+                    #ifdef _DATA_RATE_CHANNEL
+                    one_net_set_channel(bs_msg.channel);
+                    one_net_set_data_rate(bs_msg.data_rate);
+                    #endif
                     on_state++;
                 }
                 else if(status == ONS_CANCELED)
