@@ -1,14 +1,20 @@
 README
 
-March 6, 2012
+April 5, 2012
 
 
-This is the official release of ONE-NET Version 2.1.0.  This release does not include Block or Stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.  The estimated release date for block and stream is March 15, 2012.
+This is the official release of ONE-NET Version 2.2.0.  This release includes Block, but not stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.
+
+The main change, besides adding block, is that the packet layout has changed since version 2.1.0.  The PID is now twelve decoded bits, not six, several PIDs have been removed, and the length and type of the packet is now storedin the PID and can be extracted and set using byte masks and shifts.
+
+Please see an updated version of Block_stream.doc for detailed instructions on how to use block messaging.
+
+Stream functionality will be added as time permits.
 
 
 In the meantime, more documentation and notes will be added regularly.  Also, please see the documentation at...
 
-https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.1.0
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.2.0
 https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/ONE_NET_2_0_0_alpha_with_block/docs  (some is out of date, but better than nothing).
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/trunk/docs
