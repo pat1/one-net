@@ -140,8 +140,8 @@ extern const char * const ONCLI_ERASE_CMD_STR;
 extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-extern const char * const ONCLI_SET_DR_CHANNEL_CMD_STR;
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+extern const char * const ONCLI_SET_DATA_RATE_CMD_STR;
 #endif
 
 #ifdef _ENABLE_USER_PIN_COMMAND
@@ -344,6 +344,7 @@ extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
 #endif
+extern const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR;
 #ifdef _BLOCK_MESSAGES_ENABLED
 extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR;
 #endif

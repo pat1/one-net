@@ -246,7 +246,7 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
     \return TRUE if parsed successfully
     \return FALSE if not parsed successfully
 */
-BOOL on_parse_bs_pld(UInt8* buffer, block_stream_pkt_t* bs_pkt)
+BOOL on_parse_bs_pld(const UInt8* buffer, block_stream_pkt_t* bs_pkt)
 {
     if(!buffer || !bs_pkt)
     {

@@ -512,8 +512,6 @@ oncli_status_t oncli_print_features(on_features_t features)
       features_block_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
     oncli_send_msg("Stream : %s\n",
       features_stream_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
-    oncli_send_msg("Data Rate / Channel Chg. : %s\n",
-      features_dr_channel_capable(features) ? CAPABLE_STR : NOT_CAPABLE_STR);
     oncli_send_msg("Device Sleeps : %s\n",
       features_device_sleeps(features) ? TRUE_STR : FALSE_STR);
     oncli_send_msg("\nData Rates...\n\n");
@@ -892,7 +890,7 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
 
 
 #if _DEBUG_VERBOSE_LEVEL > 4
-void print_single(UInt16 pid, const UInt8* raw_payload)
+void print_single(UInt8 pid, const UInt8* raw_payload)
 {
     UInt8 msg_pld_type = get_payload_msg_type(raw_payload);
     UInt8 pld_len = ONE_NET_XTEA_BLOCK_SIZE * get_num_payload_blocks(pid) -
@@ -922,7 +920,7 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
 }
 
 
-void print_response(UInt16 pid, const UInt8* raw_payload)
+void print_response(UInt8 pid, const UInt8* raw_payload)
 {
     on_ack_nack_t ack_nack;
     UInt8 pld_len = get_num_payload_blocks(pid) - ON_PLD_DATA_IDX;
@@ -1006,8 +1004,6 @@ void print_client_send_list(void)
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
         oncli_send_msg("Send List %d:", i);
-        oncli_send_msg("LRU(%d) PSO(%d):", sending_dev_list[i].lru,
-          sending_dev_list[i].slideoff);
         print_sending_device_t(&(sending_dev_list[i].sender));
         delay_ms(10);
     }

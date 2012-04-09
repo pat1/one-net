@@ -713,7 +713,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       ON_REJECT_INVALID_MSG_ID : 0);
       
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef _DATA_RATE
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
     #endif
@@ -1187,7 +1187,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     #ifdef _BLOCK_MESSAGES_ENABLED
     if(features_block_capable(client->device.features))
     {
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef _DATA_RATE
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
           ON_BS_ELEVATE_DATA_RATE : 0); 
         #endif
@@ -1710,18 +1710,15 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         {
             return *nr;
         }
-    }
-    
-    *priority = ONE_NET_HIGH_PRIORITY;
+    }    
     
     *nr =  ON_NACK_RSN_NO_ERROR;
-    
-    *data_rate = ONE_NET_DATA_RATE_38_4;
-    *channel = on_base_param->channel;    
-    
-    if(transfer_size <= 2000)
+    if(transfer_size <= 1000)
     {
-        // if it's <= 2000 bytes, use the base parameters no matter what
+        // if it's <= 1000 bytes, use the base parameters no matter what
+        *data_rate = ONE_NET_DATA_RATE_38_4;
+        *channel = on_base_param->channel;
+        *priority = ONE_NET_HIGH_PRIORITY;
     }
     else
     {
@@ -1755,14 +1752,12 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             return *nr;
         }
         
-        if(!(src_flags & ON_BS_HIGH_PRIORITY))
-        {
-            *priority = ONE_NET_LOW_PRIORITY;
-        }        
-        
-        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
+        {
+            *data_rate = ONE_NET_DATA_RATE_38_4;
+        }
+        else
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
@@ -1771,13 +1766,16 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
+            *channel = on_base_param->channel;
+        }
+        else
+        {
             SInt8 alternate_channel = one_net_get_alternate_channel();
             if(alternate_channel >= 0)
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }
-        #endif
+        }        
     }
     
     if(!src_client || !dst_client)
@@ -1795,18 +1793,12 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
 }
 
 
-on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
-  on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* txn,
+  UInt8 priority, on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     *nr = ON_NACK_RSN_NO_ERROR;
-    
-    if(!msg->dst)
-    {
-        *nr = ON_NACK_RSN_INTERNAL_ERR;
-        return *nr;
-    }    
     
     if(bs_msg.transfer_in_progress)
     {
@@ -1814,13 +1806,13 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
     }
     else
     {
-        on_client_t* client = client_info(&(msg->dst->did));
+        on_client_t* client = client_info(&(txn->dst->did));
+        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));    
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
         }
-        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));    
-
+        
         if(!features_block_capable(client->device.features))
         {
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
@@ -1882,13 +1874,13 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
     }  
     
     *nr =  ON_NACK_RSN_NO_ERROR;
-    *data_rate = ONE_NET_DATA_RATE_38_4;
-    *channel = on_base_param->channel;
     
     if(time_ms > 0 && time_ms < 2000)
     {
         // if it's known and less than 2 seconds, use the base parameters no
         // matter what        
+        *data_rate = ONE_NET_DATA_RATE_38_4;
+        *channel = on_base_param->channel;
     }
     else
     {
@@ -1922,9 +1914,12 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             return *nr;
         }
         
-        #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
+        {
+            *data_rate = ONE_NET_DATA_RATE_38_4;
+        }
+        else
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
@@ -1933,13 +1928,16 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
         if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
+            *channel = on_base_param->channel;
+        }
+        else
+        {
             SInt8 alternate_channel = one_net_get_alternate_channel();
             if(alternate_channel >= 0)
             {
                 *channel = (UInt8) alternate_channel;
             }
-        }
-        #endif
+        }        
     }
     
     *nr = one_net_master_get_default_stream_transfer_values(src_client,
@@ -1948,7 +1946,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
 }
 
 
-on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
+on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* txn,
   on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
@@ -1961,8 +1959,8 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
     }
     else
     {
-        on_client_t* client = client_info(&(msg->dst->did));
-        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));        
+        on_client_t* client = client_info(&(txn->dst->did));
+        one_net_memmove(&bs_msg, txn, sizeof(block_stream_msg_t));        
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
@@ -2482,11 +2480,6 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
                 }
                 #endif
             }
-            else
-            {
-                set_bs_hops(&bs_msg.flags, hops > return_hops ? hops :
-                  return_hops);
-            }
         }
     }
     #endif    
@@ -2606,7 +2599,7 @@ static one_net_status_t init_internal(void)
     one_net_init();
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef _DATA_RATE
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
     #endif
@@ -3046,54 +3039,25 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE_CHANNEL
-        case ON_CHANGE_DATA_RATE_CHANNEL:
+        #ifdef _DATA_RATE
+        case ON_CHANGE_DATA_RATE:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
-            ack_nack->nack_reason = on_change_dr_channel(NULL,
+            ack_nack->nack_reason = one_net_change_data_rate(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }
         #endif
         
         #ifdef _BLOCK_MESSAGES_ENABLED
-        case ON_TERMINATE_BLOCK_STREAM:
-        {
-            on_ack_nack_t* received_ack_nack = (on_ack_nack_t*)
-              &DATA[ON_ENCODED_DID_LEN+2];
-            received_ack_nack->payload = (ack_nack_payload_t*)
-              &DATA[ON_ENCODED_DID_LEN+4];
-            terminate_bs_msg(&bs_msg, (const on_encoded_did_t*) &DATA[1],
-              DATA[ON_ENCODED_DID_LEN+1], received_ack_nack);
-            break;
-        }        
-        
         case ON_REQUEST_BLOCK_STREAM:
         {
-            const on_encoded_did_t* dst_did = (const on_encoded_did_t*)
-              &DATA[BLOCK_STREAM_SETUP_DST_IDX];
-            on_client_t* recipient = client_info(dst_did);
-            BOOL master_is_recipient = (is_my_did(dst_did));
-            block_stream_msg_t proposed_msg;
-            block_stream_msg_t* bs_ptr = &bs_msg;
-              
-            if(!master_is_recipient)
-            {
-                bs_ptr = &proposed_msg; // we don't want to write our own
-                                        // message, if any.
-                if(!recipient)
-                {
-                    ack_nack->nack_reason = ON_NACK_RSN_BAD_ADDRESS_ERR;
-                    break;
-                }
-            }
-            
-            // Check if we are already in the middle of a block transaction.  If
+            // check if we are already in the middle of a block transaction.  If
             // we are and the source is NOT the sending device of this message,
             // NACK it.  If the source IS the sending device of this message and
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
-            if(master_is_recipient && bs_msg.transfer_in_progress)
+            if(bs_msg.transfer_in_progress)
             {
                 if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
                   SRC_DID))
@@ -3102,7 +3066,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                if(bs_msg.byte_idx > 0)
+                if(bs_msg.byte_idx >= 0)
                 {
                     // we have already started receiving data
                     ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
@@ -3110,26 +3074,18 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 }
             }
             
-            admin_msg_to_block_stream_msg_t(&DATA[0], bs_ptr,
+            // make sure it's to us.
+            if(!is_my_did((const on_encoded_did_t*)
+              &DATA[BLOCK_STREAM_SETUP_DST_IDX]))
+            {
+                ack_nack->nack_reason = ON_NACK_RSN_BAD_ADDRESS_ERR;
+                break;
+            }
+            
+            admin_msg_to_block_stream_msg_t(&DATA[0], &bs_msg,
               (const on_encoded_did_t*) (*client)->device.did);
-            
-            if(!ack_nack->nack_reason)
-            {
-                one_net_block_stream_transfer_requested(bs_ptr, ack_nack);
-            }
-            
-            // we could check other things like features, but the client
-            // device will check that anyway.
-            
-            if(master_is_recipient && !ack_nack->nack_reason)
-            {
-                bs_msg.transfer_in_progress = TRUE;
-                bs_msg.byte_idx = 0;
-                bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
-                
-                // Set the block / stream timer to the timeout
-                ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
-            }
+            bs_msg.transfer_in_progress = TRUE;
+            bs_msg.byte_idx = 0;
             break;
         }
         #ifdef _ONE_NET_MULTI_HOP

@@ -41,10 +41,9 @@
 
 #ifdef _UART
 
-// TODO -- this is a bit messy.  Find a better #define test.
-#if defined(_R8C_TINY) && !defined(_QUAD_OUTPUT)
+#ifdef _R8C_TINY
     #pragma section program program_high_rom
-#endif // if _R8C_TINY and not a 16K chip //
+#endif // ifdef _R8C_TINY //
 
 
 #include "oncli_hdlr.h"
@@ -186,7 +185,6 @@ typedef enum
     DEBUG_MEMORY_SINGLE_TXN,
     #ifdef _BLOCK_MESSAGES_ENABLED
     DEBUG_MEMORY_BS_TXN,
-    DEBUG_MEMORY_BS_MSG,
     #endif
     DEBUG_MEMORY_COUNT
 } debug_memory_t;
@@ -213,7 +211,6 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
     "single_txn",
     #ifdef _BLOCK_MESSAGES_ENABLED
     "bs_txn",
-    "bs_msg"
     #endif
 };
 
@@ -293,8 +290,8 @@ static oncli_status_t parse_and_send_pin_msg(
   const char * const ASCII_PARAM_LIST, UInt16 msg_class);
 #endif
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef _ENABLE_USER_PIN_COMMAND
@@ -678,22 +675,22 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the set pin command was received //
 	#endif // _ENABLE_SINGLE_COMMAND //
 
-	#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-    else if(!strnicmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
-      strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)))
+	#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+    else if(!strnicmp(ONCLI_SET_DATA_RATE_CMD_STR, CMD,
+      strlen(ONCLI_SET_DATA_RATE_CMD_STR)))
     {
-        *CMD_STR = ONCLI_SET_DR_CHANNEL_CMD_STR;
+        *CMD_STR = ONCLI_SET_DATA_RATE_CMD_STR;
         
-        if(CMD[strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        if(CMD[strlen(ONCLI_SET_DATA_RATE_CMD_STR)] != ONCLI_PARAM_DELIMITER)
         {
             return ONCLI_PARSE_ERR;
         } // if the end of the command is not valid //
         
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &set_dr_channel_cmd_hdlr;
+        *cmd_hdlr = &set_data_rate_cmd_hdlr;
 
         return ONCLI_SUCCESS;
-    } // else if the set data rate/channel command was received //
+    } // else if the set data rate command was received //
 	#endif
     
     #ifdef _ENABLE_BAUD_COMMAND
@@ -2101,12 +2098,12 @@ static oncli_status_t parse_and_send_pin_msg(
 #endif // _ENABLE_SINGLE_COMMAND //
 
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-// set dr_channel:1:003:4000:1500:US:7 will send a message to device DID 003 to
+#ifdef _ENABLE_SET_DATA_RATE_COMMAND
+// set data rate:1:003:4000:1500:US:7 will send a message to device DID 003 to
 // set data rate to 76,800 KHz and the channel to US Channel 7 in 4000
 // milliseconds and to set the data rate back to where it was if it does not
 // see a relevant message in a 1500 millisecond period.
-oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+oncli_status_t set_data_rate_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     SInt8 new_data_rate, new_channel;
     oncli_status_t status;
@@ -2167,7 +2164,7 @@ oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return status;
     }
       
-    switch(on_change_dr_channel((on_encoded_did_t*) enc_did, pause_time_ms,
+    switch(one_net_change_data_rate((on_encoded_did_t*) enc_did, pause_time_ms,
       dormant_time_ms, new_channel, (UInt8) new_data_rate))
     {
         case ON_NACK_RSN_NO_ERROR: return ONCLI_SUCCESS;
@@ -3076,7 +3073,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     ptr = end_ptr + 1;
     
-    bs_msg.x.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
+    bs_msg.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != ':')
     {
         return ONCLI_PARSE_ERR;
@@ -3097,13 +3094,6 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     }
-    
-    if(is_my_did(&enc_dst_did))
-    {
-        return ONCLI_INVALID_DST;
-    }
-    
-    
     
     bs_msg.dst = (*get_sender_info)(&enc_dst_did);
     if(!bs_msg.dst)
@@ -3134,15 +3124,15 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
                 
         if(on_master_get_default_block_transfer_values(NULL, dst_client,
-          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
         }
-        set_bs_priority(&bs_msg.flags, priority);
-        return (on_master_initiate_block_msg(&bs_msg, &ack_nack)
+        
+        return (on_master_initiate_block_msg(&bs_msg, priority, &ack_nack)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
@@ -3150,15 +3140,15 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!device_is_master)
     {
         if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
-          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
                                    // reasons?
         }
-        set_bs_priority(&bs_msg.flags, priority);
-        return (on_client_initiate_block_msg(&bs_msg, &ack_nack)
+        
+        return (on_client_initiate_block_msg(&bs_msg, priority, &ack_nack)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
@@ -3224,11 +3214,6 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(on_encode(enc_dst_did, raw_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_PARSE_ERR;
-    }
-    
-    if(is_my_did(&enc_dst_did))
-    {
-        return ONCLI_INVALID_DST;
     }
     
     bs_msg.dst = (*get_sender_info)(&enc_dst_did);    
@@ -4178,10 +4163,6 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
         case DEBUG_MEMORY_BS_TXN:
             *mem_ptr = (UInt8*) &bs_txn;
             len = sizeof(on_txn_t);
-            break;
-        case DEBUG_MEMORY_BS_MSG:
-            *mem_ptr = (UInt8*) &bs_msg;
-            len = sizeof(block_stream_msg_t);
             break; 
         #endif
         #ifdef _ONE_NET_MASTER

@@ -196,14 +196,14 @@ typedef enum
     ON_NEW_KEY_FRAGMENT = 0x02,
     
     //! Response from a client when a device has been added.
-    ON_ADD_DEV_RESP = 0x03,
+    ON_ADD_DEV_RESP = 0x04,
     
     //! Response from a client when a device has been removed.
-    ON_REMOVE_DEV_RESP = 0x04,
+    ON_REMOVE_DEV_RESP = 0x05,
     
-    #ifdef _DATA_RATE_CHANNEL
-    //! Change data rate and channel
-    ON_CHANGE_DATA_RATE_CHANNEL = 0x05,
+    #ifdef _DATA_RATE
+    //! Change data rate
+    ON_CHANGE_DATA_RATE = 0x06,
     #endif
     
     #ifndef _ONE_NET_SIMPLE_CLIENT
@@ -211,59 +211,59 @@ typedef enum
     //! Generally this is sent when a client is about to run out of message
     //! ids or feels there has been some breach of security or some attempted
     //! breach of security.
-    ON_REQUEST_KEY_CHANGE = 0x06,
+    ON_REQUEST_KEY_CHANGE = 0x07,
     #endif
 
     #ifdef _BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
-    ON_CHANGE_FRAGMENT_DELAY = 0x07,
+    ON_CHANGE_FRAGMENT_DELAY = 0x08,
     
     //! Response to changing of fragment delays
-    ON_CHANGE_FRAGMENT_DELAY_RESP = 0x08,
+    ON_CHANGE_FRAGMENT_DELAY_RESP = 0x09,
     #endif
     
     //! Sent to change the keep alive interval
-    ON_CHANGE_KEEP_ALIVE = 0x09,
+    ON_CHANGE_KEEP_ALIVE = 0x0B,
 
     #ifdef _PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
-    ON_ASSIGN_PEER = 0x0A,
+    ON_ASSIGN_PEER = 0x0C,
 
     //! Sent by the MASTER to un-assign a peer from the receiving CLIENT.  The
     //! CLIENT must not send directly to that peer anymore.
-    ON_UNASSIGN_PEER = 0x0B,
+    ON_UNASSIGN_PEER = 0x0D,
     #endif
 
     //! Query for the Keep Alive Timeout.  This is the interval at which a
     //! CLIENT must attempt to check in with the MASTER.  Any communication
     //! with the MASTER resets this timer.
-    ON_KEEP_ALIVE_QUERY = 0x0C,
+    ON_KEEP_ALIVE_QUERY = 0x0E,
     
     //! Sent by a client to check in with the master whenever the keep-alive
     //! timer expires.
-    ON_KEEP_ALIVE_RESP = 0x0D,
+    ON_KEEP_ALIVE_RESP = 0x0F,
     
     //! Sent to change a device's settings.  The devices settings should not
     //! be considered changed until a SETTINGS_RESP is received.
-    ON_CHANGE_SETTINGS = 0x0E,
+    ON_CHANGE_SETTINGS = 0x10,
     
     //! Sent in response to a change settings message.
-    ON_CHANGE_SETTINGS_RESP = 0x0F,
+    ON_CHANGE_SETTINGS_RESP = 0x12,
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    ON_REQUEST_BLOCK_STREAM = 0x10,
+    ON_REQUEST_BLOCK_STREAM = 0x13,
     
-    ON_REQUEST_REPEATER = 0x11,
+    ON_REQUEST_REPEATER = 0x14,
     
-    ON_TERMINATE_BLOCK_STREAM = 0x12,
+    ON_TERMINATE_BLOCK_STREAM = 0x15,
     #endif
 
     //! Sent by the MASTER when it is adding a device to the network
-    ON_ADD_DEV = 0x13,
+    ON_ADD_DEV = 0x21,
 
     //! Sent by the MASTER when it is removing a device from the network
-    ON_RM_DEV = 0x14
+    ON_RM_DEV = 0x22
 } on_admin_msg_t;
 
 
@@ -441,6 +441,11 @@ typedef enum
 } on_bs_transfer_type_t;
 
 
+
+#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK  0x01
+#define BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT 7
+#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK  0x01
+#define BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT 6
 #define BLOCK_STREAM_SETUP_TYPE_MASK           0x01
 #define BLOCK_STREAM_SETUP_TYPE_SHIFT          5
 #define BLOCK_STREAM_SETUP_PRIORITY_MASK       0x03
@@ -475,15 +480,9 @@ enum
         sizeof(UInt16),
     BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX = BLOCK_STREAM_SETUP_DST_IDX +
         ON_ENCODED_DID_LEN,
+    BLOCK_STREAM_SETUP_MESSAGE_SIZE = BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX +
+        sizeof(UInt32)
 };
-
-
-// Just a short union to get things to compile a little better since anonymous unions are not allowed.
-typedef union
-{
-    UInt32 transfer_size; // for block
-    tick_t last_response_time; // for stream
-} z1;
 
 
 typedef struct
@@ -492,16 +491,23 @@ typedef struct
     UInt8 bs_on_state;
     BOOL transfer_in_progress;
     UInt8 flags;
-    z1 x;
+    UInt32 transfer_size; // also used for the time in a stream transaction
+                          // TODO -- make it a union or a different variable
+                          // instead?
     UInt8 chunk_size;
     UInt16 frag_dly;
     UInt16 chunk_pause;
     UInt8 channel;
     UInt8 data_rate;
     UInt16 timeout;
+    UInt16 expected_time; // can mean different things depending on whther
+                         // you're the recipient or the sender.  For the
+                         // sender, it should be the average time between
+                         // sending a packet and getting a response.
+                         // Currently it has not meaning for anyone else.
     on_sending_device_t* src; // originator of block message
     on_sending_device_t* dst; // recipient of block message
-    UInt32 time; // this value can represent a variety of things.  Generally
+    tick_t time; // this value can represent a variety of things.  Generally
                  // for a repeater, it will represent the estimated time of
                  // completion.  For the sender or the recipient of a stream
                  // message, it will represent the start time of the stream
@@ -510,7 +516,11 @@ typedef struct
     
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 num_repeaters;
+    #ifndef _ONE_NET_MEMORY
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
+    #else
+    on_encoded_did_t* repeaters; // rarely used.  Use "ONE-NET "heap".
+    #endif
     #endif
     SInt32 byte_idx;
     SInt8 chunk_idx;
@@ -699,16 +709,86 @@ ONE_NET_INLINE UInt8 get_bs_hops(UInt8 flags)
 }
 
 
-BOOL block_get_index_sent(UInt8 index, const UInt8 array[5]);
-void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5]);
-SInt8 block_get_lowest_unsent_index(const UInt8 array[5], UInt8 chunk_size);
-UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
-  UInt8 chunk_index);
+ONE_NET_INLINE void set_bs_device_is_src(UInt8* flags, BOOL is_src)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK <<
+      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
+    (*flags) |= (is_src << BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT);
+}
 
 
-// returns the chunk size to be used. For the first and last 40 packets,
-// the chunk size is 1.  Otherwise it is whatever is stored in the message
-UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg);
+ONE_NET_INLINE BOOL get_bs_device_is_src(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_SRC_SHIFT) &
+      BLOCK_STREAM_SETUP_DEVICE_IS_SRC_MASK);
+}
+
+
+ONE_NET_INLINE void set_bs_device_is_dst(UInt8* flags, BOOL is_dst)
+{
+    (*flags) &= ~(BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK <<
+      BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
+    (*flags) |= (is_dst << BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT);
+}
+
+
+ONE_NET_INLINE BOOL get_bs_device_is_dst(UInt8 flags)
+{
+    return ((flags >> BLOCK_STREAM_SETUP_DEVICE_IS_DST_SHIFT) &
+      BLOCK_STREAM_SETUP_DEVICE_IS_DST_MASK);
+}
+
+
+ONE_NET_INLINE BOOL block_get_index_sent(UInt8 index, const UInt8 array[5])
+{
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return FALSE;
+    }
+    
+    if(array[index / 8] & mask)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+ONE_NET_INLINE void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5])
+{
+    UInt8 array_index;
+    UInt8 mask = (0x80 >> (index % 8));
+    if(index >= MAX_CHUNK_SIZE)
+    {
+        return;
+    }
+    
+    array_index = index / 8;
+    
+    array[array_index] &= ~mask;
+    if(!rcvd)
+    {
+        return;
+    }
+    array[array_index] |= mask;
+}
+
+
+// returns -1 if all are sent
+ONE_NET_INLINE SInt8 block_get_lowest_unsent_index(const UInt8 array[5],
+  UInt8 chunk_size)
+{
+    UInt8 i;
+    for(i = 0; i < chunk_size; i++)
+    {
+        if(!block_get_index_sent(i, array))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 #endif
 
 

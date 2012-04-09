@@ -204,12 +204,6 @@ BOOL features_simple_client(on_features_t features)
 {
     return ((features.feature_flags & ON_NON_SIMPLE_CLIENT_MASK) == 0);
 }
-
-
-BOOL features_dr_channel_capable(on_features_t features)
-{
-    return ((features.feature_flags & ON_DR_CHANNEL_CHANGE_FEATURE_MASK) != 0);
-}
 #endif
 
 

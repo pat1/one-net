@@ -731,7 +731,7 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
     }
     #endif
     
-    // TODO -- check everything else.  This function probably needs to be
+    // TODO -- check everything else.  This funciton probably needs to be
     //         moved from one_net_message.c to one_net.c so more things
     //         can be checked.
     //
@@ -767,7 +767,7 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
 {
     // msg buffer must be at least 21 bytes
     bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
-    bs_msg->x.transfer_size = one_net_byte_stream_to_int32(
+    bs_msg->transfer_size = one_net_byte_stream_to_int32(
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     bs_msg->chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
     bs_msg->frag_dly = one_net_byte_stream_to_int16(
@@ -804,7 +804,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     // msg buffer must be at least 21 bytes
     msg[0] = ON_REQUEST_BLOCK_STREAM;
     msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;
-    one_net_int32_to_byte_stream(bs_msg->x.transfer_size,
+    one_net_int32_to_byte_stream(bs_msg->transfer_size,
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->chunk_size;
     one_net_int16_to_byte_stream(bs_msg->frag_dly,
@@ -815,9 +815,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
     one_net_int16_to_byte_stream(bs_msg->timeout,
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
-    
-    
-    one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst->did,
+    one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst,
       ON_ENCODED_DID_LEN);
       
     {
@@ -831,101 +829,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
     }
 }
-
-
-UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg)
-{
-    UInt32 num_packets_total = bs_msg->x.transfer_size / ON_BS_DATA_PLD_SIZE;
-    UInt32 num_packets_left;
-    
-    if(bs_msg->byte_idx < 40)
-    {
-        return 1;
-    }
-    
-    num_packets_left = num_packets_total - bs_msg->byte_idx;
-    
-    if(num_packets_left <= 40)
-    {
-        return 1;
-    }
-    
-    if(num_packets_left >= 40 + bs_msg->chunk_size)
-    {
-        return bs_msg->chunk_size;
-    }
-    
-    return num_packets_left - 40;
-}
-
-
-BOOL block_get_index_sent(UInt8 index, const UInt8 array[5])
-{
-    UInt8 mask = (0x80 >> (index % 8));
-    if(index >= MAX_CHUNK_SIZE)
-    {
-        return FALSE;
-    }
-    
-    if(array[index / 8] & mask)
-    {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-
-void block_set_index_sent(UInt8 index, BOOL rcvd, UInt8 array[5])
-{
-    UInt8 array_index;
-    UInt8 mask = (0x80 >> (index % 8));
-    if(index >= MAX_CHUNK_SIZE)
-    {
-        return;
-    }
-    
-    array_index = index / 8;
-    
-    array[array_index] &= ~mask;
-    if(!rcvd)
-    {
-        return;
-    }
-    array[array_index] |= mask;
-}
-
-
-// returns -1 if all are sent
-SInt8 block_get_lowest_unsent_index(const UInt8 array[5], UInt8 chunk_size)
-{
-    UInt8 i;
-    for(i = 0; i < chunk_size; i++)
-    {
-        if(!block_get_index_sent(i, array))
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
-  UInt8 chunk_index)
-{
-    UInt32 byte_number_start = (byte_index + chunk_index) * ON_BS_DATA_PLD_SIZE;
-    if(byte_number_start > transfer_size)
-    {
-        return 0;
-    }
-    transfer_size -= byte_number_start;
-    return (transfer_size < ON_BS_DATA_PLD_SIZE ? transfer_size :
-      ON_BS_DATA_PLD_SIZE );
-}
 #endif
-
-
-
 
 
 //! @} ONE-NET_MESSAGE_pub_func

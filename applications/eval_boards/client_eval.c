@@ -394,7 +394,7 @@ one_net_xtea_key_t* one_net_client_get_invite_key(void)
 on_nack_rsn_t one_net_client_get_default_block_transfer_values(
   const on_encoded_did_t* dst,
   UInt32 transfer_size, UInt8* priority, UInt8* chunk_size, UInt16* frag_delay,
-  UInt16* chunk_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
+  UInt16* chunk_delay, UInt8* data_rate, UInt8* channel, UInt16* tiemout,
   on_ack_nack_t* ack_nack)
 {
     return ON_NACK_RSN_NO_ERROR;
@@ -402,42 +402,13 @@ on_nack_rsn_t one_net_client_get_default_block_transfer_values(
 
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
-/*!
-    \brief Application-level code called byu ONE-NET when this device is
-           requested to function as a repeater for a block / stream message
-    
-    This function is called when another device is attempting to set up a
-    block / stream message and has requested this device to reserve itself
-    as a repeater for that purpose. This function will be passed the parameters
-    of the proposed block / stream transfer.  Possible parameters of interest
-    will be the estimated time of the transfer and the devices involved.
-    
-    Generally this function should reject the request if it feels it cannot
-    comply for any reason.  Reasons could include not being reasonably certain
-    that it will be able to function as a repeater for at least the time
-    requested for whatever reason (low power, busy with its own messages,
-    not expected to be powered up for the entire message, a high percentage
-    of dropped message, it is reserved as a repeater for someone else, etc.)
-    
-    The ack_nack parameter is pre-loaded to assume acceptance.  If the repeater
-    rejects, it should change the ack_nack variable to indicate rejection along
-    with a reason, if any, is to be sent.
-    
-    \param[in] bs_msg The paramters of the block/ stream message this device is
-               supposed to serve as a repeater for.
-    \param[out] ack_nack This is pre-loaded for acceptance.  If accepting, no
-                changes are needed.  If rejecting, the ack_nack variable should
-                be changed in this function.
-    
-    \return void
-*/
 void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
   on_ack_nack_t* ack_nack)
 {
     // just some debugging for now.
     oncli_send_msg("src=%02X%02X dst=%02X%02X est=%ld to=%d\n",
-      bs_msg->src->did[0], bs_msg->src->did[1], bs_msg->dst->did[0],
-      bs_msg->dst->did[1], bs_msg->time, bs_msg->timeout);
+      bs_msg->src[0],bs_msg->src[1], bs_msg->dst[0],bs_msg->dst[1],
+      bs_msg->timeout);
 }
 #endif
 

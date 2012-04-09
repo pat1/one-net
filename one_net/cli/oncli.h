@@ -176,8 +176,8 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
 #endif
 #endif
 #if _DEBUG_VERBOSE_LEVEL > 4
-void print_single(UInt16 pid, const UInt8* raw_payload);
-void print_response(UInt16 pid, const UInt8* raw_payload);
+void print_single(UInt8 pid, const UInt8* raw_payload);
+void print_response(UInt8 pid, const UInt8* raw_payload);
 #endif
 void print_admin_payload(const UInt8* const pld);
 #ifdef _ROUTE

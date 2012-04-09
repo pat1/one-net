@@ -222,7 +222,7 @@ tick_t route_start_time = 0;
 block_stream_msg_t bs_msg;
 #endif
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef _DATA_RATE
 dr_channel_stage_t dr_channel_stage = ON_DR_CHANNEL_NO_SCHEDULED_CHANGE;
 UInt16 dormant_data_rate_time_ms = 0;
 UInt8 alternate_data_rate = ONE_NET_DATA_RATE_38_4;
@@ -294,7 +294,7 @@ static BOOL features_override = FALSE;
 //! @{
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef _DATA_RATE
 static void check_dr_channel_change(void);
 #endif
 static BOOL check_for_clr_channel(void);
@@ -305,14 +305,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
-static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
 static void terminate_bs_complete(block_stream_msg_t* bs_msg);
-#endif
-
-#ifdef _STREAM_MESSAGES_ENABLED
-static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
 #endif
 
 
@@ -429,12 +422,6 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
             case ON_ACK_ADMIN_MSG:
-            #ifdef _BLOCK_MESSAGES_ENABLED
-            case ON_ACK_BLK_PKTS_RCVD:
-            #endif
-            
-            // TODO -- ON_ACK_ROUTE case seems to be missing? Why?
-            
                 // nothing to do with these.
                 break;
 	        case ON_ACK_VALUE:
@@ -539,9 +526,6 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             #ifdef _ROUTE
             case ON_ACK_ROUTE:
             #endif
-            #ifdef _BLOCK_MESSAGES_ENABLED
-            case ON_ACK_BLK_PKTS_RCVD:
-            #endif            
                 one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
                   ack_nack_pld_len);
                 break;
@@ -645,15 +629,6 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #ifdef _ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
-    #ifdef _BLOCK_MESSAGES_ENABLED
-    if((pkt_ptrs->raw_pid & 0x3F) >= ONE_NET_RAW_BLOCK_DATA &&
-      (pkt_ptrs->raw_pid & 0x3F) < ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
-    {
-        pkt_ptrs->hops= 0;
-        pkt_ptrs->max_hops = get_bs_hops(bs_msg->flags);
-    }
-    #endif
-    
     set_multihop_pid(&(pkt_ptrs->raw_pid), pkt_ptrs->max_hops > 0);
     put_raw_pid(&(pkt_ptrs->packet_bytes[ON_ENCODED_PID_IDX]),
       pkt_ptrs->raw_pid);
@@ -1190,16 +1165,8 @@ void one_net(on_txn_t ** txn)
     ack_nack.payload = &ack_nack_payload;
 
     #ifdef _BLOCK_MESSAGES_ENABLED
-    if(on_state <= ON_BS_COMMENCE || on_state >= ON_BS_CHUNK_PAUSE)
-    {
-        if(*txn == &bs_txn)
-        {
-            *txn = NULL; //clear if not already clearedso we do not get
-                         // stuck.
-        }
-    }
     if(bs_msg.transfer_in_progress && bs_msg.src &&
-      ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
+      ont_inactive_or_expired(ONT_BS_TIMER))
     {
         if(on_state >= ON_BS_TERMINATE || bs_msg.bs_on_state >=
           ON_BS_TERMINATE)
@@ -1214,30 +1181,22 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
+        // TODO -- more #define guards for states
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
         case ON_BS_CONFIRM_ROUTE:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_CHANGE_DR_CHANNEL:
-        case ON_BS_CHANGE_MY_DR_CHANNEL:
-        #endif
+        case ON_BS_CHANGE_MY_DATA_RATE:
         case ON_BS_DEVICE_PERMISSION:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_DEVICE_PERMISSION:
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
-        case ON_BS_MASTER_REPEATER_PERMISSION_START:
-        case ON_BS_MASTER_REPEATER_PERMISSION:
-        case ON_BS_MASTER_REPEATER_PERMISSION_END:
-        #endif
         case ON_BS_REPEATER_PERMISSION_START:
         case ON_BS_REPEATER_PERMISSION:
         case ON_BS_REPEATER_PERMISSION_END:
-        #endif
+        case ON_BS_MASTER_REPEATER_PERMISSION_START:
+        case ON_BS_MASTER_REPEATER_PERMISSION:
+        case ON_BS_MASTER_REPEATER_PERMISSION_END:
         case ON_BS_COMMENCE:
         case ON_BS_CHUNK_PAUSE:
-        case ON_BS_TERMINATE:
         #endif
         case ON_LISTEN_FOR_DATA:
         {
@@ -1253,9 +1212,8 @@ void one_net(on_txn_t ** txn)
             #else
             if((*txn == NULL || ((*txn == &bs_txn &&
               bs_msg.transfer_in_progress) && (on_state == ON_BS_CHUNK_PAUSE ||
-              on_state == ON_BS_TERMINATE || get_bs_priority(bs_msg.flags) <
-              ONE_NET_HIGH_PRIORITY))) && single_txn.priority ==
-              ONE_NET_NO_PRIORITY)
+              get_bs_priority(bs_msg.flags) < ONE_NET_HIGH_PRIORITY))) &&
+              single_txn.priority == ONE_NET_NO_PRIORITY)
             #endif
             {
                 on_sending_device_t* device;
@@ -1329,11 +1287,10 @@ void one_net(on_txn_t ** txn)
                             #endif
                             
                             #ifndef _ONE_NET_SIMPLE_CLIENT
-                            #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE_CHANNEL)
+                            #if defined(_BLOCK_MESSAGES_ENABLED)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
-                              single_msg.payload[0] ==
-                              ON_CHANGE_DATA_RATE_CHANNEL)
+                              single_msg.payload[0] == ON_CHANGE_DATA_RATE)
                             {
                                 #ifdef _ONE_NET_MULTI_HOP
                                 // add any repeaters.
@@ -1372,7 +1329,7 @@ void one_net(on_txn_t ** txn)
                     }
                     
                     // we are either done or we never had anything to send in
-                    // the first place.  Clear the single message pointer.
+                    // the first place.  Clear it and return TRUE.
                     single_msg_ptr = NULL;
                     
                     #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1404,7 +1361,6 @@ void one_net(on_txn_t ** txn)
                                 case ON_BS_CONFIRM_ROUTE:
                                     send_route_msg(&raw_did);
                                     break;
-                                #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CHANGE_DR_CHANNEL:
                                     if(bs_msg.channel == on_base_param->channel
                                       && bs_msg.data_rate ==
@@ -1419,24 +1375,21 @@ void one_net(on_txn_t ** txn)
                                         // missed ACKs or NACKs.  3000 ms should be
                                         // plenty long enough to get things done elsewhere
                                         // if need be.
-                                        on_change_dr_channel(&(bs_msg.dst->did),
-                                          125, 3000, bs_msg.channel,
-                                          bs_msg.data_rate);
+                                        one_net_change_data_rate(
+                                          &(bs_msg.dst->did), 125, 3000,
+                                          bs_msg.channel, bs_msg.data_rate);
                                     }
                                     break;
-                                case ON_BS_CHANGE_MY_DR_CHANNEL:
+                                case ON_BS_CHANGE_MY_DATA_RATE:
                                     // everyone else's data rate and channel has
                                     // been changed, so change ours now and give a
                                     // 125 ms pause not before the change, but before sending
                                     // any messages.
-                                    on_change_dr_channel(NULL, 0, 3000,
+                                    one_net_change_data_rate(NULL, 0, 3000,
                                       bs_msg.channel, bs_msg.data_rate);
                                     ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(125));
                                     bs_msg.bs_on_state = ON_BS_CONFIRM_ROUTE;
                                     break;
-                                #endif
-                                
-                                
                                 case ON_BS_DEVICE_PERMISSION:
                                     if(get_bs_transfer_type(bs_msg.flags) ==
                                       ON_BLK_TRANSFER)
@@ -1449,10 +1402,8 @@ void one_net(on_txn_t ** txn)
                                     }                              
                                     send_bs_setup_msg(&bs_msg, &bs_msg.dst->did);
                                     break;
-                                    
-                                #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
-                                    if(master_involved || bs_msg.x.transfer_size <= 2000)
+                                    if(master_involved)
                                     {
                                         // Master is involved, so we either ARE
                                         // the master or the master is the
@@ -1462,15 +1413,11 @@ void one_net(on_txn_t ** txn)
                                         // destination, we'll get the master's
                                         // permission when we ask the
                                         // destination device's permission.
-                                        
-                                        // On the other hand, if this is a short transfer
-                                        // of less than 2000 bytes, we won't bother to
-                                        // ask for the master's permission either.
-                                        bs_msg.bs_on_state += 4;
+                                        bs_msg.bs_on_state =
+                                          ON_BS_REPEATER_PERMISSION_START;
                                     }
                                     else
                                     {
-                                        #ifdef _DATA_RATE_CHANNEL
                                         // ask the master for permission.
                                         // We'll need to drop back down
                                         // to the base channel and data rate
@@ -1478,82 +1425,99 @@ void one_net(on_txn_t ** txn)
                                           on_base_param->channel);
                                         one_net_set_data_rate(
                                           ONE_NET_DATA_RATE_38_4);
-                                        #endif
                                         send_bs_setup_msg(&bs_msg,
                                           &MASTER_ENCODED_DID);
                                     }
                                     break;
-                                #endif
-                                    
-                                #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
-                                    if(device_is_master || bs_msg.num_repeaters
-                                      == 0 || bs_msg.x.transfer_size <= 2000)
-                                    {
-                                        // master is involved or it is a short
-                                        // transfer of less than 2000 bytes, so
-                                        // don't bother asking the master.
-                                        bs_msg.bs_on_state += 6;
-                                        break;
-                                    }
-
-                                    rptr_idx = 0;
-                                    bs_msg.bs_on_state++;
+                                #ifndef _ONE_NET_MULTI_HOP
+                                    bs_msg.bs_on_state = ON_BS_COMMENCE;
                                     break;
+                                #else
+                                    rptr_idx = 0;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_MASTER_REPEATER_PERMISSION;
+                                    // intentional fall-through
                                 case ON_BS_MASTER_REPEATER_PERMISSION:
-                                    #ifdef _DATA_RATE_CHANNEL
-                                    // The master is at the main data rate
-                                    // and channel, so change to them.
-                                    one_net_set_data_rate(
-                                      ONE_NET_DATA_RATE_38_4);
-                                    one_net_set_channel(
-                                      on_base_param->channel);
-                                    #endif
-                                    request_reserve_repeater(&bs_msg,
-                                      &(bs_msg.repeaters[rptr_idx]));
+                                    if(!master_involved && bs_msg.num_repeaters)
+                                    {
+                                        // The master is at the main data rate
+                                        // and channel, so change to them.
+                                        one_net_set_data_rate(
+                                          ONE_NET_DATA_RATE_38_4);
+                                        one_net_set_channel(
+                                          on_base_param->channel);
+                                        request_reserve_repeater(&bs_msg,
+                                          &(bs_msg.repeaters[rptr_idx]),
+                                          &MASTER_ENCODED_DID);
+                                    }
+                                    else
+                                    {
+                                        // If the master is involved, then we
+                                        // either ARE the master or the master
+                                        // is the device we are sending to, so
+                                        // if we are the master, we don't need
+                                        // the master's permission since we have
+                                        // it already.  If the master is the
+                                        // destination, we'll get the master's
+                                        // permission when we ask the
+                                        // destination device's permission.
+                                        // Also, if there are no repeaters,
+                                        // there is no need to request
+                                        // permission for repeaters, so skip
+                                        // this state.
+                                        bs_msg.bs_on_state =
+                                          ON_BS_REPEATER_PERMISSION_START;
+                                    }
                                     break;                                
                                 case ON_BS_MASTER_REPEATER_PERMISSION_END:
                                     rptr_idx++;
                                     if(rptr_idx < bs_msg.num_repeaters)
                                     {
-                                        bs_msg.bs_on_state -= 4;
+                                        bs_msg.bs_on_state =
+                                          ON_BS_MASTER_REPEATER_PERMISSION;
                                         break;
                                     }
-                                    bs_msg.bs_on_state++;
-                                    break;
-                                #endif
-                                
-                                #ifdef _ONE_NET_MULTI_HOP
+                                    bs_msg.bs_on_state =
+                                      ON_BS_MASTER_REPEATER_PERMISSION;
+                                    // intentional fall-through
                                 case ON_BS_REPEATER_PERMISSION_START:
-                                    if(bs_msg.num_repeaters == 0)
-                                    {
-                                        bs_msg.bs_on_state += 6;
-                                        break;
-                                    }
-
                                     rptr_idx = 0;
-                                    bs_msg.bs_on_state++;
-                                    break;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_REPEATER_PERMISSION;
+                                    // intentional fall-through
                                 case ON_BS_REPEATER_PERMISSION:
-                                    #ifdef _DATA_RATE_CHANNEL
                                     one_net_set_data_rate(bs_msg.data_rate);
                                     one_net_set_channel(bs_msg.channel);
-                                    #endif
-                                    send_bs_setup_msg(&bs_msg,
-                                      &(bs_msg.repeaters[rptr_idx]));
+                                    if(bs_msg.num_repeaters)
+                                    {
+                                        // repeaters now get the regular
+                                        // setup message
+                                        #if 0
+                                        request_reserve_repeater(&bs_msg,
+                                          &(bs_msg.repeaters[rptr_idx]),
+                                          &(bs_msg.repeaters[rptr_idx]));
+                                        #endif
+                                        send_bs_setup_msg(&bs_msg,
+                                          &(bs_msg.repeaters[rptr_idx]));
+                                    }
+                                    else
+                                    {
+                                        bs_msg.bs_on_state = ON_BS_COMMENCE;
+                                    }
                                     break;
                                 case ON_BS_REPEATER_PERMISSION_END:
                                     rptr_idx++;
                                     if(rptr_idx < bs_msg.num_repeaters)
                                     {
-                                        bs_msg.bs_on_state -= 4;
+                                        bs_msg.bs_on_state =
+                                          ON_BS_MASTER_REPEATER_PERMISSION;
                                         break;
                                     }
-                                    bs_msg.bs_on_state++;
+                                    bs_msg.bs_on_state =
+                                      ON_BS_COMMENCE;
                                     break;
                                 #endif
-                                
-                                
                                 case ON_BS_COMMENCE:
                                 {
                                     #ifdef _ONE_NET_MULTI_HOP
@@ -1567,6 +1531,7 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     response_pid |= (get_default_num_blocks(
                                       response_pid) << 8);
+                                      
                                     if(!device)
                                     {
                                         // somehow we lost track of the device.
@@ -1586,8 +1551,6 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.bs_on_state =
                                       ON_BS_PREPARE_DATA_PACKET;
                                     ont_set_timer(ONT_BS_TIMER, 0);
-                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
-                                      MS_TO_TICK(bs_msg.timeout));
                                     one_net_memset(bs_msg.sent, 0,
                                       sizeof(bs_msg.sent));
                                     
@@ -1596,9 +1559,6 @@ void one_net(on_txn_t ** txn)
                                     // anyway.  Just make the processing time
                                     // 20 ms for end devices and 10 ms for
                                     // repeaters.
-                                    
-                                    // TODO -- perhaps do more with the time
-                                    // estimate?
                                     #ifdef _ONE_NET_MULTI_HOP
                                     bs_msg.time = estimate_response_time(
                                       get_encoded_packet_len(data_pid, TRUE),
@@ -1607,10 +1567,9 @@ void one_net(on_txn_t ** txn)
                                       bs_msg.data_rate);
                                     #else
                                     bs_msg.time = estimate_response_time(
-                                      get_encoded_packet_len( response_pid,
-                                      TRUE), 20, bs_msg.data_rate);
+                                      get_encoded_packet_len(response_pid, TRUE),
+                                      20, bs_msg.data_rate);
                                     #endif
-                                    
                                     break;
                                 }
                                 
@@ -1766,11 +1725,11 @@ void one_net(on_txn_t ** txn)
                                 if(msg_status == ON_MSG_RESPOND)
                                 {
                                     // Now reset some timers so we don't timeout.
-                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
-                                      MS_TO_TICK(bs_msg.timeout));
-                                    #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
-                                      MS_TO_TICK(bs_msg.timeout));
+                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #ifdef _DATA_RATE
+                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
                                     #endif
                                 }
                                                                   
@@ -1787,11 +1746,11 @@ void one_net(on_txn_t ** txn)
                                 if(msg_status == ON_MSG_RESPOND)
                                 {
                                     // Now reset some timers so we don't timeout.
-                                    ont_set_timer(ONT_BS_TIMEOUT_TIMER,
-                                      MS_TO_TICK(bs_msg.timeout));
-                                    #ifdef _DATA_RATE_CHANNEL
-                                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
-                                      MS_TO_TICK(bs_msg.timeout));
+                                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
+                                    #ifdef _DATA_RATE
+                                    ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
+                                      bs_msg.timeout));
                                     #endif
                                 }  
                                   
@@ -1808,13 +1767,6 @@ void one_net(on_txn_t ** txn)
                                   ONE_NET_RAW_SINGLE_DATA_ACK :
                                   ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
                                   
-                                #ifdef _ONE_NET_MULTI_HOP
-                                response_txn.hops = get_bs_hops(bs_msg.flags);
-                                response_txn.max_hops = response_txn.hops;
-                                set_multihop_pid(&response_pid,
-                                  response_txn.max_hops);
-                                #endif
-                                  
                                 if(!setup_pkt_ptr(response_pid,
                                   response_txn.pkt, bs_pkt.block_pkt.msg_id,
                                   &response_pkt_ptrs))
@@ -1828,6 +1780,10 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 }
 
+                                #ifdef _ONE_NET_MULTI_HOP
+                                response_txn.hops = bs_txn.hops;
+                                response_txn.max_hops = bs_txn.max_hops;
+                                #endif
                                 response_txn.key = bs_txn.key;
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
                                 
@@ -1852,7 +1808,7 @@ void one_net(on_txn_t ** txn)
                         #endif
                     }
                     
-                    #ifdef _DATA_RATE_CHANNEL
+                    #ifdef _DATA_RATE
                     if(*txn == 0)
                     {
                         // see if we need to change data rates.
@@ -2001,14 +1957,6 @@ void one_net(on_txn_t ** txn)
                 #ifndef _BLOCK_MESSAGES_ENABLED
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 #else
-                if(on_state > ON_BS_COMMENCE && on_state < ON_BS_TERMINATE)
-                {
-                    bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
-                    on_state = ON_LISTEN_FOR_DATA;
-                    // make the pasue half the timeout
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout / 2));
-                }
-                
                 if(on_state == ON_LISTEN_FOR_DATA)
                 {
                     on_state = ON_SEND_SINGLE_DATA_PKT;
@@ -2048,7 +1996,7 @@ void one_net(on_txn_t ** txn)
             UInt16 raw_pid = ONE_NET_RAW_BLOCK_DATA;
             #endif            
             one_net_status_t status;
-            // TODO -- I think there's a global buffer somewhere so we don't
+            // TODO -- I thinkt here's a global buffer somewhere so we don't
             // need to set our own buffer.  However, the stack size shouldn't
             // be very high here so it's no big deal.
             UInt8 buffer[ON_BS_DATA_PLD_SIZE];
@@ -2066,114 +2014,73 @@ void one_net(on_txn_t ** txn)
             }
             
             *txn = &bs_txn;
-            ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
-            ack_nack.handle = ON_ACK;
-            
             #ifdef _STREAM_MESSAGES_ENABLED
             if(transfer_type == ON_BLK_TRANSFER)
             #endif
             {
-                status = one_net_block_get_next_payload(&bs_msg, buffer,
-                  &ack_nack);
+                status = one_net_block_get_next_payload(&bs_msg, buffer);
+                if(status == ONS_SUCCESS)
+                {
+                    // fill in the addresses
+                    if(on_build_my_pkt_addresses(&data_pkt_ptrs,
+                      &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
+                    {
+                        break;
+                    }
+                    {
+                        // We need a response if any of the following is true so
+                        // we may temporarily change the chunk size when building
+                        // the packet, then immediately change it back.
+                        UInt32 original_chunk_size = bs_msg.chunk_size;
+                        one_net_status_t status;
+                
+                        // 1. We are near the beginning (first 1000 bytes).
+                        // 2. We are in the last chunk of the transfer.
+                        // 3. We have transferred all the packets in this chunk.
+                        if(bs_msg.byte_idx < 40 ||
+                           (bs_msg.byte_idx + original_chunk_size *
+                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
+                        {
+                            // quick change.  We'll change back immediately after
+                            // the function call.
+                            bs_msg.chunk_size = 1;
+                        }                    
+                        
+                        status = on_build_data_pkt(buffer, ON_APP_MSG,
+                          &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
+                          
+                        // change back if it was changed before.
+                        bs_msg.chunk_size = (UInt8) original_chunk_size;  
+                        
+                        if(status != ONS_SUCCESS)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    // now finish building the packet.
+                    if(on_complete_pkt_build(&data_pkt_ptrs, raw_pid) !=
+                      ONS_SUCCESS)
+                    {
+                        break;                        
+                    }
+                    
+                    bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
+                    on_state++;
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                }
+                else if(status == ONS_CANCELED)
+                {
+                    // TODO -- add cancel code.
+                }
             }
             #ifdef _STREAM_MESSAGES_ENABLED
             else
             {
-                status = one_net_stream_get_next_payload(&bs_msg, buffer,
-                  &ack_nack);
+                // TODO -- get stream packet raw data.
             }
             #endif
             
-        
-            if(status == ON_MSG_CONTINUE)
-            {
-                // fill in the addresses
-                if(on_build_my_pkt_addresses(&data_pkt_ptrs,
-                  &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
-                {
-                    break;
-                }
-                
-                #ifdef _STREAM_MESSAGES_ENABLED
-                if(transfer_type == ON_BLK_TRANSFER)
-                #endif
-                {
-                    // We need a response if any of the following is true so
-                    // we may temporarily change the chunk size when building
-                    // the packet, then immediately change it back.  If we
-                    // are in the first or last 1000 bytes in the transfer,
-                    // we'll change the chunk sizeto 1.
-                    UInt8 original_chunk_size = bs_msg.chunk_size;
-                    one_net_status_t status;
-            
-                    // possible quick change.  We'll change back immediately
-                    // after the function call.
-                    bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
-                    
-                    // If we are sending anything but the last packet, we'll
-                    // reset the timeout timer.  Otherwise we expect a
-                    // response, so we'll reset it when / if we get one.
-                    if(bs_msg.chunk_idx + 1 != bs_msg.chunk_size)
-                    {
-                        ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
-                          bs_msg.timeout));
-                    }
-                        
-                    status = on_build_data_pkt(buffer, ON_APP_MSG,
-                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
-                    // change back if it was changed before.
-                    bs_msg.chunk_size = (UInt8) original_chunk_size;  
-                }
-                #ifdef _STREAM_MESSAGES_ENABLED
-                else
-                {
-                    bs_msg.chunk_idx = 1; //anything non-zero
-                    bs_msg.chunk_idx = 0; // make zero
-                    if(TICK_TO_MS(get_tick_count() -
-                      bs_msg.x.last_response_time) > 5000)
-                    {
-                        bs_msg.chunk_idx = 0; // make it zero. We want response
-                    }
-                    status = on_build_data_pkt(buffer, ON_APP_MSG,
-                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
-                }
-                #endif
-                
-                if(status != ONS_SUCCESS)
-                {
-                    break;
-                }
-                    
-                // now finish building the packet.
-                if(on_complete_pkt_build(&data_pkt_ptrs, raw_pid) !=
-                  ONS_SUCCESS)
-                {
-                    break;
-                }
-                    
-                bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
-                #ifdef _DATA_RATE_CHANNEL
-                one_net_set_channel(bs_msg.channel);
-                one_net_set_data_rate(bs_msg.data_rate);
-                #endif
-                on_state++;
-            }
-            else if(status == ON_MSG_PAUSE)
-            {
-                UInt32 pause_time = bs_msg.chunk_pause;
-                if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
-                {
-                    pause_time = ack_nack.payload->ack_time_ms;
-                }
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(pause_time));
-                on_state = ON_BS_CHUNK_PAUSE;
-                bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
-            }
-            else
-            {
-                terminate_bs_msg(&bs_msg, NULL, status, &ack_nack);
-            }
-
             break;
         }
         #endif
@@ -2187,21 +2094,12 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
         case ON_BS_SEND_CONFIRM_ROUTE:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
-        #endif
         case ON_BS_SEND_DEVICE_PERMISSION:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
-        case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
-        #endif
         case ON_BS_SEND_REPEATER_PERMISSION:
-        #endif
+        case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         case ON_BS_SEND_DATA_PKT:
-        case ON_BS_SEND_TERMINATE_PACKET:
         #endif
         {
             #ifndef _BLOCK_MESSAGES_ENABLED
@@ -2224,15 +2122,6 @@ void one_net(on_txn_t ** txn)
                       TRUE));
                     on_state++;
                 }
-                #ifdef _BLOCK_MESSAGES_ENABLED
-                else if(on_state == ON_BS_SEND_DATA_PKT)
-                {
-                    // TODO -- why are we getting here?
-                    ont_set_timer(ONT_BS_TIMER, 0);
-                    on_state--;  // something happened.  Not sure what.  Re-prepare
-                                 // packet
-                }
-                #endif
             } // if the channel is clear //
             
             break;
@@ -2247,21 +2136,12 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
-        #endif
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
-        #endif
         case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
-        #endif
         case ON_BS_SEND_DATA_WRITE_WAIT:
-        case ON_BS_SEND_TERMINATE_WRITE_WAIT:
         #endif
         {
             // TODO -- add handling for block / stream
@@ -2286,30 +2166,37 @@ void one_net(on_txn_t ** txn)
                     else
                     #endif
                     {
-                        // Chunk sizes are always 1 in the first and last 1000
-                        // bytes of a message.  The get_current_bs_chunk_size()
-                        // function will determine the current chunk size.
-                        // If the current chunk index is 1 less than that value,
-                        // we want a response.  If all packets within a chunk
-                        // have been sent, we need a response.
-                        UInt8 current_chunk_size = get_current_bs_chunk_size(
-                          &bs_msg);
-                        SInt8 new_chunk_idx;
+                        // there is some rounding error when dealing with UInt8,
+                        // so use a UInt32.
+                        UInt32 chunk_size_32 = bs_msg.chunk_size;
+                        UInt8 current_chunk_size = bs_msg.chunk_size;
                         
+                        // We need a response if any of the following is true...
+                        // 1. We are near the beginning (first 1000 bytes).
+                        // 2. We are in the last chunk of the transfer.
+                        // 3. We have transferred all the packets in this chunk.
+                        if(bs_msg.byte_idx < 40 ||
+                           (bs_msg.byte_idx + chunk_size_32 *
+                           ON_BS_DATA_PLD_SIZE >= bs_msg.transfer_size))
+                        {
+                            current_chunk_size = 1;
+                        }
+                        
+                        // add a little debugging
+                        oncli_send_msg(
+                          "Sent block packet byte %ld chunk %d of %d.\n",
+                          bs_msg.byte_idx, bs_msg.chunk_idx, current_chunk_size);
                         block_set_index_sent(bs_msg.chunk_idx, TRUE,
                           bs_msg.sent);
-                          
-                        new_chunk_idx = block_get_lowest_unsent_index(
+                        bs_msg.chunk_idx = block_get_lowest_unsent_index(
                           bs_msg.sent, current_chunk_size);
-                          
-                        if(new_chunk_idx == -1)
+                        if(bs_msg.chunk_idx == -1)
                         {
-                            need_response = (bs_msg.chunk_idx ==
-                              current_chunk_size - 1);
-                            new_chunk_idx = current_chunk_size - 1;
+                            bs_msg.chunk_idx = current_chunk_size - 1;
                         }
-
-                        bs_msg.chunk_idx = new_chunk_idx;
+                        
+                        need_response = (bs_msg.chunk_idx ==
+                          current_chunk_size - 1);
                     }
                     
                     if(need_response)
@@ -2334,10 +2221,10 @@ void one_net(on_txn_t ** txn)
                 }
                 #endif
                 
-                #ifdef _DATA_RATE_CHANNEL
+                #ifdef _DATA_RATE
                 if(dr_channel_stage == ON_DR_CHANNEL_CHANGE_DONE)
                 {
-                    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
+                    ont_set_timer(ONT_DATA_RATE_TIMER,
                         MS_TO_TICK(dormant_data_rate_time_ms));
                 }
                 #endif                
@@ -2393,21 +2280,11 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
-        #ifdef _DATA_RATE_CHANNEL
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
-        #endif
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
-        case ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP:
-        #ifdef _ONE_NET_MULTI_HOP
-        case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
-        #endif
-        #endif
-        #ifdef _ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
-        #endif
+        case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         case ON_BS_WAIT_FOR_DATA_RESP:
-        case ON_BS_WAIT_FOR_TERMINATE_RESP:
         #endif
         case ON_WAIT_FOR_SINGLE_DATA_RESP:
         {
@@ -2438,15 +2315,17 @@ void one_net(on_txn_t ** txn)
                 #ifdef _BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                 {
-                    if(ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
+                    if(ont_inactive_or_expired(ONT_BS_TIMER))
                     {
                         terminate_bs_msg(&bs_msg, NULL, ON_MSG_TIMEOUT, NULL);
                     }
                     else
                     {
-                        // no response, so prepare the next packet, which may
-                        // may or may not be this one.
-                        on_state = ON_BS_PREPARE_DATA_PACKET;
+                        // set for triple the expected response time and send
+                        // again
+                        ont_set_timer(ONT_RESPONSE_TIMER,
+                          MS_TO_TICK(3 * bs_msg.time));
+                        on_state = ON_BS_SEND_DATA_PKT;
                     }
                     
                     break;
@@ -2538,9 +2417,6 @@ void one_net(on_txn_t ** txn)
                     {
                         case ON_MSG_IGNORE:
                             response_msg_or_timeout = FALSE;
-                            break;
-                        case ON_BS_MSG_SETUP_CHANGE:
-                            terminate_txn = TRUE;
                             break;
                         default:
                             terminate_txn = ((*txn)->retry >= ON_MAX_RETRY ||
@@ -2685,20 +2561,6 @@ void one_net(on_txn_t ** txn)
                 {
                     bs_msg.bs_on_state = on_state + 1;
                     on_state -= 3;
-                    if(on_state == ON_BS_TERMINATE)
-                    {
-                        on_state = ON_BS_TERMINATE_COMPLETE;
-                    }
-                    else if(msg_status == ON_BS_MSG_SETUP_CHANGE)
-                    {
-                        // try again with the new parameters.
-                        on_state = ON_BS_FIND_ROUTE;
-                        bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
-                    }
-                    else if(msg_status != ON_MSG_SUCCESS)
-                    {
-                        terminate_bs_msg(&bs_msg, NULL, msg_status, &ack_nack);
-                    }
                 }
                 else
                 #endif
@@ -2712,11 +2574,6 @@ void one_net(on_txn_t ** txn)
             
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
-        
-        #ifdef _BLOCK_MESSAGES_ENABLED
-        case ON_BS_TERMINATE_COMPLETE:
-           terminate_bs_complete(&bs_msg);
-        #endif
     }
 } // one_net //
 
@@ -2941,9 +2798,9 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
       &data_pkt_ptrs, single_msg_ptr->payload,
       &(single_msg_ptr->msg_type), ack_nack);
     
-    if(msg_status == ON_BS_MSG_SETUP_CHANGE)
+    if(msg_status == ON_MSG_ABORT)
     {
-        return ON_BS_MSG_SETUP_CHANGE;
+        return msg_status;
     }
     
     #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
@@ -3249,12 +3106,6 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_IGNORE;
     }
     
-    // we got a response, so reset the data rate change timer to the
-    // timeout
-    #ifdef _DATA_RATE_CHANNEL
-    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(bs_msg->timeout));
-    #endif
-    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg->timeout));
     switch(ack_nack->handle)
     {
         case ON_ACK_SLOW_DOWN_TIME_MS:
@@ -3266,11 +3117,6 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         case ON_ACK_PAUSE_TIME_MS:
           ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
             ack_nack->payload->nack_time_ms));
-        #ifdef _DATA_RATE_CHANNEL
-        // Adjust the data rate timer too.
-        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
-          ack_nack->payload->nack_time_ms + bs_msg->timeout));
-        #endif
           break;
         case ON_ACK_BLK_PKTS_RCVD:
           one_net_memmove(bs_msg->sent, ack_nack->payload->ack_payload,
@@ -3286,8 +3132,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                 case ON_NACK_RSN_INVALID_BYTE_INDEX:
                     bs_msg->byte_idx = ack_nack->payload->nack_value;
                     
-                    if(bs_msg->byte_idx * ON_BS_DATA_PLD_SIZE >=
-                      bs_msg->x.transfer_size)
+                    if(bs_msg->byte_idx >= bs_msg->transfer_size)
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
                           ack_nack);
@@ -3310,6 +3155,112 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         }
     }
     
+    return ON_MSG_IGNORE;
+}
+
+
+on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
+{
+    UInt32 chunk_size_32 = bs_msg->chunk_size;
+    on_message_status_t msg_status;
+    BOOL rcvd_full_chunk;
+    UInt8 expected_chunk_size = 
+      ((bs_msg->byte_idx < 40 || (bs_msg->byte_idx + chunk_size_32 *
+      ON_BS_DATA_PLD_SIZE >= bs_msg->transfer_size)) ? 1 :
+      bs_msg->chunk_size);
+      
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_NACK_VALUE;
+    if(block_pkt->byte_idx != bs_msg->byte_idx)
+    {
+        ack_nack->payload->nack_value = bs_msg->byte_idx;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+        return ON_MSG_RESPOND;
+    }
+    
+    if(block_pkt->chunk_size != expected_chunk_size)
+    {
+        ack_nack->payload->nack_value = expected_chunk_size;
+        ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
+        return ON_MSG_RESPOND;
+    }
+    
+    if(block_pkt->chunk_idx >= expected_chunk_size)
+    {
+        return ON_MSG_IGNORE;
+    }
+    
+    ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
+    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
+    {
+        msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
+          ack_nack);
+        switch(msg_status)
+        {
+            case ON_MSG_ACCEPT_PACKET:
+                block_set_index_sent(bs_msg->chunk_idx, TRUE, bs_msg->sent);
+            case ON_MSG_RESPOND:
+                break;
+            default:
+                return ON_MSG_IGNORE;
+        }
+    }
+
+    if(block_get_lowest_unsent_index(bs_msg->sent, expected_chunk_size) == -1)
+    {
+        // chunk has been received.
+        #if !defined(_ONE_NET_MASTER)
+        msg_status = one_net_client_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        #elif !defined(_ONE_NET_CLIENT)
+        msg_status = one_net_master_block_chunk_received(bs_msg,
+          bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        #else
+        if(device_is_master)
+        {
+            msg_status = one_net_master_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        }
+        else
+        {
+            msg_status = one_net_client_block_chunk_received(bs_msg,
+              bs_msg->byte_idx, expected_chunk_size, ack_nack);
+        }
+        #endif
+        
+        switch(msg_status)
+        {
+            case ON_MSG_ACCEPT_CHUNK:
+                bs_msg->byte_idx += expected_chunk_size;
+                if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+                {
+                    // not really a NACK, but that's OK.  The sending device will now
+                    // sync.
+                    ack_nack->handle = ON_NACK_VALUE;
+                    ack_nack->payload->nack_value = bs_msg->byte_idx;
+                    ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
+                }
+            case ON_MSG_REJECT_CHUNK:
+                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+        }
+    }
+    
+    if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
+    {
+        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
+          sizeof(bs_msg->sent));
+    }
+    
+    return ON_MSG_RESPOND;
+}
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
+  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
+{
     return ON_MSG_IGNORE;
 }
 #endif
@@ -3550,16 +3501,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
     {
-        #ifdef  _BLOCK_MESSAGES_ENABLED
-        if(bs_msg.transfer_in_progress)
-        {
-            ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
-            #ifdef _DATA_RATE_CHANNEL
-            ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER,
-              MS_TO_TICK(bs_msg.timeout));
-            #endif
-        }
-        #endif
         one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);
@@ -3589,17 +3530,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               if(*this_txn != &single_txn)
               #endif
               {
+                  *this_txn = &single_txn; // TODO -- why is this line here for BAD packets?
                   return ONS_UNHANDLED_PKT;
               }
-              #ifdef _BLOCK_MESSAGES_ENABLED
-              else
-              {
-                  one_net_memmove(&(single_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-                    &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-                    ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);                  
-                  *this_txn = &single_txn;
-              }
-              #endif
               break;
             #ifdef _BLOCK_MESSAGES_ENABLED
             case ON_BLOCK:
@@ -4482,7 +4415,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef _DATA_RATE
 /*!
     \brief Sets up a data rate and channel change to occur in the future
     
@@ -4504,7 +4437,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
             If unable or unwilling to schedule the change, a NACK reason is
             returned.
 */
-on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
+on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate)
 {
@@ -4522,7 +4455,7 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
         alternate_channel = new_channel;
         dormant_data_rate_time_ms = dormant_time_ms;
         dr_channel_stage = ON_DR_CHANNEL_CHANGE_SCHEDULED;
-        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(pause_time_ms));
+        ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(pause_time_ms));
         return ON_NACK_RSN_NO_ERROR;
     }
     
@@ -4540,7 +4473,7 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
     }
     
     
-    pld[0] = ON_CHANGE_DATA_RATE_CHANNEL;
+    pld[0] = ON_CHANGE_DATA_RATE;
     pld[1] = new_channel;
     pld[2] = new_data_rate;
     one_net_int16_to_byte_stream(pause_time_ms, &pld[3]);
@@ -4649,47 +4582,6 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
 }
 
 
-/*!
-    \brief Determines whether an invalid message ID should be rejected by a device.
-    
-    Generally, devices which are NOT at risk of a replay attack should not care
-    about bad message IDs.  A very large number of devices would likely not
-    have security concerns and in particular, not be concerned about relay attacks.
-    
-    There are always exceptions, but generally these devices would not be thetarget
-    of replay attacks.
-    
-    1. Devices that control whether a television or stereo or lights is on or off.
-    2. Motion sensors that determine when someone walks into a store.
-    3. Temperature / humidity sensors.
-    
-    
-    The following devices likely WOULD be subject to replay attacks and should reject
-    messages with invalid message ids.
-    
-    1. Garage door openers or any device that opens and closes something that has a lock.
-    2. Any sort of device that is part of an anti-trespassing or other intruder-detection
-       or prevention system.
-    3. Any other device that is part of a security system.
-    
-
-    If a device should reject an invalid message ID, it should have the
-    ON_REJECT_INVALID_MSG_ID bit of its flags set.  Otherwise it should not.
-    
-    
-    Currently the master controls whether this is true and the default setting
-    is determined by whether the ONE_NET_MASTER_REJECT_INVALID_MSG_ID in
-    one_net_mster_port_const.h true or false.
-    
-    
-    TODO -- More fine-tuning of this flag needs to be done.
-
-
-    \param[in] device -- The device that is being checked.
-
-    \return TRUE if the device should reject invalid message IDs
-            FALSE otherwise.
-*/
 BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 {
     #ifdef _ONE_NET_CLIENT
@@ -4751,8 +4643,8 @@ UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate)
 #else
-UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
-  UInt8 data_rate)
+UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
+  UInt8 dst_process_time, UInt8 data_rate)
 #endif 
 {
     // The time between when a message is sent and when the response
@@ -4798,11 +4690,8 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 {
     // TODO -- this function can definitely be improved.  This is a REALLY
     // rough estimate!  It also hasn't really been tested.
-
-    // TODO -- where is this function called?
-
     
-    const UInt32 num_data_packets = bs_msg->x.transfer_size / 25; // 25 payload bytes in packet
+    const UInt32 num_data_packets = bs_msg->transfer_size / 25; // 25 payload bytes in packet
     const UInt32 num_chunks = num_data_packets / bs_msg->chunk_size;
     const UInt8 data_packet_len = 63; // TODO -- use constants.
     const UInt8 ack_packet_len  = 30; // TODO -- use constants.
@@ -4828,36 +4717,66 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 }
 
 
-#if defined(_ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
 /*!
-    \brief Called by a client initiating a block or stream message.  Requests the master's
-           permission to reserve a multi-hop repeater for use as a repeater in
-           its block / stream message.
+    \brief Setting up the recipient list for the destination and any repeaters
+           for a block or stream transfer
     
-    \param[in] bs_msg The block / stream message that the repeater is needed for.
-    \param[in] repeater The repeater that is requested.
-    
-    \return void
+    Setting up the recipient list for the destination and any repeaters
+    for a block or stream transfer
+
+    \param[out] recipient_send_list The list of recipients that this message
+                will go to.
+    \param[in] num_repeaters The number of repeaters in this transaction
+    \param[in] dst The destination of the block transfer
+    \param[in] repeaters The list of repeaters that this message will go to.
 */
+void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
+  recipient_send_list, UInt8 num_repeaters, const on_encoded_did_t* const dst,
+  const on_encoded_did_t* repeaters)
+{
+    UInt8 i;
+    on_did_unit_t dest;
+    dest.unit = ONE_NET_DEV_UNIT;
+     
+    clear_recipient_list(*recipient_send_list);
+    if(dst)
+    {
+        one_net_memmove(dest.did, *dst, ON_ENCODED_DID_LEN);
+        add_recipient_to_recipient_list(*recipient_send_list, &dest);
+    }
+
+    if(!repeaters || num_repeaters == 0)
+    {
+        return;
+    }
+    for(i = 0; i < num_repeaters; i++)
+    {
+        one_net_memmove(dest.did, repeaters[i], ON_ENCODED_DID_LEN);
+        add_recipient_to_recipient_list(*recipient_send_list, &dest);
+    }
+}
+
+
+
+#ifdef _ONE_NET_MULTI_HOP
 on_single_data_queue_t* request_reserve_repeater(
-  const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater)
+  const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
+  const on_encoded_did_t* repeater)
 {
     UInt8 pld[14];
     UInt32 est_transfer_time = estimate_block_transfer_time(bs_msg);
       
     pld[0] = ON_REQUEST_REPEATER;
     one_net_memmove(&pld[1], *repeater, ON_ENCODED_DID_LEN);
-    one_net_memmove(&pld[3], &on_base_param->sid[ON_ENCODED_NID_LEN],
-      ON_ENCODED_DID_LEN);
-    one_net_memmove(&pld[5], bs_msg->dst->did, ON_ENCODED_DID_LEN);
-    
+    one_net_memmove(&pld[3], bs_msg->src, ON_ENCODED_DID_LEN);
+    one_net_memmove(&pld[5], bs_msg->dst, ON_ENCODED_DID_LEN);
     one_net_int32_to_byte_stream(est_transfer_time, &pld[7]);
     pld[11] = bs_msg->channel;
     pld[12] = bs_msg->data_rate;
     pld[13] = get_bs_priority(bs_msg->flags);
  
     return one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld,
-      14, ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
+      14, ONE_NET_HIGH_PRIORITY, NULL, dst
       #ifdef _PEER
           , FALSE,
           ONE_NET_DEV_UNIT
@@ -4873,32 +4792,6 @@ on_single_data_queue_t* request_reserve_repeater(
 #endif
 
 
-/*!
-    \brief Called when a block or stream message is terminated
-    
-    This function may be called either by ONE-NET code or by the application code.
-    It can be called either when this device decides to terminate the block or
-    stream message or when another device had done so.
-    
-    The application level block or stream transaction handler can change the
-    behavior of this function.  It can choose whether to inform other devices
-    to terminate or it can terminate immediately without telling anyone.  Generally
-    it is best to inform the other devices.  ONE-NET will determine whether and
-    how to do so.  Otherwise the other devices may attempt to continue this
-    transaction and fail with no idea why.
-    
-    To allow this default termination behavior to occur, the application-level
-    block / stream transaction handler should return ON_MSG_RESPOND.  To abort
-    immediately, it should return anything OTHER THAN ON_MSG_RESPOND.
-    
-    \param[in] bs_msg The block / stream message that is terminating.
-    \param[in] terminating_did The DID of the device terminating the block / stream message.
-                               If NULL, then this device is the device terminating.
-    \param[in] status The reason for the termination (i.e. cancelled, successful, timeout)
-    \param[in/out] ack_nack The reason and payload attached to the termination, if any.
-    
-    \return void
-*/
 void terminate_bs_msg(block_stream_msg_t* bs_msg,
   const on_encoded_did_t* terminating_did, on_message_status_t status,
   on_ack_nack_t* ack_nack)
@@ -4953,7 +4846,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
       ON_ENCODED_NID_LEN);
     if(terminating_did)
     {
-        one_net_memmove(&bs_txn.pkt[1], *terminating_did, ON_ENCODED_DID_LEN);
+        one_net_memmove(bs_txn.pkt, *terminating_did, ON_ENCODED_DID_LEN);
     }
     bs_txn.pkt[ON_ENCODED_DID_LEN+1] = status;
     response_ack_nack->nack_reason = ack_nack->nack_reason;
@@ -5012,11 +4905,11 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef _DATA_RATE
 static void check_dr_channel_change(void)
 {
     // see if we need to possible change data rates.
-    if(ont_inactive_or_expired(ONT_DATA_RATE_CHANNEL_TIMER))
+    if(ont_inactive_or_expired(ONT_DATA_RATE_TIMER))
     {
         UInt8 new_data_rate = ONE_NET_DATA_RATE_38_4;
         UInt8 new_channel = on_base_param->channel;
@@ -5026,14 +4919,14 @@ static void check_dr_channel_change(void)
                 // Change to the alternate channel and data rate
                 new_data_rate = alternate_data_rate;
                 new_channel = alternate_channel;
-                ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
+                ont_set_timer(ONT_DATA_RATE_TIMER, MS_TO_TICK(
                   dormant_data_rate_time_ms));
                 // intentional fall-through           
             case ON_DR_CHANNEL_CHANGE_DONE:
                 one_net_set_channel(new_channel);
                 one_net_set_data_rate(new_data_rate);
                 dr_channel_stage++;
-                one_net_data_rate_channel_changed(new_channel, new_data_rate);
+                one_net_data_rate_changed(new_channel, new_data_rate);
                 // intentional fall-through
             default:
                 break;
@@ -5068,164 +4961,16 @@ static BOOL check_for_clr_channel(void)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-/*!
-    \brief Receives a block data packet.
-
-    This function is called when this device is the destination in a block
-    transfer.  This function will either reject or accept a packet, pass it to
-    the application code if it looks like it should be accepted, and send a
-    response to the source device if needed.
-
-    \param[in] txn The transactionbeing carried out.
-    \param[in/out] bs_msg The block message associated with this packet.
-    \param[in] block_pkt The block data packet received fom the source, including indexes and the data itself.
-    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
-
-    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
-            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
-            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
-            NOT returned, no response will be sent.
-*/
-static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
-{
-    on_message_status_t msg_status;
-      
-    if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
-    {
-        goto bs_build_terminate_ack;
-    }
-      
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_NACK_VALUE;
-    if(block_pkt->byte_idx != bs_msg->byte_idx)
-    {
-        ack_nack->payload->nack_value = bs_msg->byte_idx;
-        ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
-        return ON_MSG_RESPOND;
-    }
-    
-    if(block_pkt->chunk_size > bs_msg->chunk_size)
-    {
-        ack_nack->payload->nack_value = bs_msg->chunk_size;
-        ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
-        return ON_MSG_RESPOND;
-    }
-    
-    ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
-    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
-    {
-        msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
-          ack_nack);
-        switch(msg_status)
-        {
-            case ON_MSG_TERMINATE: case ON_MSG_ABORT:
-                terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
-                goto bs_build_terminate_ack;
-            case ON_MSG_ACCEPT_PACKET:
-                block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
-                // reset the timeout timer since we received a packet.
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
-            case ON_MSG_RESPOND:
-                break;
-            default:
-                return ON_MSG_IGNORE;
-        }
-    }
-
-    if(block_get_lowest_unsent_index(bs_msg->sent, block_pkt->chunk_size) == -1)
-    {
-        // chunk has been received.
-        #if !defined(_ONE_NET_MASTER)
-        msg_status = one_net_client_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        #elif !defined(_ONE_NET_CLIENT)
-        msg_status = one_net_master_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        #else
-        if(device_is_master)
-        {
-            msg_status = one_net_master_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        }
-        else
-        {
-            msg_status = one_net_client_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
-        }
-        #endif
-        
-        switch(msg_status)
-        {
-            case ON_MSG_ACCEPT_CHUNK:
-                bs_msg->byte_idx += block_pkt->chunk_size;
-                if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
-                {
-                    // not really a NACK, but that's OK.  The sending device will now
-                    // sync.
-                    ack_nack->handle = ON_NACK_VALUE;
-                    ack_nack->payload->nack_value = bs_msg->byte_idx;
-                    ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
-                }
-            case ON_MSG_REJECT_CHUNK:
-                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
-        }
-    }
-    
-    if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
-    {
-        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
-          sizeof(bs_msg->sent));
-    }
-    
-    return ON_MSG_RESPOND;
-    
-bs_build_terminate_ack:
-    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
-    ack_nack->handle = ON_ACK_ADMIN_MSG;
-    one_net_memmove(ack_nack->payload->admin_msg, bs_txn.pkt, 11);
-    return ON_MSG_RESPOND;
-}
-
-
 static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 {
     // abort immediately
     on_state = ON_LISTEN_FOR_DATA;
-    bs_msg->bs_on_state = ON_LISTEN_FOR_DATA;
     bs_msg->transfer_in_progress = FALSE;
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef _DATA_RATE
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
     one_net_set_channel(on_base_param->channel);
-    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, 0);
+    ont_set_timer(ONT_DATA_RATE_TIMER, 0);
     #endif
-}
-#endif
-
-
-#ifdef _STREAM_MESSAGES_ENABLED
-/*!
-    \brief Receives a stream data packet.
-
-    This function is called when this device is the destination in a stream
-    transfer.  This function will either reject or accept a packet, pass it to
-    the application code if it looks like it should be accepted, and send a
-    response to the source device if needed.
-
-    \param[in] txn The transactionbeing carried out.
-    \param[in/out] bs_msg The stream message associated with this packet.
-    \param[in] block_pkt The stream data packet received fom the source.
-    ]param[out] ack_nack Filled in by this function. This is the response, if any, to the source device.
-
-    \return ONS_RESPOND if the device should send a response.  No response will be sent otherwise.
-            Note that ONS_RESPOND does not GUARANTEE a response will be sent.  More processing is done
-            outside of this function that may cause the device to NOT respond.  However if ONS_RESPOND is
-            NOT returned, no response will be sent.
-*/
-static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
-{
-    return ON_MSG_IGNORE;
 }
 #endif
 
