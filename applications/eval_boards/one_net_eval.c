@@ -1676,6 +1676,26 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
 
   
 #ifdef _STREAM_MESSAGES_ENABLED
+on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer, on_ack_nack_t* ack_nack)
+{
+    // Just fill with the current number of milliseconds since we booted
+    // for the first four bytes, then add one for each byte after that. Just
+    // making an easy to read buffer for easy testing purposes.  Don't worry about
+    // the last byte.
+    UInt32 time_ms = TICK_TO_MS(get_tick_count());
+    UInt8 i;
+    for(i = 0; i < 7; i++)
+    {
+        one_net_int32_to_byte_stream(time_ms, buffer);
+        time_ms++;
+        buffer += sizeof(UInt32);
+    }
+    
+    return ON_MSG_CONTINUE;
+}
+
+
 /*!
     \brief Handles the received stream packet.
 	
@@ -1691,7 +1711,19 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
 on_message_status_t eval_handle_stream(on_txn_t* txn,
   block_stream_msg_t* bs_msg, stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
-    // TODO -- print the packet
+    UInt8 i;
+    UInt8* buf = stream_pkt->data;
+    UInt32 time_ms = one_net_byte_stream_to_int32(buf);
+    oncli_send_msg("Time:%ld ms:", stream_pkt->time);
+    for(i = 0; i < 7; i++)
+    {
+        oncli_send_msg("%ld", one_net_byte_stream_to_int32(buf));
+        buf += sizeof(UInt32);
+        if(i < 6)
+        {
+            oncli_send_msg(",");
+        }
+    }
     return ON_MSG_RESPOND;
 }
 #endif

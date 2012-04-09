@@ -404,18 +404,37 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 /*!
     \brief Retrieves the next block payload to send
     
-    \param[in] bs_msg The parameters of the requested block or stream transfer,
+    \param[in] bs_msg The parameters of the requested block transfer,
                which includes the packet index we want.
     \param[out] buffer Buffer containing the bytes to send in the next packet
     \param[out] ack_nack The ack / nack associated with the termination, if any.
                 
     \return ON_MSG_PAUSE to pause the block/stream transfer.  If no time is specified, the chunk pause will be used.  Otherwise, the
-                of the ack_nack parameter should be set to ON_ACK_PAUSE_TIME_MS and ack_nack->payload->ack_time_ms should
+                the ack_nack parameter should be set to ON_ACK_PAUSE_TIME_MS and ack_nack->payload->ack_time_ms should
                 be set to the time in milliseconds to pause.  Returning ON_MSG_PAUSE will cause the state to go to ON_BS_CHUNK_PAUSE.
             ON_MSG_CONTINUE if the buffer to send is acceptable and has been loaded.
             Any other value will terminate the message. This return value will be sent to any devices receiving this termination message.
 */
 on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer, on_ack_nack_t* ack_nack);
+#endif
+
+
+#ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Retrieves the next stream payload to send
+    
+    \param[in] bs_msg The parameters of the requested block or stream transfer,
+    \param[out] buffer Buffer containing the bytes to send in the next packet
+    \param[out] ack_nack The ack / nack associated with the termination, if any.
+                
+    \return ON_MSG_PAUSE to pause the block/stream transfer.  If no time is specified, the chunk pause will be used.  Otherwise, the
+                the ack_nack parameter should be set to ON_ACK_PAUSE_TIME_MS and ack_nack->payload->ack_time_ms should
+                be set to the time in milliseconds to pause.  Returning ON_MSG_PAUSE will cause the state to go to ON_BS_CHUNK_PAUSE.
+            ON_MSG_CONTINUE if the buffer to send is acceptable and has been loaded.
+            Any other value will terminate the message. This return value will be sent to any devices receiving this termination message.
+*/
+on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer, on_ack_nack_t* ack_nack);
 #endif
 
