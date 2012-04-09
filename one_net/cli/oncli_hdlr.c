@@ -3076,7 +3076,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     ptr = end_ptr + 1;
     
-    bs_msg.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
+    bs_msg.x.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != ':')
     {
         return ONCLI_PARSE_ERR;
@@ -3134,7 +3134,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
                 
         if(on_master_get_default_block_transfer_values(NULL, dst_client,
-          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
@@ -3150,7 +3150,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!device_is_master)
     {
         if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
-          bs_msg.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {

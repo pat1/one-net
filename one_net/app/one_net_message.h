@@ -478,15 +478,21 @@ enum
 };
 
 
+// Just a short union to get things to compile a little better since anonymous unions are not allowed.
+typedef union
+{
+    UInt32 transfer_size; // for block
+    tick_t last_response_time; // for stream
+} z1;
+
+
 typedef struct
 {
     // note -- repeaters will not be interested in many of these attributes
     UInt8 bs_on_state;
     BOOL transfer_in_progress;
     UInt8 flags;
-    UInt32 transfer_size; // also used for the time in a stream transaction
-                          // TODO -- make it a union or a different variable
-                          // instead?
+    z1 x;
     UInt8 chunk_size;
     UInt16 frag_dly;
     UInt16 chunk_pause;

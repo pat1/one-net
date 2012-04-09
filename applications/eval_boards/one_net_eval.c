@@ -1627,7 +1627,7 @@ on_message_status_t eval_block_chunk_received(
             break;
         }
         
-        remaining = block_get_bytes_remaining(bs_msg->transfer_size, byte_idx,
+        remaining = block_get_bytes_remaining(bs_msg->x.transfer_size, byte_idx,
           i);
         uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], remaining <
           ON_BS_DATA_PLD_SIZE ? remaining : ON_BS_DATA_PLD_SIZE);
@@ -1683,7 +1683,7 @@ on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
     // for the first four bytes, then add one for each byte after that. Just
     // making an easy to read buffer for easy testing purposes.  Don't worry about
     // the last byte.
-    UInt32 time_ms = TICK_TO_MS(get_tick_count);
+    UInt32 time_ms = TICK_TO_MS(get_tick_count());
     UInt8 i;
     for(i = 0; i < 7; i++)
     {
