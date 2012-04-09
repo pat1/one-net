@@ -170,9 +170,9 @@ const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
 	const char * const ONCLI_SAVE_CMD_STR = "save";
 #endif
 
-#ifdef _ENABLE_SET_DATA_RATE_COMMAND
-    //! Sets the data rate of a device
-    const char * const ONCLI_SET_DATA_RATE_CMD_STR = "set data rate";
+#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+    //! Sets the data rate and channel of a device
+    const char * const ONCLI_SET_DR_CHANNEL_CMD_STR = "set dr_channel";
 #endif
 
 #ifdef _ENABLE_USER_PIN_COMMAND
@@ -520,7 +520,6 @@ const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
 const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
 const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
 #endif
-const char* const ONCLI_M_UPDATE_RESULT_REPORT_TO_MASTER_STR = "REPORT TO MASTER";
 #ifdef _BLOCK_MESSAGES_ENABLED
 const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR = "FRAGMENT DELAY(S)";
 #endif

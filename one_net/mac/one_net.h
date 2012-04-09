@@ -102,19 +102,19 @@
 enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
-    ONE_NET_VERSION_MINOR =     1,  //! ONE-NET minor version number
+    ONE_NET_VERSION_MINOR =     2,  //! ONE-NET minor version number
     ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     104 //! ONE-NET build version number
+    ONE_NET_VERSION_BUILD =     105 //! ONE-NET build version number
 };
 
 
 enum
 {
     //! The ONE-NET version
-    ON_VERSION = 0x07,
+    ON_VERSION = 0x08,
 
     //! The version of the parameter structures
-    ON_PARAM_VERSION = 0x06,
+    ON_PARAM_VERSION = 0x07,
 
     //! The version of the MASTER Invite New CLIENT packet.
     ON_INVITE_PKT_VERSION = 0x01,
@@ -210,8 +210,10 @@ typedef enum
     //! Waits for a response to a find route packet
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
+    
+    #ifdef _DATA_RATE_CHANNEL
     //! State used when changing a data rate and channel for block / stream
-    ON_BS_CHANGE_DR_CHANNEL,//44
+    ON_BS_CHANGE_DR_CHANNEL,
     
     //! State used when changing a data rate and channel for block / stream
     //! and sending a message
@@ -227,7 +229,9 @@ typedef enum
     
     //! State used after the destination and repeaters have changed channels and
     //! before this device has.
-    ON_BS_CHANGE_MY_DATA_RATE,//48
+    ON_BS_CHANGE_MY_DR_CHANNEL,
+    #endif
+    
     
     //! State used when confirming a route for a block / stream trans.
     ON_BS_CONFIRM_ROUTE,
@@ -239,7 +243,8 @@ typedef enum
     ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT,
     
     //! Waits for a response to a confirm route packet
-    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,//4C
+    ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP,
+
 
     //! Ask the device for permission
     ON_BS_DEVICE_PERMISSION,
@@ -251,43 +256,15 @@ typedef enum
     ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT,
     
     //! Wait for response from device
-    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,//50
+    ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,
     
-    //! Ask the master for device permission
-    ON_BS_MASTER_DEVICE_PERMISSION,
     
-    //! Send master device permission packet
-    ON_BS_SEND_MASTER_DEVICE_PERMISSION,
-    
-    //! Wait for write to complete
-    ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
-    
-    //! Wait for response from master
-    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,//54
-    
-    //! Start state of requesting repeaters from master
-    ON_BS_MASTER_REPEATER_PERMISSION_START,
-    
-    //! Ask the master for repeater permission
-    ON_BS_MASTER_REPEATER_PERMISSION,
-    
-    //! Send master repeater permission packet
-    ON_BS_SEND_MASTER_REPEATER_PERMISSION,
-    
-    //! Wait for write to complete
-    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,//58
-    
-    //! Wait for response from master
-    ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
-    
-    //! End state of requesting repeaters from master
-    ON_BS_MASTER_REPEATER_PERMISSION_END,
-    
+    #ifdef _ONE_NET_MULTI_HOP
     //! Start state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_START,
         
     //! Ask the master for repeater permission
-    ON_BS_REPEATER_PERMISSION,//5C
+    ON_BS_REPEATER_PERMISSION,
     
     //! Send master repeater permission packet
     ON_BS_SEND_REPEATER_PERMISSION,
@@ -301,6 +278,44 @@ typedef enum
     //! End state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_END,
     
+    
+    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    //! Start state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_START,
+    
+    //! Ask the master for repeater permission
+    ON_BS_MASTER_REPEATER_PERMISSION,
+    
+    //! Send master repeater permission packet
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP,
+    
+    //! End state of requesting repeaters from master
+    ON_BS_MASTER_REPEATER_PERMISSION_END,
+    #endif
+    #endif
+    
+    
+    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    //! Ask the master for device permission
+    ON_BS_MASTER_DEVICE_PERMISSION,
+    
+    //! Send master device permission packet
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION,
+    
+    //! Wait for write to complete
+    ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT,
+    
+    //! Wait for response from master
+    ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP,
+    #endif
+    
+
     //! Block or stream transaction ready to commence
     ON_BS_COMMENCE,
     
@@ -350,10 +365,26 @@ typedef enum
 } on_state_t;
 
 
+//! Relevant only for non-simple clients.  This structure controls whether a client device can
+//! "slide off"(i.e. be replaced by another device) of a client's device list.  If the flag is
+//! set to ON_DEVICE_ALLOW_SLIDEOFF, it can be replaced.  If its value is ON_DEVICE_PROHIBIT_SLIDEOFF
+//! or ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, it cannot.
+typedef enum
+{
+    ON_DEVICE_ALLOW_SLIDEOFF, //! Set if the device should be allowed to "slide off" the list.
+    ON_DEVICE_PROHIBIT_SLIDEOFF, //! Set if the device should not be allowed to "slide off" the list.
+    ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, //! Set if the device should not be allowed to "slide off" the list and
+                                      //! is "locked".  This can be unlocked with a call to on_client_unlock_device_slideoff()
+} device_slideoff_t;
+
+
 typedef struct
 {
     on_sending_device_t sender;     //!< did, etc. from sender.
-    UInt8 lru;                      //!< least recently used value   
+    #ifndef _ONE_NET_SIMPLE_CLIENT
+    UInt8 lru;                      //!< least recently used value
+    device_slideoff_t slideoff;    //!< Whether the device can "slide off" the list when the list gets full.
+    #endif
 } on_sending_dev_list_item_t;
 
 
@@ -731,7 +762,7 @@ extern tick_t route_start_time;
 extern block_stream_msg_t bs_msg;
 #endif
 
-#ifdef _DATA_RATE
+#ifdef _DATA_RATE_CHANNEL
 extern dr_channel_stage_t dr_channel_stage;
 extern UInt16 dormant_data_rate_time_ms;
 extern UInt8 next_data_rate;
@@ -843,14 +874,6 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack);
-#ifdef _BLOCK_MESSAGES_ENABLED
-on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
-#endif
-#ifdef _STREAM_MESSAGES_ENABLED
-on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
-  stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
-#endif
 #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes);
@@ -890,8 +913,8 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 #endif
 
 
-#ifdef _DATA_RATE
-on_nack_rsn_t one_net_change_data_rate(const on_encoded_did_t* enc_did,
+#ifdef _DATA_RATE_CHANNEL
+on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate);
 #endif
@@ -906,13 +929,9 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg);
-void one_net_block_stream_setup_recipient_list(on_recipient_list_t**
-  recipient_send_list, UInt8 num_repeaters, const on_encoded_did_t* const dst,
-  const on_encoded_did_t* repeaters);
-#ifdef _ONE_NET_MULTI_HOP
+#if defined(_ONE_NET_MULTI_HOP) && defined(_ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
 on_single_data_queue_t* request_reserve_repeater(
-  const block_stream_msg_t* bs_msg, const on_encoded_did_t* dst,
-  const on_encoded_did_t* repeater);
+  const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater);
 #endif
 
 // TODO -- Do we really want to require block messages for this function?
@@ -921,8 +940,8 @@ UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate);
 #else
-UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
-  UInt8 dst_process_time, UInt8 data_rate);
+UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
+  UInt8 data_rate);
 #endif
 
 void terminate_bs_msg(block_stream_msg_t* bs_msg,

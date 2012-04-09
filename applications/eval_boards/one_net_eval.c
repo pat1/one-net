@@ -55,7 +55,6 @@
 //! @{
 
 
-
 //! @} ONE-NET_eval_typedefs
 //                                  TYPEDEFS END
 //=============================================================================
@@ -178,7 +177,12 @@ UInt8 user_pin_src_unit;
 //! \defgroup ONE-NET_eval_pri_var
 //! \ingroup ONE-NET_eval
 //! @{
-  
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+//! Buffer to hold block (and possibly stream) values.
+static char bs_buffer[DEFAULT_BS_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
+#endif
 
 
 //! @} ONE-NET_eval_pri_var
@@ -648,6 +652,35 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(bs_msg.transfer_in_progress && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
+    {
+        // Check a few things and see if we need to try again with different
+        // parameters.
+        BOOL parameter_change = TRUE;
+        switch(resp_ack_nack->nack_reason)
+        {
+            case ON_NACK_RSN_INVALID_CHUNK_DELAY:
+                bs_msg.chunk_pause = resp_ack_nack->payload->nack_value;
+                break;
+            case ON_NACK_RSN_INVALID_FRAG_DELAY:
+                bs_msg.frag_dly = resp_ack_nack->payload->nack_value;
+                break;
+            case ON_NACK_RSN_INVALID_CHUNK_SIZE:
+                bs_msg.chunk_size = resp_ack_nack->payload->nack_value;
+                oncli_send_msg("bad cs:%d\n", bs_msg.chunk_size);
+                break;
+            default:
+                parameter_change = FALSE;
+        }
+        
+        if(parameter_change)
+        {
+            return ON_BS_MSG_SETUP_CHANGE;
+        }
+    }
+    #endif  
+    
     #if 0
     // just to prove we can pause and change the response timeout.
     if(resp_ack_nack->nack_reason == ON_NACK_RSN_NO_RESPONSE)
@@ -847,6 +880,23 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
 #endif
 
 
+/*!
+    \brief The status of a single transaction.
+
+    Callback to report the status of sending an application single data packet.
+
+    \param[in] status The status of the transaction.
+    \param[in] retry_count The number of times that the packet had to be sent.
+    \param[in] msg_hdr message id, message type, and pid of the message.
+    \param[in] data The data that was sent.
+    \param[in] dst The raw did of where the packet was sent.
+    \param[in] ack_nack The reason for failure, if relevant.  A response
+               payload, if relevant.
+    \param[in] hops Number of hops it took to deliver the message, if
+               known and relevant.  Negative number implies unknown or
+               not relevant / reliable.
+    \return void
+*/
 #ifndef _ONE_NET_MULTI_HOP
 void eval_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
@@ -988,8 +1038,8 @@ void eval_single_txn_status(on_message_status_t status,
 
     \param[in] msg The block / stream message that is being terminated.
     \param[in] terminating_device The device that terminated this transaction.
-    \param[in] status The status of the message that was just completed.
-    \param[in] ack_nack Any ACK or NACK associated with this termination.
+    \param[in/out] status The status of the message that was just completed.
+    \param[in/out] ack_nack Any ACK or NACK associated with this termination.
     
     \return ON_MSG_RESPOND if this device should inform the other devices
               of the termination.
@@ -1021,7 +1071,7 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
           &bs_msg.dst->did);
         on_raw_did_t raw_did;        
         on_decode(raw_did, *other_device, ON_ENCODED_DID_LEN);
-        oncli_send_msg("%s message with %03X %s.\n", transfer_type,
+        oncli_send_msg("\n%s message with %03X %s.\n", transfer_type,
           did_to_u16(&raw_did), result_str);
     }
     #endif
@@ -1465,8 +1515,8 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
-#ifdef _DATA_RATE
-void one_net_data_rate_changed(UInt8 new_channel, UInt8 new_data_rate)
+#ifdef _DATA_RATE_CHANNEL
+void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 {
     oncli_send_msg("Changed to data rate %s, channel ",
       DATA_RATE_STR[new_data_rate]);
@@ -1494,18 +1544,6 @@ void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 
 void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 {
-    // TODO -- where is ONT_BS_TIMER being set and why is this timer being
-    // used for this?
-    
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_DATA_RATE)
-    if(bs_msg.transfer_in_progress && msg->msg_type == ON_ADMIN_MSG
-      && msg->payload[0] == ON_CHANGE_DATA_RATE)
-    {
-        // change the pause so everyone gets in at once.  The pause is byte 3
-        // and the units are in tenths of a second
-        msg->payload[3] = TICK_TO_MS(ont_get_timer(ONT_BS_TIMER)) / 100;
-    }
-    #endif
 }
 #endif
 
@@ -1514,11 +1552,25 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
+    if(!bs_msg->dst)
+    {
+        if(bs_msg->chunk_size > DEFAULT_BS_CHUNK_SIZE)
+        {
+            // make sure we can handle the chunk size.
+            ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
+            ack_nack->handle = ON_NACK_VALUE;
+            ack_nack->payload->nack_value = DEFAULT_BS_CHUNK_SIZE;
+            return;
+        }        
+        
+        // we are the recipient, so clear.
+        one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
+    }
 }
 #endif
 
 
-// negative value means no valid alternate channel could be found.
+#ifdef _DATA_RATE_CHANNEL
 SInt8 one_net_get_alternate_channel(void)
 {
     // TODO -- We need to find a much better way to get alternate channels.
@@ -1534,23 +1586,18 @@ SInt8 one_net_get_alternate_channel(void)
         }
     }
 }
+#endif
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-one_net_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
-  UInt8* buffer)
+on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
+  UInt8* buffer, on_ack_nack_t* ack_nack)
 {
     // just a quick load function for testing.  Loads with values from 'a'
     // to 'y' depending on the packet index.
-    one_net_memset(buffer, 'a' + (bs_msg->byte_idx % 25), ON_BS_DATA_PLD_SIZE);
-    return ONS_SUCCESS;
-}
-
-
-one_net_status_t one_net_terminate_block_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack)
-{
-    oncli_send_msg("Block transaction cancelled\n");
+    one_net_memset(buffer, 'a' + ((bs_msg->byte_idx + bs_msg->chunk_idx) % 25),
+      ON_BS_DATA_PLD_SIZE);
+    return ON_MSG_CONTINUE;
 }
 
 
@@ -1570,8 +1617,22 @@ on_message_status_t eval_block_chunk_received(
   block_stream_msg_t* bs_msg, UInt32 byte_idx, UInt8 chunk_size,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- display the chunk
-    oncli_send_msg("Rcvd Chunk %ld-%d\n", byte_idx, chunk_size);
+    UInt16 i;
+    for(i = 0; i < chunk_size; i++)
+    {
+        UInt32 remaining;
+        if(i >= DEFAULT_BS_CHUNK_SIZE)
+        {
+            // should never get here.
+            break;
+        }
+        
+        remaining = block_get_bytes_remaining(bs_msg->transfer_size, byte_idx,
+          i);
+        uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], remaining <
+          ON_BS_DATA_PLD_SIZE ? remaining : ON_BS_DATA_PLD_SIZE);
+    }
+    one_net_memset(bs_buffer, 0, sizeof(bs_buffer));
     return ON_MSG_ACCEPT_CHUNK;
 }
 
@@ -1592,23 +1653,29 @@ on_message_status_t eval_block_chunk_received(
 on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    #ifndef _STREAM_MESSAGES_ENABLED
-    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
-    #else
-    print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
+    #if _DEBUG_VERBOSE_LEVEL > 3
+    if(verbose_level > 3)
+    {
+        #ifndef _STREAM_MESSAGES_ENABLED
+        print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
+        #else
+        print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
+        #endif
+    }
     #endif
+    
+    // TODO -- what if chunk index is too high?
+    if(block_pkt->chunk_idx < DEFAULT_BS_CHUNK_SIZE)
+    {
+        one_net_memmove(&bs_buffer[ON_BS_DATA_PLD_SIZE * block_pkt->chunk_idx],
+          block_pkt->data, ON_BS_DATA_PLD_SIZE);
+    }
+    
     return ON_MSG_ACCEPT_PACKET;
 }
 
   
 #ifdef _STREAM_MESSAGES_ENABLED
-one_net_status_t one_net_terminate_stream_txn(block_stream_msg_t* bs_msg,
-  on_ack_nack_t* ack_nack)
-{
-    oncli_send_msg("Stream transaction cancelled\n");
-}
-
-
 /*!
     \brief Handles the received stream packet.
 	

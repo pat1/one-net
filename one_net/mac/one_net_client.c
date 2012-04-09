@@ -144,7 +144,7 @@ on_master_t * const master
 
 //! The ONE_NET_RX_FROM_DEVICE_COUNT devices that have most recently sent data
 //! to this device.
-on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
+on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT] = {0};
 
 //! Set to true upon being deleted from the network.  There will be a slight
 //! two second pause before this device actually removes itself to give any
@@ -197,7 +197,10 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
-
+#ifndef _ONE_NET_SIMPLE_CLIENT
+static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
+  const on_encoded_did_t* DID);
+#endif
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
 #ifndef _ONE_NET_SIMPLE_CLIENT
@@ -235,6 +238,98 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 //! \defgroup ONE-NET_CLIENT_pub_func
 //! \ingroup ONE-NET_CLIENT
 //! @{
+    
+    
+#ifndef _ONE_NET_SIMPLE_CLIENT
+/*!
+    \brief Sets the "slideoff" flag in the client device list for a device.
+    
+    See the comments for the on_client_unlock_device_slideoff() function for
+    more information.
+    
+    To prevent internal errors, replay attacks, and any other problems resulting
+    from a client being bumped off of the client device list, a flag can be
+    set to retain that client's position in the list.  If this flag is set, the device
+    will not be removed from the list if a new device needs to be placed on the list.
+    The flag is the "slideoff" element of the "on_sending_dev_list_item_t" structure.
+    
+    That flag can be one of three values.  See the "device_slideoff_t" structure for
+    more details on the values of this flag.  This function sets that flag.
+    
+    If the flag is already set to ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, this function does
+    nothing.  If the device is not already on the table, this function does nothing.
+    Otherwise the "slideoff" flag is set to the parameter passed to this function.
+
+    \param[in] enc_did The DID of the device.
+    \param[in] slideoff The value to set the device's slideoff flag to.
+
+    \return none
+*/
+void on_client_set_device_slideoff(on_encoded_did_t* enc_did, device_slideoff_t
+  slideoff)
+{
+    on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
+    
+    // if the devide's flag is "locked", you must call on_client_unlock_device_slideoff()
+    // to unlock.
+    if(!item || item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
+    {
+        return;
+    }
+    
+    item->slideoff = slideoff;
+}
+
+
+/*!
+    \brief Removes a "lock" on a device in the client's device list.  This
+    function should be called only from the application code.
+
+    To prevent internal errors, replay attacks, and any other problems resulting
+    from a client being bumped off of the client device list, a "lock" can be
+    placed on that client's position in the list.  Examples of when it is important
+    for a device to not be allowed to slide off of the device list are...
+    
+    1. We are in the middle of a transaction (generally a block or stream transaction)
+       and a pointer has been set somewhere to point to another device.  If the device
+       falls off of the list, that pointer may no longer be valid.
+    2. We expect to communicate with this device a lot and we don't want to have to
+       "re-sync" with it to get its features, the number of hops, etc.
+    3. Security concerns involving replay attacks.  When a device falls off of the
+       list, its pairwise message id is no longer stored and it is therefore more vulnerable
+       to replay attacks because it may not recognize that a message id is being re-used.
+       
+    This function "unlocks" a lock that has already been placed on it.  If no "lock" is on
+    the device, the function has no effect except that it might rearrange the
+    least-recent-used values.  To actually set the flag so that the device can
+    "slide off", a subsequent call to the on_client_set_device_slideoff() function must
+    be called with a parameter of ON_DEVICE_ALLOW_SLIDEOFF.
+    
+    To LOCK a device, this function should not be called.  Instead, call
+    on_client_set_device_slideoff() and pass it the ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK
+    parameter.
+    
+    Note that the master will never slide off the devicelist under any circumstances.
+    
+    Also note that devices requiring high levels of protection against replay attacks
+    should be locked by the application code and remain locked.  Developers should, if
+    the device has enough RAM, make the device list large enough so that devices will never
+    fall off.
+    
+
+    \param[in] enc_did The DID of the device to unlock.
+
+    \return none
+*/
+void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
+{
+    on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
+    if(item && item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
+    {
+        item->slideoff = ON_DEVICE_PROHIBIT_SLIDEOFF;
+    }
+}
+#endif
 
 /*!
     \brief Initializes a CLIENT to start looking for an invite message.
@@ -701,7 +796,8 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             return *nr;
         }
-        
+
+        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -713,7 +809,6 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
         }
         
         // See if we are to switch data rates
-        #ifdef _DATA_RATE
         if(master->flags & ON_BS_ELEVATE_DATA_RATE)
         {
             if(!dst_features_known)
@@ -745,18 +840,57 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
 }
 
 
-on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* txn,
-  UInt8 priority, on_ack_nack_t* ack_nack)
+on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
+  on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
+    *nr = ON_NACK_RSN_NO_ERROR;
+    
     if(bs_msg.transfer_in_progress)
     {
         *nr = ON_NACK_RSN_BUSY;
     }
     else
     {
-        *nr = ON_NACK_RSN_NO_ERROR;
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));  
+        
+        if(!msg->dst)
+        {
+            *nr = ON_NACK_RSN_INTERNAL_ERR;
+            return *nr;
+        }
+        
+        if(!features_data_rate_capable(THIS_DEVICE_FEATURES,
+          bs_msg.data_rate))
+        {
+            *nr = ON_NACK_RSN_INVALID_DATA_RATE;
+            return *nr;
+        }        
+        
+        if(features_known(bs_msg.dst->features))
+        {
+            if(!features_block_capable(bs_msg.dst->features))
+            {
+                *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
+            }
+        
+            if(!features_data_rate_capable(bs_msg.dst->features,
+              bs_msg.data_rate))
+            { 
+                *nr = ON_NACK_RSN_INVALID_DATA_RATE;
+            }
+        }
+        
+        set_bs_transfer_type(&bs_msg.flags, ON_BLK_TRANSFER);
+        bs_msg.src = NULL;
+        bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
+        ont_set_timer(ONT_BS_TIMER, 0);
+    }
+    
+    if(*nr == ON_NACK_RSN_NO_ERROR)
+    {
+        bs_msg.transfer_in_progress = TRUE;
     }
     return *nr;
 }
@@ -806,6 +940,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
             return *nr;
         }
         
+        #ifdef _DATA_RATE_CHANNEL
         // See if we are to switch channels.
         if(master->flags & ON_BS_CHANGE_CHANNEL)
         {
@@ -829,6 +964,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
                   THIS_DEVICE_FEATURES, device->features);
             }
         }
+        #endif
     }
 
     *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
@@ -837,9 +973,10 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
 }
 
 
-on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* txn,
+on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack)
 {
+    // TODO -- write this.
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     if(bs_msg.transfer_in_progress)
@@ -1215,7 +1352,16 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     msg_hdr.msg_type = *msg_type;
     on_decode(dst , &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    
+   
+    #ifdef _BLOCK_MESSAGES_ENABLED
+    if(*msg_type == ON_ADMIN_MSG && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
+    {
+        // prevent the device from "sliding off" the device list
+        on_client_set_device_slideoff((on_encoded_did_t*)
+          &pkt->packet_bytes[ON_ENCODED_DST_DID_IDX],
+          ON_DEVICE_PROHIBIT_SLIDEOFF);
+    }
+    #endif
     
     if(status == ON_MSG_SUCCESS && *msg_type == ON_ADMIN_MSG)
     {
@@ -1351,14 +1497,14 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         
                         case ON_RM_DEV:
                         {
-                            on_raw_did_t raw_did_added;
-                            if(on_decode(raw_did_added,
+                            on_raw_did_t raw_did_removed;
+                            if(on_decode(raw_did_removed,
                               &(ack_nack->payload->admin_msg)[1],
                               ON_ENCODED_DID_LEN) != ONS_SUCCESS)
                             {
                                 break;
                             }
-                            one_net_client_client_removed(&raw_did_added,
+                            one_net_client_client_removed(&raw_did_removed,
                               is_my_did((on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
                               
@@ -1461,7 +1607,46 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     one_net_client_single_txn_status(status, (*txn)->retry,
       msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
     #endif
-
+    
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+    if(bs_msg.transfer_in_progress)
+    {
+        ack_nack->handle = ON_ACK;
+        if(*msg_type == ON_ROUTE_MSG)
+        {
+            UInt8 hops, return_hops;
+            if(ack_nack->nack_reason ||
+              !extract_repeaters_and_hops_from_route(&(bs_msg.dst->did),
+              ack_nack->payload->ack_payload, &hops,
+              &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
+            {
+                on_message_status_t status = ON_MSG_FAIL;
+                
+                // route failed for some reason.
+                ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
+                #ifndef _STREAM_MESSAGES_ENABLED
+                on_client_block_txn_hdlr(&bs_msg, NULL, &status, ack_nack);
+                #else
+                if(get_bs_transfer_type(bs_msg.flags) == ON_BLK_TRANSFER)
+                {
+                    on_client_block_txn_hdlr(&bs_msg, NULL, &status,
+                      ack_nack);
+                }
+                else
+                {
+                    on_client_stream_txn_hdlr(&bs_msg, NULL, &status,
+                      ack_nack);
+                }
+                #endif
+            }
+            else
+            {
+                set_bs_hops(&bs_msg.flags, hops > return_hops ? hops :
+                  return_hops);
+            }
+        }
+    }
+    #endif    
 
     if(is_master_did((on_encoded_did_t*)
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]))
@@ -1506,6 +1691,28 @@ static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
+    // allow devicesto "slide off" again.
+    if(msg->dst)
+    {
+        on_client_set_device_slideoff(&msg->dst->did,
+          ON_DEVICE_ALLOW_SLIDEOFF);
+        #ifdef _ONE_NET_MULTI_HOP
+        {
+            UInt8 i;
+            for(i = 0; i < msg->num_repeaters; i++)
+            {
+                on_client_set_device_slideoff(&msg->repeaters[i],
+                  ON_DEVICE_ALLOW_SLIDEOFF);
+            }
+        }
+        #endif
+    }
+    if(msg->src)
+    {
+        on_client_set_device_slideoff(&msg->src->did,
+          ON_DEVICE_ALLOW_SLIDEOFF);
+    }
+    
     return one_net_client_block_txn_status(msg, terminating_device, status,
       ack_nack);
 }
@@ -1586,6 +1793,24 @@ static one_net_status_t init_internal(void)
 } // init_internal //
 
 
+#ifndef _ONE_NET_SIMPLE_CLIENT
+static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
+  const on_encoded_did_t* DID)
+{
+    UInt8 i;
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        if(on_encoded_did_equal(DID,
+          (const on_encoded_did_t * const)
+          &(sending_dev_list[i].sender.did)))
+        {
+            return &sending_dev_list[i];
+        }
+    }
+    return NULL;
+}
+
+
 /*!
     \brief Finds the sender info (or a location for the sender info).
 
@@ -1600,18 +1825,16 @@ static one_net_status_t init_internal(void)
 */
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 {
-    // indexes
-    UInt8 i, match_idx, max_lru_idx;
-
-    // either the lru of the matched device, or the max lru in the list
-    UInt8 lru = 0;
+    SInt8 i;
+    SInt8 vacant_index = -1;
+    SInt8 replace_index = -1;
+    SInt8 device_index = -1;
+    UInt8 device_lru = ONE_NET_RX_FROM_DEVICE_COUNT;
 
     if(!DID)
     {
         return 0;
     } // if parameter is invalid //
-
-    max_lru_idx = match_idx = 0;
 
     if(on_encoded_did_equal(DID,
       (const on_encoded_did_t * const)&(master->device.did)))
@@ -1619,58 +1842,141 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
         return &master->device;
     } // if the MASTER is the sender //
 
-    // loop through and find the sender's information
+
+
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        if(sending_dev_list[i].lru)
+        {
+            if(on_encoded_did_equal(DID,
+              (const on_encoded_did_t * const)
+              &(sending_dev_list[i].sender.did)))
+            {
+                device_index = i;
+                device_lru = sending_dev_list[i].lru;
+            }
+            else
+            {
+                if(sending_dev_list[i].slideoff == ON_DEVICE_ALLOW_SLIDEOFF)
+                {
+                    if(replace_index == -1 || sending_dev_list[i].lru >
+                      sending_dev_list[replace_index].lru)
+                    {
+                        replace_index = i;
+                    }
+                }
+            }
+        }
+        else
+        {
+            vacant_index = i;
+        }
+    }
+    
+    if(device_index == -1)
+    {
+        if(vacant_index != -1)
+        {
+            replace_index = vacant_index;
+        }
+        
+        device_index = replace_index;
+        if(device_index == -1)
+        {
+            goto adjust_lru_list; // no room on list
+        }
+        
+        one_net_memmove(sending_dev_list[device_index].sender.did, *DID,
+          sizeof(sending_dev_list[device_index].sender.did));
+        sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
+        sending_dev_list[device_index].sender.msg_id =
+          one_net_prand(get_tick_count(), 50);
+        sending_dev_list[device_index].slideoff = ON_DEVICE_ALLOW_SLIDEOFF;
+        
+        #ifdef _ONE_NET_MULTI_HOP
+        sending_dev_list[device_index].sender.hops = 0;
+        sending_dev_list[device_index].sender.max_hops = ON_MAX_HOPS_LIMIT;
+        #endif
+    }
+    sending_dev_list[device_index].lru = 1;
+    
+adjust_lru_list:
+    for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
+    {
+        if(i == device_index || sending_dev_list[i].lru == 0)
+        {
+            continue;
+        }
+        if(sending_dev_list[i].lru < device_lru)
+        {
+            sending_dev_list[i].lru++;
+        }
+    }
+
+    if(device_index == -1)
+    {
+        return NULL;
+    }
+    return &(sending_dev_list[device_index].sender);
+} // sender_info //
+#else
+static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
+{
+    SInt8 i;
+    SInt8 vacant_index = -1;
+    SInt8 device_index = -1;
+
+    if(!DID)
+    {
+        return 0;
+    } // if parameter is invalid //
+
+    if(on_encoded_did_equal(DID,
+      (const on_encoded_did_t * const)&(master->device.did)))
+    {
+        return &master->device;
+    } // if the MASTER is the sender //
+
+
+
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
         if(on_encoded_did_equal(DID,
-          (const on_encoded_did_t * const)&(sending_dev_list[i].sender.did)))
+          (const on_encoded_did_t * const)
+          &(sending_dev_list[i].sender.did)))
         {
-            match_idx = i;
-            lru = sending_dev_list[i].lru;
-            break;
-        } // if the sender info was found //
-
-        if(lru < sending_dev_list[i].lru)
+            device_index = i;
+        }
+        else if(sending_dev_list[i].sender.did[0] == 0 &&
+          sending_dev_list[i].sender.did[1] == 0)
         {
-            lru = sending_dev_list[i].lru;
-            max_lru_idx = i;
-        } // if the device has a higher lru than the current max //
-    } // loop to find sender info //
-
-    if(match_idx != i)
+            vacant_index = i;
+        }
+    }
+    
+    if(device_index == -1)
     {
-        // replace the least recently used device
-        match_idx = max_lru_idx;
-        one_net_memmove(sending_dev_list[match_idx].sender.did, *DID,
-          sizeof(sending_dev_list[match_idx].sender.did));
-        sending_dev_list[match_idx].sender.features = FEATURES_UNKNOWN;
-        sending_dev_list[match_idx].sender.msg_id =
-          one_net_prand(get_tick_count(), 50);
+        if(vacant_index != -1)
+        {
+            device_index = vacant_index;
+        }
+        else
+        {
+            device_index = one_net_prand(get_tick_count(),
+              ONE_NET_RX_FROM_DEVICE_COUNT);
+        }
         
-        #ifdef _ONE_NET_MULTI_HOP
-        sending_dev_list[match_idx].sender.hops = 0;
-        sending_dev_list[match_idx].sender.max_hops = ON_MAX_HOPS_LIMIT;
-        #endif
-    } // if the device was not found in the list //
+        one_net_memmove(sending_dev_list[device_index].sender.did, *DID,
+          sizeof(sending_dev_list[device_index].sender.did));
+        sending_dev_list[device_index].sender.features = FEATURES_UNKNOWN;
+        sending_dev_list[device_index].sender.msg_id =
+          one_net_prand(get_tick_count(), 50);
+    }
 
-    if(lru)
-    {
-        // update the lru's in the list
-        for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
-        {
-            if(i == match_idx)
-            {
-                sending_dev_list[i].lru = 0;
-            } // if it is the index that matched //
-            else
-            {
-                sending_dev_list[i].lru++;
-            } // else it is not the index that matched //
-        } // loop through devices and update the lrus //
-    } // if the device was not the least recently used //
-
-    return &(sending_dev_list[match_idx].sender);
+    return &(sending_dev_list[device_index].sender);
 } // sender_info //
+#endif
+
 
 
 #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
@@ -1826,18 +2132,29 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE
-        case ON_CHANGE_DATA_RATE:
+        #ifdef _DATA_RATE_CHANNEL
+        case ON_CHANGE_DATA_RATE_CHANNEL:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
             UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
-            ack_nack->nack_reason = one_net_change_data_rate(NULL,
+            ack_nack->nack_reason = on_change_dr_channel(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
         }
         #endif
         
         #ifdef _BLOCK_MESSAGES_ENABLED
+        case ON_TERMINATE_BLOCK_STREAM:
+        {
+            on_ack_nack_t* received_ack_nack = (on_ack_nack_t*)
+              &DATA[ON_ENCODED_DID_LEN+2];
+            received_ack_nack->payload = (ack_nack_payload_t*)
+              &DATA[ON_ENCODED_DID_LEN+4];
+            terminate_bs_msg(&bs_msg, (const on_encoded_did_t*) &DATA[1],
+              DATA[ON_ENCODED_DID_LEN+1], received_ack_nack);
+            break;
+        }
+        
         case ON_REQUEST_BLOCK_STREAM:
         {
             // check if we are already in the middle of a block transaction.  If
@@ -1853,7 +2170,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                if(bs_msg.byte_idx >= 0)
+                if(bs_msg.byte_idx > 0)
                 {
                     // we have already started receiving data
                     ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
@@ -1883,63 +2200,32 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             if(!ack_nack->nack_reason)
             {
+                one_net_block_stream_transfer_requested(&bs_msg, ack_nack);
+            }
+            
+            if(!ack_nack->nack_reason)
+            {
                 bs_msg.transfer_in_progress = TRUE;
                 bs_msg.byte_idx = 0;
+                bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
                 
                 // Set the block / stream timer to the timeout
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout));
+                ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
                 
-                // temporary debugging
-                oncli_send_msg("BS Message: to=%d\n", bs_msg.timeout);
-            }
-            break;
-        }
-        
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
-        // TODO -- delete this case!  Repeaters will be requested with a
-        // message of type ON_REQUEST_BLOCK_STREAM.  For now, just comment
-        // it out.
-        #if 0
-        case ON_REQUEST_REPEATER:
-        {
-            UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
-            on_encoded_did_t* rptr_did = (on_encoded_did_t*) &DATA[1];
-            on_encoded_did_t* src_did = (on_encoded_did_t*) &DATA[3];
-            on_encoded_did_t* dst_did = (on_encoded_did_t*) &DATA[5];
-            
-            // we need to make sure that we are the repeater and that we are
-            // not the source or the destination 
-            if(!is_my_did((const on_encoded_did_t*) rptr_did) ||
-              is_my_did((const on_encoded_did_t*) src_did) ||
-              is_my_did((const on_encoded_did_t*) dst_did))
-            {
-                ack_nack->nack_reason = ON_NACK_RSN_BAD_DATA_ERR;
-                break;
-            }            
-            
-            // if we have already accepted a request from someone else, we'll
-            // reject this one.
-            if(bs_msg.transfer_in_progress)
-            {
-                if(!on_encoded_did_equal(&bs_msg.src, SRC_DID))
+                // prevent device list slideoff
+                if(bs_msg.dst)
                 {
-                    ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                    break;
+                    on_client_set_device_slideoff(&bs_msg.dst->did,
+                      ON_DEVICE_PROHIBIT_SLIDEOFF);
+                }
+                if(bs_msg.src)
+                {
+                    on_client_set_device_slideoff(&bs_msg.src->did,
+                      ON_DEVICE_PROHIBIT_SLIDEOFF);
                 }
             }
-            
-            // now check in with the application code
-            one_net_client_repeater_requested(src_did, dst_did, DATA[11],
-              DATA[12], DATA[13], estimated_time, ack_nack);
-
-            if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
-            {
-                bs_msg.transfer_in_progress = TRUE;
-            }
             break;
         }
-        #endif
-        #endif
         #endif
                     
         case ON_NEW_KEY_FRAGMENT:
@@ -2081,9 +2367,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         case ON_RM_DEV:
         {
             // first check if we are the one being removed.
-            on_encoded_did_t* removed_device = (on_encoded_did_t*) &DATA[1];
+            on_encoded_did_t* removed_did = (on_encoded_did_t*) &DATA[1];
 
-            if(is_my_did(removed_device))
+            if(is_my_did(removed_did))
             {
                 // we're the ones being removed
                 removed = TRUE;
@@ -2097,27 +2383,31 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 ont_set_timer(ONT_INVITE_TIMER,
                   MS_TO_TICK(3000));
             }
+            // TODO -- #define guard here?  Do clients that sleep, don't
+            // have multi-hop, and don't have block messages enabled get this
+            // message?
             else
             {
-                // Remove the device from the list of sending devices,
-                // if applicable.  Just make the features unknown and that
-                // will force a revalidation next time any device tries to
-                // use this did.
+                // Remove the device from the list of sending devices
                 tick_t tick_now = get_tick_count();
-                on_sending_device_t* device = sender_info(removed_device);
-                device->features = FEATURES_UNKNOWN;
                 
-                // for security, change the the message id.
-                device->msg_id = one_net_prand(tick_now, 50);
+                #ifndef _ONE_NET_SIMPLE_CLIENT
+                on_sending_dev_list_item_t* removed_item =
+                  get_sending_dev_list_item_t(removed_did);
+                if(removed_item)
+                {
+                    removed_item->lru = 0;
+                }
+                #endif
 
                 #ifdef _PEER
                 // delete any peer assignments for this device
                 one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
-                  removed_device, ONE_NET_DEV_UNIT);
+                  removed_did, ONE_NET_DEV_UNIT);
                 #endif
                 {
                     on_raw_did_t raw_did;
-                    on_decode(raw_did, *removed_device, ON_ENCODED_DID_LEN);
+                    on_decode(raw_did, *removed_did, ON_ENCODED_DID_LEN);
                     one_net_client_client_removed(&raw_did, FALSE);
                 }
                 

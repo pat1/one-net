@@ -68,7 +68,7 @@
 */
 enum
 {
-    // first bit unused for now.
+    ON_DR_CHANNEL_CHANGE_FEATURE_SHIFT = 0,//! Bit 0 -- Mask = 0x01   True if the device can change channels / data rates
     ON_PEER_FEATURE_SHIFT           = 1,  //! Bit 1 -- Mask = 0x02   True if Device is peer capable
     ON_NON_SIMPLE_CLIENT_SHIFT      = 2,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple client
     ON_DEVICE_NEVER_SLEEPS_SHIFT    = 3,  //! Bit 3 -- Mask = 0x08.  True if Device is always awake
@@ -77,6 +77,7 @@ enum
     ON_MH_REPEATER_FEATURE_SHIFT    = 6,  //! Bit 6 -- Mask = 0x40.  True if Multi-Hop repeater
     ON_STREAM_FEATURE_SHIFT         = 7,  //! Bit 7 -- Mask = 0x80.  True if stream messages enabled
     
+    ON_DR_CHANNEL_CHANGE_FEATURE_MASK = 0x01,//! Bit 0 -- Mask = 0x01   True if the device can change channels / data rates
     ON_PEER_FEATURE_MASK            = 0x02,  //! Bit 1 -- Mask = 0x02   True if Device is peer capable
     ON_NON_SIMPLE_CLIENT_MASK       = 0x04,  //! Bit 2 -- Mask = 0x04   True if Device is not a simple client
     ON_DEVICE_NEVER_SLEEPS_MASK     = 0x08,  //! Bit 3 -- Mask = 0x08.  True if Device is always awake
@@ -112,6 +113,9 @@ enum
 {
     THIS_DEVICE_FEATURE_BITS =
         0
+        #ifdef _DATA_RATE_CHANNEL
+            + ON_DR_CHANNEL_CHANGE_FEATURE_MASK
+        #endif
         #ifdef _PEER
             + ON_PEER_FEATURE_MASK
         #endif
@@ -225,6 +229,7 @@ BOOL features_mh_repeat_capable(on_features_t features);
 BOOL features_block_capable(on_features_t features);
 BOOL features_stream_capable(on_features_t features);
 BOOL features_simple_client(on_features_t features);
+BOOL features_dr_channel_capable(on_features_t features);
 #endif
 
 //! @} ONE-NET_FEATURES_pub_func

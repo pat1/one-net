@@ -442,26 +442,197 @@ void one_net_client_single_txn_status(on_message_status_t status,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Application-level code called by ONE-NET when initiating a block
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] dst The destination of the transfer.
+    \param[in] transfer_size The number of bytes to be transferred.
+    \param[in/out] priority The priority of the transfer.
+    \param[in/out] chunk_size The "chunk size" involved in the transfer.
+    \param[in/out] frag_delay The time to wait between packet sends.
+    \param[in/out] chunk_delay The time to pause between "chunks" of the message.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_client_get_default_block_transfer_values(
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
-  
+
+
+/*!
+    \brief Callback function called when a block transaction is complete.
+    
+    Several things can cause this function to be called.
+    
+    1. We are the source and everything transferred successfully and we are
+       informing the application code that this is the case, and we will also
+       immediately inform the destination device, any repeaters, and possibly
+       the master.
+    2. We are the source and we need to terminate prematurely on our end.  We
+       need to inform our application code as well as the other device(s).
+    3. We are the destination and everything transferred successfully and we are
+       informing the application code that this is the case.  No other messages
+       are needed.
+    4. We are the destination and we need to terminate prematurely on our end.
+       Any ACKs or NACKs to the sending device have been handled elsewhere.
+       
+    If we are the source, then the ack_nack message will be non-NULL and
+    will be pre-loaded with what ONE-NET intends to send the other device(s) in
+    the termination message.  This function can either leave the ack_nack
+    alone, it can change it, or it tells ONE-NET NOT TO send this termination
+    message.  It does that by returning anything but ON_MSG_RESPOND.
+    
+    If we are not the source, we might either abort immediately or "hang around"
+    as a service to any other device(s) and give them an ACK or a NACK or
+    stay as a repeater or whatever. In that case, this function should return
+    ON_MSG_RESPOND and we will, if we are the destination and we are the ones
+    terminating the device, at least tell the sending device that we are
+    terminating and why.  On the other hand, we can also simply "drop out" of
+    the message and the other device(s) will eventually time out.
+    
+    The termination message should be changed if it is something that would
+    not make sense to the other devices.
+    
+    Note that the status can also be changed if desired by this application code.
+       
+
+    \param[in] msg The block / stream message that is being terminated.
+    \param[in] terminating_device The device that terminated this transaction.
+    \param[in/out] status The status of the message that was just completed.
+    \param[in/out] ack_nack Any ACK or NACK associated with this termination.
+    
+    \return ON_MSG_RESPOND if this device should inform the other devices
+              of the termination.
+            All other return types abort immediately with no further messages.
+*/
 on_message_status_t one_net_client_block_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 
 #ifdef _ONE_NET_MH_CLIENT_REPEATER
+/*!
+    \brief Application-level code called byu ONE-NET when this device is
+           requested to function as a repeater for a block / stream message
+    
+    This function is called when another device is attempting to set up a
+    block / stream message and has requested this device to reserve itself
+    as a repeater for that purpose. This function will be passed the parameters
+    of the proposed block / stream transfer.  Possible parameters of interest
+    will be the estimated time of the transfer and the devices involved.
+    
+    Generally this function should reject the request if it feels it cannot
+    comply for any reason.  Reasons could include not being reasonably certain
+    that it will be able to function as a repeater for at least the time
+    requested for whatever reason (low power, busy with its own messages,
+    not expected to be powered up for the entire message, a high percentage
+    of dropped message, it is reserved as a repeater for someone else, etc.)
+    
+    The ack_nack parameter is pre-loaded to assume acceptance.  If the repeater
+    rejects, it should change the ack_nack variable to indicate rejection along
+    with a reason, if any, is to be sent.
+    
+    \param[in] bs_msg The paramters of the block/ stream message this device is
+               supposed to serve as a repeater for.
+    \param[out] ack_nack This is pre-loaded for acceptance.  If accepting, no
+                changes are needed.  If rejecting, the ack_nack variable should
+                be changed in this function.
+    
+    \return void
+*/
 void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
   on_ack_nack_t* ack_nack);
 #endif
 #endif
 
 #ifdef _STREAM_MESSAGES_ENABLED
+/*!
+    \brief Application-level code called by ONE-NET when initiating a stream
+           transfer containing default the block / stream parameters and
+           allowing the application level code to change it.
+    
+    The function comes pre-loaded with the default parameters that the core-level
+    ONE-NET code has determined should generally be good default paramters.  The
+    application-code should change these values here if it wants to.
+
+    
+    \param[in] dst The destination of the transfer.
+    \param[in] time_ms Proposed duration of the stream transfer.  If time is 0, then the time is unknown.
+    \param[in/out] data_rate The data rate to use for the transfer.
+    \param[in/out] channel The channel to use for the transfer.
+    \param[in/out] timeout The time to wait for a response before assuming that
+                   communication has been lost.
+    \param[out]    If rejecting the transfer and there is an ack or nack associated
+                   with it, this value should be filled in.
+    
+    \return The nack reason if rejecting the transfer.
+            
+*/
 on_nack_rsn_t one_net_client_get_default_stream_transfer_values(
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
   UInt16* timeout, on_ack_nack_t* ack_nack);
-  
+
+
+/*!
+    \brief Callback function called when a stream transaction is complete.
+    
+    Several things can cause this function to be called.
+    
+    1. We are the source and everything transferred successfully and we are
+       informing the application code that this is the case, and we will also
+       immediately inform the destination device, any repeaters, and possibly
+       the master.
+    2. We are the source and we need to terminate prematurely on our end.  We
+       need to inform our application code as well as the other device(s).
+    3. We are the destination and everything transferred successfully and we are
+       informing the application code that this is the case.  No other messages
+       are needed.
+    4. We are the destination and we need to terminate prematurely on our end.
+       Any ACKs or NACKs to the sending device have been handled elsewhere.
+       
+    If we are the source, then the ack_nack message will be non-NULL and
+    will be pre-loaded with what ONE-NET intends to send the other device(s) in
+    the termination message.  This function can either leave the ack_nack
+    alone, it can change it, or it tells ONE-NET NOT TO send this termination
+    message.  It does that by returning anything but ON_MSG_RESPOND.
+    
+    If we are not the source, we might either abort immediately or "hang around"
+    as a service to any other device(s) and give them an ACK or a NACK or
+    stay as a repeater or whatever. In that case, this function should return
+    ON_MSG_RESPOND and we will, if we are the destination and we are the ones
+    terminating the device, at least tell the sending device that we are
+    terminating and why.  On the other hand, we can also simply "drop out" of
+    the message and the other device(s) will eventually time out.
+    
+    The termination message should be changed if it is something that would
+    not make sense to the other devices.
+    
+    Note that the status can also be changed if desired by this application code.
+       
+
+    \param[in] msg The block / stream message that is being terminated.
+    \param[in] terminating_device The device that terminated this transaction.
+    \param[in/out] status The status of the message that was just completed.
+    \param[in/out] ack_nack Any ACK or NACK associated with this termination.
+    
+    \return ON_MSG_RESPOND if this device should inform the other devices
+              of the termination.
+            All other return types abort immediately with no further messages.
+*/
 on_message_status_t one_net_client_stream_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack);
