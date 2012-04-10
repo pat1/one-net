@@ -1452,7 +1452,7 @@ void one_net(on_txn_t ** txn)
                                     
                                 #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
-                                    if(master_involved || bs_msg.transfer_size <= 2000)
+                                    if(master_involved || bs_msg.x.transfer_size <= 2000)
                                     {
                                         // Master is involved, so we either ARE
                                         // the master or the master is the
@@ -1488,7 +1488,7 @@ void one_net(on_txn_t ** txn)
                                 #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
-                                      == 0 || bs_msg.transfer_size <= 2000)
+                                      == 0 || bs_msg.x.transfer_size <= 2000)
                                     {
                                         // master is involved or it is a short
                                         // transfer of less than 2000 bytes, so
@@ -3264,7 +3264,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                     bs_msg->byte_idx = ack_nack->payload->nack_value;
                     
                     if(bs_msg->byte_idx * ON_BS_DATA_PLD_SIZE >=
-                      bs_msg->transfer_size)
+                      bs_msg->x.transfer_size)
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
                           ack_nack);
@@ -4779,7 +4779,7 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
     // TODO -- where is this function called?
 
     
-    const UInt32 num_data_packets = bs_msg->transfer_size / 25; // 25 payload bytes in packet
+    const UInt32 num_data_packets = bs_msg->x.transfer_size / 25; // 25 payload bytes in packet
     const UInt32 num_chunks = num_data_packets / bs_msg->chunk_size;
     const UInt8 data_packet_len = 63; // TODO -- use constants.
     const UInt8 ack_packet_len  = 30; // TODO -- use constants.

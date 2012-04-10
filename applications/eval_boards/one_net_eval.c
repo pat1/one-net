@@ -1627,7 +1627,7 @@ on_message_status_t eval_block_chunk_received(
             break;
         }
         
-        remaining = block_get_bytes_remaining(bs_msg->transfer_size, byte_idx,
+        remaining = block_get_bytes_remaining(bs_msg->x.transfer_size, byte_idx,
           i);
         uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], remaining <
           ON_BS_DATA_PLD_SIZE ? remaining : ON_BS_DATA_PLD_SIZE);

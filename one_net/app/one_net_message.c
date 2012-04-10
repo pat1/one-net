@@ -767,7 +767,7 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
 {
     // msg buffer must be at least 21 bytes
     bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
-    bs_msg->transfer_size = one_net_byte_stream_to_int32(
+    bs_msg->x.transfer_size = one_net_byte_stream_to_int32(
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     bs_msg->chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
     bs_msg->frag_dly = one_net_byte_stream_to_int16(
@@ -804,7 +804,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     // msg buffer must be at least 21 bytes
     msg[0] = ON_REQUEST_BLOCK_STREAM;
     msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;
-    one_net_int32_to_byte_stream(bs_msg->transfer_size,
+    one_net_int32_to_byte_stream(bs_msg->x.transfer_size,
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->chunk_size;
     one_net_int16_to_byte_stream(bs_msg->frag_dly,
@@ -835,7 +835,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
 
 UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg)
 {
-    UInt32 num_packets_total = bs_msg->transfer_size / ON_BS_DATA_PLD_SIZE;
+    UInt32 num_packets_total = bs_msg->x.transfer_size / ON_BS_DATA_PLD_SIZE;
     UInt32 num_packets_left;
     
     if(bs_msg->byte_idx < 40)
