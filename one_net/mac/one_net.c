@@ -2052,6 +2052,8 @@ void one_net(on_txn_t ** txn)
             // need to set our own buffer.  However, the stack size shouldn't
             // be very high here so it's no big deal.
             UInt8 buffer[ON_BS_DATA_PLD_SIZE];
+            ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+            ack_nack.handle = ON_ACK;
             
             if(!ont_inactive_or_expired(ONT_BS_TIMER))
             {
@@ -2070,87 +2072,109 @@ void one_net(on_txn_t ** txn)
             if(transfer_type == ON_BLK_TRANSFER)
             #endif
             {
-                ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
-                ack_nack.handle = ON_ACK;
                 status = one_net_block_get_next_payload(&bs_msg, buffer,
                   &ack_nack);
-                if(status == ON_MSG_CONTINUE)
-                {
-                    // fill in the addresses
-                    if(on_build_my_pkt_addresses(&data_pkt_ptrs,
-                      &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
-                    {
-                        break;
-                    }
-                    {
-                        // We need a response if any of the following is true so
-                        // we may temporarily change the chunk size when building
-                        // the packet, then immediately change it back.  If we
-                        // are in the first or last 1000 bytes in the transfer,
-                        // we'll change the chunk sizeto 1.
-                        UInt8 original_chunk_size = bs_msg.chunk_size;
-                        one_net_status_t status;
-                
-                        // possible quick change.  We'll change back immediately
-                        // after the function call.
-                        bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
-                        
-                        // If we are sending anything but the last packet, we'll
-                        // reset the timeout timer.  Otherwise we expect a
-                        // response, so we'll reset it when / if we get one.
-                        if(bs_msg.chunk_idx + 1 != bs_msg.chunk_size)
-                        {
-                            ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
-                              bs_msg.timeout));
-                        }
-                        
-                        status = on_build_data_pkt(buffer, ON_APP_MSG,
-                          &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
-                        // change back if it was changed before.
-                        bs_msg.chunk_size = (UInt8) original_chunk_size;  
-                        
-                        if(status != ONS_SUCCESS)
-                        {
-                            break;
-                        }
-                    }
-                    
-                    // now finish building the packet.
-                    if(on_complete_pkt_build(&data_pkt_ptrs, raw_pid) !=
-                      ONS_SUCCESS)
-                    {
-                        break;                        
-                    }
-                    
-                    bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
-                    #ifdef _DATA_RATE_CHANNEL
-                    one_net_set_channel(bs_msg.channel);
-                    one_net_set_data_rate(bs_msg.data_rate);
-                    #endif
-                    on_state++;
-                }
-                else if(status == ON_MSG_PAUSE)
-                {
-                    UInt32 pause_time = bs_msg.chunk_pause;
-                    if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
-                    {
-                        pause_time = ack_nack.payload->ack_time_ms;
-                    }
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(pause_time));
-                    on_state = ON_BS_CHUNK_PAUSE;
-                    bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
-                }
-                else
-                {
-                    terminate_bs_msg(&bs_msg, NULL, status, &ack_nack);
-                }
             }
             #ifdef _STREAM_MESSAGES_ENABLED
             else
             {
-                // TODO -- get stream packet raw data.
+                status = one_net_block_get_next_payload(&bs_msg, buffer,
+                  &ack_nack);
             }
             #endif
+                  
+            if(status == ON_MSG_CONTINUE)
+            {
+                // fill in the addresses
+                if(on_build_my_pkt_addresses(&data_pkt_ptrs,
+                  &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
+                {
+                    break;
+                }
+                
+                #ifdef _STREAM_MESSAGES_ENABLED
+                if(transfer_type == ON_BLK_TRANSFER)
+                #endif
+                {
+                    // We need a response if any of the following is true so
+                    // we may temporarily change the chunk size when building
+                    // the packet, then immediately change it back.  If we
+                    // are in the first or last 1000 bytes in the transfer,
+                    // we'll change the chunk sizeto 1.
+                    UInt8 original_chunk_size = bs_msg.chunk_size;
+            
+                    // possible quick change.  We'll change back immediately
+                    // after the function call.
+                    bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
+                    
+                    // If we are sending anything but the last packet, we'll
+                    // reset the timeout timer.  Otherwise we expect a
+                    // response, so we'll reset it when / if we get one.
+                    if(bs_msg.chunk_idx + 1 != bs_msg.chunk_size)
+                    {
+                        ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
+                          bs_msg.timeout));
+                    }
+                    
+                    status = on_build_data_pkt(buffer, ON_APP_MSG,
+                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
+                    // change back if it was changed before.
+                    bs_msg.chunk_size = (UInt8) original_chunk_size;
+                }
+                #ifdef _STREAM_MESSAGES_ENABLED
+                else
+                {
+                    // We need a response we haven't gotten one in the last 5
+                    // seconds.  If we need a response, we'll make the chunk
+                    // index and chunk size 0 to let the other side know we
+                    // want a response.
+                    bs_msg.chunk_idx = 0;
+                    bs_msg.chunk_size = 1;
+                    if(TICK_TO_MS(get_tick_count() -
+                      bs_msg.x.last_response_time) > 5000)
+                    {
+                        bs_msg.chunk_size = 0;
+                    }
+                    
+                    status = on_build_data_pkt(buffer, ON_APP_MSG,
+                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
+                }
+                #endif
+
+                if(status != ONS_SUCCESS)
+                {
+                    break;
+                }
+                    
+                // now finish building the packet.
+                if(on_complete_pkt_build(&data_pkt_ptrs, raw_pid) !=
+                  ONS_SUCCESS)
+                {
+                    break;                        
+                }
+                    
+                bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
+                #ifdef _DATA_RATE_CHANNEL
+                one_net_set_channel(bs_msg.channel);
+                one_net_set_data_rate(bs_msg.data_rate);
+                #endif
+                on_state++;
+            }
+            else if(status == ON_MSG_PAUSE)
+            {
+                UInt32 pause_time = bs_msg.chunk_pause;
+                if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
+                {
+                    pause_time = ack_nack.payload->ack_time_ms;
+                }
+                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(pause_time));
+                on_state = ON_BS_CHUNK_PAUSE;
+                bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
+            }
+            else
+            {
+                terminate_bs_msg(&bs_msg, NULL, status, &ack_nack);
+            }
             break;
         }
         #endif
