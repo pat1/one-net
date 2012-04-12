@@ -1761,14 +1761,14 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         }        
         
         #ifdef _DATA_RATE_CHANNEL
-        if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
+        if((src_flags & ON_BS_ELEVATE_DATA_RATE) && (dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
         }
-        
-        if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
+
+        if((src_flags & ON_BS_CHANGE_CHANNEL) && (dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
             SInt8 alternate_channel = one_net_get_alternate_channel();
