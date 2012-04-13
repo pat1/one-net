@@ -2170,7 +2170,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                if(bs_msg.byte_idx > 0)
+                if(bs_msg.bs.block.byte_idx > 0)
                 {
                     // we have already started receiving data
                     ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
@@ -2206,7 +2206,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if(!ack_nack->nack_reason)
             {
                 bs_msg.transfer_in_progress = TRUE;
-                bs_msg.byte_idx = 0;
+                bs_msg.bs.block.byte_idx = 0;
                 bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
                 
                 // Set the block / stream timer to the timeout

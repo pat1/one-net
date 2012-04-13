@@ -478,12 +478,32 @@ enum
 };
 
 
-// Just a short union to get things to compile a little better since anonymous unions are not allowed.
+typedef struct
+{
+    tick_t start_time;
+    tick_t last_response_time;
+} stream_msg_t;
+
+
+typedef struct
+{
+    UInt32 transfer_size;
+    SInt32 byte_idx;
+    UInt8 chunk_idx;
+    UInt8 chunk_size;
+    UInt16 chunk_pause;
+    UInt8 sent[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
+           // bitwise "boolean" array, with each bit representing whether a
+           // certain packet within a chunk has been received.  0 means FALSE.
+           // 1 means TRUE.
+} block_msg_t;
+
+
 typedef union
 {
-    UInt32 transfer_size; // for block
-    tick_t last_response_time; // for stream
-} z1;
+    block_msg_t block;
+    stream_msg_t stream;
+} bs_msg_union_t;
 
 
 typedef struct
@@ -492,10 +512,7 @@ typedef struct
     UInt8 bs_on_state;
     BOOL transfer_in_progress;
     UInt8 flags;
-    z1 x;
-    UInt8 chunk_size;
     UInt16 frag_dly;
-    UInt16 chunk_pause;
     UInt8 channel;
     UInt8 data_rate;
     UInt16 timeout;
@@ -507,17 +524,11 @@ typedef struct
                  // message, it will represent the start time of the stream
                  // transfer.  For block transfers, it will also generally
                  // represent the estimated completion tim eof the transfer.
-    
     #ifdef _ONE_NET_MULTI_HOP
     UInt8 num_repeaters;
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
     #endif
-    SInt32 byte_idx;
-    SInt8 chunk_idx;
-    UInt8 sent[MAX_CHUNK_SIZE / 8]; // 8 bits per byte.  "complete" is a
-           // bitwise "boolean" array, with each bit representing whether a
-           // certain packet within a chunk has been received.  0 means FALSE.
-           // 1 means TRUE.
+    bs_msg_union_t bs;
 } block_stream_msg_t;
 
 

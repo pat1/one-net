@@ -3076,7 +3076,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     ptr = end_ptr + 1;
     
-    bs_msg.x.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
+    bs_msg.bs.block.transfer_size = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != ':')
     {
         return ONCLI_PARSE_ERR;
@@ -3122,7 +3122,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     // it is NOT a mistake that we are passing the function several elements of
     // the bs_msg structure, but passing it the local variable chunk_delay_ms.
     // That's because we are not interested in the default value there.
-    bs_msg.chunk_pause = chunk_delay_ms;
+    bs_msg.bs.block.chunk_pause = chunk_delay_ms;
     
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
@@ -3134,7 +3134,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
                 
         if(on_master_get_default_block_transfer_values(NULL, dst_client,
-          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.bs.block.transfer_size, &priority, &bs_msg.bs.block.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
@@ -3150,7 +3150,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!device_is_master)
     {
         if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
-          bs_msg.x.transfer_size, &priority, &bs_msg.chunk_size,
+          bs_msg.bs.block.transfer_size, &priority, &bs_msg.bs.block.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {

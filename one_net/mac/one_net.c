@@ -701,9 +701,10 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         else
         {
             UInt32 blk_stream_value = ((txn->txn_type == ON_STREAM) ?
-              TICK_TO_MS(get_tick_count() - bs_msg->time) : bs_msg->byte_idx);
-            put_bs_chunk_idx(bs_msg->chunk_idx, raw_payload_bytes);
-            put_bs_chunk_size(bs_msg->chunk_size, raw_payload_bytes);
+              TICK_TO_MS(get_tick_count() - bs_msg->time) :
+              bs_msg->bs.block.byte_idx);
+            put_bs_chunk_idx(bs_msg->bs.block.chunk_idx, raw_payload_bytes);
+            put_bs_chunk_size(bs_msg->bs.block.chunk_size, raw_payload_bytes);
             put_block_pkt_idx(blk_stream_value, raw_payload_bytes);
         }
         
@@ -1452,7 +1453,8 @@ void one_net(on_txn_t ** txn)
                                     
                                 #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
-                                    if(master_involved || bs_msg.x.transfer_size <= 2000)
+                                    if(master_involved ||
+                                      bs_msg.bs.block.transfer_size <= 2000)
                                     {
                                         // Master is involved, so we either ARE
                                         // the master or the master is the
@@ -1488,7 +1490,8 @@ void one_net(on_txn_t ** txn)
                                 #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
-                                      == 0 || bs_msg.x.transfer_size <= 2000)
+                                      == 0 || bs_msg.bs.block.transfer_size <=
+                                      2000)
                                     {
                                         // master is involved or it is a short
                                         // transfer of less than 2000 bytes, so
@@ -1581,15 +1584,15 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.dst->msg_id++;
                                     bs_txn.key = (one_net_xtea_key_t*)
                                       on_base_param->current_key;
-                                    bs_msg.byte_idx = 0;
-                                    bs_msg.chunk_idx = 0;
+                                    bs_msg.bs.block.byte_idx = 0;
+                                    bs_msg.bs.block.chunk_idx = 0;
                                     bs_msg.bs_on_state =
                                       ON_BS_PREPARE_DATA_PACKET;
                                     ont_set_timer(ONT_BS_TIMER, 0);
                                     ont_set_timer(ONT_BS_TIMEOUT_TIMER,
                                       MS_TO_TICK(bs_msg.timeout));
-                                    one_net_memset(bs_msg.sent, 0,
-                                      sizeof(bs_msg.sent));
+                                    one_net_memset(bs_msg.bs.block.sent, 0,
+                                      sizeof(bs_msg.bs.block.sent));
                                     
                                     // we'll make fairly long process times.
                                     // Things will get corrected soon enough
@@ -2101,16 +2104,18 @@ void one_net(on_txn_t ** txn)
                     // the packet, then immediately change it back.  If we
                     // are in the first or last 1000 bytes in the transfer,
                     // we'll change the chunk sizeto 1.
-                    UInt8 original_chunk_size = bs_msg.chunk_size;
+                    UInt8 original_chunk_size = bs_msg.bs.block.chunk_size;
             
                     // possible quick change.  We'll change back immediately
                     // after the function call.
-                    bs_msg.chunk_size = get_current_bs_chunk_size(&bs_msg);
+                    bs_msg.bs.block.chunk_size =
+                      get_current_bs_chunk_size(&bs_msg);
                     
                     // If we are sending anything but the last packet, we'll
                     // reset the timeout timer.  Otherwise we expect a
                     // response, so we'll reset it when / if we get one.
-                    if(bs_msg.chunk_idx + 1 != bs_msg.chunk_size)
+                    if(bs_msg.bs.block.chunk_idx + 1 !=
+                      bs_msg.bs.block.chunk_size)
                     {
                         ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
                           bs_msg.timeout));
@@ -2119,7 +2124,7 @@ void one_net(on_txn_t ** txn)
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
                       &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
                     // change back if it was changed before.
-                    bs_msg.chunk_size = (UInt8) original_chunk_size;
+                    bs_msg.bs.block.chunk_size = (UInt8) original_chunk_size;
                 }
                 #ifdef _STREAM_MESSAGES_ENABLED
                 else
@@ -2128,12 +2133,12 @@ void one_net(on_txn_t ** txn)
                     // seconds.  If we need a response, we'll make the chunk
                     // index and chunk size 0 to let the other side know we
                     // want a response.
-                    bs_msg.chunk_idx = 0;
-                    bs_msg.chunk_size = 1;
+                    bs_msg.bs.block.chunk_idx = 0;
+                    bs_msg.bs.block.chunk_size = 1;
                     if(TICK_TO_MS(get_tick_count() -
-                      bs_msg.x.last_response_time) > 5000)
+                      bs_msg.bs.stream.last_response_time) > 5000)
                     {
-                        bs_msg.chunk_size = 0;
+                        bs_msg.bs.block.chunk_size = 0;
                     }
                     
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
@@ -2162,7 +2167,7 @@ void one_net(on_txn_t ** txn)
             }
             else if(status == ON_MSG_PAUSE)
             {
-                UInt32 pause_time = bs_msg.chunk_pause;
+                UInt32 pause_time = bs_msg.bs.block.chunk_pause;
                 if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
                 {
                     pause_time = ack_nack.payload->ack_time_ms;
@@ -2297,20 +2302,20 @@ void one_net(on_txn_t ** txn)
                           &bs_msg);
                         SInt8 new_chunk_idx;
                         
-                        block_set_index_sent(bs_msg.chunk_idx, TRUE,
-                          bs_msg.sent);
+                        block_set_index_sent(bs_msg.bs.block.chunk_idx, TRUE,
+                          bs_msg.bs.block.sent);
                           
                         new_chunk_idx = block_get_lowest_unsent_index(
-                          bs_msg.sent, current_chunk_size);
+                          bs_msg.bs.block.sent, current_chunk_size);
                           
                         if(new_chunk_idx == -1)
                         {
-                            need_response = (bs_msg.chunk_idx ==
+                            need_response = (bs_msg.bs.block.chunk_idx ==
                               current_chunk_size - 1);
                             new_chunk_idx = current_chunk_size - 1;
                         }
 
-                        bs_msg.chunk_idx = new_chunk_idx;
+                        bs_msg.bs.block.chunk_idx = new_chunk_idx;
                     }
                     
                     if(need_response)
@@ -3274,31 +3279,34 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         #endif
           break;
         case ON_ACK_BLK_PKTS_RCVD:
-          one_net_memmove(bs_msg->sent, ack_nack->payload->ack_payload,
-            sizeof(bs_msg->sent));
+          one_net_memmove(bs_msg->bs.block.sent, ack_nack->payload->ack_payload,
+            sizeof(bs_msg->bs.block.sent));
           return ON_MSG_CONTINUE;
         default:
         {
             switch(ack_nack->nack_reason)
             {
                 case ON_NACK_RSN_INVALID_CHUNK_DELAY:
-                    bs_msg->chunk_pause = ack_nack->payload->nack_time_ms;
+                    bs_msg->bs.block.chunk_pause =
+                      ack_nack->payload->nack_time_ms;
                     break;
                 case ON_NACK_RSN_INVALID_BYTE_INDEX:
-                    bs_msg->byte_idx = ack_nack->payload->nack_value;
+                    bs_msg->bs.block.byte_idx = ack_nack->payload->nack_value;
                     
-                    if(bs_msg->byte_idx * ON_BS_DATA_PLD_SIZE >=
-                      bs_msg->x.transfer_size)
+                    if(bs_msg->bs.block.byte_idx * ON_BS_DATA_PLD_SIZE >=
+                      bs_msg->bs.block.transfer_size)
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
                           ack_nack);
                         return ON_MSG_IGNORE;
                     }
                     
-                    one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+                    one_net_memset(bs_msg->bs.block.sent, 0,
+                      sizeof(bs_msg->bs.block.sent));
                     on_state = ON_BS_CHUNK_PAUSE;
                     bs_msg->bs_on_state = ON_BS_CHUNK_PAUSE;
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->chunk_pause));
+                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+                      bs_msg->bs.block.chunk_pause));
                     break;
                 case ON_NACK_RSN_INVALID_FRAG_DELAY:
                     bs_msg->frag_dly = ack_nack->payload->nack_time_ms;
@@ -4803,8 +4811,9 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
     // TODO -- where is this function called?
 
     
-    const UInt32 num_data_packets = bs_msg->x.transfer_size / 25; // 25 payload bytes in packet
-    const UInt32 num_chunks = num_data_packets / bs_msg->chunk_size;
+    const UInt32 num_data_packets = bs_msg->bs.block.transfer_size /
+      25; // 25 payload bytes in packet
+    const UInt32 num_chunks = num_data_packets / bs_msg->bs.block.chunk_size;
     const UInt8 data_packet_len = 63; // TODO -- use constants.
     const UInt8 ack_packet_len  = 30; // TODO -- use constants.
     const double bytes_per_sec = (bs_msg->data_rate + 1) * 38400 / 8; // make it a
@@ -4817,12 +4826,12 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
       bytes_per_sec) * 1000;
     double time_per_chunk;
     
-    if(time_between_chunks < bs_msg->chunk_pause)
+    if(time_between_chunks < bs_msg->bs.block.chunk_pause)
     {
-        time_between_chunks = bs_msg->chunk_pause;
+        time_between_chunks = bs_msg->bs.block.chunk_pause;
     }
     
-    time_per_chunk = (bs_msg->chunk_size - 1) * time_per_data_packet +
+    time_per_chunk = (bs_msg->bs.block.chunk_size - 1) * time_per_data_packet +
       time_between_chunks;
       
     return (UInt32)(num_chunks * time_per_chunk);
@@ -5099,22 +5108,22 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
       
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_NACK_VALUE;
-    if(block_pkt->byte_idx != bs_msg->byte_idx)
+    if(block_pkt->byte_idx != bs_msg->bs.block.byte_idx)
     {
-        ack_nack->payload->nack_value = bs_msg->byte_idx;
+        ack_nack->payload->nack_value = bs_msg->bs.block.byte_idx;
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
         return ON_MSG_RESPOND;
     }
     
-    if(block_pkt->chunk_size > bs_msg->chunk_size)
+    if(block_pkt->chunk_size > bs_msg->bs.block.chunk_size)
     {
-        ack_nack->payload->nack_value = bs_msg->chunk_size;
+        ack_nack->payload->nack_value = bs_msg->bs.block.chunk_size;
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
         return ON_MSG_RESPOND;
     }
     
     ack_nack->handle = ON_ACK_BLK_PKTS_RCVD;
-    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->sent))
+    if(!block_get_index_sent(block_pkt->chunk_idx, bs_msg->bs.block.sent))
     {
         msg_status = (*pkt_hdlr.block_data_hdlr)(txn, bs_msg, block_pkt,
           ack_nack);
@@ -5124,7 +5133,8 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
                 terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
                 goto bs_build_terminate_ack;
             case ON_MSG_ACCEPT_PACKET:
-                block_set_index_sent(block_pkt->chunk_idx, TRUE, bs_msg->sent);
+                block_set_index_sent(block_pkt->chunk_idx, TRUE,
+                  bs_msg->bs.block.sent);
                 // reset the timeout timer since we received a packet.
                 ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg->timeout));
             case ON_MSG_RESPOND:
@@ -5134,49 +5144,51 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
         }
     }
 
-    if(block_get_lowest_unsent_index(bs_msg->sent, block_pkt->chunk_size) == -1)
+    if(block_get_lowest_unsent_index(bs_msg->bs.block.sent,
+      block_pkt->chunk_size) == -1)
     {
         // chunk has been received.
         #if !defined(_ONE_NET_MASTER)
         msg_status = one_net_client_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+          bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
         #elif !defined(_ONE_NET_CLIENT)
         msg_status = one_net_master_block_chunk_received(bs_msg,
-          bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+          bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
         #else
         if(device_is_master)
         {
             msg_status = one_net_master_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+              bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
         }
         else
         {
             msg_status = one_net_client_block_chunk_received(bs_msg,
-              bs_msg->byte_idx, block_pkt->chunk_size, ack_nack);
+              bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
         }
         #endif
         
         switch(msg_status)
         {
             case ON_MSG_ACCEPT_CHUNK:
-                bs_msg->byte_idx += block_pkt->chunk_size;
+                bs_msg->bs.block.byte_idx += block_pkt->chunk_size;
                 if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
                 {
                     // not really a NACK, but that's OK.  The sending device will now
                     // sync.
                     ack_nack->handle = ON_NACK_VALUE;
-                    ack_nack->payload->nack_value = bs_msg->byte_idx;
+                    ack_nack->payload->nack_value = bs_msg->bs.block.byte_idx;
                     ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
                 }
             case ON_MSG_REJECT_CHUNK:
-                one_net_memset(bs_msg->sent, 0, sizeof(bs_msg->sent));
+                one_net_memset(bs_msg->bs.block.sent, 0,
+                  sizeof(bs_msg->bs.block.sent));
         }
     }
     
     if(ack_nack->handle == ON_ACK_BLK_PKTS_RCVD)
     {
-        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->sent,
-          sizeof(bs_msg->sent));
+        one_net_memmove(ack_nack->payload->ack_payload, bs_msg->bs.block.sent,
+          sizeof(bs_msg->bs.block.sent));
     }
     
     return ON_MSG_RESPOND;

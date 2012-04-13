@@ -661,14 +661,15 @@ on_message_status_t eval_handle_ack_nack_response(
         switch(resp_ack_nack->nack_reason)
         {
             case ON_NACK_RSN_INVALID_CHUNK_DELAY:
-                bs_msg.chunk_pause = resp_ack_nack->payload->nack_value;
+                bs_msg.bs.block.chunk_pause =
+                  resp_ack_nack->payload->nack_value;
                 break;
             case ON_NACK_RSN_INVALID_FRAG_DELAY:
                 bs_msg.frag_dly = resp_ack_nack->payload->nack_value;
                 break;
             case ON_NACK_RSN_INVALID_CHUNK_SIZE:
-                bs_msg.chunk_size = resp_ack_nack->payload->nack_value;
-                oncli_send_msg("bad cs:%d\n", bs_msg.chunk_size);
+                bs_msg.bs.block.chunk_size = resp_ack_nack->payload->nack_value;
+                oncli_send_msg("bad cs:%d\n", bs_msg.bs.block.chunk_size);
                 break;
             default:
                 parameter_change = FALSE;
@@ -1554,7 +1555,7 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 {
     if(!bs_msg->dst)
     {
-        if(bs_msg->chunk_size > DEFAULT_BS_CHUNK_SIZE)
+        if(bs_msg->bs.block.chunk_size > DEFAULT_BS_CHUNK_SIZE)
         {
             // make sure we can handle the chunk size.
             ack_nack->nack_reason = ON_NACK_RSN_INVALID_CHUNK_SIZE;
@@ -1595,8 +1596,8 @@ on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 {
     // just a quick load function for testing.  Loads with values from 'a'
     // to 'y' depending on the packet index.
-    one_net_memset(buffer, 'a' + ((bs_msg->byte_idx + bs_msg->chunk_idx) % 25),
-      ON_BS_DATA_PLD_SIZE);
+    one_net_memset(buffer, 'a' + ((bs_msg->bs.block.byte_idx +
+      bs_msg->bs.block.chunk_idx) % 25), ON_BS_DATA_PLD_SIZE);
     return ON_MSG_CONTINUE;
 }
 
@@ -1627,8 +1628,8 @@ on_message_status_t eval_block_chunk_received(
             break;
         }
         
-        remaining = block_get_bytes_remaining(bs_msg->x.transfer_size, byte_idx,
-          i);
+        remaining = block_get_bytes_remaining(bs_msg->bs.block.transfer_size,
+          byte_idx, i);
         uart_write(&bs_buffer[i * ON_BS_DATA_PLD_SIZE], remaining <
           ON_BS_DATA_PLD_SIZE ? remaining : ON_BS_DATA_PLD_SIZE);
     }
