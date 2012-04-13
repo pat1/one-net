@@ -2071,6 +2071,7 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_MESSAGES_ENABLED
         case ON_BS_PREPARE_DATA_PACKET:
         {
+            tick_t tick_now = get_tick_count();
             #ifdef _STREAM_MESSAGES_ENABLED
             UInt8 transfer_type = get_bs_transfer_type(bs_msg.flags);
             UInt16 raw_pid = ((transfer_type == ON_BLK_TRANSFER) ?
@@ -2142,8 +2143,9 @@ void one_net(on_txn_t ** txn)
                     // If we are sending anything but the last packet, we'll
                     // reset the timeout timer.  Otherwise we expect a
                     // response, so we'll reset it when / if we get one.
-                    if(bs_msg.bs.block.chunk_idx + 1 !=
-                      bs_msg.bs.block.chunk_size)
+                    bs_msg.response_needed = (bs_msg.bs.block.chunk_idx + 1 ==
+                      bs_msg.bs.block.chunk_size);
+                    if(!bs_msg.response_needed)
                     {
                         ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
                           bs_msg.timeout));
@@ -2158,17 +2160,16 @@ void one_net(on_txn_t ** txn)
                 else
                 {
                     // We need a response we haven't gotten one in the last 5
-                    // seconds.  If we need a response, we'll make the chunk
-                    // index and chunk size 0 to let the other side know we
-                    // want a response.
-                    bs_msg.bs.block.chunk_idx = 0;
-                    bs_msg.bs.block.chunk_size = 1;
-                    if(TICK_TO_MS(get_tick_count() -
-                      bs_msg.bs.stream.last_response_time) > 5000)
+                    // seconds.
+                    bs_msg.response_needed = (tick_now -
+                      bs_msg.bs.stream.last_response_time > 5000);
+                    bs_msg.bs.stream.elapsed_time = TICK_TO_MS(tick_now -
+                      bs_msg.bs.stream.start_time);
+                    if(bs_msg.bs.stream.elapsed_time >= bs_msg.time)
                     {
-                        bs_msg.bs.block.chunk_size = 0;
+                        terminate_bs_msg(&bs_msg, NULL, ON_MSG_SUCCESS, NULL);
+                        return;
                     }
-                    
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
                       &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
                 }

@@ -482,6 +482,7 @@ typedef struct
 {
     tick_t start_time;
     tick_t last_response_time;
+    UInt32 elapsed_time;
 } stream_msg_t;
 
 
