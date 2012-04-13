@@ -3193,7 +3193,6 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     UInt16 raw_did_int;
     on_raw_did_t raw_did;
-    UInt16 time_ms;
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
     on_ack_nack_t ack_nack;
@@ -3210,7 +3209,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     ptr = end_ptr + 1;
-    time_ms = one_net_strtol(ptr, &end_ptr, 10);
+    bs_msg.time = one_net_strtol(ptr, &end_ptr, 10);
     if(*end_ptr != '\n')
     {
         return ONCLI_PARSE_ERR;
@@ -3247,7 +3246,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
         
         if(on_master_get_default_stream_transfer_values(NULL, dst_client,
-          time_ms, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
+          bs_msg.time, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
           &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK
@@ -3262,7 +3261,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(!device_is_master)
     {
         if(on_client_get_default_stream_transfer_values(&(bs_msg.dst->did),
-          time_ms, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
+          bs_msg.time, &bs_msg.data_rate, &bs_msg.channel, &bs_msg.timeout,
           &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
             return ONCLI_CMD_FAIL; // TODO -- do some conversions on the NACK

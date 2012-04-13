@@ -1379,6 +1379,23 @@ void one_net(on_txn_t ** txn)
                     #ifdef _BLOCK_MESSAGES_ENABLED
                     if(bs_msg.transfer_in_progress && !bs_msg.src)
                     {
+                        UInt8 transfer_type =
+                          get_bs_transfer_type(bs_msg.flags);
+                        BOOL long_transfer;
+                        #ifdef _STREAM_MESSAGES_ENABLED
+                        if(transfer_type == ON_BLK_TRANSFER)
+                        #endif
+                        {
+                            long_transfer =
+                              (bs_msg.bs.block.transfer_size > 2000);
+                        }
+                        #ifdef _STREAM_MESSAGES_ENABLED
+                        else
+                        {
+                            long_transfer = (bs_msg.time > 2000);
+                        }
+                        #endif
+                        
                         if(!ont_get_timer(ONT_BS_TIMER) &&
                           single_data_queue_size == 0)
                         {
@@ -1439,8 +1456,9 @@ void one_net(on_txn_t ** txn)
                                 
                                 
                                 case ON_BS_DEVICE_PERMISSION:
-                                    if(get_bs_transfer_type(bs_msg.flags) ==
-                                      ON_BLK_TRANSFER)
+                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    if(transfer_type == ON_BLK_TRANSFER)
+                                    #endif
                                     {
                                         // estimated completion time
                                         bs_msg.time =
@@ -1453,8 +1471,7 @@ void one_net(on_txn_t ** txn)
                                     
                                 #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
-                                    if(master_involved ||
-                                      bs_msg.bs.block.transfer_size <= 2000)
+                                    if(master_involved || !long_transfer)
                                     {
                                         // Master is involved, so we either ARE
                                         // the master or the master is the
@@ -1465,9 +1482,9 @@ void one_net(on_txn_t ** txn)
                                         // permission when we ask the
                                         // destination device's permission.
                                         
-                                        // On the other hand, if this is a short transfer
-                                        // of less than 2000 bytes, we won't bother to
-                                        // ask for the master's permission either.
+                                        // On the other hand, if this is a short transfer,
+                                        // we won't bother to ask for the master's permission
+                                        // either.
                                         bs_msg.bs_on_state += 4;
                                     }
                                     else
@@ -1490,8 +1507,7 @@ void one_net(on_txn_t ** txn)
                                 #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
-                                      == 0 || bs_msg.bs.block.transfer_size <=
-                                      2000)
+                                      == 0 || !long_transfer)
                                     {
                                         // master is involved or it is a short
                                         // transfer of less than 2000 bytes, so
@@ -1570,6 +1586,7 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     response_pid |= (get_default_num_blocks(
                                       response_pid) << 8);
+                                      
                                     if(!device)
                                     {
                                         // somehow we lost track of the device.
@@ -1602,18 +1619,29 @@ void one_net(on_txn_t ** txn)
                                     
                                     // TODO -- perhaps do more with the time
                                     // estimate?
-                                    #ifdef _ONE_NET_MULTI_HOP
-                                    bs_msg.time = estimate_response_time(
-                                      get_encoded_packet_len(data_pid, TRUE),
-                                      get_encoded_packet_len(response_pid, TRUE),
-                                      get_bs_hops(bs_msg.flags), 20, 10,
-                                      bs_msg.data_rate);
-                                    #else
-                                    bs_msg.time = estimate_response_time(
-                                      get_encoded_packet_len( response_pid,
-                                      TRUE), 20, bs_msg.data_rate);
+                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    if(transfer_type == ON_BLK_TRANSFER)
                                     #endif
-                                    
+                                    {
+                                        #ifdef _ONE_NET_MULTI_HOP
+                                        bs_msg.time = estimate_response_time(
+                                          get_encoded_packet_len(data_pid, TRUE),
+                                          get_encoded_packet_len(response_pid, TRUE),
+                                          get_bs_hops(bs_msg.flags), 20, 10,
+                                          bs_msg.data_rate);
+                                        #else
+                                        bs_msg.time = estimate_response_time(
+                                          get_encoded_packet_len( response_pid,
+                                          TRUE), 20, bs_msg.data_rate);
+                                        #endif
+                                    }
+                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    else
+                                    {
+                                        bs_msg.bs.stream.last_response_time = 0;
+                                        bs_msg.bs.stream.start_time = get_tick_count();
+                                    }
+                                    #endif
                                     break;
                                 }
                                 

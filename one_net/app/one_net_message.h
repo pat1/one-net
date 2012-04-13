@@ -529,6 +529,7 @@ typedef struct
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
     #endif
     bs_msg_union_t bs;
+    BOOL response_needed;
 } block_stream_msg_t;
 
 
