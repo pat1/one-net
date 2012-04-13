@@ -227,6 +227,27 @@ ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
 }
 
 
+/* stores whether a response is needed in the raw payload buffer */
+ONE_NET_INLINE void put_stream_response_needed(BOOL response_needed,
+  UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | response_needed);
+}
+
+
+/* extracts whether a response is needed from the raw payload buffer */
+ONE_NET_INLINE BOOL get_stream_response_needed(UInt8* payload)
+{
+    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
+}
+
+
+
+#define put_stream_elapsed_time put_block_pkt_idx
+#define get_stream_elapsed_time get_block_pkt_idx
+
+
 /* stores the packet index in the raw payload buffer */
 ONE_NET_INLINE void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
 {

@@ -700,16 +700,37 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         }
         else
         {
-            UInt32 blk_stream_value = ((txn->txn_type == ON_STREAM) ?
-              TICK_TO_MS(get_tick_count() - bs_msg->time) :
-              bs_msg->bs.block.byte_idx);
-            put_bs_chunk_idx(bs_msg->bs.block.chunk_idx, raw_payload_bytes);
-            put_bs_chunk_size(bs_msg->bs.block.chunk_size, raw_payload_bytes);
-            put_block_pkt_idx(blk_stream_value, raw_payload_bytes);
+            #ifdef _STREAM_MESSAGES_ENABLED
+            if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
+            {
+                put_stream_response_needed(bs_msg->response_needed,
+                  raw_payload_bytes);
+                put_stream_elapsed_time(bs_msg->bs.stream.elapsed_time,
+                  raw_payload_bytes);
+            }
+            else
+            #endif
+            {
+                put_bs_chunk_idx(bs_msg->bs.block.chunk_idx, raw_payload_bytes);
+                put_bs_chunk_size(bs_msg->bs.block.chunk_size,
+                  raw_payload_bytes);
+                put_block_pkt_idx(bs_msg->bs.block.byte_idx, raw_payload_bytes);
+            }
         }
         
         one_net_memmove(&raw_payload_bytes[pld_idx], raw_pld,
           (raw_pld_len - 1) - pld_idx);
+          
+        {
+            UInt8 i;
+            oncli_send_msg("dog-%ld-", get_tick_count());
+            for(i = 0; i < 32; i++)
+            {
+                oncli_send_msg("%02X", raw_payload_bytes[i]);
+                delay_100s_us(2);
+            }
+            oncli_send_msg("\n");
+        }
         #endif
     }
       
@@ -2110,7 +2131,13 @@ void one_net(on_txn_t ** txn)
             #ifdef _STREAM_MESSAGES_ENABLED
             else
             {
-                status = one_net_block_get_next_payload(&bs_msg, buffer,
+                // We need a response we haven't gotten one in the last 5
+                // seconds.
+                bs_msg.response_needed = (tick_now -
+                  bs_msg.bs.stream.last_response_time > 5000);
+                bs_msg.bs.stream.elapsed_time = TICK_TO_MS(tick_now -
+                  bs_msg.bs.stream.start_time);
+                status = one_net_stream_get_next_payload(&bs_msg, buffer,
                   &ack_nack);
             }
             #endif
@@ -2159,12 +2186,6 @@ void one_net(on_txn_t ** txn)
                 #ifdef _STREAM_MESSAGES_ENABLED
                 else
                 {
-                    // We need a response we haven't gotten one in the last 5
-                    // seconds.
-                    bs_msg.response_needed = (tick_now -
-                      bs_msg.bs.stream.last_response_time > 5000);
-                    bs_msg.bs.stream.elapsed_time = TICK_TO_MS(tick_now -
-                      bs_msg.bs.stream.start_time);
                     if(bs_msg.bs.stream.elapsed_time >= bs_msg.time)
                     {
                         terminate_bs_msg(&bs_msg, NULL, ON_MSG_SUCCESS, NULL);
