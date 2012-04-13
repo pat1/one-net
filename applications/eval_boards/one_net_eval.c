@@ -1686,13 +1686,14 @@ on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
     // the last byte.
     UInt32 time_ms = TICK_TO_MS(get_tick_count());
     UInt8 i;
+
     for(i = 0; i < 7; i++)
     {
         one_net_int32_to_byte_stream(time_ms, buffer);
         time_ms++;
         buffer += sizeof(UInt32);
     }
-    
+
     return ON_MSG_CONTINUE;
 }
 
@@ -1715,7 +1716,8 @@ on_message_status_t eval_handle_stream(on_txn_t* txn,
     UInt8 i;
     UInt8* buf = stream_pkt->data;
     UInt32 time_ms = one_net_byte_stream_to_int32(buf);
-    oncli_send_msg("Time:%ld ms:", stream_pkt->time);
+    oncli_send_msg("ET:%ld:NR:%d", stream_pkt->elapsed_time,
+      stream_pkt->response_needed);
     for(i = 0; i < 7; i++)
     {
         oncli_send_msg("%ld", one_net_byte_stream_to_int32(buf));

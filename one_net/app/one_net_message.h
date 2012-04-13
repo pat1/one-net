@@ -550,9 +550,8 @@ typedef struct
 typedef struct
 {
     UInt16 msg_id;
-    UInt8 chunk_idx; // not really used much for stream packets
-    UInt8 chunk_size; // not really used much for stream packets
-    UInt32 time; // in milliseconds, not ticks
+    UInt32 elapsed_time; // in milliseconds, not ticks
+    BOOL response_needed;
     UInt8* data;
 } stream_pkt_t;
 

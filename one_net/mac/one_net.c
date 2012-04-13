@@ -720,17 +720,6 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         
         one_net_memmove(&raw_payload_bytes[pld_idx], raw_pld,
           (raw_pld_len - 1) - pld_idx);
-          
-        {
-            UInt8 i;
-            oncli_send_msg("dog-%ld-", get_tick_count());
-            for(i = 0; i < 32; i++)
-            {
-                oncli_send_msg("%02X", raw_payload_bytes[i]);
-                delay_100s_us(2);
-            }
-            oncli_send_msg("\n");
-        }
         #endif
     }
       
@@ -1804,14 +1793,15 @@ void one_net(on_txn_t ** txn)
                             #endif
                             *txn = 0;
 
-                            if(!on_parse_bs_pld(raw_payload_bytes, &bs_pkt))
-                            {
-                                break;
-                            }
-                            
                             #ifdef _STREAM_MESSAGES_ENABLED
                             if(is_stream_txn)
                             {
+                                if(!on_parse_stream_pld(raw_payload_bytes,
+                                  &bs_pkt.stream_pkt))
+                                {
+                                    break;
+                                }                                
+                                
                                 msg_status = rx_stream_data(&bs_txn, &bs_msg,
                                   &bs_pkt.stream_pkt, &ack_nack);
                                   
@@ -1826,13 +1816,18 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                 }
                                                                   
-                                respond = (bs_pkt.stream_pkt.chunk_idx == 0 &&
-                                  bs_pkt.stream_pkt.chunk_size == 0 &&
+                                respond = (bs_pkt.stream_pkt.response_needed &&
                                   msg_status == ON_MSG_RESPOND);
                             }
                             else
                             #endif
                             {
+                                if(!on_parse_block_pld(raw_payload_bytes,
+                                  &bs_pkt.block_pkt))
+                                {
+                                    break;
+                                } 
+                                                                
                                 msg_status = rx_block_data(&bs_txn, &bs_msg,
                                   &bs_pkt.block_pkt, &ack_nack);
                                   

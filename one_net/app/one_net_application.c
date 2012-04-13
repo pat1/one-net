@@ -238,7 +238,7 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 /*!
-    \brief Parses a single block or stream packet
+    \brief Parses a single block packet
     
     \param[in] buffer the packet bytes
     \param[out] bs_pkt the parsed packet
@@ -246,24 +246,47 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
     \return TRUE if parsed successfully
     \return FALSE if not parsed successfully
 */
-BOOL on_parse_bs_pld(UInt8* buffer, block_stream_pkt_t* bs_pkt)
+BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt)
 {
-    if(!buffer || !bs_pkt)
+    if(!buffer || !block_pkt)
     {
         return FALSE;
     }
     
-    // same as a stream packet except stream packets have time instead of byte
-    // index.  The code is identical though.
-    bs_pkt->block_pkt.msg_id = get_payload_msg_id(buffer);
-    bs_pkt->block_pkt.chunk_idx = get_bs_chunk_idx(buffer);
-    bs_pkt->block_pkt.chunk_size = get_bs_chunk_size(buffer);
-    bs_pkt->block_pkt.byte_idx = get_block_pkt_idx(buffer);
-    bs_pkt->block_pkt.data = &buffer[ON_BS_DATA_PLD_IDX];
+    block_pkt->msg_id = get_payload_msg_id(buffer);
+    block_pkt->chunk_idx = get_bs_chunk_idx(buffer);
+    block_pkt->chunk_size = get_bs_chunk_size(buffer);
+    block_pkt->byte_idx = get_block_pkt_idx(buffer);
+    block_pkt->data = &buffer[ON_BS_DATA_PLD_IDX];
     return TRUE;
 }
 #endif
 
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/*!
+    \brief Parses a single stream packet
+    
+    \param[in] buffer the packet bytes
+    \param[out] bs_pkt the parsed packet
+    
+    \return TRUE if parsed successfully
+    \return FALSE if not parsed successfully
+*/
+BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt)
+{
+    if(!buffer || !stream_pkt)
+    {
+        return FALSE;
+    }
+    
+    stream_pkt->msg_id = get_payload_msg_id(buffer);
+    stream_pkt->response_needed = get_stream_response_needed(buffer);
+    stream_pkt->elapsed_time = get_stream_elapsed_time(buffer);
+    stream_pkt->data = &buffer[ON_BS_DATA_PLD_IDX];
+    return TRUE;
+}
+#endif
 
 
 //! @} ONE-NET_APP_pub_func

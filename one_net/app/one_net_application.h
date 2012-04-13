@@ -266,9 +266,6 @@ ONE_NET_INLINE UInt32 get_block_pkt_idx(UInt8* payload)
     return (pkt_idx & 0x00FFFFFF);
 }
 
-#define put_stream_pkt_time put_block_pkt_idx
-#define get_stream_pkt_time get_block_pkt_idx
-
 
 
 //! @} ONE-NET_APP_const
@@ -492,7 +489,10 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, UInt32* const msg_data);
 #ifdef _BLOCK_MESSAGES_ENABLED
-BOOL on_parse_bs_pld(UInt8* buffer, block_stream_pkt_t* bs_pkt);
+BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt);
+#endif
+#ifdef _STREAM_MESSAGES_ENABLED
+BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt);
 #endif
 
 
