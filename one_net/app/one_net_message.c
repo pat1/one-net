@@ -767,13 +767,16 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
 {
     // msg buffer must be at least 21 bytes
     bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
+    bs_msg->frag_dly = one_net_byte_stream_to_int16(
+      &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+
+    // irrelevant for stream 
     bs_msg->bs.block.transfer_size = one_net_byte_stream_to_int32(
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     bs_msg->bs.block.chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
-    bs_msg->frag_dly = one_net_byte_stream_to_int16(
-      &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
     bs_msg->bs.block.chunk_pause = one_net_byte_stream_to_int16(
       &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
+      
     bs_msg->channel = msg[BLOCK_STREAM_SETUP_CHANNEL_IDX];
     bs_msg->data_rate = msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
     bs_msg->timeout = one_net_byte_stream_to_int16(
@@ -803,26 +806,34 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
 {
     // msg buffer must be at least 21 bytes
     msg[0] = ON_REQUEST_BLOCK_STREAM;
-    msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;
-    one_net_int32_to_byte_stream(bs_msg->bs.block.transfer_size,
-      &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
-    msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->bs.block.chunk_size;
-    one_net_int16_to_byte_stream(bs_msg->frag_dly,
-      &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
-    one_net_int16_to_byte_stream(bs_msg->bs.block.chunk_pause,
-      &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
+    msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;      
     msg[BLOCK_STREAM_SETUP_CHANNEL_IDX] = bs_msg->channel;
     msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
     one_net_int16_to_byte_stream(bs_msg->timeout,
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
-    
-    
     one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst->did,
       ON_ENCODED_DID_LEN);
-      
+    
+    #ifdef _STREAM_MESSAGES_ENABLED  
+    if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
+    {
+        one_net_int32_to_byte_stream(bs_msg->time,
+          &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
+    }
+    else
+    #endif
     {
         tick_t est_tick = 0;
         tick_t cur_tick = get_tick_count();
+        
+        one_net_int32_to_byte_stream(bs_msg->bs.block.transfer_size,
+          &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
+        msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->bs.block.chunk_size;
+        one_net_int16_to_byte_stream(bs_msg->frag_dly,
+          &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+        one_net_int16_to_byte_stream(bs_msg->bs.block.chunk_pause,
+          &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
+        
         if(cur_tick < bs_msg->time)
         {
             est_tick = bs_msg->time - cur_tick;

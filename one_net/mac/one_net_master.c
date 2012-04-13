@@ -3071,6 +3071,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_REQUEST_BLOCK_STREAM:
         {
+            #ifdef _STREAM_MESSAGES_ENABLED
+            UInt8 is_block_transfer = (get_bs_transfer_type(
+              DATA[BLOCK_STREAM_SETUP_FLAGS_IDX]) == ON_BLK_TRANSFER);
+            #endif
             const on_encoded_did_t* dst_did = (const on_encoded_did_t*)
               &DATA[BLOCK_STREAM_SETUP_DST_IDX];
             on_client_t* recipient = client_info(dst_did);
@@ -3102,11 +3106,25 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                if(bs_msg.bs.block.byte_idx > 0)
+                #ifdef _STREAM_MESSAGES_ENABLED
+                if(!is_block_transfer)
                 {
-                    // we have already started receiving data
-                    ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                    break;
+                    if(bs_msg.bs.stream.last_response_time > 0)
+                    {
+                        // we have already started receiving data
+                        ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
+                        break;                    
+                    }
+                }
+                else
+                #endif
+                {
+                    if(bs_msg.bs.block.byte_idx > 0)
+                    {
+                        // we have already started receiving data
+                        ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
+                        break;                    
+                    }
                 }
             }
             
@@ -3123,8 +3141,18 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             if(master_is_recipient && !ack_nack->nack_reason)
             {
+                #ifdef _STREAM_MESSAGES_ENABLED
+                if(!is_block_transfer)
+                {
+                    bs_msg.bs.stream.last_response_time = 0;
+                }
+                else
+                #endif
+                {
+                    bs_msg.bs.block.byte_idx = 0;
+                }
+                
                 bs_msg.transfer_in_progress = TRUE;
-                bs_msg.bs.block.byte_idx = 0;
                 bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
                 
                 // Set the block / stream timer to the timeout

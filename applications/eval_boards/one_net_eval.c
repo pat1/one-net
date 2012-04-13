@@ -1553,6 +1553,12 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
+    {
+        return;
+    }
+    #endif
     if(!bs_msg->dst)
     {
         if(bs_msg->bs.block.chunk_size > DEFAULT_BS_CHUNK_SIZE)
