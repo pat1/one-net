@@ -876,17 +876,18 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
         oncli_send_msg(" : Msg Id-->0x%03X", bs_pkt->block_pkt.msg_id);
     }
     
-    oncli_send_msg(" : Chunk Idx-->%d : Chunk Size-->%d : ",
-      bs_pkt->block_pkt.chunk_idx, bs_pkt->block_pkt.chunk_size);    
-    
-    #ifndef _STREAM_MESSAGES_ENABLED
-    oncli_send_msg("Byte Idx-->%ld\n", bs_pkt->block_pkt.byte_idx);
-    #else
-    // note that stream_pkt.time and block_pkt.byte_idx are both UInt32, so
-    // just print block_pkt.byte_idx.
-    oncli_send_msg("%s-->%ld\n",
-      (packet_is_stream ? "Time" : "Byte Idx"), bs_pkt->block_pkt.byte_idx);
+    #ifdef _STREAM_MESSAGES_ENABLED
+    if(packet_is_stream)
+    {
+        oncli_send_msg("Time-->%ld\n", bs_pkt->stream_pkt.elapsed_time);
+    }
+    else
     #endif
+    {
+        oncli_send_msg(" : Chunk Idx-->%d : Chunk Size-->%d : ",
+          bs_pkt->block_pkt.chunk_idx, bs_pkt->block_pkt.chunk_size);
+        oncli_send_msg("Byte Idx-->%ld\n", bs_pkt->block_pkt.byte_idx);
+    }
 }
 #endif
 
