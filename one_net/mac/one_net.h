@@ -538,7 +538,7 @@ typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 typedef on_message_status_t (*on_bs_pkt_hdlr_t)(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
+  block_stream_msg_t* bs_msg, void* bs_pkt, on_ack_nack_t* ack_nack);
   
 //! Packet Handling Function for block / stream responses
 typedef on_message_status_t (*on_bs_ack_nack_hdlr_t)(on_txn_t* txn,
