@@ -5283,7 +5283,36 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_IGNORE;
+    on_message_status_t msg_status;
+      
+    if(bs_msg->bs_on_state >= ON_BS_TERMINATE)
+    {
+        goto bs_build_terminate_ack;
+    }
+      
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_NACK_VALUE;
+    msg_status = (*pkt_hdlr.stream_data_hdlr)(txn, bs_msg, stream_pkt,
+      ack_nack);
+    
+    switch(msg_status)
+    {
+        case ON_MSG_TERMINATE: case ON_MSG_ABORT:
+            terminate_bs_msg(bs_msg, NULL, msg_status, ack_nack);
+            goto bs_build_terminate_ack;
+        case ON_MSG_RESPOND: case ON_MSG_ACCEPT_PACKET:
+            bs_msg->bs.stream.last_response_time = get_tick_count();
+            break;
+        default:
+            return ON_MSG_IGNORE;
+    }
+    return ON_MSG_RESPOND;
+    
+bs_build_terminate_ack:
+    ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
+    ack_nack->handle = ON_ACK_ADMIN_MSG;
+    one_net_memmove(ack_nack->payload->admin_msg, bs_txn.pkt, 11);
+    return ON_MSG_RESPOND;
 }
 #endif
 
