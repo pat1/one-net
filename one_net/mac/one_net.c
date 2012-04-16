@@ -1597,17 +1597,6 @@ void one_net(on_txn_t ** txn)
                                     response_pid |= (get_default_num_blocks(
                                       response_pid) << 8);
                                       
-                                    if(!device)
-                                    {
-                                        // somehow we lost track of the device.
-                                        // Abort here?
-                                        
-                                        // TODO -- worry about it later (but soon!)
-                                        // Just abort for now in a non-graceful way
-                                        bs_msg.transfer_in_progress = FALSE;
-                                        on_state = ON_LISTEN_FOR_DATA;
-                                        return;
-                                    }
                                     bs_msg.dst->msg_id++;
                                     bs_txn.key = (one_net_xtea_key_t*)
                                       on_base_param->current_key;
