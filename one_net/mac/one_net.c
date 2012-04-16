@@ -311,6 +311,9 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg);
 #endif
 
 #ifdef _STREAM_MESSAGES_ENABLED
+static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  on_ack_nack_t* ack_nack);
 static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
 #endif
@@ -2313,7 +2316,6 @@ void one_net(on_txn_t ** txn)
                 #ifdef _BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_SEND_DATA_WRITE_WAIT)
                 {
-                    BOOL need_response = FALSE;
                     new_timeout_ms = MS_TO_TICK(bs_msg.frag_dly);
                     
                     // save the state so we can get back to it if need be
@@ -2342,17 +2344,18 @@ void one_net(on_txn_t ** txn)
                         new_chunk_idx = block_get_lowest_unsent_index(
                           bs_msg.bs.block.sent, current_chunk_size);
                           
+                        bs_msg.response_needed = FALSE;  
                         if(new_chunk_idx == -1)
                         {
-                            need_response = (bs_msg.bs.block.chunk_idx ==
-                              current_chunk_size - 1);
+                            bs_msg.response_needed = (bs_msg.bs.block.chunk_idx
+                              == current_chunk_size - 1);
                             new_chunk_idx = current_chunk_size - 1;
                         }
 
                         bs_msg.bs.block.chunk_idx = new_chunk_idx;
                     }
                     
-                    if(need_response)
+                    if(bs_msg.response_needed)
                     {
                         // Set timer for triple the expected time?
                         ont_set_timer(ONT_RESPONSE_TIMER,
@@ -2556,8 +2559,19 @@ void one_net(on_txn_t ** txn)
                     #ifdef _BLOCK_MESSAGES_ENABLED
                     if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                     {
-                        msg_status = rx_block_resp_pkt(*txn, &bs_msg, this_pkt_ptrs,
-                          raw_payload_bytes, &ack_nack);           
+                        #ifdef _STREAM_MESSAGES_ENABLED
+                        if(get_bs_transfer_type(bs_msg.flags) ==
+                          ON_STREAM_TRANSFER)
+                        {
+                            msg_status = rx_stream_resp_pkt(*txn, &bs_msg,
+                              this_pkt_ptrs, raw_payload_bytes, &ack_nack);
+                        }
+                        else
+                        #endif
+                        {
+                            msg_status = rx_block_resp_pkt(*txn, &bs_msg,
+                              this_pkt_ptrs, raw_payload_bytes, &ack_nack);
+                        }
                         
                         if(msg_status == ON_MSG_CONTINUE)
                         {
@@ -5251,6 +5265,15 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
+static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  on_ack_nack_t* ack_nack)
+{
+    // TODO -- write this function
+    return ON_MSG_IGNORE;
+}
+
+
 /*!
     \brief Receives a stream data packet.
 
