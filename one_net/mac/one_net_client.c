@@ -1713,7 +1713,18 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-// TODO -- document
+/*!
+    \brief Handles a block data packet
+
+    \param[in/out] txn The block transaction being carried out
+    \param[in/out] bs_msg The stream message in progress
+    \param[in] block_pkt The data packet, including both the payload and some administration information. 
+    \param[out] ack_nack The response that should be sent to the sending device
+    
+    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+            See on_message_status_t for other options.
+*/ 
 static on_message_status_t on_client_block_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
@@ -1721,7 +1732,19 @@ static on_message_status_t on_client_block_data_hdlr(on_txn_t* txn,
 }
 
 
-// TODO -- document  
+/*!
+    \brief Handles a response from the recipient of a block transfer to the originator(this device) of a block transfer
+    
+    \param[in/out] txn The transaction.
+    \param[in/out] bs_msg The block message being responded to.
+    \param[in] pkt The packet structure.
+    \param[in] raw_payload_bytes The raw payload bytes that is being responded to.
+    \param[in/out] ack_nack The ack or nack atttached to the response.
+           
+    \return ON_MSG_IGNORE to ignore the response.
+            ON_MSG_TERMINATE to terminate the transaction
+            ON_MSG_ACCEPT_PACKET If packet is good.
+*/  
 static on_message_status_t on_client_handle_block_ack_nack_response(
   on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
@@ -1731,7 +1754,18 @@ static on_message_status_t on_client_handle_block_ack_nack_response(
 }
   
 
-// TODO -- document 
+/*!
+    \brief Handles the end of a block transaction.
+    
+    \param[in] msg The block message that is being terminated.
+    \param[in] terminating_device The device that terminated this transaction.
+    \param[in/out] status The status of the message that was just completed.
+    \param[in/out] ack_nack Any ACK or NACK associated with this termination.
+    
+    \return ON_MSG_RESPOND if this device should inform the other devices
+              of the termination.
+            All other return types abort immediately with no further messages.
+*/
 static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
