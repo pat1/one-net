@@ -1625,6 +1625,7 @@ void one_net(on_txn_t ** txn)
                                     if(transfer_type == ON_BLK_TRANSFER)
                                     #endif
                                     {
+                                        // TODO -- delete this?
                                         #ifdef _ONE_NET_MULTI_HOP
                                         bs_msg.time = estimate_response_time(
                                           get_encoded_packet_len(data_pid, TRUE),
@@ -2357,9 +2358,25 @@ void one_net(on_txn_t ** txn)
                     
                     if(bs_msg.response_needed)
                     {
+                        UInt16 data_pid = (4 << 8) + ONE_NET_RAW_BLOCK_DATA;
+                        UInt16 response_pid = (1 << 8) +
+                          ONE_NET_RAW_SINGLE_DATA_ACK;
+                        
                         // Set timer for triple the expected time?
+                        #ifdef _ONE_NET_MULTI_HOP
                         ont_set_timer(ONT_RESPONSE_TIMER,
-                          MS_TO_TICK(3 * bs_msg.time));
+                          MS_TO_TICK(3 * estimate_response_time(
+                            get_encoded_packet_len(data_pid, TRUE),
+                            get_encoded_packet_len(response_pid, TRUE),
+                            get_bs_hops(bs_msg.flags), 20, 10,
+                            bs_msg.data_rate)));
+                        #else
+                        ont_set_timer(ONT_RESPONSE_TIMER,
+                          MS_TO_TICK(3 * estimate_response_time(
+                            get_encoded_packet_len(data_pid, TRUE),
+                            get_encoded_packet_len(response_pid, TRUE), 20,
+                            bs_msg.data_rate)));
+                        #endif
                         on_state = ON_BS_WAIT_FOR_DATA_RESP;
                         break;
                     }
@@ -5268,7 +5285,82 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack)
 {
-    // TODO -- write this function
+    on_message_status_t status;
+    
+    
+    oncli_send_msg("a1\n");
+    
+    if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
+      ONS_SUCCESS)
+    {
+        return ON_MSG_IGNORE; // undecipherable
+    }
+    
+    oncli_send_msg("a2\n");    
+    
+    // send it up to the application code.
+    status = (*pkt_hdlr.stream_ack_nack_hdlr)(txn, bs_msg, pkt,
+      raw_payload_bytes, ack_nack);
+
+
+    oncli_send_msg("a3\n");
+
+    switch(status)
+    {
+        case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
+          terminate_bs_msg(bs_msg, NULL, status, ack_nack);
+          return ON_MSG_TERMINATE;
+        case ON_MSG_IGNORE:
+          return ON_MSG_IGNORE;
+    }
+    
+    oncli_send_msg("a4 %02X\n", ack_nack->handle);    
+    
+    
+    // we got a response, so reset the data rate change timer to the
+    // timeout
+    #ifdef _DATA_RATE_CHANNEL
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(bs_msg->timeout));
+    #endif
+    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg->timeout));
+    switch(ack_nack->handle)
+    {
+        case ON_ACK_SLOW_DOWN_TIME_MS:
+          bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
+          break;
+        case ON_ACK_SPEED_UP_TIME_MS:
+          bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
+          break;
+        case ON_ACK_PAUSE_TIME_MS:
+          ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+            ack_nack->payload->nack_time_ms));
+        #ifdef _DATA_RATE_CHANNEL
+        // Adjust the data rate timer too.
+        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
+          ack_nack->payload->nack_time_ms + bs_msg->timeout));
+        #endif
+          break;
+        case ON_ACK_BLK_PKTS_RCVD:
+              oncli_send_msg("a5\n");
+          return ON_MSG_CONTINUE;
+        default:
+        {
+            switch(ack_nack->nack_reason)
+            {
+                case ON_NACK_RSN_INVALID_FRAG_DELAY:
+                    bs_msg->frag_dly = ack_nack->payload->nack_time_ms;
+                    break;
+                case ON_NACK_RSN_INVALID_PRIORITY:
+                    set_bs_priority(&bs_msg->flags,
+                      ack_nack->payload->nack_value);
+                    break;
+            }
+        }
+    }
+    
+    
+    oncli_send_msg("a6\n");    
+    
     return ON_MSG_IGNORE;
 }
 
