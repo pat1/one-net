@@ -1079,6 +1079,14 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
     
     return ON_MSG_RESPOND; // irrelevant if we are not the source.
 }
+
+
+on_message_status_t eval_handle_bs_ack_nack_response(
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
+  const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_ACCEPT_PACKET;
+}
 #endif
 
 
@@ -1679,6 +1687,14 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
     }
     
     return ON_MSG_ACCEPT_PACKET;
+}
+
+
+on_message_status_t on_master_handle_block_ack_nack_response(
+  on_txn_t* txn, block_stream_msg_t* bs_msg, on_pkt_t* pkt,
+  const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
+{
+    return ON_MSG_DEFAULT_BHVR;
 }
 
   

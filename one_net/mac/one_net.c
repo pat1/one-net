@@ -5347,7 +5347,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
         }
     }
 
-    if(status == ON_MSG_CONTINUE)
+    if(status == ON_MSG_CONTINUE || status == ON_MSG_ACCEPT_PACKET)
     {
         bs_msg->bs.stream.last_response_time = get_tick_count();        
         return ON_MSG_CONTINUE;

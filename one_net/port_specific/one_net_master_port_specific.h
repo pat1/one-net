@@ -597,6 +597,26 @@ on_nack_rsn_t one_net_master_get_default_block_transfer_values(
 on_message_status_t one_net_master_block_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack);
+  
+
+/*!
+    \brief Callback function for a response received for a block or stream
+           message
+    
+    \param[in/out] txn The transaction.
+    \param[in/out] bs_msg The block or stream message being responded to.
+    \param[in] pkt The packet structure.
+    \param[in] raw_payload_bytes The raw payload bytes that is being responded to.
+    \param[in/out] ack_nack The ack or nack atttached to the response.
+           
+    \return ON_MSG_IGNORE to ignore the response.
+            ON_MSG_TERMINATE to terminate the transaction
+            ON_MSG_ACCEPT_PACKET If packet is good.
+            If packet is rejected, the ack_nack reason and / or payload should be filled in.
+*/
+on_message_status_t one_net_master_handle_bs_ack_nack_response(
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
+  const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack);
 #endif
 
 

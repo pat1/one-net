@@ -153,12 +153,6 @@
 #endif
 
 
-// April 3, 2012 -- Stream currently unavailable.
-#ifdef _STREAM_MESSAGES_ENABLED
-    #error "April 3, 2012 -- Stream messages are currently unavailable. Please undefine _STREAM_MESSAGES_ENABLED in config_options.h."
-#endif
-
-
 
 //! @{
 

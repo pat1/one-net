@@ -542,8 +542,8 @@ typedef on_message_status_t (*on_bs_pkt_hdlr_t)(on_txn_t* txn,
   
 //! Packet Handling Function for block / stream responses
 typedef on_message_status_t (*on_bs_ack_nack_hdlr_t)(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
-  on_ack_nack_t* ack_nack);
+  block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
+  const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack);
 #endif
 
 //! Packet Handling Function for responses

@@ -175,7 +175,7 @@ static on_message_status_t on_client_single_data_hdlr(
 static on_message_status_t on_client_block_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_handle_block_ack_nack_response(
-  on_txn_t* txn, block_stream_msg_t* bs_msg, on_pkt_t* pkt,
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
@@ -185,7 +185,7 @@ static on_message_status_t on_client_block_txn_hdlr(
 static on_message_status_t on_client_stream_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_handle_stream_ack_nack_response(
-  on_txn_t* txn, block_stream_msg_t* bs_msg, on_pkt_t* pkt,
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_stream_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
@@ -1679,10 +1679,11 @@ static on_message_status_t on_client_block_data_hdlr(on_txn_t* txn,
 
 // TODO -- document  
 static on_message_status_t on_client_handle_block_ack_nack_response(
-  on_txn_t* txn, block_stream_msg_t* bs_msg, on_pkt_t* pkt,
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
+    return one_net_client_handle_bs_ack_nack_response(txn, bs_msg, pkt,
+      raw_payload_bytes, ack_nack);
 }
   
 
@@ -1732,10 +1733,11 @@ static on_message_status_t on_client_stream_data_hdlr(on_txn_t* txn,
 
 // TODO -- document  
 static on_message_status_t on_client_handle_stream_ack_nack_response(
-  on_txn_t* txn, block_stream_msg_t* bs_msg, on_pkt_t* pkt,
+  on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
 {
-    return ON_MSG_CONTINUE;
+    return one_net_client_handle_bs_ack_nack_response(txn, bs_msg, pkt,
+      raw_payload_bytes, ack_nack);
 }
   
 

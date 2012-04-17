@@ -589,7 +589,8 @@
 #define one_net_master_block_txn_status eval_bs_txn_status
 #define one_net_client_stream_txn_status eval_bs_txn_status
 #define one_net_master_stream_txn_status eval_bs_txn_status
-
+#define one_net_client_handle_bs_ack_nack_response eval_handle_bs_ack_nack_response
+#define one_net_master_handle_bs_ack_nack_response eval_handle_bs_ack_nack_response
 
 
 
