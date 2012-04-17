@@ -1724,15 +1724,16 @@ on_message_status_t eval_handle_stream(on_txn_t* txn,
     UInt32 time_ms = one_net_byte_stream_to_int32(buf);
     oncli_send_msg("ET:%ld:NR:%d", stream_pkt->elapsed_time,
       stream_pkt->response_needed);
-    for(i = 0; i < 7; i++)
+    for(i = 0; i < 6; i++)
     {
         oncli_send_msg("%ld", one_net_byte_stream_to_int32(buf));
         buf += sizeof(UInt32);
-        if(i < 6)
+        if(i < 5)
         {
             oncli_send_msg(",");
         }
     }
+    oncli_send_msg("\n");
     return ON_MSG_RESPOND;
 }
 #endif

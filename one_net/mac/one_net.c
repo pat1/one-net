@@ -2163,12 +2163,7 @@ void one_net(on_txn_t ** txn)
                     // response, so we'll reset it when / if we get one.
                     bs_msg.response_needed = (bs_msg.bs.block.chunk_idx + 1 ==
                       bs_msg.bs.block.chunk_size);
-                    if(!bs_msg.response_needed)
-                    {
-                        ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
-                          bs_msg.timeout));
-                    }
-                    
+
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
                       &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
                     // change back if it was changed before.
@@ -2198,7 +2193,13 @@ void one_net(on_txn_t ** txn)
                 {
                     break;                        
                 }
-                    
+
+                if(!bs_msg.response_needed)
+                {
+                    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
+                      bs_msg.timeout));
+                }
+
                 bs_txn.data_len = get_encoded_packet_len(raw_pid, TRUE);
                 #ifdef _DATA_RATE_CHANNEL
                 one_net_set_channel(bs_msg.channel);
@@ -2361,12 +2362,12 @@ void one_net(on_txn_t ** txn)
                     
                     if(bs_msg.response_needed)
                     {
-                        UInt16 data_pid = (4 << 8) + ONE_NET_RAW_BLOCK_DATA;
                         UInt16 response_pid = (1 << 8) +
                           ONE_NET_RAW_SINGLE_DATA_ACK;
                         
                         // Set timer for triple the expected time?
                         #ifdef _ONE_NET_MULTI_HOP
+                        UInt16 data_pid = (4 << 8) + ONE_NET_RAW_BLOCK_DATA;
                         ont_set_timer(ONT_RESPONSE_TIMER,
                           MS_TO_TICK(3 * estimate_response_time(
                             get_encoded_packet_len(data_pid, TRUE),
@@ -2376,7 +2377,6 @@ void one_net(on_txn_t ** txn)
                         #else
                         ont_set_timer(ONT_RESPONSE_TIMER,
                           MS_TO_TICK(3 * estimate_response_time(
-                            get_encoded_packet_len(data_pid, TRUE),
                             get_encoded_packet_len(response_pid, TRUE), 20,
                             bs_msg.data_rate)));
                         #endif
@@ -5289,24 +5289,16 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
-    
-    
-    oncli_send_msg("a1\n");
-    
+        
     if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
       ONS_SUCCESS)
     {
         return ON_MSG_IGNORE; // undecipherable
-    }
-    
-    oncli_send_msg("a2\n");    
+    }  
     
     // send it up to the application code.
     status = (*pkt_hdlr.stream_ack_nack_hdlr)(txn, bs_msg, pkt,
       raw_payload_bytes, ack_nack);
-
-
-    oncli_send_msg("a3\n");
 
     switch(status)
     {
@@ -5316,10 +5308,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
     }
-    
-    oncli_send_msg("a4 %02X\n", ack_nack->handle);    
-    
-    
+
     // we got a response, so reset the data rate change timer to the
     // timeout
     #ifdef _DATA_RATE_CHANNEL
@@ -5343,9 +5332,6 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
           ack_nack->payload->nack_time_ms + bs_msg->timeout));
         #endif
           break;
-        case ON_ACK_BLK_PKTS_RCVD:
-              oncli_send_msg("a5\n");
-          return ON_MSG_CONTINUE;
         default:
         {
             switch(ack_nack->nack_reason)
@@ -5360,10 +5346,12 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
             }
         }
     }
-    
-    
-    oncli_send_msg("a6\n");    
-    
+
+    if(status == ON_MSG_CONTINUE)
+    {
+        bs_msg->bs.stream.last_response_time = get_tick_count();        
+        return ON_MSG_CONTINUE;
+    }
     return ON_MSG_IGNORE;
 }
 
