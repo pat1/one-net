@@ -610,7 +610,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
     #ifdef _STREAM_MESSAGES_ENABLED  
-    if((status = on_encrypt(txn->txn_type == ON_STREAM, raw_payload_bytes,
+    if((status = on_encrypt(FALSE, raw_payload_bytes,
       txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
     if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
@@ -1020,7 +1020,7 @@ one_net_status_t on_encrypt(UInt8 * const data,
 
     #ifdef _STREAM_MESSAGES_ENABLED
     // get the number of XTEA rounds
-    if(is_stream_pkt)
+    if(!is_stream_pkt)
     {
 	#endif
         rounds = ON_XTEA_32_ROUNDS;
@@ -1084,7 +1084,7 @@ one_net_status_t on_decrypt(UInt8 * const data,
 
     // get the number of XTEA rounds
 	#ifdef _STREAM_MESSAGES_ENABLED
-    if(is_stream_pkt)
+    if(!is_stream_pkt)
     {
 	#endif
         switch(data[payload_len - 1])
@@ -3886,7 +3886,6 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         if((status = on_encrypt(raw_payload_bytes, key,
           get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
         #else
-        // TODO -- Don't hard-code FALSE in there.  Check for stream.
         if((status = on_encrypt(FALSE, raw_payload_bytes, key,
           get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
         #endif
