@@ -400,7 +400,16 @@ one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
 #endif // ifdef _ONE_NET_MULTI_HOP //
 
 
-// TODO -- document
+/*!
+    \brief Parses the raw bytes of a response into an on_ack_nack_t structure.
+
+    \param[in] raw_pid The PID of the response
+    \param[in] raw_bytes The raw bytes containing the response
+    \param[out] ack_nack maximum number of hops the packet can take.
+
+    \return ONS_BAD_PKT_TYPE If parsing was unsuccessful due to a bad PID
+            ONS_SUCCESS If the parsing was successful
+*/
 one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
   on_ack_nack_t* const ack_nack)
 {
@@ -2873,7 +2882,19 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 #endif
 
 
-// TODO -- document
+/*!
+    \brief Finishes reception of a single data pkt
+
+    \param[in/out] txn The single transaction
+    \param[out] this_txn If set to NULL in this function, the  message is cancelled / terminated
+    \param[in] pkt The packet structure being responded to
+    \param[out] raw_payload_bytes The raw payload of the message that is being responded to
+    \param[out] ack_nack The ACK or NACK attached to the response, if any
+
+    \return ON_BS_MSG_SETUP_CHANGE Applicable only for block / stream setup messages.  Terminates the current block / stream message
+            ON_MSG_IGNORE If the packet should be be ignored
+            All other return values result in continuing of the message in the default fashion.
+*/
 static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   on_txn_t** const this_txn, on_pkt_t* const pkt,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
@@ -3060,7 +3081,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
     \return ON_MSG_CONTINUE If the packet should be processed further
             ON_MSG_RESPONSE If the packet does not need further processing
                             and should be responded to.
-            ON_MSG_IGNORE If the packet should be not be ignored
+            ON_MSG_IGNORE If the packet should be be ignored
             See on_message_status_t & single_data_hdlr for more options.
 */
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
