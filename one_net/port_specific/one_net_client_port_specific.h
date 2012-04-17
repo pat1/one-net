@@ -481,7 +481,7 @@ on_nack_rsn_t one_net_client_get_default_block_transfer_values(
     \param[in/out] txn The transaction.
     \param[in/out] bs_msg The block or stream message being responded to.
     \param[in] pkt The packet structure.
-    \param[in] raw_payload_bytes The raw payload bytes that is being responded to.
+    \param[in] raw_payload_bytes The raw payload bytes that are being responded to.
     \param[in/out] ack_nack The ack or nack atttached to the response.
            
     \return ON_MSG_IGNORE to ignore the response.

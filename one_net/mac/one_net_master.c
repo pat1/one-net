@@ -2210,7 +2210,19 @@ omsdh_build_resp:
 }
 
   
-// TODO -- document  
+/*!
+    \brief Handles a response from the recipient of a single transaction to the originator(this device)
+    
+    \param[in/out] txn The transaction.
+    \param[in] pkt The packet structure.
+    \param[in] raw_pld The raw payload bytes that are being responded to.
+    \param[in] msg_type The type of the message in process (i.e. admin message or applicaiton message)
+    \param[in/out] ack_nack The ack or nack atttached to the response.
+           
+    \return ON_MSG_TIMEOUT if the message should time out.
+            ON_MSG_CONTINUE if the message should continue.
+            See on_message_status_t structure for more options.
+*/ 
 static on_message_status_t on_master_handle_single_ack_nack_response(
   on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
@@ -2560,7 +2572,7 @@ static on_message_status_t on_master_block_data_hdlr(on_txn_t* txn,
     \param[in/out] txn The transaction.
     \param[in/out] bs_msg The block message being responded to.
     \param[in] pkt The packet structure.
-    \param[in] raw_payload_bytes The raw payload bytes that is being responded to.
+    \param[in] raw_payload_bytes The raw payload bytes that are being responded to.
     \param[in/out] ack_nack The ack or nack atttached to the response.
            
     \return ON_MSG_IGNORE to ignore the response.
