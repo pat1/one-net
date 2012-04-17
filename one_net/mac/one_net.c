@@ -634,10 +634,13 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   block_stream_msg_t* bs_msg)
 #endif
 {
-    // TODO -- add block / stream packet building code.
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
     SInt8 num_words = get_encoded_payload_len(pkt_ptrs->raw_pid);
+    #ifdef _STREAM_MESSAGES_ENABLED
+    BOOL is_stream_txn = (bs_msg && get_bs_transfer_type(bs_msg->flags) ==
+      ON_STREAM_TRANSFER);
+    #endif
     
     if(num_words <= 0)
     {
@@ -704,7 +707,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         else
         {
             #ifdef _STREAM_MESSAGES_ENABLED
-            if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
+            if(is_stream_txn)
             {
                 put_stream_response_needed(bs_msg->response_needed,
                   raw_payload_bytes);
@@ -732,7 +735,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
     
     #ifdef _STREAM_MESSAGES_ENABLED  
-    if((status = on_encrypt(txn->txn_type == ON_STREAM, raw_payload_bytes,
+    if((status = on_encrypt(is_stream_txn, raw_payload_bytes,
       txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
     if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
