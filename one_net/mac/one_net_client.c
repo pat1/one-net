@@ -1767,7 +1767,18 @@ static on_message_status_t on_client_block_txn_hdlr(
 
 
 #ifdef _STREAM_MESSAGES_ENABLED
-// TODO -- document
+/*!
+    \brief Handles the received stream packet.
+	
+    \param[in] txn The block / stream transaction
+    \param[in] bs_msg The block / stream message
+    \param[in] stream_pkt The packet received
+    \param[out] The ACK or NACK that should be returned in the response, if any
+                 
+    \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+            See on_message_status_t for other options.
+*/
 static on_message_status_t on_client_stream_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
@@ -1775,7 +1786,20 @@ static on_message_status_t on_client_stream_data_hdlr(on_txn_t* txn,
 }
 
 
-// TODO -- document  
+/*!
+    \brief Handles a response from the recipient of a stream transfer to the originator(this device) of a stream transfer
+
+    \param[in/out] txn The stream transaction being carried out
+    \param[in/out] bs_msg The stream message in progress
+    \param[in] pkt The packet
+    \param[in] raw_payload_bytes The raw payload bytes of the stream paylod that is being responded to.
+    \param[in/out] ack_nack The ack or nack containied in the response
+
+    \return ON_MSG_IGNORE to ignore the response.
+            ON_MSG_TERMINATE to terminate the transaction
+            ON_MSG_ACCEPT_PACKET If packet is good.
+            If packet is rejected, the ack_nack reason and / or payload should be filled in.
+*/ 
 static on_message_status_t on_client_handle_stream_ack_nack_response(
   on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
@@ -1785,7 +1809,18 @@ static on_message_status_t on_client_handle_stream_ack_nack_response(
 }
   
 
-// TODO -- document 
+/*!
+    \brief Handles the end of a stream transaction.
+
+    \param[in] msg The stream message that has ended.
+    \param[in] terminating_device The device that terminated the stream transfer(if NULL, then the terminating device is this device)
+    \param[in/out] status The termination status of the stream message
+    \param[in/out] ack_nack The ack or nack associated with the termination, if any
+
+    \return ON_MSG_RESPOND if this device should inform the other devices
+              of the termination.
+            All other return types abort immediately with no further messages.
+*/
 static on_message_status_t on_client_stream_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
