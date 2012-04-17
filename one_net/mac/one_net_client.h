@@ -190,6 +190,8 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
     
     \param[in] dst The destination of the transfer.
     \param[in] time_ms Proposed duration of the stream transfer.  If time is 0, then the time is unknown.
+    \param[out] priority The priority of the transfer.
+    \param[out] frag_delay The time to wait between packet sends.
     \param[out] data_rate The data rate to use for the transfer.
     \param[out] channel The channel to use for the transfer.
     \param[out] timeout The time to wait for a response before assuming that
@@ -201,8 +203,9 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
             
 */
 on_nack_rsn_t on_client_get_default_stream_transfer_values(
-  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate,
-  UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack);
+  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* priority,
+  UInt16* frag_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
+  on_ack_nack_t* ack_nack);
 
 
 /*!

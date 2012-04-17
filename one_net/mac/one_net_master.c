@@ -1852,7 +1852,8 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
 #ifdef _STREAM_MESSAGES_ENABLED
 on_nack_rsn_t on_master_get_default_stream_transfer_values(
   const on_client_t* src_client, const on_client_t* dst_client, UInt32 time_ms,
-  UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
+  UInt8* priority, UInt16* frag_delay, UInt8* data_rate, UInt8* channel,
+  UInt16* timeout, on_ack_nack_t* ack_nack)
 {    
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;  
@@ -1883,6 +1884,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
     
     *nr =  ON_NACK_RSN_NO_ERROR;
     *data_rate = ONE_NET_DATA_RATE_38_4;
+    *priority = ONE_NET_HIGH_PRIORITY;
     *channel = on_base_param->channel;
     
     if(time_ms > 0 && time_ms < 2000)
@@ -1922,6 +1924,11 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             return *nr;
         }
         
+        if(!(src_flags & ON_BS_HIGH_PRIORITY))
+        {
+            *priority = ONE_NET_LOW_PRIORITY;
+        }
+        
         #ifdef _DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
@@ -1941,9 +1948,17 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
         }
         #endif
     }
-    
+
+    if(!src_client || !dst_client)
+    {
+        // master is involved, so assign the frag delay.  Default for stream is
+        // always high-priority fragment delay regardless of priority
+        *frag_delay = on_base_param->fragment_delay_high;
+    }
+
     *nr = one_net_master_get_default_stream_transfer_values(src_client,
-      dst_client, time_ms, data_rate, channel, timeout, ack_nack);
+      dst_client, time_ms, priority, frag_delay, data_rate, channel, timeout,
+      ack_nack);
     return *nr;
 }
 

@@ -899,8 +899,9 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
 
 #ifdef _STREAM_MESSAGES_ENABLED
 on_nack_rsn_t on_client_get_default_stream_transfer_values(
-  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* data_rate, UInt8* channel,
-  UInt16* timeout, on_ack_nack_t* ack_nack)
+  const on_encoded_did_t* dst, UInt32 time_ms, UInt8* priority,
+  UInt16* frag_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
+  on_ack_nack_t* ack_nack)
 {
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     on_sending_device_t* device = &master->device;
@@ -924,6 +925,7 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
     *nr = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_ACK;
     // Set to the current parameters first.
+    *priority = ONE_NET_HIGH_PRIORITY;
     *data_rate = ONE_NET_DATA_RATE_38_4;
     *channel = on_base_param->channel;
     
@@ -966,9 +968,13 @@ on_nack_rsn_t on_client_get_default_stream_transfer_values(
         }
         #endif
     }
-
+    
+    // Assign the frag delay.  Default for stream is always high-priority
+    // fragment delay regardless of priority
+    *frag_delay = on_base_param->fragment_delay_high;
+    
     *nr = one_net_client_get_default_stream_transfer_values(dst, time_ms,
-      data_rate, channel, timeout, ack_nack);
+      priority, frag_delay, data_rate, channel, timeout, ack_nack);
     return *nr;
 }
 
