@@ -1383,7 +1383,19 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 }
   
 
-// TODO -- document 
+/*!
+    \brief Handles the end of a single transaction
+
+    \param[in/out] txn The transaction that has just completed
+    \param[in] pkt The packet containing the packet bytes of the message that has just completed
+    \param[in] raw_pld The raw payload of the message that has just completed
+    \param[in] msg_type The type of the message that has just completed (i.e. admin message, application message)
+    \param[in] status The status of the message that just completed
+    \param[out] ack_nack The response attached to the message
+    
+    \return ON_MSG_FAIL If the message failed
+            ON_MSG_SUCCESS If the message succeeded
+*/
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack)
