@@ -2024,7 +2024,22 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
 
 
 
-// TODO -- document
+
+/*!
+    \brief Handles a single data packet
+
+    \param[in/out] txn The single transaction being carried out
+    \param[in] pkt The packet structure.
+    \param[in] raw_pld The raw payload bytes in the message
+    \param[in] msg_type The type of the datapacket (i.e. admin packet or application packet)
+    \param[out] ack_nack The response that should be sent to the sending device
+    
+    \return 
+            ON_MSG_ABORT If the message is to be discarded and the transaction aborted
+            ON_MSG_CONTINUE if an ACK or a NACK should be sent back.
+            ON_MSG_IGNORE if no reponse should occur.
+            See on_message_status_t for other options.
+*/ 
 static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
