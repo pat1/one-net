@@ -2074,9 +2074,9 @@ void one_net(on_txn_t ** txn)
                 if(on_state > ON_BS_COMMENCE && on_state < ON_BS_TERMINATE)
                 {
                     bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
+                    // make the pause half the timeout
+                    pause_bs_msg(&bs_msg, MS_TO_TICK(bs_msg.timeout / 2));
                     on_state = ON_LISTEN_FOR_DATA;
-                    // make the pasue half the timeout
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(bs_msg.timeout / 2));
                 }
                 
                 if(on_state == ON_LISTEN_FOR_DATA)
@@ -2241,9 +2241,7 @@ void one_net(on_txn_t ** txn)
                 {
                     pause_time = ack_nack.payload->ack_time_ms;
                 }
-                ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(pause_time));
-                on_state = ON_BS_CHUNK_PAUSE;
-                bs_msg.bs_on_state = ON_BS_CHUNK_PAUSE;
+                pause_bs_msg(&bs_msg, (UInt16) pause_time);
             }
             else
             {
@@ -3378,13 +3376,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
           break;
         case ON_ACK_PAUSE_TIME_MS:
-          ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
-            ack_nack->payload->nack_time_ms));
-        #ifdef _DATA_RATE_CHANNEL
-        // Adjust the data rate timer too.
-        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
-          ack_nack->payload->nack_time_ms + bs_msg->timeout));
-        #endif
+          pause_bs_msg(bs_msg, ack_nack->payload->nack_time_ms);
           break;
         case ON_ACK_BLK_PKTS_RCVD:
           one_net_memmove(bs_msg->bs.block.sent, ack_nack->payload->ack_payload,
@@ -3411,10 +3403,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                     
                     one_net_memset(bs_msg->bs.block.sent, 0,
                       sizeof(bs_msg->bs.block.sent));
-                    on_state = ON_BS_CHUNK_PAUSE;
-                    bs_msg->bs_on_state = ON_BS_CHUNK_PAUSE;
-                    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
-                      bs_msg->bs.block.chunk_pause));
+                    pause_bs_msg(bs_msg, bs_msg->bs.block.chunk_pause);
                     break;
                 case ON_NACK_RSN_INVALID_FRAG_DELAY:
                     bs_msg->frag_dly = ack_nack->payload->nack_time_ms;
@@ -4952,6 +4941,22 @@ void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms)
     msg->saved_ack_nack.nack_reason = ON_ACK_PAUSE_TIME_MS;
     msg->saved_ack_nack.handle = ON_NACK_PAUSE_TIME_MS;
     msg->saved_ack_nack.payload->nack_value = pause_ms;
+    ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
+      msg->saved_ack_nack.payload->nack_time_ms));
+    ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(
+      msg->saved_ack_nack.payload->nack_time_ms + msg->timeout));
+    #ifdef _DATA_RATE_CHANNEL
+    // Adjust the data rate timer too.
+    ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
+      msg->saved_ack_nack.payload->nack_time_ms + msg->timeout));
+    #endif
+    
+    if(!msg->src)
+    {
+        // we are the source
+        msg->bs_on_state = ON_BS_CHUNK_PAUSE;
+        on_state = ON_LISTEN_FOR_DATA;
+    }
 }
 
 
@@ -5444,13 +5449,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
           bs_msg->frag_dly += ack_nack->payload->nack_time_ms;
           break;
         case ON_ACK_PAUSE_TIME_MS:
-          ont_set_timer(ONT_BS_TIMER, MS_TO_TICK(
-            ack_nack->payload->nack_time_ms));
-        #ifdef _DATA_RATE_CHANNEL
-        // Adjust the data rate timer too.
-        ont_set_timer(ONT_DATA_RATE_CHANNEL_TIMER, MS_TO_TICK(
-          ack_nack->payload->nack_time_ms + bs_msg->timeout));
-        #endif
+          pause_bs_msg(bs_msg, ack_nack->payload->nack_time_ms);
           break;
         default:
         {
