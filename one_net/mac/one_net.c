@@ -4896,6 +4896,16 @@ UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
 }
 
 
+/*!
+    \brief Adjusts the priority in an in-progress block / stream transfer
+    
+    This function can be called by the application code of either the sender
+    or recipient of a block / stream transfer already in progress in order to
+    change the priority of the transfer.
+
+    \param[in/out] msg The block / stream message in progress
+    \param[in] priority The new priority
+*/
 void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority)
 {
     set_bs_priority(&msg->flags, priority);
@@ -4906,6 +4916,16 @@ void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority)
 }
 
 
+/*!
+    \brief Adjusts the chunk_pause in an in-progress block transfer
+    
+    This function can be called by the application code of either the sender
+    or recipient of a block transfer already in progress in order to
+    change the chunk pause (time in milliseconds between data "chunks")
+
+    \param[in/out] msg The block / stream message in progress
+    \param[in] chunk_pause The new chunk pause (in milliseconds)
+*/
 void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause)
 {
     msg->bs.block.chunk_pause = chunk_pause;
@@ -4916,6 +4936,16 @@ void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause)
 }
 
 
+/*!
+    \brief Pauses a block or stream transfer that is already in progress
+    
+    This function can be called by the application code of either the sender
+    or recipient of a block / stream transfer already in progress in order to
+    pause it.
+
+    \param[in/out] msg The block / stream message in progress
+    \param[in] pause_ms The time to pause (in milliseconds)
+*/
 void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms)
 {
     msg->use_saved_ack_nack = TRUE;
@@ -4925,6 +4955,16 @@ void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms)
 }
 
 
+/*!
+    \brief Adjusts the fragment delay in an in-progress block / stream transfer
+    
+    This function can be called by the application code of either the sender
+    or recipient of a block / stream transfer already in progress in order to
+    change the fragment delay (time in milliseconds between data packets)
+
+    \param[in/out] msg The block / stream message in progress
+    \param[in] frag_delay The new fragment delay (in milliseconds)
+*/
 void adjust_bs_frag_delay(block_stream_msg_t* msg, UInt16 frag_delay)
 {
     msg->frag_dly = frag_delay;
