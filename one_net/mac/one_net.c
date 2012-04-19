@@ -1183,6 +1183,9 @@ void one_net_init(void)
     #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
     bs_msg.transfer_in_progress = FALSE;
+    bs_msg.saved_ack_nack.payload = (ack_nack_payload_t*)
+      bs_msg.saved_ack_nack_payload_bytes;
+    bs_msg.use_saved_ack_nack = FALSE;
     #endif
 } // one_net_init //
     
@@ -1805,7 +1808,7 @@ void one_net(on_txn_t ** txn)
                                   &bs_pkt.stream_pkt))
                                 {
                                     break;
-                                }                                
+                                }
                                 
                                 msg_status = rx_stream_data(&bs_txn, &bs_msg,
                                   &bs_pkt.stream_pkt, &ack_nack);
@@ -1853,9 +1856,23 @@ void one_net(on_txn_t ** txn)
                             }
                             
                             if(respond)
-                            {                                
+                            {
                                 // we'll send back a reply.
-                                UInt16 response_pid = ((ack_nack.nack_reason ==
+                                UInt16 response_pid;
+                                
+                                if(!bs_msg.use_saved_ack_nack)
+                                {
+                                    bs_msg.saved_ack_nack.nack_reason =
+                                      ack_nack.nack_reason;
+                                    bs_msg.saved_ack_nack.handle =
+                                      ack_nack.handle;
+                                    one_net_memmove(
+                                      bs_msg.saved_ack_nack.payload,
+                                      ack_nack.payload, 5);
+                                }
+                                
+                                response_pid = (
+                                  (bs_msg.saved_ack_nack.nack_reason ==
                                   ON_NACK_RSN_NO_ERROR) ?
                                   ONE_NET_RAW_SINGLE_DATA_ACK :
                                   ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
@@ -1883,7 +1900,7 @@ void one_net(on_txn_t ** txn)
                                 response_txn.key = bs_txn.key;
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
                                 
-                                if(on_build_response_pkt(&ack_nack, 
+                                if(on_build_response_pkt(&bs_msg.saved_ack_nack,
                                   &response_pkt_ptrs, &response_txn, bs_msg.src,
                                   FALSE) != ONS_SUCCESS)
                                 {
@@ -1899,6 +1916,7 @@ void one_net(on_txn_t ** txn)
                                 *txn = &response_txn;
                                 ont_set_timer((*txn)->next_txn_timer, 0);
                                 on_state = ON_SEND_SINGLE_DATA_RESP;
+                                bs_msg.use_saved_ack_nack = FALSE;
                             }
                         }
                         #endif
@@ -3324,12 +3342,12 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
-    
+
     if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
       ONS_SUCCESS)
     {
         return ON_MSG_IGNORE; // undecipherable
-    }
+    }   
     
     // send it up to the application code.
     status = (*pkt_hdlr.block_ack_nack_hdlr)(txn, bs_msg, pkt,
@@ -3343,6 +3361,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
     }
+    
     
     // we got a response, so reset the data rate change timer to the
     // timeout
@@ -3407,7 +3426,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
             }
         }
     }
-    
+
     return ON_MSG_IGNORE;
 }
 #endif
@@ -4877,6 +4896,45 @@ UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
 }
 
 
+void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority)
+{
+    set_bs_priority(&msg->flags, priority);
+    msg->use_saved_ack_nack = TRUE;
+    msg->saved_ack_nack.nack_reason = ON_NACK_RSN_INVALID_PRIORITY;
+    msg->saved_ack_nack.handle = ON_NACK_VALUE;
+    msg->saved_ack_nack.payload->nack_value = priority;
+}
+
+
+void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause)
+{
+    msg->bs.block.chunk_pause = chunk_pause;
+    msg->use_saved_ack_nack = TRUE;
+    msg->saved_ack_nack.nack_reason = ON_NACK_RSN_INVALID_CHUNK_DELAY;
+    msg->saved_ack_nack.handle = ON_NACK_VALUE;
+    msg->saved_ack_nack.payload->nack_value = chunk_pause;
+}
+
+
+void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms)
+{
+    msg->use_saved_ack_nack = TRUE;
+    msg->saved_ack_nack.nack_reason = ON_ACK_PAUSE_TIME_MS;
+    msg->saved_ack_nack.handle = ON_NACK_PAUSE_TIME_MS;
+    msg->saved_ack_nack.payload->nack_value = pause_ms;
+}
+
+
+void adjust_bs_frag_delay(block_stream_msg_t* msg, UInt16 frag_delay)
+{
+    msg->frag_dly = frag_delay;
+    msg->use_saved_ack_nack = TRUE;
+    msg->saved_ack_nack.nack_reason = ON_NACK_RSN_INVALID_FRAG_DELAY;
+    msg->saved_ack_nack.handle = ON_NACK_VALUE;
+    msg->saved_ack_nack.payload->nack_value = frag_delay;
+}
+
+
 /*!
     \brief Calculates the estimated time for a block transfer to complete
     
@@ -5295,6 +5353,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
     on_state = ON_LISTEN_FOR_DATA;
     bs_msg->bs_on_state = ON_LISTEN_FOR_DATA;
     bs_msg->transfer_in_progress = FALSE;
+    bs_msg->use_saved_ack_nack = FALSE;
     #ifdef _DATA_RATE_CHANNEL
     one_net_set_data_rate(ONE_NET_DATA_RATE_38_4);
     one_net_set_channel(on_base_param->channel);
@@ -5370,7 +5429,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
 
     if(status == ON_MSG_CONTINUE || status == ON_MSG_ACCEPT_PACKET)
     {
-        bs_msg->bs.stream.last_response_time = get_tick_count();        
+        bs_msg->bs.stream.last_response_time = get_tick_count();
         return ON_MSG_CONTINUE;
     }
     return ON_MSG_IGNORE;

@@ -929,6 +929,10 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg);
+void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority);
+void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause);
+void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms);
+void adjust_bs_frag_delay(block_stream_msg_t* msg, UInt16 frag_delay);
 #if defined(_ONE_NET_MULTI_HOP) && defined(_ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
 on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater);

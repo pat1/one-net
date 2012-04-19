@@ -6,6 +6,7 @@
 #include "one_net_packet.h"
 #include "one_net_port_const.h"
 #include "one_net_features.h"
+#include "one_net_acknowledge.h"
 
 
 //! \defgroup ONE-NET_MESSAGE ONE-NET Message Definitions
@@ -531,6 +532,9 @@ typedef struct
     #endif
     bs_msg_union_t bs;
     BOOL response_needed;
+    BOOL use_saved_ack_nack;
+    UInt8 saved_ack_nack_payload_bytes[5];
+    on_ack_nack_t saved_ack_nack;
 } block_stream_msg_t;
 
 
