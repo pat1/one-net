@@ -142,6 +142,7 @@ typedef enum
     ON_NACK_RSN_DEVICE_IS_THIS_DEVICE, //! Attempting to do something with another device when the other device is yourself
     ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME, //! Attempting to send a message where the sender and the recipient are the same device
     ON_NACK_RSN_PERMISSION_DENIED_FATAL, //! Generic "Permission denied" fatal error.
+    ON_NACK_RSN_ABORT,                   //! Abort
     
     // stick any more ONE-NET fatal errors here.
     

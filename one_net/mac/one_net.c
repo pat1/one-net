@@ -3340,21 +3340,32 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
+    on_encoded_did_t* terminating_did = &bs_msg->dst->did;
 
     if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
       ONS_SUCCESS)
     {
         return ON_MSG_IGNORE; // undecipherable
-    }   
+    }
+    
+    if(!nack_reason_is_fatal(ack_nack->nack_reason))
+    {
+        terminating_did = NULL;
+    }
     
     // send it up to the application code.
     status = (*pkt_hdlr.block_ack_nack_hdlr)(txn, bs_msg, pkt,
       raw_payload_bytes, ack_nack);
       
+    if(terminating_did)
+    {
+        status = ON_MSG_ABORT;
+    }
+      
     switch(status)
     {
         case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
-          terminate_bs_msg(bs_msg, NULL, status, ack_nack);
+          terminate_bs_msg(bs_msg, terminating_did, status, ack_nack);
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
@@ -5110,60 +5121,42 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     #else
     on_bs_txn_hdlr_t txn_hdlr = pkt_hdlr.block_txn_hdlr;
     #endif
-    
-    // see comment below.  We use the bs_txn.pkt buffer as temporary storage.
-    on_ack_nack_t* response_ack_nack = (on_ack_nack_t*)
-      &bs_txn.pkt[ON_ENCODED_DID_LEN+2];
-    response_ack_nack->payload = (ack_nack_payload_t*)
-      &bs_txn.pkt[ON_ENCODED_DID_LEN+4];
       
     if(on_state >= ON_BS_TERMINATE || bs_msg->bs_on_state>= ON_BS_TERMINATE)
     {
         return; // already in the process of terminating.
     }
-      
-    if(!ack_nack)
+
+    if(ack_nack)
     {
-        ack_nack = response_ack_nack;
-        ack_nack->handle = ON_ACK;
-        ack_nack->nack_reason = ON_NACK_RSN_UNSET;
-        ack_nack->payload = response_ack_nack->payload;
+        bs_msg->saved_ack_nack.nack_reason = ack_nack->nack_reason;
+        bs_msg->saved_ack_nack.handle = ack_nack->handle;
+        if(ack_nack->payload)
+        {
+            one_net_memmove(bs_msg->saved_ack_nack.payload, ack_nack->payload,
+              5);
+        }
+    }
+    else
+    {
+        bs_msg->saved_ack_nack.handle = ON_ACK;
+        bs_msg->saved_ack_nack.nack_reason = ON_NACK_RSN_ABORT;
     }
     
     // First inform the application code and give it a chance to change.
-    if((*txn_hdlr)(bs_msg, terminating_did, &status, ack_nack) !=
+    if((*txn_hdlr)(bs_msg, terminating_did, &status, &bs_msg->saved_ack_nack) !=
       ON_MSG_RESPOND)
     {
         terminate_bs_complete(bs_msg);
         return;
     }
-    
+
     if(status == ON_MSG_TIMEOUT)
     {
         // if this was a timeout, then presumably communication has been lost
         // so abort immediately.
         terminate_bs_complete(bs_msg);
         return;
-    }
-    
-    // we'll use the bs_txn.pkt buffer as temporary storage for the termination
-    // message.  We'll change states to ON_BS_TERMINATE and make sure that
-    // memory is not accidentally overwritten.
-    bs_txn.pkt[0] = ON_TERMINATE_BLOCK_STREAM;
-    one_net_memmove(&bs_txn.pkt[1], &on_base_param->sid[ON_ENCODED_NID_LEN],
-      ON_ENCODED_NID_LEN);
-    if(terminating_did)
-    {
-        one_net_memmove(&bs_txn.pkt[1], *terminating_did, ON_ENCODED_DID_LEN);
-    }
-    bs_txn.pkt[ON_ENCODED_DID_LEN+1] = status;
-    response_ack_nack->nack_reason = ack_nack->nack_reason;
-    response_ack_nack->handle = ack_nack->handle;
-    
-    if(ack_nack->payload)
-    {
-        one_net_memmove(response_ack_nack->payload, ack_nack->payload,
-          5);
     }
     
     bs_msg->bs_on_state = ON_BS_TERMINATE;
@@ -5173,6 +5166,28 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     if(!bs_msg->src)
     {
         // We are the source.  Push a single message onto the queue.
+        // We'll use the bs_txn.pkt buffer as temporary storage for the termination
+        // message.  We'll change states to ON_BS_TERMINATE and make sure that
+        // memory is not accidentally overwritten.
+        on_ack_nack_t* response_ack_nack = (on_ack_nack_t*)
+          &bs_txn.pkt[ON_ENCODED_DID_LEN+2];
+        response_ack_nack->payload = (ack_nack_payload_t*)
+          &bs_txn.pkt[ON_ENCODED_DID_LEN+4];        
+
+        bs_txn.pkt[0] = ON_TERMINATE_BLOCK_STREAM;
+        one_net_memmove(&bs_txn.pkt[1], &on_base_param->sid[ON_ENCODED_NID_LEN],
+          ON_ENCODED_NID_LEN);
+        if(terminating_did)
+        {
+            one_net_memmove(&bs_txn.pkt[1], *terminating_did,
+              ON_ENCODED_DID_LEN);
+        }
+        bs_txn.pkt[ON_ENCODED_DID_LEN+1] = status;
+        response_ack_nack->nack_reason = bs_msg->saved_ack_nack.nack_reason;
+        response_ack_nack->handle = bs_msg->saved_ack_nack.handle;
+        one_net_memmove(response_ack_nack->payload,
+          bs_msg->saved_ack_nack.payload, 5);
+        
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
           bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL, &bs_msg->dst->did
           #ifdef _PEER
@@ -5190,6 +5205,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     else if(!bs_msg->dst)
     {
         // we are the destination.
+        bs_msg->use_saved_ack_nack = TRUE;
         if(terminating_did)
         {
             // someone else initiated this termination, so wait a VERY
@@ -5414,21 +5430,32 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
+    on_encoded_did_t* terminating_did = &bs_msg->dst->did;
         
     if(on_parse_response_pkt(pkt->raw_pid, raw_payload_bytes, ack_nack) !=
       ONS_SUCCESS)
     {
         return ON_MSG_IGNORE; // undecipherable
-    }  
+    }
+    
+    if(!nack_reason_is_fatal(ack_nack->nack_reason))
+    {
+        terminating_did = NULL;
+    }
     
     // send it up to the application code.
     status = (*pkt_hdlr.stream_ack_nack_hdlr)(txn, bs_msg, pkt,
       raw_payload_bytes, ack_nack);
+      
+    if(terminating_did)
+    {
+        status = ON_MSG_ABORT;
+    }
 
     switch(status)
     {
         case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
-          terminate_bs_msg(bs_msg, NULL, status, ack_nack);
+          terminate_bs_msg(bs_msg, terminating_did, status, ack_nack);
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
