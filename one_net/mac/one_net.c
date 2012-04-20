@@ -3408,7 +3408,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                       bs_msg->bs.block.transfer_size)
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
-                          ack_nack);
+                          NULL);
                         return ON_MSG_IGNORE;
                     }
                     
@@ -5140,7 +5140,14 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
     else
     {
         bs_msg->saved_ack_nack.handle = ON_ACK;
-        bs_msg->saved_ack_nack.nack_reason = ON_NACK_RSN_ABORT;
+        if(status == ON_MSG_ABORT)
+        {
+            bs_msg->saved_ack_nack.nack_reason = ON_NACK_RSN_ABORT;
+        }
+        else
+        {
+            bs_msg->saved_ack_nack.nack_reason = ON_NACK_RSN_NO_ERROR;
+        }
     }
     
     // First inform the application code and give it a chance to change.
