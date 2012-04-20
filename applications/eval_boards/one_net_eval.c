@@ -1038,7 +1038,7 @@ void eval_single_txn_status(on_message_status_t status,
        
 
     \param[in] msg The block / stream message that is being terminated.
-    \param[in] terminating_device The device that terminated this transaction.
+    \param[in] terminating_device The device that terminated this transaction.  If NULL, then this device is the one that terminated
     \param[in/out] status The status of the message that was just completed.
     \param[in/out] ack_nack Any ACK or NACK associated with this termination.
     
