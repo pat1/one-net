@@ -1304,7 +1304,7 @@ void one_net(on_txn_t ** txn)
                     #else
                     int index = single_data_queue_ready_to_send();
                     #endif
-                    if(index >=  0)
+                    if(index >= 0)
                     {
                         #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
                         if(pop_queue_element(&single_msg, single_data_raw_pld,
@@ -2128,7 +2128,16 @@ void one_net(on_txn_t ** txn)
             
             if(!ont_inactive_or_expired(ONT_BS_TIMER))
             {
-                break;
+                if(get_bs_priority(bs_msg.flags) == ONE_NET_LOW_PRIORITY)
+                {
+                    tick_t next_pop_time;
+                    if(single_data_queue_ready_to_send() != -1)
+                    {
+                        on_state = ON_BS_CHUNK_PAUSE;
+                        bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
+                        break;
+                    }
+                }
             }
             
             bs_txn.pkt = encoded_pkt_bytes;
