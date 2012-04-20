@@ -1275,6 +1275,11 @@ void one_net(on_txn_t ** txn)
             on_raw_did_t raw_did;
             #endif
             
+            
+            // TODO -- more work is needed to allow single messages to
+            // go through DURING block and stream transfers, especially
+            // from devices which are NOT the block / stream source device.
+            
             // we are listening for data.  Make sure we have nothing
             // pending
             #ifndef _BLOCK_MESSAGES_ENABLED
