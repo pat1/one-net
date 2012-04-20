@@ -1,19 +1,18 @@
 README
 
-April 5, 2012
+April 19, 2012
 
 
-This is the official release of ONE-NET Version 2.2.0.  This release includes Block, but not stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.
+This is the official release of ONE-NET Version 2.2.1.  This release includes Block, and Stream.  Official documentation will not be available until ONE-NET 2.0 Final (i.e. non-Beta) is published.
 
-The main change, besides adding block, is that the packet layout has changed since version 2.1.0.  The PID is now twelve decoded bits, not six, several PIDs have been removed, and the length and type of the packet is now storedin the PID and can be extracted and set using byte masks and shifts.
+Please see the docs/2.2.1 folder for changes since version 2.2.0.
 
-Please see an updated version of Block_stream.doc for detailed instructions on how to use block messaging.
-
-Stream functionality will be added as time permits.
+Please see an updated version of Block_stream.doc for detailed instructions on how to use block and stream messaging.
 
 
 In the meantime, more documentation and notes will be added regularly.  Also, please see the documentation at...
 
+https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.2.1
 https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs/2.2.0
 https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/docs
 https://one-net.svn.sourceforge.net/svnroot/one-net/tags/ONE_NET_2_0_0_alpha_with_block/docs  (some is out of date, but better than nothing).
@@ -35,8 +34,6 @@ For other downloads, please see http://www.one-net.info/index.php?option=com_con
 
 
 For the current and previous APIs, please see http://www.one-net.info/api/index.html
-For the 2.0 Alpha API, please see http://www.one-net.info/api_2_0_0_Alpha/html/
-For the ONE-NET Release 1.6 API, please see http://one-net.info/api_1_6/
 
 To create your OWN API of the code with different options, please see https://one-net.svn.sourceforge.net/svnroot/one-net/trunk/API
 for how to do that in Doxygen.
