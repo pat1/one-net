@@ -1808,7 +1808,7 @@ static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
-    // allow devicesto "slide off" again.
+    // allow devices to "slide off" again.
     if(msg->dst)
     {
         on_client_set_device_slideoff(&msg->dst->did,
