@@ -2136,7 +2136,7 @@ void one_net(on_txn_t ** txn)
                 if(get_bs_priority(bs_msg.flags) == ONE_NET_LOW_PRIORITY)
                 {
                     tick_t next_pop_time;
-                    if(single_data_queue_ready_to_send() != -1)
+                    if(single_data_queue_ready_to_send(&next_pop_time) != -1)
                     {
                         on_state = ON_BS_CHUNK_PAUSE;
                         bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
