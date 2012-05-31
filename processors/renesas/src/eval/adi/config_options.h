@@ -555,9 +555,11 @@
 	#endif
 
 	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
-	#ifndef _ENABLE_ECHO_COMMAND
-		#define _ENABLE_ECHO_COMMAND
-	#endif
+    #ifdef _ALLOW_INPUT_ECHOING
+	    #ifndef _ENABLE_ECHO_COMMAND
+		    #define _ENABLE_ECHO_COMMAND
+	    #endif
+    #endif
     
     // _ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
     #ifdef _DATA_RATE_CHANNEL
