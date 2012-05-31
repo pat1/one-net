@@ -224,13 +224,92 @@
 #ifndef _UART
     // Enable this if there is UART
     #define _UART
-    
+#endif
+
+#ifdef _UART    
     // define the base baud rate.  Define _DEFAULT_BAUD_RATE as 38400 or 115200.
     // If _DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
     // command-line option.  "baud:38400" or
     #ifndef _DEFAULT_BAUD_RATE
         #define _DEFAULT_BAUD_RATE 115200
+    #endif
+    
+    // Binary and linefeed options are listed below.  There are four...
+    //
+    // 1) _UART_CARRIAGE_RETURN_CONVERT
+    //        This option should be defined if you are using a simple Serial
+    //        Data Interface program such as TeraTerm, Minicom, or
+    //        HyperTerminal on a desktop computer, all data is to be interpreted
+    //        as text, and you are using a command-line-interface where the
+    //        commands are parsed as text and output is written as text from the
+    //        embedded device and that that text is read from and written to the
+    //        terminal "as-is" (i.e. no further parsing takes place).  An
+    //        example of this is the ONE-NET Evaluation Board used in its normal
+    //        command-line-interface fashion, which is what is assumed when the
+    //        Evaluation Board is shipped.
+    //
+    //        Defining this option will cause all '\r' characters to
+    //        be dropped and all '\n' characters to be replaced with "\r\n".
+    //        If you are using an Evaluation board in the normal fashion, you
+    //        want to have this option defined.
+    //
+    //        If, on the other hand, instead of using TeraTerm, Minicom, or
+    //        HyperTerminal, the other end of the serial cable is connected to
+    //        an application written in C, C++, Perl, etc., this program may
+    //        have its own mode of parsing and wish to handle any "\r\n"
+    //        conversions itself.  On the other hand, a desktop application
+    //        might still choose to leave this option enabled.  It's important,
+    //        of course that each side of the communication knows what to expect
+    //        in terms of the data format.
+    //
+    //        Similarly, the data could be sent not as text, but rather as
+    //        simple binary data where the ASCII table is irrelevant. In this
+    //        case, values corresponding to of '\r' and '\n' should not be
+    //        interpreted as carriage returns and newlines, so no conversion
+    //        should be done.  Make sure that this option is not defined in this
+    //        case.
+    //
+    //
+    // 2) _HANDLE_UART_BY_LINE
+    //        Enable this option if, for whatever reason, you want to handle the UART
+    //        line by line rather than character by character.  Examples may include
+    //        using a desktop program as a command line interface.  Note that echoing
+    //        input character by character will not be allowed if this option is defined.
+    //        When using the Eval Board as a command-line-interface with a program
+    //        like TeraTerm, Minicom, or HyperTerminal, do not define this option.
+    //
+    // 3) _HANDLE_BACKSPACE
+    //        Enable this option if you want the ability to erase a mistyped character
+    //        Generally, DO NOT enable this if you are writing a Desktop Command-Line-
+    //        Interface in a language like, C, C++, Perl, etc. because all backspace
+    //        handling will generally occur in that program.  Note that this option is
+    //        not available if handling the uart input by line rather than by character.
+    //
+    // 4) _ALLOW_INPUT_ECHOING
+    //        Enable this option if you would like input echoing to occur.  If using
+    //        TeraTerm, Minicom, or HyperTerminal, you should generally echo the input.
+    //        If writing your own command-line-interface, generally you will not want
+    //        to echo.
+    //
+    //        Note that you can enable this option and still not choose to echo.  This
+    //        option merely gives you the option to turn it on and off.
+    //
+    
+    #ifndef _UART_CARRIAGE_RETURN_CONVERT
+        #define _UART_CARRIAGE_RETURN_CONVERT
+    #endif
+    
+    #ifndef _HANDLE_UART_BY_LINE
+        //#define _HANDLE_UART_BY_LINE
+    #endif
+    
+    #ifndef _HANDLE_BACKSPACE
+        #define _HANDLE_BACKSPACE
+    #endif
+    
+    #ifndef _ALLOW_INPUT_ECHOING
+        #define _ALLOW_INPUT_ECHOING
     #endif
 #endif
 

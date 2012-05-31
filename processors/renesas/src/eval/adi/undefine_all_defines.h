@@ -264,8 +264,28 @@
     #undef _HAS_LEDS
 #endif
 
+#ifdef _UART
+    #undef _UART
+#endif
+
 #ifdef _BLOCKING_UART
     #undef _BLOCKING_UART
+#endif
+
+#ifdef _UART_CARRIAGE_RETURN_CONVERT
+    #undef _UART_CARRIAGE_RETURN_CONVERT
+#endif
+
+#ifdef _HANDLE_UART_BY_LINE
+    #undef _HANDLE_UART_BY_LINE
+#endif
+
+#ifdef _HANDLE_BACKSPACE
+    #undef _HANDLE_BACKSPACE
+#endif
+
+#ifdef _ALLOW_INPUT_ECHOING
+    #undef _ALLOW_INPUT_ECHOING
 #endif
 
 #ifdef _CHANNEL_OVERRIDE
