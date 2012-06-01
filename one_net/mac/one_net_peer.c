@@ -363,7 +363,8 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
     for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
     {
         // check to see if we are at the end of the list
-        if(on_encoded_did_equal(&(peer_list[i].peer_did), &INVALID_PEER))
+        if(on_encoded_did_equal((const on_encoded_did_t* const)
+          &(peer_list[i].peer_did), &INVALID_PEER))
         {
             // end of the list.
             break;
@@ -371,7 +372,8 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
         
         // check the did criteria.
         if(!on_encoded_did_equal(PEER_DID, &INVALID_PEER) &&
-           !on_encoded_did_equal(PEER_DID, &(peer_list[i].peer_did)))
+           !on_encoded_did_equal(PEER_DID, (const on_encoded_did_t* const)
+           &(peer_list[i].peer_did)))
         {
             continue; // not a match or wildcard
         }

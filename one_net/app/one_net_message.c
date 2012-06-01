@@ -569,8 +569,8 @@ void clear_recipient_list(on_recipient_list_t* rec_list)
 BOOL did_and_unit_equal(const on_did_unit_t* const dev1,
   const on_did_unit_t* const dev2)
 {
-    return (on_encoded_did_equal((on_encoded_did_t*) dev1->did,
-        (on_encoded_did_t*) dev2->did) && dev1->unit == dev2->unit);
+    return (on_encoded_did_equal((const on_encoded_did_t* const) dev1->did,
+        (const on_encoded_did_t* const) dev2->did) && dev1->unit == dev2->unit);
 }
 
 
@@ -724,7 +724,8 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
     UInt8 i;
     for(i = 0; i < single_data_queue_size; i++)
     {
-        if(on_encoded_did_equal(&(single_data_queue[i].dst_did), did))
+        if(on_encoded_did_equal((const on_encoded_did_t* const)
+          &(single_data_queue[i].dst_did), (const on_encoded_did_t* const) did))
         {
             return TRUE;
         }
@@ -784,9 +785,9 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
 
     bs_msg->src = NULL;
     bs_msg->dst = NULL;
-    if(!is_my_did((on_encoded_did_t*) &msg[BLOCK_STREAM_SETUP_DST_IDX]))
+    if(!is_my_did((const on_encoded_did_t*) &msg[BLOCK_STREAM_SETUP_DST_IDX]))
     {
-        bs_msg->dst = (*get_sender_info)((on_encoded_did_t*)
+        bs_msg->dst = (*get_sender_info)((const on_encoded_did_t* const)
           &msg[BLOCK_STREAM_SETUP_DST_IDX]);
     }
     
