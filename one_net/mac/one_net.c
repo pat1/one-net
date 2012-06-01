@@ -4492,9 +4492,9 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
     {
         return FALSE;
     }
-        
+
     raw_did_int = extract_raw_did_from_route(route, 0);
-    u16_to_did(raw_did_int, (const on_raw_did_t*) raw_did);
+    u16_to_did(raw_did_int, (const on_raw_did_t* const) raw_did);
     
     while((last_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
       raw_did, 1)) < 0)
@@ -4568,8 +4568,8 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
             did_to_add = &return_enc_did;
             return_idx++;
         }
-        else if(on_encoded_did_equal((on_encoded_did_t*) to_enc_did,
-          (on_encoded_did_t*) return_enc_did))
+        else if(on_encoded_did_equal((const on_encoded_did_t* const) to_enc_did,
+          (const on_encoded_did_t* const) return_enc_did))
         {
             // they are the same.  Just add one of them.
             did_to_add = &to_enc_did;
@@ -4601,7 +4601,8 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
         // go through and make sure it is not already on the list.
         for(i = 0; i < *num_repeaters; i++)
         {
-            if(on_encoded_did_equal(did_to_add, &repeaters[i]))
+            if(on_encoded_did_equal((const on_encoded_did_t* const) did_to_add,
+              (const on_encoded_did_t* const) &repeaters[i]))
             {
                 found = TRUE;
             }
@@ -4840,7 +4841,8 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
     #ifdef _ONE_NET_MASTER
     if(device_is_master)
     {
-        on_client_t* client = client_info((on_encoded_did_t*) device->did);
+        on_client_t* client = client_info((const on_encoded_did_t* const)
+          device->did);
         if(client == NULL)
         {
             return FALSE;;
@@ -5218,7 +5220,8 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
           bs_msg->saved_ack_nack.payload, 5);
         
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
-          bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL, &bs_msg->dst->did
+          bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL,
+          (const on_encoded_did_t* const) &bs_msg->dst->did
           #ifdef _PEER
               , FALSE,
               ONE_NET_DEV_UNIT
@@ -5484,7 +5487,8 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
     switch(status)
     {
         case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
-          terminate_bs_msg(bs_msg, terminating_did, status, ack_nack);
+          terminate_bs_msg(bs_msg, (const on_encoded_did_t*)terminating_did,
+          status, ack_nack);
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
