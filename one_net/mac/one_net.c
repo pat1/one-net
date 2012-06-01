@@ -1805,7 +1805,8 @@ void one_net(on_txn_t ** txn)
                             BOOL respond;
                             on_message_status_t msg_status = ON_MSG_IGNORE;
                             block_stream_pkt_t bs_pkt;
-                            BOOL reject_msg_id; // TODO -- check message id.
+                            
+                            // TODO -- check for / reject invalid message id.
                             
                             #ifdef _STREAM_MESSAGES_ENABLED
                             BOOL is_stream_txn = (get_bs_transfer_type(
@@ -2144,7 +2145,7 @@ void one_net(on_txn_t ** txn)
                 if(get_bs_priority(bs_msg.flags) == ONE_NET_LOW_PRIORITY)
                 {
                     tick_t next_pop_time;
-                    if(single_data_queue_ready_to_send() != -1)
+                    if(single_data_queue_ready_to_send(&next_pop_time) != -1)
                     {
                         on_state = ON_BS_CHUNK_PAUSE;
                         bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
@@ -2938,7 +2939,6 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack)
 {
     on_message_status_t msg_status;
-    UInt16 msg_id = get_payload_msg_id(raw_payload_bytes);
     BOOL verify_needed;
     BOOL message_ignore = TRUE;
     const tick_t VERIFY_TIMEOUT = MS_TO_TICK(2000); // 2 seconds
@@ -3387,7 +3387,8 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     switch(status)
     {
         case ON_MSG_ABORT: case ON_MSG_TIMEOUT: case ON_MSG_TERMINATE:
-          terminate_bs_msg(bs_msg, terminating_did, status, ack_nack);
+          terminate_bs_msg(bs_msg, (const on_encoded_did_t*) terminating_did,
+          status, ack_nack);
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
@@ -3579,8 +3580,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         on_encoded_did_t* bs_dst_did = get_encoded_did_from_sending_device(
           bs_msg.dst);
         
-        src_is_bs_endpoint = on_encoded_did_equal(bs_src_did,
-          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
+        src_is_bs_endpoint = on_encoded_did_equal(
+          (const on_encoded_did_t* const)bs_src_did,
+          (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
           on_encoded_did_equal((const on_encoded_did_t* const) bs_dst_did,
           (const on_encoded_did_t*const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
         #ifdef _ONE_NET_MH_CLIENT_REPEATER
@@ -4483,8 +4485,6 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 
     
     
-    
-    const UInt8 MAX_NUM_DIDS = 14; // TODO -- why hard-coded?
     UInt8 i;
     SInt8 idx, to_idx, return_idx, last_idx;
     UInt16 raw_did_int, to_raw_did_int, return_raw_did_int;
