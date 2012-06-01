@@ -51,6 +51,9 @@
 #include "cb.h"
 #include "one_net_port_const.h"
 
+extern BOOL binary_mode;
+extern BOOL newline_rcvd;
+extern BOOL command_processed;
 
 //==============================================================================
 //								CONSTANTS 
@@ -281,7 +284,6 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
     UInt16 bytes_written = 0;
     UInt16 i;
     UInt8 byte;
-    char* end_of_line = "\r\n";   
     
     #ifdef _BLOCKING_UART
     // add 15 for a little bit of a buffer
@@ -292,6 +294,7 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
     
     for (i = 0; i < LEN; i++) 
     {
+        #ifdef _UART_CARRIAGE_RETURN_CONVERT
         if (DATA[i]== '\r') 
         {
             continue;
@@ -306,6 +309,7 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
             bytes_written += 2;
         }
         else
+        #endif
         {
             if(cb_enqueue(&uart_tx_cb, &DATA[i], 1) != 1)
             {
@@ -429,11 +433,46 @@ void uart_rx_isr(void)
 {
     #ifdef _UART
 	UInt8 byte;
-
+    BOOL place_byte_in_buffer = TRUE;
+    
 	byte = u0rb;
+    
+    if(command_processed && newline_rcvd)
+    {
+        cb_clear(&uart_rx_cb);
+        // reset
+        newline_rcvd = FALSE;
+        command_processed = FALSE;
+    }
+    
+    if(!binary_mode)
+    {
+        if(byte == '\r')
+        {
+            byte = '\n'; // Minicom seems to send out '\r', not '\n'
+        }
+        
+        if(newline_rcvd)
+        {
+            // can only handle one newline at a time and we already have one
+            // throw away all carriage returns when not in binary mode
+            place_byte_in_buffer = FALSE;
+        }
+        else if(byte == '\n')
+        {
+            newline_rcvd = TRUE;
+        }
+        #ifndef _HANDLE_BACKSPACE
+        else if(byte == '\b' || byte == 127) // delete is 127,  TODO - use named
+        {                                    // constant for 127
+            place_byte_in_buffer = FALSE;
+        }
+        #endif 
+    }
+    
 
     // put this byte in circular buffer (sizeof(char) is always 1)
-    if(cb_putqueue(&uart_rx_cb, byte) != 1)
+    if(place_byte_in_buffer && cb_putqueue(&uart_rx_cb, byte) != 1)
     {
         uart_rx_cb.flags |= CB_FLAG_OVERFLOW;
     } // if the receive buffer overflowed //

@@ -118,9 +118,18 @@ static const char* const MSG_TYPE_STR[3] =
 //! \ingroup oncli
 //! @{
 
+BOOL binary_mode = FALSE;
 
+#ifdef _ALLOW_INPUT_ECHOING
 //! flag to indicate if echoing or not
 BOOL echo_on = TRUE;
+#endif
+
+//! flag to indicate if a newline has been received.
+BOOL newline_rcvd = FALSE;
+
+//! flag to indicate if a command has been processed by the CLI.
+BOOL command_processed = FALSE;
 
 //! verbosity level
 #ifdef _DEBUG_VERBOSE_LEVEL
@@ -1090,9 +1099,15 @@ static void echo(const char CH)
     
 } // echo //
 
-
 static void read_onc(void)
 {
+    // TODO -- at some point, write some CLI handling functions where the
+    // command line interface is NOT based on text, but rather on based
+    // on binary codes and values.  This will reduce code space by
+    // simplifying parsing and will reducd the traffic on the UART.
+    // This code should be used when the binary_mode flag is true.
+    
+    
     // Pointer to the function that handles the command whose parameters are
     // being received.
     static oncli_cmd_hdlr_t cmd_hdlr = 0;
@@ -1106,20 +1121,29 @@ static void read_onc(void)
 
     // The command being read in
     static char input[ONCLI_MAX_INPUT_STR_LEN];
-
+    
+    #ifdef _HANDLE_UART_BY_LINE
+    if(command_processed || !newline_rcvd)
+    {
+        return;
+    }
+    #endif
+    
     while(input_len < sizeof(input) - 1 && oncli_read(&(input[input_len]), 1))
     {
+        #ifdef _HANDLE_BACKSPACE
         if (input[input_len] == '\b') { // special case for backspace
             if (input_len > 0) { // Ignore backspace at beginning of line
                 oncli_send_msg("\b \b"); // write over previous char
                 --input_len;
             }
         }
-        else { // Everything else for non-backspace
-            if (input[input_len] == '\r') { // Convert carriage ret to newline
-                input[input_len] = '\n';
-            }
+        else
+        #endif
+        { // Everything else for non-backspace
+            #ifdef _ALLOW_INPUT_ECHOING
             echo(input[input_len]);
+            #endif
 
             // check to see if it was a terminating character
             switch(state)
@@ -1145,7 +1169,7 @@ static void read_onc(void)
                             input_len--;
                             input[input_len] = '\0';
                             print_cmd_result(CMD_STR, status);
-                            CMD_STR = 0;
+                            CMD_STR = 0;                    
                             oncli_print_prompt();
                         } // if the command failed //
                         else if(next_state == ONCLI_RX_PARAM_NEW_LINE_STATE
@@ -1272,6 +1296,7 @@ static void read_onc(void)
 static void print_cmd_result(const char * const CMD,
   const oncli_status_t CMD_RESULT)
 {
+    command_processed = TRUE;
     if(!CMD)
     {
         return;

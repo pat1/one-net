@@ -112,12 +112,23 @@ typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 //! @{
 
 
+#ifdef _ALLOW_INPUT_ECHOING
 extern BOOL echo_on;
+#endif
+extern BOOL newline_rcvd;
+extern BOOL command_processed;
 #ifdef _DEBUG_VERBOSE_LEVEL
     extern UInt8 verbose_level;
 #else
     #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
 #endif
+
+//! If binary_mode is true, uart input and outout is considered to be in binary
+//! format.  Hence, bytes will not be interpreted as characters that were typed in
+//! and are to be displayed and characters such as '\b', '\r', '\n', and DEL will
+//! not be interpreted as back-spaces, carriage rerurns, newlines, delete keys,
+//! etc., so checking and handling those cases will not occur.
+extern BOOL binary_mode;
 
 
 
