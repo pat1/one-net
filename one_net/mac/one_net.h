@@ -962,4 +962,3 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 //! @} ONE-NET
 
 #endif // _ONE_NET_H //
- 

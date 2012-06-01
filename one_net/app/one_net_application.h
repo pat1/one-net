@@ -504,7 +504,7 @@ ONE_NET_INLINE on_encoded_did_t* get_encoded_did_from_sending_device(
     {
         return (on_encoded_did_t*) (&on_base_param->sid[ON_ENCODED_NID_LEN]);
     }
-    return &(device->did);
+    return (on_encoded_did_t*) &(device->did);
 }
 
 
