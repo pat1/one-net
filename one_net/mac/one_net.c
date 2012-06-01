@@ -3523,7 +3523,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_NID_FAILED; // not our network
     }
     #else
-    if(*this_txn != &invite_txn && !is_my_nid((on_encoded_nid_t*)
+    if(*this_txn != &invite_txn && !is_my_nid((const on_encoded_nid_t*)
       (&pkt_bytes[ON_ENCODED_NID_IDX])))
     {
         return ONS_NID_FAILED; // not our network
@@ -3533,7 +3533,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef _ONE_NET_MULTI_HOP
     // first check the source.  If it was us originally, then we probably
     // got back our own repeated packet.
-    if(is_my_did((on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]))
+    if(is_my_did((const on_encoded_did_t* const)
+      &pkt_bytes[ON_ENCODED_SRC_DID_IDX]))
     {
         return ONS_DID_FAILED; // We SENT this packet, so no sense RECEIVING
                                // it.
@@ -3555,13 +3556,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_BAD_PKT_TYPE;
     }
 
-    dst_is_broadcast = is_broadcast_did((on_encoded_did_t*)
+    dst_is_broadcast = is_broadcast_did((const on_encoded_did_t*)
       (&pkt_bytes[ON_ENCODED_DST_DID_IDX]));
-    dst_is_me = is_my_did((on_encoded_did_t*)
+    dst_is_me = is_my_did((const on_encoded_did_t* const)
       (&pkt_bytes[ON_ENCODED_DST_DID_IDX]));
     src_match = is_broadcast_did(&expected_src_did) ||
-      on_encoded_did_equal(&expected_src_did,
-      (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+      on_encoded_did_equal((const on_encoded_did_t* const) &expected_src_did,
+      (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
     // TODO -- should master messages ever be discarded?
     src_is_master = is_master_did(
@@ -4494,7 +4495,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
     }
 
     raw_did_int = extract_raw_did_from_route(route, 0);
-    u16_to_did(raw_did_int, (const on_raw_did_t* const) raw_did);
+    u16_to_did(raw_did_int, (on_raw_did_t*) raw_did);
     
     while((last_idx = find_raw_did_in_route(route, (const on_raw_did_t* const)
       raw_did, 1)) < 0)
