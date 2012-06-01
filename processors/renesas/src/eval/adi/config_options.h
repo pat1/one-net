@@ -78,6 +78,19 @@
 // in.
 
 
+// Enable this if you are compiling with options such as "-Wall -Werror" and need things to compile
+// without any warnings.  This may add to the code size, so small embedded devices with limited
+// code space and possibly RAM resources will generally not have this enabled, and desktop applications
+// and large embedded devices with resources to spare may want to enable this option.  Generally
+// this option involves adding a default case to all switch statements which might give a warning
+// if the unneeded cases are not handled.  All ACTUAL cases should be handled correctly even when this
+// option is not defined, so this option is simply to make the compiler happy. If you find a case that
+// truly is NOT handled when this is undefined, it should be considered a bug!
+#ifndef _COMPILE_WO_WARNINGS
+    // #define _COMPILE_WO_WARNINGS
+#endif
+
+
 
 
 // Master/Client
