@@ -5533,6 +5533,11 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
+        #ifdef _COMPILE_WO_WARNINGS
+        // add default case that does nothing for clean compile
+        default:
+            break;
+        #endif
     }
 
     // we got a response, so reset the data rate change timer to the
