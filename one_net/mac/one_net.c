@@ -620,7 +620,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       
     #ifdef _STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(FALSE, raw_payload_bytes,
-      txn->key, raw_pld_len)) == ONS_SUCCESS)
+      (const one_net_xtea_key_t * const)txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
     if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
       ONS_SUCCESS)
@@ -745,7 +745,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     
     #ifdef _STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(is_stream_txn, raw_payload_bytes,
-      txn->key, raw_pld_len)) == ONS_SUCCESS)
+      (const one_net_xtea_key_t * const)txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
     if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
       ONS_SUCCESS)
@@ -1435,7 +1435,8 @@ void one_net(on_txn_t ** txn)
                             static UInt8 rptr_idx;
                             on_raw_did_t raw_did;
                             BOOL master_involved = (device_is_master ||
-                              is_master_did(&(bs_msg.dst->did)));
+                              is_master_did((const on_encoded_did_t*)
+                              &(bs_msg.dst->did)));
                             
                             on_decode(raw_did, bs_msg.dst->did,
                               ON_ENCODED_DID_LEN);
@@ -1453,7 +1454,8 @@ void one_net(on_txn_t ** txn)
                                     bs_msg.num_repeaters = 0;
                                     #endif
                                 case ON_BS_CONFIRM_ROUTE:
-                                    send_route_msg(&raw_did);
+                                    send_route_msg((const on_raw_did_t*)
+                                      &raw_did);
                                     break;
                                 #ifdef _DATA_RATE_CHANNEL
                                 case ON_BS_CHANGE_DR_CHANNEL:
@@ -1470,9 +1472,10 @@ void one_net(on_txn_t ** txn)
                                         // missed ACKs or NACKs.  3000 ms should be
                                         // plenty long enough to get things done elsewhere
                                         // if need be.
-                                        on_change_dr_channel(&(bs_msg.dst->did),
-                                          125, 3000, bs_msg.channel,
-                                          bs_msg.data_rate);
+                                        on_change_dr_channel(
+                                          (const on_encoded_did_t*)
+                                          &(bs_msg.dst->did), 125, 3000,
+                                          bs_msg.channel, bs_msg.data_rate);
                                     }
                                     break;
                                 case ON_BS_CHANGE_MY_DR_CHANNEL:
@@ -1499,7 +1502,9 @@ void one_net(on_txn_t ** txn)
                                           estimate_block_transfer_time(
                                           &bs_msg));
                                     }                              
-                                    send_bs_setup_msg(&bs_msg, &bs_msg.dst->did);
+                                    send_bs_setup_msg(&bs_msg,
+                                      (const on_encoded_did_t*)
+                                      &bs_msg.dst->did);
                                     break;
                                     
                                 #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
@@ -1562,6 +1567,7 @@ void one_net(on_txn_t ** txn)
                                       on_base_param->channel);
                                     #endif
                                     request_reserve_repeater(&bs_msg,
+                                      (const on_encoded_did_t*)
                                       &(bs_msg.repeaters[rptr_idx]));
                                     break;                                
                                 case ON_BS_MASTER_REPEATER_PERMISSION_END:
@@ -1592,6 +1598,7 @@ void one_net(on_txn_t ** txn)
                                     one_net_set_channel(bs_msg.channel);
                                     #endif
                                     send_bs_setup_msg(&bs_msg,
+                                      (const on_encoded_did_t*)
                                       &(bs_msg.repeaters[rptr_idx]));
                                     break;
                                 case ON_BS_REPEATER_PERMISSION_END:
@@ -1897,7 +1904,8 @@ void one_net(on_txn_t ** txn)
                                 }
     
                                 if(on_build_my_pkt_addresses(&response_pkt_ptrs,
-                                  &(bs_msg.src->did), NULL) != ONS_SUCCESS)
+                                  (const on_encoded_did_t*)&(bs_msg.src->did),
+                                  NULL) != ONS_SUCCESS)
                                 {
                                     break;
                                 }
@@ -1943,7 +1951,7 @@ void one_net(on_txn_t ** txn)
                 response_txn.pkt = encoded_pkt_bytes;
                 
                 // first get the sending device info.
-                device = (*get_sender_info)((on_encoded_did_t*)
+                device = (*get_sender_info)((const on_encoded_did_t* const)
                   single_msg.dst_did);
                 if(device == NULL)
                 {
@@ -1984,7 +1992,7 @@ void one_net(on_txn_t ** txn)
                     // we're the master.  We may or may not be dealing
                     // with a client using the old key.
                     single_txn.key = master_get_encryption_key(
-                      (on_encoded_did_t*) single_msg.dst_did);
+                      (const on_encoded_did_t* const) single_msg.dst_did);
                 }
                 #endif
                 
@@ -2136,7 +2144,7 @@ void one_net(on_txn_t ** txn)
                 if(get_bs_priority(bs_msg.flags) == ONE_NET_LOW_PRIORITY)
                 {
                     tick_t next_pop_time;
-                    if(single_data_queue_ready_to_send(&next_pop_time) != -1)
+                    if(single_data_queue_ready_to_send() != -1)
                     {
                         on_state = ON_BS_CHUNK_PAUSE;
                         bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
