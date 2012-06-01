@@ -465,6 +465,11 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_PAUSE_TIME_MS:
                 val_present = TRUE;
                 break;
+            #ifdef _COMPILE_WO_WARNINGS
+            // add default case that does nothing for clean compile
+            default:
+                break;
+            #endif
         }
         
         if(val_present)
@@ -576,6 +581,11 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
                 val_present = TRUE;
                 // time case is initialized above
                 break;
+            #ifdef _COMPILE_WO_WARNINGS
+            // add default case that does nothing for clean compile
+            default:
+                break;
+            #endif
         }
         
         if(val_present)
@@ -2031,6 +2041,11 @@ void one_net(on_txn_t ** txn)
                   &(single_txn.max_hops)))
                 {
                     case ON_MSG_ABORT: return; // aborting
+                    #ifdef _COMPILE_WO_WARNINGS
+                    // add default case that does nothing for clean compile
+                    default:
+                        break;
+                    #endif
                 }
                 
                 data_pkt_ptrs.hops = single_txn.hops;
@@ -2841,6 +2856,12 @@ void one_net(on_txn_t ** txn)
         case ON_BS_TERMINATE_COMPLETE:
            terminate_bs_complete(&bs_msg);
         #endif
+        
+        #ifdef _COMPILE_WO_WARNINGS
+        // add default case that does nothing for clean compile
+        default:
+            break;
+        #endif
     }
 } // one_net //
 
@@ -3394,6 +3415,11 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
+        #ifdef _COMPILE_WO_WARNINGS
+        // add default case that does nothing for clean compile
+        default:
+            break;
+        #endif
     }
     
     
@@ -3448,6 +3474,11 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                     set_bs_priority(&bs_msg->flags,
                       ack_nack->payload->nack_value);
                     break;
+                #ifdef _COMPILE_WO_WARNINGS
+                // add default case that does nothing for clean compile
+                default:
+                    break;
+                #endif
             }
         }
     }
@@ -5426,6 +5457,11 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
             case ON_MSG_REJECT_CHUNK:
                 one_net_memset(bs_msg->bs.block.sent, 0,
                   sizeof(bs_msg->bs.block.sent));
+            #ifdef _COMPILE_WO_WARNINGS
+            // add default case that does nothing for clean compile
+            default:
+                break;
+            #endif
         }
     }
     
@@ -5527,6 +5563,11 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
                     set_bs_priority(&bs_msg->flags,
                       ack_nack->payload->nack_value);
                     break;
+                #ifdef _COMPILE_WO_WARNINGS
+                // add default case that does nothing for clean compile
+                default:
+                    break;
+                #endif
             }
         }
     }
