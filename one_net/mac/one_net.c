@@ -1016,10 +1016,10 @@ BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pk
 */
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t on_encrypt(BOOL is_stream_pkt , UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+  const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #else
 one_net_status_t on_encrypt(UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+  const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #endif
 {
     // # of encryption rounds
@@ -1080,10 +1080,10 @@ one_net_status_t on_encrypt(UInt8 * const data,
 */
 #ifdef _STREAM_MESSAGES_ENABLED
 one_net_status_t on_decrypt(BOOL is_stream_pkt , UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+  const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #else
 one_net_status_t on_decrypt(UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, const UInt8 payload_len)
+  const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #endif
 {
     // # of encryption rounds
