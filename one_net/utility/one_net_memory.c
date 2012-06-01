@@ -85,7 +85,13 @@
 
 
 static UInt8 heap_buffer[ONE_NET_HEAP_SIZE];
-static heap_entry_t heap_entry[ONE_NET_HEAP_NUM_ENTRIES] = {0};
+
+// TODO -- experiment with removing the initializer.  Since this is a static
+// variable, if the initializer is left off, it will still initialize to all 0,
+// I think.  Need to confirm this with the standard to be positive.  There have
+// been reports that using the initializer versus not using it can cause a
+// difference in code space.
+static heap_entry_t heap_entry[ONE_NET_HEAP_NUM_ENTRIES] = {{0,0}};
 
 
 //! @} one_net_memory_pub_var

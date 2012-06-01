@@ -89,10 +89,10 @@
 //! \defgroup ONE-NET_TIMER_pub_var
 //! \ingroup ONE-NET_TIMER
 //! @{
-    
-    
+
+
 //! Array to keep track of the timers.
-ont_timer_t timer[ONT_NUM_TIMERS] = {0};
+ont_timer_t timer[ONT_NUM_TIMERS] = {{FALSE, 0}};
 
 
 
