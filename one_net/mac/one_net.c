@@ -303,7 +303,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack);
 #ifdef _BLOCK_MESSAGES_ENABLED
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
 static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   block_pkt_t* block_pkt, on_ack_nack_t* ack_nack);
@@ -312,7 +312,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg);
 
 #ifdef _STREAM_MESSAGES_ENABLED
 static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
 static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_msg,
   stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack);
@@ -3358,7 +3358,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 
 #ifdef _BLOCK_MESSAGES_ENABLED
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
@@ -5461,7 +5461,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 
 #ifdef _STREAM_MESSAGES_ENABLED
 static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
-  block_stream_msg_t* bs_msg, on_pkt_t* pkt, const UInt8* raw_payload_bytes,
+  block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack)
 {
     on_message_status_t status;
