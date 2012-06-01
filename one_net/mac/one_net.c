@@ -4387,27 +4387,22 @@ SInt8 append_raw_did_to_route(UInt8* route, const on_raw_did_t* const raw_did)
 
 
 /*!
-    \brief Calculates the estimated time for a block transfer to complete
-    
-    Calculates the estimated time for a block transfer to complete.  This can
-    be a very rough estimate.  Many of these parameters might change DURING
-    the transfer to improve reliablity, releive clogging, etc.  This function
-    returns a very optimistic time estimate assuming no collisons, delays, no
-    packet loss, and all packets are accpeted by each side as valid.
+    \brief Takes a route message and determines the number of hops involved in
+      the way to and back, as well as the repeaters involved.
 
     \param[in] dst The destination device
-    \param[in] route The route taken
-    \param[in] hops The number of hops between source and destination
-    \param[in] return_hops The number of hops in the ACK or NACK
-    \param[in] num_repeaters The number of devices which are functioning as
+    \param[in/out] route The route taken
+    \param[out] hops The number of hops between source and destination
+    \param[out] return_hops The number of hops in the ACK or NACK
+    \param[out] num_repeaters The number of devices which are functioning as
                repeaters in this route.
-    \param[in] repeaters A list of the repeaters in the route.
+    \param[out] repeaters A list of the repeaters in the route.
 
     \return TRUE if the route is valid.
             FALSE otherwise
 */
 BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
-  dst, const UInt8* route, UInt8* hops, UInt8* return_hops,
+  dst, UInt8* route, UInt8* hops, UInt8* return_hops,
   UInt8* num_repeaters, on_encoded_did_t* repeaters)
 {
     // One of the main uses of this function is to change data rates and
