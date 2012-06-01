@@ -155,7 +155,8 @@ BOOL on_encoded_nid_equal(const on_encoded_nid_t * const LHS,
 */
 BOOL is_my_nid(const on_encoded_nid_t* nid)
 {
-    on_encoded_nid_t* my_nid = (on_encoded_nid_t*) (on_base_param->sid);
+    const on_encoded_nid_t* my_nid = (const on_encoded_nid_t*)
+      (on_base_param->sid);
     return on_encoded_nid_equal(nid, my_nid);
 }
 
@@ -184,7 +185,7 @@ BOOL is_master_did(const on_encoded_did_t* did)
 */
 BOOL is_my_did(const on_encoded_did_t* did)
 {
-    on_encoded_did_t* my_did = (on_encoded_did_t*)
+    const on_encoded_did_t* my_did = (const on_encoded_did_t*)
       &(on_base_param->sid[ON_ENCODED_NID_LEN]);
     return on_encoded_did_equal(did, my_did);
 }
