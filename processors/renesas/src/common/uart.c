@@ -302,6 +302,7 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
         else if (DATA[i]== '\n') 
         {
             // silently send a newline
+            char* end_of_line = "\r\n";
             if(cb_enqueue(&uart_tx_cb, end_of_line, 2) != 2)
             {
                 break;
