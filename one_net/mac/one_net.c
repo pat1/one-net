@@ -2040,8 +2040,8 @@ void one_net(on_txn_t ** txn)
                 
                 // fill in the addresses
                 if(on_build_my_pkt_addresses(&data_pkt_ptrs,
-                  (on_encoded_did_t*) single_msg.dst_did,
-                  (on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
+                  (const on_encoded_did_t*) single_msg.dst_did,
+                  (const on_encoded_did_t*) single_msg.src_did) != ONS_SUCCESS)
                 {
                     // An error of some sort occurred.  Abort.
                     return; // no outstanding transaction
@@ -2187,7 +2187,8 @@ void one_net(on_txn_t ** txn)
             {
                 // fill in the addresses
                 if(on_build_my_pkt_addresses(&data_pkt_ptrs,
-                  &(bs_msg.dst->did), NULL) != ONS_SUCCESS)
+                  (const on_encoded_did_t*) &(bs_msg.dst->did), NULL) !=
+                  ONS_SUCCESS)
                 {
                     break;
                 }
@@ -3874,11 +3875,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         }
     
         #ifdef _STREAM_MESSAGES_ENABLED
-        if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes, key,
-          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes,
+          (const one_net_xtea_key_t * const) key, get_raw_payload_len(raw_pid)))
+          != ONS_SUCCESS)
         #else
-        if((status = on_decrypt(raw_payload_bytes, key,
-          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        if((status = on_decrypt(raw_payload_bytes,
+          (const one_net_xtea_key_t * const) key, get_raw_payload_len(raw_pid)))
+          != ONS_SUCCESS)
         #endif
         {
             return status;
@@ -3970,11 +3973,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         raw_payload_bytes[0] = one_net_compute_crc(&raw_payload_bytes[1], 23,
             ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
         #ifndef _STREAM_MESSAGES_ENABLED
-        if((status = on_encrypt(raw_payload_bytes, key,
-          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        if((status = on_encrypt(raw_payload_bytes,
+          (const one_net_xtea_key_t* const) key, get_raw_payload_len(raw_pid)))
+          != ONS_SUCCESS)
         #else
-        if((status = on_encrypt(FALSE, raw_payload_bytes, key,
-          get_raw_payload_len(raw_pid))) != ONS_SUCCESS)
+        if((status = on_encrypt(FALSE, raw_payload_bytes,
+         (const one_net_xtea_key_t * const) key, get_raw_payload_len(raw_pid)))
+         != ONS_SUCCESS)
         #endif
         {
             return status;
