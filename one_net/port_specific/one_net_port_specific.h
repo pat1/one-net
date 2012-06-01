@@ -175,21 +175,21 @@ SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n);
 
 
 /*!
-    \brief Convert a byte stream to a 16-bit value, accounting for endianness
+    \brief Convert a big-endian byte stream to a 16-bit value
 
     \param[in] BYTE_STREAM The 2 bytes to convert to a 16-bit value, accounting
-      for the endianess of the processor.
+      for the endianess of the processor.  BYTE_STREAM must be in big-endian (MSB) order.
 
-    \return The 16 bit value contained in the 2 bytes of BYTE_STREAM
+    \return The 16-bit value contained in the 2 bytes of BYTE_STREAM (BYTE_STREAM is in big-endian (MSB) order).
 */
 UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
 
 
 /*!
-    \brief Convert a 16 bit value to a MSB first stream.
+    \brief Convert a 16-bit value to a big-endian (MSB) byte stream.
 
-    \param[in] VAL The value to convert to a byte stream
-    \param[out] byte_stream The location to return the byte stream
+    \param[in] VAL The value to convert to a 16-bit big endian (MSB first) byte stream
+    \param[out] byte_stream The location of the 2 byte big-endian byte stream.
 
     \return void
 */
@@ -197,21 +197,21 @@ void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
 
 
 /*!
-    \brief Convert a byte stream to a 32-bit value, accounting for endianness
+    \brief Convert a big-endian byte stream to a 32-bit value
 
     \param[in] BYTE_STREAM The 4 bytes to convert to a 32-bit value, accounting
-      for the endianess of the processor.
+      for the endianess of the processor.  BYTE_STREAM must be in big-endian (MSB) order.
 
-    \return The 32 bit value contained in the 4 bytes of BYTE_STREAM
+    \return The 32-bit value contained in the 4 bytes of BYTE_STREAM (BYTE_STREAM is in big-endian (MSB) order).
 */
 UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
 
 
 /*!
-    \brief Convert a 32 bit value to a MSB first stream.
+    \brief Convert a 32-bit value to a big-endian (MSB) byte stream.
 
-    \param[in] VAL The value to convert to a byte stream
-    \param[out] byte_stream The location to return the byte stream
+    \param[in] VAL The value to convert to a 32-bit big endian (MSB first) byte stream
+    \param[out] byte_stream The location of the 4 byte big-endian byte stream.
 
     \return void
 */
