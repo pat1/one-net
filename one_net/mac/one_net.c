@@ -784,8 +784,8 @@ one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
 one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
   const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did)
 {
-    on_encoded_nid_t* nid = (on_encoded_nid_t*) on_base_param->sid;
-    on_encoded_did_t* repeater_did = (on_encoded_did_t*)
+    const on_encoded_nid_t* nid = (const on_encoded_nid_t*) on_base_param->sid;
+    const on_encoded_did_t* repeater_did = (const on_encoded_did_t*)
       (&on_base_param->sid[ON_ENCODED_NID_LEN]);
     if(src_did == NULL)
     {
@@ -3560,9 +3560,10 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
       (&pkt_bytes[ON_ENCODED_DST_DID_IDX]));
     dst_is_me = is_my_did((const on_encoded_did_t* const)
       (&pkt_bytes[ON_ENCODED_DST_DID_IDX]));
-    src_match = is_broadcast_did(&expected_src_did) ||
-      on_encoded_did_equal((const on_encoded_did_t* const) &expected_src_did,
-      (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+    src_match = is_broadcast_did((const on_encoded_did_t* const)
+      &expected_src_did) || on_encoded_did_equal((const on_encoded_did_t* const)
+      &expected_src_did,(const on_encoded_did_t* const)
+      &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
     // TODO -- should master messages ever be discarded?
     src_is_master = is_master_did(
@@ -3580,15 +3581,16 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         
         src_is_bs_endpoint = on_encoded_did_equal(bs_src_did,
           (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
-          on_encoded_did_equal(bs_dst_did,
-          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+          on_encoded_did_equal((const on_encoded_did_t* const) bs_dst_did,
+          (const on_encoded_did_t*const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
         #ifdef _ONE_NET_MH_CLIENT_REPEATER
-        dst_is_bs_endpoint = on_encoded_did_equal(bs_src_did,
-          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
-          on_encoded_did_equal(bs_dst_did,
-          (on_encoded_did_t*) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
-        dst_is_master = is_master_did((const on_encoded_did_t*)
-          &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+        dst_is_bs_endpoint = on_encoded_did_equal(
+          (const on_encoded_did_t* const)bs_src_did,
+          (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
+          on_encoded_did_equal((const on_encoded_did_t* const) bs_dst_did,
+          (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+        dst_is_master = is_master_did((const on_encoded_did_t* const)
+          (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_DST_DID_IDX]);
         #endif
     }
     #endif
