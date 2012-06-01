@@ -2857,7 +2857,7 @@ SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops)
         return -1;
     }
     
-    device = (*get_sender_info)(&enc_did);
+    device = (*get_sender_info)((const on_encoded_did_t* const) &enc_did);
     if(device == NULL)
     {
         return -1;
@@ -2895,7 +2895,7 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
         return -1;
     }
     
-    device = (*get_sender_info)(&enc_did);
+    device = (*get_sender_info)((const on_encoded_did_t* const) &enc_did);
     if(device == NULL)
     {
         return -1;
@@ -3184,8 +3184,8 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     
     
 
-    (*txn)->device = (*get_sender_info)
-      ((on_encoded_did_t*) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
+    (*txn)->device = (*get_sender_info) ((const on_encoded_did_t* const)
+       &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
 
     if((*txn)->device == NULL)
     {
@@ -4759,7 +4759,8 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
   BOOL copy_key)
 {
     UInt8 i;
-    const one_net_xtea_key_fragment_t* param_frag = &(on_base_param->old_key);
+    const one_net_xtea_key_fragment_t* param_frag =
+      (const one_net_xtea_key_fragment_t*) &(on_base_param->old_key);
     
     if(!fragment)
     {
