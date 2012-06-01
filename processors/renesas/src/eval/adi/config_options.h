@@ -304,8 +304,10 @@
         //#define _HANDLE_UART_BY_LINE
     #endif
     
-    #ifndef _HANDLE_BACKSPACE
-        #define _HANDLE_BACKSPACE
+    #ifndef _HANDLE_UART_BY_LINE
+        #ifndef _HANDLE_BACKSPACE
+            #define _HANDLE_BACKSPACE
+        #endif
     #endif
     
     #ifndef _ALLOW_INPUT_ECHOING
