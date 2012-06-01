@@ -2027,7 +2027,8 @@ void one_net(on_txn_t ** txn)
 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &(single_txn.max_hops)))
+                switch(one_net_adjust_hops((const on_raw_did_t* const) &raw_did,
+                  &(single_txn.max_hops)))
                 {
                     case ON_MSG_ABORT: return; // aborting
                 }
