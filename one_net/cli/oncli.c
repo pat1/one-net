@@ -1084,6 +1084,8 @@ void print_raw_pid(UInt16 raw_pid)
 //! \ingroup oncli
 //! @{
 
+#ifdef _ALLOW_INPUT_ECHOING
+// TODO -- make this an inline function?
 static void echo(const char CH)
 {
     if(!echo_on)
@@ -1098,6 +1100,7 @@ static void echo(const char CH)
     oncli_send_msg("%c", CH);
     
 } // echo //
+#endif
 
 static void read_onc(void)
 {
@@ -1234,6 +1237,14 @@ static void read_onc(void)
                 } // default case //
             } // switch(state) //
 
+
+            // TODO -- Some of this code seems redundant?  Haven't we handled backspaces
+            // above.  I cannot seem to get this code to execute if I press
+            // the delete key or backspace.  Seems like Delete should enter here.Not
+            // sure of anywhere else it would be handled.  I am therefore commenting
+            // the code below out rather than deleting since it doesn't seem to be executed,
+            // but I'm not 100% sure it will never be.
+            #if 0            
             // if it was the backspace, remove the previous character
             if(input[input_len] == '\b' || input[input_len] == 0x7F)
             {
@@ -1262,7 +1273,10 @@ static void read_onc(void)
                     } // if a quote was removed //
                 } // if there is a character to remove //
             } // if the backspace or delete character was received //
-            else if(!isprint(input[input_len]) && !isspace(input[input_len]))
+            else if
+            #else
+            if(!isprint(input[input_len]) && !isspace(input[input_len]))
+            #endif
             {
                 oncli_send_msg(ONCLI_RX_INVALID_CH_FMT, input[input_len]);
                 oncli_send_msg(ONCLI_CLR_INPUT_STR);
