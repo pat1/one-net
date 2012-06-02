@@ -37,9 +37,6 @@ static attribute att;
 static filter pkt_filter;
 
 
-static int init_chip_fd(string device_name, speed_t baud_rate);
-
-
 bool logging = false;
 string log_filename = "log.txt";
 filebuf log_buf;
@@ -198,7 +195,7 @@ void cli_execute_help(ostream& outs)
                 outs << pad;
             }
 
-            if(print_string.length() <= line_length)
+            if((int) print_string.length() <= line_length)
             {
                 outs << print_string << endl;
                 break;
@@ -815,7 +812,6 @@ bool cli()
     }
 
 
-    struct timeval chip_delay_time = {0, 1};
     string command_line;
     if(!chip_cli_mode)
     {
@@ -895,7 +891,8 @@ bool cli()
                     }
                     else
                     {
-                        if(command_buffer_index >= sizeof(command_buffer) - 1)
+                        if(command_buffer_index >= ((int) sizeof(command_buffer)
+                          - 1))
                         {
                             continue; // prevent seg fault.
                         }

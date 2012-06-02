@@ -106,7 +106,7 @@ bool chip_connection::send_bytes_to_chip(string bytes, bool add_newline)
         bytes += "\n";
     }
 
-    return ((write(chip_fd, &bytes[0], bytes.length())) == bytes.length());
+    return ((write(chip_fd, &bytes[0], bytes.length())) == (int) bytes.length());
 }
 
 

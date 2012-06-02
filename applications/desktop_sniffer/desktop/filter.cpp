@@ -95,7 +95,7 @@ void filter_range::display_value(ostream& outs, uint64_t value, bool hex,
         char* ptr = &value_str[length - 3];
         UInt8 byte;
 
-        for(int i = 0; i < width; i++)
+        for(unsigned int i = 0; i < width; i++)
         {
             byte = (UInt8) (value & 0xFF);
             sprintf(byte_str, "%02X", byte);
@@ -246,7 +246,9 @@ void filter_list::accept_value(uint64_t value)
     bool index_1_less_found, index_1_more_found;
     list<filter_range>::iterator it = accepted_values.begin();
     advance(it, index);
-    uint64_t low, high;
+    // uint64_t low;   // TODO -- low apears not to be used anywhere, so
+                       // commenting out.  Is it supposed to be used?
+    uint64_t high;
 
     if(value == 0)
     {
