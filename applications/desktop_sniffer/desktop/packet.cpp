@@ -54,10 +54,17 @@ packet::~packet()
 
 bool packet::parse_app_payload(payload_t& payload)
 {
+    // justgetting things to compile for now. Just doing something silly
+    // with the parameters.
+    return (payload.app_payload.dst_unit == 0);
+
+
+    #if 0
     return on_parse_app_pld(&payload.decrypted_payload_bytes[ON_PLD_DATA_IDX],
         &payload.app_payload.src_unit, &payload.app_payload.dst_unit,
         &payload.app_payload.msg_class, &payload.app_payload.msg_type,
         &payload.app_payload.msg_data);
+    #endif
 }
 
 
@@ -88,6 +95,15 @@ bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes)
 
 bool packet::parse_response_payload(payload_t& payload)
 {
+    // just do something silly to make things compile.
+    on_ack_nack_t* ack_nack = &payload.response_payload.ack_nack;
+    if((int) ack_nack->nack_reason == 5)
+    {
+        return false;
+    }
+
+
+    #if 0
     on_ack_nack_t* ack_nack = &payload.response_payload.ack_nack;
     UInt8 tmp_bytes[sizeof(payload.decrypted_payload_bytes)];
     memcpy(tmp_bytes, payload.decrypted_payload_bytes,
@@ -103,6 +119,7 @@ bool packet::parse_response_payload(payload_t& payload)
         return parse_admin_payload(payload,
             &payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX]);
     }
+    #endif
     return true;
 }
 
@@ -309,6 +326,18 @@ bool packet::filter_packet(const filter& fltr) const
 bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     UInt8 num_bytes, const UInt8* const bytes, const filter& fltr)
 {
+    // just getting things to compile for right now.  Just do something
+    // silly with the variables
+
+    fltr.display(cout);
+    if(timestamp.tv_sec + raw_pid + num_bytes + (bytes == NULL) > 1000)
+    {
+        return false;
+    }
+
+
+
+    #if 0
     payload.is_app_pkt = false;
     payload.is_admin_pkt = false;
     payload.is_features_pkt = false;
@@ -439,7 +468,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
 
     const vector<xtea_key>* keys = fltr.get_keys(packet_is_invite(raw_pid));
 
-    for(int i = 0; !valid_decrypt && i < keys->size(); i++)
+    for(unsigned int i = 0; !valid_decrypt && i < keys->size(); i++)
     {
         memmove(payload.decrypted_payload_bytes, encrypted_payload_bytes,
             ON_MAX_ENCODED_PLD_LEN_WITH_TECH);
@@ -507,7 +536,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     {
         // TODO -- block and stream
     }
-
+    #endif
     return true;
 }
 
@@ -595,7 +624,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
             return false;
         }
 
-        if(num_bytes_rcvd == ONE_NET_ENCODED_PID_IDX)
+        if(num_bytes_rcvd == ON_ENCODED_PID_IDX)
         {
             raw_pid = encoded_to_decoded_byte(bytes[num_bytes_rcvd], false);
             if(raw_pid >= 0x40 || get_encoded_packet_len(raw_pid, true)
@@ -880,11 +909,16 @@ string payload_t::get_nack_reason_string(on_nack_rsn_t nack_reason)
             // TODO -- add the other cases
             break;
     }
+
+    // Just getting things to compile for now.
+    return "Hello World";
 }
 
 
 string packet::get_raw_pid_string(UInt8 raw_pid)
 {
+    // just getting things to compile for now.
+    #if 0
     switch(raw_pid)
     {
         case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT: return "MASTER_INVITE_NEW_CLIENT";
@@ -943,8 +977,12 @@ string packet::get_raw_pid_string(UInt8 raw_pid)
         case ONE_NET_RAW_MH_STREAM_NACK_KEEP_ALIVE: return "MH_STREAM_NACK_KEEP_ALIVE";
         case ONE_NET_RAW_STREAM_TERMINATE: return "STREAM_TERMINATE";
         case ONE_NET_RAW_MH_STREAM_TERMINATE: return "MH_STREAM_TERMINATE";
-        default: return "Invalid";
     }
+
+    return "Invalid";
+    #endif
+
+    return ((raw_pid == 0) ? "Hello World" : "Goodbye World");
 }
 
 
@@ -1004,9 +1042,17 @@ bool payload_t::detailed_features_to_string(on_features_t features, string& str)
     str += (features_stream_capable(features) ? "Capable" : "Not Capable");
     str += "\nDevice Sleeps : ";
     str += (features_device_sleeps(features) ? "True" : "False");
+
+
+    // TODO -- are we really placing with queueu level?  Just comment out at the
+    // moment.
+    #if 0
     str += "\nACK / NACK Level (obsolete -- replace with queue level) : ";
     byte_to_hex_string(features_ack_nack_level(features), tmp);
     str += tmp;
+    #endif
+
+
     str += "\n\nData Rates...\n\n";
     detailed_data_rates_to_string(features, tmp);
     str += tmp;
@@ -1171,226 +1217,10 @@ bool payload_t::detailed_payload_to_string(UInt8 raw_pid, string& str) const
 
 bool packet::display(const attribute& att, ostream& outs) const
 {
-    string str;
-    string raw_did_str, raw_nid_str, enc_did_str, enc_nid_str;
-
-    if(att.get_attribute(attribute::ATTRIBUTE_TIMESTAMP))
-    {
-        struct_timeval_to_string(timestamp, str);
-        outs << "Timestamp : " << str << " seconds\n";
-    }
-    if(att.get_attribute(attribute::ATTRIBUTE_VALID_PKT))
-    {
-        outs << "Valid Decode : " << (this->valid_decode ? "true" : "false");
-        outs << " -- Valid Msg CRC : " << (this->valid_msg_crc ?
-            "true" : "false");
-        outs << " -- Valid Payload CRC : " << (this->payload.valid_payload_crc ?
-            "true" : "false");
-        outs << " -- Valid Packet : " << (this->valid ? "true" : "false") <<
-            "\n";
-    }
-    if(att.get_attribute(attribute::ATTRIBUTE_ENCODED_BYTES))
-    {
-        outs << "# of Encoded bytes = " << (int) this->num_bytes << endl;
-        if(!bytes_to_hex_string(this->enc_pkt_bytes, this->num_bytes,
-            str, ' ', 1, 24))
-        {
-            return false;
-        }
-        outs << str << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_MSG_ID))
-    {
-        UInt8 dec_msg_id_bytes[2];
-        UInt8 enc_msg_id_bytes[2];
-        UInt16 shifted_decoded_msg_id = (this->pkt_ptr.msg_id << 4);
-        one_net_int16_to_byte_stream(shifted_decoded_msg_id, dec_msg_id_bytes);
-        on_encode(enc_msg_id_bytes, dec_msg_id_bytes, 2);
-        UInt16 enc_msg_id = one_net_byte_stream_to_int16(enc_msg_id_bytes);
-        string str;
-        uint16_to_hex_string(this->pkt_ptr.msg_id, str);
-        outs << "Msg ID (Decoded -- 0x" << str << ")";
-
-        if(this->pkt_ptr.msg_id > 0x0FFF)
-        {
-            str = "Cannot Convert";
-        }
-        else
-        {
-            uint16_to_hex_string(enc_msg_id, str);
-        }
-
-        outs << "(Encoded -- 0x" << str << ")\n";
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
-    {
-        UInt8 enc_msg_crc = *(this->pkt_ptr.enc_msg_crc);
-        UInt8 dec_msg_crc;
-        outs << "Msg CRC";
-        byte_to_hex_string(enc_msg_crc, str);
-        outs << "(Encoded -- 0x" << str << ")  ";
-        dec_msg_crc = encoded_to_decoded_byte(enc_msg_crc, true);
-        if(dec_msg_crc == 0xFF || !byte_to_hex_string(dec_msg_crc, str))
-        {
-            str = "Cannot Convert";
-        }
-        else
-        {
-            str = "0x" + str;
-        }
-        outs << "(Decoded -- " << str << ")  ";
-
-        byte_to_hex_string(this->calculated_msg_crc, str);
-        outs << "(Calculated -- 0x" << str << ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_RPTR_DID))
-    {
-        outs << "Rptr. DID";
-        encoded_did_to_string(this->pkt_ptr.enc_repeater_did, enc_did_str);
-        outs << "(Encoded -- " << enc_did_str << ")  ";
-
-        if(!raw_did_to_string(this->raw_rptr_did, raw_did_str))
-        {
-            raw_did_str = "Cannot convert";
-        }
-        outs << "(Decoded -- " << raw_did_str << ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_DST_DID))
-    {
-        outs << "Dest. DID";
-        encoded_did_to_string(this->pkt_ptr.enc_dst_did, enc_did_str);
-        outs << "(Encoded -- " << enc_did_str << ")  ";
-        if(!raw_did_to_string(this->raw_dst_did, raw_did_str))
-        {
-            raw_did_str = "Cannot convert";
-        }
-        outs << "(Decoded -- " << raw_did_str << ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_NID))
-    {
-        outs << "NID";
-        encoded_nid_to_string(this->pkt_ptr.enc_nid, enc_nid_str);
-        outs << "(Encoded -- " << enc_nid_str << ")  ";
-        if(!raw_nid_to_string(this->raw_nid, raw_nid_str))
-        {
-            raw_nid_str = "Cannot convert";
-        }
-        outs << "(Decoded -- " << raw_nid_str << ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_SRC_DID))
-    {
-        outs << "Src. DID";
-        encoded_did_to_string(this->pkt_ptr.enc_src_did, enc_did_str);
-        outs << "(Encoded -- " << enc_did_str << ")  ";
-        if(!raw_did_to_string(this->raw_src_did, raw_did_str))
-        {
-            raw_did_str = "Cannot convert";
-        }
-        outs << "(Decoded -- " << raw_did_str << ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_PID))
-    {
-        UInt8 enc_pid = *(this->pkt_ptr.enc_pid);
-        outs << "PID";
-        byte_to_hex_string(enc_pid, str);
-        outs << "(Encoded -- 0x" << str << ")  ";
-        byte_to_hex_string(payload.raw_pid, str);
-        str = "0x" + str;
-        string raw_pid_name_string = packet::get_raw_pid_string(
-            payload.raw_pid);
-        outs << "(Decoded -- " << str << " -- " << raw_pid_name_string <<
-            ")";
-        outs << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_HOPS))
-    {
-        outs << "Multi-Hop : " << (is_mh_pkt ? "true" : "false");
-        if(is_mh_pkt)
-        {
-            byte_to_hex_string(encoded_hops_field, str);
-            outs << " -- Encoded : " << str << " -- ";
-            byte_to_hex_string(decoded_hops_field, str);
-            outs << " -- Decoded : " << str << " -- ";
-            outs << "Hops : " << hops << " -- Max Hops : " << max_hops;
-        }
-        outs << "\n";
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_ENCODED_PAYLOAD))
-    {
-        outs << "# Encoded Payload bytes = " << (int) encoded_payload_len
-            << "\n";
-        if(!bytes_to_hex_string(pkt_ptr.payload, encoded_payload_len, str, ' ',
-            1, 24))
-        {
-            return false;
-        }
-        outs << str << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_ENCRYPTED_PAYLOAD))
-    {
-        outs << "Encrypted Payload (Key = ";
-        bytes_to_hex_string(this->key.bytes, ONE_NET_XTEA_KEY_LEN, str, '-',
-            1, 0);
-        outs << str << ")\n";
-        bytes_to_hex_string(this->encrypted_payload_bytes,
-            payload.num_payload_bytes, str, ' ', 1, 24);
-        outs << str << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_DECRYPTED_PAYLOAD))
-    {
-        outs << "Decrypted Payload (Key = ";
-        bytes_to_hex_string(this->key.bytes, ONE_NET_XTEA_KEY_LEN, str, '-',
-            1, 0);
-        outs << str << ") -- Pkt. Pld CRC : 0x";
-        byte_to_hex_string(payload.payload_crc, str);
-        outs << str << " -- Calc. Pld CRC = 0x";
-        byte_to_hex_string(payload.calculated_payload_crc, str);
-        outs << str << ")\n";
-        bytes_to_hex_string(payload.decrypted_payload_bytes,
-            payload.num_payload_bytes, str, ' ', 1, 24);
-        outs << str << endl;
-    }
-
-    if(!payload.is_invite_pkt && payload.valid_payload_crc && att.get_attribute(
-        attribute::ATTRIBUTE_NONCE))
-    {
-        string msg_id_str;
-        uint16_to_hex_string(payload.msg_id, msg_id_str);
-        outs << "Msg ID : 0x" << msg_id_str << endl;
-    }
-
-    if(payload.valid_payload_crc && att.get_attribute(
-        attribute::ATTRIBUTE_PAYLOAD_DETAIL))
-    {
-        if(is_single_pkt && is_data_pkt)
-        {
-            outs << "Msg. Type : " << (int) payload.msg_type << "(" <<
-                (payload.msg_type == ON_APP_MSG ? "App Msg." : (payload.msg_type
-                == ON_ADMIN_MSG ? "Admin Msg" : (payload.msg_type ==
-                ON_FEATURE_MSG ? "Feature Msg" : "Unknown"))) << ")";
-        }
-        if(payload.detailed_payload_to_string(payload.raw_pid, str))
-        {
-            outs << str;
-        }
-    }
-
+    // just to get things to where they compile again, just make empty functions
+    // that do nothing except do something silly with the parameters so we do
+    // not get unused variable errors.
+    outs << (int) attribute::ATTRIBUTE_NID;
     return true;
 }
 
