@@ -151,8 +151,7 @@ bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
         payload.num_payload_bytes - 1, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
     payload.valid_payload_crc =
         (payload.payload_crc == payload.calculated_payload_crc);
-    payload.txn_nonce = get_payload_txn_nonce(payload.decrypted_payload_bytes);
-    payload.resp_nonce = get_payload_resp_nonce(payload.decrypted_payload_bytes);
+    payload.msg_id = get_payload_msg_id(payload.decrypted_payload_bytes);
 
     if(packet_is_ack(raw_pid) || packet_is_nack(raw_pid))
     {
@@ -846,7 +845,6 @@ string payload_t::get_nack_reason_string(on_nack_rsn_t nack_reason)
     switch(nack_reason)
     {
         case ON_NACK_RSN_NO_ERROR: return "NACK_RSN_NO_ERROR";
-        case ON_NACK_RSN_NONCE_ERR: return "NACK_RSN_NONCE_ERR";
         case ON_NACK_RSN_RSRC_UNAVAIL_ERR: return "NACK_RSN_RSRC_UNAVAIL_ERR";
         case ON_NACK_RSN_INTERNAL_ERR: return "NACK_RSN_INTERNAL_ERR";
         case ON_NACK_RSN_BUSY_TRY_AGAIN: return "NACK_RSN_BUSY_TRY_AGAIN";
@@ -878,6 +876,9 @@ string payload_t::get_nack_reason_string(on_nack_rsn_t nack_reason)
         case ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED: return "NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED";
         case ON_NACK_RSN_BUSY: return "NACK_RSN_BUSY";
         case ON_NACK_RSN_NO_RESPONSE_TXN: return "NACK_RSN_NO_RESPONSE_TXN";
+        default:
+            // TODO -- add the other cases
+            break;
     }
 }
 
@@ -1128,6 +1129,8 @@ bool payload_t::detailed_response_payload_to_string(string& str) const
             }
             str += tmp;
             break;
+        default:
+            break;
     }
 
     str += "\n";
@@ -1363,11 +1366,9 @@ bool packet::display(const attribute& att, ostream& outs) const
     if(!payload.is_invite_pkt && payload.valid_payload_crc && att.get_attribute(
         attribute::ATTRIBUTE_NONCE))
     {
-        string txn_nonce_str, resp_nonce_str;
-        byte_to_hex_string(payload.txn_nonce, txn_nonce_str);
-        byte_to_hex_string(payload.resp_nonce, resp_nonce_str);
-        outs << "Txn Nonce : 0x" << txn_nonce_str << " -- Resp. Nonce : 0x" <<
-            resp_nonce_str << endl;
+        string msg_id_str;
+        uint16_to_hex_string(payload.msg_id, msg_id_str);
+        outs << "Msg ID : 0x" << msg_id_str << endl;
     }
 
     if(payload.valid_payload_crc && att.get_attribute(

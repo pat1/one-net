@@ -26,9 +26,9 @@ struct app_payload_t
     UInt8 num_bytes;
     UInt8 src_unit;
     UInt8 dst_unit;
-    UInt16 msg_class;
+    UInt8 msg_class;
     UInt16 msg_type;
-    UInt16 msg_data;
+    UInt32 msg_data;
 
     static string get_msg_class_string(UInt16 msg_class);
     bool detailed_app_payload_to_string(string& str) const;
@@ -102,8 +102,7 @@ struct payload_t
     UInt8 payload_crc;
     UInt8 calculated_payload_crc;
     bool valid_payload_crc;
-    UInt8 txn_nonce;
-    UInt8 resp_nonce;
+    UInt16 msg_id;
     bool is_app_pkt;
     bool is_admin_pkt;
     bool is_features_pkt;
