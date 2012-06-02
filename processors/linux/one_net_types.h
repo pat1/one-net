@@ -56,7 +56,7 @@
 
 //! The Renesas HEW tool chain does not seem to like the normal "static inline", so we
 //! use only "inline" to make it happy.
-#define ONE_NET_INLINE  inline
+#define ONE_NET_INLINE  static inline
 
 //! @} ONE-NET_Types_cons
 //                                  CONSTANTS END
