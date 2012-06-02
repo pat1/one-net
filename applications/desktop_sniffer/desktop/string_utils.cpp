@@ -295,7 +295,7 @@ string UInt8_array_to_ascii(const UInt8* array, unsigned int len)
         return str;
     }
 
-    for(int i = 0; i < len; i++)
+    for(unsigned int i = 0; i < len; i++)
     {
         str += UInt8_to_ascii(array[i]);
     }
