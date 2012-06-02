@@ -1202,22 +1202,26 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_MSG_ID))
     {
-        UInt8 enc_msg_id = *(this->pkt_ptr.enc_msg_id);
-        UInt8 dec_msg_id;
-        outs << "Msg ID";
-        byte_to_hex_string(enc_msg_id, str);
-        outs << "(Encoded -- 0x" << str << ")  ";
-        dec_msg_id = encoded_to_decoded_byte(enc_msg_id, false);
-        if(dec_msg_id == 0xFF || !byte_to_hex_string(dec_msg_id, str))
+        UInt8 dec_msg_id_bytes[2];
+        UInt8 enc_msg_id_bytes[2];
+        UInt16 shifted_decoded_msg_id = (this->pkt_ptr.msg_id << 4);
+        one_net_int16_to_byte_stream(shifted_decoded_msg_id, dec_msg_id_bytes);
+        on_encode(enc_msg_id_bytes, dec_msg_id_bytes, 2);
+        UInt16 enc_msg_id = one_net_byte_stream_to_int16(enc_msg_id_bytes);
+        string str;
+        uint16_to_hex_string(this->pkt_ptr.msg_id, str);
+        outs << "Msg ID (Decoded -- 0x" << str << ")";
+
+        if(this->pkt_ptr.msg_id > 0x0FFF)
         {
             str = "Cannot Convert";
         }
         else
         {
-            str = "0x" + str;
+            uint16_to_hex_string(enc_msg_id, str);
         }
-        outs << "(Decoded -- " << str << ")";
-        outs << endl;
+
+        outs << "(Encoded -- 0x" << str << ")\n";
     }
 
     if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
