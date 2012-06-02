@@ -624,11 +624,18 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
             return false;
         }
 
-        if(num_bytes_rcvd == ON_ENCODED_PID_IDX)
+        if(num_bytes_rcvd == ON_PLD_IDX - 1)
         {
-            raw_pid = encoded_to_decoded_byte(bytes[num_bytes_rcvd], false);
-            if(raw_pid >= 0x40 || get_encoded_packet_len(raw_pid, true)
-                != num_bytes_expected)
+            UInt8 raw_pid_bytes[ON_ENCODED_PID_SIZE];
+            UInt16 raw_pid = 0xFFFF; // just make it invalid
+            if(on_decode(raw_pid_bytes, &bytes[ON_ENCODED_PID_IDX],
+              ON_ENCODED_PID_SIZE) == ONS_SUCCESS)
+            {
+                raw_pid = (one_net_byte_stream_to_int16(raw_pid_bytes)) >> 4;
+            }
+
+            if(num_bytes_expected != (int) get_encoded_packet_len(raw_pid,
+              TRUE))
             {
                 rcvd_num_bytes = false;
                 return false;
