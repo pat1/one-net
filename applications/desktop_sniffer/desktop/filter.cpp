@@ -58,6 +58,7 @@ filter_range& filter_range::operator = (const filter_range& that)
 {
     this->low = that.low;
     this->high = that.high;
+    return *this;
 }
 
 
