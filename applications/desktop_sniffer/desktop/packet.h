@@ -192,8 +192,6 @@ private:
     bool valid;
     bool valid_msg_crc;
     bool valid_decode;
-    bool is_large_pkt;
-    bool is_extended_pkt;
     bool is_mh_pkt;
     bool is_data_pkt;
     bool is_single_pkt;
