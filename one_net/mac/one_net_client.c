@@ -1086,8 +1086,8 @@ static on_message_status_t on_client_single_data_hdlr(
     msg_hdr.msg_id = pkt->msg_id;
     
     // we'll be sending it back to the souerce.
-    if(!(device = sender_info(
-      (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
+    if(!(device = sender_info((const on_encoded_did_t* const)
+      &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
     {
         // I think we should have solved this problem before now, but abort if
         // we have not.
@@ -1107,8 +1107,8 @@ static on_message_status_t on_client_single_data_hdlr(
     switch(*msg_type)
     {
         case ON_ADMIN_MSG:
-            msg_status = handle_admin_pkt(
-              (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
+            msg_status = handle_admin_pkt((const on_encoded_did_t* const)
+              &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
               &raw_pld[ON_PLD_DATA_IDX], *txn, ack_nack);
             break;
         #ifdef _ROUTE
@@ -1137,12 +1137,15 @@ static on_message_status_t on_client_single_data_hdlr(
         #endif
         default:   
             #ifndef _ONE_NET_MULTI_HOP
-            msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
+            msg_status = one_net_client_handle_single_pkt(
+              &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
+              &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
+              ack_nack);
             #else
-            msg_status = one_net_client_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
-              &((*txn)->max_hops));
+            msg_status = one_net_client_handle_single_pkt(
+              &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
+              &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
+              ack_nack, (*txn)->hops, &((*txn)->max_hops));
             #endif
             break;
     }
@@ -1268,10 +1271,11 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
    
     #ifndef _ONE_NET_MULTI_HOP
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &(txn->retry));
+      ack_nack, (const on_raw_did_t* const) &src_did, NULL, &(txn->retry));
     #else
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
+      ack_nack, (const on_raw_did_t* const) &src_did, NULL, &(txn->retry),
+      pkt->hops, &(pkt->max_hops));
     #endif
     
 
@@ -1399,7 +1403,8 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
                 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
+                switch(one_net_adjust_hops((const on_raw_did_t* const) &raw_did,
+                  &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
                     #ifdef _COMPILE_WO_WARNINGS
@@ -1455,7 +1460,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     if(*msg_type == ON_ADMIN_MSG && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
     {
         // prevent the device from "sliding off" the device list
-        on_client_set_device_slideoff((on_encoded_did_t*)
+        on_client_set_device_slideoff((const on_encoded_did_t*)
           &pkt->packet_bytes[ON_ENCODED_DST_DID_IDX],
           ON_DEVICE_PROHIBIT_SLIDEOFF);
     }
@@ -1574,7 +1579,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
                             if(this_device_added && !client_joined_network)
                             {
-                                one_net_client_invite_result(&raw_did_added,
+                                one_net_client_invite_result(
+                                  (const on_raw_did_t* const) &raw_did_added,
                                   ONS_SUCCESS);
                                 client_joined_network = TRUE;
                                 // TODO -- seems like this should have
@@ -1705,8 +1711,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     one_net_client_single_txn_status(status, (*txn)->retry,
       msg_hdr, raw_pld, &dst, ack_nack);
     #else
-    one_net_client_single_txn_status(status, (*txn)->retry,
-      msg_hdr, raw_pld, &dst, ack_nack, pkt->hops);
+    one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr, raw_pld,
+      (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
     #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
@@ -1717,9 +1723,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
         {
             UInt8 hops, return_hops;
             if(ack_nack->nack_reason ||
-              !extract_repeaters_and_hops_from_route(&(bs_msg.dst->did),
-              ack_nack->payload->ack_payload, &hops,
-              &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
+              !extract_repeaters_and_hops_from_route(
+              (const on_encoded_did_t* const) &(bs_msg.dst->did),
+              ack_nack->payload->ack_payload, &hops, &return_hops,
+              &bs_msg.num_repeaters, bs_msg.repeaters))
             {
                 on_message_status_t status = ON_MSG_FAIL;
                 
@@ -1749,7 +1756,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     }
     #endif    
 
-    if(is_master_did((on_encoded_did_t*)
+    if(is_master_did((const on_encoded_did_t*)
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]))
       && ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
@@ -1831,7 +1838,7 @@ static on_message_status_t on_client_block_txn_hdlr(
     // allow devices to "slide off" again.
     if(msg->dst)
     {
-        on_client_set_device_slideoff(&msg->dst->did,
+        on_client_set_device_slideoff((const on_encoded_did_t*) &msg->dst->did,
           ON_DEVICE_ALLOW_SLIDEOFF);
         #ifdef _ONE_NET_MULTI_HOP
         {
