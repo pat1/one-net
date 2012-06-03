@@ -195,15 +195,6 @@ bool packet::parse_admin_payload(payload_t& payload, const UInt8* admin_bytes)
 
 bool packet::parse_response_payload(payload_t& payload)
 {
-    // just do something silly to make things compile.
-    on_ack_nack_t* ack_nack = &payload.response_payload.ack_nack;
-    if((int) ack_nack->nack_reason == 5)
-    {
-        return false;
-    }
-
-
-    #if 0
     on_ack_nack_t* ack_nack = &payload.response_payload.ack_nack;
     UInt8 tmp_bytes[sizeof(payload.decrypted_payload_bytes)];
     memcpy(tmp_bytes, payload.decrypted_payload_bytes,
@@ -219,8 +210,8 @@ bool packet::parse_response_payload(payload_t& payload)
         return parse_admin_payload(payload,
             &payload.decrypted_payload_bytes[ON_PLD_ADMIN_TYPE_IDX]);
     }
-    #endif
-    return true;
+
+    return ret;
 }
 
 
@@ -426,18 +417,6 @@ bool packet::filter_packet(const filter& fltr) const
 bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     UInt8 num_bytes, const UInt8* const bytes, const filter& fltr)
 {
-    // just getting things to compile for right now.  Just do something
-    // silly with the variables
-
-    fltr.display(cout);
-    if(timestamp.tv_sec + raw_pid + num_bytes + (bytes == NULL) > 1000)
-    {
-        return false;
-    }
-
-
-
-    #if 0
     payload.is_app_pkt = false;
     payload.is_admin_pkt = false;
     payload.is_features_pkt = false;
@@ -459,7 +438,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     
     memmove(enc_pkt_bytes, bytes, num_bytes);
 
-    if(!setup_pkt_ptr(raw_pid, enc_pkt_bytes, &pkt_ptr))
+    if(!setup_pkt_ptr(raw_pid, enc_pkt_bytes, 0, &pkt_ptr))
     {
         return false;
     }
@@ -479,8 +458,8 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
 
     valid_decode = true;
     UInt8 raw_nid_bytes[ON_RAW_NID_LEN];
-    if(on_decode(raw_nid_bytes, *(pkt_ptr.enc_nid), ON_ENCODED_NID_LEN) !=
-        ONS_SUCCESS)
+    if(on_decode(raw_nid_bytes, &enc_pkt_bytes[ON_ENCODED_NID_IDX],
+      ON_ENCODED_NID_LEN) != ONS_SUCCESS)
     {
         valid_decode = false;
     }
@@ -492,28 +471,28 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
 
 
     on_raw_did_t raw_did;
-    if(on_decode(raw_did, *(pkt_ptr.enc_src_did), ON_ENCODED_DID_LEN) !=
-        ONS_SUCCESS)
+    if(on_decode(raw_did, &enc_pkt_bytes[ON_ENCODED_SRC_DID_IDX],
+      ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         valid_decode = false;
     }
     raw_src_did = did_to_u16(&raw_did);
 
-    if(on_decode(raw_did, *(pkt_ptr.enc_repeater_did), ON_ENCODED_DID_LEN) !=
-        ONS_SUCCESS)
+    if(on_decode(raw_did, &enc_pkt_bytes[ON_ENCODED_RPTR_DID_IDX],
+      ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         valid_decode = false;
     }
     raw_rptr_did = did_to_u16(&raw_did);
 
-    if(on_decode(raw_did, *(pkt_ptr.enc_dst_did), ON_ENCODED_NID_LEN) !=
-        ONS_SUCCESS)
+    if(on_decode(raw_did, &enc_pkt_bytes[ON_ENCODED_DST_DID_IDX],
+      ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         valid_decode = false;
     }
     raw_dst_did = did_to_u16(&raw_did);
 
-    enc_msg_crc = *(pkt_ptr.enc_msg_crc);
+    enc_msg_crc = enc_pkt_bytes[ON_ENCODED_MSG_CRC_IDX];
     msg_crc = encoded_to_decoded_byte(enc_msg_crc, TRUE);
     calculated_msg_crc = calculate_msg_crc(&pkt_ptr);
 
@@ -521,17 +500,17 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     is_ack_pkt = packet_is_ack(raw_pid);
     is_nack_pkt = packet_is_nack(raw_pid);
     is_response_pkt = is_ack_pkt || is_nack_pkt;
-    is_stay_awake_pkt = packet_is_stay_awake(raw_pid);
+    is_stay_awake_pkt = ((raw_pid | ONE_NET_RAW_PID_STAY_AWAKE_MASK) > 0);
     is_block_pkt = packet_is_block(raw_pid);
     is_stream_pkt = packet_is_stream(raw_pid);
     is_single_pkt = packet_is_single(raw_pid);
     is_data_pkt = packet_is_data(raw_pid);
-    is_mh_pkt = packet_is_multihop(raw_pid);
+    is_mh_pkt = ((raw_pid | ONE_NET_RAW_PID_MH_MASK) > 0);
     hops = 0;
     max_hops = 0;
     if(is_mh_pkt)
     {
-        encoded_hops_field = *(pkt_ptr.enc_hops_field);
+        encoded_hops_field = enc_pkt_bytes[ON_PLD_IDX + pkt_ptr.payload_len];
         if((decoded_hops_field = encoded_to_decoded_byte(encoded_hops_field,
             false)) = 0xFF)
         {
@@ -539,23 +518,14 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
         }
         else
         {
-            on_parse_hops(encoded_hops_field, &(pkt_ptr.hops),
-              &(pkt_ptr.max_hops));
+            on_parse_hops(&pkt_ptr, &(pkt_ptr.hops), &(pkt_ptr.max_hops));
             max_hops = pkt_ptr.max_hops;
             hops = pkt_ptr.hops;
         }
     }
 
-    is_large_pkt = false;
-    is_extended_pkt = false;
-    if(is_single_pkt || (is_response_pkt && !is_stream_pkt && !is_block_pkt))
-    {
-        is_large_pkt = (get_num_payload_blocks(raw_pid) == 2);
-        is_extended_pkt = (get_num_payload_blocks(raw_pid) == 3);
-    }
-
-    if(on_decode(encrypted_payload_bytes, pkt_ptr.payload, encoded_payload_len)
-        != ONS_SUCCESS)
+    if(on_decode(encrypted_payload_bytes, &enc_pkt_bytes[ON_PLD_IDX],
+      encoded_payload_len) != ONS_SUCCESS)
     {
         valid_decode = false;
     }
@@ -636,7 +606,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
     {
         // TODO -- block and stream
     }
-    #endif
+ 
     return true;
 }
 
