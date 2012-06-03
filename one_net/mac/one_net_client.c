@@ -1709,7 +1709,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
     #ifndef _ONE_NET_MULTI_HOP
     one_net_client_single_txn_status(status, (*txn)->retry,
-      msg_hdr, raw_pld, &dst, ack_nack);
+      msg_hdr, raw_pld, (const on_raw_did_t*) &dst, ack_nack);
     #else
     one_net_client_single_txn_status(status, (*txn)->retry, msg_hdr, raw_pld,
       (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
