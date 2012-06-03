@@ -2283,6 +2283,11 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
             case ON_ACK_RESPONSE_TIME_MS:
                 new_response_timeout = (SInt16)ack_nack->payload->ack_time_ms;
                 break;
+            #ifdef _COMPILE_WO_WARNINGS
+            // add default case that does nothing for clean compile
+            default:
+                break;
+            #endif
         }
         
         if(new_response_timeout > 0)
@@ -2331,6 +2336,10 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
+                    #ifdef _COMPILE_WO_WARNINGS
+                    // add default case that does nothing for clean compile
+                    default: break;
+                    #endif
                 }             
                 
                 txn->hops = 0;
