@@ -1349,23 +1349,26 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         return ONS_INCORRECT_ADDR;
     } // if the encode failed //
     
-    src_is_master = is_my_did(&enc_src_did);
-    dst_is_master = is_my_did(enc_dst_did);
-    dst_is_broadcast = is_broadcast_did(enc_dst_did);
+    src_is_master = is_my_did((const on_encoded_did_t*) &enc_src_did);
+    dst_is_master = is_my_did((const on_encoded_did_t*) enc_dst_did);
+    dst_is_broadcast = is_broadcast_did((const on_encoded_did_t*) enc_dst_did);
     
     // make sure that the devices are both part of the network and are
     // not the same device
-    if(!src_is_master && !client_info(&enc_src_did))
+    if(!src_is_master && !client_info((const on_encoded_did_t*)
+      &enc_src_did))
     {
         // source devices is in the network.
         return ONS_INCORRECT_ADDR;
     }
-    if(!dst_is_master && !dst_is_broadcast && !client_info(enc_dst_did))
+    if(!dst_is_master && !dst_is_broadcast && !client_info(
+      (const on_encoded_did_t*) enc_dst_did))
     {
         // dest. device is not part of the network.
         return ONS_INCORRECT_ADDR;
     }
-    if(on_encoded_did_equal(&enc_src_did, enc_dst_did))
+    if(on_encoded_did_equal((const on_encoded_did_t* const) &enc_src_did,
+      (const on_encoded_did_t* const) enc_dst_did))
     {
         // devices are the same.
         return ONS_INCORRECT_ADDR;
@@ -1385,13 +1388,13 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     {
         if(ASSIGN)
         {
-            return one_net_add_peer_to_list(SRC_UNIT, NULL, enc_dst_did,
-                PEER_UNIT);
+            return one_net_add_peer_to_list(SRC_UNIT, NULL,
+              (const on_encoded_did_t* const) enc_dst_did, PEER_UNIT);
         }
         else
         {
-            return one_net_remove_peer_from_list(SRC_UNIT, NULL, enc_dst_did,
-                PEER_UNIT);
+            return one_net_remove_peer_from_list(SRC_UNIT, NULL,
+              (const on_encoded_did_t* const) enc_dst_did, PEER_UNIT);
         }
         
         #ifdef _AUTO_SAVE
@@ -1404,7 +1407,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     pld[ON_PEER_PEER_UNIT_IDX] = PEER_UNIT;
 
     return send_admin_pkt(ASSIGN ? ON_ASSIGN_PEER : ON_UNASSIGN_PEER,
-        &enc_src_did, pld, 0);
+        (const on_encoded_did_t* const) &enc_src_did, pld, 0);
 } // one_net_master_peer_assignment //
 #endif
 
@@ -2981,7 +2984,7 @@ static void check_updates_in_progress(void)
             one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE, NULL,
               &ack);
             // now actually remove the client
-            rm_client(&remove_device_did);
+            rm_client((const on_encoded_did_t* const) &remove_device_did);
             return;
         }
     }
@@ -3234,8 +3237,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
             if(master_is_recipient && bs_msg.transfer_in_progress)
             {
-                if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
-                  SRC_DID))
+                if(!bs_msg.src || !on_encoded_did_equal(
+                  (const on_encoded_did_t* const) &(bs_msg.src->did), SRC_DID))
                 {
                     ack_nack->nack_reason = ON_NACK_RSN_BUSY;
                     break;
@@ -3339,7 +3342,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             else if(!dst_client)
             {
                 invalid_device_did = (on_encoded_did_t*) &DATA[5];
-                if(is_master_did(invalid_device_did))
+                if(is_master_did((const on_encoded_did_t* const)
+                  invalid_device_did))
                 {
                     // this is to us.
                     if(!bs_msg.transfer_in_progress)
@@ -3581,7 +3585,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 {
                     // device is now added.  Adjust the client count,
                     // next Device DID, and notify everyone.
-                    one_net_master_cancel_invite(&invite_key);
+                    one_net_master_cancel_invite(
+                      (const one_net_xtea_key_t* const) &invite_key);
                     // TODO -- check return value.  What do we do if this
                     // is not a success?
                     
@@ -3990,7 +3995,8 @@ static void check_clients_for_missed_check_ins(void)
               !features_device_sleeps(client_list[i].device.features))
             {
                 send_admin_pkt(ON_KEEP_ALIVE_QUERY,
-                  &(client_list[i].device.did), pld, 0);
+                  (const on_encoded_did_t* const) &(client_list[i].device.did),
+                  pld, 0);
             }
             client_list[i].next_check_in_time = time_now + 
               MS_TO_TICK(5000 + client_list[i].keep_alive_interval);
