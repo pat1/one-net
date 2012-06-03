@@ -161,17 +161,10 @@ packet::~packet()
 
 bool packet::parse_app_payload(payload_t& payload)
 {
-    // justgetting things to compile for now. Just doing something silly
-    // with the parameters.
-    return (payload.app_payload.dst_unit == 0);
-
-
-    #if 0
     return on_parse_app_pld(&payload.decrypted_payload_bytes[ON_PLD_DATA_IDX],
         &payload.app_payload.src_unit, &payload.app_payload.dst_unit,
         &payload.app_payload.msg_class, &payload.app_payload.msg_type,
         &payload.app_payload.msg_data);
-    #endif
 }
 
 
