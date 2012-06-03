@@ -623,7 +623,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
     static bool rcvd_num_bytes = false;
     static int num_bytes_rcvd;
     static int num_bytes_expected;
-    static int raw_pid;
+    static UInt16 raw_pid;
     UInt32 timestamp_ms;
     static UInt8 bytes[ON_MAX_ENCODED_PKT_SIZE];
     static struct timeval timestamp;
@@ -697,7 +697,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
         if(num_bytes_rcvd == ON_PLD_IDX - 1)
         {
             UInt8 raw_pid_bytes[ON_ENCODED_PID_SIZE];
-            UInt16 raw_pid = 0xFFFF; // just make it invalid
+            raw_pid = 0xFFFF; // just make it invalid
             if(on_decode(raw_pid_bytes, &bytes[ON_ENCODED_PID_IDX],
               ON_ENCODED_PID_SIZE) == ONS_SUCCESS)
             {
@@ -720,7 +720,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
     }
 
     rcvd_num_bytes = false; // packet bytes received.  Set false for next time
-    return create_packet(timestamp, (UInt8) raw_pid, (UInt8) num_bytes_rcvd,
+    return create_packet(timestamp, raw_pid, (UInt8) num_bytes_rcvd,
         bytes, fltr, pkt);
 }
 
