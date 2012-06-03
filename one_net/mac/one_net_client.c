@@ -144,7 +144,7 @@ on_master_t * const master
 
 //! The ONE_NET_RX_FROM_DEVICE_COUNT devices that have most recently sent data
 //! to this device.
-on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT] = {0};
+on_sending_dev_list_item_t sending_dev_list[ONE_NET_RX_FROM_DEVICE_COUNT];
 
 //! Set to true upon being deleted from the network.  There will be a slight
 //! two second pause before this device actually removes itself to give any
@@ -1945,6 +1945,8 @@ static on_message_status_t on_client_stream_txn_hdlr(
 */
 static one_net_status_t init_internal(void)
 {
+    one_net_memset(sending_dev_list, 0, sizeof(sending_dev_list));
+    
     pkt_hdlr.single_data_hdlr = &on_client_single_data_hdlr;
     pkt_hdlr.single_ack_nack_hdlr =
       &on_client_handle_single_ack_nack_response;
