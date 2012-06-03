@@ -190,7 +190,10 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
   )
 {
     on_single_data_queue_t* element = NULL;
+    
+    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL    
     tick_t time_now = get_tick_count();
+    #endif
     
     #ifdef _EXTENDED_SINGLE
     // check the pid length to make sure it's long enough
