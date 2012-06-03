@@ -249,7 +249,11 @@ static on_message_status_t on_master_stream_txn_hdlr(
 
 static one_net_status_t init_internal(void);
 static one_net_status_t rm_client(const on_encoded_did_t * const CLIENT_DID);
+// TODO -- June 2, 2012 - sort_client_list_by_encoded_did appears to not be
+// used anywhere.  Commenting out for a clean compile
+#if 0
 static void sort_client_list_by_encoded_did(void);
+#endif
 static UInt16 find_lowest_vacant_did(void);
 static SInt16 find_vacant_client_list_index(void);
 
@@ -2814,6 +2818,9 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 } // rm_client //
 
 
+// TODO -- June 2, 2012 - sort_client_list_by_encoded_did appears to not be
+// used anywhere.  Commenting out for a clean compile
+#if 0
 /*!
     \brief Sorts the client list by did for a cleaner printout.
 */
@@ -2845,6 +2852,7 @@ static void sort_client_list_by_encoded_did(void)
         }
     }
 }
+#endif
 
 
 /*!
