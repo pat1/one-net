@@ -360,9 +360,6 @@ void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
 	  const tick_t timeout_time)
 #endif
 {
-    tick_t time_now = get_tick_count();
-
-    
     // copy some parameters over to the base parameters and the master
     // parameters.
     
@@ -411,7 +408,8 @@ void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
           ONE_NET_CLIENT_INVITE_DURATION));
     }
     #else
-    on_base_param->channel = one_net_prand(time_now, ONE_NET_MAX_CHANNEL);
+    on_base_param->channel = one_net_prand(get_tick_count(),
+      ONE_NET_MAX_CHANNEL);
     ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(ONE_NET_CLIENT_INVITE_DURATION));
     #endif
     
@@ -1160,8 +1158,8 @@ static on_message_status_t on_client_single_data_hdlr(
     {
         one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-            ONE_NET_HIGH_PRIORITY, NULL,
-            (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
+            ONE_NET_HIGH_PRIORITY, NULL, (const on_encoded_did_t* const)
+            &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
         #ifdef _PEER
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
@@ -1289,6 +1287,11 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             case ON_ACK_RESPONSE_TIME_MS:
                 new_response_timeout = (SInt16)ack_nack->payload->ack_time_ms;
                 break;
+            #ifdef _COMPILE_WO_WARNINGS
+            // add default case that does nothing for clean compile
+            default:
+                break;
+            #endif
         }
         
         if(new_response_timeout > 0)
@@ -1308,8 +1311,13 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             // after any key changes.
             BOOL to_master = is_master_did((const on_encoded_did_t*)
               txn->device->did);
+              
+            #ifndef _COMPILE_WO_WARNINGS  
             BOOL requeue_msg = FALSE; // TODO -- figure out whether this is
                                       // something that should / can be re-sent.
+                                      // otherwise, delete this unused variable
+            #endif
+            
             BOOL new_key = new_key_fragment(
               (const one_net_xtea_key_fragment_t*) ack_nack->payload->key_frag,
               to_master);
@@ -1391,6 +1399,11 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
                 switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
+                    #ifdef _COMPILE_WO_WARNINGS
+                    // add default case that does nothing for clean compile
+                    default:
+                        break;
+                    #endif
                 }             
                 
                 txn->hops = 0;
@@ -1547,7 +1560,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                 break;
                             }
                             
-                            this_device_added = is_my_did(added_device);
+                            this_device_added = is_my_did(
+                              (const on_encoded_did_t*)added_device);
                             
                             if(!this_device_added)
                             {
@@ -1587,7 +1601,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                 break;
                             }
                             one_net_client_client_removed(&raw_did_removed,
-                              is_my_did((on_encoded_did_t*)
+                              is_my_did((const on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
                               
                             #ifdef _ONE_NET_MULTI_HOP
@@ -2155,7 +2169,7 @@ static one_net_status_t send_keep_alive(void)
 
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
-      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
+      NULL, (const on_encoded_did_t* const) MASTER_ENCODED_DID
       #ifdef _PEER
       , FALSE,
       ONE_NET_DEV_UNIT
@@ -2323,8 +2337,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
             if(bs_msg.transfer_in_progress)
             {
-                if(!bs_msg.src || !on_encoded_did_equal(&(bs_msg.src->did),
-                  SRC_DID))
+                if(!bs_msg.src || !on_encoded_did_equal(
+                  (const on_encoded_did_t* const)&(bs_msg.src->did), SRC_DID))
                 {
                     ack_nack->nack_reason = ON_NACK_RSN_BUSY;
                     break;
@@ -2423,7 +2437,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if(new_key_fragment(
               (const one_net_xtea_key_fragment_t* const)(&DATA[1]), TRUE))
             {
-                UInt8 i;
                 // We have changed a key.  We don't know why.  Some device,
                 // possibly us, may have run out of message ids and there was a
                 // key change to reset that.  Regardless of who wanted the key
@@ -2553,7 +2566,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // first check if we are the one being removed.
             on_encoded_did_t* removed_did = (on_encoded_did_t*) &DATA[1];
 
-            if(is_my_did(removed_did))
+            if(is_my_did((const on_encoded_did_t*) removed_did))
             {
                 // we're the ones being removed
                 removed = TRUE;
@@ -2573,7 +2586,6 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             else
             {
                 // Remove the device from the list of sending devices
-                tick_t tick_now = get_tick_count();
                 
                 #ifndef _ONE_NET_SIMPLE_CLIENT
                 on_sending_dev_list_item_t* removed_item =
@@ -2615,10 +2627,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             on_encoded_did_t* added_device = (on_encoded_did_t*) &DATA[1];
             on_raw_did_t raw_did;
             on_decode(raw_did, *added_device, ON_ENCODED_DID_LEN);
-            this_device_added = is_my_did(added_device);
+            this_device_added = is_my_did((const on_encoded_did_t*)
+              added_device);
             if(this_device_added && !client_joined_network)
             {
-                one_net_client_invite_result(&raw_did, ONS_SUCCESS);
+                one_net_client_invite_result((const on_raw_did_t* const)
+                  &raw_did, ONS_SUCCESS);
                 client_joined_network = TRUE;
                 master->flags |= ON_JOINED; // TODO -- seems like this should have
                                     // been set elsewhere?
@@ -2626,7 +2640,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             else
             {
-                one_net_client_client_added(&raw_did);
+                one_net_client_client_added((const on_raw_did_t* const)
+                  &raw_did);
             }
             
             #ifdef _ONE_NET_MULTI_HOP
@@ -2679,7 +2694,7 @@ static BOOL send_new_key_request(void)
 
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, &admin_type, 1, ONE_NET_LOW_PRIORITY,
-      NULL, (on_encoded_did_t*) MASTER_ENCODED_DID
+      NULL, (const on_encoded_did_t* const) MASTER_ENCODED_DID
       #ifdef _PEER
       , FALSE,
       ONE_NET_DEV_UNIT
