@@ -3529,11 +3529,11 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     BOOL src_is_master;
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    BOOL high_priority_bs = (bs_msg.transfer_in_progress && get_bs_priority(
-      bs_msg.flags) > ONE_NET_LOW_PRIORITY);
     BOOL src_is_bs_endpoint;
     #ifdef _ONE_NET_MH_CLIENT_REPEATER
     BOOL dst_is_master, dst_is_bs_endpoint;
+    BOOL high_priority_bs = (bs_msg.transfer_in_progress && get_bs_priority(
+      bs_msg.flags) > ONE_NET_LOW_PRIORITY);
     #endif
     #endif
 
@@ -3636,7 +3636,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     packet_is_mh = packet_is_multihop(raw_pid);
     #endif
     
-    #if !defined(_ONE_NET_MH_CLIENT_REPEATER) || !defined(_ONE_NET_CLIENT)
+    #ifndef _ONE_NET_MH_CLIENT_REPEATER
     if(!src_match || (!dst_is_me && !dst_is_broadcast))
     {
         return ONS_BAD_ADDR;
