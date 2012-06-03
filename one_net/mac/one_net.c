@@ -630,10 +630,10 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       
     #ifdef _STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(FALSE, raw_payload_bytes,
-      (const one_net_xtea_key_t * const)txn->key, raw_pld_len)) == ONS_SUCCESS)
+      (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
-    if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
-      ONS_SUCCESS)
+    if((status = on_encrypt(raw_payload_bytes,
+      (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #endif
     {
         status = on_encode(&(pkt_ptrs->packet_bytes[ON_PLD_IDX]),
@@ -755,10 +755,10 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     
     #ifdef _STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(is_stream_txn, raw_payload_bytes,
-      (const one_net_xtea_key_t * const)txn->key, raw_pld_len)) == ONS_SUCCESS)
+      (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
-    if((status = on_encrypt(raw_payload_bytes, txn->key, raw_pld_len)) ==
-      ONS_SUCCESS)
+    if((status = on_encrypt(raw_payload_bytes,
+      (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #endif
     {
         status = on_encode(&(pkt_ptrs->packet_bytes[ON_PLD_IDX]),
@@ -1280,7 +1280,9 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_LISTEN_FOR_DATA:
         {
+            #ifdef _ROUTE
             UInt16 raw_pid;
+            #endif
             #ifdef _ONE_NET_MULTI_HOP
             on_raw_did_t raw_did;
             #endif
