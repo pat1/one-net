@@ -321,7 +321,7 @@ void on_client_set_device_slideoff(const on_encoded_did_t* enc_did,
 
     \return none
 */
-void on_client_unlock_device_slideoff(on_encoded_did_t* enc_did)
+void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
 {
     on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
     if(item && item->slideoff == ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK)
