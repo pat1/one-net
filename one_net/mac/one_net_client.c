@@ -1925,7 +1925,7 @@ static on_message_status_t on_client_stream_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
-    return one_net_client_block_txn_status(msg, terminating_device, status,
+    return one_net_client_stream_txn_status(msg, terminating_device, status,
       ack_nack);
 }
 #endif
