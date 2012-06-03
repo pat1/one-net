@@ -2119,12 +2119,15 @@ static on_message_status_t on_master_single_data_hdlr(
         #endif            
         default:   
             #ifndef _ONE_NET_MULTI_HOP
-            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack);
+            msg_status = one_net_master_handle_single_pkt(
+              &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
+              &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
+              ack_nack);
             #else
-            msg_status = one_net_master_handle_single_pkt(&raw_pld[ON_PLD_DATA_IDX],
-              &msg_hdr, &raw_src_did, &raw_repeater_did, ack_nack, (*txn)->hops,
-              &((*txn)->max_hops));
+            msg_status = one_net_master_handle_single_pkt(
+              &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
+              &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
+              ack_nack, (*txn)->hops, &((*txn)->max_hops));
             #endif
             break;
     }
@@ -2145,7 +2148,8 @@ static on_message_status_t on_master_single_data_hdlr(
         one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL,
-            (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
+            (const on_encoded_did_t* const)
+            &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
         #ifdef _PEER
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
@@ -2268,7 +2272,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
       ack_nack, &src_did, NULL, &(txn->retry));
     #else
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
-      ack_nack, &src_did, NULL, &(txn->retry), pkt->hops, &(pkt->max_hops));
+      ack_nack, (const on_raw_did_t* const) &src_did, NULL, &(txn->retry),
+      pkt->hops, &(pkt->max_hops));
     #endif    
     
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
@@ -2336,7 +2341,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 
                 // give the application code a chance to override if it
                 // wants to.
-                switch(one_net_adjust_hops(&raw_did, &txn->max_hops))
+                switch(one_net_adjust_hops((const on_raw_did_t* const) &raw_did,
+                  &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
                     #ifdef _COMPILE_WO_WARNINGS
@@ -2507,15 +2513,16 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     
     if(*msg_type == ON_ADMIN_MSG)
     {
-        admin_txn_hdlr(raw_pld, &dst, status, ack_nack, client);
+        admin_txn_hdlr(raw_pld, (const on_raw_did_t* const) &dst, status,
+          ack_nack, client);
     }
 
     #ifndef _ONE_NET_MULTI_HOP
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack);
+      raw_pld, (const on_raw_did_t*) &dst, ack_nack);
     #else
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
-      raw_pld, &dst, ack_nack, pkt->hops);
+      raw_pld, (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
     #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
@@ -2526,7 +2533,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         {
             UInt8 hops, return_hops;
             if(ack_nack->nack_reason ||
-              !extract_repeaters_and_hops_from_route(&(bs_msg.dst->did),
+              !extract_repeaters_and_hops_from_route(
+              (const on_encoded_did_t* const) &(bs_msg.dst->did),
               ack_nack->payload->ack_payload, &hops,
               &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
             {
@@ -2717,7 +2725,7 @@ static on_message_status_t on_master_stream_txn_hdlr(
 */
 static one_net_status_t init_internal(void)
 {
-    one_net_master_cancel_invite(&invite_key);
+    one_net_master_cancel_invite((const one_net_xtea_key_t* const) &invite_key);
     invite_txn.pkt = &encoded_pkt_bytes[2 * ON_MAX_ENCODED_DATA_PKT_SIZE];
     pkt_hdlr.single_data_hdlr = &on_master_single_data_hdlr;
     pkt_hdlr.single_ack_nack_hdlr =
