@@ -678,8 +678,8 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
     // fill in the addresses
     if((status = on_build_my_pkt_addresses(&data_pkt_ptrs,
-      (on_encoded_did_t*) ON_ENCODED_BROADCAST_DID,
-      (on_encoded_did_t*) MASTER_ENCODED_DID)) != ONS_SUCCESS)
+      (const on_encoded_did_t*) ON_ENCODED_BROADCAST_DID,
+      (const on_encoded_did_t*) MASTER_ENCODED_DID)) != ONS_SUCCESS)
     {
         return status;
     }
@@ -1557,7 +1557,6 @@ one_net_status_t one_net_master_change_frag_dly(
 */
 one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
 {
-    one_net_status_t status;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
 
     if(!client)
@@ -1814,7 +1813,8 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
     }
     else
     {
-        on_client_t* client = client_info(&(msg->dst->did));
+        on_client_t* client = client_info(
+          (const on_encoded_did_t* const) &(msg->dst->did));
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
@@ -1976,7 +1976,8 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
     }
     else
     {
-        on_client_t* client = client_info(&(msg->dst->did));
+        on_client_t* client = client_info(
+          (const on_encoded_did_t* const) &(msg->dst->did));
         one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));        
         if(!client)
         {
@@ -2051,8 +2052,8 @@ static on_message_status_t on_master_single_data_hdlr(
     UInt8 response_pid;
     on_sending_device_t* device;
     on_client_t* client;
-    client = client_info(
-      (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]));
+    client = client_info((const on_encoded_did_t* const)
+      &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]));
 
     on_decode(raw_src_did, &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
       ON_ENCODED_DID_LEN);
@@ -2476,7 +2477,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 {
     on_msg_hdr_t msg_hdr;
     on_raw_did_t dst;
-    on_client_t* client = client_info((on_encoded_did_t*)
+    on_client_t* client = client_info((const on_encoded_did_t* const)
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]));
     
     if(!client)
@@ -3289,9 +3290,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         case ON_REQUEST_REPEATER:
         {
             UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
-            on_client_t* rptr_client = client_info((on_encoded_did_t*) &DATA[1]);
-            on_client_t* src_client = client_info((on_encoded_did_t*) &DATA[3]);
-            on_client_t* dst_client = client_info((on_encoded_did_t*) &DATA[5]);
+            on_client_t* rptr_client = client_info(
+              (const on_encoded_did_t* const) &DATA[1]);
+            on_client_t* src_client = client_info(
+              (const on_encoded_did_t* const) &DATA[3]);
+            on_client_t* dst_client = client_info(
+              (const on_encoded_did_t* const) &DATA[5]);
             on_encoded_did_t* invalid_device_did = NULL;
             
             // we need to make sure the source and the destinations are clients
@@ -3400,7 +3404,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if((*client)->send_add_device_message)
             {
                 one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
-                  &raw_did, ack_nack);
+                  (const on_raw_did_t*) &raw_did, ack_nack);
             }
             
             (*client)->send_add_device_message = FALSE;
@@ -3417,7 +3421,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if((*client)->send_remove_device_message)
             {
                 one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
-                  &raw_did, ack_nack);
+                  (const on_raw_did_t*) &raw_did, ack_nack);
             }
             
             (*client)->send_remove_device_message = FALSE;
@@ -3530,7 +3534,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 if(!((*client)->use_current_key))
                 {
                     one_net_master_update_result(ONE_NET_UPDATE_NETWORK_KEY,
-                        &raw_did, ack_nack);
+                        (const on_raw_did_t*) &raw_did, ack_nack);
                 }
                 (*client)->use_current_key = TRUE;
                 #ifdef _AUTO_SAVE
@@ -3769,7 +3773,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         
         
         
-        if((add_or_remove_client = client_info((on_encoded_did_t*)
+        if((add_or_remove_client = client_info((const on_encoded_did_t* const)
           &(msg->payload[1]))) == NULL)
         {
             // internal error.  This message has been corrupted somehow.
@@ -3788,7 +3792,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                     if(client_list[i].send_add_device_message)
                     {
                         one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
-                          &raw_did, &ack_nack);
+                          (const on_raw_did_t*) &raw_did, &ack_nack);
                         client_list[i].send_add_device_message = FALSE;
                     }
                 }
@@ -3797,7 +3801,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                     if(client_list[i].send_remove_device_message)
                     {
                         one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
-                          &raw_did, &ack_nack);
+                          (const on_raw_did_t*) &raw_did, &ack_nack);
                         client_list[i].send_remove_device_message = FALSE;
                     }
                 }
@@ -3875,7 +3879,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     client = NULL;
     if((*recipient_send_list)->num_recipients)
     {
-        client = client_info(
+        client = client_info((const on_encoded_did_t* const)
           &(*recipient_send_list)->recipient_list[0].did);
           
         if(client)
