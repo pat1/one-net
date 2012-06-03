@@ -265,8 +265,8 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 
     \return none
 */
-void on_client_set_device_slideoff(on_encoded_did_t* enc_did, device_slideoff_t
-  slideoff)
+void on_client_set_device_slideoff(const on_encoded_did_t* enc_did,
+  device_slideoff_t slideoff)
 {
     on_sending_dev_list_item_t* item = get_sending_dev_list_item_t(enc_did);
     
@@ -1565,7 +1565,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             
                             if(!this_device_added)
                             {
-                                one_net_client_client_added(&raw_did_added);
+                                one_net_client_client_added(
+                                  (const on_raw_did_t* const) &raw_did_added);
                             }
 
                             if(this_device_added && !client_joined_network)
@@ -1600,7 +1601,8 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             {
                                 break;
                             }
-                            one_net_client_client_removed(&raw_did_removed,
+                            one_net_client_client_removed(
+                              (const on_raw_did_t* const) &raw_did_removed,
                               is_my_did((const on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
                               
@@ -2599,12 +2601,14 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 #ifdef _PEER
                 // delete any peer assignments for this device
                 one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
-                  removed_did, ONE_NET_DEV_UNIT);
+                  (const on_encoded_did_t * const) removed_did,
+                  ONE_NET_DEV_UNIT);
                 #endif
                 {
                     on_raw_did_t raw_did;
                     on_decode(raw_did, *removed_did, ON_ENCODED_DID_LEN);
-                    one_net_client_client_removed(&raw_did, FALSE);
+                    one_net_client_client_removed((const on_raw_did_t* const)
+                      &raw_did, FALSE);
                 }
                 
                 #ifdef _ONE_NET_MULTI_HOP
