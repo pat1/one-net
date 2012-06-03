@@ -518,10 +518,11 @@ tick_t one_net_client(void)
         // shouldn't get here.  If we did, something very bad happened.
         // Reset everything and try again.
         #ifndef _ENHANCED_INVITE
-        one_net_client_reset_client(one_net_client_get_invite_key());
+        one_net_client_reset_client((const one_net_xtea_key_t*)
+          one_net_client_get_invite_key());
         #else
-        one_net_client_reset_client(one_net_client_get_invite_key(), 0,
-          ONE_NET_MAX_CHANNEL, 0);
+        one_net_client_reset_client((const one_net_xtea_key_t*)
+          one_net_client_get_invite_key(), 0, ONE_NET_MAX_CHANNEL, 0);
         #endif
         return 0;
     }
@@ -565,10 +566,11 @@ tick_t one_net_client(void)
                 #endif
                 one_net_client_client_removed(NULL, TRUE);
                 #ifndef _ENHANCED_INVITE
-                one_net_client_reset_client(one_net_client_get_invite_key());
+                one_net_client_reset_client((const one_net_xtea_key_t*)
+                  one_net_client_get_invite_key());
                 #else
-                one_net_client_reset_client(one_net_client_get_invite_key(), 0,
-                  ONE_NET_MAX_CHANNEL, 0);
+                one_net_client_reset_client((const one_net_xtea_key_t*)
+                  one_net_client_get_invite_key(), 0, ONE_NET_MAX_CHANNEL, 0);
                 #endif
                 return 0;
             }
@@ -579,10 +581,11 @@ tick_t one_net_client(void)
                 // we started to accept an invite, but for whatever reason
                 // we did not finish
                 #ifdef _ENHANCED_INVITE
-                one_net_client_reset_client(one_net_client_get_invite_key(), 0,
-                  ONE_NET_MAX_CHANNEL, 0);
+                one_net_client_reset_client((const one_net_xtea_key_t*)
+                  one_net_client_get_invite_key(), 0, ONE_NET_MAX_CHANNEL, 0);
                 #else
-                one_net_client_reset_client(one_net_client_get_invite_key());
+                one_net_client_reset_client((const one_net_xtea_key_t*)
+                  one_net_client_get_invite_key());
                 #endif
                 #ifdef _AUTO_SAVE
                 save = TRUE;
@@ -1835,15 +1838,15 @@ static on_message_status_t on_client_block_txn_hdlr(
             UInt8 i;
             for(i = 0; i < msg->num_repeaters; i++)
             {
-                on_client_set_device_slideoff(&msg->repeaters[i],
-                  ON_DEVICE_ALLOW_SLIDEOFF);
+                on_client_set_device_slideoff((const on_encoded_did_t*)
+                  &msg->repeaters[i], ON_DEVICE_ALLOW_SLIDEOFF);
             }
         }
         #endif
     }
     if(msg->src)
     {
-        on_client_set_device_slideoff(&msg->src->did,
+        on_client_set_device_slideoff((const on_encoded_did_t*) &msg->src->did,
           ON_DEVICE_ALLOW_SLIDEOFF);
     }
     
@@ -2415,13 +2418,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 // prevent device list slideoff
                 if(bs_msg.dst)
                 {
-                    on_client_set_device_slideoff(&bs_msg.dst->did,
-                      ON_DEVICE_PROHIBIT_SLIDEOFF);
+                    on_client_set_device_slideoff((const on_encoded_did_t*)
+                      &bs_msg.dst->did, ON_DEVICE_PROHIBIT_SLIDEOFF);
                 }
                 if(bs_msg.src)
                 {
-                    on_client_set_device_slideoff(&bs_msg.src->did,
-                      ON_DEVICE_PROHIBIT_SLIDEOFF);
+                    on_client_set_device_slideoff((const on_encoded_did_t*)
+                      &bs_msg.src->did, ON_DEVICE_PROHIBIT_SLIDEOFF);
                 }
             }
             break;
@@ -2591,7 +2594,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 
                 #ifndef _ONE_NET_SIMPLE_CLIENT
                 on_sending_dev_list_item_t* removed_item =
-                  get_sending_dev_list_item_t(removed_did);
+                  get_sending_dev_list_item_t((const on_encoded_did_t*)
+                    removed_did);
                 if(removed_item)
                 {
                     removed_item->lru = 0;
