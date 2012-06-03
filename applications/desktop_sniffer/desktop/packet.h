@@ -27,8 +27,8 @@ struct app_payload_t
     UInt8 num_bytes;
     UInt8 src_unit;
     UInt8 dst_unit;
-    UInt8 msg_class;
-    UInt16 msg_type;
+    ona_msg_class_t msg_class;
+    UInt8 msg_type;
     UInt32 msg_data;
 
     static string get_msg_class_string(UInt16 msg_class);
