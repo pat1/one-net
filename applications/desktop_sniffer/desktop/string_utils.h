@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "xtea_key.h"
+#include <map>
 extern "C"
 {
     #include "one_net_types.h"
@@ -19,6 +20,13 @@ enum ADD_REMOVE_DISPLAY
     REMOVE,
     DISPLAY,
     ADD_REMOVE_ERROR
+};
+
+
+struct string_int_struct
+{
+    string str;
+    int val;
 };
 
 
@@ -64,6 +72,12 @@ bool raw_did_to_string(uint16_t raw_did, string& str);
 bool encoded_nid_to_string(const on_encoded_nid_t* enc_nid, string& str);
 bool raw_nid_to_string(uint64_t raw_nid, string& str);
 void struct_timeval_to_string(struct timeval timestamp, string& str);
+
+
+map<int, string> create_int_string_map(const string_int_struct[],
+  unsigned int size);
+map<string, int> create_string_int_map(const string_int_struct[],
+  unsigned int size);
 
 
 

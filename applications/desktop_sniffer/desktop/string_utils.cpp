@@ -828,3 +828,31 @@ void struct_timeval_to_string(struct timeval timestamp, string& str)
     ss >> sec_str >> usec_str;
     str = sec_str + "." + usec_str;
 }
+
+
+
+
+map<int, string> create_int_string_map(const string_int_struct pairs[],
+  unsigned int size)
+{
+    map<int, string> int_string_map;
+    for(unsigned int i = 0; i < size; i++)
+    {
+        int_string_map[pairs[i].val] = pairs[i].str;
+    }
+
+    return int_string_map;
+}
+
+
+map<string, int> create_string_int_map(const string_int_struct pairs[],
+  unsigned int size)
+{
+    map<string, int> string_int_map;
+    for(unsigned int i = 0; i < size; i++)
+    {
+        string_int_map[pairs[i].str] = pairs[i].val;
+    }
+
+    return string_int_map;
+}

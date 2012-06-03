@@ -9,6 +9,7 @@
 #include "filter.h"
 #include "xtea_key.h"
 #include "attribute.h"
+#include "string_utils.h"
 using namespace std;
 
 
@@ -157,7 +158,7 @@ public:
     static bool create_packet(int fd, const filter& fltr, packet& pkt);
     static bool create_packet(FILE* file, const filter& fltr, packet& pkt);
     static bool create_packet(istream& is, const filter& fltr, packet& pkt);
-    static string get_raw_pid_string(UInt8 raw_pid);
+    static string get_raw_pid_string(UInt16 raw_pid);
     static bool insert_packet(vector<packet>& packets,
         packet& new_packet);
     static void adjust_timestamps(vector<packet>& packets, struct timeval
@@ -209,6 +210,14 @@ private:
     UInt8 hops;
     UInt8 max_hops;
 };
+
+
+extern const unsigned int NUM_PIDS;
+extern string_int_struct raw_pid_strings[];
+extern const unsigned int NUM_NACK_REASONS;
+extern string_int_struct raw_nack_reason_strings[];
+extern const unsigned int NUM_ADMIN_MSG_TYPES;
+extern string_int_struct admin_msg_type_strings[];
 
 
 #endif	/* PACKET_H */
