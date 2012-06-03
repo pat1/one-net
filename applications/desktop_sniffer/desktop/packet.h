@@ -97,7 +97,7 @@ struct block_payload_t
 
 struct payload_t
 {
-    UInt8 raw_pid;
+    UInt16 raw_pid;
     UInt8 decrypted_payload_bytes[ON_MAX_ENCODED_PLD_LEN_WITH_TECH];
     UInt8 num_payload_bytes;
     UInt8 payload_crc;
@@ -124,7 +124,7 @@ struct payload_t
         // no elements in a stream payload other than the actual bytes.
     };
 
-    bool detailed_payload_to_string(UInt8 raw_pid, string& str) const;
+    bool detailed_payload_to_string(UInt16 raw_pid, string& str) const;
     static string get_nack_reason_string(on_nack_rsn_t nack_reason);
     static string get_ack_nack_handle_string(bool is_ack,
         on_ack_nack_handle_t handle);
@@ -148,10 +148,10 @@ public:
     static bool parse_response_payload(payload_t& payload);
     static bool parse_invite_payload(payload_t& payload);
     static bool parse_block_payload(payload_t& payload);
-    static bool parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
+    static bool parse_payload(UInt16 raw_pid, UInt8* decrypted_payload_bytes,
         payload_t& payload);
     bool filter_packet(const filter& fltr) const;
-    static bool create_packet(struct timeval timestamp, UInt8 raw_pid,
+    static bool create_packet(struct timeval timestamp, UInt16 raw_pid,
         UInt8 num_bytes, const UInt8* const bytes, const filter& fltr,
         packet& pkt);
     static bool create_packet(string line, const filter& fltr, packet& pkt);
@@ -171,7 +171,7 @@ public:
     static vector<xtea_key> invite_keys;
     
 private:
-    bool fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
+    bool fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
         UInt8 num_bytes, const UInt8* const bytes, const filter& fltr);
 
 

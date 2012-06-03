@@ -237,7 +237,7 @@ bool packet::parse_block_payload(payload_t& payload)
 }
 
 
-bool packet::parse_payload(UInt8 raw_pid, UInt8* decrypted_payload_bytes,
+bool packet::parse_payload(UInt16 raw_pid, UInt8* decrypted_payload_bytes,
     payload_t& payload)
 {
     SInt8 raw_pld_len_including_tech = get_raw_payload_len(raw_pid);
@@ -414,7 +414,7 @@ bool packet::filter_packet(const filter& fltr) const
 }
 
 
-bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
+bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     UInt8 num_bytes, const UInt8* const bytes, const filter& fltr)
 {
     payload.is_app_pkt = false;
@@ -611,7 +611,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt8 raw_pid,
 }
 
 
-bool packet::create_packet(struct timeval timestamp, UInt8 raw_pid,
+bool packet::create_packet(struct timeval timestamp, UInt16 raw_pid,
     UInt8 num_bytes, const UInt8* const bytes, const filter& fltr, packet& pkt)
 {
     return pkt.fill_in_packet_values(timestamp, raw_pid, num_bytes, bytes, fltr);
@@ -1163,7 +1163,7 @@ bool payload_t::detailed_response_payload_to_string(string& str) const
 }
 
 
-bool payload_t::detailed_payload_to_string(UInt8 raw_pid, string& str) const
+bool payload_t::detailed_payload_to_string(UInt16 raw_pid, string& str) const
 {
     str = "";
 
