@@ -561,7 +561,7 @@ bool filter_list::find_value(uint64_t value, int& index) const
 
 
 
-const int filter::NUM_FILTER_TYPES = 29;
+const int filter::NUM_FILTER_TYPES = 27;
 const int filter::NUM_MATCH_FILTERS = 4;
 const int filter::NUM_KEY_FILTERS = 2;
 const int filter::NUM_RANGE_FILTERS = filter::NUM_FILTER_TYPES -
@@ -580,8 +580,6 @@ const string filter::FILTER_TYPE_STR[] =
     "msg_id",
     "msg_crc",
     "pld_crc",
-    "txn_nonce",
-    "resp_nonce",
     "pld_msg_type",
     "msg_class",
     "msg_type",
@@ -614,8 +612,6 @@ const filter::filter_display_attribute filter::FILTER_DISPLAY_ATTRIBUTE[] =
     {true, false, 1}, // msg id
     {true, false, 1}, // msg crc
     {true, false, 1}, // pld crc
-    {true, false, 1}, // txn nonce
-    {true, false, 1}, // resp nonce
     {true, false, 1}, // payload message type
     {true, false, 2}, // message class
     {true, false, 2}, // message type

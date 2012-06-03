@@ -6,7 +6,7 @@ using namespace std;
 
 
 
-const int attribute::NUM_ATTRIBUTES = 20;
+const int attribute::NUM_ATTRIBUTES = 19;
 
 
 const string attribute::ATTRIBUTE_STR[] =
@@ -27,7 +27,6 @@ const string attribute::ATTRIBUTE_STR[] =
     "msg id",
     "msg crc",
     "payload crc",
-    "nonce",
     "hops",
     "key",
     "valid"
