@@ -848,8 +848,8 @@ one_net_status_t one_net_master_remove_device(
     
     #ifdef _PEER
     // remove any peers of this device.
-    one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL, &remove_device_did,
-      ONE_NET_DEV_UNIT);
+    one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
+      (const on_encoded_did_t* const) &remove_device_did, ONE_NET_DEV_UNIT);
     #endif
     
     admin_pld[0] = remove_device_did[0];
@@ -933,7 +933,7 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
     {
         return FALSE;
     }
-    if(did_to_u16((on_raw_did_t*) raw_did) ==
+    if(did_to_u16((const on_raw_did_t*) raw_did) ==
       (master_param->next_client_did >> RAW_DID_SHIFT))
     {
         return TRUE;
@@ -2068,8 +2068,8 @@ static on_message_status_t on_master_single_data_hdlr(
     msg_hdr.msg_id = pkt->msg_id;
     
     // we'll be sending it back to the source
-    if(!(device = sender_info(
-      (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
+    if(!(device = sender_info((const on_encoded_did_t* const)
+      &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
     {
         // I think we should have solved this problem before now, but abort if
         // we have not.
@@ -2089,8 +2089,8 @@ static on_message_status_t on_master_single_data_hdlr(
     switch(*msg_type)
     {
         case ON_ADMIN_MSG:
-            msg_status = handle_admin_pkt(
-              (on_encoded_did_t*)&(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
+            msg_status = handle_admin_pkt((const on_encoded_did_t* const)
+              &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
               &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
             break;
         #ifdef _ROUTE
