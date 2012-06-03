@@ -137,13 +137,13 @@ void init_tick(void)
 
 tick_t ms_to_tick(UInt32 ms)
 {
-    return ms / TICK_1MS;
+    return ms * TICK_1MS;
 } // tick_to_ms //
     
 
 UInt32 tick_to_ms(tick_t num_ticks)
 {
-    return num_ticks * TICK_1MS;
+    return num_ticks / TICK_1MS;
 } // ms_to_tick //
 
 
