@@ -500,12 +500,12 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     is_ack_pkt = packet_is_ack(raw_pid);
     is_nack_pkt = packet_is_nack(raw_pid);
     is_response_pkt = is_ack_pkt || is_nack_pkt;
-    is_stay_awake_pkt = ((raw_pid | ONE_NET_RAW_PID_STAY_AWAKE_MASK) > 0);
+    is_stay_awake_pkt = ((raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK) > 0);
     is_block_pkt = packet_is_block(raw_pid);
     is_stream_pkt = packet_is_stream(raw_pid);
     is_single_pkt = packet_is_single(raw_pid);
     is_data_pkt = packet_is_data(raw_pid);
-    is_mh_pkt = ((raw_pid | ONE_NET_RAW_PID_MH_MASK) > 0);
+    is_mh_pkt = ((raw_pid & ONE_NET_RAW_PID_MH_MASK) > 0);
     hops = 0;
     max_hops = 0;
     if(is_mh_pkt)
