@@ -141,6 +141,7 @@ vector<xtea_key> packet::invite_keys;
 const UInt8 packet::INVALID_CRC = 0xFF;
 const UInt16 packet::INVALID_DID = 0xFFFF;
 const uint64_t packet::INVALID_NID = 0xFFFFFFFFFFFFll;
+const UInt16 packet::INVALID_PID = 0xFFFF;
 
 
 
@@ -457,7 +458,15 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
         return false;
     }
     payload.num_payload_bytes = tmp - 1;
-    
+
+
+    enc_rptr_did = one_net_byte_stream_to_int16(
+      &enc_pkt_bytes[ON_ENCODED_RPTR_DID_IDX]);
+    enc_dst_did = one_net_byte_stream_to_int16(
+      &enc_pkt_bytes[ON_ENCODED_DST_DID_IDX]);
+    enc_src_did = one_net_byte_stream_to_int16(
+      &enc_pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
+
 
     valid_decode = true;
     UInt8 raw_nid_bytes[ON_RAW_NID_LEN];
@@ -470,8 +479,12 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     {
         UInt32 tmp = one_net_byte_stream_to_int32(raw_nid_bytes);
         raw_nid = (tmp << 4) + (raw_nid_bytes[4] >> 4);
+        enc_nid = (enc_pkt_bytes[ON_ENCODED_NID_IDX]) << 8;
+        enc_nid += enc_pkt_bytes[ON_ENCODED_NID_IDX+1];
+        enc_nid <<= 32;
+        enc_nid += one_net_byte_stream_to_int32(
+          &enc_pkt_bytes[ON_ENCODED_NID_IDX + 2]);
     }
-
 
     on_raw_did_t raw_did;
     if(on_decode(raw_did, &enc_pkt_bytes[ON_ENCODED_SRC_DID_IDX],
@@ -626,7 +639,6 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
     static bool rcvd_num_bytes = false;
     static int num_bytes_rcvd;
     static int num_bytes_expected;
-    static UInt16 raw_pid;
     UInt32 timestamp_ms;
     static UInt8 bytes[ON_MAX_ENCODED_PKT_SIZE];
     static struct timeval timestamp;
@@ -699,20 +711,23 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
 
         if(num_bytes_rcvd == ON_PLD_IDX - 1)
         {
+            pkt.enc_pid = one_net_byte_stream_to_int16(
+              &bytes[ON_ENCODED_PID_IDX]);
             UInt8 raw_pid_bytes[ON_ENCODED_PID_SIZE];
-            raw_pid = 0xFFFF; // just make it invalid
+            pkt.raw_pid = 0xFFFF; // just make it invalid
             if(on_decode(raw_pid_bytes, &bytes[ON_ENCODED_PID_IDX],
               ON_ENCODED_PID_SIZE) == ONS_SUCCESS)
             {
-                raw_pid = (one_net_byte_stream_to_int16(raw_pid_bytes)) >> 4;
+                pkt.raw_pid = (one_net_byte_stream_to_int16(raw_pid_bytes)) >> 4;
             }
 
-            if(num_bytes_expected != (int) get_encoded_packet_len(raw_pid,
+            if(num_bytes_expected != (int) get_encoded_packet_len(pkt.raw_pid,
               TRUE))
             {
                 rcvd_num_bytes = false;
                 return false;
             }
+            pkt.payload.raw_pid = pkt.raw_pid;
         }
         num_bytes_rcvd++;
     }
@@ -723,7 +738,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
     }
 
     rcvd_num_bytes = false; // packet bytes received.  Set false for next time
-    return create_packet(timestamp, raw_pid, (UInt8) num_bytes_rcvd,
+    return create_packet(timestamp, pkt.raw_pid, (UInt8) num_bytes_rcvd,
         bytes, fltr, pkt);
 }
 
@@ -813,11 +828,11 @@ bool admin_payload_t::detailed_admin_payload_to_string(string& str) const
             bytes_to_hex_string(peer_msg.peer_did, 2, tmp, ' ', 0, 0);
             str += tmp;
             str += " -- Src Unit : ";
-            ss << (int) peer_msg.src_unit;
+            ss << uppercase << (int) peer_msg.src_unit;
             ss >> tmp;
             str += tmp;
             str += " -- Peer Unit : ";
-            ss << (int) peer_msg.peer_unit;
+            ss << uppercase << (int) peer_msg.peer_unit;
             ss >> tmp;
             str += tmp;
             break;
@@ -859,15 +874,15 @@ bool app_payload_t::detailed_app_payload_to_string(string& str) const
 {
     string tmp;
     stringstream ss;
-    ss << setfill('0') << setw(1) << hex << (int) src_unit;
+    ss << setfill('0') << uppercase << setw(1) << hex << (int) src_unit;
     ss << " ";
-    ss << setfill('0') << setw(1) << hex << (int) dst_unit;
+    ss << setfill('0') << uppercase << setw(1) << hex << (int) dst_unit;
     ss << " ";
-    ss << setfill('0') << setw(4) << hex << (int) msg_class;
+    ss << setfill('0') << uppercase << setw(4) << hex << (int) msg_class;
     ss << " ";
-    ss << setfill('0') << setw(3) << hex << (int) msg_type;
+    ss << setfill('0') << uppercase << setw(2) << hex << (int) msg_type;
     ss << " ";
-    ss << setfill('0') << setw(4) << hex << (int) msg_data;
+    ss << setfill('0') << uppercase << setw(5) << hex << (int) msg_data;
     str = " -- Source Unit : 0x";
     ss >> tmp;
     str += tmp;
@@ -959,7 +974,7 @@ string packet::get_raw_pid_string(UInt16 raw_pid)
     static map<int, string> pairs = 
       create_int_string_map(raw_pid_strings, NUM_PIDS);
 
-    map<int,string>::iterator it = pairs.find((int) raw_pid);
+    map<int,string>::iterator it = pairs.find((int) (raw_pid & 0x3F));
     if(it == pairs.end())
     {
         return "Invalid";
@@ -1228,36 +1243,11 @@ bool packet::display(const attribute& att, ostream& outs) const
         outs << str << endl;
     }
 
-    if(att.get_attribute(attribute::ATTRIBUTE_MSG_ID))
-    {
-        outs << left << setw(15) << setfill(' ') << "Msg. ID";
-        outs << " -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << right << payload.msg_id << endl;
-    }
-
-    if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
-    {
-        outs << left << setw(15) << setfill(' ') << "Msg. CRC";
-        outs << " -- (Encoded -- 0x" << setw(2) << hex << uppercase <<
-          setfill('0') << right << (int) enc_msg_crc << ")  (Decoded -- ";
-
-        if(msg_crc == INVALID_CRC)
-        {
-            outs << "Cannot convert";
-        }
-        else
-        {
-            outs << "0x" << setw(2) << hex << uppercase <<
-              setfill('0') << (int) msg_crc;
-        }
-        outs << ")" << endl;
-    }
-
     if(att.get_attribute(attribute::ATTRIBUTE_RPTR_DID))
     {
         outs << left << setw(15) << setfill(' ') << "Rptr. DID";
-        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << right << enc_rptr_did << ")  (Decoded -- ";
+        outs << " -- (Encoded --         0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_rptr_did << ")  (Decoded --       ";
 
         if(raw_rptr_did == INVALID_DID)
         {
@@ -1271,11 +1261,30 @@ bool packet::display(const attribute& att, ostream& outs) const
         outs << ")" << endl;
     }
 
+    if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
+    {
+        outs << left << setw(15) << setfill(' ') << "Msg. CRC";
+        outs << " -- (Encoded --           0x" << setw(2) << hex << uppercase <<
+          setfill('0') << right << (int) enc_msg_crc << ")  (Decoded --        ";
+
+        if(msg_crc == INVALID_CRC)
+        {
+            outs << "Cannot convert";
+        }
+        else
+        {
+            outs << "0x" << setw(2) << hex << uppercase <<
+              setfill('0') << (int) msg_crc;
+        }
+        outs << ")" << endl;
+    }
+
+
     if(att.get_attribute(attribute::ATTRIBUTE_DST_DID))
     {
         outs << left << setw(15) << setfill(' ') << "Dst. DID";
-        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << right << enc_dst_did << ")  (Decoded -- ";
+        outs << " -- (Encoded --         0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_dst_did << ")  (Decoded --       ";
 
         if(raw_dst_did == INVALID_DID)
         {
@@ -1310,8 +1319,8 @@ bool packet::display(const attribute& att, ostream& outs) const
     if(att.get_attribute(attribute::ATTRIBUTE_SRC_DID))
     {
         outs << left << setw(15) << setfill(' ') << "Src. DID";
-        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << right << enc_src_did << ")  (Decoded -- ";
+        outs << " -- (Encoded --         0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_src_did << ")  (Decoded --       ";
 
         if(raw_src_did == INVALID_DID)
         {
@@ -1327,22 +1336,44 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_PID))
     {
-        #if 1
-        // TODO -- wire around PID for now.
-        outs << "PID : TODO\n";
-        #else
-        UInt8 enc_pid = *(this->pkt_ptr.enc_pid);
-        outs << "PID";
-        byte_to_hex_string(enc_pid, str);
-        outs << "(Encoded -- 0x" << str << ")  ";
-        byte_to_hex_string(payload.raw_pid, str);
-        str = "0x" + str;
-        string raw_pid_name_string = packet::get_raw_pid_string(
-            payload.raw_pid);
-        outs << "(Decoded -- " << str << " -- " << raw_pid_name_string <<
-            ")";
+        outs << left << setw(15) << setfill(' ') << "PID";
+        outs << " -- (Encoded --         0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_pid << ")  (Decoded --       ";
+
+        if(raw_pid == INVALID_PID)
+        {
+            outs << "Cannot convert)";
+        }
+        else
+        {
+            outs << "0x" << setw(3) << hex << uppercase <<
+              setfill('0') << raw_pid << " : 12 Bits : ";
+            outs << value_to_bit_string(raw_pid, 12) << ")\n";
+
+            UInt16 num_blocks_part = ((raw_pid & ONE_NET_RAW_PID_SIZE_MASK) >>
+              ONE_NET_RAW_PID_SIZE_SHIFT);
+            UInt16 mh_part = ((raw_pid & ONE_NET_RAW_PID_MH_MASK) >>
+              ONE_NET_RAW_PID_MH_SHIFT);
+            UInt16 sa_part = ((raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK) >>
+              ONE_NET_RAW_PID_STAY_AWAKE_SHIFT);
+            UInt16 packet_type_part = (raw_pid &
+              ONE_NET_RAW_PID_PACKET_TYPE_MASK);
+
+            outs << "(Raw PID Bits 11 - 8(# XTEA blocks):" << value_to_bit_string(
+              num_blocks_part, 4) << ": 0x" << hex << uppercase <<
+              num_blocks_part << ")\n";
+            outs << "(Raw PID Bit 7(MH Bit):" << value_to_bit_string(sa_part, 1) <<
+              ": 0x" << hex << uppercase << mh_part << ": Multi-Hop? " <<
+              (mh_part ? "Yes" : "No") << ")\n";
+            outs << "(Raw PID Bit 6(SA Bit):" << value_to_bit_string(mh_part, 1) <<
+              ": 0x" << hex << uppercase << mh_part << ": Stay-Awake? " <<
+              (sa_part ? "Yes" : "No") << ")\n";
+            outs << "(Raw PID Bits 5 - 0(Packet Type):" << value_to_bit_string(
+              packet_type_part, 6) << ": 0x" << hex << setw(2) << setfill('0') <<
+              uppercase << packet_type_part <<
+              ": Packet Type -- " << get_raw_pid_string(packet_type_part) << ")";
+        }
         outs << endl;
-        #endif
     }
 
     if(att.get_attribute(attribute::ATTRIBUTE_HOPS))
@@ -1391,7 +1422,12 @@ bool packet::display(const attribute& att, ostream& outs) const
         byte_to_hex_string(payload.payload_crc, str);
         outs << str << " -- Calc. Pld CRC = 0x";
         byte_to_hex_string(payload.calculated_payload_crc, str);
-        outs << str << ")\n";
+        outs << str;
+        if(payload.payload_crc == payload.calculated_payload_crc)
+        {
+            outs << " (CRCs match)"; 
+        }
+        outs << endl;
         bytes_to_hex_string(payload.decrypted_payload_bytes,
             payload.num_payload_bytes, str, ' ', 1, 24);
         outs << str << endl;

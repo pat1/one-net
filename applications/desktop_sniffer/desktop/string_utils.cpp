@@ -830,6 +830,52 @@ void struct_timeval_to_string(struct timeval timestamp, string& str)
 }
 
 
+//helper function
+static unsigned int msb(UInt32 value)
+{
+    unsigned int msb = 31;
+    unsigned int mask = 0x80000000;
+
+    if(value < 2)
+    {
+        return 0;
+    }
+
+    while(value < mask)
+    {
+        msb--;
+        mask >>= 1;
+    }
+
+    return msb;
+}
+
+
+
+string value_to_bit_string(UInt32 value, unsigned int num_bits)
+{
+    if(num_bits == 0)
+    {
+        num_bits = msb(value) + 1;
+    }
+
+    string str;
+    str.assign(num_bits, '0');
+    
+    unsigned int mask = 1;
+    for(unsigned int i = num_bits; i > 0; i--)
+    {
+        if(mask & value)
+        {
+            str[i-1] = '1';
+        }
+        mask <<= 1;
+    }
+    return str;
+}
+
+
+
 
 
 map<int, string> create_int_string_map(const string_int_struct pairs[],

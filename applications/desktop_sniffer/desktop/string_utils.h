@@ -73,6 +73,8 @@ bool encoded_nid_to_string(const on_encoded_nid_t* enc_nid, string& str);
 bool raw_nid_to_string(uint64_t raw_nid, string& str);
 void struct_timeval_to_string(struct timeval timestamp, string& str);
 
+string value_to_bit_string(UInt32 value, unsigned int num_bits);
+
 
 map<int, string> create_int_string_map(const string_int_struct[],
   unsigned int size);

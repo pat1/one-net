@@ -172,6 +172,7 @@ public:
     static const UInt8 INVALID_CRC;
     static const UInt16 INVALID_DID;
     static const uint64_t INVALID_NID;
+    static const UInt16 INVALID_PID;
     
 private:
     bool fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
@@ -189,6 +190,8 @@ private:
     UInt16 enc_rptr_did;
     UInt16 enc_dst_did;
     uint64_t enc_nid;
+    UInt16 enc_pid;
+    UInt16 raw_pid;
     on_pkt_t pkt_ptr;
     xtea_key key;
     UInt8 enc_msg_crc;
