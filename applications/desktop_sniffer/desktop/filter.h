@@ -80,8 +80,6 @@ public:
         FILTER_MSG_ID,
         FILTER_MSG_CRC,
         FILTER_PLD_CRC,
-        FILTER_TXN_NONCE,
-        FILTER_RESP_NONCE,
         FILTER_PLD_MSG_TYPE,
         FILTER_MSG_CLASS,
         FILTER_MSG_TYPE,
