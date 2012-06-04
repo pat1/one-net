@@ -544,7 +544,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
             ON_MAX_ENCODED_PLD_LEN_WITH_TECH);
         xtea_key key = keys->at(i);
 
-        if(on_decrypt(is_stream_pkt ? ON_STREAM : ON_SINGLE,
+        if(on_decrypt(is_stream_pkt,
           payload.decrypted_payload_bytes, (one_net_xtea_key_t*) key.bytes,
           payload.num_payload_bytes + 1) != ONS_SUCCESS)
         {
