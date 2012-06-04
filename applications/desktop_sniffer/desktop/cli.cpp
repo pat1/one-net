@@ -22,6 +22,8 @@ extern "C"
 
 const speed_t DEFAULT_BAUD = B115200;
 const string DEFAULT_DEVICE = "/dev/ttyS0";
+speed_t serial_device_baud = DEFAULT_BAUD;
+string serial_device = DEFAULT_DEVICE;
 
 const int NUM_HELP_STRINGS = 46;
 bool chip_cli_mode = false;
@@ -712,7 +714,7 @@ bool cli_execute_command(string& command_line)
     {
         if(chip_con == NULL)
         {
-            chip_con = new chip_connection(DEFAULT_DEVICE, DEFAULT_BAUD);
+            chip_con = new chip_connection(serial_device, serial_device_baud);
             if(chip_con->get_chip_fd() < 0)
             {
                 delete chip_con;

@@ -1269,14 +1269,20 @@ bool packet::display(const attribute& att, ostream& outs) const
 
         if(msg_crc == INVALID_CRC)
         {
-            outs << "Cannot convert";
+            outs << "Cannot convert)";
         }
         else
         {
-            outs << "0x" << setw(2) << hex << uppercase <<
-              setfill('0') << (int) msg_crc;
+            outs << "(0x" << setw(2) << hex << uppercase <<
+              setfill('0') << (int) msg_crc << ")";
+            outs << "  (Calc. -- 0x" << setw(2) << hex << uppercase <<
+              setfill('0') << (int) calculated_msg_crc << ")";
+            if(msg_crc == calculated_msg_crc)
+            {
+                outs << "  (Msg. CRCs match)"; 
+            }
         }
-        outs << ")" << endl;
+        outs << endl;
     }
 
 
