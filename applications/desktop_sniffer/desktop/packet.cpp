@@ -1230,35 +1230,34 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_MSG_ID))
     {
-        uint16_to_hex_string(payload.msg_id, str);
-        outs << "Msg ID -- 0x" << str << endl;
+        outs << left << setw(15) << setfill(' ') << "Msg. ID";
+        outs << " -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << payload.msg_id << endl;
     }
 
     if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
     {
-        outs << "Msg CRC";
-        byte_to_hex_string(enc_msg_crc, str);
-        outs << "(Encoded -- 0x" << str << ")  ";
+        outs << left << setw(15) << setfill(' ') << "Msg. CRC";
+        outs << " -- (Encoded -- 0x" << setw(2) << hex << uppercase <<
+          setfill('0') << right << (int) enc_msg_crc << ")  (Decoded -- ";
+
         if(msg_crc == INVALID_CRC)
         {
-            str = "Cannot Convert";
+            outs << "Cannot convert";
         }
         else
         {
-            str = "0x" + str;
+            outs << "0x" << setw(2) << hex << uppercase <<
+              setfill('0') << (int) msg_crc;
         }
-        outs << "(Decoded -- " << str << ")  ";
-
-        byte_to_hex_string(calculated_msg_crc, str);
-        outs << "(Calculated -- 0x" << str << ")";
-        outs << endl;
+        outs << ")" << endl;
     }
 
     if(att.get_attribute(attribute::ATTRIBUTE_RPTR_DID))
     {
-        outs << "Rptr. DID";
-        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << enc_rptr_did << ")  (Decoded -- ";
+        outs << left << setw(15) << setfill(' ') << "Rptr. DID";
+        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_rptr_did << ")  (Decoded -- ";
 
         if(raw_rptr_did == INVALID_DID)
         {
@@ -1274,9 +1273,9 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_DST_DID))
     {
-        outs << "Dst. DID";
-        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << enc_dst_did << ")  (Decoded -- ";
+        outs << left << setw(15) << setfill(' ') << "Dst. DID";
+        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_dst_did << ")  (Decoded -- ";
 
         if(raw_dst_did == INVALID_DID)
         {
@@ -1292,9 +1291,9 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_NID))
     {
-        outs << "NID";
-        outs << "(Encoded -- 0x" << setw(12) << hex << uppercase <<
-          setfill('0') << enc_nid << ")  (Decoded -- ";
+        outs << left << setw(15) << setfill(' ') << "NID";
+        outs << " -- (Encoded -- 0x" << setw(12) << hex << uppercase <<
+          setfill('0') << right << enc_nid << ")  (Decoded -- ";
 
         if(raw_nid == INVALID_NID)
         {
@@ -1310,9 +1309,9 @@ bool packet::display(const attribute& att, ostream& outs) const
 
     if(att.get_attribute(attribute::ATTRIBUTE_SRC_DID))
     {
-        outs << "Src. DID";
-        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
-          setfill('0') << enc_src_did << ")  (Decoded -- ";
+        outs << left << setw(15) << setfill(' ') << "Src. DID";
+        outs << " -- (Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << right << enc_src_did << ")  (Decoded -- ";
 
         if(raw_src_did == INVALID_DID)
         {
