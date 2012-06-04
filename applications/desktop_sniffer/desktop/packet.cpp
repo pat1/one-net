@@ -138,6 +138,9 @@ string_int_struct admin_msg_type_strings[NUM_ADMIN_MSG_TYPES] =
 
 vector<xtea_key> packet::keys;
 vector<xtea_key> packet::invite_keys;
+const UInt8 packet::INVALID_CRC = 0xFF;
+const UInt16 packet::INVALID_DID = 0xFFFF;
+const uint64_t packet::INVALID_NID = 0xFFFFFFFFFFFFll;
 
 
 
@@ -364,7 +367,7 @@ bool packet::filter_packet(const filter& fltr) const
     }
 
     // test message id
-    if(!fltr.value_accepted(filter::FILTER_MSG_ID, msg_id))
+    if(!fltr.value_accepted(filter::FILTER_MSG_ID, payload.msg_id))
     {
         return false;
     }
@@ -1196,12 +1199,224 @@ bool payload_t::detailed_payload_to_string(UInt16 raw_pid, string& str) const
 
 bool packet::display(const attribute& att, ostream& outs) const
 {
-    // just to get things to where they compile again, just make empty functions
-    // that do nothing except do something silly with the parameters so we do
-    // not get unused variable errors.
-    outs << (int) attribute::ATTRIBUTE_NID;
+    string str;
+    string raw_did_str, raw_nid_str, enc_did_str, enc_nid_str;
+
+    if(att.get_attribute(attribute::ATTRIBUTE_TIMESTAMP))
+    {
+        struct_timeval_to_string(timestamp, str);
+        outs << "Timestamp : " << str << " seconds\n";
+    }
+    if(att.get_attribute(attribute::ATTRIBUTE_VALID_PKT))
+    {
+        outs << "Valid Decode : " << (this->valid_decode ? "true" : "false");
+        outs << " -- Valid Msg CRC : " << (this->valid_msg_crc ?
+            "true" : "false");
+        outs << " -- Valid Payload CRC : " << (this->payload.valid_payload_crc ?
+            "true" : "false");
+        outs << " -- Valid Packet : " << (this->valid ? "true" : "false") <<
+            "\n";
+    }
+    if(att.get_attribute(attribute::ATTRIBUTE_ENCODED_BYTES))
+    {
+        outs << "# of Encoded bytes = " << (int) this->num_bytes << endl;
+        if(!bytes_to_hex_string(this->enc_pkt_bytes, this->num_bytes,
+            str, ' ', 1, 24))
+        {
+            return false;
+        }
+        outs << str << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_MSG_ID))
+    {
+        uint16_to_hex_string(payload.msg_id, str);
+        outs << "Msg ID -- 0x" << str << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_MSG_CRC))
+    {
+        outs << "Msg CRC";
+        byte_to_hex_string(enc_msg_crc, str);
+        outs << "(Encoded -- 0x" << str << ")  ";
+        if(msg_crc == INVALID_CRC)
+        {
+            str = "Cannot Convert";
+        }
+        else
+        {
+            str = "0x" + str;
+        }
+        outs << "(Decoded -- " << str << ")  ";
+
+        byte_to_hex_string(calculated_msg_crc, str);
+        outs << "(Calculated -- 0x" << str << ")";
+        outs << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_RPTR_DID))
+    {
+        outs << "Rptr. DID";
+        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << enc_rptr_did << ")  (Decoded -- ";
+
+        if(raw_rptr_did == INVALID_DID)
+        {
+            outs << "Cannot convert";
+        }
+        else
+        {
+            outs << "0x" << setw(3) << hex << uppercase <<
+              setfill('0') << raw_rptr_did;
+        }
+        outs << ")" << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_DST_DID))
+    {
+        outs << "Dst. DID";
+        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << enc_dst_did << ")  (Decoded -- ";
+
+        if(raw_dst_did == INVALID_DID)
+        {
+            outs << "Cannot convert";
+        }
+        else
+        {
+            outs << "0x" << setw(3) << hex << uppercase <<
+              setfill('0') << raw_dst_did;
+        }
+        outs << ")" << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_NID))
+    {
+        outs << "NID";
+        outs << "(Encoded -- 0x" << setw(12) << hex << uppercase <<
+          setfill('0') << enc_nid << ")  (Decoded -- ";
+
+        if(raw_nid == INVALID_NID)
+        {
+            outs << "Cannot convert";
+        }
+        else
+        {
+            outs << "0x" << setw(9) << hex << uppercase <<
+              setfill('0') << raw_nid;
+        }
+        outs << ")" << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_SRC_DID))
+    {
+        outs << "Src. DID";
+        outs << "(Encoded -- 0x" << setw(4) << hex << uppercase <<
+          setfill('0') << enc_src_did << ")  (Decoded -- ";
+
+        if(raw_src_did == INVALID_DID)
+        {
+            outs << "Cannot convert";
+        }
+        else
+        {
+            outs << "0x" << setw(3) << hex << uppercase <<
+              setfill('0') << raw_src_did;
+        }
+        outs << ")" << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_PID))
+    {
+        #if 1
+        // TODO -- wire around PID for now.
+        outs << "PID : TODO\n";
+        #else
+        UInt8 enc_pid = *(this->pkt_ptr.enc_pid);
+        outs << "PID";
+        byte_to_hex_string(enc_pid, str);
+        outs << "(Encoded -- 0x" << str << ")  ";
+        byte_to_hex_string(payload.raw_pid, str);
+        str = "0x" + str;
+        string raw_pid_name_string = packet::get_raw_pid_string(
+            payload.raw_pid);
+        outs << "(Decoded -- " << str << " -- " << raw_pid_name_string <<
+            ")";
+        outs << endl;
+        #endif
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_HOPS))
+    {
+        outs << "Multi-Hop : " << (is_mh_pkt ? "true" : "false");
+        if(is_mh_pkt)
+        {
+            byte_to_hex_string(encoded_hops_field, str);
+            outs << " -- Encoded : " << str << " -- ";
+            byte_to_hex_string(decoded_hops_field, str);
+            outs << " -- Decoded : " << str << " -- ";
+            outs << "Hops : " << hops << " -- Max Hops : " << max_hops;
+        }
+        outs << "\n";
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_ENCODED_PAYLOAD))
+    {
+        outs << dec << "# Encoded Payload Bytes = " << (int) encoded_payload_len
+            << "\n";
+        if(!bytes_to_hex_string(&enc_pkt_bytes[ON_PLD_IDX],
+          encoded_payload_len, str, ' ', 1, 24))
+        {
+            return false;
+        }
+        outs << str << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_ENCRYPTED_PAYLOAD))
+    {
+        outs << "Encrypted Payload (Key = ";
+        bytes_to_hex_string(this->key.bytes, ONE_NET_XTEA_KEY_LEN, str, '-',
+            1, 0);
+        outs << str << ")\n";
+        bytes_to_hex_string(this->encrypted_payload_bytes,
+            payload.num_payload_bytes, str, ' ', 1, 24);
+        outs << str << endl;
+    }
+
+    if(att.get_attribute(attribute::ATTRIBUTE_DECRYPTED_PAYLOAD))
+    {
+        outs << "Decrypted Payload (Key = ";
+        bytes_to_hex_string(this->key.bytes, ONE_NET_XTEA_KEY_LEN, str, '-',
+            1, 0);
+        outs << str << ") -- Pkt. Pld CRC : 0x";
+        byte_to_hex_string(payload.payload_crc, str);
+        outs << str << " -- Calc. Pld CRC = 0x";
+        byte_to_hex_string(payload.calculated_payload_crc, str);
+        outs << str << ")\n";
+        bytes_to_hex_string(payload.decrypted_payload_bytes,
+            payload.num_payload_bytes, str, ' ', 1, 24);
+        outs << str << endl;
+    }
+
+    if(payload.valid_payload_crc && att.get_attribute(
+        attribute::ATTRIBUTE_PAYLOAD_DETAIL))
+    {
+        if(is_single_pkt && is_data_pkt)
+        {
+            outs << "Msg. Type : " << (int) payload.msg_type << "(" <<
+                (payload.msg_type == ON_APP_MSG ? "App Msg." : (payload.msg_type
+                == ON_ADMIN_MSG ? "Admin Msg" : (payload.msg_type ==
+                ON_FEATURE_MSG ? "Feature Msg" : "Unknown"))) << ")";
+        }
+        if(payload.detailed_payload_to_string(payload.raw_pid, str))
+        {
+            outs << str;
+        }
+    }
+
     return true;
 }
+
 
 
 void packet::display(const vector<packet>& packets, const attribute& att,

@@ -169,6 +169,9 @@ public:
 
     static vector<xtea_key> keys;
     static vector<xtea_key> invite_keys;
+    static const UInt8 INVALID_CRC;
+    static const UInt16 INVALID_DID;
+    static const uint64_t INVALID_NID;
     
 private:
     bool fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
@@ -182,13 +185,15 @@ private:
     UInt16 raw_rptr_did;
     UInt16 raw_dst_did;
     uint64_t raw_nid;
+    UInt16 enc_src_did;
+    UInt16 enc_rptr_did;
+    UInt16 enc_dst_did;
+    uint64_t enc_nid;
     on_pkt_t pkt_ptr;
     xtea_key key;
     UInt8 enc_msg_crc;
     UInt8 msg_crc;
     UInt8 calculated_msg_crc;
-    UInt8 enc_msg_id;
-    UInt8 msg_id;
     UInt8 rounds;
     bool valid;
     bool valid_msg_crc;
