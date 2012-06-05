@@ -551,6 +551,7 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
     "RESPONSE TIME MS",
     "ADMIN MSG",
     "KEY FRAG",
+    "BLK PKTS RCVD",
     "ROUTE",
     "STATUS" // note : this one isn't valid for NACKs but is included
                      // for ease of programming.
