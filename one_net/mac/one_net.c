@@ -2167,9 +2167,9 @@ void one_net(on_txn_t ** txn)
                     {
                         on_state = ON_BS_CHUNK_PAUSE;
                         bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
-                        break;
                     }
                 }
+                break;
             }
             
             bs_txn.pkt = encoded_pkt_bytes;
