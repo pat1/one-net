@@ -311,9 +311,10 @@ bool filter_list::accept_range(uint64_t low, uint64_t high)
     }
 
     int index_low_neighbor, index_high_neighbor, index_low, index_high;
-    bool found_low_neighbor, found_high_neighbor, found_low, found_high;
-    found_low = find_value(low, index_low);
-    found_high = find_value(high, index_high);
+    bool found_low_neighbor = false;
+    bool found_high_neighbor = false;
+    bool found_low = find_value(low, index_low);
+    bool found_high = find_value(high, index_high);
     list<filter_range>::iterator it1,it2;
     it1 = it2 = accepted_values.begin();
     advance(it1, index_low);
