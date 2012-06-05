@@ -714,6 +714,7 @@ void print_route(const UInt8* const route)
         oncli_send_msg("%03X", raw_did_int);
         index++;
     }
+    oncli_send_msg("\n");
 }
 #endif
 
