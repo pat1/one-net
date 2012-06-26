@@ -433,7 +433,7 @@ BOOL packet_length_is_valid(UInt16 raw_pid)
         return (num_blocks == 3);
     }
     
-    #ifndef _EXTENDED_SINGLE
+    #ifndef EXTENDED_SINGLE
     return (num_blocks == 1);
     #endif
     

@@ -117,13 +117,13 @@
 // MIN_SINGLE_QUEUE_LEVEL means no "times".
 // MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
 // MAX_SINGLE_QUEUE_LEVEL means both send and expire times
-#ifndef _SINGLE_QUEUE_LEVEL
+#ifndef SINGLE_QUEUE_LEVEL
     #define NO_SINGLE_QUEUE_LEVEL 0
     #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
 	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
 	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
 	
-	#define _SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL
+	#define SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL
 #endif
 
 
@@ -132,10 +132,10 @@
 // increased flexibility for timing options.  Therefore they should have the
 // ability to stagger messages.  Therefore their "queue level" must be greater
 // than MIN_SINGLE_QUEUE_LEVEL.
-#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     // Extended Single -- enable if this device can handle "extended"(i.e. large payload) single messages
-    #ifndef _EXTENDED_SINGLE
-        #define _EXTENDED_SINGLE
+    #ifndef EXTENDED_SINGLE
+        #define EXTENDED_SINGLE
     #endif
     
     // Multi-Hop 
@@ -150,7 +150,7 @@
 	    #endif
     #endif
     
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
         // define if this device handles routing
         #define _ROUTE
     #endif
@@ -209,7 +209,7 @@
 // simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.
-#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
+#if SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
     #ifndef _ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed.  Note.  Eval boards cannot be simple clients.
         //#define _ONE_NET_SIMPLE_CLIENT

@@ -1769,10 +1769,10 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
       #else
           &enc_dst
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif    
       ))
@@ -1824,7 +1824,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     UInt8 pld_len, msg_type;
     
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
     UInt8* text_start_ptr = &raw_pld[ONA_TEXT_DATA_IDX];
     #endif
 
@@ -1853,7 +1853,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     // get the data
     data_len = sizeof(raw_pld) - ONA_TEXT_DATA_IDX;
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
     data_len = sizeof(raw_pld) - ONA_TEXT_DATA_IDX - 1;
     #endif
     
@@ -1868,7 +1868,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     pld_len = ONA_SINGLE_PACKET_PAYLOAD_LEN;
     msg_type = ONA_SIMPLE_TEXT;
 
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
     if(data_len <= ONA_SINGLE_PACKET_PAYLOAD_LEN - ONA_TEXT_DATA_IDX)
     {
         // pid, pld_len, msg_type already set.  Do nothing.
@@ -1909,10 +1909,10 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
       #else
           &enc_dst
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif    
       ))
@@ -2083,10 +2083,10 @@ static oncli_status_t parse_and_send_pin_msg(
       #ifdef PEER
           , FALSE,  src_unit
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif    
       ))

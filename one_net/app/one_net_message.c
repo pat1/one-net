@@ -81,7 +81,7 @@ const on_encoded_did_t NO_DESTINATION = {0xFF, 0xFF};
 //! \ingroup ONE-NET_MESSAGE
 //! @{
 
-#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static void delete_expired_queue_elements(void);
 #endif
 
@@ -97,7 +97,7 @@ static void delete_expired_queue_elements(void);
 //! @{
 
 
-#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 static UInt8 payload_buffer[SINGLE_DATA_QUEUE_PAYLOAD_BUFFER_SIZE];
 static on_single_data_queue_t single_data_queue[SINGLE_DATA_QUEUE_SIZE];
 static UInt16 pld_buffer_tail_idx = 0;
@@ -143,7 +143,7 @@ void empty_queue(void)
 {
     single_data_queue_size = 0;
     single_msg_ptr = NULL;
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     pld_buffer_tail_idx = 0;
     #endif
 }
@@ -181,21 +181,21 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+  #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , tick_t send_time_from_now
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+  #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , tick_t expire_time_from_now
   #endif
   )
 {
     on_single_data_queue_t* element = NULL;
     
-    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL    
+    #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL    
     tick_t time_now = get_tick_count();
     #endif
     
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
     // check the pid length to make sure it's long enough
     UInt8 pid_passed_blocks = ((raw_pid & ONE_NET_RAW_PID_SIZE_MASK) >>
       ONE_NET_RAW_PID_SIZE_SHIFT);
@@ -262,7 +262,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     }
     #endif
     
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     if(single_data_queue_size >= SINGLE_DATA_QUEUE_SIZE)
     {
         return NULL; // no room in queue
@@ -286,7 +286,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     element->priority = priority;
     element->msg_type = msg_type;
     element->payload_size = data_len;
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     element->payload = &payload_buffer[pld_buffer_tail_idx];
     pld_buffer_tail_idx += data_len;
     #else
@@ -319,12 +319,12 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
     element->src_unit = src_unit;
     #endif
     
-    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     element->send_time = 0;
     element->send_time = time_now + send_time_from_now;
 
     #endif
-    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
     element->expire_time = 0;
     if(expire_time_from_now)
     {
@@ -336,7 +336,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
 }
 
 
-#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 // return true if an element was popped, false otherwise.
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, UInt8 index)
@@ -344,7 +344,7 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
 BOOL pop_queue_element(void)
 #endif
 {
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     UInt8 i;
 
     if(index >= single_data_queue_size)
@@ -428,7 +428,7 @@ BOOL pop_queue_element(void)
 	
 	\return index of an element ready to be popped.  If none, -1 is returned.
 */
-#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(tick_t* const next_pop_time)
 {
 	int i, j;
@@ -437,7 +437,7 @@ int single_data_queue_ready_to_send(tick_t* const next_pop_time)
 	tick_t cur_tick = get_tick_count();
 	*next_pop_time = 0;
         
-    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
     delete_expired_queue_elements();
     #endif
     
@@ -488,7 +488,7 @@ int single_data_queue_ready_to_send(void)
         return -1;
     }
     
-    #if _SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL == MIN_SINGLE_QUEUE_LEVEL
     if(single_data_queue[0].priority != ONE_NET_HIGH_PRIORITY)
     {
         UInt8 i;
@@ -723,7 +723,7 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
 */
 BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 {
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     UInt8 i;
     for(i = 0; i < single_data_queue_size; i++)
     {
@@ -756,10 +756,10 @@ on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
           , FALSE,
           ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
     	  , 0
       #endif
   );
@@ -955,7 +955,7 @@ UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
 //! @{
     
     
-#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static void delete_expired_queue_elements(void)
 {
     int i;

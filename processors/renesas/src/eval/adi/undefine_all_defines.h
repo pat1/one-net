@@ -248,12 +248,12 @@
     #undef _DEBUGGING_TOOLS
 #endif
 
-#ifdef _SINGLE_QUEUE_LEVEL
-	#undef _SINGLE_QUEUE_LEVEL
+#ifdef SINGLE_QUEUE_LEVEL
+	#undef SINGLE_QUEUE_LEVEL
 #endif
 
-#ifdef _EXTENDED_SINGLE
-    #undef _EXTENDED_SINGLE
+#ifdef EXTENDED_SINGLE
+    #undef EXTENDED_SINGLE
 #endif
 
 #ifdef _MINIMIZE_STRING_LENGTHS

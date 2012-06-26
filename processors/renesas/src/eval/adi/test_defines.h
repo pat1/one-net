@@ -68,8 +68,8 @@
 #endif
 
 
-#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(_EXTENDED_SINGLE)
-    #error "_EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
+#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(EXTENDED_SINGLE)
+    #error "EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
 #endif
 
 #if !defined(_BLOCK_MESSAGES_ENABLED) && defined(_STREAM_MESSAGES_ENABLED)
@@ -81,7 +81,7 @@
 #endif
 
 #ifdef ONE_NET_MASTER
-    #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
         #error "Masters must have queue levels of at least MED_SINGLE_QUEUE_LEVEL."
     #endif
 #endif
@@ -106,14 +106,14 @@
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.  However, for easier readability, we'll test even some of the redundant tests.
 #ifdef _ONE_NET_SIMPLE_CLIENT
-    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
-        #error "Simple clients cannot have _SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
+    #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        #error "Simple clients cannot have SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
     #endif
     #ifdef ONE_NET_MASTER
         #error "Simple clients cannot have ONE_NET_MASTER defined."
     #endif
-    #ifdef _EXTENDED_SINGLE
-        #error "Simple clients cannot have _EXTENDED_SINGLE defined."
+    #ifdef EXTENDED_SINGLE
+        #error "Simple clients cannot have EXTENDED_SINGLE defined."
     #endif
     #ifdef ONE_NET_MULTI_HOP
         #error "Simple clients cannot have ONE_NET_MULTI_HOP defined."

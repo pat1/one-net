@@ -48,8 +48,8 @@
 
 #ifdef ONE_NET_MASTER
 
-#if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
-    #error "_SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if ONE_NET_MASTER is defined"
+#if SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
+    #error "SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if ONE_NET_MASTER is defined"
 #endif
 
 
@@ -2159,7 +2159,7 @@ static on_message_status_t on_master_single_data_hdlr(
             get_src_unit(ack_nack->payload->status_resp)
         #endif
             , 0
-        #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+        #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	        , 0
         #endif
         );
@@ -3153,7 +3153,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       ONE_NET_DEV_UNIT
       #endif
       , send_time_from_now
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , 0
       #endif
       ))

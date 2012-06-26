@@ -477,7 +477,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     }
     
     
-    #ifdef _EXTENDED_SINGLE
+    #ifdef EXTENDED_SINGLE
     if(msg_type == ONA_SIMPLE_TEXT || msg_type == ONA_TEXT)
     #else
     if(msg_type == ONA_SIMPLE_TEXT)
@@ -485,7 +485,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     {
         UInt8 text_len = 2;
         
-        #ifdef _EXTENDED_SINGLE
+        #ifdef EXTENDED_SINGLE
         if(msg_type == ONA_TEXT)
         {
             // this is a NULL-terminated string, so find out how long it is;
@@ -1840,10 +1840,10 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
       #ifdef PEER
           , TRUE, src_unit
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif
       ))
@@ -1945,10 +1945,10 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
       #ifdef PEER
           , FALSE, ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
           , 0
       #endif
       ))

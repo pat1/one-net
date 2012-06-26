@@ -289,10 +289,10 @@ typedef struct
 	BOOL send_to_peer_list;
     UInt8 src_unit;
     #endif
-    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 	tick_t send_time;
     #endif
-    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+    #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	tick_t expire_time;
     #endif
 } on_single_data_queue_t;
@@ -610,7 +610,7 @@ void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
 void empty_queue(void);
 
 
-#if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
 // return true if an element was popped, false otherwise.
 BOOL pop_queue_element(on_single_data_queue_t* const element,
     UInt8* const buffer, UInt8 index);
@@ -618,7 +618,7 @@ BOOL pop_queue_element(on_single_data_queue_t* const element,
 BOOL pop_queue_element(void);
 #endif
 
-#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 int single_data_queue_ready_to_send(tick_t* const queue_sleep_time);
 #else
 int single_data_queue_ready_to_send(void);
@@ -632,10 +632,10 @@ on_single_data_queue_t* push_queue_element(UInt16 pid,
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+  #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , tick_t send_time_from_now
   #endif
-  #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+  #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , tick_t expire_time_from_now
   #endif
   );

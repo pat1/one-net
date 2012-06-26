@@ -206,10 +206,10 @@ static one_net_status_t init_internal(void);
 #ifndef _ONE_NET_SIMPLE_CLIENT
 static BOOL send_new_key_request(void);
 #endif
-#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now);
-#elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#elif SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now);
 #else
 static one_net_status_t send_keep_alive(void);
@@ -636,20 +636,20 @@ tick_t one_net_client(void)
     }
     else
     {
-        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         tick_t queue_sleep_time;
         #endif
         
         // this will be the absolute maximum -- this may be overridden.
         sleep_time = ont_get_timer(ONT_KEEP_ALIVE_TIMER);
     
-        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+        #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         if(single_data_queue_ready_to_send(&queue_sleep_time) == -1)
         #else
         if(single_data_queue_ready_to_send() == -1)
         #endif
         {
-            #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+            #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
             if(queue_sleep_time > 0 && queue_sleep_time < sleep_time)
             {
                 sleep_time = queue_sleep_time;
@@ -1170,10 +1170,10 @@ static on_message_status_t on_client_single_data_hdlr(
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
         #endif
-        #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL   
+        #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL   
 	        , 0
         #endif
-        #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+        #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	        , 0
         #endif
         );
@@ -1684,10 +1684,10 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                           #ifdef PEER
                           , FALSE, ONE_NET_DEV_UNIT
                           #endif
-                          #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                          #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
                           , 0
                           #endif
-                          #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+                          #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
                           , 0
                           #endif
                           );
@@ -2162,10 +2162,10 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
 
 
 
-#if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now,
   tick_t expire_time_from_now)
-#elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#elif SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
 static one_net_status_t send_keep_alive(tick_t send_time_from_now)
 #else
 static one_net_status_t send_keep_alive(void)
@@ -2188,10 +2188,10 @@ static one_net_status_t send_keep_alive(void)
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , send_time_from_now
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
       // if it can't get out of the queue within five seconds, cancel it.
       , expire_time_from_now
       #endif
@@ -2716,10 +2716,10 @@ static BOOL send_new_key_request(void)
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
       , 0
       #endif
       ))
@@ -2773,9 +2773,9 @@ static BOOL check_in_with_master(void)
       &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
       ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
 
-    #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
     if(send_keep_alive(0, 0) == ONS_SUCCESS)
-    #elif _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+    #elif SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     if(send_keep_alive(0) == ONS_SUCCESS)
     #else
     if(send_keep_alive() == ONS_SUCCESS)

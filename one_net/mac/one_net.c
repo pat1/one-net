@@ -1180,7 +1180,7 @@ one_net_status_t on_decrypt(UInt8 * const data,
 void one_net_init(void)
 {
     one_net_set_channel(on_base_param->channel);
-    #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+    #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
     empty_queue();
     #endif
     single_msg_ptr = NULL;
@@ -1305,7 +1305,7 @@ void one_net(on_txn_t ** txn)
             #endif
             {
                 on_sending_device_t* device;
-                #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
                 tick_t next_pop_time = 0;
                 #endif
                 
@@ -1315,7 +1315,7 @@ void one_net(on_txn_t ** txn)
                     // we are not in the middle of a message.  We might have
                     // something ready to pop though.
 
-                    #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+                    #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
                     int index = single_data_queue_ready_to_send(
                         &next_pop_time);
                     #else
@@ -1323,7 +1323,7 @@ void one_net(on_txn_t ** txn)
                     #endif
                     if(index >= 0)
                     {
-                        #if _SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
+                        #if SINGLE_QUEUE_LEVEL > NO_SINGLE_QUEUE_LEVEL
                         if(pop_queue_element(&single_msg, single_data_raw_pld,
                           (UInt8) index))
                         #else
@@ -2789,7 +2789,7 @@ void one_net(on_txn_t ** txn)
                 }
                 #endif
                 
-                #if  _SINGLE_QUEUE_LEVEL == NO_SINGLE_QUEUE_LEVEL
+                #if  SINGLE_QUEUE_LEVEL == NO_SINGLE_QUEUE_LEVEL
                 if(!recipient_send_list_ptr ||
                   recipient_send_list_ptr->num_recipients -
                   recipient_send_list_ptr->recipient_index <= 1)
@@ -4331,10 +4331,10 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
         , FALSE,
         ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	    , 0
       #endif
       ) == NULL)
@@ -4727,10 +4727,10 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
       #ifdef PEER
       , FALSE, ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
       , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
 	  , 0
       #endif
       ) == NULL ? ON_NACK_RSN_RSRC_UNAVAIL_ERR : ON_NACK_RSN_NO_ERROR);
@@ -5136,10 +5136,10 @@ on_single_data_queue_t* request_reserve_repeater(
           , FALSE,
           ONE_NET_DEV_UNIT
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+      #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
       #endif
-      #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
     	  , 0
       #endif
       );
@@ -5264,10 +5264,10 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
               , FALSE,
               ONE_NET_DEV_UNIT
           #endif
-          #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+          #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
               , 0
           #endif
-          #if _SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+          #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
         	  , 0
           #endif
           );
