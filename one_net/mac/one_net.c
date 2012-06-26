@@ -1261,11 +1261,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_CHANGE_MY_DR_CHANNEL:
         #endif
         case ON_BS_DEVICE_PERMISSION:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_DEVICE_PERMISSION:
         #endif
         #ifdef ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_REPEATER_PERMISSION_START:
         case ON_BS_MASTER_REPEATER_PERMISSION:
         case ON_BS_MASTER_REPEATER_PERMISSION_END:
@@ -1519,7 +1519,7 @@ void one_net(on_txn_t ** txn)
                                       &bs_msg.dst->did);
                                     break;
                                     
-                                #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+                                #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
                                 case ON_BS_MASTER_DEVICE_PERMISSION:
                                     if(master_involved || !long_transfer)
                                     {
@@ -1554,7 +1554,7 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 #endif
                                     
-                                #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(ONE_NET_MULTI_HOP)
+                                #if defined(BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
                                       == 0 || !long_transfer)
@@ -2306,11 +2306,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_CHANGE_DR_CHANNEL:
         #endif
         case ON_BS_SEND_DEVICE_PERMISSION:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         #endif
         #ifdef ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
         #endif
         case ON_BS_SEND_REPEATER_PERMISSION:
@@ -2366,11 +2366,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_CHANGE_DR_CHANNEL_WRITE_WAIT:
         #endif
         case ON_BS_SEND_DEVICE_PERMISSION_WRITE_WAIT:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
         #endif
         #ifdef ONE_NET_MULTI_HOP
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
         #endif
         case ON_BS_SEND_REPEATER_PERMISSION_WRITE_WAIT:
@@ -2527,7 +2527,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_CHANGE_DR_CHANNEL_RESP:
         #endif
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
-        #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP:
         #ifdef ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
@@ -5102,7 +5102,7 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 }
 
 
-#if defined(ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
+#if defined(ONE_NET_MULTI_HOP) && defined(BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
 /*!
     \brief Called by a client initiating a block or stream message.  Requests the master's
            permission to reserve a multi-hop repeater for use as a repeater in

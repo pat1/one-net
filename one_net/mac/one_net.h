@@ -279,7 +279,7 @@ typedef enum
     ON_BS_REPEATER_PERMISSION_END,
     
     
-    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
     //! Start state of requesting repeaters from master
     ON_BS_MASTER_REPEATER_PERMISSION_START,
     
@@ -301,7 +301,7 @@ typedef enum
     #endif
     
     
-    #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+    #ifdef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
     //! Ask the master for device permission
     ON_BS_MASTER_DEVICE_PERMISSION,
     

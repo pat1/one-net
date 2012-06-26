@@ -297,7 +297,7 @@ static oncli_status_t parse_and_send_pin_msg(
 oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_USER_PIN_COMMAND
+#ifdef ENABLE_USER_PIN_COMMAND
 	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -732,7 +732,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the "verbose level" command was received //
     #endif
     
-	#ifdef _ENABLE_USER_PIN_COMMAND
+	#ifdef ENABLE_USER_PIN_COMMAND
     else if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
       strlen(ONCLI_USER_PIN_CMD_STR)))
     {
@@ -2189,7 +2189,7 @@ oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
               properly.
             See user_pin for more return values.
 */
-#ifdef _ENABLE_USER_PIN_COMMAND
+#ifdef ENABLE_USER_PIN_COMMAND
 static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;

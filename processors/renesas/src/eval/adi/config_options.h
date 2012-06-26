@@ -174,8 +174,8 @@
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
         // request permission from the client.
-        #ifndef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
-       	    #define _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifndef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+       	    #define BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         #endif
     #endif
 #endif
@@ -230,8 +230,8 @@
 
 // Evaluation Board Options
 
-#ifndef _ONE_NET_EVAL
-	#define _ONE_NET_EVAL
+#ifndef ONE_NET_EVAL
+	#define ONE_NET_EVAL
 #endif
 
 #ifndef UART
@@ -343,7 +343,7 @@
     
 
 
-#ifdef _ONE_NET_EVAL
+#ifdef ONE_NET_EVAL
 	// AUTO_MODE should be defined if you want the Auto Mode option available
 	#ifndef AUTO_MODE
 		#define AUTO_MODE
@@ -545,9 +545,9 @@
 	//	#define _ENABLE_GET_CHANNEL_COMMAND
 	#endif
 
-	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
-	#ifndef _ENABLE_USER_PIN_COMMAND
-		#define _ENABLE_USER_PIN_COMMAND
+	// ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
+	#ifndef ENABLE_USER_PIN_COMMAND
+		#define ENABLE_USER_PIN_COMMAND
 	#endif
 
 	// ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
@@ -633,12 +633,12 @@
     #define HAS_LEDS
 #endif
 
-// Enable _ONE_NET_MEMORY is you are implementing the ONE-NET versions of
-// malloc and free.  If _ONE_NET_MEMORY is enabled, you must define
+// Enable ONE_NET_MEMORY is you are implementing the ONE-NET versions of
+// malloc and free.  If ONE_NET_MEMORY is enabled, you must define
 // ONE_NET_HEAP_SIZE and ONE_NET_HEAP_NUM_ENTRIES in
 // one_net_port_const.h.
-#ifndef _ONE_NET_MEMORY
-//    #define _ONE_NET_MEMORY
+#ifndef ONE_NET_MEMORY
+//    #define ONE_NET_MEMORY
 #endif
 
 

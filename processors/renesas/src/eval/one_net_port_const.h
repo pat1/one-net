@@ -197,7 +197,7 @@ enum
 };
 
 
-#ifdef _ONE_NET_MEMORY
+#ifdef ONE_NET_MEMORY
 // see one_net_memory.h
 enum
 {

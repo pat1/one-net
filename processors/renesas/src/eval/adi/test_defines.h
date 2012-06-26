@@ -57,13 +57,13 @@
 //! \ingroup one_net_test_defines
 
 
-#ifndef _ONE_NET_EVAL
-    #error "This is an Eval Board.  _ONE_NET_EVAL must be defined."
+#ifndef ONE_NET_EVAL
+    #error "This is an Eval Board.  ONE_NET_EVAL must be defined."
 #endif
 
 #ifdef ONE_NET_SIMPLE_CLIENT
-    #ifdef _ONE_NET_EVAL
-        #error "_ONE_NET_EVAL and ONE_NET_SIMPLE_CLIENT cannot both defined."
+    #ifdef ONE_NET_EVAL
+        #error "ONE_NET_EVAL and ONE_NET_SIMPLE_CLIENT cannot both be defined."
     #endif
 #endif
 

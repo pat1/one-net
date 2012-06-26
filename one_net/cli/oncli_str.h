@@ -144,7 +144,7 @@ extern const char * const ONCLI_SAVE_CMD_STR;
 extern const char * const ONCLI_SET_DR_CHANNEL_CMD_STR;
 #endif
 
-#ifdef _ENABLE_USER_PIN_COMMAND
+#ifdef ENABLE_USER_PIN_COMMAND
 extern const char * const ONCLI_USER_PIN_CMD_STR;
 #endif
 extern const char * const ONCLI_INPUT_STR;

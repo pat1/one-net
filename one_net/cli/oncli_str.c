@@ -175,7 +175,7 @@ const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
     const char * const ONCLI_SET_DR_CHANNEL_CMD_STR = "set dr_channel";
 #endif
 
-#ifdef _ENABLE_USER_PIN_COMMAND
+#ifdef ENABLE_USER_PIN_COMMAND
 //! Command to enable or disable user pins
 const char * const ONCLI_USER_PIN_CMD_STR = "user pin";
 #endif

@@ -92,8 +92,8 @@
 	#undef EUROPE_CHANNELS
 #endif
 
-#ifdef _ONE_NET_EVAL
-	#undef _ONE_NET_EVAL
+#ifdef ONE_NET_EVAL
+	#undef ONE_NET_EVAL
 #endif
 
 #ifdef _DEBUG_VERBOSE_LEVEL
@@ -212,8 +212,8 @@
 	#undef _ENABLE_GET_CHANNEL_COMMAND
 #endif
 
-#ifdef _ENABLE_USER_PIN_COMMAND
-	#undef _ENABLE_USER_PIN_COMMAND
+#ifdef ENABLE_USER_PIN_COMMAND
+	#undef ENABLE_USER_PIN_COMMAND
 #endif
 
 #ifdef ENABLE_JOIN_COMMAND

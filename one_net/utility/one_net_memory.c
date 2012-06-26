@@ -53,7 +53,7 @@
 #include "one_net_memory.h"
 
 
-#ifdef _ONE_NET_MEMORY
+#ifdef ONE_NET_MEMORY
 
 
 
@@ -401,7 +401,7 @@ UInt8* get_loc(UInt8 index)
 //==============================================================================
 
 
-#endif // _ONE_NET_MEMORY //
+#endif // ONE_NET_MEMORY //
 
 //! @} one_net_memory
 
