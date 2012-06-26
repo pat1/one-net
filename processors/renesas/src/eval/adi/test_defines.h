@@ -124,8 +124,8 @@
     #ifdef _STREAM_MESSAGES_ENABLED
         #error "Simple clients cannot have _STREAM_MESSAGES_ENABLED defined."
     #endif
-    #ifdef _DATA_RATE_CHANNEL
-        #error "Simple clients cannot have _DATA_RATE_CHANNEL defined."
+    #ifdef DATA_RATE_CHANNEL
+        #error "Simple clients cannot have DATA_RATE_CHANNEL defined."
     #endif
     #ifndef ONE_NET_CLIENT
         #error "Simple clients must have ONE_NET_CLIENT defined."

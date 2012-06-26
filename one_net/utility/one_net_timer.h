@@ -137,7 +137,7 @@ enum
     WRITE_PAUSE_TIMER,
     #endif
     
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
     //! Timer to keep track of when to change data rates and channels.
     ONT_DATA_RATE_CHANNEL_TIMER,
     #endif

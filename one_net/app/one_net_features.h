@@ -113,7 +113,7 @@ enum
 {
     THIS_DEVICE_FEATURE_BITS =
         0
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef DATA_RATE_CHANNEL
             + ON_DR_CHANNEL_CHANGE_FEATURE_MASK
         #endif
         #ifdef PEER

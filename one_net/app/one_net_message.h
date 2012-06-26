@@ -202,7 +202,7 @@ typedef enum
     //! Response from a client when a device has been removed.
     ON_REMOVE_DEV_RESP = 0x04,
     
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
     //! Change data rate and channel
     ON_CHANGE_DATA_RATE_CHANNEL = 0x05,
     #endif

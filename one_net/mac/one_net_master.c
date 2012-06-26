@@ -717,7 +717,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       ON_REJECT_INVALID_MSG_ID : 0);
       
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
     #endif
@@ -1191,7 +1191,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     #ifdef _BLOCK_MESSAGES_ENABLED
     if(features_block_capable(client->device.features))
     {
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef DATA_RATE_CHANNEL
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
           ON_BS_ELEVATE_DATA_RATE : 0); 
         #endif
@@ -1766,7 +1766,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             *priority = ONE_NET_LOW_PRIORITY;
         }        
         
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef DATA_RATE_CHANNEL
         if((src_flags & ON_BS_ELEVATE_DATA_RATE) && (dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
@@ -1936,7 +1936,7 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             *priority = ONE_NET_LOW_PRIORITY;
         }
         
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef DATA_RATE_CHANNEL
         if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
           ON_BS_ELEVATE_DATA_RATE))
         {
@@ -2758,7 +2758,7 @@ static one_net_status_t init_internal(void)
     one_net_init();
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
     #endif
@@ -3202,7 +3202,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
     switch(DATA[0])
     {
-        #ifdef _DATA_RATE_CHANNEL
+        #ifdef DATA_RATE_CHANNEL
         case ON_CHANGE_DATA_RATE_CHANNEL:
         {
             UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);

@@ -341,7 +341,7 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 /*!
     \brief Called by ONE-NET to inform the application-level code that the
            data rate and/or channel has been changed.
@@ -439,7 +439,7 @@ on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 /*!
     \brief Finds an alternate channel to use.  This is an application-level
            function.

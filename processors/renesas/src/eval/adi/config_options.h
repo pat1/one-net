@@ -380,8 +380,8 @@
 // Enable this if data rates can be changed to anything besides the 38,400 base
 // or the channel can be changed back and forth at run-time for anything but the
 // invite process.
-#ifndef _DATA_RATE_CHANNEL
-    #define _DATA_RATE_CHANNEL
+#ifndef DATA_RATE_CHANNEL
+    #define DATA_RATE_CHANNEL
 #endif
 
 
@@ -572,7 +572,7 @@
     #endif
     
     // ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
         #ifndef ENABLE_SET_DR_CHANNEL_COMMAND
         //    #define ENABLE_SET_DR_CHANNEL_COMMAND
         #endif

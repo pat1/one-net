@@ -1524,7 +1524,7 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 {
     oncli_send_msg("Changed to data rate %s, channel ",
@@ -1585,7 +1585,7 @@ void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 SInt8 one_net_get_alternate_channel(void)
 {
     // TODO -- We need to find a much better way to get alternate channels.

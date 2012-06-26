@@ -211,7 +211,7 @@ typedef enum
     ON_BS_WAIT_FOR_FIND_ROUTE_RESP,
     
     
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
     //! State used when changing a data rate and channel for block / stream
     ON_BS_CHANGE_DR_CHANNEL,
     
@@ -762,7 +762,7 @@ extern tick_t route_start_time;
 extern block_stream_msg_t bs_msg;
 #endif
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 extern dr_channel_stage_t dr_channel_stage;
 extern UInt16 dormant_data_rate_time_ms;
 extern UInt8 next_data_rate;
@@ -913,7 +913,7 @@ BOOL extract_repeaters_and_hops_from_route(const on_encoded_did_t* const
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
   UInt16 pause_time_ms, UInt16 dormant_time_ms, UInt8 new_channel,
   UInt8 new_data_rate);

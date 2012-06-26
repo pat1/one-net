@@ -120,8 +120,8 @@
     #undef _NON_VOLATILE_MEMORY
 #endif
 
-#ifdef _DATA_RATE_CHANNEL
-    #undef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
+    #undef DATA_RATE_CHANNEL
 #endif
 
 #ifdef _ENABLE_CLI
