@@ -540,11 +540,6 @@
         #endif
 	#endif
 
-	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
-	#ifndef _ENABLE_GET_CHANNEL_COMMAND
-	//	#define _ENABLE_GET_CHANNEL_COMMAND
-	#endif
-
 	// ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
 	#ifndef ENABLE_USER_PIN_COMMAND
 		#define ENABLE_USER_PIN_COMMAND
