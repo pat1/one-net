@@ -47,7 +47,7 @@
 #endif
 
 // TODO -- this is a bit messy.  Find a better #define test.
-#if defined(_R8C_TINY) && !defined(_QUAD_OUTPUT)
+#if defined(_R8C_TINY) && !defined(QUAD_OUTPUT)
     #pragma section program program_high_rom
 #endif // if _R8C_TINY and not a 16K chip //
 

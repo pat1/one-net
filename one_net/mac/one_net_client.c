@@ -419,7 +419,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     ont_set_timer(ONT_GENERAL_TIMER, MS_TO_TICK(ONE_NET_SCAN_CHANNEL_TIME));
     on_state = ON_JOIN_NETWORK;
     
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif    
     return ONS_SUCCESS;
@@ -561,7 +561,7 @@ tick_t one_net_client(void)
                 // false.
                 removed = FALSE;
                 master->flags = 0;
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
                 one_net_client_client_removed(NULL, TRUE);
@@ -587,7 +587,7 @@ tick_t one_net_client(void)
                 one_net_client_reset_client((const one_net_xtea_key_t*)
                   one_net_client_get_invite_key());
                 #endif
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
                 return 0;
@@ -1699,7 +1699,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 // No admin messages within the keep-alive response from
                 // the master.  We were sent a new interval.
                 master->keep_alive_interval = ack_nack->payload->ack_time_ms;
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
                 break;
@@ -2288,7 +2288,7 @@ static BOOL look_for_invite(void)
     #ifdef ONE_NET_MULTI_HOP
     master->device.max_hops = features_max_hops(master->device.features);
     #endif
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif    
     return TRUE;
@@ -2459,7 +2459,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 reset_msg_ids();
                 master->device.msg_id = one_net_prand(get_tick_count(), 50);
                   
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
             }
@@ -2484,7 +2484,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 case ONS_RSRC_FULL: ack_nack->nack_reason =
                        ON_NACK_RSN_RSRC_UNAVAIL_ERR; break;
                 case ONS_SUCCESS:
-                    #ifdef _AUTO_SAVE
+                    #ifdef AUTO_SAVE
                     save = TRUE;
                     #endif
                     break;
@@ -2501,7 +2501,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
               &DATA[1 + ON_PEER_DID_IDX], DATA[1 + ON_PEER_PEER_UNIT_IDX]))
             {
                 case ONS_SUCCESS:
-                    #ifdef _AUTO_SAVE
+                    #ifdef AUTO_SAVE
                     save = TRUE;
                     #endif
                     break;
@@ -2541,7 +2541,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             on_base_param->fragment_delay_low = new_frag_low;
             on_base_param->fragment_delay_high = new_frag_high;
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
@@ -2553,7 +2553,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             master->keep_alive_interval = one_net_byte_stream_to_int32(
               &DATA[1]);
             ont_set_timer(ONT_KEEP_ALIVE_TIMER, master->keep_alive_interval);
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif
         } // change keep-alive case : intentional fall-through //
@@ -2569,7 +2569,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             master->flags = DATA[1];
             ack_nack->handle = ON_ACK_VALUE;
             ack_nack->payload->ack_value.uint8 = master->flags;
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
@@ -2630,7 +2630,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 on_base_param->num_mh_repeaters =
                   ack_nack->payload->admin_msg[4];
                 #endif
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif                
             }
@@ -2667,7 +2667,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             on_base_param->num_mh_repeaters =
               ack_nack->payload->admin_msg[4];
             #endif            
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif            
             break;

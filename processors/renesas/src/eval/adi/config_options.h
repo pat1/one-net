@@ -420,9 +420,9 @@
 
 #ifdef AT_LEAST_ONE_COMMAND_ENABLED
 
-	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
-	#ifndef _ENABLE_SINGLE_COMMAND
-		#define _ENABLE_SINGLE_COMMAND
+	// ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
+	#ifndef ENABLE_SINGLE_COMMAND
+		#define ENABLE_SINGLE_COMMAND
 	#endif
 
     #ifdef BLOCK_MESSAGES_ENABLED
@@ -453,10 +453,10 @@
             #define ENABLE_SETNI_COMMAND
         #endif
         
-        // _AUTO_SAVE should be defined if the parameters should be saved every
+        // AUTO_SAVE should be defined if the parameters should be saved every
         // time they change
-        #ifndef _AUTO_SAVE
-           // #define _AUTO_SAVE
+        #ifndef AUTO_SAVE
+           // #define AUTO_SAVE
         #endif
     #endif
 
@@ -466,8 +466,9 @@
 	#endif
 
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
-	#ifdef _ENABLE_SINGLE_COMMAND
+	#ifdef ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
+		    // Implement the "rsingle" command.
 	//		#define _ENABLE_RSINGLE_COMMAND
 		#endif
 	#endif

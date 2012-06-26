@@ -151,7 +151,7 @@ const char * const ONCLI_HIGH_STR = "high";
 const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 #endif
 
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 const char* const ONCLI_SINGLE_TXT_CMD_STR = "single text";
 const char* const ONCLI_SINGLE_CMD_STR = "single";
 const char* const ONCLI_STATUS_PIN_CMD_STR = "status pin";

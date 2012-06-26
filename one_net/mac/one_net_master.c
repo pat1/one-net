@@ -591,7 +591,7 @@ one_net_status_t one_net_master_change_key_fragment(
         client_list[i].use_current_key = FALSE;
     }
     
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif    
       
@@ -867,7 +867,7 @@ one_net_status_t one_net_master_remove_device(
     admin_pld[3] = 0;
     #endif
     
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif    
 
@@ -1300,7 +1300,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         }
     }
 
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif
     return ONS_SUCCESS;
@@ -1401,7 +1401,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
               (const on_encoded_did_t* const) enc_dst_did, PEER_UNIT);
         }
         
-        #ifdef _AUTO_SAVE
+        #ifdef AUTO_SAVE
         save = TRUE;
         #endif        
     }
@@ -1524,7 +1524,7 @@ one_net_status_t one_net_master_change_frag_dly(
         
         on_base_param->fragment_delay_low = new_low;
         on_base_param->fragment_delay_high = new_high;
-        #ifdef _AUTO_SAVE
+        #ifdef AUTO_SAVE
         save = TRUE;
         #endif
         return ONS_SUCCESS;
@@ -2434,7 +2434,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->send_add_device_message = FALSE;
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
             }
@@ -2447,7 +2447,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->send_remove_device_message = FALSE;
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
             }
@@ -2464,7 +2464,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
                   ONE_NET_XTEA_KEY_FRAGMENT_SIZE) == 0)
                 {
                     client->use_current_key = TRUE;
-                    #ifdef _AUTO_SAVE
+                    #ifdef AUTO_SAVE
                     save = TRUE;
                     #endif
                 }
@@ -2811,7 +2811,7 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
     
     // now fill in the next client did to assign
     master_param->next_client_did = find_lowest_vacant_did();
-    #ifdef _AUTO_SAVE
+    #ifdef AUTO_SAVE
     save = TRUE;
     #endif
 	return ONS_SUCCESS;
@@ -3439,7 +3439,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             (*client)->send_add_device_message = FALSE;
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
@@ -3456,7 +3456,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             
             (*client)->send_remove_device_message = FALSE;
-            #ifdef _AUTO_SAVE
+            #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
@@ -3568,7 +3568,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                         (const on_raw_did_t*) &raw_did, ack_nack);
                 }
                 (*client)->use_current_key = TRUE;
-                #ifdef _AUTO_SAVE
+                #ifdef AUTO_SAVE
                 save = TRUE;
                 #endif
             }

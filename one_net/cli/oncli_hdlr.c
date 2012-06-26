@@ -42,7 +42,7 @@
 #ifdef UART
 
 // TODO -- this is a bit messy.  Find a better #define test.
-#if defined(_R8C_TINY) && !defined(_QUAD_OUTPUT)
+#if defined(_R8C_TINY) && !defined(QUAD_OUTPUT)
     #pragma section program program_high_rom
 #endif // if _R8C_TINY and not a 16K chip //
 
@@ -86,7 +86,7 @@
 
 #include "tick.h"
 
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 #include "io_port_mapping.h"
 #endif
 
@@ -279,7 +279,7 @@ int memory_len = 0;
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 static oncli_status_t oncli_send_single(const on_raw_did_t* const dst,
     const UInt8* const payload, const BOOL send_to_peer_list,
     const on_priority_t priority);
@@ -388,7 +388,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 
 #ifdef PEER
 static const char * parse_ascii_tx_param(const char * PARAM_PTR,
@@ -583,7 +583,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the sniff command was received //
 	#endif
     
-	#ifdef _ENABLE_SINGLE_COMMAND    
+	#ifdef ENABLE_SINGLE_COMMAND    
     else if(!strnicmp(ONCLI_SINGLE_TXT_CMD_STR, CMD, strlen(ONCLI_SINGLE_TXT_CMD_STR)))
     {
         *CMD_STR = ONCLI_SINGLE_TXT_CMD_STR;
@@ -676,7 +676,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ONCLI_SUCCESS;
     } // else if the set pin command was received //
-	#endif // _ENABLE_SINGLE_COMMAND //
+	#endif // ENABLE_SINGLE_COMMAND //
 
 	#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
     else if(!strnicmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
@@ -1685,7 +1685,7 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 /*!
     \brief Handles receiving the single command and all its parameters.
     
@@ -2098,7 +2098,7 @@ static oncli_status_t parse_and_send_pin_msg(
         return ONCLI_RSRC_UNAVAILABLE;
     }
 }
-#endif // _ENABLE_SINGLE_COMMAND //
+#endif // ENABLE_SINGLE_COMMAND //
 
 
 #ifdef ENABLE_SET_DR_CHANNEL_COMMAND
@@ -4640,7 +4640,7 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 #endif
 
 
-#ifdef _ENABLE_SINGLE_COMMAND
+#ifdef ENABLE_SINGLE_COMMAND
 /*!
     \brief Parses the ASCII parameter string for the parameters needed to send
       a transaction. 
