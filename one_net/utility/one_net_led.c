@@ -2,7 +2,7 @@
 //! @{
 
 #include "config_options.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 
 
 /*
@@ -262,4 +262,4 @@ void toggle_rx_led(void)
 
 
 
-#endif // ifdef _HAS_LEDS //
+#endif // ifdef HAS_LEDS //

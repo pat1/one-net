@@ -984,7 +984,7 @@ void one_net_master(void)
     // Do the appropriate action for the state the device is in.
     switch(on_state)
     {
-#ifdef _IDLE
+#ifdef IDLE
 		case ON_IDLE:
 		{
 			break;

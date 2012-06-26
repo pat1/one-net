@@ -5,7 +5,7 @@
 #include "config_options.h"
 
 
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 
 #include "io_port_mapping.h"
 #include "hal.h"
@@ -111,7 +111,7 @@ void hal_init_ports_leds(void);
 //! @} led_hal
 
 
-#endif // ifdef _HAS_LEDS //
+#endif // ifdef HAS_LEDS //
 
 
 #endif // _LED_HAL_H //

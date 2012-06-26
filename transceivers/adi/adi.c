@@ -58,7 +58,7 @@
 #include "cb.h"
 #endif
 #include "one_net_encode.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 #ifdef _DEBUGGING_TOOLS
@@ -552,7 +552,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
         } // if done looking //
     } // while no sync detect //
     
-    #ifdef _HAS_LEDS
+    #ifdef HAS_LEDS
     set_rx_led(TRUE);
     #endif
     ENABLE_RX_BIT_INTERRUPTS();
@@ -574,7 +574,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             if(!get_raw_pid(&encoded_pkt_bytes[ON_ENCODED_PID_IDX], &raw_pid))
             {
                 DISABLE_RX_BIT_INTERRUPTS();
-                #ifdef _HAS_LEDS
+                #ifdef HAS_LEDS
                 set_rx_led(FALSE);
                 #endif                
                 return ONS_BAD_ENCODING;
@@ -585,7 +585,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
             {
                 // bad packet type
                 DISABLE_RX_BIT_INTERRUPTS();
-                #ifdef _HAS_LEDS
+                #ifdef HAS_LEDS
                 set_rx_led(FALSE);
                 #endif
                 return ONS_BAD_PKT_TYPE;
@@ -594,7 +594,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
     } while(rx_rf_count < blks_to_rx);
 
     DISABLE_RX_BIT_INTERRUPTS();
-    #ifdef _HAS_LEDS
+    #ifdef HAS_LEDS
     set_rx_led(FALSE);
     #endif
     return ONS_SUCCESS;

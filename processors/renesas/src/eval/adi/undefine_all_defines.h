@@ -76,8 +76,8 @@
     #define _ONE_NET_SIMPLE_CLIENT
 #endif
 
-#ifdef _IDLE
-    #undef _IDLE
+#ifdef IDLE
+    #undef IDLE
 #endif
 
 #ifdef _ENHANCED_INVITE
@@ -252,12 +252,12 @@
     #undef EXTENDED_SINGLE
 #endif
 
-#ifdef _MINIMIZE_STRING_LENGTHS
-   #undef _MINIMIZE_STRING_LENGTHS
+#ifdef MINIMIZE_STRING_LENGTHS
+   #undef MINIMIZE_STRING_LENGTHS
 #endif
 
-#ifdef _HAS_LEDS
-    #undef _HAS_LEDS
+#ifdef HAS_LEDS
+    #undef HAS_LEDS
 #endif
 
 #ifdef UART

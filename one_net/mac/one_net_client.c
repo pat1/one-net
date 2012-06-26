@@ -537,7 +537,7 @@ tick_t one_net_client(void)
 
     switch(on_state)
     {
-        #ifdef _IDLE
+        #ifdef IDLE
         case ON_IDLE:
             // not sure what happens here.  This is "do-nothing" mode or
             // "do-nothing with ONE-NET messages" mode or a chance to put

@@ -191,15 +191,15 @@
 
 
 // Idle Option - Should be defined if the device can ever be idle
-#ifndef _IDLE
-    #define _IDLE
+#ifndef IDLE
+    #define IDLE
 #endif
 
 
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
-// if _IDLE is defined.
-#if defined(_IDLE) && defined(ONE_NET_CLIENT)
+// if IDLE is defined.
+#if defined(IDLE) && defined(ONE_NET_CLIENT)
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
 	#endif
@@ -623,14 +623,14 @@
 // can allow you to use the ebugger and use other debugging tools.
 
 // TODO  --  shorten some strings in oncli_str.c to save memory / code space.
-#ifndef _MINIMIZE_STRING_LENGTHS
- //   #define _MINIMIZE_STRING_LENGTHS
+#ifndef MINIMIZE_STRING_LENGTHS
+ //   #define MINIMIZE_STRING_LENGTHS
 #endif
 
 
 // Enable this if the device has transmit and receive LEDS
-#ifndef _HAS_LEDS
-    #define _HAS_LEDS
+#ifndef HAS_LEDS
+    #define HAS_LEDS
 #endif
 
 // Enable _ONE_NET_MEMORY is you are implementing the ONE-NET versions of

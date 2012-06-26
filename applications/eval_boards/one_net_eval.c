@@ -30,7 +30,7 @@
 #include "one_net.h"
 #include "one_net_eval.h"
 #include "one_net_prand.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 
@@ -273,7 +273,7 @@ int main(void)
     TAL_INIT_TRANSCEIVER();
     INIT_PROCESSOR(TRUE);
 
-    #ifdef _HAS_LEDS
+    #ifdef HAS_LEDS
         initialize_leds();
     #endif
     

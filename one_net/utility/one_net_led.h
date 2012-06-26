@@ -4,7 +4,7 @@
 #include "config_options.h"
 
 
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 
 
 #include "one_net_types.h"
@@ -195,7 +195,7 @@ void toggle_rx_led(void);
 
 //! @} one_net_led_led
 
-#endif // ifdef _HAS_LEDS
+#endif // ifdef HAS_LEDS
 
 #endif // _ONE_NET_LED_H //
 

@@ -349,7 +349,7 @@ typedef enum
     //! Termination is complete
     ON_BS_TERMINATE_COMPLETE,
 
-#ifdef _IDLE	
+#ifdef IDLE	
 	//! do nothing
 	ON_IDLE = 0xF0,
 #endif
