@@ -54,14 +54,14 @@
 
 // If you do not want to use the config_options.h file to implment the #define
 // values (i.e. you are using an IDE and would rather define things there),
-// make sure you define a #define variable called _OVERRIDE_CONFIG_OPTIONS_FILE.
+// make sure you define a #define variable called OVERRIDE_CONFIG_OPTIONS_FILE.
 
 
 
-#ifndef _OVERRIDE_CONFIG_OPTIONS_FILE
+#ifndef OVERRIDE_CONFIG_OPTIONS_FILE
 
 
-// _OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
+// OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
 
 
 
@@ -86,8 +86,8 @@
 // if the unneeded cases are not handled.  All ACTUAL cases should be handled correctly even when this
 // option is not defined, so this option is simply to make the compiler happy. If you find a case that
 // truly is NOT handled when this is undefined, it should be considered a bug!
-#ifndef _COMPILE_WO_WARNINGS
-    // #define _COMPILE_WO_WARNINGS
+#ifndef COMPILE_WO_WARNINGS
+    // #define COMPILE_WO_WARNINGS
 #endif
 
 
@@ -152,11 +152,11 @@
     
     #ifdef EXTENDED_SINGLE
         // define if this device handles routing
-        #define _ROUTE
+        #define ROUTE
     #endif
     
     // Block Messages
-    #ifdef _ROUTE
+    #ifdef ROUTE
         #ifndef _BLOCK_MESSAGES_ENABLED
         //	#define _BLOCK_MESSAGES_ENABLED
         #endif
@@ -219,12 +219,12 @@
 
 // Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
 // define more than one.
-#ifndef _US_CHANNELS
-	#define _US_CHANNELS
+#ifndef US_CHANNELS
+	#define US_CHANNELS
 #endif
 
-#ifndef _EUROPE_CHANNELS
-	#define _EUROPE_CHANNELS
+#ifndef EUROPE_CHANNELS
+	#define EUROPE_CHANNELS
 #endif
 
 
@@ -234,23 +234,23 @@
 	#define _ONE_NET_EVAL
 #endif
 
-#ifndef _UART
+#ifndef UART
     // Enable this if there is UART
-    #define _UART
+    #define UART
 #endif
 
-#ifdef _UART    
-    // define the base baud rate.  Define _DEFAULT_BAUD_RATE as 38400 or 115200.
-    // If _DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
+#ifdef UART    
+    // define the base baud rate.  Define DEFAULT_BAUD_RATE as 38400 or 115200.
+    // If DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
     // command-line option.  "baud:38400" or
-    #ifndef _DEFAULT_BAUD_RATE
-        #define _DEFAULT_BAUD_RATE 115200
+    #ifndef DEFAULT_BAUD_RATE
+        #define DEFAULT_BAUD_RATE 115200
     #endif
     
     // Binary and linefeed options are listed below.  There are four...
     //
-    // 1) _UART_CARRIAGE_RETURN_CONVERT
+    // 1) UART_CARRIAGE_RETURN_CONVERT
     //        This option should be defined if you are using a simple Serial
     //        Data Interface program such as TeraTerm, Minicom, or
     //        HyperTerminal on a desktop computer, all data is to be interpreted
@@ -284,7 +284,7 @@
     //        case.
     //
     //
-    // 2) _HANDLE_UART_BY_LINE
+    // 2) HANDLE_UART_BY_LINE
     //        Enable this option if, for whatever reason, you want to handle the UART
     //        line by line rather than character by character.  Examples may include
     //        using a desktop program as a command line interface.  Note that echoing
@@ -292,14 +292,14 @@
     //        When using the Eval Board as a command-line-interface with a program
     //        like TeraTerm, Minicom, or HyperTerminal, do not define this option.
     //
-    // 3) _HANDLE_BACKSPACE
+    // 3) HANDLE_BACKSPACE
     //        Enable this option if you want the ability to erase a mistyped character
     //        Generally, DO NOT enable this if you are writing a Desktop Command-Line-
     //        Interface in a language like, C, C++, Perl, etc. because all backspace
     //        handling will generally occur in that program.  Note that this option is
     //        not available if handling the uart input by line rather than by character.
     //
-    // 4) _ALLOW_INPUT_ECHOING
+    // 4) ALLOW_INPUT_ECHOING
     //        Enable this option if you would like input echoing to occur.  If using
     //        TeraTerm, Minicom, or HyperTerminal, you should generally echo the input.
     //        If writing your own command-line-interface, generally you will not want
@@ -309,22 +309,22 @@
     //        option merely gives you the option to turn it on and off.
     //
     
-    #ifndef _UART_CARRIAGE_RETURN_CONVERT
-        #define _UART_CARRIAGE_RETURN_CONVERT
+    #ifndef UART_CARRIAGE_RETURN_CONVERT
+        #define UART_CARRIAGE_RETURN_CONVERT
     #endif
     
-    #ifndef _HANDLE_UART_BY_LINE
-        //#define _HANDLE_UART_BY_LINE
+    #ifndef HANDLE_UART_BY_LINE
+        //#define HANDLE_UART_BY_LINE
     #endif
     
-    #ifndef _HANDLE_UART_BY_LINE
-        #ifndef _HANDLE_BACKSPACE
-            #define _HANDLE_BACKSPACE
+    #ifndef HANDLE_UART_BY_LINE
+        #ifndef HANDLE_BACKSPACE
+            #define HANDLE_BACKSPACE
         #endif
     #endif
     
-    #ifndef _ALLOW_INPUT_ECHOING
-        #define _ALLOW_INPUT_ECHOING
+    #ifndef ALLOW_INPUT_ECHOING
+        #define ALLOW_INPUT_ECHOING
     #endif
 #endif
 
@@ -333,7 +333,7 @@
 // more detailed the display will be.  This value must be positive
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#ifdef _UART
+#ifdef UART
     // You can change the value below.
     #define _DEBUG_VERBOSE_LEVEL 6
 #else
@@ -385,10 +385,10 @@
 #endif
 
 
-#ifdef _UART
+#ifdef UART
     // "Blocking" versus "Non-blocking" uart.
-    #ifndef _BLOCKING_UART
-        #define _BLOCKING_UART
+    #ifndef BLOCKING_UART
+        #define BLOCKING_UART
     #endif
 
     // Command line interface
@@ -570,7 +570,7 @@
 	#endif
 
 	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
-    #ifdef _ALLOW_INPUT_ECHOING
+    #ifdef ALLOW_INPUT_ECHOING
 	    #ifndef _ENABLE_ECHO_COMMAND
 		    #define _ENABLE_ECHO_COMMAND
 	    #endif
@@ -583,14 +583,14 @@
         #endif
     #endif
     
-    // _ENABLE_ROUTE_COMMAND should be defined if you are implementing the "route" command option
-    #ifdef _ROUTE
-        #ifndef _ENABLE_ROUTE_COMMAND
-            #define _ENABLE_ROUTE_COMMAND
+    // ENABLE_ROUTE_COMMAND should be defined if you are implementing the "route" command option
+    #ifdef ROUTE
+        #ifndef ENABLE_ROUTE_COMMAND
+            #define ENABLE_ROUTE_COMMAND
         #endif
     #endif
     
-    #ifdef _UART
+    #ifdef UART
         // _ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
         #ifndef _ENABLE_BAUD_COMMAND
             #define _ENABLE_BAUD_COMMAND
@@ -653,9 +653,9 @@
 // override channel setting in the transcevier.  Comment out the
 // "#define _CHANNEL_OVERIDE" line for normal behavior.
 // behavior.
-#ifndef _CHANNEL_OVERRIDE
-//    #define _CHANNEL_OVERIDE
-    #ifdef _CHANNEL_OVERRIDE
+#ifndef CHANNEL_OVERRIDE
+//    #define CHANNEL_OVERRIDE
+    #ifdef CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2
     #endif
@@ -728,5 +728,5 @@
 //! @} one_net_config_options
 
 
-#endif // _OVERRIDE_CONFIG_OPTIONS_FILE //
+#endif // OVERRIDE_CONFIG_OPTIONS_FILE //
 #endif // _ONE_NET_CONFIG_OPTIONS_H //

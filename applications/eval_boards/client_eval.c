@@ -114,7 +114,7 @@ static void client_user_pin(void);
 void one_net_client_client_removed(const on_raw_did_t * const raw_did,
     BOOL this_device_removed)
 {
-    #ifdef _UART
+    #ifdef UART
     if(verbose_level)
     {
         if(this_device_removed)
@@ -133,7 +133,7 @@ void one_net_client_client_removed(const on_raw_did_t * const raw_did,
 
 void one_net_client_client_added(const on_raw_did_t * const raw_did)
 {
-    #ifdef _UART
+    #ifdef UART
     if(verbose_level)
     {
         oncli_send_msg("Device %03d has been added to the network.\n",
@@ -146,7 +146,7 @@ void one_net_client_client_added(const on_raw_did_t * const raw_did)
 void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
   one_net_status_t status)
 {
-    #ifdef _UART
+    #ifdef UART
     if(!verbose_level)
     {
         return;
@@ -190,7 +190,7 @@ one_net_status_t one_net_client_erase_settings(void)
 
 void one_net_client_client_remove_device(void)
 {
-    #ifdef _UART
+    #ifdef UART
     if(verbose_level)
     {
         oncli_send_msg("Removed from network by master.  No longer joined.\n");
@@ -290,7 +290,7 @@ void init_serial_client(void)
         
         if(status != ONS_SUCCESS)
         {
-            #ifdef _UART
+            #ifdef UART
             oncli_send_msg("Parameters have not been loaded from flash.\n");
             #endif
             #ifndef _ENHANCED_INVITE
@@ -304,7 +304,7 @@ void init_serial_client(void)
         {
             // so far, so good.  Copy the pin info and we should be done.
             one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
-            #ifdef _UART
+            #ifdef UART
             oncli_send_msg("Parameters have been loaded from flash.\n");
             #endif
         }

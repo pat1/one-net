@@ -96,7 +96,7 @@
 
 
 
-#ifdef _ROUTE
+#ifdef ROUTE
 //! Route Packet
 #define ONE_NET_RAW_ROUTE      0x03
 
@@ -939,7 +939,7 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt16 raw_pid)
 ONE_NET_INLINE BOOL packet_is_single(UInt16 raw_pid)
 {
     raw_pid &= 0x3F;
-    #ifdef _ROUTE
+    #ifdef ROUTE
     return (raw_pid <= ONE_NET_RAW_ROUTE_NACK);
     #else
     return (raw_pid <= ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
@@ -1001,7 +1001,7 @@ ONE_NET_INLINE BOOL packet_is_invite(UInt16 raw_pid)
 }
 
 
-#ifdef _ROUTE
+#ifdef ROUTE
 ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 {
     raw_pid &= 0x3F;

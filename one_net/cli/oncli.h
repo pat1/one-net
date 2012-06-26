@@ -2,7 +2,7 @@
 #define _ONCLI_H 
 
 #include "config_options.h"
-#ifdef _UART
+#ifdef UART
 
 
 
@@ -112,7 +112,7 @@ typedef oncli_status_t (*oncli_cmd_hdlr_t)(const char * const ASCII_PARAM_LIST);
 //! @{
 
 
-#ifdef _ALLOW_INPUT_ECHOING
+#ifdef ALLOW_INPUT_ECHOING
 extern BOOL echo_on;
 #endif
 extern BOOL newline_rcvd;
@@ -191,7 +191,7 @@ void print_single(UInt16 pid, const UInt8* raw_payload);
 void print_response(UInt16 pid, const UInt8* raw_payload);
 #endif
 void print_admin_payload(const UInt8* const pld);
-#ifdef _ROUTE
+#ifdef ROUTE
 void print_route(const UInt8* const route);
 #endif
 void print_recipient_list(const on_recipient_list_t* const recip_list);
@@ -217,6 +217,6 @@ void print_raw_pid(UInt16 raw_pid);
 //! @} oncli
 
 
-#endif // #ifdef _UART //
+#endif // #ifdef UART //
 
 #endif // #ifdef _ONCLI_H //

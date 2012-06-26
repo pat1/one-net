@@ -42,7 +42,7 @@
 #include "config_options.h"
 #include "cb.h"
 #include "one_net_port_specific.h"
-#ifdef _UART
+#ifdef UART
 #include "oncli.h"
 #endif
 
@@ -311,7 +311,7 @@ void  cb_clear(cb_rec_t* CB)
 }
 
 
-#ifdef _UART
+#ifdef UART
 void cb_print(const cb_rec_t* const CB)
 {
     UInt16 i;

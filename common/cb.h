@@ -136,7 +136,7 @@ UInt8 cb_getqueue(cb_rec_t *, UInt8 *);
 UInt8 cb_putqueue(cb_rec_t *, UInt8);
 BOOL  cb_peek(const cb_rec_t* const, UInt16, UInt8*);
 void  cb_clear(cb_rec_t*);
-#ifdef _UART
+#ifdef UART
 void cb_print(const cb_rec_t* const CB);
 #endif
 

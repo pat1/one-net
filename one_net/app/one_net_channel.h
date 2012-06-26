@@ -11,7 +11,7 @@
 //! based without any gaps.  Whole groups (US & European) need to be included.
 typedef enum
 {
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
     // US frequencies
     ONE_NET_MIN_US_CHANNEL,                             //!< Min US frequency
     ONE_NET_US_CHANNEL_1 = ONE_NET_MIN_US_CHANNEL,      //!< 903.0Mhz
@@ -41,7 +41,7 @@ typedef enum
     ONE_NET_US_CHANNEL_25,                              //!< 927.0Mhz
     ONE_NET_MAX_US_CHANNEL = ONE_NET_US_CHANNEL_25,     //!< Max US frequency
 #endif
-#ifdef _EUROPE_CHANNELS    
+#ifdef EUROPE_CHANNELS    
     // European frequencies
     ONE_NET_MIN_EUR_CHANNEL,                            //!< Min European freq.
     ONE_NET_EUR_CHANNEL_1 = ONE_NET_MIN_EUR_CHANNEL,    //!< 865.8Mhz

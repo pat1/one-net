@@ -753,7 +753,7 @@ extern BOOL decrypt_using_current_key;
 extern BOOL save;
 #endif
 
-#ifdef _ROUTE
+#ifdef ROUTE
 //! variable denoting the start of a route message.
 extern tick_t route_start_time;
 #endif
@@ -901,7 +901,7 @@ BOOL device_in_range(on_encoded_did_t* did);
 #endif
 
 
-#ifdef _ROUTE
+#ifdef ROUTE
 one_net_status_t send_route_msg(const on_raw_did_t* raw_did);
 UInt16 extract_raw_did_from_route(const UInt8* route, UInt8 index);
 SInt8 find_raw_did_in_route(const UInt8* route,

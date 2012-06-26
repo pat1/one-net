@@ -213,7 +213,7 @@ BOOL decrypt_using_current_key;
 BOOL save = FALSE;
 #endif
 
-#ifdef _ROUTE
+#ifdef ROUTE
 //! variable denoting the start of a route message.
 tick_t route_start_time = 0;
 #endif
@@ -465,7 +465,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_PAUSE_TIME_MS:
                 val_present = TRUE;
                 break;
-            #ifdef _COMPILE_WO_WARNINGS
+            #ifdef COMPILE_WO_WARNINGS
             // add default case that does nothing for clean compile
             default:
                 break;
@@ -553,7 +553,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
             case ON_ACK_ADMIN_MSG:
-            #ifdef _ROUTE
+            #ifdef ROUTE
             case ON_ACK_ROUTE:
             #endif
             #ifdef _BLOCK_MESSAGES_ENABLED
@@ -581,7 +581,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
                 val_present = TRUE;
                 // time case is initialized above
                 break;
-            #ifdef _COMPILE_WO_WARNINGS
+            #ifdef COMPILE_WO_WARNINGS
             // add default case that does nothing for clean compile
             default:
                 break;
@@ -1280,7 +1280,7 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_LISTEN_FOR_DATA:
         {
-            #ifdef _ROUTE
+            #ifdef ROUTE
             UInt16 raw_pid;
             #endif
             #ifdef ONE_NET_MULTI_HOP
@@ -2043,7 +2043,7 @@ void one_net(on_txn_t ** txn)
                   &(single_txn.max_hops)))
                 {
                     case ON_MSG_ABORT: return; // aborting
-                    #ifdef _COMPILE_WO_WARNINGS
+                    #ifdef COMPILE_WO_WARNINGS
                     // add default case that does nothing for clean compile
                     default:
                         break;
@@ -2125,7 +2125,7 @@ void one_net(on_txn_t ** txn)
                 ont_set_timer((*txn)->next_txn_timer, 0);
                 single_msg_ptr = &single_msg;
                 
-                #ifdef _ROUTE
+                #ifdef ROUTE
                 if(get_raw_pid(&(data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX]),
                   &raw_pid) && ((raw_pid & 0x3F) == ONE_NET_RAW_ROUTE))
                 {
@@ -2859,7 +2859,7 @@ void one_net(on_txn_t ** txn)
            terminate_bs_complete(&bs_msg);
         #endif
         
-        #ifdef _COMPILE_WO_WARNINGS
+        #ifdef COMPILE_WO_WARNINGS
         // add default case that does nothing for clean compile
         default:
             break;
@@ -3417,7 +3417,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
-        #ifdef _COMPILE_WO_WARNINGS
+        #ifdef COMPILE_WO_WARNINGS
         // add default case that does nothing for clean compile
         default:
             break;
@@ -3476,7 +3476,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                     set_bs_priority(&bs_msg->flags,
                       ack_nack->payload->nack_value);
                     break;
-                #ifdef _COMPILE_WO_WARNINGS
+                #ifdef COMPILE_WO_WARNINGS
                 // add default case that does nothing for clean compile
                 default:
                     break;
@@ -3520,7 +3520,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     #ifdef ONE_NET_MH_CLIENT_REPEATER
     BOOL repeat_this_packet = FALSE;
-    #ifdef _ROUTE
+    #ifdef ROUTE
     BOOL repeat_route_packet = FALSE;
     #endif
     #endif
@@ -3676,7 +3676,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         
         // we'll repeat it if there are any hops left.
         repeat_this_packet = TRUE;
-        #ifdef _ROUTE
+        #ifdef ROUTE
         // if it's a NACK, we'll just forward it as we do all other packets.
         // If it's the original message or an ACK, we'll need to decrypt it,
         // add ourself, then encrypt it and send it along, so we'll set a
@@ -3874,7 +3874,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             ont_set_timer(mh_txn.next_txn_timer, MS_TO_TICK(
               ONE_NET_MH_LATENCY));
             
-            #ifdef _ROUTE
+            #ifdef ROUTE
             if(!repeat_route_packet)
             {
                 // more needs to be done for route packets.  This is NOT a
@@ -3954,7 +3954,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     // message id is irrelevant for invite packets, but fill it in regardless.
     (*this_pkt_ptrs)->msg_id = get_payload_msg_id(raw_payload_bytes);
     
-    #if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(_ROUTE)
+    #if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(ROUTE)
     if(repeat_route_packet)
     {
         on_raw_did_t my_raw_did;
@@ -4300,7 +4300,7 @@ BOOL device_in_range(on_encoded_did_t* did)
 #endif
 
 
-#ifdef _ROUTE
+#ifdef ROUTE
 one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
 {
     UInt8 raw_pld[ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN];
@@ -5459,7 +5459,7 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
             case ON_MSG_REJECT_CHUNK:
                 one_net_memset(bs_msg->bs.block.sent, 0,
                   sizeof(bs_msg->bs.block.sent));
-            #ifdef _COMPILE_WO_WARNINGS
+            #ifdef COMPILE_WO_WARNINGS
             // add default case that does nothing for clean compile
             default:
                 break;
@@ -5535,7 +5535,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
           return ON_MSG_TERMINATE;
         case ON_MSG_IGNORE:
           return ON_MSG_IGNORE;
-        #ifdef _COMPILE_WO_WARNINGS
+        #ifdef COMPILE_WO_WARNINGS
         // add default case that does nothing for clean compile
         default:
             break;
@@ -5570,7 +5570,7 @@ static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
                     set_bs_priority(&bs_msg->flags,
                       ack_nack->payload->nack_value);
                     break;
-                #ifdef _COMPILE_WO_WARNINGS
+                #ifdef COMPILE_WO_WARNINGS
                 // add default case that does nothing for clean compile
                 default:
                     break;

@@ -54,7 +54,7 @@
 #include "one_net_packet.h"
 #include "tick.h"
 #include "one_net_port_specific.h"
-#ifdef _UART
+#ifdef UART
 #include "cb.h"
 #endif
 #include "one_net_encode.h"
@@ -115,14 +115,14 @@ enum
 */
 const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 {
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
     {0x79, 0x4C, 0x36, 0x40},
-#endif //_US_CHANNELS
-#ifdef _EUROPE_CHANNELS
-   #ifndef _US_CHANNELS
+#endif //US_CHANNELS
+#ifdef EUROPE_CHANNELS
+   #ifndef US_CHANNELS
     {0x79, 0x39, 0x26, 0xB0},       // european channel 0 only if US channels not included
-   #endif //_US_CHANNELS
-#endif //_EUROPE_CHANNELS
+   #endif //US_CHANNELS
+#endif //EUROPE_CHANNELS
 #if defined(_CLOCK_OUT_DIVIDE_BY_TWO)
     {0x00, 0xbc, 0x91, 0x11},       // clockout divide by 2 for board testing
 #else
@@ -140,7 +140,7 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 //! The register settings for setting the desired base frequency.
 const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
 {
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
     {0x79, 0x46, 0x9B, 0x20},       // channel=  US1, frequency= 903.0 MHz
     {0x79, 0x46, 0xF7, 0xB0},       // channel=  US2, frequency= 904.0 MHz
     {0x79, 0x47, 0x54, 0x50},       // channel=  US3, frequency= 905.0 MHz
@@ -167,7 +167,7 @@ const UInt8 CHANNEL_SETTING[ONE_NET_NUM_CHANNELS][REG_SIZE] =
     {0x79, 0x4E, 0xEC, 0xC0},       // channel= US24, frequency= 926.0 MHz
     {0x79, 0x4F, 0x49, 0x50},       // channel= US25, frequency= 927.0 MHz
 #endif
-#ifdef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
     {0x79, 0x39, 0x26, 0xB0},       // channel= EUR1, frequency= 865.8 MHz
     {0x79, 0x39, 0x67, 0x80},       // channel= EUR2, frequency= 866.5 MHz
     {0x79, 0x39, 0xA8, 0x50}        // channel= EUR3, frequency= 867.2 MHz
@@ -260,7 +260,7 @@ const UInt8 * tx_rf_data;
 //! or received.
 UInt8 bit_mask = 0;
 
-#ifdef _UART
+#ifdef UART
 //! From uart.c.  Used by tal_write_packet to check whether the uart is
 //! clear.
 extern cb_rec_t uart_tx_cb;
@@ -398,7 +398,7 @@ BOOL tal_channel_is_clear(void)
 
 UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
 {
-    #ifdef _UART
+    #ifdef UART
     BOOL uart_pause_needed = FALSE;
     #endif
     
@@ -464,7 +464,7 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     tx_rf_data = data;
     tx_rf_len = len;
 
-    #ifdef _UART
+    #ifdef UART
     while(cb_bytes_queued(&uart_tx_cb))
     {
         uart_pause_needed = TRUE;
@@ -633,11 +633,11 @@ one_net_status_t tal_set_channel(const UInt8 channel)
 {
     if(channel < ONE_NET_NUM_CHANNELS)
     {
-        // see config_options.h.  Make sure _CHANNEL_OVERRIDE and
+        // see config_options.h.  Make sure CHANNEL_OVERRIDE and
         // CHANNEL_OVERRIDE_CHANNEL are defined if overriding the channel
-        // parameter here.  Make sure _CHANNEL_OVERRIDE is NOT defined if
+        // parameter here.  Make sure CHANNEL_OVERRIDE is NOT defined if
         // NOT overriding the channel.
-        #ifdef _CHANNEL_OVERRIDE
+        #ifdef CHANNEL_OVERRIDE
         current_channel = CHANNEL_OVERRIDE_CHANNEL
         #else
         current_channel = channel;

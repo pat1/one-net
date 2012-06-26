@@ -44,7 +44,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 #include "uart.h"
 #include "sfr_r823.h"
@@ -285,7 +285,7 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
     UInt16 i;
     UInt8 byte;
     
-    #ifdef _BLOCKING_UART
+    #ifdef BLOCKING_UART
     // add 15 for a little bit of a buffer
     while(cb_bytes_free(&uart_tx_cb) < (LEN + 15))
     {
@@ -294,7 +294,7 @@ UInt16 uart_write(const char * const DATA, const UInt16 LEN)
     
     for (i = 0; i < LEN; i++) 
     {
-        #ifdef _UART_CARRIAGE_RETURN_CONVERT
+        #ifdef UART_CARRIAGE_RETURN_CONVERT
         if (DATA[i]== '\r') 
         {
             continue;
@@ -394,7 +394,7 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
 #pragma interrupt uart_tx_isr
 void uart_tx_isr( void )
 {
-    #ifdef _UART
+    #ifdef UART
     UInt8 byte;
 
     // if there was a TX interrupt and the cb is not empty, get a byte
@@ -432,7 +432,7 @@ void uart_tx_isr( void )
 #pragma interrupt uart_rx_isr
 void uart_rx_isr(void)
 {
-    #ifdef _UART
+    #ifdef UART
 	UInt8 byte;
     BOOL place_byte_in_buffer = TRUE;
     
@@ -463,7 +463,7 @@ void uart_rx_isr(void)
         {
             newline_rcvd = TRUE;
         }
-        #ifndef _HANDLE_BACKSPACE
+        #ifndef HANDLE_BACKSPACE
         else if(byte == '\b' || byte == 127) // delete is 127,  TODO - use named
         {                                    // constant for 127
             place_byte_in_buffer = FALSE;

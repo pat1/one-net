@@ -39,7 +39,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 // TODO -- this is a bit messy.  Find a better #define test.
 #if defined(_R8C_TINY) && !defined(_QUAD_OUTPUT)
@@ -445,7 +445,7 @@ static oncli_status_t verbose_level_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_ROUTE_COMMAND
+#ifdef ENABLE_ROUTE_COMMAND
 static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -1178,7 +1178,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the proceed command was received //
     #endif
     
-    #ifdef _ENABLE_ROUTE_COMMAND
+    #ifdef ENABLE_ROUTE_COMMAND
     if(!strnicmp(ONCLI_ROUTE_CMD_STR, CMD, strlen(ONCLI_ROUTE_CMD_STR)))
     {
         *CMD_STR = ONCLI_ROUTE_CMD_STR;
@@ -3895,7 +3895,7 @@ static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_ROUTE_COMMAND
+#ifdef ENABLE_ROUTE_COMMAND
 static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     on_raw_did_t raw_did;
@@ -4487,15 +4487,15 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
     } // if the parameter is invalid //
 
     // get the region
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
     if(!strnicmp(ASCII, ONCLI_US_STR, strlen(ONCLI_US_STR)))
     {
         region = ONCLI_US;
         ASCII += strlen(ONCLI_US_STR);
     } // if it's a US frequency //
 #endif
-#ifdef _EUROPE_CHANNELS
-#ifdef _US_CHANNELS
+#ifdef EUROPE_CHANNELS
+#ifdef US_CHANNELS
     else if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
 #else
     if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
@@ -4530,7 +4530,7 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
     
     switch(region)
     {
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
         case ONCLI_US:
         {
             if((SInt8)(*channel) < (SInt8)ONE_NET_MIN_US_CHANNEL
@@ -4541,10 +4541,10 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
             break;
         } // US case //
 #endif
-#ifdef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
         case ONCLI_EUR:
         {
-            #ifdef _US_CHANNELS
+            #ifdef US_CHANNELS
             *channel += ONE_NET_EUR_CHANNEL_1;
             #endif
 			// typecast to override "comparison is always false" warning
@@ -4849,4 +4849,4 @@ static const char * parse_ascii_tx_text_data(const char * ASCII, UInt8 * data,
 //! @} oncli_hdlr
 
 
-#endif // #ifdef _UART //
+#endif // #ifdef UART //

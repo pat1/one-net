@@ -1111,7 +1111,7 @@ static on_message_status_t on_client_single_data_hdlr(
               &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
               &raw_pld[ON_PLD_DATA_IDX], *txn, ack_nack);
             break;
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ON_ROUTE_MSG:
         {
             on_raw_did_t my_raw_did;
@@ -1294,7 +1294,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             case ON_ACK_RESPONSE_TIME_MS:
                 new_response_timeout = (SInt16)ack_nack->payload->ack_time_ms;
                 break;
-            #ifdef _COMPILE_WO_WARNINGS
+            #ifdef COMPILE_WO_WARNINGS
             // add default case that does nothing for clean compile
             default:
                 break;
@@ -1319,7 +1319,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             BOOL to_master = is_master_did((const on_encoded_did_t*)
               txn->device->did);
               
-            #ifndef _COMPILE_WO_WARNINGS  
+            #ifndef COMPILE_WO_WARNINGS  
             BOOL requeue_msg = FALSE; // TODO -- figure out whether this is
                                       // something that should / can be re-sent.
                                       // otherwise, delete this unused variable
@@ -1407,7 +1407,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
                   &txn->max_hops))
                 {
                     case ON_MSG_ABORT: return ON_MSG_ABORT;
-                    #ifdef _COMPILE_WO_WARNINGS
+                    #ifdef COMPILE_WO_WARNINGS
                     // add default case that does nothing for clean compile
                     default:
                         break;

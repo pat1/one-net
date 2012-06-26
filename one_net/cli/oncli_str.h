@@ -50,7 +50,7 @@
 #include "one_net_acknowledge.h"
 
 
-#ifdef _UART
+#ifdef UART
 
 
 //==============================================================================
@@ -87,10 +87,10 @@ extern const char * const ONCLI_CLIENT_STR;
 
 
 // Region Strings -- add as more regions are added (so far only US and Europe)
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
 extern const char * const ONCLI_US_STR;
 #endif
-#ifdef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
 //! European argument string
 extern const char * const ONCLI_EUR_STR;
 #endif
@@ -375,7 +375,7 @@ extern const char* const ONCLI_VERBOSE_LEVEL_CMD_STR;
 #endif
 
 
-#ifdef _ENABLE_ROUTE_COMMAND
+#ifdef ENABLE_ROUTE_COMMAND
 extern const char* const ONCLI_ROUTE_CMD_STR;
 #endif
 
@@ -439,6 +439,6 @@ const char* get_nack_reason_str(on_nack_rsn_t nack_reason);
 //! @} oncli_str
 
 
-#endif // #ifdef _UART //
+#endif // #ifdef UART //
 
 #endif // #ifdef _ONCLI_STR_H //

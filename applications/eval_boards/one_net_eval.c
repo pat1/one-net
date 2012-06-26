@@ -198,7 +198,7 @@ static char bs_buffer[DEFAULT_BS_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
 
 static void eval_set_modes_from_switch_positions(void);
 
-#ifdef _UART
+#ifdef UART
 static const char* get_prompt_string(void);
 static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
   UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR);
@@ -258,7 +258,7 @@ void check_user_pins(void)
 } // check_user_pins //
 
 
-#ifdef _UART
+#ifdef UART
 void oncli_print_prompt(void)
 {   
     oncli_send_msg("ocm%s> ", get_prompt_string());
@@ -282,9 +282,9 @@ int main(void)
     FLASH_ERASE_CHECK();
     #endif
 
-    #ifdef _UART
-        #ifdef _DEFAULT_BAUD_RATE
-            #if _DEFAULT_BAUD_RATE == 115200
+    #ifdef UART
+        #ifdef DEFAULT_BAUD_RATE
+            #if DEFAULT_BAUD_RATE == 115200
                 uart_init(BAUD_115200, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
             #else
                 uart_init(BAUD_38400, DATA_BITS_8, STOP_BITS_1, PARITY_NONE);
@@ -296,7 +296,7 @@ int main(void)
     disable_user_pins();
     ENABLE_GLOBAL_INTERRUPTS();
     
-    #ifdef _UART
+    #ifdef UART
     // startup greeting
     oncli_send_msg("\n\n");
     oncli_send_msg(ONCLI_STARTUP_FMT, ONE_NET_VERSION_MAJOR,
@@ -349,7 +349,7 @@ int main(void)
         }
         #endif
         
-        #ifdef _UART
+        #ifdef UART
 		oncli_send_msg("%s\n", ONCLI_AUTO_MODE_STR);
         #endif
 	} // if auto mode //
@@ -371,7 +371,7 @@ int main(void)
             init_serial_client();
         }
         #endif
-        #ifdef _UART
+        #ifdef UART
    		oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
         #endif
 	} // else serial //
@@ -392,7 +392,7 @@ int main(void)
         init_serial_client();
     }
     #endif
-    #ifdef _UART
+    #ifdef UART
 	oncli_send_msg("%s\n", ONCLI_SERIAL_MODE_STR);
     #endif
 #endif
@@ -401,7 +401,7 @@ int main(void)
     ont_set_timer(PROMPT_TIMER, 0);
     while(1)
     {
-        #ifdef _UART
+        #ifdef UART
         if(ont_expired(PROMPT_TIMER))
         {
             oncli_print_prompt();
@@ -409,7 +409,7 @@ int main(void)
         #endif        
         
         (*node_loop_func)();
-        #ifdef _UART
+        #ifdef UART
         oncli();
         #endif
     }
@@ -499,7 +499,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         }
         #endif
         
-        #ifdef _UART
+        #ifdef UART
         print_text_packet(ONCLI_SINGLE_TXN_STR, &(raw_pld[ONA_TEXT_DATA_IDX]),
           text_len, src_did);
         ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
@@ -516,7 +516,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 
     if(ONA_IS_STATUS_MESSAGE(msg_class))
     {
-        #ifdef _UART
+        #ifdef UART
         if(verbose_level)
         {
             oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit,
@@ -583,7 +583,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 		case 3: msg_data = USER_PIN3; break;
 
         default:
-            #ifdef _UART
+            #ifdef UART
             if(verbose_level)
             {
                 oncli_send_msg("Invalid dest. unit.\n");
@@ -600,7 +600,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         // note : Status message have already been handled.
         case ONA_COMMAND:
             msg_class = ONA_STATUS_COMMAND_RESP;
-            #ifdef _UART
+            #ifdef UART
             if(verbose_level)
             {
                 oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, dst_unit, msg_data);
@@ -742,7 +742,7 @@ void disable_user_pins(void)
 */
 void send_user_pin_input(void)
 {
-    #ifdef _UART
+    #ifdef UART
     oncli_send_msg(ONCLI_CHANGE_PIN_STATE_FMT, user_pin_src_unit,
       user_pin[user_pin_src_unit].old_state);
     ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
@@ -808,7 +808,7 @@ oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type)
 } // oncli_set_user_pin_type //
 
 
-#ifdef _UART
+#ifdef UART
 void oncli_print_user_pin_cfg(void)
 {
     UInt8 i;
@@ -908,11 +908,11 @@ void eval_single_txn_status(on_message_status_t status,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
 #endif
 {
-    #ifdef _ROUTE
+    #ifdef ROUTE
     tick_t route_time = get_tick_count() - route_start_time;
     #endif
     
-    #ifdef _UART
+    #ifdef UART
     if(!dst)
     {
         return;
@@ -962,7 +962,7 @@ void eval_single_txn_status(on_message_status_t status,
     #if _DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
-        #ifdef _ROUTE
+        #ifdef ROUTE
         if(ack_nack->handle == ON_ACK_ROUTE)
         {
             on_raw_did_t raw_did;
@@ -1769,7 +1769,7 @@ on_message_status_t eval_handle_stream(on_txn_t* txn,
 
 
 
-#ifdef _UART
+#ifdef UART
 /*!
     \brief returns the string to use as part of the Command-line-interface
            prompt
@@ -1963,7 +1963,7 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
 #endif
 
 
-#ifdef _UART
+#ifdef UART
 /*!
     \brief Prints the contents of the received text packet.
     

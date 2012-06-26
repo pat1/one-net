@@ -39,7 +39,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 
 #include "oncli.h"
@@ -78,7 +78,7 @@ extern const char HEX_DIGIT[];
 #if _DEBUG_VERBOSE_LEVEL > 3
 // change for any custom message header printouts you want
 // adjust the "3" below to the actual number of types if you add anything
-#ifdef _ROUTE
+#ifdef ROUTE
 static const char* const MSG_TYPE_STR[4] =
 #else
 static const char* const MSG_TYPE_STR[3] =
@@ -87,7 +87,7 @@ static const char* const MSG_TYPE_STR[3] =
     "App",
     "Admin",
     "Features",
-    #ifdef _ROUTE
+    #ifdef ROUTE
     "Route",
     #endif
     // add any custom types here -- see comment above.  Make sure to adjust the
@@ -120,7 +120,7 @@ static const char* const MSG_TYPE_STR[3] =
 
 BOOL binary_mode = FALSE;
 
-#ifdef _ALLOW_INPUT_ECHOING
+#ifdef ALLOW_INPUT_ECHOING
 //! flag to indicate if echoing or not
 BOOL echo_on = TRUE;
 #endif
@@ -280,7 +280,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     }
     
     
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
     if((SInt8)channel >= (SInt8)ONE_NET_MIN_US_CHANNEL && channel <= ONE_NET_MAX_US_CHANNEL)
     {
         // +1 since channels are stored 0 based, but output 1 based
@@ -290,8 +290,8 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
     } // if a US channel //
 #endif
 
-#ifdef _EUROPE_CHANNELS
-#ifdef _US_CHANNELS
+#ifdef EUROPE_CHANNELS
+#ifdef US_CHANNELS
     else if(channel >= ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
 #else
@@ -544,7 +544,7 @@ oncli_status_t oncli_print_channel(UInt8 channel)
 {
     // Typecasts are here to override some "always true" warnings
     // given certain configuration options dealing with channels.
-    #ifdef _US_CHANNELS
+    #ifdef US_CHANNELS
     if((SInt8) channel >= (SInt8)ONE_NET_MIN_US_CHANNEL &&
       (SInt8) channel <= ONE_NET_MAX_US_CHANNEL)
     {
@@ -553,8 +553,8 @@ oncli_status_t oncli_print_channel(UInt8 channel)
           channel - ONE_NET_MIN_US_CHANNEL + 1);
     } // if a US channel //
     #endif
-    #ifdef _EUROPE_CHANNELS
-    #ifdef _US_CHANNELS
+    #ifdef EUROPE_CHANNELS
+    #ifdef US_CHANNELS
     else if(channel >= ONE_NET_MIN_EUR_CHANNEL
       && channel <= ONE_NET_MAX_EUR_CHANNEL)
     #else
@@ -694,7 +694,7 @@ const char * oncli_msg_status_str(on_message_status_t status)
 } // oncli_msg_status_str //
 
 
-#ifdef _ROUTE
+#ifdef ROUTE
 /*!
     \brief Parses and displays the contents of a Route payload
 
@@ -794,7 +794,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
             break;
         }
         
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ON_ACK_ROUTE:
         {
             oncli_send_msg("\n");
@@ -910,7 +910,7 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
       ON_PLD_DATA_IDX;
     
     oncli_send_msg("Single -- Msg Type=0x%01X(%s)\n", msg_pld_type,
-      #ifdef _ROUTE
+      #ifdef ROUTE
       msg_pld_type < 4 ? MSG_TYPE_STR[msg_pld_type] : "");
       #else
       msg_pld_type < 3 ? MSG_TYPE_STR[msg_pld_type] : "");
@@ -925,7 +925,7 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
         case ON_FEATURE_MSG:
             oncli_print_features(
               *((on_features_t*)&raw_payload[ON_PLD_DATA_IDX])); break;
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ON_ROUTE_MSG:
             print_route(&raw_payload[ON_PLD_DATA_IDX]); break;
         #endif
@@ -959,7 +959,7 @@ void print_msg_hdr(const on_msg_hdr_t* const msg_hdr)
 {
     oncli_send_msg("PID=0x%02X,Msg ID=0x%02X,Msg Type=0x%01X(%s)\n",
       msg_hdr->raw_pid, msg_hdr->msg_id, msg_hdr->msg_type,
-      #ifdef _ROUTE
+      #ifdef ROUTE
       msg_hdr->msg_type < 4 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
       #else
       msg_hdr->msg_type < 3 ? MSG_TYPE_STR[msg_hdr->msg_type] : "");
@@ -1085,7 +1085,7 @@ void print_raw_pid(UInt16 raw_pid)
 //! \ingroup oncli
 //! @{
 
-#ifdef _ALLOW_INPUT_ECHOING
+#ifdef ALLOW_INPUT_ECHOING
 // TODO -- make this an inline function?
 static void echo(const char CH)
 {
@@ -1126,7 +1126,7 @@ static void read_onc(void)
     // The command being read in
     static char input[ONCLI_MAX_INPUT_STR_LEN];
     
-    #ifdef _HANDLE_UART_BY_LINE
+    #ifdef HANDLE_UART_BY_LINE
     if(command_processed || !newline_rcvd)
     {
         return;
@@ -1135,7 +1135,7 @@ static void read_onc(void)
     
     while(input_len < sizeof(input) - 1 && oncli_read(&(input[input_len]), 1))
     {
-        #ifdef _HANDLE_BACKSPACE
+        #ifdef HANDLE_BACKSPACE
         if (input[input_len] == '\b') { // special case for backspace
             if (input_len > 0) { // Ignore backspace at beginning of line
                 oncli_send_msg("\b \b"); // write over previous char
@@ -1145,7 +1145,7 @@ static void read_onc(void)
         else
         #endif
         { // Everything else for non-backspace
-            #ifdef _ALLOW_INPUT_ECHOING
+            #ifdef ALLOW_INPUT_ECHOING
             echo(input[input_len]);
             #endif
 
@@ -1430,4 +1430,4 @@ static void print_cmd_result(const char * const CMD,
 //! @} oncli
 
 
-#endif // if _UART //
+#endif // if UART //

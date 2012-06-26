@@ -49,7 +49,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 #include "oncli_port.h"
 #include "oncli.h"
@@ -103,7 +103,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 //! @} oncli_hdlr
 
 
-#endif // #ifdef _UART //
+#endif // #ifdef UART //
 
 
 #endif // #ifdef _ONCLI_HDLR_H //

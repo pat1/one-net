@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 
 //! \defgroup uart_hal UART hardware dependent functionality

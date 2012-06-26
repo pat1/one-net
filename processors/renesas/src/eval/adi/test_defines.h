@@ -92,13 +92,13 @@
     #endif
 #endif
 
-#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
-    #error "_US_CHANELS and _EUROPE_CHANNELS cannot both be undefined."
+#if !defined(US_CHANNELS) && !defined(EUROPE_CHANNELS)
+    #error "_US_CHANELS and EUROPE_CHANNELS cannot both be undefined."
 #endif
 
-#ifdef _BLOCKING_UART
-    #ifndef _UART
-        #error "_UART must be defined if _BLOCKING_UART is defined."
+#ifdef BLOCKING_UART
+    #ifndef UART
+        #error "UART must be defined if BLOCKING_UART is defined."
     #endif
 #endif
 

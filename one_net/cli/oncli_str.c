@@ -42,7 +42,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 #include "one_net_status_codes.h"
 #include "oncli_str.h"
@@ -98,12 +98,12 @@ const char * const ONCLI_CLIENT_STR = "CLIENT";
 
 
 // Region Strings -- add as more regions are added (so far only US and Europe)
-#ifdef _US_CHANNELS
+#ifdef US_CHANNELS
 //! US argument string
 const char * const ONCLI_US_STR = "US";
 #endif
 
-#ifdef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
 //! European argument string
 const char * const ONCLI_EUR_STR = "EUR";
 #endif
@@ -586,7 +586,7 @@ const char* const ONCLI_VERBOSE_LEVEL_CMD_STR = "verbose level";
 #endif
 
 
-#ifdef _ENABLE_ROUTE_COMMAND
+#ifdef ENABLE_ROUTE_COMMAND
 const char* const ONCLI_ROUTE_CMD_STR = "route";
 #endif
 
@@ -746,4 +746,4 @@ const char* get_nack_reason_str(on_nack_rsn_t nack_reason)
 //! @} oncli_str
 
 
-#endif // #ifdef _UART //
+#endif // #ifdef UART //

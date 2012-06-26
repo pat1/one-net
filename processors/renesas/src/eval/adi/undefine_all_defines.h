@@ -84,12 +84,12 @@
     #undef _ENHANCED_INVITE
 #endif
 
-#ifdef _US_CHANNELS
-	#undef _US_CHANNELS
+#ifdef US_CHANNELS
+	#undef US_CHANNELS
 #endif
 
-#ifdef _EUROPE_CHANNELS
-	#undef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
+	#undef EUROPE_CHANNELS
 #endif
 
 #ifdef _ONE_NET_EVAL
@@ -264,32 +264,32 @@
     #undef _HAS_LEDS
 #endif
 
-#ifdef _UART
-    #undef _UART
+#ifdef UART
+    #undef UART
 #endif
 
-#ifdef _BLOCKING_UART
-    #undef _BLOCKING_UART
+#ifdef BLOCKING_UART
+    #undef BLOCKING_UART
 #endif
 
-#ifdef _UART_CARRIAGE_RETURN_CONVERT
-    #undef _UART_CARRIAGE_RETURN_CONVERT
+#ifdef UART_CARRIAGE_RETURN_CONVERT
+    #undef UART_CARRIAGE_RETURN_CONVERT
 #endif
 
-#ifdef _HANDLE_UART_BY_LINE
-    #undef _HANDLE_UART_BY_LINE
+#ifdef HANDLE_UART_BY_LINE
+    #undef HANDLE_UART_BY_LINE
 #endif
 
-#ifdef _HANDLE_BACKSPACE
-    #undef _HANDLE_BACKSPACE
+#ifdef HANDLE_BACKSPACE
+    #undef HANDLE_BACKSPACE
 #endif
 
-#ifdef _ALLOW_INPUT_ECHOING
-    #undef _ALLOW_INPUT_ECHOING
+#ifdef ALLOW_INPUT_ECHOING
+    #undef ALLOW_INPUT_ECHOING
 #endif
 
-#ifdef _CHANNEL_OVERRIDE
-    #undef _CHANNEL_OVERIDE
+#ifdef CHANNEL_OVERRIDE
+    #undef CHANNEL_OVERRIDE
 #endif
 
 #ifdef CHANNEL_OVERRIDE_CHANNEL

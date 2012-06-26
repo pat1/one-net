@@ -280,7 +280,7 @@ BOOL packet_is_data(UInt16 raw_pid)
         #ifdef _STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA:
         #endif
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ONE_NET_RAW_ROUTE:
         #endif
             return TRUE;
@@ -321,7 +321,7 @@ BOOL packet_is_ack(UInt16 raw_pid)
     switch(raw_pid)
     {
         case ONE_NET_RAW_SINGLE_DATA_ACK:
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ONE_NET_RAW_ROUTE_ACK:
         #endif
         #ifdef _BLOCK_MESSAGES_ENABLED
@@ -369,7 +369,7 @@ SInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK,
         case ONE_NET_RAW_STREAM_DATA:
           raw_resp_pid = ONE_NET_RAW_STREAM_DATA_ACK; break;
         #endif
-        #ifdef _ROUTE
+        #ifdef ROUTE
         case ONE_NET_RAW_ROUTE:
           raw_resp_pid = ONE_NET_RAW_ROUTE_ACK; break;
         #endif
@@ -424,7 +424,7 @@ BOOL packet_length_is_valid(UInt16 raw_pid)
         return FALSE;
     }
     
-    #ifndef _ROUTE
+    #ifndef ROUTE
     if(packet_is_invite(raw_pid))
     #else
     if(packet_is_invite(raw_pid) || packet_is_route(raw_pid))
@@ -450,7 +450,7 @@ SInt8 get_default_num_blocks(UInt16 raw_pid)
         return -1;
     }
     
-    #ifndef _ROUTE
+    #ifndef ROUTE
     if(packet_is_invite(raw_pid))
     #else
     if(packet_is_invite(raw_pid) || packet_is_route(raw_pid))
