@@ -152,10 +152,6 @@
     #undef ENABLE_SAVE_COMMAND
 #endif
 
-#ifdef _ENABLE_DUMP_COMMAND
-	#undef _ENABLE_DUMP_COMMAND
-#endif
-
 #ifdef _ENABLE_RSINGLE_COMMAND
 	#undef _ENABLE_RSINGLE_COMMAND
 #endif

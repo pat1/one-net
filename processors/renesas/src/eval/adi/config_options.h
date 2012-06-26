@@ -460,11 +460,6 @@
         #endif
     #endif
 
-	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
-	#ifndef _ENABLE_DUMP_COMMAND
-	//	#define _ENABLE_DUMP_COMMAND
-	#endif
-
 	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	#ifdef ENABLE_SINGLE_COMMAND
 		#ifndef _ENABLE_RSINGLE_COMMAND
