@@ -564,11 +564,6 @@
 		#endif
 	#endif
 
-	// _ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
-	#ifndef _ENABLE_MODE_COMMAND
-		#define _ENABLE_MODE_COMMAND
-	#endif
-
 	// ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
     #ifdef ALLOW_INPUT_ECHOING
 	    #ifndef ENABLE_ECHO_COMMAND

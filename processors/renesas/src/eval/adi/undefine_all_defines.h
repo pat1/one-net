@@ -228,10 +228,6 @@
 	#undef ENABLE_SNIFF_COMMAND
 #endif
 
-#ifdef _ENABLE_MODE_COMMAND
-	#undef _ENABLE_MODE_COMMAND
-#endif
-
 #ifdef ENABLE_ECHO_COMMAND
 	#undef ENABLE_ECHO_COMMAND
 #endif
