@@ -424,18 +424,6 @@
 	#ifndef ENABLE_SINGLE_COMMAND
 		#define ENABLE_SINGLE_COMMAND
 	#endif
-
-    #ifdef BLOCK_MESSAGES_ENABLED
-	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
-	    #ifndef _ENABLE_BLOCK_COMMAND
-		    #define _ENABLE_BLOCK_COMMAND
-	    #endif
-
-	    // _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
-	    #ifndef _ENABLE_BLOCK_TEXT_COMMAND
-		    #define _ENABLE_BLOCK_TEXT_COMMAND
-	    #endif
-	#endif
     
     #ifdef NON_VOLATILE_MEMORY
         // ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
