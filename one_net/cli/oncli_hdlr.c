@@ -90,7 +90,7 @@
 #include "io_port_mapping.h"
 #endif
 
-#ifdef _ENABLE_BAUD_COMMAND
+#ifdef ENABLE_BAUD_COMMAND
 #include "uart.h"
 #include "uart_hal.h"
 #include "cb.h"
@@ -259,7 +259,7 @@ int memory_len = 0;
 
 
 // Command handlers.
-#ifdef _ENABLE_ECHO_COMMAND
+#ifdef ENABLE_ECHO_COMMAND
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -435,11 +435,11 @@ static oncli_status_t interval_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_BAUD_COMMAND
+#ifdef ENABLE_BAUD_COMMAND
 static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+#ifdef ENABLE_VERBOSE_LEVEL_COMMAND
 static oncli_status_t verbose_level_cmd_hdlr(
   const char* const ASCII_PARAM_LIST);
 #endif
@@ -505,7 +505,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
     *cmd_hdlr = 0;
 
-	#ifdef _ENABLE_ECHO_COMMAND
+	#ifdef ENABLE_ECHO_COMMAND
     if(!strnicmp(ONCLI_ECHO_CMD_STR, CMD, strlen(ONCLI_ECHO_CMD_STR)))
     {
         *CMD_STR = ONCLI_ECHO_CMD_STR;
@@ -696,7 +696,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the set data rate/channel command was received //
 	#endif
     
-    #ifdef _ENABLE_BAUD_COMMAND
+    #ifdef ENABLE_BAUD_COMMAND
     else if(!strnicmp(ONCLI_BAUD_CMD_STR, CMD,
       strlen(ONCLI_BAUD_CMD_STR)))
     {
@@ -714,7 +714,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the "baud" command was received //
     #endif
     
-    #ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+    #ifdef ENABLE_VERBOSE_LEVEL_COMMAND
     else if(!strnicmp(ONCLI_VERBOSE_LEVEL_CMD_STR, CMD,
       strlen(ONCLI_VERBOSE_LEVEL_CMD_STR)))
     {
@@ -1215,7 +1215,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 //! @{
 
 
-#ifdef _ENABLE_ECHO_COMMAND
+#ifdef ENABLE_ECHO_COMMAND
 /*!
     \brief Handles receiving the echo command and its parameters
     
@@ -1268,7 +1268,7 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_BAUD_COMMAND
+#ifdef ENABLE_BAUD_COMMAND
 static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
     char * end_ptr;
@@ -1317,7 +1317,7 @@ static oncli_status_t baud_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+#ifdef ENABLE_VERBOSE_LEVEL_COMMAND
 static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
     char * end_ptr;

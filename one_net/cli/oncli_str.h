@@ -106,7 +106,7 @@ extern const char * const ONCLI_HIGH_STR;
 
 
 // Command Strings
-#ifdef _ENABLE_ECHO_COMMAND
+#ifdef ENABLE_ECHO_COMMAND
     extern const char * const ONCLI_ECHO_CMD_STR;
 #endif
 
@@ -366,11 +366,11 @@ extern const char* const ONCLI_INTERVAL_CMD_STR;
 #endif
 
 
-#ifdef _ENABLE_BAUD_COMMAND
+#ifdef ENABLE_BAUD_COMMAND
 extern const char* const ONCLI_BAUD_CMD_STR;
 #endif
 
-#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+#ifdef ENABLE_VERBOSE_LEVEL_COMMAND
 extern const char* const ONCLI_VERBOSE_LEVEL_CMD_STR;
 #endif
 

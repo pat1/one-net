@@ -126,7 +126,7 @@ const char * const ONCLI_HIGH_STR = "high";
 
 
 // Command Strings
-#ifdef _ENABLE_ECHO_COMMAND
+#ifdef ENABLE_ECHO_COMMAND
 	//! echo command string
 	const char * const ONCLI_ECHO_CMD_STR = "echo";
 #endif
@@ -577,11 +577,11 @@ const char* const ONCLI_INTERVAL_CMD_STR = "interval";
 #endif
 
 
-#ifdef _ENABLE_BAUD_COMMAND
+#ifdef ENABLE_BAUD_COMMAND
 const char* const ONCLI_BAUD_CMD_STR = "baud";
 #endif
 
-#ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
+#ifdef ENABLE_VERBOSE_LEVEL_COMMAND
 const char* const ONCLI_VERBOSE_LEVEL_CMD_STR = "verbose level";
 #endif
 

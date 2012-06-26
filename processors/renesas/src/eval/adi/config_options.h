@@ -569,10 +569,10 @@
 		#define _ENABLE_MODE_COMMAND
 	#endif
 
-	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
+	// ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
     #ifdef ALLOW_INPUT_ECHOING
-	    #ifndef _ENABLE_ECHO_COMMAND
-		    #define _ENABLE_ECHO_COMMAND
+	    #ifndef ENABLE_ECHO_COMMAND
+		    #define ENABLE_ECHO_COMMAND
 	    #endif
     #endif
     
@@ -591,15 +591,15 @@
     #endif
     
     #ifdef UART
-        // _ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
-        #ifndef _ENABLE_BAUD_COMMAND
-            #define _ENABLE_BAUD_COMMAND
+        // ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
+        #ifndef ENABLE_BAUD_COMMAND
+            #define ENABLE_BAUD_COMMAND
         #endif
         
-        // _ENABLE_VERBOSE_LEVEL_COMMAND should be enabled if you are implementing
+        // ENABLE_VERBOSE_LEVEL_COMMAND should be enabled if you are implementing
         // the "verbose level" command
-        #ifndef _ENABLE_VERBOSE_LEVEL_COMMAND
-            #define _ENABLE_VERBOSE_LEVEL_COMMAND
+        #ifndef ENABLE_VERBOSE_LEVEL_COMMAND
+            #define ENABLE_VERBOSE_LEVEL_COMMAND
         #endif
     #endif
 #endif
