@@ -77,7 +77,7 @@ enum
     //! Timer to output prompt if no incoming data for a certain period.
     PROMPT_TIMER,
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
     //! Timer used when user input has been detected before continuing on.
     USER_INPUT_TIMER,
 #endif

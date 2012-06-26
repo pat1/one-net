@@ -111,7 +111,7 @@ BOOL client_joined_network = FALSE;
 //! an invitation.
 BOOL client_looking_for_invite = FALSE;
 
-#ifdef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
     //! Flag to signify that an invitation attempt has expired without successfully
     //! joining a network.
     BOOL client_invite_timed_out = FALSE;
@@ -197,13 +197,13 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
 static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
   const on_encoded_did_t* DID);
 #endif
 static on_sending_device_t * sender_info(const on_encoded_did_t * const DID);
 static one_net_status_t init_internal(void);
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 static BOOL send_new_key_request(void);
 #endif
 #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
@@ -223,7 +223,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 static BOOL check_in_with_master(void);
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 static void on_client_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
 #endif
@@ -240,7 +240,7 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 //! @{
     
     
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Sets the "slideoff" flag in the client device list for a device.
     
@@ -349,7 +349,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     \return ONS_SUCCESS Successfully initialized the CLIENT.
             ONS_BAD_PARAM if the parameter is invalid.
 */
-#if !defined(_ENHANCED_INVITE)
+#if !defined(ENHANCED_INVITE)
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY)
 #else
@@ -392,7 +392,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     one_net_reset_peers();
     #endif    
 
-    #ifdef _ENHANCED_INVITE
+    #ifdef ENHANCED_INVITE
     client_invite_timed_out = FALSE;
 	low_invite_channel = min_channel;
 	high_invite_channel = max_channel;
@@ -517,7 +517,7 @@ tick_t one_net_client(void)
     {
         // shouldn't get here.  If we did, something very bad happened.
         // Reset everything and try again.
-        #ifndef _ENHANCED_INVITE
+        #ifndef ENHANCED_INVITE
         one_net_client_reset_client((const one_net_xtea_key_t*)
           one_net_client_get_invite_key());
         #else
@@ -565,7 +565,7 @@ tick_t one_net_client(void)
                 save = TRUE;
                 #endif
                 one_net_client_client_removed(NULL, TRUE);
-                #ifndef _ENHANCED_INVITE
+                #ifndef ENHANCED_INVITE
                 one_net_client_reset_client((const one_net_xtea_key_t*)
                   one_net_client_get_invite_key());
                 #else
@@ -580,7 +580,7 @@ tick_t one_net_client(void)
             {
                 // we started to accept an invite, but for whatever reason
                 // we did not finish
-                #ifdef _ENHANCED_INVITE
+                #ifdef ENHANCED_INVITE
                 one_net_client_reset_client((const one_net_xtea_key_t*)
                   one_net_client_get_invite_key(), 0, ONE_NET_MAX_CHANNEL, 0);
                 #else
@@ -1478,7 +1478,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             case ON_ADD_DEV_RESP:
             case ON_REMOVE_DEV_RESP:
             case ON_CHANGE_SETTINGS_RESP:
-            #ifndef _ONE_NET_SIMPLE_CLIENT
+            #ifndef ONE_NET_SIMPLE_CLIENT
             case ON_REQUEST_KEY_CHANGE:
             #endif
             #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1951,7 +1951,7 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_ack_nack_hdlr =
       &on_client_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_client_single_txn_hdlr;
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     pkt_hdlr.adj_recip_list_hdlr = &on_client_adjust_recipient_list;
     #endif
     
@@ -1976,7 +1976,7 @@ static one_net_status_t init_internal(void)
 } // init_internal //
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 static on_sending_dev_list_item_t* get_sending_dev_list_item_t(
   const on_encoded_did_t* DID)
 {
@@ -2231,7 +2231,7 @@ static BOOL look_for_invite(void)
       != ONS_PKT_RCVD)
     #endif
     {
-        #ifdef _ENHANCED_INVITE
+        #ifdef ENHANCED_INVITE
         if(ont_expired(ONT_INVITE_TIMER))
     	{
             client_invite_timed_out = TRUE;
@@ -2246,7 +2246,7 @@ static BOOL look_for_invite(void)
         {
             // need to try the next channel
             on_base_param->channel++;
-            #ifndef _ENHANCED_INVITE
+            #ifndef ENHANCED_INVITE
             if(on_base_param->channel > ONE_NET_MAX_CHANNEL)
             {
                 on_base_param->channel = 0;
@@ -2601,7 +2601,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 // Remove the device from the list of sending devices
                 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef ONE_NET_SIMPLE_CLIENT
                 on_sending_dev_list_item_t* removed_item =
                   get_sending_dev_list_item_t((const on_encoded_did_t*)
                     removed_did);
@@ -2688,7 +2688,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 }
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 // TODO -- not sure if it is OK to comment this out for Simple Clients.  If
 // two simple clients are communicating, it could be a problem.  If either
 // end is not a simple client, it won't be a problem.  Anyway, for now, we'll
@@ -2749,7 +2749,7 @@ static BOOL send_new_key_request(void)
 static BOOL check_in_with_master(void)
 {
     UInt8 raw_pld[5];
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     if(send_new_key_request())
     {
         return TRUE;
@@ -2792,7 +2792,7 @@ static BOOL check_in_with_master(void)
 }
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows for adjustment of the recipient list for a message
 

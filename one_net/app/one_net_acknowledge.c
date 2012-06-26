@@ -94,7 +94,7 @@ BOOL nack_reason_is_fatal(const on_nack_rsn_t nack_reason)
 		is_fatal = TRUE;
 	}
 	
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     // call application code to see if it wants to change.
 	one_net_adjust_fatal_nack(nack_reason, &is_fatal);
     #endif

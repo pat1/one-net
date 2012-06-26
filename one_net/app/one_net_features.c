@@ -114,7 +114,7 @@ BOOL features_device_sleeps(on_features_t features)
 }
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 UInt8 features_max_hops(on_features_t features)
 {
     return features.peers_hops & ON_FEATURES_MAX_HOPS_MASK;

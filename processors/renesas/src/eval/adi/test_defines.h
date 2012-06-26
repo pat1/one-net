@@ -61,9 +61,9 @@
     #error "This is an Eval Board.  _ONE_NET_EVAL must be defined."
 #endif
 
-#ifdef _ONE_NET_SIMPLE_CLIENT
+#ifdef ONE_NET_SIMPLE_CLIENT
     #ifdef _ONE_NET_EVAL
-        #error "_ONE_NET_EVAL and _ONE_NET_SIMPLE_CLIENT cannot both defined."
+        #error "_ONE_NET_EVAL and ONE_NET_SIMPLE_CLIENT cannot both defined."
     #endif
 #endif
 
@@ -105,7 +105,7 @@
 // Simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.  However, for easier readability, we'll test even some of the redundant tests.
-#ifdef _ONE_NET_SIMPLE_CLIENT
+#ifdef ONE_NET_SIMPLE_CLIENT
     #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         #error "Simple clients cannot have SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
     #endif

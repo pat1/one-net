@@ -213,7 +213,7 @@ void sniff_eval(void)
 
     bytes_read = one_net_read(pkt_wo_header, bytes_read);
     
-    #ifdef _RANGE_TESTING
+    #ifdef RANGE_TESTING
     if(!device_in_range((on_encoded_did_t*)
       &(pkt[ON_ENCODED_RPTR_DID_IDX])))
     {

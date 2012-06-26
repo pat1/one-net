@@ -189,13 +189,13 @@ extern const char * const ONCLI_JOIN_CMD_STR;
 #ifdef _ENABLE_SETNI_COMMAND
 extern const char * const ONCLI_SETNI_CMD_STR;
 #endif
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 extern const char* const ONCLI_RANGE_TEST_CMD_STR;
 #endif
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 extern const char* const ONCLI_PID_BLOCK_CMD_STR;
 #endif
-#if defined(_RANGE_TESTING) || defined(_PID_BLOCK)
+#if defined(RANGE_TESTING) || defined(PID_BLOCK)
 extern const char* const ADD_STR;
 extern const char* const REMOVE_STR;
 extern const char* const CLEAR_STR;

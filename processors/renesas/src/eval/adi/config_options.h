@@ -181,12 +181,12 @@
 #endif
 
 
-#ifndef _RANGE_TESTING
-    #define _RANGE_TESTING
+#ifndef RANGE_TESTING
+    #define RANGE_TESTING
 #endif
 
-#ifndef _PID_BLOCK
-    #define _PID_BLOCK
+#ifndef PID_BLOCK
+    #define PID_BLOCK
 #endif
 
 
@@ -200,8 +200,8 @@
 // timeout time or specifying a specific channel range for invitations.  Only valid
 // if IDLE is defined.
 #if defined(IDLE) && defined(ONE_NET_CLIENT)
-    #ifndef _ENHANCED_INVITE
-	    #define _ENHANCED_INVITE
+    #ifndef ENHANCED_INVITE
+	    #define ENHANCED_INVITE
 	#endif
 #endif
 
@@ -210,9 +210,9 @@
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.
 #if SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed.  Note.  Eval boards cannot be simple clients.
-        //#define _ONE_NET_SIMPLE_CLIENT
+        //#define ONE_NET_SIMPLE_CLIENT
     #endif
 #endif
 
@@ -392,14 +392,14 @@
     #endif
 
     // Command line interface
-    #ifndef _ENABLE_CLI
-        #define _ENABLE_CLI
+    #ifndef ENABLE_CLI
+        #define ENABLE_CLI
     #endif    
 #endif
 
 
 
-// #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
+// #defines below are only relevant if ENABLE_CLI is defined.  Each CLI option should have its
 // own #define for maximum ease of enabling and disabling features.  CLI options that don't make
 // sense without other CLI options should be nested.
 
@@ -410,15 +410,15 @@
 // there is no CLI.  However, at the present time there is a lot of functions with "oncli" return types that
 // perhaps should not have "oncli" return types.  I think these should probably be changed for more versatility,
 // but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
-// define the _ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
-// _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
-#ifdef _ENABLE_CLI
-	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
-		#define _AT_LEAST_ONE_COMMAND_ENABLED
+// define the ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
+// AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
+#ifdef ENABLE_CLI
+	#ifndef AT_LEAST_ONE_COMMAND_ENABLED
+		#define AT_LEAST_ONE_COMMAND_ENABLED
 	#endif
 #endif
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
 
 	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
 	#ifndef _ENABLE_SINGLE_COMMAND

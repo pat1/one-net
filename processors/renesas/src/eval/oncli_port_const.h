@@ -52,7 +52,7 @@
 
 #include "config_options.h"
 
-#ifdef _ENABLE_CLI
+#ifdef ENABLE_CLI
 
 #include "tick.h"
 
@@ -110,7 +110,7 @@ enum
 
 //! @} oncli_port_const
 
-#endif // #ifdef _ENABLE_CLI
+#endif // #ifdef ENABLE_CLI
 
 #endif // _ONCLI_PORT_CONST_H //
 

@@ -259,7 +259,7 @@ on_state_t on_state = ON_INIT_STATE;
       ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
 #endif
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 //! Stores the PIDs that are blocked
 static UInt8 pid_block_array[PID_BLOCK_ARRAY_SIZE];
 
@@ -267,7 +267,7 @@ static UInt8 pid_block_array[PID_BLOCK_ARRAY_SIZE];
 static BOOL pid_blocking_on = FALSE;
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 //! Stores the DIDs of the devices which are in range.
 static on_encoded_did_t range_test_did_array[RANGE_TESTING_ARRAY_SIZE];
 
@@ -1185,10 +1185,10 @@ void one_net_init(void)
     #endif
     single_msg_ptr = NULL;
     single_txn.priority = ONE_NET_NO_PRIORITY;
-    #ifdef _PID_BLOCK
+    #ifdef PID_BLOCK
     reset_blocked_pid_array();
     #endif
-    #ifdef _RANGE_TESTING
+    #ifdef RANGE_TESTING
     reset_range_test_did_array();
     #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
@@ -1220,7 +1220,7 @@ void one_net(on_txn_t ** txn)
     one_net_status_t status;
     on_txn_t* this_txn;
     on_pkt_t* this_pkt_ptrs;
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     static BOOL at_least_one_response = FALSE;
     #endif
     
@@ -1374,7 +1374,7 @@ void one_net(on_txn_t ** txn)
                             }
                             #endif
                             
-                            #ifndef _ONE_NET_SIMPLE_CLIENT
+                            #ifndef ONE_NET_SIMPLE_CLIENT
                             #if defined(_BLOCK_MESSAGES_ENABLED) && defined(DATA_RATE_CHANNEL)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
@@ -1406,7 +1406,7 @@ void one_net(on_txn_t ** txn)
 
                             if(recipient_send_list_ptr)
                             {
-                                #ifndef _ONE_NET_SIMPLE_CLIENT
+                                #ifndef ONE_NET_SIMPLE_CLIENT
                                 at_least_one_response = FALSE;
                                 #endif
                                 recipient_send_list_ptr->recipient_index = -1;
@@ -2009,7 +2009,7 @@ void one_net(on_txn_t ** txn)
                 }
                 #endif
                 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef ONE_NET_SIMPLE_CLIENT
                 // give the application code a chance to change whatever it
                 // wants or abort.
                 one_net_single_msg_loaded(txn, &single_msg);
@@ -2548,14 +2548,14 @@ void one_net(on_txn_t ** txn)
             BOOL response_msg_or_timeout = FALSE; // will be set to true if
                  // the response timer timed out or there was a response
             
-            #ifndef _ONE_NET_SIMPLE_CLIENT
+            #ifndef ONE_NET_SIMPLE_CLIENT
             // send right away unless overruled later.
             UInt32 next_send_pause_time = 0;
             #endif
             
             if(ont_inactive_or_expired(ONT_RESPONSE_TIMER))
             {
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef ONE_NET_SIMPLE_CLIENT
                 // we timed out without a response.  Notify application code
                 // it's unlikely they'll decide to change the response time-
                 // out, but they might.
@@ -2586,7 +2586,7 @@ void one_net(on_txn_t ** txn)
                 response_msg_or_timeout = TRUE;
                 (*txn)->retry++;
                 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef ONE_NET_SIMPLE_CLIENT
                 msg_status = (*pkt_hdlr.single_ack_nack_hdlr)(&single_txn,
                   &data_pkt_ptrs, single_msg_ptr->payload,
                   &(single_msg_ptr->msg_type), &ack_nack);
@@ -2686,7 +2686,7 @@ void one_net(on_txn_t ** txn)
                         default:
                             terminate_txn = ((*txn)->retry >= ON_MAX_RETRY ||
                               this_txn == 0);
-                            #ifndef _ONE_NET_SIMPLE_CLIENT
+                            #ifndef ONE_NET_SIMPLE_CLIENT
                             at_least_one_response = TRUE;
                             #endif
                     }
@@ -2735,7 +2735,7 @@ void one_net(on_txn_t ** txn)
                 
                 if(!terminate_txn)
                 {
-                    #ifndef _ONE_NET_SIMPLE_CLIENT
+                    #ifndef ONE_NET_SIMPLE_CLIENT
                     ont_set_timer((*txn)->next_txn_timer,
                       MS_TO_TICK(next_send_pause_time));
                     #else
@@ -2777,7 +2777,7 @@ void one_net(on_txn_t ** txn)
                       msg_status = ON_MSG_FAIL;
                 }
 
-                #ifndef _ONE_NET_SIMPLE_CLIENT
+                #ifndef ONE_NET_SIMPLE_CLIENT
                 // if we get no reponse this last try and we NEVER got any
                 // reponse, we'll make the nack reason
                 // ON_NACK_RSN_NO_RESPONSE_TXN.
@@ -3577,7 +3577,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     #endif
 
-    #ifdef _RANGE_TESTING
+    #ifdef RANGE_TESTING
     if(!device_in_range((on_encoded_did_t*)
       &(pkt_bytes[ON_ENCODED_RPTR_DID_IDX])))
     {
@@ -4033,7 +4033,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 } // on_rx_packet //
 
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 void enable_pid_blocking(BOOL on)
 {
     pid_blocking_on = on;
@@ -4141,7 +4141,7 @@ BOOL pid_is_blocked(UInt8 pid)
 #endif
 
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 /*!
     \brief Turns range testing either on or off.
 

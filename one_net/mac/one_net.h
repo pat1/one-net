@@ -381,7 +381,7 @@ typedef enum
 typedef struct
 {
     on_sending_device_t sender;     //!< did, etc. from sender.
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     UInt8 lru;                      //!< least recently used value
     device_slideoff_t slideoff;    //!< Whether the device can "slide off" the list when the list gets full.
     #endif
@@ -551,7 +551,7 @@ typedef on_message_status_t (*on_ack_nack_hdlr_t)(on_txn_t* txn,
   on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 typedef void (*on_recip_list_hdlr_t)(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
 #endif
@@ -581,7 +581,7 @@ typedef struct
     //! Single transaction handler
     on_txn_hdlr_t single_txn_hdlr;
     
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     on_recip_list_hdlr_t adj_recip_list_hdlr;
     #endif
 
@@ -883,7 +883,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 #endif
   
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 void enable_pid_blocking(BOOL on);
 BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids, BOOL* on);
 BOOL adjust_blocked_pid_array(UInt8 pid, BOOL add);
@@ -891,7 +891,7 @@ void reset_blocked_pid_array(void);
 BOOL pid_is_blocked(UInt8 pid);
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 void enable_range_testing(BOOL on);
 BOOL devices_within_range(on_encoded_did_t* enc_dids, UInt8* num_in_range,
   BOOL* on);

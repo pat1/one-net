@@ -1492,7 +1492,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 #endif
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
   on_recipient_list_t** recipient_send_list)
 {
@@ -1534,7 +1534,7 @@ void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 #endif
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows the application code to override whether a nack reason is fatal
 

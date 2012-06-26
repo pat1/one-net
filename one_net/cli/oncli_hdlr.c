@@ -358,11 +358,11 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -982,7 +982,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     {
         *CMD_STR = ONCLI_JOIN_CMD_STR;
 
-        #ifndef _ENHANCED_INVITE
+        #ifndef ENHANCED_INVITE
         if(CMD[strlen(ONCLI_JOIN_CMD_STR)] != '\n')
         {
             return ONCLI_PARSE_ERR;
@@ -1016,7 +1016,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the sid command was received //
     #endif
     
-    #ifdef _PID_BLOCK
+    #ifdef PID_BLOCK
     if(!strnicmp(ONCLI_PID_BLOCK_CMD_STR, CMD,
       strlen(ONCLI_PID_BLOCK_CMD_STR)))
     {
@@ -1034,7 +1034,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the pid block command was received //
     #endif
     
-    #ifdef _RANGE_TESTING
+    #ifdef RANGE_TESTING
     if(!strnicmp(ONCLI_RANGE_TEST_CMD_STR, CMD,
       strlen(ONCLI_RANGE_TEST_CMD_STR)))
     {
@@ -2673,7 +2673,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 #endif
 
 
-#if defined(_ENABLE_JOIN_COMMAND) && defined(_ENHANCED_INVITE)
+#if defined(_ENABLE_JOIN_COMMAND) && defined(ENHANCED_INVITE)
 /*!
     \brief Handles receiving the join command and all its parameters
     
@@ -3551,7 +3551,7 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 /*!
     \brief Turns on or off pid blocking for debugging purposes.  Sets a
            pid as either ignored or not ignored.
@@ -3686,7 +3686,7 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 /*!
     \brief Turns on or off range testing for debugging purposes.  Sets a
            device as either within range or out of range of this device

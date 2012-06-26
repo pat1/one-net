@@ -207,7 +207,7 @@ typedef enum
     ON_CHANGE_DATA_RATE_CHANNEL = 0x05,
     #endif
     
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
     //! Sent by a client when a new key is needed for whatever reason.
     //! Generally this is sent when a client is about to run out of message
     //! ids or feels there has been some breach of security or some attempted

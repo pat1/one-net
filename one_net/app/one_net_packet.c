@@ -42,7 +42,7 @@
 #include "one_net_encode.h"
 #include "config_options.h"
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 #include "one_net.h"
 #endif
 

@@ -303,7 +303,7 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
 
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows the user to adjust the recipient list for a message
 
@@ -354,7 +354,7 @@ void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate);
 #endif
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows the application code to override whether a nack reason is fatal
 

@@ -85,7 +85,7 @@ extern BOOL client_joined_network;
 extern BOOL client_looking_for_invite;
 extern on_master_t * const master;
 
-#ifdef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
     extern BOOL client_invite_timed_out;
 	extern one_net_channel_t low_invite_channel;
 	extern one_net_channel_t high_invite_channel;	
@@ -106,7 +106,7 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 //! @{
 
 
-#if !defined(_ENHANCED_INVITE)
+#if !defined(ENHANCED_INVITE)
     one_net_status_t one_net_client_look_for_invite(
       const one_net_xtea_key_t * const INVITE_KEY);
 #else
@@ -230,7 +230,7 @@ on_nack_rsn_t on_client_initiate_stream_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack);
 #endif
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 void on_client_set_device_slideoff(const on_encoded_did_t* enc_did,
   device_slideoff_t slideoff);
 void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did);

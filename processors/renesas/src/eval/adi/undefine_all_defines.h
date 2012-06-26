@@ -68,20 +68,20 @@
 	#undef ONE_NET_MH_CLIENT_REPEATER
 #endif
 
-#ifdef _RANGE_TESTING
-    #undef _RANGE_TESTING
+#ifdef RANGE_TESTING
+    #undef RANGE_TESTING
 #endif
 
-#ifdef _ONE_NET_SIMPLE_CLIENT
-    #define _ONE_NET_SIMPLE_CLIENT
+#ifdef ONE_NET_SIMPLE_CLIENT
+    #define ONE_NET_SIMPLE_CLIENT
 #endif
 
 #ifdef IDLE
     #undef IDLE
 #endif
 
-#ifdef _ENHANCED_INVITE
-    #undef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
+    #undef ENHANCED_INVITE
 #endif
 
 #ifdef US_CHANNELS
@@ -124,12 +124,12 @@
     #undef DATA_RATE_CHANNEL
 #endif
 
-#ifdef _ENABLE_CLI
-	#undef _ENABLE_CLI
+#ifdef ENABLE_CLI
+	#undef ENABLE_CLI
 #endif
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
-	#undef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
+	#undef AT_LEAST_ONE_COMMAND_ENABLED
 #endif
 
 #ifdef _ENABLE_SINGLE_COMMAND

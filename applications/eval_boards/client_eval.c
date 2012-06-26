@@ -293,7 +293,7 @@ void init_serial_client(void)
             #ifdef UART
             oncli_send_msg("Parameters have not been loaded from flash.\n");
             #endif
-            #ifndef _ENHANCED_INVITE
+            #ifndef ENHANCED_INVITE
             one_net_client_reset_client(one_net_client_get_invite_key());
             #else
             one_net_client_reset_client(one_net_client_get_invite_key(), 0,
@@ -312,7 +312,7 @@ void init_serial_client(void)
     else
 #endif
     {
-        #ifdef _ENHANCED_INVITE
+        #ifdef ENHANCED_INVITE
         one_net_client_reset_client(one_net_client_get_invite_key(), 0,
           ONE_NET_MAX_CHANNEL, 0);
         #else
@@ -322,7 +322,7 @@ void init_serial_client(void)
 }
 
 
-#ifdef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
 one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_key,
   UInt8 low_channel, UInt8 high_channel, tick_t timeout_time)
 #else
@@ -332,7 +332,7 @@ one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_ke
     initialize_default_pin_directions(FALSE);
     node_loop_func = &client_eval;
     
-    #ifdef _ENHANCED_INVITE
+    #ifdef ENHANCED_INVITE
     return one_net_client_look_for_invite(invite_key, low_channel, high_channel,
       timeout_time);
     #else

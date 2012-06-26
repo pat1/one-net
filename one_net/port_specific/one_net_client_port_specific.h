@@ -406,7 +406,7 @@ one_net_status_t one_net_client_erase_settings(void);
     \return ONS_SUCCESS If reseting to client mode was successful
             ONS_FAIL If the command failed
 */
-#ifdef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
 one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_key,
   UInt8 low_channel, UInt8 high_channel, tick_t timeout_time);
 #else

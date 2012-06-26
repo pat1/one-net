@@ -110,7 +110,7 @@ enum
 #endif
 
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 enum
 {
     //! When Multi-Hop range testing (i.e. declaring devices in and out of
@@ -121,7 +121,7 @@ enum
 #endif
 
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 enum
 {
     //! For debugging purposes.  The maximum number of PIDs that can be blocked
