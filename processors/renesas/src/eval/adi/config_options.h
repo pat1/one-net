@@ -477,65 +477,65 @@
 		#define _ENABLE_RSSSI_COMMAND
 	#endif*/
 
-	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
-	#ifndef _ENABLE_LIST_COMMAND
-		#define _ENABLE_LIST_COMMAND
+	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
+	#ifndef ENABLE_LIST_COMMAND
+		#define ENABLE_LIST_COMMAND
 	#endif
 
     // Master Only Commands
     #ifdef ONE_NET_MASTER
     
-        // _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
-        #ifndef _ENABLE_CHANNEL_COMMAND
-            #define _ENABLE_CHANNEL_COMMAND
+        // ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
+        #ifndef ENABLE_CHANNEL_COMMAND
+            #define ENABLE_CHANNEL_COMMAND
         #endif
         
-	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
-	    #ifndef _ENABLE_INVITE_COMMAND
-		    #define _ENABLE_INVITE_COMMAND
+	    // ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
+	    #ifndef ENABLE_INVITE_COMMAND
+		    #define ENABLE_INVITE_COMMAND
 	    #endif
 
-	    // _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
-	    #ifndef _ENABLE_CANCEL_INVITE_COMMAND
-		    #define _ENABLE_CANCEL_INVITE_COMMAND
+	    // ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
+	    #ifndef ENABLE_CANCEL_INVITE_COMMAND
+		    #define ENABLE_CANCEL_INVITE_COMMAND
 	    #endif
 
     	#ifdef PEER
-	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
-		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
-			    #define _ENABLE_ASSIGN_PEER_COMMAND
+	    	// ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
+		    #ifndef ENABLE_ASSIGN_PEER_COMMAND
+			    #define ENABLE_ASSIGN_PEER_COMMAND
 		    #endif
 
-		    // _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
-		    #ifndef _ENABLE_UNASSIGN_PEER_COMMAND
-			    #define _ENABLE_UNASSIGN_PEER_COMMAND
+		    // ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
+		    #ifndef ENABLE_UNASSIGN_PEER_COMMAND
+			    #define ENABLE_UNASSIGN_PEER_COMMAND
 		    #endif
 	    #endif
 		
-	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
-	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
-		    #define _ENABLE_CHANGE_KEY_COMMAND
+	    // ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
+	    #ifndef ENABLE_CHANGE_KEY_COMMAND
+		    #define ENABLE_CHANGE_KEY_COMMAND
 	    #endif
 
-	    // _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
-	    #ifndef _ENABLE_REMOVE_DEVICE_COMMAND
-		    #define _ENABLE_REMOVE_DEVICE_COMMAND
+	    // ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
+	    #ifndef ENABLE_REMOVE_DEVICE_COMMAND
+		    #define ENABLE_REMOVE_DEVICE_COMMAND
 	    #endif
 
-	    // _ENABLE_SET_FLAGS_COMMAND should be defined if you are implementing the "set flags" command option
-	    #ifndef _ENABLE_SET_FLAGS_COMMAND
-		    #define _ENABLE_SET_FLAGS_COMMAND
+	    // ENABLE_SET_FLAGS_COMMAND should be defined if you are implementing the "set flags" command option
+	    #ifndef ENABLE_SET_FLAGS_COMMAND
+		    #define ENABLE_SET_FLAGS_COMMAND
 	    #endif
 
-	    // _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
-	    #ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-		    #define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	    // ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
+	    #ifndef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+		    #define ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	    #endif
 
         #ifdef BLOCK_MESSAGES_ENABLED
-    	    // _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
-    	    #ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-    		    #define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    	    // ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
+    	    #ifndef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    		    #define ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
     	    #endif
         #endif
 	#endif

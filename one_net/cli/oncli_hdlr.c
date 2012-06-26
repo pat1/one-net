@@ -263,7 +263,7 @@ int memory_len = 0;
 	static oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_LIST_COMMAND 
+#ifdef ENABLE_LIST_COMMAND 
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
 
@@ -301,7 +301,7 @@ oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 	static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+#ifdef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 	static oncli_status_t change_frag_dly_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif
@@ -309,44 +309,44 @@ oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 
 
 // MASTER only command handlers
-#ifdef _ENABLE_INVITE_COMMAND
+#ifdef ENABLE_INVITE_COMMAND
 	static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+#ifdef ENABLE_CANCEL_INVITE_COMMAND
 	static oncli_status_t cancel_invite_cmd_hdlr(void);
 #endif
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+#ifdef ENABLE_REMOVE_DEVICE_COMMAND
 	static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
+#if defined(ENABLE_ASSIGN_PEER_COMMAND) || defined(ENABLE_UNASSIGN_PEER_COMMAND)
 static oncli_change_peer_list(BOOL ASSIGN,
   const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+#ifdef ENABLE_ASSIGN_PEER_COMMAND
 	static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+#ifdef ENABLE_UNASSIGN_PEER_COMMAND
 	static oncli_status_t unassign_peer_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_SET_FLAGS_COMMAND
+#ifdef ENABLE_SET_FLAGS_COMMAND
 	static oncli_status_t set_flags_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif  
 
-#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+#ifdef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	static oncli_status_t change_keep_alive_cmd_hdlr(
 	  const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
+#ifdef ENABLE_CHANGE_KEY_COMMAND
 static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_CHANNEL_COMMAND
+#ifdef ENABLE_CHANNEL_COMMAND
 static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -408,7 +408,7 @@ static const char * parse_ascii_tx_text_data(const char * ASCII, UInt8 * data,
 static oncli_status_t oncli_parse_channel(const char * ASCII,
   UInt8 * const channel);
   
-#ifdef _ENABLE_INVITE_COMMAND
+#ifdef ENABLE_INVITE_COMMAND
 static oncli_status_t parse_invite_key(const char * ASCII,
   char** end_ptr, one_net_xtea_key_t * const key);
 #endif
@@ -522,7 +522,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the echo command was received //
 	#endif
     
-	#ifdef _ENABLE_LIST_COMMAND 
+	#ifdef ENABLE_LIST_COMMAND 
     if(!strnicmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
     {
         *CMD_STR = ONCLI_LIST_CMD_STR;
@@ -750,7 +750,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the user pin command was received //
 	#endif
     
-	#ifdef _ENABLE_INVITE_COMMAND
+	#ifdef ENABLE_INVITE_COMMAND
     else if(!strnicmp(ONCLI_INVITE_CMD_STR, CMD, strlen(ONCLI_INVITE_CMD_STR)))
     {
         *CMD_STR = ONCLI_INVITE_CMD_STR;
@@ -767,7 +767,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the invite command was received //
 	#endif
 	
-	#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+	#ifdef ENABLE_CANCEL_INVITE_COMMAND
     else if(!strnicmp(ONCLI_CANCEL_INVITE_CMD_STR, CMD,
       strlen(ONCLI_CANCEL_INVITE_CMD_STR)))
     {
@@ -782,7 +782,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the cancel invite command was received //
 	#endif
 
-	#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+	#ifdef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR)))
     {
@@ -801,7 +801,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the change fragment delay command was received //
 	#endif
 
-	#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+	#ifdef ENABLE_REMOVE_DEVICE_COMMAND
     else if(!strnicmp(ONCLI_RM_DEV_CMD_STR, CMD, strlen(ONCLI_RM_DEV_CMD_STR)))
     {
         *CMD_STR = ONCLI_RM_DEV_CMD_STR;
@@ -818,7 +818,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the remove device command was received //
 	#endif
     
-	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+	#ifdef ENABLE_ASSIGN_PEER_COMMAND
     else if(!strnicmp(ONCLI_ASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_ASSIGN_PEER_CMD_STR)))
     {
@@ -836,7 +836,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the assign peer command was received //
 	#endif
 		
-	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND	
+	#ifdef ENABLE_UNASSIGN_PEER_COMMAND	
     else if(!strnicmp(ONCLI_UNASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_UNASSIGN_PEER_CMD_STR)))
     {
@@ -854,7 +854,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the unassign peer command was received //
 	#endif
 
-	#ifdef _ENABLE_SET_FLAGS_COMMAND
+	#ifdef ENABLE_SET_FLAGS_COMMAND
     else if(!strnicmp(ONCLI_SET_FLAGS_CMD_STR, CMD,
       strlen(ONCLI_SET_FLAGS_CMD_STR)))
     {
@@ -872,7 +872,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the set flags command was received //
 	#endif
     
-	#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	#ifdef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR)))
     {
@@ -907,7 +907,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the "add dev" command was received //
     
-	#ifdef _ENABLE_CHANGE_KEY_COMMAND
+	#ifdef ENABLE_CHANGE_KEY_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_KEY_CMD_STR)))
     {
@@ -959,7 +959,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the "stream" command was received //    
     #endif
   
-	#ifdef _ENABLE_CHANNEL_COMMAND
+	#ifdef ENABLE_CHANNEL_COMMAND
     if(!strnicmp(ONCLI_CHANNEL_CMD_STR, CMD,
       strlen(ONCLI_CHANNEL_CMD_STR)))
     {
@@ -1349,7 +1349,7 @@ static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_LIST_COMMAND
+#ifdef ENABLE_LIST_COMMAND
 /*!
     \brief Prints information about the current configuration
     of the device.
@@ -2343,7 +2343,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
 
 
-#ifdef _ENABLE_INVITE_COMMAND
+#ifdef ENABLE_INVITE_COMMAND
 /*!
     \brief Handles receiving the invite command and all its parameters.
     
@@ -2411,7 +2411,7 @@ static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+#ifdef ENABLE_CANCEL_INVITE_COMMAND
 extern one_net_xtea_key_t invite_key;
 static oncli_status_t cancel_invite_cmd_hdlr(void)
 {
@@ -2422,7 +2422,7 @@ static oncli_status_t cancel_invite_cmd_hdlr(void)
 #endif
 
 
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+#ifdef ENABLE_REMOVE_DEVICE_COMMAND
 /*!
     \brief Handles receiving the remove device command and all its parameters.
     
@@ -2480,7 +2480,7 @@ static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
+#if defined(ENABLE_ASSIGN_PEER_COMMAND) || defined(ENABLE_UNASSIGN_PEER_COMMAND)
 /*!
     \brief Changes a peer list.
     
@@ -2598,7 +2598,7 @@ static oncli_change_peer_list(BOOL ASSIGN,
 #endif
 
 
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+#ifdef ENABLE_ASSIGN_PEER_COMMAND
 /*!
     \brief Adds a peer to a peer list of a device
     
@@ -2632,7 +2632,7 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+#ifdef ENABLE_UNASSIGN_PEER_COMMAND
 /*!
     \brief Removes peer(s) from a peer list
     
@@ -2752,7 +2752,7 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_SET_FLAGS_COMMAND
+#ifdef ENABLE_SET_FLAGS_COMMAND
 /*!
     \brief Sets the flags in a CLIENT.
 
@@ -2863,7 +2863,7 @@ static oncli_status_t set_flags_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+#ifdef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 static oncli_status_t change_keep_alive_cmd_hdlr(
   const char * const ASCII_PARAM_LIST)
 {
@@ -2927,7 +2927,7 @@ static oncli_status_t change_keep_alive_cmd_hdlr(
 #endif
 
 
-#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+#ifdef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 /*!
     \brief Handles receiving the change fragment delay command and all its
       parameters.
@@ -3281,7 +3281,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif  
 
 
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
+#ifdef ENABLE_CHANGE_KEY_COMMAND
 static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     enum
@@ -3357,7 +3357,7 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
 #endif
 
 
-#ifdef _ENABLE_CHANNEL_COMMAND
+#ifdef ENABLE_CHANNEL_COMMAND
 /*!
     \brief Handles receiving the channel command and all its parameters
     
@@ -4585,7 +4585,7 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
             ONCLI_BAD_PARAM if any of the parameters are invalid
             ONCLI_PARSE_ERR If the ASCII parameter was not formatted correctly.
 */
-#ifdef _ENABLE_INVITE_COMMAND
+#ifdef ENABLE_INVITE_COMMAND
 static oncli_status_t parse_invite_key(const char * ASCII,
   char** end_ptr, one_net_xtea_key_t * const key)
 {

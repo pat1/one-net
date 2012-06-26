@@ -443,7 +443,7 @@ oncli_status_t oncli_print_data_rates(on_features_t features)
 } // oncli_print_data_rates //
 
 
-#if defined(_ENABLE_LIST_COMMAND) && defined(PEER)
+#if defined(ENABLE_LIST_COMMAND) && defined(PEER)
 /*!
     \brief Prints the peer list
         

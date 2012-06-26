@@ -110,7 +110,7 @@ extern const char * const ONCLI_HIGH_STR;
     extern const char * const ONCLI_ECHO_CMD_STR;
 #endif
 
-#ifdef _ENABLE_LIST_COMMAND
+#ifdef ENABLE_LIST_COMMAND
 extern const char * const ONCLI_LIST_CMD_STR;
 #ifdef PEER
 extern const char * const ONCLI_LIST_PEER_TABLE_HEADING;
@@ -153,34 +153,34 @@ extern const char * const ONCLI_DISABLE_STR;
 
 
 // Master only commands
-#ifdef _ENABLE_INVITE_COMMAND
+#ifdef ENABLE_INVITE_COMMAND
 extern const char * const ONCLI_INVITE_CMD_STR;
 #endif
-#ifdef _ENABLE_CANCEL_INVITE_COMMAND
+#ifdef ENABLE_CANCEL_INVITE_COMMAND
 extern const char * const ONCLI_CANCEL_INVITE_CMD_STR;
 #endif
-#ifdef _ENABLE_ASSIGN_PEER_COMMAND
+#ifdef ENABLE_ASSIGN_PEER_COMMAND
 extern const char * const ONCLI_ASSIGN_PEER_CMD_STR;
 #endif
-#ifdef _ENABLE_UNASSIGN_PEER_COMMAND
+#ifdef ENABLE_UNASSIGN_PEER_COMMAND
 extern const char * const ONCLI_UNASSIGN_PEER_CMD_STR;
 #endif
-#ifdef _ENABLE_SET_FLAGS_COMMAND
+#ifdef ENABLE_SET_FLAGS_COMMAND
 extern const char * const ONCLI_SET_FLAGS_CMD_STR;
 #endif
-#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+#ifdef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 extern const char * const ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
 #endif
-#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+#ifdef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
 extern const char * const ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
 #endif
-#ifdef _ENABLE_CHANGE_KEY_COMMAND
+#ifdef ENABLE_CHANGE_KEY_COMMAND
 extern const char * const ONCLI_CHANGE_KEY_CMD_STR;
 #endif
-#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
+#ifdef ENABLE_REMOVE_DEVICE_COMMAND
 extern const char * const ONCLI_RM_DEV_CMD_STR;
 #endif
-#ifdef _ENABLE_CHANNEL_COMMAND
+#ifdef ENABLE_CHANNEL_COMMAND
 extern const char * const ONCLI_CHANNEL_CMD_STR;
 #endif
 #ifdef ENABLE_JOIN_COMMAND
