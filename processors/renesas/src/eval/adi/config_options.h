@@ -61,7 +61,7 @@
 #ifndef OVERRIDE_CONFIG_OPTIONS_FILE
 
 
-// OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
+// OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code below to define things.
 
 
 
@@ -468,9 +468,9 @@
 		#endif
 	#endif
 
-	// _ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
-	/*#ifndef _ENABLE_RSSI_COMMAND
-		#define _ENABLE_RSSSI_COMMAND
+	// ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
+	/*#ifndef ENABLE_RSSI_COMMAND
+		#define ENABLE_RSSI_COMMAND
 	#endif*/
 
 	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
