@@ -1322,7 +1322,7 @@ static oncli_status_t verbose_level_cmd_hdlr(const char* const ASCII_PARAM_LIST)
 {
     char * end_ptr;
     UInt8 new_verbose_level;
-    const UInt8 max_verbose_level = _DEBUG_VERBOSE_LEVEL;
+    const UInt8 max_verbose_level = DEBUG_VERBOSE_LEVEL;
 
     if(!ASCII_PARAM_LIST)
     {
@@ -1408,7 +1408,7 @@ static oncli_status_t list_cmd_hdlr(void)
         #endif
 	}
     
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         oncli_send_msg("\n\nDevice Features...\n");
@@ -1474,14 +1474,14 @@ static oncli_status_t list_cmd_hdlr(void)
         #endif
         
         #ifdef ONE_NET_CLIENT
-        #if _DEBUG_VERBOSE_LEVEL > 3
+        #if DEBUG_VERBOSE_LEVEL > 3
         if(!device_is_master && verbose_level > 3)
         {
             oncli_send_msg("\nMaster Features...\n");
             oncli_print_features(master->device.features);
         }
         #endif
-        #if _DEBUG_VERBOSE_LEVEL > 5
+        #if DEBUG_VERBOSE_LEVEL > 5
         if(!device_is_master && verbose_level > 5)
         {
             oncli_send_msg("\n\n");
@@ -1512,7 +1512,7 @@ static oncli_status_t list_cmd_hdlr(void)
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
             oncli_print_did(&(client->device.did));
             oncli_send_msg("\n\n");
-            #if _DEBUG_VERBOSE_LEVEL > 3
+            #if DEBUG_VERBOSE_LEVEL > 3
             if(verbose_level > 3)
             {
                 oncli_send_msg("Keep-Alive Interval:%ld ms\n",
@@ -1537,7 +1537,7 @@ static oncli_status_t list_cmd_hdlr(void)
                 #endif
             }
             #endif
-            #if _DEBUG_VERBOSE_LEVEL > 4
+            #if DEBUG_VERBOSE_LEVEL > 4
             if(verbose_level > 4)
             {
                 oncli_send_msg("\n\nCurrent Key: %s\n", client->use_current_key ?
@@ -1546,7 +1546,7 @@ static oncli_status_t list_cmd_hdlr(void)
                   ? TRUE_STR : FALSE_STR);
                 oncli_send_msg("Send Remove Dev: %s\n",
                   client->send_remove_device_message ? TRUE_STR : FALSE_STR);
-                #if _DEBUG_VERBOSE_LEVEL > 5
+                #if DEBUG_VERBOSE_LEVEL > 5
                 if(verbose_level > 5)
                 {
                     print_sending_device_t(&(client->device));
@@ -1556,7 +1556,7 @@ static oncli_status_t list_cmd_hdlr(void)
             }
             #endif            
             
-            #if _DEBUG_VERBOSE_LEVEL > 3
+            #if DEBUG_VERBOSE_LEVEL > 3
             if(verbose_level > 3)
             {
                 oncli_send_msg("\n\nFeatures...\n");

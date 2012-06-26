@@ -120,7 +120,7 @@ static const char* const sniffer_prompt = "-s";
 #endif
 
 
-#if _DEBUG_VERBOSE_LEVEL > 0
+#if DEBUG_VERBOSE_LEVEL > 0
 extern const char HEX_DIGIT[]; // for displaying packets
 #endif
 
@@ -459,7 +459,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);
 
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         oncli_send_msg("eval_hdl_sng: ");
@@ -701,7 +701,7 @@ on_message_status_t eval_handle_ack_nack_response(
     }
     #endif
     
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         oncli_send_msg("ehanr : ");
@@ -918,7 +918,7 @@ void eval_single_txn_status(on_message_status_t status,
         return;
     } // if the parameters are invalid //
     
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         SInt8 i;
@@ -959,7 +959,7 @@ void eval_single_txn_status(on_message_status_t status,
           oncli_msg_status_str(status));
     }
 
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         #ifdef ROUTE
@@ -1055,7 +1055,7 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
     {
         return ON_MSG_DEFAULT_BHVR; // return type is irrelevant here
     }
-    #if _DEBUG_VERBOSE_LEVEL > 0
+    #if DEBUG_VERBOSE_LEVEL > 0
     if(verbose_level > 0)
     {
         #ifndef STREAM_MESSAGES_ENABLED
@@ -1092,9 +1092,9 @@ on_message_status_t eval_handle_bs_ack_nack_response(
 
 // Packet Display Functionality
 // TODO -- Should these functions be in oncli.c instead of here?
-#if _DEBUG_VERBOSE_LEVEL > 0
+#if DEBUG_VERBOSE_LEVEL > 0
 
-#if _DEBUG_VERBOSE_LEVEL > 1
+#if DEBUG_VERBOSE_LEVEL > 1
 /*!
     \brief Displays a DID in verbose fashion.
 
@@ -1106,14 +1106,14 @@ on_message_status_t eval_handle_bs_ack_nack_response(
 void debug_display_did(const char* const description,
   const on_encoded_did_t* const enc_did)
 {
-    #if _DEBUG_VERBOSE_LEVEL > 2
+    #if DEBUG_VERBOSE_LEVEL > 2
     on_raw_did_t raw_did;
     BOOL valid = (on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) ==
       ONS_SUCCESS);
     #endif
     
     oncli_send_msg("%s : 0x%02X%02X", description, (*enc_did)[0], (*enc_did)[1]);
-    #if _DEBUG_VERBOSE_LEVEL > 2
+    #if DEBUG_VERBOSE_LEVEL > 2
     if(verbose_level > 2)
     {
         if(valid)
@@ -1141,7 +1141,7 @@ void debug_display_did(const char* const description,
 void debug_display_nid(const char* const description,
   const on_encoded_nid_t* const enc_nid)
 {
-    #if _DEBUG_VERBOSE_LEVEL > 2
+    #if DEBUG_VERBOSE_LEVEL > 2
     on_raw_nid_t raw_nid;
     BOOL valid = (on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) ==
       ONS_SUCCESS);
@@ -1149,7 +1149,7 @@ void debug_display_nid(const char* const description,
     
     oncli_send_msg("%s : 0x", description);
     uart_write_int8_hex_array(*enc_nid, FALSE, ON_ENCODED_NID_LEN);
-    #if _DEBUG_VERBOSE_LEVEL > 2
+    #if DEBUG_VERBOSE_LEVEL > 2
     if(verbose_level > 2)
     {
         if(valid)
@@ -1184,7 +1184,7 @@ void debug_display_nid(const char* const description,
     
     \return void
 */
-#if _DEBUG_VERBOSE_LEVEL < 3
+#if DEBUG_VERBOSE_LEVEL < 3
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes)
 #else
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
@@ -1204,7 +1204,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
     } // loop to output the bytes that were read //
     oncli_send_msg("\n\n");
 
-    #if _DEBUG_VERBOSE_LEVEL > 1
+    #if DEBUG_VERBOSE_LEVEL > 1
     if(verbose_level < 2)
     {
         return;
@@ -1236,7 +1236,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             
             oncli_send_msg("\nEnc. Msg CRC : 0x%02X",
               debug_pkt_ptrs.packet_bytes[ON_ENCODED_MSG_CRC_IDX]);
-            #if _DEBUG_VERBOSE_LEVEL > 2
+            #if DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
                 UInt8 calculated_msg_crc, msg_crc;
@@ -1291,7 +1291,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 } // if need to output a new line //
             } // loop to output the bytes that were read //
             
-            #if _DEBUG_VERBOSE_LEVEL > 2
+            #if DEBUG_VERBOSE_LEVEL > 2
             if(verbose_level > 2)
             {
                 UInt8 raw_pld_len = get_raw_payload_len(raw_pid);
@@ -1466,7 +1466,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         }
                         #endif
                         
-                        #if _DEBUG_VERBOSE_LEVEL > 4
+                        #if DEBUG_VERBOSE_LEVEL > 4
                         if(verbose_level <= 4 || !crc_match)
                         {
                             continue;
@@ -1668,7 +1668,7 @@ on_message_status_t eval_block_chunk_received(
 on_message_status_t eval_handle_block(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    #if _DEBUG_VERBOSE_LEVEL > 3
+    #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         #ifndef STREAM_MESSAGES_ENABLED

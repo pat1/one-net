@@ -192,9 +192,9 @@ oncli_status_t oncli_set_user_pin_type(UInt8 pin, on_pin_state_t pin_type);
 */
 void oncli_print_user_pin_cfg(void);
 
-#if _DEBUG_VERBOSE_LEVEL > 0
+#if DEBUG_VERBOSE_LEVEL > 0
 
-#if _DEBUG_VERBOSE_LEVEL > 1
+#if DEBUG_VERBOSE_LEVEL > 1
 /*!
     \brief Displays a DID in verbose fashion.
 
@@ -234,7 +234,7 @@ void debug_display_nid(const char* const description,
     
     \return void
 */
-#if _DEBUG_VERBOSE_LEVEL < 3
+#if DEBUG_VERBOSE_LEVEL < 3
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes);
 #else
 void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,

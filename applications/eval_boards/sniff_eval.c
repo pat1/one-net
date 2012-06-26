@@ -11,8 +11,8 @@
 
 #ifdef SNIFFER_MODE
 
-#if _DEBUG_VERBOSE_LEVEL == 0
-    #error "_DEBUG_VERBOSE_LEVEL must be greater than 0 if SNIFFER_MODE is enabled"
+#if DEBUG_VERBOSE_LEVEL == 0
+    #error "DEBUG_VERBOSE_LEVEL must be greater than 0 if SNIFFER_MODE is enabled"
 #endif
 
 
@@ -74,7 +74,7 @@ static UInt8 sniff_channel;
 //! Buffer to hold the string representation of the channel being sniffed
 static char channel_format_buffer[MAX_CHANNEL_STRING_FORMAT_LENGTH];
 
-#if _DEBUG_VERBOSE_LEVEL > 2
+#if DEBUG_VERBOSE_LEVEL > 2
 enum
 {
     //! number of known invite keys to try for decryption.
@@ -101,7 +101,7 @@ static tick_t sniff_duration_ms = 0;
 //! \ingroup ONE-NET_eval
 //! @{
 
-#if _DEBUG_VERBOSE_LEVEL > 2
+#if DEBUG_VERBOSE_LEVEL > 2
 //! Place any known invite keys in the array below
 static const one_net_xtea_key_t sniff_invite_keys[NUM_SNIFF_INVITE_KEYS] =
 {
@@ -240,7 +240,7 @@ void sniff_eval(void)
     oncli_send_msg("\n\n%lu received %u bytes:\n", packet_time_ms, bytes_read +
       ONE_NET_PREAMBLE_HEADER_LEN);
     
-    #if _DEBUG_VERBOSE_LEVEL > 2
+    #if DEBUG_VERBOSE_LEVEL > 2
     display_pkt(pkt, bytes_read + ONE_NET_PREAMBLE_HEADER_LEN
       , sniff_enc_keys, NUM_SNIFF_ENCRYPT_KEYS
       , sniff_invite_keys, NUM_SNIFF_INVITE_KEYS);

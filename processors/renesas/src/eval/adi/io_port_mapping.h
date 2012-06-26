@@ -95,7 +95,7 @@
 #define RF_DATA         p2_4
 #define RX_BIT_CLK      p4_5
 #define SYNCDET         p1_2
-#define CHIP_ENABLE     p2_5
+#define CHIP_ENABLE_PIN p2_5
 
 #define RF_DATA_DIR     pd2_4
 #define RX_BIT_CLK_DIR  pd4_5

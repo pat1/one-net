@@ -96,8 +96,8 @@
 	#undef ONE_NET_EVAL
 #endif
 
-#ifdef _DEBUG_VERBOSE_LEVEL
-    #undef _DEBUG_VERBOSE_LEVEL
+#ifdef DEBUG_VERBOSE_LEVEL
+    #undef DEBUG_VERBOSE_LEVEL
 #endif
 
 #ifdef AUTO_MODE
@@ -108,8 +108,8 @@
     #undef SNIFFER_MODE
 #endif
 
-#ifdef _CHIP_ENABLE
-	#undef _CHIP_ENABLE
+#ifdef CHIP_ENABLE
+	#undef CHIP_ENABLE
 #endif
 
 #ifdef _R8C_TINY

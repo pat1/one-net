@@ -13,7 +13,7 @@
 #include "one_net_constants.h"
 #include "one_net_features.h"
 #include "one_net_status_codes.h"
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 #include "one_net_acknowledge.h"
 #endif
 
@@ -117,10 +117,10 @@ extern BOOL echo_on;
 #endif
 extern BOOL newline_rcvd;
 extern BOOL command_processed;
-#ifdef _DEBUG_VERBOSE_LEVEL
+#ifdef DEBUG_VERBOSE_LEVEL
     extern UInt8 verbose_level;
 #else
-    #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
+    #error "DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
 #endif
 
 //! If binary_mode is true, uart input and outout is considered to be in binary
@@ -174,7 +174,7 @@ BOOL oncli_is_valid_unique_key_ch(const char CH);
 
 const char * oncli_msg_status_str(on_message_status_t status);
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
@@ -186,7 +186,7 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
   BOOL packet_is_stream);
 #endif
 #endif
-#if _DEBUG_VERBOSE_LEVEL > 4
+#if DEBUG_VERBOSE_LEVEL > 4
 void print_single(UInt16 pid, const UInt8* raw_payload);
 void print_response(UInt16 pid, const UInt8* raw_payload);
 #endif

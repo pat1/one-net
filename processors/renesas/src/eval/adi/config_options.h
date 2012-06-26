@@ -335,10 +335,10 @@
 // set if adding any of your own debugging statements.
 #ifdef UART
     // You can change the value below.
-    #define _DEBUG_VERBOSE_LEVEL 6
+    #define DEBUG_VERBOSE_LEVEL 6
 #else
     // DO NOT change the value below.
-    #define _DEBUG_VERBOSE_LEVEL 0
+    #define DEBUG_VERBOSE_LEVEL 0
 #endif
     
 
@@ -350,7 +350,7 @@
 	#endif
 
 	// SNIFFER_MODE should be defined if you want the Sniffer Mode option available
-    #if _DEBUG_VERBOSE_LEVEL > 0
+    #if DEBUG_VERBOSE_LEVEL > 0
 	    #ifndef SNIFFER_MODE
 		    #define SNIFFER_MODE
 	    #endif
@@ -361,8 +361,8 @@
 
 // Other Options
 
-#ifndef _CHIP_ENABLE
-	#define _CHIP_ENABLE
+#ifndef CHIP_ENABLE
+	#define CHIP_ENABLE
 #endif
 
 #ifndef _R8C_TINY

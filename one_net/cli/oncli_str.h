@@ -320,7 +320,7 @@ extern const char* const FALSE_STR;
 extern const char* const ONCLI_MSG_STATUS_STR[];
 
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 
 // strings and formats dealing with ACKs and NACKS
 extern const char* const ONCLI_ACK_STR;
@@ -428,7 +428,7 @@ enum
 //! \ingroup oncli_str
 //! @{
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 const char* get_nack_reason_str(on_nack_rsn_t nack_reason);
 #endif
 

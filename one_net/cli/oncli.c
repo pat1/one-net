@@ -75,7 +75,7 @@
 
 extern const char HEX_DIGIT[];
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 // change for any custom message header printouts you want
 // adjust the "3" below to the actual number of types if you add anything
 #ifdef ROUTE
@@ -132,10 +132,10 @@ BOOL newline_rcvd = FALSE;
 BOOL command_processed = FALSE;
 
 //! verbosity level
-#ifdef _DEBUG_VERBOSE_LEVEL
-    UInt8 verbose_level = /*_DEBUG_VERBOSE_LEVEL*/1; // March 6, 2012 -- start at level 1
+#ifdef DEBUG_VERBOSE_LEVEL
+    UInt8 verbose_level = /*DEBUG_VERBOSE_LEVEL*/1; // March 6, 2012 -- start at level 1
 #else
-    #error "_DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
+    #error "DEBUG_VERBOSE_LEVEL is not defined.  Please define it in config_options.h"
 #endif
 
 
@@ -719,7 +719,7 @@ void print_route(const UInt8* const route)
 #endif
 
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 /*!
     \brief Displays the contents of an ack_nack_t is string form.
 
@@ -902,7 +902,7 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
 #endif
 
 
-#if _DEBUG_VERBOSE_LEVEL > 4
+#if DEBUG_VERBOSE_LEVEL > 4
 void print_single(UInt16 pid, const UInt8* raw_payload)
 {
     UInt8 msg_pld_type = get_payload_msg_type(raw_payload);

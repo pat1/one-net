@@ -49,7 +49,7 @@
 #include "one_net_data_rate.h"
 
 
-#if  _DEBUG_VERBOSE_LEVEL > 3
+#if  DEBUG_VERBOSE_LEVEL > 3
 #include "one_net_acknowledge.h"
 #endif
 
@@ -532,7 +532,7 @@ const char* const ONCLI_M_UPDATE_RESULT_ADD_DEV_STR = "ADD DEVICE";
 
 
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 const char* const ONCLI_ACK_STR = "ACK";
 const char* const ONCLI_NACK_STR = "NACK";
 
@@ -617,7 +617,7 @@ const char* const EMPTY_STRING = "";
 //! @{
 
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 static const char* const NON_FATAL_NACK_REASON_STR_ARRAY[ON_NACK_RSN_BAD_KEY + 1] =
 {
     "No Err",
@@ -701,7 +701,7 @@ static const char* const NACK_REASON_GENERAL_ERR_STR = "Gen Err";
 //! @{
 
 
-#if _DEBUG_VERBOSE_LEVEL > 3
+#if DEBUG_VERBOSE_LEVEL > 3
 const char* get_nack_reason_str(on_nack_rsn_t nack_reason)
 {
     if(nack_reason <= ON_NACK_RSN_BAD_KEY)
