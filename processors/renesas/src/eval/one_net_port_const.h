@@ -145,7 +145,7 @@ enum
     //! Time in ms a device waits for a response (50ms)
     ONE_NET_RESPONSE_TIME_OUT = 50,
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Base Fragment delay in ms for low priority transactions (125ms)
     ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = 125,
 
@@ -248,7 +248,7 @@ enum
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Default chunk size for block / stream transfers.  Must be between 1 and
 //! 40, inclusive.
 #define DEFAULT_BS_CHUNK_SIZE 4

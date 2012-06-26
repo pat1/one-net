@@ -109,7 +109,7 @@
 
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Block Data Packet
 #define ONE_NET_RAW_BLOCK_DATA 0x06
 
@@ -130,7 +130,7 @@
 
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 //! Stream Data Packet
 #define ONE_NET_RAW_STREAM_DATA 0x0A
 
@@ -471,14 +471,14 @@ enum
     
     
     ON_INVITE_ENCODED_PLD_LEN = 33,
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     ON_BLOCK_ENCODED_PLD_LEN = 43,
     #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     ON_STREAM_ENCODED_PLD_LEN = 43,
     #endif
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
         //! The maximum length of a raw payload field (not including the extra
         //! byte needed to store the 2 bits for the encryption method type).
         ON_MAX_RAW_PLD_LEN = ON_BLOCK_ENCODED_PLD_LEN - 1,
@@ -523,10 +523,10 @@ enum
     
     
     ON_INVITE_ENCODED_PKT_LEN = ON_PLD_IDX + ON_INVITE_ENCODED_PLD_LEN,
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     ON_BLOCK_ENCODED_PKT_LEN = ON_PLD_IDX + ON_BLOCK_ENCODED_PLD_LEN,
     #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     ON_STREAM_ENCODED_PKT_LEN = ON_PLD_IDX + ON_STREAM_ENCODED_PLD_LEN
     #endif
 };
@@ -537,33 +537,33 @@ enum
     #ifdef ONE_NET_MULTI_HOP
         ON_ACK_NACK_ENCODED_PKT_SIZE = ON_MAX_ACK_NACK_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         ON_SINGLE_ENCODED_PKT_SIZE = ON_MAX_SINGLE_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         ON_BLOCK_ENCODED_PKT_SIZE = ON_BLOCK_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         ON_STREAM_ENCODED_PKT_SIZE = ON_STREAM_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         #endif
         ON_INVITE_ENCODED_PKT_SIZE = ON_INVITE_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,              
     #else // ifdef ONE_NET_MULTI_HOP //
         ON_ACK_NACK_ENCODED_PKT_SIZE = ON_MAX_ACK_NACK_ENCODED_PKT_LEN,
         ON_SINGLE_ENCODED_PKT_SIZE = ON_MAX_SINGLE_ENCODED_PKT_LEN,
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         ON_BLOCK_ENCODED_PKT_SIZE = ON_BLOCK_ENCODED_PKT_LEN,
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         ON_STREAM_ENCODED_PKT_SIZE = ON_STREAM_ENCODED_PKT_LEN,
         #endif
         ON_INVITE_ENCODED_PKT_SIZE = ON_INVITE_ENCODED_PKT_LEN,
     #endif // else ONE_NET_MULTI_HOP is not defined //
     
     ON_MIN_ENCODED_PKT_SIZE = ON_PLD_IDX + 11,
-    #if defined(_BLOCK_MESSAGES_ENABLED)
+    #if defined(BLOCK_MESSAGES_ENABLED)
     ON_MAX_ENCODED_PKT_SIZE = ON_BLOCK_ENCODED_PKT_SIZE,
     #else
     ON_MAX_ENCODED_PKT_SIZE = ON_INVITE_ENCODED_PKT_SIZE,
     #endif
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     ON_MAX_ENCODED_DATA_PKT_SIZE = ON_BLOCK_ENCODED_PKT_SIZE
     #else
     ON_MAX_ENCODED_DATA_PKT_SIZE = ON_SINGLE_ENCODED_PKT_SIZE
@@ -627,7 +627,7 @@ enum
 //! Admin packet indexes
 enum
 {
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Index for the low priority fragment delay in an admin message
     //! containing both fragment delays
     ON_FRAG_LOW_IDX = 0,
@@ -947,7 +947,7 @@ ONE_NET_INLINE BOOL packet_is_single(UInt16 raw_pid)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Determines whether a given PID represents a block packet.
 
@@ -966,7 +966,7 @@ ONE_NET_INLINE BOOL packet_is_block(UInt16 raw_pid)
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Determines whether a given PID represents a stream packet.
 

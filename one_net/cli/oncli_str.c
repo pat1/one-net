@@ -258,12 +258,12 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
     const char* const ONCLI_RANGE_TEST_CMD_STR = "range test";
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
     //! Command to test block
     const char* const ONCLI_BLOCK_CMD_STR = "block";
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
     //! Command to test stream
     const char* const ONCLI_STREAM_CMD_STR = "stream";
 #endif
@@ -352,12 +352,12 @@ const char * const ONCLI_RX_TXT_FMT
 //! string for a single transaction
 const char * const ONCLI_SINGLE_TXN_STR = "Single";
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! string for a block transaction
 const char * const ONCLI_BLOCK_TXN_STR = "Block";
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 //! string for a stream transaction
 const char * const ONCLI_STREAM_TXN_STR = "Stream";
 #endif
@@ -399,7 +399,7 @@ const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT
   = "Buffer is not big enough; have %u, needed %u\n";
   
   
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 const char* const ONCLI_FRAG_DELAY_FMT = "%s fragment delay : %d ms\n";
 #endif
 
@@ -520,7 +520,7 @@ const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
 const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
 const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
 #endif
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR = "FRAGMENT DELAY(S)";
 #endif
 const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR = "KEEP-ALIVE INTERVAL";

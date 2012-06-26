@@ -156,7 +156,7 @@ static const UInt8 add_flags = ON_JOINED | ON_SEND_TO_MASTER;
 
 static const tick_t add_keep_alive = 1800000;
 static const UInt8 add_channel = 1;
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static const UInt8 add_fragment_delay_low = 125;
 static const UInt8 add_fragment_delay_high = 25;
 #endif
@@ -184,7 +184,7 @@ typedef enum
     DEBUG_MEMORY_INVITE_TXN,
     DEBUG_MEMORY_RESPONSE_TXN,
     DEBUG_MEMORY_SINGLE_TXN,
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     DEBUG_MEMORY_BS_TXN,
     DEBUG_MEMORY_BS_MSG,
     #endif
@@ -211,7 +211,7 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
     "invite_txn",
     "response_txn",
     "single_txn",
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     "bs_txn",
     "bs_msg"
     #endif
@@ -366,11 +366,11 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -925,7 +925,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the change key command was received //
 	#endif
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(!strnicmp(ONCLI_BLOCK_CMD_STR, CMD, strlen(ONCLI_BLOCK_CMD_STR)))
     {
         *CMD_STR = ONCLI_BLOCK_CMD_STR;
@@ -942,7 +942,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the "block" command was received //    
     #endif
     
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     if(!strnicmp(ONCLI_STREAM_CMD_STR, CMD, strlen(ONCLI_STREAM_CMD_STR)))
     {
         *CMD_STR = ONCLI_STREAM_CMD_STR;
@@ -1402,7 +1402,7 @@ static oncli_status_t list_cmd_hdlr(void)
             return ONCLI_CMD_FAIL;
         }
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         oncli_send_msg("\n\n");
         oncli_print_fragment_delays();
         #endif
@@ -1458,11 +1458,11 @@ static oncli_status_t list_cmd_hdlr(void)
         else
         #endif
         {
-            #if defined(ONE_NET_MASTER) && defined(_BLOCK_MESSAGES_ENABLED)
+            #if defined(ONE_NET_MASTER) && defined(BLOCK_MESSAGES_ENABLED)
             flags = master_param->block_stream_flags;
             #endif
         }
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         oncli_send_msg("Blk/Strm Data Rate: %s\n", flags &
           ON_BS_ELEVATE_DATA_RATE ? TRUE_STR : FALSE_STR);
         oncli_send_msg("Blk/Strm Chg Channel: %s\n", flags &
@@ -1522,7 +1522,7 @@ static oncli_status_t list_cmd_hdlr(void)
                 oncli_send_msg("Reject Bad Msg ID: %s\n",
                   client->flags & ON_REJECT_INVALID_MSG_ID ? TRUE_STR : FALSE_STR);
                 
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 if(features_block_capable(client->device.features))
                 {
                     oncli_send_msg("Blk/Strm Data Rate: %s\n", client->flags &
@@ -2327,7 +2327,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         master->keep_alive_interval = add_keep_alive;
         master->flags = add_flags;
         on_base_param->channel = add_channel;
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
         on_base_param->fragment_delay_low = add_fragment_delay_low;
         on_base_param->fragment_delay_high = add_fragment_delay_high;
     #endif
@@ -2833,7 +2833,7 @@ static oncli_status_t set_flags_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     }
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(is_master_did(&enc_did))
     {
         master_param->block_stream_flags = flags;
@@ -3031,7 +3031,7 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles receiving the block command and all its
       parameters.
@@ -3168,7 +3168,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles receiving the stream command and all its
       parameters.
@@ -4176,7 +4176,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             *mem_ptr = (UInt8*) &single_txn;
             len = sizeof(on_txn_t);
             break; 
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case DEBUG_MEMORY_BS_TXN:
             *mem_ptr = (UInt8*) &bs_txn;
             len = sizeof(on_txn_t);

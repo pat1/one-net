@@ -82,7 +82,7 @@ typedef enum
     ONE_NET_UPDATE_UNASSIGN_PEER = 0x03,
     #endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Fragment delays update
     ONE_NET_UPDATE_FRAGMENT_DELAY = 0x04,
     #endif
@@ -206,7 +206,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   
 one_net_status_t one_net_master_change_client_keep_alive(
   const on_raw_did_t * const RAW_DST, const UInt32 KEEP_ALIVE);
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 one_net_status_t one_net_master_change_frag_dly(
   const on_raw_did_t * const RAW_DST, const UInt16 LOW_DELAY,
   const UInt16 HIGH_DELAY);
@@ -225,7 +225,7 @@ one_net_xtea_key_t* master_get_encryption_key(
   
 on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Fills in some default values determined by ONE-NET for a proposed block transfer.
     
@@ -273,7 +273,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
   on_ack_nack_t* ack_nack);
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Fills in some default values determined by ONE-NET for a proposed stream transfer.
     

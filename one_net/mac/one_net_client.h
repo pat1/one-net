@@ -136,7 +136,7 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     int peer_param_len);
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Fills in some default values determined by ONE-NET for a proposed block transfer.
     
@@ -184,7 +184,7 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Fills in some default values determined by ONE-NET for a proposed stream transfer.
     

@@ -107,7 +107,7 @@ enum
     ONT_INVITE_SEND_TIMER,
     #endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     ONT_BS_TIMER,
     
     ONT_BS_TIMEOUT_TIMER,

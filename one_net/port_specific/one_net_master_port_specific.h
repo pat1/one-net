@@ -154,7 +154,7 @@ on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles the received stream packet.
 	
@@ -172,7 +172,7 @@ on_message_status_t one_net_master_handle_stream_pkt(on_txn_t* txn,
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles the received block packet.
 	
@@ -460,7 +460,7 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client);
 BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID);
   
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 #ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Alerts the master when a device has requested that another device
@@ -620,7 +620,7 @@ on_message_status_t one_net_master_handle_bs_ack_nack_response(
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Application-level code called by ONE-NET when initiating a stream
            transfer containing default the block / stream parameters and

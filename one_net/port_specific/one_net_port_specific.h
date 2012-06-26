@@ -382,7 +382,7 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg);
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Informs the application code what a block or stream transfer has
            been requested and allows it to accept, modify, or reject the
@@ -420,7 +420,7 @@ on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Retrieves the next stream payload to send
     

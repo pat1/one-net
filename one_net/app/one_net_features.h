@@ -125,7 +125,7 @@ enum
         #ifndef DEVICE_SLEEPS
             + ON_DEVICE_NEVER_SLEEPS_MASK
         #endif
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
             + ON_BLOCK_FEATURE_MASK
         #endif        
         #ifdef ONE_NET_MULTI_HOP
@@ -135,7 +135,7 @@ enum
             + ON_MH_REPEATER_FEATURE_MASK
         #endif
 
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
             + ON_STREAM_FEATURE_MASK
         #endif
         ,

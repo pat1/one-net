@@ -215,7 +215,7 @@ typedef enum
     ON_REQUEST_KEY_CHANGE = 0x06,
     #endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Change both high and low fragment delays in one message
     ON_CHANGE_FRAGMENT_DELAY = 0x07,
     
@@ -252,7 +252,7 @@ typedef enum
     //! Sent in response to a change settings message.
     ON_CHANGE_SETTINGS_RESP = 0x0F,
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     ON_REQUEST_BLOCK_STREAM = 0x10,
     
     ON_REQUEST_REPEATER = 0x11,
@@ -422,7 +422,7 @@ typedef struct
 } on_sending_device_t; 
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 
 // we need to cram 3 parameters into 1 byte for the message.
 // hops will be the 3 least significant bbits(0 - 2).
@@ -660,7 +660,7 @@ on_single_data_queue_t* load_next_recipient(on_single_data_queue_t* msg,
 BOOL device_should_stay_awake(const on_encoded_did_t* const did);
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
   const on_encoded_did_t* dst);
 void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*

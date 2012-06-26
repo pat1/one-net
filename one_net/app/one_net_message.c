@@ -744,7 +744,7 @@ BOOL device_should_stay_awake(const on_encoded_did_t* const did)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
   const on_encoded_did_t* dst)
 {
@@ -818,7 +818,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst->did,
       ON_ENCODED_DID_LEN);
     
-    #ifdef _STREAM_MESSAGES_ENABLED  
+    #ifdef STREAM_MESSAGES_ENABLED  
     if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
     {
         one_net_int32_to_byte_stream(bs_msg->time,

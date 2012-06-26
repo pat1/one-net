@@ -459,7 +459,7 @@ typedef struct
 //! Parameters specific to the MASTER
 typedef struct
 {
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     UInt8 block_stream_flags;
     #endif
     
@@ -536,7 +536,7 @@ typedef on_message_status_t (*on_pkt_hdlr_t)(on_txn_t** txn,
   on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 typedef on_message_status_t (*on_bs_pkt_hdlr_t)(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* bs_pkt, on_ack_nack_t* ack_nack);
   
@@ -561,7 +561,7 @@ typedef on_message_status_t (*on_txn_hdlr_t)(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Block / Stream Transaction Handler
 typedef on_message_status_t (*on_bs_txn_hdlr_t)(const block_stream_msg_t* msg,
   const on_encoded_did_t* terminating_device, on_message_status_t* status,
@@ -585,7 +585,7 @@ typedef struct
     on_recip_list_hdlr_t adj_recip_list_hdlr;
     #endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Single Data Packet Handler
     on_bs_pkt_hdlr_t block_data_hdlr;
 	
@@ -596,7 +596,7 @@ typedef struct
     on_bs_txn_hdlr_t block_txn_hdlr;
     #endif
 
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     //! Stream Data Packet Handler
     on_bs_pkt_hdlr_t stream_data_hdlr;
 	
@@ -642,7 +642,7 @@ extern on_base_param_t* const on_base_param;
 
 extern on_txn_t response_txn;
 extern on_txn_t single_txn;
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 extern on_txn_t bs_txn;
 #endif
 
@@ -758,7 +758,7 @@ extern BOOL save;
 extern tick_t route_start_time;
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 extern block_stream_msg_t bs_msg;
 #endif
 
@@ -793,7 +793,7 @@ one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
 BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id,
   on_pkt_t* pkt);
 
-#ifndef _BLOCK_MESSAGES_ENABLED
+#ifndef BLOCK_MESSAGES_ENABLED
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
 #else
@@ -822,7 +822,7 @@ BOOL verify_payload_crc(UInt16 raw_pid, const UInt8* decrypted);
 
 
 // encrypting / decrypting
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 one_net_status_t on_encrypt(BOOL is_stream_pkt, UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len);
 one_net_status_t on_decrypt(BOOL is_stream_pkt, UInt8 * const data,
@@ -874,7 +874,7 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack);
-#if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
+#if defined(BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes);
 #else
@@ -927,13 +927,13 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
 BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device);
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg);
 void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority);
 void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause);
 void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms);
 void adjust_bs_frag_delay(block_stream_msg_t* msg, UInt16 frag_delay);
-#if defined(ONE_NET_MULTI_HOP) && defined(ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
+#if defined(ONE_NET_MULTI_HOP) && defined(ONE_NET_CLIENT) && defined(BLOCK_MESSAGES_ENABLED)
 on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater);
 #endif

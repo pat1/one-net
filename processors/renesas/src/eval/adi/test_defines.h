@@ -68,12 +68,12 @@
 #endif
 
 
-#if defined(_BLOCK_MESSAGES_ENABLED) && !defined(EXTENDED_SINGLE)
-    #error "EXTENDED_SINGLE must be defined if _BLOCK_MESSAGES_ENABLED is defined."
+#if defined(BLOCK_MESSAGES_ENABLED) && !defined(EXTENDED_SINGLE)
+    #error "EXTENDED_SINGLE must be defined if BLOCK_MESSAGES_ENABLED is defined."
 #endif
 
-#if !defined(_BLOCK_MESSAGES_ENABLED) && defined(_STREAM_MESSAGES_ENABLED)
-    #error "_BLOCK_MESSAGES_ENABLED must be defined if _STREAM_MESSAGES_ENABLED is defined."
+#if !defined(BLOCK_MESSAGES_ENABLED) && defined(STREAM_MESSAGES_ENABLED)
+    #error "BLOCK_MESSAGES_ENABLED must be defined if STREAM_MESSAGES_ENABLED is defined."
 #endif
 
 #if !defined(ONE_NET_CLIENT) && !defined(ONE_NET_MASTER)
@@ -118,11 +118,11 @@
     #ifdef ONE_NET_MULTI_HOP
         #error "Simple clients cannot have ONE_NET_MULTI_HOP defined."
     #endif
-    #ifdef _BLOCK_MESSAGES_ENABLED
-        #error "Simple clients cannot have _BLOCK_MESSAGES_ENABLED defined."
+    #ifdef BLOCK_MESSAGES_ENABLED
+        #error "Simple clients cannot have BLOCK_MESSAGES_ENABLED defined."
     #endif
-    #ifdef _STREAM_MESSAGES_ENABLED
-        #error "Simple clients cannot have _STREAM_MESSAGES_ENABLED defined."
+    #ifdef STREAM_MESSAGES_ENABLED
+        #error "Simple clients cannot have STREAM_MESSAGES_ENABLED defined."
     #endif
     #ifdef DATA_RATE_CHANNEL
         #error "Simple clients cannot have DATA_RATE_CHANNEL defined."

@@ -274,10 +274,10 @@ BOOL packet_is_data(UInt16 raw_pid)
     switch(raw_pid)
     {
         case ONE_NET_RAW_SINGLE_DATA:
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_RAW_BLOCK_DATA:
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA:
         #endif
         #ifdef ROUTE
@@ -324,10 +324,10 @@ BOOL packet_is_ack(UInt16 raw_pid)
         #ifdef ROUTE
         case ONE_NET_RAW_ROUTE_ACK:
         #endif
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_RAW_BLOCK_DATA_ACK:
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA_ACK:
         #endif
             return TRUE;
@@ -361,11 +361,11 @@ SInt16 get_single_response_pid(UInt16 raw_single_pid, BOOL isACK,
     {
         case ONE_NET_RAW_SINGLE_DATA:
           raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK; break;
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_RAW_BLOCK_DATA:
           raw_resp_pid = ONE_NET_RAW_BLOCK_DATA_ACK; break;
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA:
           raw_resp_pid = ONE_NET_RAW_STREAM_DATA_ACK; break;
         #endif
@@ -461,10 +461,10 @@ SInt8 get_default_num_blocks(UInt16 raw_pid)
     
     switch(raw_pid)
     {
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_RAW_BLOCK_DATA:
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         case ONE_NET_RAW_STREAM_DATA:
         #endif
             return 4;

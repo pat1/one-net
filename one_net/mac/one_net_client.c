@@ -171,7 +171,7 @@ static BOOL removed = FALSE;
 static on_message_status_t on_client_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack);
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static on_message_status_t on_client_block_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* block_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_handle_block_ack_nack_response(
@@ -181,7 +181,7 @@ static on_message_status_t on_client_block_txn_hdlr(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 #endif
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 static on_message_status_t on_client_stream_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* stream_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_client_handle_stream_ack_nack_response(
@@ -369,7 +369,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(&(on_base_param->current_key), *INVITE_KEY,
       sizeof(on_base_param->current_key));
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
     #endif 
@@ -750,7 +750,7 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
 } // client_nv_crc //
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_nack_rsn_t on_client_get_default_block_transfer_values(
   const on_encoded_did_t* dst, UInt32 transfer_size, UInt8* priority,
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
@@ -898,7 +898,7 @@ on_nack_rsn_t on_client_initiate_block_msg(block_stream_msg_t* msg,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 on_nack_rsn_t on_client_get_default_stream_transfer_values(
   const on_encoded_did_t* dst, UInt32 time_ms, UInt8* priority,
   UInt16* frag_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
@@ -1456,7 +1456,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
     on_decode(dst , &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
    
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(*msg_type == ON_ADMIN_MSG && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
     {
         // prevent the device from "sliding off" the device list
@@ -1481,7 +1481,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
             #ifndef ONE_NET_SIMPLE_CLIENT
             case ON_REQUEST_KEY_CHANGE:
             #endif
-            #ifdef _BLOCK_MESSAGES_ENABLED
+            #ifdef BLOCK_MESSAGES_ENABLED
             case ON_CHANGE_FRAGMENT_DELAY_RESP:
             #endif
             {
@@ -1635,7 +1635,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                             break;
                         }
                         
-                        #ifdef _BLOCK_MESSAGES_ENABLED
+                        #ifdef BLOCK_MESSAGES_ENABLED
                         case ON_CHANGE_FRAGMENT_DELAY:
                         {
                             // changing both within one message.  If a value is 0, then, it
@@ -1715,7 +1715,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
       (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
+    #if defined(BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
     if(bs_msg.transfer_in_progress)
     {
         ack_nack->handle = ON_ACK;
@@ -1732,7 +1732,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                 
                 // route failed for some reason.
                 ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
-                #ifndef _STREAM_MESSAGES_ENABLED
+                #ifndef STREAM_MESSAGES_ENABLED
                 on_client_block_txn_hdlr(&bs_msg, NULL, &status, ack_nack);
                 #else
                 if(get_bs_transfer_type(bs_msg.flags) == ON_BLK_TRANSFER)
@@ -1776,7 +1776,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
 
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles a block data packet
 
@@ -1865,7 +1865,7 @@ static on_message_status_t on_client_block_txn_hdlr(
 
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles the received stream packet.
 	
@@ -1955,14 +1955,14 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.adj_recip_list_hdlr = &on_client_adjust_recipient_list;
     #endif
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     pkt_hdlr.block_data_hdlr = &on_client_block_data_hdlr;
     pkt_hdlr.block_ack_nack_hdlr =
       &on_client_handle_block_ack_nack_response;
     pkt_hdlr.block_txn_hdlr = &on_client_block_txn_hdlr;
     #endif
     
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     pkt_hdlr.stream_data_hdlr = &on_client_stream_data_hdlr;
     pkt_hdlr.stream_ack_nack_hdlr =
       &on_client_handle_stream_ack_nack_response;
@@ -2223,7 +2223,7 @@ static BOOL look_for_invite(void)
     on_txn_t* this_txn = &invite_txn;
     on_pkt_t* this_pkt_ptrs = &data_pkt_ptrs;
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
+    #if defined(BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
     if(on_rx_packet(&invite_txn, &this_txn, &this_pkt_ptrs, raw_payload_bytes)
       != ONS_PKT_RCVD)
     #else
@@ -2326,7 +2326,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         }
         #endif
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_TERMINATE_BLOCK_STREAM:
         {
             on_ack_nack_t* received_ack_nack = (on_ack_nack_t*)
@@ -2340,7 +2340,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_REQUEST_BLOCK_STREAM:
         {
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             UInt8 is_block_transfer = (get_bs_transfer_type(
               DATA[BLOCK_STREAM_SETUP_FLAGS_IDX]) == ON_BLK_TRANSFER);
             #endif
@@ -2358,7 +2358,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 if(!is_block_transfer)
                 {
                     if(bs_msg.bs.stream.last_response_time > 0)
@@ -2407,7 +2407,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             if(!ack_nack->nack_reason)
             {
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 if(!is_block_transfer)
                 {
                     bs_msg.bs.stream.last_response_time = 0;
@@ -2512,7 +2512,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         } // unassign peer case //
         #endif
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_CHANGE_FRAGMENT_DELAY:
         {
             // changing both within one message.  If a value is 0, then, it

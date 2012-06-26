@@ -237,7 +237,7 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Parses a single block packet
     
@@ -264,7 +264,7 @@ BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt)
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Parses a single stream packet
     

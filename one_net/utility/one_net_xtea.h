@@ -106,7 +106,7 @@ typedef enum
 } one_net_single_blk_encryption_t;
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Encryption method used to encrypt stream transactions
 

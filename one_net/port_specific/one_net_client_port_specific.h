@@ -197,7 +197,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles the received stream packet.
 	
@@ -215,7 +215,7 @@ on_message_status_t one_net_client_handle_stream_pkt(on_txn_t* txn,
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles the received block packet.
 	
@@ -441,7 +441,7 @@ void one_net_client_single_txn_status(on_message_status_t status,
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Application-level code called by ONE-NET when initiating a block
            transfer containing default the block / stream parameters and
@@ -579,7 +579,7 @@ void one_net_client_repeater_requested(block_stream_msg_t* bs_msg,
 #endif
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Application-level code called by ONE-NET when initiating a stream
            transfer containing default the block / stream parameters and

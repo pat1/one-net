@@ -179,7 +179,7 @@ UInt8 user_pin_src_unit;
 //! @{
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Buffer to hold block (and possibly stream) values.
 static char bs_buffer[DEFAULT_BS_CHUNK_SIZE * ON_BS_DATA_PLD_SIZE];
 #endif
@@ -652,7 +652,7 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(bs_msg.transfer_in_progress && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
     {
         // Check a few things and see if we need to try again with different
@@ -995,7 +995,7 @@ void eval_single_txn_status(on_message_status_t status,
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Callback function called when a block transaction is complete.
     
@@ -1058,7 +1058,7 @@ on_message_status_t eval_bs_txn_status(const block_stream_msg_t* msg,
     #if _DEBUG_VERBOSE_LEVEL > 0
     if(verbose_level > 0)
     {
-        #ifndef _STREAM_MESSAGES_ENABLED
+        #ifndef STREAM_MESSAGES_ENABLED
         const char* transfer_type = "Block";
         #else
         const char* transfer_type = ((get_bs_transfer_type(msg->flags) ==
@@ -1386,13 +1386,13 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         }
                         
                         data_type = ON_SINGLE;
-                        #ifdef _BLOCK_MESSAGES_ENABLED
+                        #ifdef BLOCK_MESSAGES_ENABLED
                         if(packet_is_block(raw_pid))
                         {
                             data_type = ON_BLOCK;
                         }
                         #endif
-                        #ifdef _STREAM_MESSAGES_ENABLED
+                        #ifdef STREAM_MESSAGES_ENABLED
                         else if(packet_is_stream(raw_pid))
                         {
                             data_type = ON_STREAM;
@@ -1409,7 +1409,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         oncli_send_msg("\n");
                         one_net_memmove(decrypted, encrypted, raw_pld_len);
                         
-                        #ifdef _STREAM_MESSAGES_ENABLED
+                        #ifdef STREAM_MESSAGES_ENABLED
                         if(on_decrypt(data_type == ON_STREAM, decrypted,
                           (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
                           ONS_SUCCESS)
@@ -1557,11 +1557,11 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
     {
         return;
@@ -1604,7 +1604,7 @@ SInt8 one_net_get_alternate_channel(void)
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer, on_ack_nack_t* ack_nack)
 {
@@ -1671,7 +1671,7 @@ on_message_status_t eval_handle_block(on_txn_t* txn,
     #if _DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
-        #ifndef _STREAM_MESSAGES_ENABLED
+        #ifndef STREAM_MESSAGES_ENABLED
         print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE);
         #else
         print_bs_pkt((const block_stream_pkt_t*) block_pkt, TRUE, FALSE);
@@ -1698,7 +1698,7 @@ on_message_status_t on_master_handle_block_ack_nack_response(
 }
 
   
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer, on_ack_nack_t* ack_nack)
 {

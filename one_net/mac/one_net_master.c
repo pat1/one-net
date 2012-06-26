@@ -183,7 +183,7 @@ static on_encoded_did_t add_device_did = {0xB4, 0xB4};
 //! settings / flags.
 static BOOL settings_sent;
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Flag for whether the device being added has been notified of its fragment
 //! delays.
 static BOOL fragment_delay_sent;
@@ -225,7 +225,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
   const on_raw_did_t* const raw_did, on_message_status_t status,
   const on_ack_nack_t* const ack_nack, on_client_t* client);
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static on_message_status_t on_master_block_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* block_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_handle_block_ack_nack_response(
@@ -236,7 +236,7 @@ static on_message_status_t on_master_block_txn_hdlr(
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 static on_message_status_t on_master_stream_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* stream_pkt, on_ack_nack_t* ack_nack);
 static on_message_status_t on_master_handle_stream_ack_nack_response(
@@ -321,7 +321,7 @@ one_net_status_t one_net_master_create_network(
     one_net_memmove(on_base_param->current_key, *KEY,
       sizeof(on_base_param->current_key));
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
     on_base_param->fragment_delay_low = ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY;
     on_base_param->fragment_delay_high = ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY;
 #endif
@@ -657,7 +657,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
       &raw_invite[ON_INVITE_CRC_START_IDX],
       ON_INVITE_DATA_LEN, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
 
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     status = on_encrypt(FALSE, raw_invite,
       (const one_net_xtea_key_t * const)(&invite_key), ON_RAW_INVITE_SIZE);
     #else
@@ -716,7 +716,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
       ON_REJECT_INVALID_MSG_ID : 0);
       
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     #ifdef DATA_RATE_CHANNEL
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
@@ -742,7 +742,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     one_net_memmove(add_device_did, client->device.did, ON_ENCODED_DID_LEN);
     
     settings_sent = FALSE;
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     fragment_delay_sent = FALSE;
     #endif
     
@@ -811,7 +811,7 @@ one_net_status_t one_net_master_remove_device(
         return ONS_BUSY;
     }
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(bs_txn.priority != ONE_NET_NO_PRIORITY)
     {
         return ONS_BUSY;
@@ -1188,7 +1188,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
       ON_REJECT_INVALID_MSG_ID : 0);
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(features_block_capable(client->device.features))
     {
         #ifdef DATA_RATE_CHANNEL
@@ -1256,7 +1256,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
           sizeof(one_net_xtea_key_t));    
         out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
         out_base_param->channel = on_base_param->channel;
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         out_base_param->fragment_delay_low = on_base_param->fragment_delay_low;
         out_base_param->fragment_delay_high = on_base_param->fragment_delay_high;
         #endif
@@ -1458,7 +1458,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
 } // one_net_master_change_client_keep_alive //
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Changes the fragment delay of a device.
 
@@ -1684,7 +1684,7 @@ on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
 } // client_info //
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_nack_rsn_t on_master_get_default_block_transfer_values(
   on_client_t* src_client, on_client_t* dst_client, UInt32 transfer_size,
   UInt8* priority, UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay,
@@ -1856,7 +1856,7 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 on_nack_rsn_t on_master_get_default_stream_transfer_values(
   const on_client_t* src_client, const on_client_t* dst_client, UInt32 time_ms,
   UInt8* priority, UInt16* frag_delay, UInt8* data_rate, UInt8* channel,
@@ -2415,7 +2415,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             break;
         } // change keep-alive case //
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_UPDATE_FRAGMENT_DELAY:
         {
             update = ONE_NET_UPDATE_FRAGMENT_DELAY;
@@ -2529,7 +2529,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
       raw_pld, (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
+    #if defined(BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
     if(bs_msg.transfer_in_progress)
     {
         ack_nack->handle = ON_ACK;
@@ -2546,7 +2546,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
                 
                 // route failed for some reason.
                 ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
-                #ifndef _STREAM_MESSAGES_ENABLED
+                #ifndef STREAM_MESSAGES_ENABLED
                 on_master_block_txn_hdlr(&bs_msg, NULL, &status, ack_nack);
                 #else
                 if(get_bs_transfer_type(bs_msg.flags) == ON_BLK_TRANSFER)
@@ -2586,7 +2586,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles a block data packet
 
@@ -2653,7 +2653,7 @@ static on_message_status_t on_master_block_txn_hdlr(
 
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles a stream data packet
 
@@ -2739,14 +2739,14 @@ static one_net_status_t init_internal(void)
     pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
     pkt_hdlr.adj_recip_list_hdlr = &on_master_adjust_recipient_list;
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     pkt_hdlr.block_data_hdlr = &on_master_block_data_hdlr;
     pkt_hdlr.block_ack_nack_hdlr =
       &on_master_handle_block_ack_nack_response;
     pkt_hdlr.block_txn_hdlr = &on_master_block_txn_hdlr;
     #endif
     
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     pkt_hdlr.stream_data_hdlr = &on_master_stream_data_hdlr;
     pkt_hdlr.stream_ack_nack_hdlr =
       &on_master_handle_stream_ack_nack_response;
@@ -2757,7 +2757,7 @@ static one_net_status_t init_internal(void)
     device_is_master = TRUE;
     one_net_init();
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     #ifdef DATA_RATE_CHANNEL
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
       ON_BS_ELEVATE_DATA_RATE : 0); 
@@ -3213,7 +3213,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         }
         #endif
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_TERMINATE_BLOCK_STREAM:
         {
             on_ack_nack_t* received_ack_nack = (on_ack_nack_t*)
@@ -3227,7 +3227,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         
         case ON_REQUEST_BLOCK_STREAM:
         {
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             UInt8 is_block_transfer = (get_bs_transfer_type(
               DATA[BLOCK_STREAM_SETUP_FLAGS_IDX]) == ON_BLK_TRANSFER);
             #endif
@@ -3262,7 +3262,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
                 
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 if(!is_block_transfer)
                 {
                     if(bs_msg.bs.stream.last_response_time > 0)
@@ -3297,7 +3297,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             if(master_is_recipient && !ack_nack->nack_reason)
             {
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 if(!is_block_transfer)
                 {
                     bs_msg.bs.stream.last_response_time = 0;
@@ -3471,7 +3471,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_CHANGE_FRAGMENT_DELAY_RESP:
         {
             if(is_invite_did(SRC_DID))
@@ -3585,7 +3585,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     ack_nack->payload->admin_msg[1] = (*client)->flags;
                     break;
                 }                
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 else if(features_block_capable((*client)->device.features)
                   && !fragment_delay_sent)
                 {

@@ -136,7 +136,7 @@ on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
 on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
   0, NULL, NULL, NULL};
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
     //! The current block transaction
     on_txn_t bs_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
       ONT_BS_TIMER, 0, 0, NULL, NULL, NULL};
@@ -218,7 +218,7 @@ BOOL save = FALSE;
 tick_t route_start_time = 0;
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 block_stream_msg_t bs_msg;
 #endif
 
@@ -301,7 +301,7 @@ static BOOL check_for_clr_channel(void);
 static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
   on_txn_t** const this_txn, on_pkt_t* const pkt,
   UInt8* const raw_payload_bytes, on_ack_nack_t* const ack_nack);
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
@@ -310,7 +310,7 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
 static void terminate_bs_complete(block_stream_msg_t* bs_msg);
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack);
@@ -441,7 +441,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_STATUS:
 	        case ON_ACK_DATA:
             case ON_ACK_ADMIN_MSG:
-            #ifdef _BLOCK_MESSAGES_ENABLED
+            #ifdef BLOCK_MESSAGES_ENABLED
             case ON_ACK_BLK_PKTS_RCVD:
             #endif
             
@@ -556,7 +556,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             #ifdef ROUTE
             case ON_ACK_ROUTE:
             #endif
-            #ifdef _BLOCK_MESSAGES_ENABLED
+            #ifdef BLOCK_MESSAGES_ENABLED
             case ON_ACK_BLK_PKTS_RCVD:
             #endif            
                 one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
@@ -628,7 +628,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
       
-    #ifdef _STREAM_MESSAGES_ENABLED  
+    #ifdef STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(FALSE, raw_payload_bytes,
       (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
@@ -644,7 +644,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 }
 
 
-#ifndef _BLOCK_MESSAGES_ENABLED
+#ifndef BLOCK_MESSAGES_ENABLED
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
   on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
 #else
@@ -656,7 +656,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
     SInt8 num_words = get_encoded_payload_len(pkt_ptrs->raw_pid);
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     BOOL is_stream_txn = (bs_msg && get_bs_transfer_type(bs_msg->flags) ==
       ON_STREAM_TRANSFER);
     #endif
@@ -670,7 +670,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #ifdef ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if((pkt_ptrs->raw_pid & 0x3F) >= ONE_NET_RAW_BLOCK_DATA &&
       (pkt_ptrs->raw_pid & 0x3F) < ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
     {
@@ -713,7 +713,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     #endif
     {
         // sending the real message
-        #ifndef _BLOCK_MESSAGES_ENABLED
+        #ifndef BLOCK_MESSAGES_ENABLED
         put_payload_msg_type(msg_type, raw_payload_bytes);
         one_net_memmove(&raw_payload_bytes[ON_PLD_DATA_IDX], raw_pld,
           (raw_pld_len - 1) - ON_PLD_DATA_IDX);
@@ -725,7 +725,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
         }
         else
         {
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             if(is_stream_txn)
             {
                 put_stream_response_needed(bs_msg->response_needed,
@@ -753,7 +753,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
       &raw_payload_bytes[ON_PLD_CRC_SIZE], (raw_pld_len - 1) - ON_PLD_CRC_SIZE,
       ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
     
-    #ifdef _STREAM_MESSAGES_ENABLED  
+    #ifdef STREAM_MESSAGES_ENABLED  
     if((status = on_encrypt(is_stream_txn, raw_payload_bytes,
       (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #else
@@ -1024,7 +1024,7 @@ BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id, on_pkt_t* pk
 
     \return The status of the operation
 */
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 one_net_status_t on_encrypt(BOOL is_stream_pkt , UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #else
@@ -1040,21 +1040,21 @@ one_net_status_t on_encrypt(UInt8 * const data,
         return ONS_BAD_PARAM;
     } // if invalid parameter //
 
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     // get the number of XTEA rounds
     if(!is_stream_pkt)
     {
 	#endif
         rounds = ON_XTEA_32_ROUNDS;
         data[payload_len - 1] = ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32;
-	#ifdef _STREAM_MESSAGES_ENABLED
+	#ifdef STREAM_MESSAGES_ENABLED
     } // if not stream //
         else
         {
             rounds = ON_XTEA_8_ROUNDS;
             data[payload_len - 1] = ONE_NET_STREAM_ENCRYPT_XTEA8;
         } // else stream //
-    #endif // if _STREAM_MESSAGES_ENABLED is not defined //
+    #endif // if STREAM_MESSAGES_ENABLED is not defined //
 
     if(rounds)
     {
@@ -1088,7 +1088,7 @@ one_net_status_t on_encrypt(UInt8 * const data,
 
     \return The status of the operation
 */
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 one_net_status_t on_decrypt(BOOL is_stream_pkt , UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len)
 #else
@@ -1105,7 +1105,7 @@ one_net_status_t on_decrypt(UInt8 * const data,
     } // if invalid parameter //
 
     // get the number of XTEA rounds
-	#ifdef _STREAM_MESSAGES_ENABLED
+	#ifdef STREAM_MESSAGES_ENABLED
     if(!is_stream_pkt)
     {
 	#endif
@@ -1129,7 +1129,7 @@ one_net_status_t on_decrypt(UInt8 * const data,
                 break;
             } // default //
         } // switch on encryption type //
-	#ifdef _STREAM_MESSAGES_ENABLED
+	#ifdef STREAM_MESSAGES_ENABLED
     } // if not stream //
        else
         {
@@ -1154,7 +1154,7 @@ one_net_status_t on_decrypt(UInt8 * const data,
                 } // default //
             } // switch on encryption type //
         } // else stream //
-    #endif // ifdef _STREAM_MESSAGES_ENABLED //
+    #endif // ifdef STREAM_MESSAGES_ENABLED //
    
     if(rounds)
     {
@@ -1191,7 +1191,7 @@ void one_net_init(void)
     #ifdef RANGE_TESTING
     reset_range_test_did_array();
     #endif
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     bs_msg.transfer_in_progress = FALSE;
     bs_msg.saved_ack_nack.payload = (ack_nack_payload_t*)
       bs_msg.saved_ack_nack_payload_bytes;
@@ -1228,7 +1228,7 @@ void one_net(on_txn_t ** txn)
     ack_nack_payload_t ack_nack_payload;
     ack_nack.payload = &ack_nack_payload;
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     if(on_state <= ON_BS_COMMENCE || on_state >= ON_BS_CHUNK_PAUSE)
     {
         if(*txn == &bs_txn)
@@ -1253,7 +1253,7 @@ void one_net(on_txn_t ** txn)
     
     switch(on_state)
     {
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_FIND_ROUTE:
         case ON_BS_CONFIRM_ROUTE:
         #ifdef DATA_RATE_CHANNEL
@@ -1294,7 +1294,7 @@ void one_net(on_txn_t ** txn)
             
             // we are listening for data.  Make sure we have nothing
             // pending
-            #ifndef _BLOCK_MESSAGES_ENABLED
+            #ifndef BLOCK_MESSAGES_ENABLED
             if(*txn == NULL && single_txn.priority == ONE_NET_NO_PRIORITY)
             #else
             if((*txn == NULL || ((*txn == &bs_txn &&
@@ -1375,7 +1375,7 @@ void one_net(on_txn_t ** txn)
                             #endif
                             
                             #ifndef ONE_NET_SIMPLE_CLIENT
-                            #if defined(_BLOCK_MESSAGES_ENABLED) && defined(DATA_RATE_CHANNEL)
+                            #if defined(BLOCK_MESSAGES_ENABLED) && defined(DATA_RATE_CHANNEL)
                             if(bs_msg.transfer_in_progress &&
                               single_msg.msg_type == ON_ADMIN_MSG &&
                               single_msg.payload[0] ==
@@ -1421,20 +1421,20 @@ void one_net(on_txn_t ** txn)
                     // the first place.  Clear the single message pointer.
                     single_msg_ptr = NULL;
                     
-                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    #ifdef BLOCK_MESSAGES_ENABLED
                     if(bs_msg.transfer_in_progress && !bs_msg.src)
                     {
                         UInt8 transfer_type =
                           get_bs_transfer_type(bs_msg.flags);
                         BOOL long_transfer;
-                        #ifdef _STREAM_MESSAGES_ENABLED
+                        #ifdef STREAM_MESSAGES_ENABLED
                         if(transfer_type == ON_BLK_TRANSFER)
                         #endif
                         {
                             long_transfer =
                               (bs_msg.bs.block.transfer_size > 2000);
                         }
-                        #ifdef _STREAM_MESSAGES_ENABLED
+                        #ifdef STREAM_MESSAGES_ENABLED
                         else
                         {
                             long_transfer = (bs_msg.time > 2000);
@@ -1504,7 +1504,7 @@ void one_net(on_txn_t ** txn)
                                 
                                 
                                 case ON_BS_DEVICE_PERMISSION:
-                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    #ifdef STREAM_MESSAGES_ENABLED
                                     if(transfer_type == ON_BLK_TRANSFER)
                                     #endif
                                     {
@@ -1660,7 +1660,7 @@ void one_net(on_txn_t ** txn)
                                     
                                     // TODO -- perhaps do more with the time
                                     // estimate?
-                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    #ifdef STREAM_MESSAGES_ENABLED
                                     if(transfer_type == ON_BLK_TRANSFER)
                                     #endif
                                     {
@@ -1677,7 +1677,7 @@ void one_net(on_txn_t ** txn)
                                           TRUE), 20, bs_msg.data_rate);
                                         #endif
                                     }
-                                    #ifdef _STREAM_MESSAGES_ENABLED
+                                    #ifdef STREAM_MESSAGES_ENABLED
                                     else
                                     {
                                         bs_msg.bs.stream.last_response_time = 0;
@@ -1732,7 +1732,7 @@ void one_net(on_txn_t ** txn)
                       &encoded_pkt_bytes[ON_MAX_ENCODED_DATA_PKT_SIZE];
                     single_txn.pkt = encoded_pkt_bytes;
                     this_txn = &single_txn;
-                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    #ifdef BLOCK_MESSAGES_ENABLED
                     bs_txn.pkt = encoded_pkt_bytes;
                     if(bs_msg.transfer_in_progress && !bs_msg.dst)
                     {
@@ -1743,7 +1743,7 @@ void one_net(on_txn_t ** txn)
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
 
-                    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
+                    #if defined(BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
                     status = on_rx_packet((const on_txn_t* const) *txn,
                       &this_txn, &this_pkt_ptrs, raw_payload_bytes);
                     #else
@@ -1811,7 +1811,7 @@ void one_net(on_txn_t ** txn)
                             }
                         }
                         
-                        #ifdef _BLOCK_MESSAGES_ENABLED
+                        #ifdef BLOCK_MESSAGES_ENABLED
                         if(this_txn == &bs_txn)
                         {
                             BOOL respond;
@@ -1820,13 +1820,13 @@ void one_net(on_txn_t ** txn)
                             
                             // TODO -- check for / reject invalid message id.
                             
-                            #ifdef _STREAM_MESSAGES_ENABLED
+                            #ifdef STREAM_MESSAGES_ENABLED
                             BOOL is_stream_txn = (get_bs_transfer_type(
                               bs_msg.flags) == ON_STREAM_TRANSFER);
                             #endif
                             *txn = 0;
 
-                            #ifdef _STREAM_MESSAGES_ENABLED
+                            #ifdef STREAM_MESSAGES_ENABLED
                             if(is_stream_txn)
                             {
                                 if(!on_parse_stream_pld(raw_payload_bytes,
@@ -2070,7 +2070,7 @@ void one_net(on_txn_t ** txn)
                 features_override = features_override ||
                   !features_known(device->features);
                 #endif
-                #ifndef _BLOCK_MESSAGES_ENABLED
+                #ifndef BLOCK_MESSAGES_ENABLED
                 if(on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   device)!= ONS_SUCCESS)
@@ -2100,7 +2100,7 @@ void one_net(on_txn_t ** txn)
                   &(data_pkt_ptrs.packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
                 
-                #ifndef _BLOCK_MESSAGES_ENABLED
+                #ifndef BLOCK_MESSAGES_ENABLED
                 on_state = ON_SEND_SINGLE_DATA_PKT;
                 #else
                 if(on_state > ON_BS_COMMENCE && on_state < ON_BS_TERMINATE)
@@ -2139,11 +2139,11 @@ void one_net(on_txn_t ** txn)
             break;
         } // case ON_LISTEN_FOR_DATA //
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_PREPARE_DATA_PACKET:
         {
             tick_t tick_now = get_tick_count();
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             UInt8 transfer_type = get_bs_transfer_type(bs_msg.flags);
             UInt16 raw_pid = ((transfer_type == ON_BLK_TRANSFER) ?
               ONE_NET_RAW_BLOCK_DATA : ONE_NET_RAW_STREAM_DATA);
@@ -2180,14 +2180,14 @@ void one_net(on_txn_t ** txn)
             }
             
             *txn = &bs_txn;
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             if(transfer_type == ON_BLK_TRANSFER)
             #endif
             {
                 status = one_net_block_get_next_payload(&bs_msg, buffer,
                   &ack_nack);
             }
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             else
             {
                 // We need a response we haven't gotten one in the last 5
@@ -2211,7 +2211,7 @@ void one_net(on_txn_t ** txn)
                     break;
                 }
                 
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 if(transfer_type == ON_BLK_TRANSFER)
                 #endif
                 {
@@ -2238,7 +2238,7 @@ void one_net(on_txn_t ** txn)
                     // change back if it was changed before.
                     bs_msg.bs.block.chunk_size = (UInt8) original_chunk_size;
                 }
-                #ifdef _STREAM_MESSAGES_ENABLED
+                #ifdef STREAM_MESSAGES_ENABLED
                 else
                 {
                     if(bs_msg.bs.stream.elapsed_time >= bs_msg.time)
@@ -2299,7 +2299,7 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_SEND_SINGLE_DATA_PKT:
         case ON_SEND_SINGLE_DATA_RESP:
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE:
         case ON_BS_SEND_CONFIRM_ROUTE:
         #ifdef DATA_RATE_CHANNEL
@@ -2319,7 +2319,7 @@ void one_net(on_txn_t ** txn)
         case ON_BS_SEND_TERMINATE_PACKET:
         #endif
         {
-            #ifndef _BLOCK_MESSAGES_ENABLED
+            #ifndef BLOCK_MESSAGES_ENABLED
             if(ont_inactive_or_expired((*txn)->next_txn_timer)
               && check_for_clr_channel())
             #else
@@ -2339,7 +2339,7 @@ void one_net(on_txn_t ** txn)
                       TRUE));
                     on_state++;
                 }
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 else if(on_state == ON_BS_SEND_DATA_PKT)
                 {
                     // TODO -- why are we getting here?
@@ -2359,7 +2359,7 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
         case ON_SEND_SINGLE_DATA_RESP_WRITE_WAIT:
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_SEND_FIND_ROUTE_WRITE_WAIT:
         case ON_BS_SEND_CONFIRM_ROUTE_WRITE_WAIT:
         #ifdef DATA_RATE_CHANNEL
@@ -2385,14 +2385,14 @@ void one_net(on_txn_t ** txn)
             {
                 UInt32 new_timeout_ms;
                 
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_SEND_DATA_WRITE_WAIT)
                 {
                     new_timeout_ms = MS_TO_TICK(bs_msg.frag_dly);
                     
                     // save the state so we can get back to it if need be
                     bs_msg.bs_on_state = ON_BS_PREPARE_DATA_PACKET;
-                    #ifdef _STREAM_MESSAGES_ENABLED
+                    #ifdef STREAM_MESSAGES_ENABLED
                     if(get_bs_transfer_type(bs_msg.flags) == ON_STREAM_TRANSFER)
                     {
                         
@@ -2520,7 +2520,7 @@ void one_net(on_txn_t ** txn)
             } // if write is complete //
             break;
         } // send single data write wait case //
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_WAIT_FOR_FIND_ROUTE_RESP:
         case ON_BS_WAIT_FOR_CONFIRM_ROUTE_RESP:
         #ifdef DATA_RATE_CHANNEL
@@ -2565,7 +2565,7 @@ void one_net(on_txn_t ** txn)
                 ack_nack.nack_reason = ON_NACK_RSN_NO_RESPONSE;
                 #endif
                 
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                 {
                     if(ont_inactive_or_expired(ONT_BS_TIMEOUT_TIMER))
@@ -2633,7 +2633,7 @@ void one_net(on_txn_t ** txn)
                 this_pkt_ptrs = &response_pkt_ptrs;
                 
                 
-                #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
+                #if defined(BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
                 status = on_rx_packet(&single_txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
                 #else
@@ -2643,10 +2643,10 @@ void one_net(on_txn_t ** txn)
             
                 if(status == ONS_PKT_RCVD)
                 {                    
-                    #ifdef _BLOCK_MESSAGES_ENABLED
+                    #ifdef BLOCK_MESSAGES_ENABLED
                     if(on_state == ON_BS_WAIT_FOR_DATA_RESP)
                     {
-                        #ifdef _STREAM_MESSAGES_ENABLED
+                        #ifdef STREAM_MESSAGES_ENABLED
                         if(get_bs_transfer_type(bs_msg.flags) ==
                           ON_STREAM_TRANSFER)
                         {
@@ -2712,7 +2712,7 @@ void one_net(on_txn_t ** txn)
                 if(setup_pkt_ptr(single_msg.raw_pid, single_txn.pkt,
                   (*txn)->device->msg_id,
                   &data_pkt_ptrs) &&
-                  #ifndef _BLOCK_MESSAGES_ENABLED
+                  #ifndef BLOCK_MESSAGES_ENABLED
                   on_build_data_pkt(single_msg.payload,
                   single_msg.msg_type, &data_pkt_ptrs, &single_txn,
                   (*txn)->device) == ONS_SUCCESS &&
@@ -2820,7 +2820,7 @@ void one_net(on_txn_t ** txn)
                 (*txn)->priority = ONE_NET_NO_PRIORITY;
                 *txn = 0;
                 
-                #ifdef _BLOCK_MESSAGES_ENABLED
+                #ifdef BLOCK_MESSAGES_ENABLED
                 if(bs_msg.transfer_in_progress && !bs_msg.src && on_state
                   >= ON_BS_WAIT_FOR_FIND_ROUTE_RESP)
                 {
@@ -2854,7 +2854,7 @@ void one_net(on_txn_t ** txn)
             break;
         } // case ON_WAIT_FOR_SINGLE_DATA_RESP
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ON_BS_TERMINATE_COMPLETE:
            terminate_bs_complete(&bs_msg);
         #endif
@@ -3381,7 +3381,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
 } // rx_single_data //
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack)
@@ -3503,7 +3503,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     \return ONS_PKT_RCVD if a valid packet was received
             For more return values one_net_status_codes.h
 */
-#if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
+#if defined(BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes)
 #else
@@ -3528,7 +3528,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     UInt8* pkt_bytes;
     BOOL src_is_master;
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     BOOL src_is_bs_endpoint;
     #ifdef ONE_NET_MH_CLIENT_REPEATER
     BOOL dst_is_master, dst_is_bs_endpoint;
@@ -3605,7 +3605,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     src_is_master = is_master_did(
       (const on_encoded_did_t*) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
       
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     {
         // note that these values might be garbage if we are not in the
         // middle of a block / stream transfer.  It's OK if they are because
@@ -3653,7 +3653,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             return ONS_BAD_PARAM;
         }
         
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         // if we are a repeater in the middle of a high-priority block / stream
         // message and neither the source or the destination is an endpoint or
         // the master, we won't repeat the packet.
@@ -3693,13 +3693,13 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             type = ON_SINGLE;
         }
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         else if(packet_is_block(raw_pid))
         {
             type = ON_BLOCK;
         }
         #endif
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         else if(packet_is_stream(raw_pid))
         {
             type = ON_STREAM;
@@ -3729,7 +3729,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #ifdef ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
     {
-        #ifdef  _BLOCK_MESSAGES_ENABLED
+        #ifdef  BLOCK_MESSAGES_ENABLED
         if(bs_msg.transfer_in_progress)
         {
             ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
@@ -3762,7 +3762,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               #endif
               break;
             case ON_SINGLE:
-              #ifdef _BLOCK_MESSAGES_ENABLED
+              #ifdef BLOCK_MESSAGES_ENABLED
               if(*this_txn != &single_txn && *this_txn != &bs_txn)
               #else
               if(*this_txn != &single_txn)
@@ -3770,7 +3770,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               {
                   return ONS_UNHANDLED_PKT;
               }
-              #ifdef _BLOCK_MESSAGES_ENABLED
+              #ifdef BLOCK_MESSAGES_ENABLED
               else
               {
                   one_net_memmove(&(single_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
@@ -3780,9 +3780,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               }
               #endif
               break;
-            #ifdef _BLOCK_MESSAGES_ENABLED
+            #ifdef BLOCK_MESSAGES_ENABLED
             case ON_BLOCK:
-            #ifdef _STREAM_MESSAGES_ENABLED
+            #ifdef STREAM_MESSAGES_ENABLED
             case ON_STREAM:
             #endif
               if(*this_txn != &bs_txn)
@@ -3908,7 +3908,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             return status;
         }
     
-        #ifdef _STREAM_MESSAGES_ENABLED
+        #ifdef STREAM_MESSAGES_ENABLED
         if((status = on_decrypt(type == ON_STREAM, raw_payload_bytes,
           (const one_net_xtea_key_t * const) key, get_raw_payload_len(raw_pid)))
           != ONS_SUCCESS)
@@ -4006,7 +4006,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         // message CRC.
         raw_payload_bytes[0] = one_net_compute_crc(&raw_payload_bytes[1], 23,
             ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
-        #ifndef _STREAM_MESSAGES_ENABLED
+        #ifndef STREAM_MESSAGES_ENABLED
         if((status = on_encrypt(raw_payload_bytes,
           (const one_net_xtea_key_t* const) key, get_raw_payload_len(raw_pid)))
           != ONS_SUCCESS)
@@ -4894,7 +4894,7 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 // TODO -- Do we really want to require block messages for this function?
 
 
@@ -5177,7 +5177,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
   const on_encoded_did_t* terminating_did, on_message_status_t status,
   on_ack_nack_t* ack_nack)
 {
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     on_bs_txn_hdlr_t txn_hdlr = (get_bs_transfer_type(bs_msg->flags) ==
       ON_BLK_TRANSFER) ? pkt_hdlr.block_txn_hdlr : pkt_hdlr.stream_txn_hdlr;
     #else
@@ -5354,7 +5354,7 @@ static BOOL check_for_clr_channel(void)
 } // check_for_clr_channel //
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Receives a block data packet.
 
@@ -5499,7 +5499,7 @@ static void terminate_bs_complete(block_stream_msg_t* bs_msg)
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 static on_message_status_t rx_stream_resp_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, on_pkt_t* pkt, UInt8* raw_payload_bytes,
   on_ack_nack_t* ack_nack)

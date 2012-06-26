@@ -166,7 +166,7 @@ oncli_status_t oncli_print_peer_list(void);
 #endif
 oncli_status_t oncli_print_features(on_features_t features);
 oncli_status_t oncli_print_channel(UInt8 channel);
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 void oncli_print_fragment_delays(void);
 #endif
 
@@ -178,8 +178,8 @@ const char * oncli_msg_status_str(on_message_status_t status);
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
 void print_app_payload(const UInt8* const payload, UInt8 pld_len);
-#ifdef _BLOCK_MESSAGES_ENABLED
-#ifndef _STREAM_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
+#ifndef STREAM_MESSAGES_ENABLED
 void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id);
 #else
 void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,

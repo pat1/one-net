@@ -522,7 +522,7 @@ void one_net_master_update_result(one_net_mac_update_t update,
             result_type = ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
             break;
         #endif
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_UPDATE_FRAGMENT_DELAY:
             result_type = ONCLI_M_UPDATE_RESULT_FRAG_STR;
             break;
@@ -571,7 +571,7 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 #ifdef ONE_NET_MULTI_HOP
 void one_net_master_repeater_requested(on_client_t* src_client,
   on_client_t* dst_client, on_client_t* repeater_client, UInt8 channel,
@@ -592,7 +592,7 @@ on_nack_rsn_t one_net_master_get_default_block_transfer_values(
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 on_nack_rsn_t one_net_master_get_default_stream_transfer_values(
   const on_client_t* src, const on_client_t* dst, UInt32 time_ms,
   UInt8* priority, UInt16* frag_delay, UInt8* data_rate, UInt8* channel,

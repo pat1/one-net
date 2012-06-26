@@ -320,7 +320,7 @@ typedef struct
     UInt8 num_mh_repeaters;
     #endif
     
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Low priority fragment delay
     UInt16 fragment_delay_low;
 
@@ -488,10 +488,10 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, UInt32* const msg_data);
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt);
 #endif
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt);
 #endif
 

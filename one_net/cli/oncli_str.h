@@ -202,11 +202,11 @@ extern const char* const CLEAR_STR;
 extern const char* const DISPLAY_STR;
 #endif
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 extern const char* const ONCLI_BLOCK_CMD_STR;
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 extern const char* const ONCLI_STREAM_CMD_STR;
 #endif
 
@@ -251,12 +251,12 @@ extern const char * const ONCLI_RX_TXT_FMT;
 //! string for a single transaction
 extern const char * const ONCLI_SINGLE_TXN_STR;
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! string for a block transaction
 extern const char * const ONCLI_BLOCK_TXN_STR;
 #endif
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 //! string for a stream transaction
 extern const char * const ONCLI_STREAM_TXN_STR;
 #endif
@@ -276,7 +276,7 @@ extern const char * const ONCLI_RX_INVALID_CH_FMT;
 extern const char * const ONCLI_OUTPUT_STR_TOO_SHORT_FMT;
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 extern const char* const ONCLI_FRAG_DELAY_FMT;
 #endif
 
@@ -344,7 +344,7 @@ extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
 #endif
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 extern const char* const ONCLI_M_UPDATE_RESULT_FRAG_STR;
 #endif
 extern const char* const ONCLI_M_UPDATE_RESULT_KEEP_ALIVE_STR;

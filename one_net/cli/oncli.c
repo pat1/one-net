@@ -576,7 +576,7 @@ oncli_status_t oncli_print_channel(UInt8 channel)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 void oncli_print_fragment_delays(void)
 {
     oncli_send_msg(ONCLI_FRAG_DELAY_FMT, ONCLI_LOW_STR,
@@ -854,7 +854,7 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Displays the contents of a block / stream packet
     
@@ -865,14 +865,14 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
     \param[in] packet_is_stream If true, this is a stream packet.  Otherwise is
                is a block packet.
 */
-#ifndef _STREAM_MESSAGES_ENABLED
+#ifndef STREAM_MESSAGES_ENABLED
 void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id)
 #else
 void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
   BOOL packet_is_stream)
 #endif
 {
-    #ifndef _STREAM_MESSAGES_ENABLED
+    #ifndef STREAM_MESSAGES_ENABLED
     oncli_send_msg("Block payload : 0x");
     #else
     oncli_send_msg("%s payload : 0x", packet_is_stream ? "Stream" : "Block");
@@ -886,7 +886,7 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
         oncli_send_msg(" : Msg Id-->0x%03X", bs_pkt->block_pkt.msg_id);
     }
     
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     if(packet_is_stream)
     {
         oncli_send_msg("Time-->%ld\n", bs_pkt->stream_pkt.elapsed_time);
