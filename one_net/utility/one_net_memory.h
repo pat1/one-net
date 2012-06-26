@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_MEMORY_H
-#define _ONE_NET_MEMORY_H
+#ifndef ONE_NET_MEMORY_H
+#define ONE_NET_MEMORY_H
 
 
 
@@ -112,5 +112,5 @@ UInt8* get_loc(UInt8 index);
 
 #endif // ONE_NET_MEMORY //
 
-#endif // _ONE_NET_MEMORY_H //
+#endif // ONE_NET_MEMORY_H //
 

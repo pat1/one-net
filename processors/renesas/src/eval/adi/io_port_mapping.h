@@ -1,5 +1,5 @@
-#ifndef _IO_PORT_MAPPING_H
-#define _IO_PORT_MAPPING_H
+#ifndef IO_PORT_MAPPING_H
+#define IO_PORT_MAPPING_H
 
 #include "config_options.h"
 

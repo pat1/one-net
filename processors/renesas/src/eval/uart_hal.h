@@ -1,5 +1,5 @@
-#ifndef _UART_HAL_H
-#define _UART_HAL_H
+#ifndef UART_HAL_H
+#define UART_HAL_H
 
 #include "config_options.h"
 
@@ -118,4 +118,4 @@ typedef enum
 
 #endif //  if UART is enabled //
 
-#endif // #ifdef _UART_HAL_H //
+#endif // #ifdef UART_HAL_H //

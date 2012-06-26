@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_ACKNOWLEDGE_H
-#define _ONE_NET_ACKNOWLEDGE_H
+#ifndef ONE_NET_ACKNOWLEDGE_H
+#define ONE_NET_ACKNOWLEDGE_H
 
 #include "config_options.h"
 #include "one_net_types.h"
@@ -299,4 +299,4 @@ BOOL nack_reason_is_fatal(const on_nack_rsn_t nack_reason);
 
 //! @} ONE-NET_ACKNOWLEDGE
 
-#endif // _ONE_NET_ACKNOWLEDGE_H //
+#endif // ONE_NET_ACKNOWLEDGE_H //

@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CLIENT_PORT_SPECIFIC_H
-#define _ONE_NET_CLIENT_PORT_SPECIFIC_H
+#ifndef ONE_NET_CLIENT_PORT_SPECIFIC_H
+#define ONE_NET_CLIENT_PORT_SPECIFIC_H
 
 #include "config_options.h"
 
@@ -673,4 +673,4 @@ on_message_status_t one_net_client_stream_txn_status(
 #endif // ifdef ONE_NET_CLIENT //
 
 
-#endif // _ONE_NET_CLIENT_PORT_SPECIFIC_H //
+#endif // ONE_NET_CLIENT_PORT_SPECIFIC_H //

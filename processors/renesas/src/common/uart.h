@@ -1,5 +1,5 @@
-#ifndef _UART_H
-#define _UART_H
+#ifndef UART_H
+#define UART_H
 
 
 //! \defgroup uart UART functionality
@@ -172,5 +172,5 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len);
 
 #endif //  if UART is enabled //
 
-#endif // #ifdef _UART_H //
+#endif // #ifdef UART_H //
 

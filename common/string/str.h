@@ -1,5 +1,5 @@
-#ifndef _STR_H 
-#define _STR_H 
+#ifndef STR_H 
+#define STR_H 
 
 #include "config_options.h"
 
@@ -90,4 +90,4 @@ UInt8 ascii_hex_to_nibble(const char ASCII);
 
 //! @} str
 
-#endif // ifndef _STR_H //
+#endif // ifndef STR_H //

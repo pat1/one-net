@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_PRAND_H
-#define _ONE_NET_PRAND_H
+#ifndef ONE_NET_PRAND_H
+#define ONE_NET_PRAND_H
 
 #include "config_options.h"
 
@@ -95,5 +95,5 @@ UInt32 one_net_prand(const UInt32 MODIFIER, const UInt32 MAX_RAND);
 
 //! @} one_net_prand
 
-#endif // _ONE_NET_PRAND_H //
+#endif // ONE_NET_PRAND_H //
 

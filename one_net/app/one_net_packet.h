@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_PACKET_H
-#define _ONE_NET_PACKET_H
+#ifndef ONE_NET_PACKET_H
+#define ONE_NET_PACKET_H
 
 #include "config_options.h"
 #include "one_net_types.h"
@@ -1052,4 +1052,4 @@ ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
 
 //! @} ONE-NET_PACKET
 
-#endif // _ONE_NET_PACKET_H //
+#endif // ONE_NET_PACKET_H //

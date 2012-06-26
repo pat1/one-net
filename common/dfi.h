@@ -1,5 +1,5 @@
-#ifndef _DFI_H 
-#define _DFI_H 
+#ifndef DFI_H 
+#define DFI_H 
 
 #include "config_options.h"
 
@@ -255,4 +255,4 @@ void dfi_delete_segments_except_for(
 #endif // ifdef NON_VOLATILE_MEMORY //
 
 
-#endif // #ifdef _DFI_H //
+#endif // #ifdef DFI_H //

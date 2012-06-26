@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_MESSAGE_H
-#define _ONE_NET_MESSAGE_H
+#ifndef ONE_NET_MESSAGE_H
+#define ONE_NET_MESSAGE_H
 
 #include "config_options.h"
 #include "one_net_types.h"
@@ -735,4 +735,4 @@ UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg);
 
 //! @} ONE-NET_MESSAGE
 
-#endif // _ONE_NET_MESSAGE_H //
+#endif // ONE_NET_MESSAGE_H //

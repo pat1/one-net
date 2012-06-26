@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_XTEA_H
-#define _ONE_NET_XTEA_H
+#ifndef ONE_NET_XTEA_H
+#define ONE_NET_XTEA_H
 
 #include "config_options.h"
 #include "one_net_types.h"
@@ -162,5 +162,5 @@ void one_net_xtea_decipher(const UInt8 ROUNDS, UInt8 * data,
 
 //! @} one_net_xtea
 
-#endif // ifdef _ONE_NET_XTEA_H //
+#endif // ifdef ONE_NET_XTEA_H //
 

@@ -1,5 +1,5 @@
-#ifndef _ONCLI_PORT_H 
-#define _ONCLI_PORT_H 
+#ifndef ONCLI_PORT_H 
+#define ONCLI_PORT_H 
 
 
 //! \defgroup oncli_port ONE-NET Command Line Interface Port specific
@@ -253,4 +253,4 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 //! @} oncli_port
 
 
-#endif // #ifdef _ONCLI_PORT_H //
+#endif // #ifdef ONCLI_PORT_H //

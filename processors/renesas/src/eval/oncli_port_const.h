@@ -1,5 +1,5 @@
-#ifndef _ONCLI_PORT_CONST_H
-#define _ONCLI_PORT_CONST_H
+#ifndef ONCLI_PORT_CONST_H
+#define ONCLI_PORT_CONST_H
 
 
 //! \defgroup oncli_port_const ONE-NET Command Line Interface port specific
@@ -112,5 +112,5 @@ enum
 
 #endif // #ifdef ENABLE_CLI
 
-#endif // _ONCLI_PORT_CONST_H //
+#endif // ONCLI_PORT_CONST_H //
 

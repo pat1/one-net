@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_PEER_H
-#define _ONE_NET_PEER_H
+#ifndef ONE_NET_PEER_H
+#define ONE_NET_PEER_H
 
 //! \defgroup ONE-NET_PEER ONE-NET PEER functionality.
 //! \ingroup ONE-NET_PEER
@@ -146,5 +146,5 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
 //==============================================================================
 
 //! @} ONE-NET_PEER
-#endif // _ONE_NET_PEER defined //
-#endif // _ONE_NET_PEER_H //
+#endif // ONE_NET_PEER defined //
+#endif // ONE_NET_PEER_H //

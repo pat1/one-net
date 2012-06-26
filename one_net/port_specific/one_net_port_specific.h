@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_PORT_SPECIFIC_H
-#define _ONE_NET_PORT_SPECIFIC_H
+#ifndef ONE_NET_PORT_SPECIFIC_H
+#define ONE_NET_PORT_SPECIFIC_H
 
 
 //! \defgroup ONE-NET_port_specific Application Specific ONE-NET functionality
@@ -459,4 +459,4 @@ SInt8 one_net_get_alternate_channel(void);
 
 //! @} ONE-NET_port_specific
 
-#endif // _ONE_NET_PORT_SPECIFIC_H //
+#endif // ONE_NET_PORT_SPECIFIC_H //

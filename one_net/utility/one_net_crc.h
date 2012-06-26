@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CRC_H
-#define _ONE_NET_CRC_H
+#ifndef ONE_NET_CRC_H
+#define ONE_NET_CRC_H
 
 #include "config_options.h"
 
@@ -96,5 +96,5 @@ UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN,
 
 //! @} one_net_crc
 
-#endif // _ONE_NET_CRC_H //
+#endif // ONE_NET_CRC_H //
 

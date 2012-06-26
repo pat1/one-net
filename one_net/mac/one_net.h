@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_H
-#define _ONE_NET_H
+#ifndef ONE_NET_H
+#define ONE_NET_H
 
 #include "config_options.h"
 #include "one_net_packet.h"
@@ -961,4 +961,4 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 
 //! @} ONE-NET
 
-#endif // _ONE_NET_H //
+#endif // ONE_NET_H //

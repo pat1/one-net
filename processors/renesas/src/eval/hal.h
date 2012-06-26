@@ -1,5 +1,5 @@
-#ifndef _HAL_H
-#define _HAL_H
+#ifndef HAL_H
+#define HAL_H
 
 
 //! \defgroup HAL Processor abstraction layer.
@@ -153,4 +153,4 @@
 
 //! @} HAL
 
-#endif // _HAL_H //
+#endif // HAL_H //

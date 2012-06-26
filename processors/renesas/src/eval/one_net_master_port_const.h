@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_MASTER_PORT_CONST_H
-#define _ONE_NET_MASTER_PORT_CONST_H
+#ifndef ONE_NET_MASTER_PORT_CONST_H
+#define ONE_NET_MASTER_PORT_CONST_H
 
 
 
@@ -216,4 +216,4 @@ enum
 
 //! @} on_master_port_const
 
-#endif // _ONE_NET_MASTER_PORT_CONST_H //
+#endif // ONE_NET_MASTER_PORT_CONST_H //

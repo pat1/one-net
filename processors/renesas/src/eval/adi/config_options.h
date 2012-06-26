@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CONFIG_OPTIONS_H
-#define _ONE_NET_CONFIG_OPTIONS_H
+#ifndef ONE_NET_CONFIG_OPTIONS_H
+#define ONE_NET_CONFIG_OPTIONS_H
 
 //! \defgroup one_net_config_options Place configuration options here
 //! @{
@@ -703,4 +703,4 @@
 
 
 #endif // OVERRIDE_CONFIG_OPTIONS_FILE //
-#endif // _ONE_NET_CONFIG_OPTIONS_H //
+#endif // ONE_NET_CONFIG_OPTIONS_H //

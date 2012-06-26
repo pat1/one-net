@@ -1,5 +1,5 @@
-#ifndef _ONCLI_H 
-#define _ONCLI_H 
+#ifndef ONCLI_H 
+#define ONCLI_H 
 
 #include "config_options.h"
 #ifdef UART
@@ -219,4 +219,4 @@ void print_raw_pid(UInt16 raw_pid);
 
 #endif // #ifdef UART //
 
-#endif // #ifdef _ONCLI_H //
+#endif // #ifdef ONCLI_H //

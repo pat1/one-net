@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CONSTANTS_H
-#define _ONE_NET_CONSTANTS_H
+#ifndef ONE_NET_CONSTANTS_H
+#define ONE_NET_CONSTANTS_H
 
 
 
@@ -111,5 +111,5 @@ typedef UInt8 on_encoded_sid_t[ON_ENCODED_SID_LEN];
 
 
 
-#endif // _ONE_NET_CONSTANTS_H //
+#endif // ONE_NET_CONSTANTS_H //
 

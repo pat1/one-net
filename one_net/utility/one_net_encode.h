@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_ENCODE_H
-#define _ONE_NET_ENCODE_H
+#ifndef ONE_NET_ENCODE_H
+#define ONE_NET_ENCODE_H
 
 #include "config_options.h"
 
@@ -110,5 +110,5 @@ one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED,
 
 //! @} ONE-NET_encode
 
-#endif // _ONE_NET_ENCODE_H //
+#endif // ONE_NET_ENCODE_H //
 

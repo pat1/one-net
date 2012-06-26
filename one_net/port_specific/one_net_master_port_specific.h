@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_MASTER_PORT_SPECIFIC_H
-#define _ONE_NET_MASTER_PORT_SPECIFIC_H
+#ifndef ONE_NET_MASTER_PORT_SPECIFIC_H
+#define ONE_NET_MASTER_PORT_SPECIFIC_H
 
 #include "config_options.h"
 
@@ -718,4 +718,4 @@ on_message_status_t one_net_master_stream_txn_status(
 
 #endif // ifdef ONE_NET_MASTER //
 
-#endif // _ONE_NET_MASTER_PORT_SPECIFIC_H //
+#endif // ONE_NET_MASTER_PORT_SPECIFIC_H //

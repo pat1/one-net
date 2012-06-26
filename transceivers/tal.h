@@ -1,5 +1,5 @@
-#ifndef _TAL_H
-#define _TAL_H
+#ifndef TAL_H
+#define TAL_H
 
 
 #include "config_options.h"
@@ -245,4 +245,4 @@ one_net_status_t tal_set_channel(const UInt8 channel);
 
 //! @} TAL
 
-#endif // _TAL_H //
+#endif // TAL_H //

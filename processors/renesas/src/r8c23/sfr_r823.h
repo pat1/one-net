@@ -1,8 +1,8 @@
 // Derek_S 10/26/2011 - Renesas provides this file without the #define guard.
 // below.  Not sure why it wasn't there, but it seems to need it, so I am
 // adding it.
-#ifndef _SFR_R823_H
-#define _SFR_R823_H
+#ifndef SFR_R823_H
+#define SFR_R823_H
 
 
 /***********************************************************************/
@@ -2426,4 +2426,4 @@ union	byte_def	cclkr_addr;
 
 
 
-#endif // _SFR_R823_H //
+#endif // SFR_R823_H //

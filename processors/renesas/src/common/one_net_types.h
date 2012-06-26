@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_TYPES_H
-#define _ONE_NET_TYPES_H
+#ifndef ONE_NET_TYPES_H
+#define ONE_NET_TYPES_H
 
 #include "config_options.h"
 
@@ -111,4 +111,4 @@ typedef UInt8 BOOL;
 
 //! @} ONE-NET_Types
 
-#endif // _ONE_NET_TYPES_H //
+#endif // ONE_NET_TYPES_H //

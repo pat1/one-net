@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_EVAL_H
-#define _ONE_NET_EVAL_H
+#ifndef ONE_NET_EVAL_H
+#define ONE_NET_EVAL_H
 
 
 
@@ -377,4 +377,4 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
 
 //! @} ONE_NET_eval
 
-#endif // _ONE_NET_EVAL_H //
+#endif // ONE_NET_EVAL_H //

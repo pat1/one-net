@@ -1,5 +1,5 @@
-#ifndef _ONCLI_HDLR_H 
-#define _ONCLI_HDLR_H 
+#ifndef ONCLI_HDLR_H 
+#define ONCLI_HDLR_H 
 
 
 //! \defgroup oncli_hdlr ONE-NET Command Line Interface Handlers
@@ -106,5 +106,5 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 #endif // #ifdef UART //
 
 
-#endif // #ifdef _ONCLI_HDLR_H //
+#endif // #ifdef ONCLI_HDLR_H //
 

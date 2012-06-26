@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_APPLICATION_H
-#define _ONE_NET_APPLICATION_H
+#ifndef ONE_NET_APPLICATION_H
+#define ONE_NET_APPLICATION_H
 
 #include "config_options.h"
 #include "one_net_message.h"
@@ -515,5 +515,5 @@ ONE_NET_INLINE on_encoded_did_t* get_encoded_did_from_sending_device(
 
 //! @} ONE-NET_APP
 
-#endif // _ONE_NET_APPLICATION_H //
+#endif // ONE_NET_APPLICATION_H //
 

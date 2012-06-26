@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_TIMER_H
-#define _ONE_NET_TIMER_H
+#ifndef ONE_NET_TIMER_H
+#define ONE_NET_TIMER_H
 
 #include "config_options.h"
 
@@ -258,5 +258,5 @@ void synchronize_last_tick(void);
 
 //! @} ONE-NET_TIMER
 
-#endif // _ONE_NET_TIMER_H //
+#endif // ONE_NET_TIMER_H //
 

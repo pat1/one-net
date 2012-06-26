@@ -1,5 +1,5 @@
-#ifndef _CB_H 
-#define _CB_H 
+#ifndef CB_H 
+#define CB_H 
 
 
 //! \defgroup cb Circular Buffer functionality.
@@ -146,4 +146,4 @@ void cb_print(const cb_rec_t* const CB);
 
 //! @} cb
 
-#endif // #ifdef _CB_H //
+#endif // #ifdef CB_H //

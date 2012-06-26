@@ -3,8 +3,8 @@
 //! @{
 
 
-#ifndef _TAL_ADI_H
-#define _TAL_ADI_H
+#ifndef TAL_ADI_H
+#define TAL_ADI_H
 
 
 /*
@@ -96,4 +96,4 @@ one_net_status_t init_rf_interrupts(UInt8 DATA_RATE);
 //! @} ADI
 
 
-#endif // ifndef _TAL_ADI_H
+#endif // ifndef TAL_ADI_H

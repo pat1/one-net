@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_STATUS_CODES_H
-#define _ONE_NET_STATUS_CODES_H
+#ifndef ONE_NET_STATUS_CODES_H
+#define ONE_NET_STATUS_CODES_H
 
 
 //! \defgroup ONE-NET_status_codes ONE-NET Status Codes
@@ -207,5 +207,5 @@ typedef enum
 //==============================================================================
 //! @} ONE-NET_status_codes
 
-#endif // _ONE_NET_STATUS_CODES_H //
+#endif // ONE_NET_STATUS_CODES_H //
 

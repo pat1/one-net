@@ -1,5 +1,5 @@
-#ifndef _PAL_H
-#define _PAL_H
+#ifndef PAL_H
+#define PAL_H
 
 
 //! \defgroup PAL Processor abstraction layer.
@@ -180,4 +180,4 @@ void pal_exit(void);
 
 //! @} PAL
 
-#endif // _PAL_H //
+#endif // PAL_H //

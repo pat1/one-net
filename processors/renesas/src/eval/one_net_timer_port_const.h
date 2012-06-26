@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_TIMER_PORT_CONST_H
-#define _ONE_NET_TIMER_PORT_CONST_H
+#ifndef ONE_NET_TIMER_PORT_CONST_H
+#define ONE_NET_TIMER_PORT_CONST_H
 
 #include "config_options.h"
 
@@ -123,5 +123,5 @@ enum
 
 //! @} ONE-NET_TIMER_PORT_CONST
 
-#endif // _ONE_NET_TIMER_PORT_CONST_H //
+#endif // ONE_NET_TIMER_PORT_CONST_H //
 

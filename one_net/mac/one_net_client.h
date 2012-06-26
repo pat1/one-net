@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CLIENT_H
-#define _ONE_NET_CLIENT_H
+#ifndef ONE_NET_CLIENT_H
+#define ONE_NET_CLIENT_H
 
 #include "config_options.h"
 
@@ -244,4 +244,4 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did);
 
 //! @} ONE-NET_CLIENT
 
-#endif // _ONE_NET_CLIENT_H //
+#endif // ONE_NET_CLIENT_H //

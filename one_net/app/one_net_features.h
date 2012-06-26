@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_FEATURES_H
-#define _ONE_NET_FEATURES_H
+#ifndef ONE_NET_FEATURES_H
+#define ONE_NET_FEATURES_H
 
 #include "config_options.h"
 #include "one_net_port_const.h"
@@ -240,4 +240,4 @@ BOOL features_dr_channel_capable(on_features_t features);
 
 //! @} ONE-NET_FEATURES
 
-#endif // _ONE_NET_FEATURES_H //
+#endif // ONE_NET_FEATURES_H //

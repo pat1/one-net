@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CLIENT_PORT_CONST_H
-#define _ONE_NET_CLIENT_PORT_CONST_H
+#ifndef ONE_NET_CLIENT_PORT_CONST_H
+#define ONE_NET_CLIENT_PORT_CONST_H
 
 
 
@@ -92,4 +92,4 @@
 
 //! @} ONE_NET_CLIENT_port_const
 
-#endif // _ONE_NET_CLIENT_PORT_CONST_H //
+#endif // ONE_NET_CLIENT_PORT_CONST_H //

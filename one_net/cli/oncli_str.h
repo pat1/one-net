@@ -1,5 +1,5 @@
-#ifndef _ONCLI_STR_H
-#define _ONCLI_STR_H
+#ifndef ONCLI_STR_H
+#define ONCLI_STR_H
 
 
 //! \defgroup oncli_str ONE-NET Command Line Interface Strings
@@ -441,4 +441,4 @@ const char* get_nack_reason_str(on_nack_rsn_t nack_reason);
 
 #endif // #ifdef UART //
 
-#endif // #ifdef _ONCLI_STR_H //
+#endif // #ifdef ONCLI_STR_H //

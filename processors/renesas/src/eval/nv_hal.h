@@ -1,5 +1,5 @@
-#ifndef _NV_EVAL_HAL_H
-#define _NV_HAL_H
+#ifndef NV_EVAL_HAL_H
+#define NV_HAL_H
 
 #include "config_options.h"
 
@@ -96,4 +96,4 @@ BOOL eval_save(void);
 
 #endif // #ifdef NON_VOLATILE_MEMORY //
 
-#endif // _NV_HAL_H //
+#endif // NV_HAL_H //

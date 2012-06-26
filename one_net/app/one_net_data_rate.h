@@ -1,6 +1,6 @@
 // one_net_data_rate.h
-#ifndef _ONE_NET_DATA_RATE
-#define _ONE_NET_DATA_RATE
+#ifndef ONE_NET_DATA_RATE
+#define ONE_NET_DATA_RATE
 
 #define DATA_RATE_UNKNOWN 0xFF
 

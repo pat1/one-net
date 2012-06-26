@@ -1,5 +1,5 @@
-#ifndef _TICK_H
-#define _TICK_H
+#ifndef TICK_H
+#define TICK_H
 
 
 //! \defgroup TICK Time keeping functionality.
@@ -241,4 +241,4 @@ void enable_tick_timer(void);
 //                          PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
 
-#endif // _TICK_H //
+#endif // TICK_H //

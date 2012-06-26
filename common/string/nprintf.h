@@ -1,5 +1,5 @@
-#ifndef _NPRINTF_H 
-#define _NPRINTF_H 
+#ifndef NPRINTF_H 
+#define NPRINTF_H 
 
 #include "config_options.h"
 
@@ -99,4 +99,4 @@ int vsnprintf(char * out_str, const size_t SIZE,
 
 //! @} nprintf
 
-#endif // #ifdef _NPRINTF_H //
+#endif // #ifdef NPRINTF_H //
