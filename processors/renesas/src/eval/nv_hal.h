@@ -4,7 +4,7 @@
 #include "config_options.h"
 
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 
 
 #include "one_net_types.h"
@@ -94,6 +94,6 @@ BOOL eval_save(void);
 //! @} nv_hal
 
 
-#endif // #ifdef _NON_VOLATILE_MEMORY //
+#endif // #ifdef NON_VOLATILE_MEMORY //
 
 #endif // _NV_HAL_H //

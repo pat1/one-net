@@ -20,7 +20,7 @@
 #include "one_net_timer.h"
 #include "io_port_mapping.h"
 #include "tick.h"
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 #include "nv_hal.h"
 #endif
 #include "hal.h"
@@ -138,7 +138,7 @@ static void master_user_pin(void);
 //! @{
     
     
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 one_net_status_t one_net_master_save_settings(void)
 {
     return (eval_save() ? ONS_SUCCESS : ONS_FAIL);
@@ -155,7 +155,7 @@ one_net_status_t one_net_master_erase_settings(void)
 {
     return (eval_erase_data_flash() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_master_erase_settings //
-#endif // ifdef _NON_VOLATILE_MEMORY //
+#endif // ifdef NON_VOLATILE_MEMORY //
 
 
 /*!
@@ -165,7 +165,7 @@ one_net_status_t one_net_master_erase_settings(void)
 */
 on_raw_sid_t * one_net_master_get_raw_sid(void)
 {
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     UInt8 * ptr_raw_sid = dfi_find_last_segment_of_type(
       DFI_ST_DEVICE_MFG_DATA);
       
@@ -176,7 +176,7 @@ on_raw_sid_t * one_net_master_get_raw_sid(void)
         // no manufacturing data was found so use default raw SID.
         //
         return((on_raw_sid_t*) &DEFAULT_RAW_SID[0]);
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     }
     else
     {
@@ -331,13 +331,13 @@ void init_auto_master(void)
 
     \return void
 */
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 #else
 void init_serial_master(SInt8 channel)
 #endif
 {
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
     BOOL memory_loaded;
     const UInt8* nv_memory;
     const UInt8* user_pin_memory;
@@ -424,7 +424,7 @@ void init_serial_master(SInt8 channel)
 #endif
         // start a brand new network
         one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
     }
 #endif
     ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);

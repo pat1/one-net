@@ -749,7 +749,7 @@ extern on_encoded_did_t expected_src_did;
 //! Denotes which key was used.  If true, the current key is being used.
 extern BOOL decrypt_using_current_key;
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 extern BOOL save;
 #endif
 

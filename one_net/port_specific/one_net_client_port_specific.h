@@ -365,7 +365,7 @@ on_message_status_t one_net_client_handle_ack_nack_response(
 one_net_xtea_key_t* one_net_client_get_invite_key(void);
 
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 /*!
     \brief Saves ONE-NET client settings to non-volatile memory
     

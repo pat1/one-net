@@ -372,8 +372,8 @@
 
 // Enable this if the device has the ability to save to / load from
 // non-volatile memory (i.e. Flash memory)
-#ifndef _NON_VOLATILE_MEMORY
-    #define _NON_VOLATILE_MEMORY
+#ifndef NON_VOLATILE_MEMORY
+    #define NON_VOLATILE_MEMORY
 #endif
 
 
@@ -437,20 +437,20 @@
 	    #endif
 	#endif
     
-    #ifdef _NON_VOLATILE_MEMORY
-        // _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
-        #ifndef _ENABLE_ERASE_COMMAND
-            #define _ENABLE_ERASE_COMMAND
+    #ifdef NON_VOLATILE_MEMORY
+        // ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
+        #ifndef ENABLE_ERASE_COMMAND
+            #define ENABLE_ERASE_COMMAND
         #endif
 
-        // _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
-        #ifndef _ENABLE_SAVE_COMMAND
-	        #define _ENABLE_SAVE_COMMAND
+        // ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
+        #ifndef ENABLE_SAVE_COMMAND
+	        #define ENABLE_SAVE_COMMAND
         #endif
         
-        // _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
-        #ifndef _ENABLE_SETNI_COMMAND
-            #define _ENABLE_SETNI_COMMAND
+        // ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
+        #ifndef ENABLE_SETNI_COMMAND
+            #define ENABLE_SETNI_COMMAND
         #endif
         
         // _AUTO_SAVE should be defined if the parameters should be saved every
@@ -550,10 +550,10 @@
 		#define _ENABLE_USER_PIN_COMMAND
 	#endif
 
-	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
+	// ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
     #ifdef ONE_NET_CLIENT
-        #ifndef _ENABLE_JOIN_COMMAND
-		    #define _ENABLE_JOIN_COMMAND
+        #ifndef ENABLE_JOIN_COMMAND
+		    #define ENABLE_JOIN_COMMAND
 	    #endif
     #endif
 

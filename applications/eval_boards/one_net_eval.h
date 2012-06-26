@@ -141,7 +141,7 @@ extern void(*node_loop_func)(void);
 #ifdef ONE_NET_MASTER
 // these functions are in master_eval.c
 void master_eval(void);
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 void init_serial_master(BOOL load_nv_memory, SInt8 channel);
 #else
 void init_serial_master(SInt8 channel);

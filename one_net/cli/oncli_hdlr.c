@@ -73,7 +73,7 @@
 #include "one_net_master_port_const.h"
 #include "one_net_master.h"
 #endif
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 #include "dfi.h"
 #endif
 
@@ -267,11 +267,11 @@ int memory_len = 0;
 	static oncli_status_t list_cmd_hdlr(void);
 #endif
 
-#ifdef _ENABLE_ERASE_COMMAND 
+#ifdef ENABLE_ERASE_COMMAND 
 	static oncli_status_t erase_cmd_hdlr(void);
 #endif
 
-#ifdef _ENABLE_SAVE_COMMAND 
+#ifdef ENABLE_SAVE_COMMAND 
 	static oncli_status_t save_cmd_hdlr(void);
 #endif
 
@@ -350,11 +350,11 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
 static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_JOIN_COMMAND
+#ifdef ENABLE_JOIN_COMMAND
 oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ENABLE_SETNI_COMMAND
+#ifdef ENABLE_SETNI_COMMAND
 static oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -536,7 +536,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the list command was received //
 	#endif
     
-	#ifdef _ENABLE_ERASE_COMMAND 
+	#ifdef ENABLE_ERASE_COMMAND 
     else if(!strnicmp(ONCLI_ERASE_CMD_STR, CMD, strlen(ONCLI_ERASE_CMD_STR)))
     {
         *CMD_STR = ONCLI_ERASE_CMD_STR;
@@ -550,7 +550,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the erase command was received //
 	#endif
     
-	#ifdef _ENABLE_SAVE_COMMAND 
+	#ifdef ENABLE_SAVE_COMMAND 
     else if(!strnicmp(ONCLI_SAVE_CMD_STR, CMD, strlen(ONCLI_SAVE_CMD_STR)))
     {
         *CMD_STR = ONCLI_SAVE_CMD_STR;
@@ -977,7 +977,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the channel command was received //
 	#endif
     
-	#ifdef _ENABLE_JOIN_COMMAND
+	#ifdef ENABLE_JOIN_COMMAND
     if(!strnicmp(ONCLI_JOIN_CMD_STR, CMD, strlen(ONCLI_JOIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_JOIN_CMD_STR;
@@ -999,7 +999,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the join command was received //
     #endif
     
-    #ifdef _ENABLE_SETNI_COMMAND
+    #ifdef ENABLE_SETNI_COMMAND
     if(!strnicmp(ONCLI_SETNI_CMD_STR, CMD, strlen(ONCLI_SETNI_CMD_STR)))
     {
         *CMD_STR = ONCLI_SETNI_CMD_STR;
@@ -1584,7 +1584,7 @@ static oncli_status_t list_cmd_hdlr(void)
 #endif
 
 
-#ifdef _ENABLE_ERASE_COMMAND
+#ifdef ENABLE_ERASE_COMMAND
 /*!
     \brief Erases the settings from non-volatile memory
     
@@ -1616,7 +1616,7 @@ static oncli_status_t erase_cmd_hdlr(void)
 #endif
 
 
-#ifdef _ENABLE_SAVE_COMMAND
+#ifdef ENABLE_SAVE_COMMAND
 /*!
     \brief Saves the settings to non-volatile memory
     
@@ -2673,7 +2673,7 @@ static oncli_status_t unassign_peer_cmd_hdlr(
 #endif
 
 
-#if defined(_ENABLE_JOIN_COMMAND) && defined(ENHANCED_INVITE)
+#if defined(ENABLE_JOIN_COMMAND) && defined(ENHANCED_INVITE)
 /*!
     \brief Handles receiving the join command and all its parameters
     
@@ -3395,7 +3395,7 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ENABLE_SETNI_COMMAND
+#ifdef ENABLE_SETNI_COMMAND
 /*!
     \brief Handles receiving the setni command and all its parameters.
     

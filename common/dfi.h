@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 
 
 //! \defgroup dfi Data Flash Interface
@@ -252,7 +252,7 @@ void dfi_delete_segments_except_for(
 //! @} dfi
 
  
-#endif // ifdef _NON_VOLATILE_MEMORY //
+#endif // ifdef NON_VOLATILE_MEMORY //
 
 
 #endif // #ifdef _DFI_H //

@@ -674,7 +674,7 @@ tick_t one_net_client(void)
     }
     #endif
     
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     // if we're going to do anything soon, don't save since things might change
     // soon.
     

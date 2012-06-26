@@ -17,7 +17,7 @@
 #include "one_net_port_const.h"
 #include "one_net_constants.h"
 #include "one_net_eval.h"
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 #include "nv_hal.h"
 #endif
 #include "tick.h"
@@ -26,7 +26,7 @@
 #include "one_net_client_port_specific.h"
 #include "oncli_str.h"
 #include "oncli.h"
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 #include "dfi.h"
 #endif
 #include "one_net_prand.h"
@@ -168,7 +168,7 @@ void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
     
     
     
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 one_net_status_t one_net_client_save_settings(void)
 {
     return (eval_save() ? ONS_SUCCESS : ONS_FAIL);
@@ -185,7 +185,7 @@ one_net_status_t one_net_client_erase_settings(void)
 {
     return (eval_erase_data_flash() ? ONS_SUCCESS : ONS_FAIL);
 } // one_net_client_erase_settings //
-#endif // ifdef _NON_VOLATILE_MEMORY //     
+#endif // ifdef NON_VOLATILE_MEMORY //     
     
 
 void one_net_client_client_remove_device(void)
@@ -243,7 +243,7 @@ void init_auto_client(UInt8 index)
 */
 void init_serial_client(void)
 {
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
     BOOL memory_loaded;
     const UInt8* nv_memory;
     const UInt8* user_pin_memory;
@@ -365,7 +365,7 @@ void client_eval(void)
 */
 one_net_xtea_key_t* one_net_client_get_invite_key(void)
 {
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     UInt8 * invite_key_ptr;
 
     invite_key_ptr = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
@@ -376,7 +376,7 @@ one_net_xtea_key_t* one_net_client_get_invite_key(void)
         // no manufacturing data was found use a default invite key
         //
         return (one_net_xtea_key_t*) &DEFAULT_INVITE_KEY[0];
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     }
     else
     {

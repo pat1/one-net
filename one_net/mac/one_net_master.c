@@ -1117,7 +1117,7 @@ void one_net_master(void)
       queue_sleep_time < MS_TO_TICK(500))
     {
         check_updates_in_progress();
-        #ifdef _NON_VOLATILE_MEMORY
+        #ifdef NON_VOLATILE_MEMORY
         if(save)
         {
             one_net_master_condense_client_memory();

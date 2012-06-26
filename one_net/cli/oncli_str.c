@@ -160,12 +160,12 @@ const char* const ONCLI_FAST_QUERY_PIN_CMD_STR = "fast query pin";
 const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
 #endif
 
-#ifdef _ENABLE_ERASE_COMMAND
+#ifdef ENABLE_ERASE_COMMAND
 	//! Erase data flash command string
 	const char * const ONCLI_ERASE_CMD_STR = "erase";
 #endif
 
-#ifdef _ENABLE_SAVE_COMMAND
+#ifdef ENABLE_SAVE_COMMAND
 	//! Save data flash command string
 	const char * const ONCLI_SAVE_CMD_STR = "save";
 #endif
@@ -243,12 +243,12 @@ const char * const ONCLI_DISABLE_STR = "disable";
 	const char * const ONCLI_CHANNEL_CMD_STR = "channel";
 #endif
 
-#ifdef _ENABLE_JOIN_COMMAND
+#ifdef ENABLE_JOIN_COMMAND
 	//! Command to restart in CLIENT mode and look for an invite from a MASTER
 	const char * const ONCLI_JOIN_CMD_STR = "join";
 #endif
 
-#ifdef _ENABLE_SETNI_COMMAND
+#ifdef ENABLE_SETNI_COMMAND
 //! SETNI command string
 const char * const ONCLI_SETNI_CMD_STR = "setni";
 #endif

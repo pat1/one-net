@@ -132,11 +132,11 @@ extern const char * const ONCLI_FAST_QUERY_PIN_CMD_STR;
 extern const char * const ONCLI_SET_PIN_CMD_STR;
 #endif
 
-#ifdef _ENABLE_ERASE_COMMAND
+#ifdef ENABLE_ERASE_COMMAND
 extern const char * const ONCLI_ERASE_CMD_STR;
 #endif
 
-#ifdef _ENABLE_SAVE_COMMAND
+#ifdef ENABLE_SAVE_COMMAND
 extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
@@ -183,10 +183,10 @@ extern const char * const ONCLI_RM_DEV_CMD_STR;
 #ifdef _ENABLE_CHANNEL_COMMAND
 extern const char * const ONCLI_CHANNEL_CMD_STR;
 #endif
-#ifdef _ENABLE_JOIN_COMMAND
+#ifdef ENABLE_JOIN_COMMAND
 extern const char * const ONCLI_JOIN_CMD_STR;
 #endif
-#ifdef _ENABLE_SETNI_COMMAND
+#ifdef ENABLE_SETNI_COMMAND
 extern const char * const ONCLI_SETNI_CMD_STR;
 #endif
 #ifdef RANGE_TESTING

@@ -18,7 +18,7 @@
 #include "pal.h"
 #include "hal.h"
 #include "tal.h"
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 #include "nv_hal.h"
 #endif
 #include "uart.h"
@@ -278,7 +278,7 @@ int main(void)
     #endif
     
     INIT_TICK();
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
     FLASH_ERASE_CHECK();
     #endif
 
@@ -358,7 +358,7 @@ int main(void)
         #ifdef ONE_NET_MASTER
         if(device_is_master)
         {
-            #ifndef _NON_VOLATILE_MEMORY
+            #ifndef NON_VOLATILE_MEMORY
             init_serial_master(-1);
             #else
             init_serial_master(TRUE, -1);
@@ -379,7 +379,7 @@ int main(void)
     #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
-        #ifndef _NON_VOLATILE_MEMORY
+        #ifndef NON_VOLATILE_MEMORY
         init_serial_master(-1);
         #else
         init_serial_master(TRUE, -1);

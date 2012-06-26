@@ -42,7 +42,7 @@
 #include "config_options.h"
 
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 
 
 #include "dfi.h"
@@ -522,4 +522,4 @@ void dfi_delete_segments_except_for(
 
 
 
-#endif // ifdef _NON_VOLATILE_MEMORY //
+#endif // ifdef NON_VOLATILE_MEMORY //

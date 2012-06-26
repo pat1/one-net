@@ -315,7 +315,7 @@ on_message_status_t one_net_master_handle_ack_nack_response(
 
 
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 /*!
     \brief Saves ONE-NET master settings to non-volatile memory
     
