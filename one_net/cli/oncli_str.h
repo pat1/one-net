@@ -70,10 +70,10 @@ extern const char * const ONCLI_STARTUP_REV_FMT;
 
 
 // Mode strings (TODO - move these into application code?)
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 extern const char * const ONCLI_AUTO_MODE_STR;
 #endif
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 extern const char * const ONCLI_SNIFFER_STR;
 #endif
 extern const char * const ONCLI_SERIAL_MODE_STR;
@@ -119,7 +119,7 @@ extern const char * const ONCLI_LIST_NO_PEERS;
 #endif
 #endif
 
-#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+#if defined(SNIFFER_MODE) && defined(ENABLE_SNIFF_COMMAND)
 extern const char * const ONCLI_SNIFF_CMD_STR;
 #endif
 
@@ -140,7 +140,7 @@ extern const char * const ONCLI_ERASE_CMD_STR;
 extern const char * const ONCLI_SAVE_CMD_STR;
 #endif
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
 extern const char * const ONCLI_SET_DR_CHANNEL_CMD_STR;
 #endif
 

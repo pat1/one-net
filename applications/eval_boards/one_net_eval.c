@@ -68,7 +68,7 @@
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 //! The raw CLIENT DIDs for auto mode
 const on_raw_did_t RAW_AUTO_CLIENT_DID[NUM_AUTO_CLIENTS] =
 {
@@ -92,7 +92,7 @@ const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
                                      '2', '2', '2', '2',   '2', '2', '2', '2'};
                                      
-#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
+#if defined(AUTO_MODE) || defined(ONE_NET_MASTER)
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
@@ -109,12 +109,12 @@ static const char* const master_prompt = "-m";
 //! Client prompt
 static const char* const client_prompt = "-c";
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 //! Auto Client prompts
 static const char* const auto_client_prompts[] = {"-c1", "-c2", "-c3"};
 #endif
 
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 //! Sniffer prompt
 static const char* const sniffer_prompt = "-s";
 #endif
@@ -138,7 +138,7 @@ extern const char HEX_DIGIT[]; // for displaying packets
 //! @{
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 //! True if in Auto Mode
 BOOL in_auto_mode = FALSE;
 
@@ -149,7 +149,7 @@ UInt8 auto_client_index;
 //! the pins on the eval board.
 user_pin_t user_pin[NUM_USER_PINS];
 
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 //! True if in Sniffer Mode
 BOOL in_sniffer_mode = FALSE;
 #endif
@@ -310,7 +310,7 @@ int main(void)
     
     // do some initialization here.  It may get written over later, but
     // that's OK.
-    #if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
+    #if defined(AUTO_MODE) || defined(ONE_NET_MASTER)
     on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
     #endif
     one_net_memmove(on_base_param->current_key, EVAL_KEY,
@@ -323,7 +323,7 @@ int main(void)
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     on_base_param->features = THIS_DEVICE_FEATURES;
     
-    #ifdef _AUTO_MODE
+    #ifdef AUTO_MODE
     on_base_param->channel = DEFAULT_EVAL_CHANNEL;
     #endif
     
@@ -333,7 +333,7 @@ int main(void)
     #endif
     
     
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 	if(in_auto_mode)
 	{
         #ifdef ONE_NET_MASTER
@@ -1778,7 +1778,7 @@ on_message_status_t eval_handle_stream(on_txn_t* txn,
 */
 static const char* get_prompt_string(void)
 {
-    #ifdef _SNIFFER_MODE
+    #ifdef SNIFFER_MODE
     if(in_sniffer_mode)
     {
         return sniffer_prompt;
@@ -1796,7 +1796,7 @@ static const char* get_prompt_string(void)
         #endif
     #endif
     
-    #ifndef _AUTO_MODE
+    #ifndef AUTO_MODE
     return client_prompt;
     #else
         if(!in_auto_mode)
@@ -1878,7 +1878,7 @@ static void eval_set_modes_from_switch_positions(void)
         node_loop_func = &master_eval;    
     #endif
     
-    #ifdef _AUTO_MODE
+    #ifdef AUTO_MODE
 	// check mode switch (Auto/Serial)
 	if(SW_MODE_SELECT == 0)
 	{
@@ -1894,7 +1894,7 @@ static void eval_set_modes_from_switch_positions(void)
     }
     #endif
     
-    #ifdef _AUTO_MODE
+    #ifdef AUTO_MODE
     if(!device_is_master && in_auto_mode)
     {
         if((SW_ADDR_SELECT1 == 1) && (SW_ADDR_SELECT2 == 0))
@@ -1914,7 +1914,7 @@ static void eval_set_modes_from_switch_positions(void)
 }
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 /*!
     \brief Sends a simple text command message.
     

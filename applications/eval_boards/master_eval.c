@@ -120,7 +120,7 @@ extern BOOL in_auto_mode; // declared in one_net_eval.c
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 static void send_auto_msg(void);
 #endif
 static void master_user_pin(void);
@@ -273,7 +273,7 @@ BOOL one_net_master_remove_device_result(const on_raw_did_t *DID,
 } // one_net_master_remove_device_result //
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 /*!
     \brief Initializes the device as a MASTER in auto mode
     
@@ -444,7 +444,7 @@ void init_serial_master(SInt8 channel)
 */
 void master_eval(void)
 {
-    #ifdef _AUTO_MODE
+    #ifdef AUTO_MODE
     if(in_auto_mode)
     {
         send_auto_msg();
@@ -615,7 +615,7 @@ on_nack_rsn_t one_net_master_get_default_stream_transfer_values(
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 /*!
     \brief Automatically sends a message when in auto mode.
     

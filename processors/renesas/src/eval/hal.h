@@ -96,7 +96,7 @@
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 //! The interval in ms to automatically send data when in auto mode.
 //! 1 second
 #define AUTO_INTERVAL 2500
@@ -108,7 +108,7 @@
 
 
 
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 // constants for the sniffer
 //! Number of ms of inactivity before the prompt is displayed. 5s
 #define SNIFF_PROMPT_PERIOD 5000

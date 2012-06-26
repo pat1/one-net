@@ -161,7 +161,7 @@ void oncli_print_prompt(void);
               the device is in.
             ONCLI_INTERNAL_ERR if something unexpected happened.
 */
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 	oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms);
 #endif
 

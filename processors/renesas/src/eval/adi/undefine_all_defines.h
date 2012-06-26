@@ -100,12 +100,12 @@
     #undef _DEBUG_VERBOSE_LEVEL
 #endif
 
-#ifdef _AUTO_MODE
-	#undef _AUTO_MODE
+#ifdef AUTO_MODE
+	#undef AUTO_MODE
 #endif
 
-#ifdef _SNIFFER_MODE
-    #undef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
+    #undef SNIFFER_MODE
 #endif
 
 #ifdef _CHIP_ENABLE
@@ -224,8 +224,8 @@
 	#undef _ENABLE_SETNI_COMMAND
 #endif
 
-#ifdef _ENABLE_SNIFF_COMMAND
-	#undef _ENABLE_SNIFF_COMMAND
+#ifdef ENABLE_SNIFF_COMMAND
+	#undef ENABLE_SNIFF_COMMAND
 #endif
 
 #ifdef _ENABLE_MODE_COMMAND
@@ -236,8 +236,8 @@
 	#undef ENABLE_ECHO_COMMAND
 #endif
     
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-    #undef _ENABLE_SET_DR_CHANNEL_COMMAND
+#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
+    #undef ENABLE_SET_DR_CHANNEL_COMMAND
 #endif
 
 #ifdef _EVAL_0005_NO_REVISION

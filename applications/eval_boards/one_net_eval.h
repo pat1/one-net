@@ -28,12 +28,12 @@
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
 extern const on_encoded_did_t ENC_AUTO_CLIENT_DID[];
 #endif
 
-#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
+#if defined(AUTO_MODE) || defined(ONE_NET_MASTER)
 extern const UInt8 DEFAULT_RAW_NID[];
 #endif
 
@@ -52,7 +52,7 @@ extern const UInt8 DEFAULT_RAW_NID[];
     
 enum
 {
-    #ifdef _AUTO_MODE
+    #ifdef AUTO_MODE
     //! The number of clients in AUTO mode.
     NUM_AUTO_CLIENTS = 3,
     #endif
@@ -93,7 +93,7 @@ enum
 //! @{
 
 extern user_pin_t user_pin[NUM_USER_PINS];
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 extern BOOL in_sniffer_mode;
 #endif
 
@@ -110,7 +110,7 @@ extern const one_net_xtea_key_t EVAL_KEY;
 //! is found in data flash.
 extern const UInt8 DEFAULT_INVITE_KEY[];
                                      
-#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
+#if defined(AUTO_MODE) || defined(ONE_NET_MASTER)
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 extern const UInt8 DEFAULT_RAW_NID[];
@@ -151,10 +151,10 @@ void init_serial_master(SInt8 channel);
 void client_eval(void); // in client_eval.c
 void init_serial_client(void); // in client_eval.c
 #endif
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 void sniff_eval(void); // in sniff_eval.c
 #endif
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 #ifdef ONE_NET_MASTER
 void init_auto_master(void);
 #endif
@@ -362,7 +362,7 @@ void eval_single_txn_status(on_message_status_t status,
 
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit, 
   UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 #endif

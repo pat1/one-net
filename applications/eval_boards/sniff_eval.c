@@ -9,10 +9,10 @@
 
 #include "config_options.h"
 
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 
 #if _DEBUG_VERBOSE_LEVEL == 0
-    #error "_DEBUG_VERBOSE_LEVEL must be greater than 0 if _SNIFFER_MODE is enabled"
+    #error "_DEBUG_VERBOSE_LEVEL must be greater than 0 if SNIFFER_MODE is enabled"
 #endif
 
 

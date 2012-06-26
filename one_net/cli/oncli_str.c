@@ -73,12 +73,12 @@ const char * const ONCLI_STARTUP_REV_FMT = ".%d (Build %03d)\n";
     
 
 // Mode strings
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 //! Auto mode string
 const char * const ONCLI_AUTO_MODE_STR = "AUTO MODE";
 #endif
 
-#ifdef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
 //! sniffer string
 const char * const ONCLI_SNIFFER_STR = "SNIFFER";
 #endif
@@ -146,7 +146,7 @@ const char * const ONCLI_HIGH_STR = "high";
 #endif
 #endif
 
-#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+#if defined(SNIFFER_MODE) && defined(ENABLE_SNIFF_COMMAND)
 //! sniff command string
 const char * const ONCLI_SNIFF_CMD_STR = "sniff";
 #endif
@@ -170,7 +170,7 @@ const char* const ONCLI_SET_PIN_CMD_STR = "set pin";
 	const char * const ONCLI_SAVE_CMD_STR = "save";
 #endif
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
     //! Sets the data rate and channel of a device
     const char * const ONCLI_SET_DR_CHANNEL_CMD_STR = "set dr_channel";
 #endif

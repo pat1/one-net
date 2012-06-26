@@ -275,7 +275,7 @@ int memory_len = 0;
 	static oncli_status_t save_cmd_hdlr(void);
 #endif
 
-#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+#if defined(SNIFFER_MODE) && defined(ENABLE_SNIFF_COMMAND)
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -293,7 +293,7 @@ static oncli_status_t parse_and_send_pin_msg(
   const char * const ASCII_PARAM_LIST, UInt16 msg_class);
 #endif
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
 oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -564,7 +564,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the save command was received //
 	#endif
 
-	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+	#if defined(SNIFFER_MODE) && defined(ENABLE_SNIFF_COMMAND)
     else if(!strnicmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
     {
         oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SNIFF_CMD_STR) + 1);
@@ -678,7 +678,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the set pin command was received //
 	#endif // _ENABLE_SINGLE_COMMAND //
 
-	#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+	#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
     else if(!strnicmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
       strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)))
     {
@@ -1651,7 +1651,7 @@ static oncli_status_t save_cmd_hdlr(void)
               properly.
             ONCLI_CMD_FAIL If the command failed.
 */
-#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
+#if defined(SNIFFER_MODE) && defined(ENABLE_SNIFF_COMMAND)
 oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     oncli_status_t status;
@@ -2101,7 +2101,7 @@ static oncli_status_t parse_and_send_pin_msg(
 #endif // _ENABLE_SINGLE_COMMAND //
 
 
-#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
+#ifdef ENABLE_SET_DR_CHANNEL_COMMAND
 // set dr_channel:1:003:4000:1500:US:7 will send a message to device DID 003 to
 // set data rate to 76,800 KHz and the channel to US Channel 7 in 4000
 // milliseconds and to set the data rate back to where it was if it does not

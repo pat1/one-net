@@ -201,7 +201,7 @@ void one_net_client_client_remove_device(void)
 } // one_net_client_client_remove_device //
 
 
-#ifdef _AUTO_MODE
+#ifdef AUTO_MODE
 /*!
     \brief Initializes the device as a CLIENT in auto mode
     

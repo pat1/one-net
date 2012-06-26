@@ -344,15 +344,15 @@
 
 
 #ifdef _ONE_NET_EVAL
-	// _AUTO_MODE should be defined if you want the Auto Mode option available
-	#ifndef _AUTO_MODE
-		#define _AUTO_MODE
+	// AUTO_MODE should be defined if you want the Auto Mode option available
+	#ifndef AUTO_MODE
+		#define AUTO_MODE
 	#endif
 
-	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+	// SNIFFER_MODE should be defined if you want the Sniffer Mode option available
     #if _DEBUG_VERBOSE_LEVEL > 0
-	    #ifndef _SNIFFER_MODE
-		    #define _SNIFFER_MODE
+	    #ifndef SNIFFER_MODE
+		    #define SNIFFER_MODE
 	    #endif
     #endif
 #endif
@@ -557,10 +557,10 @@
 	    #endif
     #endif
 
-	// _ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
-	#ifdef _SNIFFER_MODE
-		#ifndef _ENABLE_SNIFF_COMMAND
-			#define _ENABLE_SNIFF_COMMAND
+	// ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
+	#ifdef SNIFFER_MODE
+		#ifndef ENABLE_SNIFF_COMMAND
+			#define ENABLE_SNIFF_COMMAND
 		#endif
 	#endif
 
@@ -576,10 +576,10 @@
 	    #endif
     #endif
     
-    // _ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
+    // ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
     #ifdef _DATA_RATE_CHANNEL
-        #ifndef _ENABLE_SET_DR_CHANNEL_COMMAND
-        //    #define _ENABLE_SET_DR_CHANNEL_COMMAND
+        #ifndef ENABLE_SET_DR_CHANNEL_COMMAND
+        //    #define ENABLE_SET_DR_CHANNEL_COMMAND
         #endif
     #endif
     
