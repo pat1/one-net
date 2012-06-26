@@ -144,7 +144,7 @@ extern BOOL binary_mode;
 
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 void xdump(const UInt8* const ptr, UInt16 len);
 #endif
 

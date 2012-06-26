@@ -366,7 +366,7 @@ void one_net_free(void* ptr)
 
 
 // temporary debugging
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 #include "oncli.h"
 void print_mem(void)
 {

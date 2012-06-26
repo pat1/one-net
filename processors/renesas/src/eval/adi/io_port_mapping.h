@@ -132,7 +132,7 @@
 
 // user pins
 // rwm: changed pins back to 0 to 3
-#ifndef _EVAL_0005_NO_REVISION
+#ifndef EVAL_0005_NO_REVISION
 #define USER_PIN0       p6_7
 #define USER_PIN1       p6_2
 #define USER_PIN2       p6_1
@@ -145,7 +145,7 @@
 #else
 //
 // rwm 12/16/08
-// if _EVAL_0005_NO_REVISION is defined we use a 
+// if EVAL_0005_NO_REVISION is defined we use a 
 // different port mapping so that some of the older
 // eval boards can be used. NO_REVISION means boards
 // that have no number after the 0005. All boards with

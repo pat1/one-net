@@ -61,7 +61,7 @@
 #ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
     #include "one_net_timer.h"
     #include "oncli.h"
 #endif
@@ -402,7 +402,7 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     BOOL uart_pause_needed = FALSE;
     #endif
     
-    #ifdef _DEBUGGING_TOOLS
+    #ifdef DEBUGGING_TOOLS
     if(pause || ratchet || write_pause)
     {
         proceed = FALSE;
@@ -471,12 +471,12 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     }
     if(uart_pause_needed)
     {
-        #ifdef _DEBUGGING_TOOLS
+        #ifdef DEBUGGING_TOOLS
         pausing = TRUE;
         #endif
         delay_ms(2); // slight pause to let the uart clear so nothing
                      // gets garbled.
-        #ifdef _DEBUGGING_TOOLS
+        #ifdef DEBUGGING_TOOLS
         pausing = FALSE;
         #endif
     }

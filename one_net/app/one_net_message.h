@@ -602,7 +602,7 @@ extern on_recipient_list_t* recipient_send_list_ptr;
 //! @{
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
          UInt8* queue_size, UInt16* tail_idx);
 #endif

@@ -96,7 +96,7 @@ ont_timer_t timer[ONT_NUM_TIMERS] = {{FALSE, 0}};
 
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 #include "one_net_port_const.h"
 #include "one_net_master_port_const.h"
 
@@ -329,7 +329,7 @@ BOOL ont_inactive_or_expired(const UInt8 TIMER)
 } // ont_inactive_or_expired //
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 #include "oncli.h"
 void print_intervals(void)
 {
@@ -409,7 +409,7 @@ static void update_timers(void)
     
     for(i = 0; i < ONT_NUM_TIMERS; i++)
     {
-        #ifdef _DEBUGGING_TOOLS
+        #ifdef DEBUGGING_TOOLS
         if(pausing && i != WRITE_PAUSE_TIMER && i >= ONT_NUM_APP_TIMERS)
         {
             // pausing everything but the APP timers

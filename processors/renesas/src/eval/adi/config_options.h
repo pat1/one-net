@@ -460,11 +460,11 @@
         #endif
     #endif
 
-	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
+	// ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
 	#ifdef ENABLE_SINGLE_COMMAND
-		#ifndef _ENABLE_RSINGLE_COMMAND
+		#ifndef ENABLE_RSINGLE_COMMAND
 		    // Implement the "rsingle" command.
-	//		#define _ENABLE_RSINGLE_COMMAND
+	//		#define ENABLE_RSINGLE_COMMAND
 		#endif
 	#endif
 
@@ -596,13 +596,13 @@
 // Other Options
 
 
-//#ifndef _EVAL_0005_NO_REVISION
-//	#define _EVAL_0005_NO_REVISION
+//#ifndef EVAL_0005_NO_REVISION
+//	#define EVAL_0005_NO_REVISION
 //#endif
 
 
-#ifndef _DEBUGGING_TOOLS
-    #define _DEBUGGING_TOOLS
+#ifndef DEBUGGING_TOOLS
+    #define DEBUGGING_TOOLS
 #endif
 
 

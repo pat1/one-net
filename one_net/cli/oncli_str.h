@@ -354,7 +354,7 @@ extern const char* const ONCLI_M_UPDATE_RESULT_ADD_DEV_STR;
 #endif
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 extern const char* const ONCLI_MEMDUMP_CMD_STR;
 extern const char* const ONCLI_MEMLOAD_CMD_STR;
 extern const char* const ONCLI_MEMSET_CMD_STR;

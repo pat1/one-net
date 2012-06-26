@@ -205,7 +205,7 @@ static void print_cmd_result(const char * const CMD,
     
     
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 /*!
     \brief Displays memory contents in hex format for debugging purposes
     

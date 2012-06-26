@@ -78,7 +78,7 @@
 //! @{
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 // Note : this will increase!
 #ifdef ONE_NET_MASTER
 #define NUM_DEBUG_INTERVALS 5
@@ -133,7 +133,7 @@ enum
     #endif // ifdef DEVICE_SLEEPS //
     #endif // ifdef ONE_NET_CLIENT //
     
-    #ifdef _DEBUGGING_TOOLS
+    #ifdef DEBUGGING_TOOLS
     WRITE_PAUSE_TIMER,
     #endif
     
@@ -185,7 +185,7 @@ extern ont_timer_t timer[];
 // debugging tools for timers -- revert to #defines for chips NOT using these
 // debugging tools.  If the debugging tool are used, these are adjustable
 // variables that can be changed during run-time from a user interface.
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 extern UInt32* debug_intervals[];
 extern UInt32 one_net_response_time_out; // 0
 extern UInt32 write_pause; // 1
@@ -245,7 +245,7 @@ void unpause_timer(UInt8 TIMER);
 
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 void print_timers(void);
 void print_intervals(void);
 void synchronize_last_tick(void);

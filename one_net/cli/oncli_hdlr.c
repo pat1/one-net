@@ -77,7 +77,7 @@
 #include "dfi.h"
 #endif
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 #include "one_net_timer.h"
 #ifdef ONE_NET_CLIENT
 #include "one_net_client_port_const.h"
@@ -163,7 +163,7 @@ static const UInt8 add_fragment_delay_high = 25;
 
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 // Debug memory
 typedef enum
 {
@@ -415,7 +415,7 @@ static oncli_status_t parse_invite_key(const char * ASCII,
 
 
 // debugging tools
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
   int index, int offset);
 static int parse_memory_str(UInt8** mem_ptr,
@@ -1070,7 +1070,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the range test command was received //
     #endif
     
-    #ifdef _DEBUGGING_TOOLS
+    #ifdef DEBUGGING_TOOLS
     if(!strnicmp(ONCLI_MEMORY_CMD_STR, CMD, strlen(ONCLI_MEMORY_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMORY_CMD_STR;
@@ -3930,7 +3930,7 @@ static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
 /*!
     \brief Loads memory into the stored memory location.
     
