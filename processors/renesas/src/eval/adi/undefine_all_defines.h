@@ -40,16 +40,16 @@
 */
 
 
-#ifdef _ONE_NET_MASTER
-	#undef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
+	#undef ONE_NET_MASTER
 #endif
 
-#ifdef _ONE_NET_CLIENT
-	#undef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
+	#undef ONE_NET_CLIENT
 #endif
 
-#ifdef _PEER
-	#undef _PEER
+#ifdef PEER
+	#undef PEER
 #endif
 
 #ifdef _BLOCK_MESSAGES_ENABLED
@@ -60,12 +60,12 @@
     #undef _STREAM_MESSAGES_ENABLED
 #endif
 
-#ifdef _ONE_NET_MULTI_HOP
-	#undef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
+	#undef ONE_NET_MULTI_HOP
 #endif
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
-	#undef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
+	#undef ONE_NET_MH_CLIENT_REPEATER
 #endif
 
 #ifdef _RANGE_TESTING

@@ -9,7 +9,7 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 
 #include "one_net_status_codes.h"
@@ -33,7 +33,7 @@
 #include "oncli.h"
 #include "oncli_str.h"
 #include "tal.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 #include "one_net_prand.h"
@@ -296,7 +296,7 @@ void init_auto_master(void)
           RAW_AUTO_CLIENT_DID[i], ON_ENCODED_DID_LEN);
         client_list[i].device.features = THIS_DEVICE_FEATURES;
         client_list[i].device.data_rate = ONE_NET_DATA_RATE_38_4;
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         client_list[i].device.hops = 0;
         client_list[i].device.max_hops =
           features_max_hops(THIS_DEVICE_FEATURES);
@@ -306,7 +306,7 @@ void init_auto_master(void)
         client_list[i].keep_alive_interval = 0; // don't check in for auto mode
     }
 
-    #ifdef _PEER
+    #ifdef PEER
     one_net_reset_peers();
     #endif
     one_net_master_init(NULL, 0);
@@ -343,7 +343,7 @@ void init_serial_master(SInt8 channel)
     const UInt8* user_pin_memory;
     const on_base_param_t* base_param;
     UInt16 nv_memory_len, user_pin_memory_len;
-    #ifdef _PEER
+    #ifdef PEER
     const UInt8* peer_memory;
     UInt16 peer_memory_len;
     #endif
@@ -375,7 +375,7 @@ void init_serial_master(SInt8 channel)
           &nv_memory_len, &nv_memory);
     }
     
-    #ifdef _PEER
+    #ifdef PEER
     if(memory_loaded)
     {
         memory_loaded = eval_load(DFI_ST_ONE_NET_PEER_SETTINGS,
@@ -388,7 +388,7 @@ void init_serial_master(SInt8 channel)
         one_net_status_t status;
         status = one_net_master_init(nv_memory, nv_memory_len);
         
-        #ifdef _PEER
+        #ifdef PEER
         if(status != ONS_MORE)
         {
             memory_loaded = FALSE;
@@ -514,7 +514,7 @@ void one_net_master_update_result(one_net_mac_update_t update,
         case ONE_NET_UPDATE_NETWORK_KEY:
             result_type = ONCLI_M_UPDATE_RESULT_KEY_STR;
             break;
-        #ifdef _PEER
+        #ifdef PEER
         case ONE_NET_UPDATE_ASSIGN_PEER:
             result_type = ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
             break;
@@ -572,7 +572,7 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 
 
 #ifdef _BLOCK_MESSAGES_ENABLED
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 void one_net_master_repeater_requested(on_client_t* src_client,
   on_client_t* dst_client, on_client_t* repeater_client, UInt8 channel,
   UInt8 data_rate, UInt8 priority, UInt32 estimated_time,
@@ -687,4 +687,4 @@ static void master_user_pin(void)
 //! @} ONE_NET_master_eval
 
 
-#endif // ifdef _ONE_NET_MASTER //
+#endif // ifdef ONE_NET_MASTER //

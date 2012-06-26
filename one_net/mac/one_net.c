@@ -54,15 +54,15 @@
 #include "one_net_prand.h"
 #include "one_net_xtea.h"
 #include "one_net_acknowledge.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 #include "one_net_port_const.h"
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 #include "one_net_client_port_specific.h"
 #include "one_net_client_port_const.h"
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 #include "one_net_master.h"
 #include "one_net_master_port_specific.h"
 #include "one_net_master_port_const.h"
@@ -145,7 +145,7 @@ on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
 
 
 //! true if device is functioning as a master, false otherwise
-#ifndef _ONE_NET_MASTER
+#ifndef ONE_NET_MASTER
 BOOL device_is_master = FALSE;
 #else
 BOOL device_is_master = TRUE; // if device cvan be master OR client, the
@@ -178,7 +178,7 @@ on_single_data_queue_t* single_msg_ptr = NULL;
 //! overflow.
 UInt8 raw_payload_bytes[ON_MAX_RAW_PLD_LEN + 1];
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern BOOL client_joined_network; // declared extern in one_net_client.h but
      // we do not want to include one_net_client.h so we declare it here too.
 extern on_master_t * const master;
@@ -187,13 +187,13 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
   ONT_INVITE_SEND_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL};
 #else
   ONT_INVITE_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL};
 #endif
   
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern BOOL client_looking_for_invite;
 #endif
 
@@ -253,7 +253,7 @@ tick_t key_change_request_time = 0;
 on_state_t on_state = ON_INIT_STATE;
 
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
     // Transaction for forwarding on MH packets.
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
       ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
@@ -276,7 +276,7 @@ static BOOL range_testing_on = FALSE;
 #endif
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 //! If true and sending a single response, wthis flag signifies that we
 // should instead send our features.
 static BOOL features_override = FALSE;
@@ -331,7 +331,7 @@ static on_message_status_t rx_stream_data(on_txn_t* txn, block_stream_msg_t* bs_
 //! @{
     
     
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Builds the encoded hops field for the packet.
 
@@ -397,7 +397,7 @@ one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
 
     return ONS_SUCCESS;
 } // on_parse_hops //
-#endif // ifdef _ONE_NET_MULTI_HOP //
+#endif // ifdef ONE_NET_MULTI_HOP //
 
 
 /*!
@@ -594,7 +594,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         }
     }
 
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // txn->max_hops is positive.
     set_multihop_pid(&(pkt_ptrs->raw_pid), txn->max_hops > 0);
@@ -667,7 +667,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
     }
 
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // change between multi-hop and non-multi-hop depending on whether 
     // max_hops is positive.
     #ifdef _BLOCK_MESSAGES_ENABLED
@@ -696,7 +696,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
 
     // build the packet.  Use the on_pkt_t object message id, not the device
     put_payload_msg_id(pkt_ptrs->msg_id, raw_payload_bytes);
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     // If features_override is true, the other device needs our features or we
     // need theirs, so we'll send ours, which will cause them to send theirs
     // back, then the next time around, we'll send the real message.
@@ -833,7 +833,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid)
     msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_PLD_IDX]) +
       pkt_ptrs->payload_len) - msg_crc_start;
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // fill in hops if needed
     if(packet_is_multihop(pid))
     {
@@ -1264,7 +1264,7 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_DEVICE_PERMISSION:
         #endif
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_MASTER_REPEATER_PERMISSION_START:
         case ON_BS_MASTER_REPEATER_PERMISSION:
@@ -1283,7 +1283,7 @@ void one_net(on_txn_t ** txn)
             #ifdef _ROUTE
             UInt16 raw_pid;
             #endif
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             on_raw_did_t raw_did;
             #endif
             
@@ -1355,13 +1355,13 @@ void one_net(on_txn_t ** txn)
                             add_recipient_to_recipient_list(
                               recipient_send_list_ptr, &first_recipient);
                             
-                            #ifdef _PEER
+                            #ifdef PEER
                             // now add any peers, if they are relevant
                             add_peers_to_recipient_list(&single_msg,
                               recipient_send_list_ptr, peer);
                             #endif
                             
-                            #ifdef _ONE_NET_CLIENT
+                            #ifdef ONE_NET_CLIENT
                             // now add the master if needed
                             if(must_send_to_master(&single_msg))
                             {
@@ -1381,7 +1381,7 @@ void one_net(on_txn_t ** txn)
                               single_msg.payload[0] ==
                               ON_CHANGE_DATA_RATE_CHANNEL)
                             {
-                                #ifdef _ONE_NET_MULTI_HOP
+                                #ifdef ONE_NET_MULTI_HOP
                                 // add any repeaters.
                                 UInt8 i;
                                 on_did_unit_t did_unit;
@@ -1462,7 +1462,7 @@ void one_net(on_txn_t ** txn)
                                 case ON_LISTEN_FOR_DATA:
                                     bs_msg.bs_on_state = ON_BS_FIND_ROUTE;
                                 case ON_BS_FIND_ROUTE:
-                                    #ifdef _ONE_NET_MULTI_HOP
+                                    #ifdef ONE_NET_MULTI_HOP
                                     bs_msg.num_repeaters = 0;
                                     #endif
                                 case ON_BS_CONFIRM_ROUTE:
@@ -1554,7 +1554,7 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 #endif
                                     
-                                #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(_ONE_NET_MULTI_HOP)
+                                #if defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION) && defined(ONE_NET_MULTI_HOP)
                                 case ON_BS_MASTER_REPEATER_PERMISSION_START:
                                     if(device_is_master || bs_msg.num_repeaters
                                       == 0 || !long_transfer)
@@ -1593,7 +1593,7 @@ void one_net(on_txn_t ** txn)
                                     break;
                                 #endif
                                 
-                                #ifdef _ONE_NET_MULTI_HOP
+                                #ifdef ONE_NET_MULTI_HOP
                                 case ON_BS_REPEATER_PERMISSION_START:
                                     if(bs_msg.num_repeaters == 0)
                                     {
@@ -1627,12 +1627,12 @@ void one_net(on_txn_t ** txn)
                                 
                                 case ON_BS_COMMENCE:
                                 {
-                                    #ifdef _ONE_NET_MULTI_HOP
+                                    #ifdef ONE_NET_MULTI_HOP
                                     UInt16 data_pid = ONE_NET_RAW_BLOCK_DATA;
                                     #endif
                                     UInt16 response_pid =
                                       ONE_NET_RAW_SINGLE_DATA_ACK;
-                                    #ifdef _ONE_NET_MULTI_HOP
+                                    #ifdef ONE_NET_MULTI_HOP
                                     data_pid |= (get_default_num_blocks(
                                       data_pid) << 8);
                                     #endif
@@ -1665,7 +1665,7 @@ void one_net(on_txn_t ** txn)
                                     #endif
                                     {
                                         // TODO -- delete this?
-                                        #ifdef _ONE_NET_MULTI_HOP
+                                        #ifdef ONE_NET_MULTI_HOP
                                         bs_msg.time = estimate_response_time(
                                           get_encoded_packet_len(data_pid, TRUE),
                                           get_encoded_packet_len(response_pid, TRUE),
@@ -1710,8 +1710,8 @@ void one_net(on_txn_t ** txn)
                     }
                     #endif
                     
-                    #ifdef _ONE_NET_CLIENT
-                    #ifdef _ONE_NET_MASTER
+                    #ifdef ONE_NET_CLIENT
+                    #ifdef ONE_NET_MASTER
                     if(device_is_master || client_joined_network)
                     #else
                     if(client_joined_network)
@@ -1743,7 +1743,7 @@ void one_net(on_txn_t ** txn)
                     *txn = NULL;
                     this_pkt_ptrs = &data_pkt_ptrs;
 
-                    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
+                    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
                     status = on_rx_packet((const on_txn_t* const) *txn,
                       &this_txn, &this_pkt_ptrs, raw_payload_bytes);
                     #else
@@ -1753,7 +1753,7 @@ void one_net(on_txn_t ** txn)
             
                     if(status == ONS_PKT_RCVD)
                     {
-                        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+                        #ifdef ONE_NET_MH_CLIENT_REPEATER
                         if(this_txn == &mh_txn)
                         {
                             *txn = &mh_txn;
@@ -1902,7 +1902,7 @@ void one_net(on_txn_t ** txn)
                                   ONE_NET_RAW_SINGLE_DATA_ACK :
                                   ONE_NET_RAW_SINGLE_DATA_NACK_RSN);
                                   
-                                #ifdef _ONE_NET_MULTI_HOP
+                                #ifdef ONE_NET_MULTI_HOP
                                 response_txn.hops = get_bs_hops(bs_msg.flags);
                                 response_txn.max_hops = response_txn.hops;
                                 set_multihop_pid(&response_pid,
@@ -1995,11 +1995,11 @@ void one_net(on_txn_t ** txn)
                 
                 // we'll need to fill in the key.  We're dealing with
                 // a single transaction here.  Fill in the key.
-                #ifdef _ONE_NET_CLIENT
+                #ifdef ONE_NET_CLIENT
                 single_txn.key =
                   (one_net_xtea_key_t*) on_base_param->current_key;
                 #endif
-                #ifdef _ONE_NET_MASTER
+                #ifdef ONE_NET_MASTER
                 if(device_is_master)
                 {
                     // we're the master.  We may or may not be dealing
@@ -2028,7 +2028,7 @@ void one_net(on_txn_t ** txn)
                     return; // no outstanding transaction
                 }
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 // TODO -- we already gave the applciation code a chance to
                 // change things above.  The code below seems redundant at best
                 // and conterproductive at worst in that changes previously made
@@ -2066,7 +2066,7 @@ void one_net(on_txn_t ** txn)
                 }
                 
                 // It's a data packet.  Fill in the data portion
-                #ifdef _ONE_NET_CLIENT
+                #ifdef ONE_NET_CLIENT
                 features_override = features_override ||
                   !features_known(device->features);
                 #endif
@@ -2294,7 +2294,7 @@ void one_net(on_txn_t ** txn)
         #endif
         
         case ON_SEND_PKT:
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         case ON_SEND_INVITE_PKT:
         #endif
         case ON_SEND_SINGLE_DATA_PKT:
@@ -2309,7 +2309,7 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION:
         #endif
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION:
         #endif
@@ -2354,7 +2354,7 @@ void one_net(on_txn_t ** txn)
         } // case ON_SEND_SINGLE_DATA_PKT //
         
         case ON_SEND_PKT_WRITE_WAIT:
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         case ON_SEND_INVITE_PKT_WRITE_WAIT:
         #endif
         case ON_SEND_SINGLE_DATA_WRITE_WAIT:
@@ -2369,7 +2369,7 @@ void one_net(on_txn_t ** txn)
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_DEVICE_PERMISSION_WRITE_WAIT:
         #endif
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_SEND_MASTER_REPEATER_PERMISSION_WRITE_WAIT:
         #endif
@@ -2433,7 +2433,7 @@ void one_net(on_txn_t ** txn)
                           ONE_NET_RAW_SINGLE_DATA_ACK;
                         
                         // Set timer for triple the expected time?
-                        #ifdef _ONE_NET_MULTI_HOP
+                        #ifdef ONE_NET_MULTI_HOP
                         UInt16 data_pid = (4 << 8) + ONE_NET_RAW_BLOCK_DATA;
                         ont_set_timer(ONT_RESPONSE_TIMER,
                           MS_TO_TICK(3 * estimate_response_time(
@@ -2472,11 +2472,11 @@ void one_net(on_txn_t ** txn)
                 }
                 #endif                
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 new_timeout_ms = (*txn)->max_hops * ONE_NET_MH_LATENCY
                   + (1 + (*txn)->max_hops) * (*txn)->response_timeout;
                 
-                #ifdef _ONE_NET_MASTER
+                #ifdef ONE_NET_MASTER
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
                     // invite packets don't lengthen timeout with
@@ -2503,7 +2503,7 @@ void one_net(on_txn_t ** txn)
                     return;
                 }
                 
-                #ifdef _ONE_NET_MASTER  
+                #ifdef ONE_NET_MASTER  
                 if(on_state == ON_SEND_INVITE_PKT_WRITE_WAIT)
                 {
                     on_state = ON_LISTEN_FOR_DATA;
@@ -2529,11 +2529,11 @@ void one_net(on_txn_t ** txn)
         case ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP:
         #ifdef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         case ON_BS_WAIT_FOR_MASTER_DEVICE_PERMISSION_RESP:
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_MASTER_REPEATER_PERMISSION_RESP:
         #endif
         #endif
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         case ON_BS_WAIT_FOR_REPEATER_PERMISSION_RESP:
         #endif
         case ON_BS_WAIT_FOR_DATA_RESP:
@@ -2633,7 +2633,7 @@ void one_net(on_txn_t ** txn)
                 this_pkt_ptrs = &response_pkt_ptrs;
                 
                 
-                #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
+                #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
                 status = on_rx_packet(&single_txn, &this_txn, &this_pkt_ptrs,
                   raw_payload_bytes);
                 #else
@@ -2810,7 +2810,7 @@ void one_net(on_txn_t ** txn)
                 single_msg_ptr = NULL;
                 #endif
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 // TODO -- this seems like the wrong place to put this.
                 // What about the application code?
                 (*txn)->device->hops = (*txn)->max_hops;
@@ -2868,7 +2868,7 @@ void one_net(on_txn_t ** txn)
 } // one_net //
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops)
 {
     on_encoded_did_t enc_did;
@@ -2995,7 +2995,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         (*txn)->device->verify_time = 0;
     }
 
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     features_override = FALSE; // if this flag's been set, clear it.  If we
                               // need to reset it, we'll do that below.
     
@@ -3016,7 +3016,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         {
             // they gave it to us.
             (*txn)->device->features = ack_nack->payload->features;
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             (*txn)->device->max_hops =
               features_max_hops((*txn)->device->features);
             #endif
@@ -3104,7 +3104,7 @@ static on_message_status_t rx_single_resp_pkt(on_txn_t** const txn,
         return ON_BS_MSG_SETUP_CHANGE;
     }
     
-    #if defined(_ONE_NET_CLIENT) && defined(_DEVICE_SLEEPS)
+    #if defined(ONE_NET_CLIENT) && defined(DEVICE_SLEEPS)
     if(!device_is_master && (pkt->raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK))
     {
         // TODO -- should 3 seconds be hard-coded?
@@ -3218,7 +3218,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         return ON_MSG_INTERNAL_ERR;
     }
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     {
         (*txn)->device->hops = sing_pkt_ptr->hops;
         (*txn)->hops = (*txn)->device->hops;
@@ -3369,7 +3369,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         one_net_memmove(ack_nack->payload->key_frag,
           &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
           ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
-        #ifdef _DEVICE_SLEEPS
+        #ifdef DEVICE_SLEEPS
         // we'll stay awake in case there is a follow-up.
         ont_set_timer(ONT_STAY_AWAKE_TIMER,
           MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
@@ -3503,7 +3503,7 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
     \return ONS_PKT_RCVD if a valid packet was received
             For more return values one_net_status_codes.h
 */
-#if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
+#if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes)
 #else
@@ -3515,10 +3515,10 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     one_net_xtea_key_t* key = NULL;
     UInt16 raw_pid;
     BOOL dst_is_broadcast, dst_is_me, src_match;
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     BOOL packet_is_mh;
     #endif
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #ifdef ONE_NET_MH_CLIENT_REPEATER
     BOOL repeat_this_packet = FALSE;
     #ifdef _ROUTE
     BOOL repeat_route_packet = FALSE;
@@ -3530,7 +3530,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     
     #ifdef _BLOCK_MESSAGES_ENABLED
     BOOL src_is_bs_endpoint;
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #ifdef ONE_NET_MH_CLIENT_REPEATER
     BOOL dst_is_master, dst_is_bs_endpoint;
     BOOL high_priority_bs = (bs_msg.transfer_in_progress && get_bs_priority(
       bs_msg.flags) > ONE_NET_LOW_PRIORITY);
@@ -3553,7 +3553,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     
     // check some addresses
-    #ifndef _ONE_NET_CLIENT
+    #ifndef ONE_NET_CLIENT
     if(!is_my_nid((on_encoded_nid_t*) (&pkt_bytes[ON_ENCODED_NID_IDX])))
     {
         return ONS_NID_FAILED; // not our network
@@ -3566,7 +3566,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     #endif    
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // first check the source.  If it was us originally, then we probably
     // got back our own repeated packet.
     if(is_my_did((const on_encoded_did_t* const)
@@ -3620,7 +3620,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
           (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]) ||
           on_encoded_did_equal((const on_encoded_did_t* const) bs_dst_did,
           (const on_encoded_did_t*const) &pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        #ifdef ONE_NET_MH_CLIENT_REPEATER
         dst_is_bs_endpoint = on_encoded_did_equal(
           (const on_encoded_did_t* const)bs_src_did,
           (const on_encoded_did_t* const) &pkt_bytes[ON_ENCODED_DST_DID_IDX]) ||
@@ -3632,11 +3632,11 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     }
     #endif
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     packet_is_mh = packet_is_multihop(raw_pid);
     #endif
     
-    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+    #ifndef ONE_NET_MH_CLIENT_REPEATER
     if(!src_match || (!dst_is_me && !dst_is_broadcast))
     {
         return ONS_BAD_ADDR;
@@ -3710,7 +3710,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     {
         type = ON_RESPONSE;
     }
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     else if(packet_is_invite(raw_pid))
     {
         type = ON_INVITE;
@@ -3718,7 +3718,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     #endif
     else
     {
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        #ifdef ONE_NET_MH_CLIENT_REPEATER
         if(!repeat_this_packet)
         #endif
         {
@@ -3726,7 +3726,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         }
     }
 
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #ifdef ONE_NET_MH_CLIENT_REPEATER
     if(repeat_this_packet)
     {
         #ifdef  _BLOCK_MESSAGES_ENABLED
@@ -3752,7 +3752,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         switch(type)
         {
             case ON_INVITE:
-              #ifndef _ONE_NET_CLIENT
+              #ifndef ONE_NET_CLIENT
               return ONS_UNHANDLED_PKT;;
               #else
               if(*this_txn != &invite_txn)
@@ -3813,7 +3813,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_READ_ERR;
     }
     
-    #ifndef _ONE_NET_MH_CLIENT_REPEATER
+    #ifndef ONE_NET_MH_CLIENT_REPEATER
     if(!verify_msg_crc(*this_pkt_ptrs))
     #else
     // don't bother verifying if we are just going to repeat.
@@ -3823,7 +3823,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_CRC_FAIL;
     }
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // overwritten below if multi-hop
     (*this_pkt_ptrs)->hops = 0;
     (*this_pkt_ptrs)->max_hops = 0;
@@ -3850,7 +3850,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         (*this_pkt_ptrs)->max_hops = raw_hops_field & 0x07;
         (*this_pkt_ptrs)->hops = (raw_hops_field >> 3);
         
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        #ifdef ONE_NET_MH_CLIENT_REPEATER
         if(repeat_this_packet)
         {
             if((*this_pkt_ptrs)->hops >= (*this_pkt_ptrs)->max_hops)
@@ -3891,7 +3891,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     
     key = &(on_base_param->current_key);
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master && *this_txn == &invite_txn)
     {
         key = (one_net_xtea_key_t*) one_net_client_get_invite_key();
@@ -3929,7 +3929,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         
         // we may be in the middle of a key change.  We may try the other
         // key
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         if(!device_is_master && *this_txn == &invite_txn)
         {
             // only have one invite key and it didn't work.
@@ -3954,7 +3954,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     // message id is irrelevant for invite packets, but fill it in regardless.
     (*this_pkt_ptrs)->msg_id = get_payload_msg_id(raw_payload_bytes);
     
-    #if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_ROUTE)
+    #if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(_ROUTE)
     if(repeat_route_packet)
     {
         on_raw_did_t my_raw_did;
@@ -4327,7 +4327,7 @@ one_net_status_t send_route_msg(const on_raw_did_t* raw_did)
     if(one_net_send_single(ONE_NET_RAW_ROUTE, ON_ROUTE_MSG, raw_pld,
       ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, (const on_encoded_did_t* const) enc_dst
-      #ifdef _PEER
+      #ifdef PEER
         , FALSE,
         ONE_NET_DEV_UNIT
       #endif
@@ -4704,7 +4704,7 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
     
     device = (*get_sender_info)(enc_did);
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master && !device)
     {
         return ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
@@ -4724,7 +4724,7 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
     
     return (one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       pld, 7, ONE_NET_LOW_PRIORITY, NULL, enc_did
-      #ifdef _PEER
+      #ifdef PEER
       , FALSE, ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -4747,13 +4747,13 @@ void reset_msg_ids(void)
 {
     UInt16 i;
     // set them randomly low.  Just make it a random number from 0 to 50.
-    #if !defined(_ONE_NET_MASTER)
+    #if !defined(ONE_NET_MASTER)
     master->device.msg_id = one_net_prand(get_tick_count(), 50);
     for(i = 0; i < ONE_NET_RX_FROM_DEVICE_COUNT; i++)
     {
         sending_dev_list[i].sender.msg_id = one_net_prand(get_tick_count(), 50);
     }
-    #elif !defined(_ONE_NET_CLIENT)
+    #elif !defined(ONE_NET_CLIENT)
     for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
     {
         client_list[i].device.msg_id = one_net_prand(get_tick_count(), 50);
@@ -4869,14 +4869,14 @@ BOOL new_key_fragment(const one_net_xtea_key_fragment_t* const fragment,
 */
 BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
 {
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ((master->flags & ON_JOINED) && (master->flags &
           ON_REJECT_INVALID_MSG_ID));
     }
     #endif
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         on_client_t* client = client_info((const on_encoded_did_t* const)
@@ -4924,7 +4924,7 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
     \return The estimated time in milliseconds between when the source sends the data
             packet and receives the response packet.
 */
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate)
@@ -4943,7 +4943,7 @@ UInt16 estimate_response_time(UInt8 response_len, UInt8 dst_process_time,
     double dst_write_time = (1000 * response_len * 8) /
       (38400 * (data_rate + 1));
     double dst_time = dst_write_time + dst_process_time;
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     return (UInt16) dst_time;
     #else
     double rptr_data_write_time = hops * (1000 * data_len * 8) /
@@ -5102,7 +5102,7 @@ UInt32 estimate_block_transfer_time(const block_stream_msg_t* bs_msg)
 }
 
 
-#if defined(_ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
+#if defined(ONE_NET_MULTI_HOP) && defined(_BLOCK_STREAM_REQUEST_MASTER_PERMISSION)
 /*!
     \brief Called by a client initiating a block or stream message.  Requests the master's
            permission to reserve a multi-hop repeater for use as a repeater in
@@ -5132,7 +5132,7 @@ on_single_data_queue_t* request_reserve_repeater(
  
     return one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, pld,
       14, ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
-      #ifdef _PEER
+      #ifdef PEER
           , FALSE,
           ONE_NET_DEV_UNIT
       #endif
@@ -5260,7 +5260,7 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
           bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL,
           (const on_encoded_did_t* const) &bs_msg->dst->did
-          #ifdef _PEER
+          #ifdef PEER
               , FALSE,
               ONE_NET_DEV_UNIT
           #endif
@@ -5425,10 +5425,10 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
       block_pkt->chunk_size) == -1)
     {
         // chunk has been received.
-        #if !defined(_ONE_NET_MASTER)
+        #if !defined(ONE_NET_MASTER)
         msg_status = one_net_client_block_chunk_received(bs_msg,
           bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
-        #elif !defined(_ONE_NET_CLIENT)
+        #elif !defined(ONE_NET_CLIENT)
         msg_status = one_net_master_block_chunk_received(bs_msg,
           bs_msg->bs.block.byte_idx, block_pkt->chunk_size, ack_nack);
         #else

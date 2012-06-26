@@ -112,7 +112,7 @@ extern const char * const ONCLI_HIGH_STR;
 
 #ifdef _ENABLE_LIST_COMMAND
 extern const char * const ONCLI_LIST_CMD_STR;
-#ifdef _PEER
+#ifdef PEER
 extern const char * const ONCLI_LIST_PEER_TABLE_HEADING;
 extern const char * const ONCLI_LIST_PEER_FMT;
 extern const char * const ONCLI_LIST_NO_PEERS;
@@ -210,7 +210,7 @@ extern const char* const ONCLI_BLOCK_CMD_STR;
 extern const char* const ONCLI_STREAM_CMD_STR;
 #endif
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 extern const char * const ONCLI_MH_REPEAT_CMD_STR;
 #endif
 
@@ -219,12 +219,12 @@ extern const char * const ONCLI_MH_REPEAT_CMD_STR;
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 extern const char * const ONCLI_CLIENT_MISS_CHECK_IN_FMT;
 extern const char * const ONCLI_DEVICE_ADD_FMT;
 extern const char * const ONCLI_DEVICE_NOT_ADDED_FMT;
 #endif
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern const char * const ONCLI_JOINED_FMT;
 #endif
 
@@ -302,7 +302,7 @@ enum
 
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern const char * const ONCLI_DISPLAY_INVITE_STR;
 #endif
 
@@ -331,7 +331,7 @@ extern const char* const ACK_NACK_DISPLAY_FMT;
 #endif
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 // formats for the results of admin messages from the master.
 extern const char * const ONCLI_UPDATE_RESULT_FMT;
 extern const char * const ONCLI_UPDATE_RESULT_WITH_OUT_DID_FMT;
@@ -340,7 +340,7 @@ extern const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT;
 // master admin update strings
 extern const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_KEY_STR;
-#ifdef _PEER
+#ifdef PEER
 extern const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR;
 extern const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR;
 #endif

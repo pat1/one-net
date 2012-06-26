@@ -256,7 +256,7 @@ BOOL u16_to_did(UInt16 raw_did_int, on_raw_did_t* raw_did);
 long int one_net_strtol(const char * str, char ** endptr, int base);
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Application level code to change the number of hops and/or
            max hops for a device.

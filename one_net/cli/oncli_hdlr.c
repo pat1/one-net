@@ -60,15 +60,15 @@
 #include "tal.h"
 #include "one_net_encode.h"
 #include "one_net_application.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 #include "one_net_port_specific.h"
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 #include "one_net_client.h"
 #include "one_net_client_port_specific.h"
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 #include "one_net_master_port_specific.h"
 #include "one_net_master_port_const.h"
 #include "one_net_master.h"
@@ -79,7 +79,7 @@
 
 #ifdef _DEBUGGING_TOOLS
 #include "one_net_timer.h"
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 #include "one_net_client_port_const.h"
 #endif
 #endif
@@ -169,15 +169,15 @@ typedef enum
 {
     DEBUG_MEMORY_ON_STATE,
     DEBUG_MEMORY_TIMER,
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     DEBUG_MEMORY_SEND_LIST,
     DEBUG_MEMORY_MASTER,
     #endif
-    #ifdef _PEER
+    #ifdef PEER
     DEBUG_MEMORY_PEER,
     #endif
     DEBUG_MEMORY_BASE_PARAM,
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     DEBUG_MEMORY_MASTER_PARAM,
     DEBUG_MEMORY_CLIENT_LIST,
     #endif
@@ -196,15 +196,15 @@ static const char* debug_memory_str[DEBUG_MEMORY_COUNT] =
 {
     "on_state",
     "timer",
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     "send_list",
     "master",
     #endif
-    #ifdef _PEER
+    #ifdef PEER
     "peer",
     #endif    
     "base_param",
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     "master_param",
     "client_list",
     #endif
@@ -374,7 +374,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 // temporary debugging
 static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
@@ -390,7 +390,7 @@ static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
   const UInt16 NUM_ASCII_CHAR);
 #ifdef _ENABLE_SINGLE_COMMAND
 
-#ifdef _PEER
+#ifdef PEER
 static const char * parse_ascii_tx_param(const char * PARAM_PTR,
   UInt8 * const src_unit, UInt8 * const dst_unit,
   on_encoded_did_t * const enc_dst, BOOL* send_to_peer_list);
@@ -1052,7 +1052,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the range test command was received //
     #endif
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
       strlen(ONCLI_MH_REPEAT_CMD_STR)))
     {
@@ -1369,7 +1369,7 @@ static oncli_status_t list_cmd_hdlr(void)
     oncli_send_msg(ONCLI_STARTUP_REV_FMT, ONE_NET_VERSION_REVISION,
       ONE_NET_VERSION_BUILD);
       
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         oncli_print_invite();
@@ -1377,14 +1377,14 @@ static oncli_status_t list_cmd_hdlr(void)
     #endif
     
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     oncli_send_msg("# of Network MH Devices : %d\n", on_base_param->num_mh_devices);
     oncli_send_msg("# of Network MH Repeaters : %d\n", on_base_param->num_mh_repeaters);
     #endif
     
-    #if defined(_ONE_NET_MASTER) && defined(_ONE_NET_CLIENT)
+    #if defined(ONE_NET_MASTER) && defined(ONE_NET_CLIENT)
 	if(device_is_master || client_joined_network)
-    #elif defined(_ONE_NET_CLIENT)
+    #elif defined(ONE_NET_CLIENT)
     if(client_joined_network)
     #endif
 	{
@@ -1416,7 +1416,7 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     #endif
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master && !client_joined_network)
     {
         oncli_send_msg("\n\nCLIENT : Not Joined\n\n");
@@ -1424,7 +1424,7 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     #endif
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master && (on_state == ON_JOIN_NETWORK ||
       on_state == ON_INIT_STATE))
     {
@@ -1442,10 +1442,10 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     
     {
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         if(!device_is_master)
         {       
-            #ifdef _ONE_NET_CLIENT
+            #ifdef ONE_NET_CLIENT
             flags = master->flags;
             oncli_send_msg("Keep-Alive Interval:%ld ms\n",
               master->keep_alive_interval);
@@ -1458,7 +1458,7 @@ static oncli_status_t list_cmd_hdlr(void)
         else
         #endif
         {
-            #if defined(_ONE_NET_MASTER) && defined(_BLOCK_MESSAGES_ENABLED)
+            #if defined(ONE_NET_MASTER) && defined(_BLOCK_MESSAGES_ENABLED)
             flags = master_param->block_stream_flags;
             #endif
         }
@@ -1473,7 +1473,7 @@ static oncli_status_t list_cmd_hdlr(void)
           ON_BS_ALLOWED ? TRUE_STR : FALSE_STR);
         #endif
         
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         #if _DEBUG_VERBOSE_LEVEL > 3
         if(!device_is_master && verbose_level > 3)
         {
@@ -1492,7 +1492,7 @@ static oncli_status_t list_cmd_hdlr(void)
         #endif
     }
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         UInt16 index = 0;
@@ -1569,8 +1569,8 @@ static oncli_status_t list_cmd_hdlr(void)
     }
     #endif
     
-    #ifdef _PEER
-    #ifdef _ONE_NET_CLIENT
+    #ifdef PEER
+    #ifdef ONE_NET_CLIENT
     if(device_is_master || client_joined_network)
     #endif
     {
@@ -1595,8 +1595,8 @@ static oncli_status_t list_cmd_hdlr(void)
 */
 static oncli_status_t erase_cmd_hdlr(void)
 {
-    #ifdef _ONE_NET_MASTER
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_MASTER
+    #ifdef ONE_NET_CLIENT
     if(device_is_master)
     {
         return ((one_net_master_erase_settings() == ONS_SUCCESS) ?
@@ -1608,7 +1608,7 @@ static oncli_status_t erase_cmd_hdlr(void)
     #endif
     #endif
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     return ((one_net_client_erase_settings() == ONS_SUCCESS) ?
       ONCLI_SUCCESS : ONCLI_CMD_FAIL);    
     #endif
@@ -1723,7 +1723,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_encoded_did_t enc_dst;
     UInt8 src_unit, dst_unit;
-    #ifdef _PEER
+    #ifdef PEER
     BOOL send_to_peer_list;
     #endif
     UInt16 data_len;
@@ -1735,7 +1735,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if the parameter is invalid //
 
     // get the send parameters
-    #ifdef _PEER
+    #ifdef PEER
     if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
       &dst_unit, &enc_dst, &send_to_peer_list)))
     #else
@@ -1764,7 +1764,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL,
-      #ifdef _PEER
+      #ifdef PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
       #else
           &enc_dst
@@ -1818,7 +1818,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt16 data_len, raw_pid, num_blocks;
     UInt8 src_unit, dst_unit;
     UInt8 raw_pld[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN] = {0};
-    #ifdef _PEER
+    #ifdef PEER
     BOOL send_to_peer_list;
     #endif
     
@@ -1834,7 +1834,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if the parameter is invalid //
 
     // get the send parameters
-    #ifdef _PEER
+    #ifdef PEER
     if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
       &dst_unit, &enc_dst, &send_to_peer_list)))
     #else
@@ -1904,7 +1904,7 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     if(one_net_send_single(raw_pid, ON_APP_MSG, raw_pld, pld_len,
       ONE_NET_HIGH_PRIORITY, NULL,
-      #ifdef _PEER
+      #ifdef PEER
           send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
       #else
           &enc_dst
@@ -2080,7 +2080,7 @@ static oncli_status_t parse_and_send_pin_msg(
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL, &enc_dst
-      #ifdef _PEER
+      #ifdef PEER
           , FALSE,  src_unit
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -2298,7 +2298,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if malformed parameter //
 
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         if(one_net_master_add_client(features, &out_base_param,
@@ -2308,7 +2308,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }        
     }
     #endif
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]), did,
@@ -2318,7 +2318,7 @@ static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         reset_msg_ids();
         one_net_memmove(master->device.did, MASTER_ENCODED_DID,
           ON_ENCODED_DID_LEN);
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
         master->device.max_hops = features_max_hops(add_master_features);       
         master->device.hops = 0;
     #endif
@@ -2443,7 +2443,7 @@ static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_raw_did_t dst;
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -2524,7 +2524,7 @@ static oncli_change_peer_list(BOOL ASSIGN,
     
     UInt8 peer_unit, src_unit;
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -2787,7 +2787,7 @@ static oncli_status_t set_flags_cmd_hdlr(
     on_client_t* client;
     UInt8 flags;
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -2872,7 +2872,7 @@ static oncli_status_t change_keep_alive_cmd_hdlr(
     on_raw_did_t dst;
     UInt32 keep_alive;
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -2967,7 +2967,7 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE;
@@ -3124,7 +3124,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     // That's because we are not interested in the default value there.
     bs_msg.bs.block.chunk_pause = chunk_delay_ms;
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         on_client_t* dst_client = client_info(&enc_dst_did);
@@ -3146,7 +3146,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           == ON_NACK_RSN_NO_ERROR) ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
@@ -3237,7 +3237,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_INVALID_DST;
     }
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         on_client_t* dst_client = client_info(&enc_dst_did);
@@ -3259,7 +3259,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
           == ON_NACK_RSN_NO_ERROR ? ONCLI_SUCCESS : ONCLI_CMD_FAIL;
     }
     #endif
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         if(on_client_get_default_stream_transfer_values(&(bs_msg.dst->did),
@@ -3306,7 +3306,7 @@ static oncli_status_t change_single_block_key_cmd_hdlr(const char * const ASCII_
 
     UInt8 param_idx, key_idx;
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         return ONCLI_INVALID_CMD_FOR_NODE; // master-only command
@@ -3537,7 +3537,7 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     oncli_send_msg("Erasing current settings and resetting the system with "
       "a new NID and invite key.\n");
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         one_net_master_erase_settings();
@@ -3832,7 +3832,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 #endif
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Sets the on_base_param->num_mh_devices and on_base_param->num_mh_repeaters counts manually
     
@@ -4117,7 +4117,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
                 return -1; // error
             }
             break;
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         case DEBUG_MEMORY_SEND_LIST:
             *mem_ptr = (UInt8*) &sending_dev_list[0];
             if(index < 0)
@@ -4141,7 +4141,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             break;            
         #endif
             
-        #ifdef _PEER
+        #ifdef PEER
         case DEBUG_MEMORY_PEER:
             *mem_ptr = (UInt8*) &peer[0];
             if(index < 0)
@@ -4186,7 +4186,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
             len = sizeof(block_stream_msg_t);
             break; 
         #endif
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         case DEBUG_MEMORY_CLIENT_LIST:
             *mem_ptr = (UInt8*) &client_list[0];
             if(index < 0)
@@ -4270,10 +4270,10 @@ static int parse_memory_str(UInt8** mem_ptr,
     switch(memory_type)
     {
         case DEBUG_MEMORY_TIMER:
-        #ifdef _PEER
+        #ifdef PEER
         case DEBUG_MEMORY_PEER:
         #endif
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         case DEBUG_MEMORY_CLIENT_LIST:
         #endif
             has_index = TRUE; // these are arrays.
@@ -4665,7 +4665,7 @@ static oncli_status_t parse_invite_key(const char * ASCII,
     \return If successful, pointer to first characer after the last parameter
       that was parsed, or 0 if parsing was not successful.
 */
-#ifdef _PEER
+#ifdef PEER
 static const char * parse_ascii_tx_param(const char * PARAM_PTR,
   UInt8 * const src_unit, UInt8 * const dst_unit,
   on_encoded_did_t * const enc_dst, BOOL* send_to_peer_list)
@@ -4722,7 +4722,7 @@ static const char * parse_ascii_tx_param(const char * PARAM_PTR,
     // read in the raw did
     if(*PARAM_PTR != ONCLI_PARAM_DELIMITER)
     {
-        #ifdef _PEER
+        #ifdef PEER
         *send_to_peer_list = FALSE;
         #endif
         if(ascii_hex_to_byte_stream(PARAM_PTR, raw_did, ONCLI_ASCII_RAW_DID_SIZE)
@@ -4741,7 +4741,7 @@ static const char * parse_ascii_tx_param(const char * PARAM_PTR,
     } // if the did is present //
     else
     {
-        #ifdef _PEER
+        #ifdef PEER
         *send_to_peer_list = TRUE;
         #endif
         return 0;

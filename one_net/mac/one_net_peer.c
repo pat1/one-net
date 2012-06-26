@@ -45,7 +45,7 @@
 
 #include "config_options.h"
 
-#ifdef _PEER
+#ifdef PEER
 
 
 #include "one_net_types.h"
@@ -100,7 +100,7 @@
     
 extern BOOL device_is_master;
 extern const on_encoded_did_t MASTER_ENCODED_DID;
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 #include "one_net.h"
 extern on_master_t * const master;
 extern BOOL client_joined_network;
@@ -433,7 +433,7 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
 //==============================================================================
 
 
-#endif // if _PEER is defined //
+#endif // if PEER is defined //
 
 
 //! @} ONE-NET_PEER

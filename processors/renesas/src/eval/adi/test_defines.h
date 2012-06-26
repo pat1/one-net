@@ -76,19 +76,19 @@
     #error "_BLOCK_MESSAGES_ENABLED must be defined if _STREAM_MESSAGES_ENABLED is defined."
 #endif
 
-#if !defined(_ONE_NET_CLIENT) && !defined(_ONE_NET_MASTER)
-    #error "_ONE_NET_CLIENT and _ONE_NET_MASTER cannot both be undefined."
+#if !defined(ONE_NET_CLIENT) && !defined(ONE_NET_MASTER)
+    #error "ONE_NET_CLIENT and ONE_NET_MASTER cannot both be undefined."
 #endif
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
     #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
         #error "Masters must have queue levels of at least MED_SINGLE_QUEUE_LEVEL."
     #endif
 #endif
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
-    #ifndef _ONE_NET_MULTI_HOP
-        #error "_ONE_NET_MULTI_HOP must be defined if _ONE_NET_MH_CLIENT_REPEATER is defined."
+#ifdef ONE_NET_MH_CLIENT_REPEATER
+    #ifndef ONE_NET_MULTI_HOP
+        #error "ONE_NET_MULTI_HOP must be defined if ONE_NET_MH_CLIENT_REPEATER is defined."
     #endif
 #endif
 
@@ -109,14 +109,14 @@
     #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         #error "Simple clients cannot have _SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
     #endif
-    #ifdef _ONE_NET_MASTER
-        #error "Simple clients cannot have _ONE_NET_MASTER defined."
+    #ifdef ONE_NET_MASTER
+        #error "Simple clients cannot have ONE_NET_MASTER defined."
     #endif
     #ifdef _EXTENDED_SINGLE
         #error "Simple clients cannot have _EXTENDED_SINGLE defined."
     #endif
-    #ifdef _ONE_NET_MULTI_HOP
-        #error "Simple clients cannot have _ONE_NET_MULTI_HOP defined."
+    #ifdef ONE_NET_MULTI_HOP
+        #error "Simple clients cannot have ONE_NET_MULTI_HOP defined."
     #endif
     #ifdef _BLOCK_MESSAGES_ENABLED
         #error "Simple clients cannot have _BLOCK_MESSAGES_ENABLED defined."
@@ -127,18 +127,18 @@
     #ifdef _DATA_RATE_CHANNEL
         #error "Simple clients cannot have _DATA_RATE_CHANNEL defined."
     #endif
-    #ifndef _ONE_NET_CLIENT
-        #error "Simple clients must have _ONE_NET_CLIENT defined."
+    #ifndef ONE_NET_CLIENT
+        #error "Simple clients must have ONE_NET_CLIENT defined."
     #endif
 #endif
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
     #include "one_net_client_port_const.h"
     #ifndef ONE_NET_CLIENT_INVITE_DURATION
         #error "ONE_NET_CLIENT_INVITE_DURATION is not defined"
     #endif
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
     #include "one_net_master_port_const.h"
     #ifndef ONE_NET_MASTER_SEND_TO_MASTER
         #error "ONE_NET_MASTER_SEND_TO_MASTER must be defined as TRUE or FALSE"
@@ -148,8 +148,8 @@
     #endif
 #endif
 
-#if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_DEVICE_SLEEPS)
-    #error "_ONE_NET_MH_CLIENT_REPEATER and _DEVICE_SLEEPS cannot both be defined."
+#if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(DEVICE_SLEEPS)
+    #error "ONE_NET_MH_CLIENT_REPEATER and DEVICE_SLEEPS cannot both be defined."
 #endif
 
 

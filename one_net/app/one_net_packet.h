@@ -420,7 +420,7 @@ enum
 };
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 //! Hops field related constants
 enum
 {
@@ -534,7 +534,7 @@ enum
 
 enum
 {
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
         ON_ACK_NACK_ENCODED_PKT_SIZE = ON_MAX_ACK_NACK_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         ON_SINGLE_ENCODED_PKT_SIZE = ON_MAX_SINGLE_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         #ifdef _BLOCK_MESSAGES_ENABLED
@@ -544,7 +544,7 @@ enum
         ON_STREAM_ENCODED_PKT_SIZE = ON_STREAM_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,
         #endif
         ON_INVITE_ENCODED_PKT_SIZE = ON_INVITE_ENCODED_PKT_LEN + ON_ENCODED_HOPS_SIZE,              
-    #else // ifdef _ONE_NET_MULTI_HOP //
+    #else // ifdef ONE_NET_MULTI_HOP //
         ON_ACK_NACK_ENCODED_PKT_SIZE = ON_MAX_ACK_NACK_ENCODED_PKT_LEN,
         ON_SINGLE_ENCODED_PKT_SIZE = ON_MAX_SINGLE_ENCODED_PKT_LEN,
         #ifdef _BLOCK_MESSAGES_ENABLED
@@ -554,7 +554,7 @@ enum
         ON_STREAM_ENCODED_PKT_SIZE = ON_STREAM_ENCODED_PKT_LEN,
         #endif
         ON_INVITE_ENCODED_PKT_SIZE = ON_INVITE_ENCODED_PKT_LEN,
-    #endif // else _ONE_NET_MULTI_HOP is not defined //
+    #endif // else ONE_NET_MULTI_HOP is not defined //
     
     ON_MIN_ENCODED_PKT_SIZE = ON_PLD_IDX + 11,
     #if defined(_BLOCK_MESSAGES_ENABLED)
@@ -855,7 +855,7 @@ typedef struct
     UInt8 payload_len; //! length of the encoded payload in bytes
     
     // TODO -- can we get rid of these 2 hops fields?
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     UInt8 hops; //! hops of the packet.  May or may not be relevant.
     UInt8 max_hops; //! Maximum hops of the packet.  May or may not be relevant
     #endif
@@ -891,7 +891,7 @@ SInt8 get_num_payload_blocks(UInt16 raw_pid);
 UInt8 get_encoded_packet_len(UInt16 raw_pid, BOOL include_header);
 BOOL set_ack_or_nack_pid(UInt16* raw_pid, BOOL is_ack);
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 BOOL set_multihop_pid(UInt16* raw_pid, BOOL is_multihop);
 #endif
 BOOL packet_is_data(UInt16 raw_pid);
@@ -910,7 +910,7 @@ SInt8 get_default_num_blocks(UInt16 raw_pid);
 // inline function implementation below //
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Determines whether a given PID represents a multi-hop packet.
 

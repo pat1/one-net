@@ -46,7 +46,7 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 
 #include "one_net_client.h"
 #include "one_net_port_const.h"
@@ -62,7 +62,7 @@
 #include "one_net_acknowledge.h"
 #include "one_net_timer.h"
 #include "one_net_crc.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 
@@ -377,7 +377,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     master->device.msg_id = 0;
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = FEATURES_UNKNOWN;
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     master->device.hops = 0;
     master->device.max_hops = ON_MAX_HOPS_LIMIT;
     #endif
@@ -388,7 +388,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     // the state machine and some flags to get ready to receive invitations.
     client_joined_network = FALSE;
     client_looking_for_invite = TRUE;
-    #ifdef _PEER
+    #ifdef PEER
     one_net_reset_peers();
     #endif    
 
@@ -444,7 +444,7 @@ void on_client_unlock_device_slideoff(const on_encoded_did_t* enc_did)
     \return ONS_SUCCESS If initializing the CLIENT was successful
             ONS_BAD_PARAM If any of the parameters are invalid
 */
-#ifndef _PEER
+#ifndef PEER
 one_net_status_t one_net_client_init(const UInt8 * const param,
   const UInt16 param_len)
 #else
@@ -469,7 +469,7 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
         return status;
     } // if initializing the internals failed //
     
-    #ifdef _PEER
+    #ifdef PEER
     if(peer_param != NULL)
     {
         if(peer_param_len > PEER_STORAGE_SIZE_BYTES || peer_param_len %
@@ -667,7 +667,7 @@ tick_t one_net_client(void)
         }
     }
     
-    #ifdef _DEVICE_SLEEPS
+    #ifdef DEVICE_SLEEPS
     if(ont_get_timer(ONT_KEEP_ALIVE_TIMER))
     {
         sleep_time = 0;
@@ -707,7 +707,7 @@ tick_t one_net_client(void)
     \return 8-bit CRC of the client parameters if valid
             -1 if invalid
 */
-#ifndef _PEER
+#ifndef PEER
 int client_nv_crc(const UInt8* param, int param_len)
 #else
 int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
@@ -717,7 +717,7 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
     
-    #ifdef _PEER
+    #ifdef PEER
     if(!peer_param)
     {
         peer_param = peer_storage;
@@ -739,7 +739,7 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     }
     
 
-    #ifdef _PEER
+    #ifdef PEER
     // crc over peer parameters
     starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
       starting_crc, ON_PLD_CRC_ORDER);
@@ -1136,7 +1136,7 @@ static on_message_status_t on_client_single_data_hdlr(
         }
         #endif
         default:   
-            #ifndef _ONE_NET_MULTI_HOP
+            #ifndef ONE_NET_MULTI_HOP
             msg_status = one_net_client_handle_single_pkt(
               &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
               &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
@@ -1166,7 +1166,7 @@ static on_message_status_t on_client_single_data_hdlr(
             ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL, (const on_encoded_did_t* const)
             &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
-        #ifdef _PEER
+        #ifdef PEER
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
         #endif
@@ -1208,7 +1208,7 @@ ocsdh_build_resp:
         return ON_MSG_INTERNAL_ERR;
     }
 
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     response_txn.hops = (*txn)->hops;
     response_txn.max_hops = (*txn)->max_hops;
     #endif
@@ -1269,7 +1269,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
     on_decode(src_did, &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
    
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     status = one_net_client_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, (const on_raw_did_t* const) &src_did, NULL, &(txn->retry));
     #else
@@ -1336,7 +1336,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
             
             // TODO -- requeue the message?
         
-            #ifdef _DEVICE_SLEEPS
+            #ifdef DEVICE_SLEEPS
             // We're in the middle of something, so stay awake.
             ont_set_timer(ONT_STAY_AWAKE_TIMER, MS_TO_TICK(DEVICE_SLEEP_STAY_AWAKE_TIME));
             #endif
@@ -1348,7 +1348,7 @@ static on_message_status_t on_client_handle_single_ack_nack_response(
         
         if(txn->retry >= ON_MAX_RETRY)
         {
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops if there are
             // any repeaters available.  If we aren't part of the network yet,
             // we'll do a multi-hop.  If we are a device that sleeps, we may
@@ -1589,7 +1589,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                                 client_looking_for_invite = FALSE;
                             }
                             
-                            #ifdef _ONE_NET_MULTI_HOP
+                            #ifdef ONE_NET_MULTI_HOP
                             on_base_param->num_mh_devices =
                               ack_nack->payload->admin_msg[3];
                             on_base_param->num_mh_repeaters =
@@ -1615,7 +1615,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                               is_my_did((const on_encoded_did_t*)
                               &(ack_nack->payload->admin_msg)[1]));
                               
-                            #ifdef _ONE_NET_MULTI_HOP
+                            #ifdef ONE_NET_MULTI_HOP
                             on_base_param->num_mh_devices =
                               ack_nack->payload->admin_msg[3];
                             on_base_param->num_mh_repeaters =
@@ -1681,7 +1681,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
                           ON_ADMIN_MSG, &admin_msg_type, 1,
                           ONE_NET_HIGH_PRIORITY, NULL, &MASTER_ENCODED_DID
-                          #ifdef _PEER
+                          #ifdef PEER
                           , FALSE, ONE_NET_DEV_UNIT
                           #endif
                           #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -1707,7 +1707,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
         }
     }
 
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     one_net_client_single_txn_status(status, (*txn)->retry,
       msg_hdr, raw_pld, (const on_raw_did_t*) &dst, ack_nack);
     #else
@@ -1715,7 +1715,7 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
       (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
     if(bs_msg.transfer_in_progress)
     {
         ack_nack->handle = ON_ACK;
@@ -1840,7 +1840,7 @@ static on_message_status_t on_client_block_txn_hdlr(
     {
         on_client_set_device_slideoff((const on_encoded_did_t*) &msg->dst->did,
           ON_DEVICE_ALLOW_SLIDEOFF);
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         {
             UInt8 i;
             for(i = 0; i < msg->num_repeaters; i++)
@@ -2076,7 +2076,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
           one_net_prand(get_tick_count(), 50);
         sending_dev_list[device_index].slideoff = ON_DEVICE_ALLOW_SLIDEOFF;
         
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         sending_dev_list[device_index].sender.hops = 0;
         sending_dev_list[device_index].sender.max_hops = ON_MAX_HOPS_LIMIT;
         #endif
@@ -2184,7 +2184,7 @@ static one_net_status_t send_keep_alive(void)
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, raw_pld, 5, ONE_NET_LOW_PRIORITY,
       NULL, (const on_encoded_did_t* const) MASTER_ENCODED_DID
-      #ifdef _PEER
+      #ifdef PEER
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
@@ -2223,7 +2223,7 @@ static BOOL look_for_invite(void)
     on_txn_t* this_txn = &invite_txn;
     on_pkt_t* this_pkt_ptrs = &data_pkt_ptrs;
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
+    #if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
     if(on_rx_packet(&invite_txn, &this_txn, &this_pkt_ptrs, raw_payload_bytes)
       != ONS_PKT_RCVD)
     #else
@@ -2285,7 +2285,7 @@ static BOOL look_for_invite(void)
     reset_msg_ids();
     this_pkt_ptrs->msg_id = master->device.msg_id;
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     master->device.max_hops = features_max_hops(master->device.features);
     #endif
     #ifdef _AUTO_SAVE
@@ -2392,7 +2392,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             if(bs_msg.dst)
             {
                 // we are being requested as a repeater
-                #ifndef _ONE_NET_MH_CLIENT_REPEATER
+                #ifndef ONE_NET_MH_CLIENT_REPEATER
                 ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
                 #else
                 // We are capable.  check application code
@@ -2474,7 +2474,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         } // change key case //
 
-        #ifdef _PEER
+        #ifdef PEER
         case ON_ASSIGN_PEER:
         {
             switch(one_net_add_peer_to_list(DATA[1 + ON_PEER_SRC_UNIT_IDX],
@@ -2611,7 +2611,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 }
                 #endif
 
-                #ifdef _PEER
+                #ifdef PEER
                 // delete any peer assignments for this device
                 one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
                   (const on_encoded_did_t * const) removed_did,
@@ -2624,7 +2624,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                       &raw_did, FALSE);
                 }
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 on_base_param->num_mh_devices =
                   ack_nack->payload->admin_msg[3];
                 on_base_param->num_mh_repeaters =
@@ -2661,7 +2661,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                   &raw_did);
             }
             
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             on_base_param->num_mh_devices =
               ack_nack->payload->admin_msg[3];
             on_base_param->num_mh_repeaters =
@@ -2712,7 +2712,7 @@ static BOOL send_new_key_request(void)
     if(one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_ADMIN_MSG, &admin_type, 1, ONE_NET_LOW_PRIORITY,
       NULL, (const on_encoded_did_t* const) MASTER_ENCODED_DID
-      #ifdef _PEER
+      #ifdef PEER
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
@@ -2833,7 +2833,7 @@ static void on_client_adjust_recipient_list(const on_single_data_queue_t*
 #endif
 
 
-#endif // if _ONE_NET_CLIENT is defined //
+#endif // if ONE_NET_CLIENT is defined //
 
 
 //! @} ONE-NET_CLIENT_pri_func

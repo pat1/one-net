@@ -33,7 +33,7 @@ extern const on_raw_did_t RAW_AUTO_CLIENT_DID[];
 extern const on_encoded_did_t ENC_AUTO_CLIENT_DID[];
 #endif
 
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
 extern const UInt8 DEFAULT_RAW_NID[];
 #endif
 
@@ -110,7 +110,7 @@ extern const one_net_xtea_key_t EVAL_KEY;
 //! is found in data flash.
 extern const UInt8 DEFAULT_INVITE_KEY[];
                                      
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 extern const UInt8 DEFAULT_RAW_NID[];
@@ -138,7 +138,7 @@ extern void(*node_loop_func)(void);
 
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 // these functions are in master_eval.c
 void master_eval(void);
 #ifdef _NON_VOLATILE_MEMORY
@@ -147,7 +147,7 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel);
 void init_serial_master(SInt8 channel);
 #endif
 #endif
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 void client_eval(void); // in client_eval.c
 void init_serial_client(void); // in client_eval.c
 #endif
@@ -155,10 +155,10 @@ void init_serial_client(void); // in client_eval.c
 void sniff_eval(void); // in sniff_eval.c
 #endif
 #ifdef _AUTO_MODE
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 void init_auto_master(void);
 #endif
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 void init_auto_client(UInt8 index);
 #endif
 #endif
@@ -213,7 +213,7 @@ void send_user_pin_input(void);
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_single(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
@@ -314,7 +314,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
               result in a call to a callback function with both the NACK
               reason and this return code passed as parameters.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
   const on_msg_hdr_t* const resp_msg_hdr,
@@ -350,7 +350,7 @@ on_message_status_t eval_handle_ack_nack_response(
                not relevant / reliable.
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 void eval_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack);

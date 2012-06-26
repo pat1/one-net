@@ -312,7 +312,7 @@ typedef struct
     //! The current xtea key being used.
     one_net_xtea_key_t current_key;
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     //! The number of multi-hop capable devices in the network
     UInt8 num_mh_devices;
 

@@ -122,7 +122,7 @@ enum
     //! The maximum number of times to try a transaction
     ON_MAX_RETRY = 8,
 
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     //! Represents an invalid hops value
     ON_INVALID_HOPS = ON_MAX_HOPS_LIMIT + 1,
 
@@ -174,7 +174,7 @@ typedef enum
     //! Waits for the write to end
     ON_SEND_PKT_WRITE_WAIT,
 
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     //! Sends an invite packet
     ON_SEND_INVITE_PKT = 15,
 
@@ -259,7 +259,7 @@ typedef enum
     ON_BS_WAIT_FOR_DEVICE_PERMISSION_RESP,
     
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     //! Start state of requesting repeater permission
     ON_BS_REPEATER_PERMISSION_START,
         
@@ -426,7 +426,7 @@ typedef struct
     //! Key to use for this transaction
     one_net_xtea_key_t* key;
 
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     //! Number of hops
     UInt8 hops;
 
@@ -455,7 +455,7 @@ typedef struct
 } on_master_t;
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 //! Parameters specific to the MASTER
 typedef struct
 {
@@ -506,12 +506,12 @@ typedef struct
 
 enum
 {
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
     CLIENT_NV_PARAM_SIZE_BYTES = sizeof(on_base_param_t) + sizeof(on_master_t),
 #else
     CLIENT_NV_PARAM_SIZE_BYTES = 0,
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
     MIN_MASTER_NV_PARAM_SIZE_BYTES = sizeof(on_base_param_t) +
       sizeof(on_master_param_t),
     MAX_MASTER_NV_PARAM_SIZE_BYTES = MIN_MASTER_NV_PARAM_SIZE_BYTES +
@@ -724,13 +724,13 @@ extern tick_t key_change_request_time;
 // Repeaters need to be able to repeat all packets, including block packets.
 // Repeaters will always be clients, so the buffer must be at least the length
 // of a multi-hop block packet.
-#ifndef _ONE_NET_MASTER
+#ifndef ONE_NET_MASTER
      #define MIN_ENCODED_BYTES_BUFFER_LEN (2 * ON_MAX_ENCODED_DATA_PKT_SIZE)
 #else
     #define MIN_ENCODED_BYTES_BUFFER_LEN (2 * ON_MAX_ENCODED_DATA_PKT_SIZE + ON_INVITE_ENCODED_PKT_SIZE)
 #endif
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
     #if MIN_ENCODED_BYTES_BUFFER_LEN < ON_BLOCK_ENCODED_PKT_SIZE
         #define ENCODED_BYTES_BUFFER_LEN ON_BLOCK_ENCODED_PKT_SIZE
     #else
@@ -785,7 +785,7 @@ extern UInt8 next_channel;
 one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
   on_ack_nack_t* const ack_nack);
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops);
 one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
   UInt8* max_hops);
@@ -844,7 +844,7 @@ void one_net(on_txn_t ** txn);
 
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Sets the hops for a device
     
@@ -874,7 +874,7 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
 
 on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack);
-#if defined(_BLOCK_MESSAGES_ENABLED) || defined(_ONE_NET_MH_CLIENT_REPEATER)
+#if defined(_BLOCK_MESSAGES_ENABLED) || defined(ONE_NET_MH_CLIENT_REPEATER)
 one_net_status_t on_rx_packet(const on_txn_t* const txn, on_txn_t** this_txn,
   on_pkt_t** this_pkt_ptrs, UInt8* raw_payload_bytes);
 #else
@@ -933,13 +933,13 @@ void adjust_bs_priority(block_stream_msg_t* msg, UInt8 priority);
 void adjust_bs_chunk_pause(block_stream_msg_t* msg, UInt16 chunk_pause);
 void pause_bs_msg(block_stream_msg_t* msg, UInt16 pause_ms);
 void adjust_bs_frag_delay(block_stream_msg_t* msg, UInt16 frag_delay);
-#if defined(_ONE_NET_MULTI_HOP) && defined(_ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
+#if defined(ONE_NET_MULTI_HOP) && defined(ONE_NET_CLIENT) && defined(_BLOCK_MESSAGES_ENABLED)
 on_single_data_queue_t* request_reserve_repeater(
   const block_stream_msg_t* bs_msg, const on_encoded_did_t* repeater);
 #endif
 
 // TODO -- Do we really want to require block messages for this function?
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 UInt16 estimate_response_time(UInt8 data_len, UInt8 response_len,
   UInt8 hops, UInt16 dst_process_time, UInt16 repeater_process_time,
   UInt8 data_rate);

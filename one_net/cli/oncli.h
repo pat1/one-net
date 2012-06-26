@@ -154,14 +154,14 @@ void oncli_send_msg(const char * const FMT, ...);
 void oncli(void);
 UInt16 oncli_read(UInt8 * buf, const UInt16 SIZE);
 char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len);
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 oncli_status_t oncli_print_invite(void);
 #endif
 void oncli_print_xtea_key(const one_net_xtea_key_t* KEY);
 oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did);
 oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid);
 oncli_status_t oncli_print_data_rates(on_features_t features);
-#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
+#if defined(_ENABLE_LIST_COMMAND) && defined(PEER)
 oncli_status_t oncli_print_peer_list(void);
 #endif
 oncli_status_t oncli_print_features(on_features_t features);
@@ -196,10 +196,10 @@ void print_route(const UInt8* const route);
 #endif
 void print_recipient_list(const on_recipient_list_t* const recip_list);
 void print_send_list(void);
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 void print_client_send_list(void);
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 void print_master_send_list(void);
 #endif
 void print_sending_device_t(const on_sending_device_t* const device);

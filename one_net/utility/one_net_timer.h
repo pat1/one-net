@@ -80,7 +80,7 @@
 
 #ifdef _DEBUGGING_TOOLS
 // Note : this will increase!
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 #define NUM_DEBUG_INTERVALS 5
 #else
 #define NUM_DEBUG_INTERVALS 3
@@ -103,7 +103,7 @@ enum
     
     ONT_INVITE_TIMER,
 
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     ONT_INVITE_SEND_TIMER,
     #endif
 
@@ -113,25 +113,25 @@ enum
     ONT_BS_TIMEOUT_TIMER,
     #endif
 
-    #ifdef _ONE_NET_MH_CLIENT_REPEATER
+    #ifdef ONE_NET_MH_CLIENT_REPEATER
     ONT_MH_TIMER,
-    #endif // ifdef _ONE_NET_MH_CLIENT_REPEATER //
+    #endif // ifdef ONE_NET_MH_CLIENT_REPEATER //
 
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     //! Timer used for key changes
     ONT_UPDATE_TIMER,
     #endif
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     //! Timer for CLIENT to know when to send a Keep Alive
     ONT_KEEP_ALIVE_TIMER,
 
-    #ifdef _DEVICE_SLEEPS
+    #ifdef DEVICE_SLEEPS
     //! Timer for the period the CLIENT should stay awake after receiving
     //! a Single Data ACK Stay Awake.
     ONT_STAY_AWAKE_TIMER,
-    #endif // ifdef _DEVICE_SLEEPS //
-    #endif // ifdef _ONE_NET_CLIENT //
+    #endif // ifdef DEVICE_SLEEPS //
+    #endif // ifdef ONE_NET_CLIENT //
     
     #ifdef _DEBUGGING_TOOLS
     WRITE_PAUSE_TIMER,
@@ -210,7 +210,7 @@ extern BOOL pausing;
 // to.
 #define one_net_response_time_out ONE_NET_RESPONSE_TIME_OUT
 #define invite_transaction_timeout INVITE_TRANSACTION_TIMEOUT
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 #define one_net_master_invite_send_time ONE_NET_MASTER_INVITE_SEND_TIME
 #define one_net_master_channel_scan_time ONE_NET_MASTER_INVITE_SEND_TIME
 #endif

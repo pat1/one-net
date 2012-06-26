@@ -36,12 +36,12 @@
 
 
 #include "one_net_crc.h" // for displaying packets
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 #include "one_net_master.h" // for keys
 #endif
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
     #include "one_net_client_port_specific.h"
 #endif
 
@@ -92,7 +92,7 @@ const one_net_xtea_key_t EVAL_KEY = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 const UInt8 DEFAULT_INVITE_KEY[] = { '2', '2', '2', '2',   '2', '2', '2', '2',
                                      '2', '2', '2', '2',   '2', '2', '2', '2'};
                                      
-#if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+#if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
 //! Default NID to use if no NID is found in the manufacturing data segment
 //! of data flash.
 const UInt8 DEFAULT_RAW_NID[] =        {0x00, 0x00, 0x00, 0x00, 0x10};
@@ -310,12 +310,12 @@ int main(void)
     
     // do some initialization here.  It may get written over later, but
     // that's OK.
-    #if defined(_AUTO_MODE) || defined(_ONE_NET_MASTER)
+    #if defined(_AUTO_MODE) || defined(ONE_NET_MASTER)
     on_encode(on_base_param->sid, DEFAULT_RAW_NID, ON_ENCODED_NID_LEN);
     #endif
     one_net_memmove(on_base_param->current_key, EVAL_KEY,
       ONE_NET_XTEA_KEY_LEN);
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     one_net_memmove(&on_base_param->sid[ON_ENCODED_NID_LEN],
       MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
     #endif
@@ -336,13 +336,13 @@ int main(void)
 #ifdef _AUTO_MODE
 	if(in_auto_mode)
 	{
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         if(device_is_master)
         {
             init_auto_master();
         }
         #endif
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         if(!device_is_master)
         {
             init_auto_client(auto_client_index);
@@ -355,7 +355,7 @@ int main(void)
 	} // if auto mode //
 	else
 	{
-        #ifdef _ONE_NET_MASTER
+        #ifdef ONE_NET_MASTER
         if(device_is_master)
         {
             #ifndef _NON_VOLATILE_MEMORY
@@ -365,7 +365,7 @@ int main(void)
             #endif
         }
         #endif
-        #ifdef _ONE_NET_CLIENT
+        #ifdef ONE_NET_CLIENT
         if(!device_is_master)
         {
             init_serial_client();
@@ -376,7 +376,7 @@ int main(void)
         #endif
 	} // else serial //
 #else
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         #ifndef _NON_VOLATILE_MEMORY
@@ -386,7 +386,7 @@ int main(void)
         #endif
     }
     #endif
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         init_serial_client();
@@ -419,7 +419,7 @@ int main(void)
 } // main //
 
 
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_single(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
@@ -435,7 +435,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     UInt32 msg_data;
 
 
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     if(!raw_pld || !msg_hdr || !src_did || !repeater_did || !ack_nack ||
       !ack_nack->payload || ack_nack->payload !=
       (ack_nack_payload_t*) raw_pld)
@@ -635,7 +635,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 }
 
 
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t eval_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
   const on_msg_hdr_t* const resp_msg_hdr,
@@ -872,7 +872,7 @@ void oncli_print_user_pin_cfg(void)
 #endif
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
   UInt8* const max_hops)
 {
@@ -898,7 +898,7 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
                not relevant / reliable.
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 void eval_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
@@ -940,7 +940,7 @@ void eval_single_txn_status(on_message_status_t status,
             }
         }
         
-        #ifndef _ONE_NET_MULTI_HOP
+        #ifndef ONE_NET_MULTI_HOP
         oncli_send_msg(", retry=%d,dst=%02X%02X\nack_nack-->", retry_count,
           (*dst)[0], (*dst)[1]);
         #else
@@ -1322,7 +1322,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     UInt8* encrypted = (UInt8*) raw_payload_bytes;
                     on_data_t data_type;
                     
-                    #ifndef _ONE_NET_MASTER
+                    #ifndef ONE_NET_MASTER
                     one_net_xtea_key_t alternate_keys[1];
                     #else
                     one_net_xtea_key_t alternate_keys[2];
@@ -1341,7 +1341,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         }
                         else
                         {
-                            #ifdef _ONE_NET_CLIENT
+                            #ifdef ONE_NET_CLIENT
                             if(!device_is_master)
                             {
                                 one_net_memmove(alternate_keys[0],
@@ -1374,7 +1374,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                               on_base_param->current_key,
                               sizeof(one_net_xtea_key_t));
                             num_keys = 1;
-                            #ifdef _ONE_NET_MASTER
+                            #ifdef ONE_NET_MASTER
                             if(device_is_master)
                             {
                                 one_net_memmove(alternate_keys[1],
@@ -1443,7 +1443,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                           decrypted[0], calc_payload_crc, crc_match ? "" : " do not");
                         oncli_send_msg("Msg. ID=%03X\n", get_payload_msg_id(decrypted));
                           
-                        #ifdef _ONE_NET_MULTI_HOP
+                        #ifdef ONE_NET_MULTI_HOP
                         {
                             if(packet_is_multihop(raw_pid))
                             {
@@ -1785,8 +1785,8 @@ static const char* get_prompt_string(void)
     }
     #endif
     
-    #ifdef _ONE_NET_MASTER
-        #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_MASTER
+        #ifdef ONE_NET_CLIENT
         if(device_is_master)
         {
             return master_prompt;
@@ -1837,7 +1837,7 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, src_did, enc_dst
-      #ifdef _PEER
+      #ifdef PEER
           , TRUE, src_unit
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
@@ -1867,7 +1867,7 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
 */
 static void eval_set_modes_from_switch_positions(void)
 {
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
         // note : this includes devices which are both master and clients
         // If that is the case and we are in master mode, it will be set
         // below
@@ -1886,7 +1886,7 @@ static void eval_set_modes_from_switch_positions(void)
     }
     #endif
 
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if((SW_ADDR_SELECT1 == 0) && (SW_ADDR_SELECT2 == 0))  
     {
         device_is_master = TRUE;
@@ -1942,7 +1942,7 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL, enc_dst
-      #ifdef _PEER
+      #ifdef PEER
           , FALSE, ONE_NET_DEV_UNIT
       #endif
       #if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL

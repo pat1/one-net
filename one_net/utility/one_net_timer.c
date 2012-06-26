@@ -113,7 +113,7 @@ UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
 {
     &one_net_response_time_out, // 0
     &write_pause, // 1
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     &one_net_master_invite_send_time, // 2
     &one_net_master_channel_scan_time, // 3
     &invite_transaction_timeout, // 4
@@ -125,7 +125,7 @@ const char* const debug_interval_strs[NUM_DEBUG_INTERVALS] =
 {
     "Resp. Timeout",
     "Write Pause",
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     "Invite Send Time",
     "Channel Scan Time",
     #endif

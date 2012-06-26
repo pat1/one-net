@@ -105,9 +105,9 @@ enum
 };
 
 
-// _DEVICE_SLEEPS should be defined in one_net_client_port_const.h if this
+// DEVICE_SLEEPS should be defined in one_net_client_port_const.h if this
 // device EVER goes to sleep.  Note that one_net_port_const.h should #include
-// one_net_client_port_const.h if _ONE_NET_CLIENT is defined, so we don't need
+// one_net_client_port_const.h if ONE_NET_CLIENT is defined, so we don't need
 // to #include it here.
 enum
 {
@@ -116,22 +116,22 @@ enum
         #ifdef _DATA_RATE_CHANNEL
             + ON_DR_CHANNEL_CHANGE_FEATURE_MASK
         #endif
-        #ifdef _PEER
+        #ifdef PEER
             + ON_PEER_FEATURE_MASK
         #endif
         #ifndef _ONE_NET_SIMPLE_CLIENT
             + ON_NON_SIMPLE_CLIENT_MASK
         #endif
-        #ifndef _DEVICE_SLEEPS
+        #ifndef DEVICE_SLEEPS
             + ON_DEVICE_NEVER_SLEEPS_MASK
         #endif
         #ifdef _BLOCK_MESSAGES_ENABLED
             + ON_BLOCK_FEATURE_MASK
         #endif        
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
             + ON_MH_FEATURE_MASK
         #endif
-        #ifdef _ONE_NET_MH_CLIENT_REPEATER
+        #ifdef ONE_NET_MH_CLIENT_REPEATER
             + ON_MH_REPEATER_FEATURE_MASK
         #endif
 
@@ -168,10 +168,10 @@ enum
 
 
     THIS_DEVICE_PEERS_HOPS = 0
-    #ifdef _PEER
+    #ifdef PEER
     + (ONE_NET_MAX_PEER_UNIT << ON_FEATURES_PEER_SHIFT)
     #endif
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     + ON_MAX_HOPS_LIMIT
     #endif
 };

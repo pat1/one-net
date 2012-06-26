@@ -226,7 +226,7 @@ typedef enum
     //! Sent to change the keep alive interval
     ON_CHANGE_KEEP_ALIVE = 0x09,
 
-    #ifdef _PEER
+    #ifdef PEER
     //! Sent by the MASTER to assign a peer to the receiving CLIENT.  The CLIENT
     //! can then send directly to the peer.
     ON_ASSIGN_PEER = 0x0A,
@@ -285,7 +285,7 @@ typedef struct
     UInt8* payload;
     UInt8 payload_size;
 	on_encoded_did_t src_did;
-    #ifdef _PEER
+    #ifdef PEER
 	BOOL send_to_peer_list;
     UInt8 src_unit;
     #endif
@@ -406,7 +406,7 @@ typedef struct
 {
     on_encoded_did_t did;           //!< Encoded Device ID of the sender
     on_features_t features;         //!< features of the device.
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     UInt8 max_hops;                 //!< May be different from max_hops in features and may change and may vary
                                     //!< between devices depending on distance, noise, past experience, etc.
                                     //!< This is the CURRENT maximum number of hops these two devices use
@@ -526,7 +526,7 @@ typedef struct
                  // message, it will represent the start time of the stream
                  // transfer.  For block transfers, it will also generally
                  // represent the estimated completion tim eof the transfer.
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     UInt8 num_repeaters;
     on_encoded_did_t repeaters[ON_MAX_HOPS_LIMIT];
     #endif
@@ -628,7 +628,7 @@ on_single_data_queue_t* push_queue_element(UInt16 pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
+  #ifdef PEER
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
@@ -641,7 +641,7 @@ on_single_data_queue_t* push_queue_element(UInt16 pid,
   );
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 BOOL must_send_to_master(const on_single_data_queue_t* const element);
 #endif
 

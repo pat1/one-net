@@ -55,11 +55,11 @@
 #include "one_net_port_specific.h"
 #include <ctype.h>
 #include "one_net_channel.h"
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 #include "one_net_client_port_specific.h"
 #endif
 #include "one_net_features.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 #include "one_net_timer.h"
@@ -139,11 +139,11 @@ BOOL command_processed = FALSE;
 #endif
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern on_master_t* const master;
 extern on_sending_dev_list_item_t sending_dev_list[];
 #endif
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 extern on_client_t * const client_list;
 #endif
 
@@ -315,7 +315,7 @@ char* oncli_format_channel(UInt8 channel, char* buffer, UInt8 buffer_len)
 } // oncli_format_channel //
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 /*!
     \brief Prints the invite code.
     
@@ -443,7 +443,7 @@ oncli_status_t oncli_print_data_rates(on_features_t features)
 } // oncli_print_data_rates //
 
 
-#if defined(_ENABLE_LIST_COMMAND) && defined(_PEER)
+#if defined(_ENABLE_LIST_COMMAND) && defined(PEER)
 /*!
     \brief Prints the peer list
         
@@ -993,13 +993,13 @@ void print_recipient_list(const on_recipient_list_t* const recip_list)
 
 void print_send_list(void)
 {
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
         print_master_send_list();
     }
     #endif
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
         print_client_send_list();
@@ -1008,7 +1008,7 @@ void print_send_list(void)
 }
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 void print_client_send_list(void)
 {
     UInt16 i;
@@ -1026,7 +1026,7 @@ void print_client_send_list(void)
 #endif
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 void print_master_send_list(void)
 {
     UInt16 i;
@@ -1054,7 +1054,7 @@ void print_sending_device_t(const on_sending_device_t* const device)
         oncli_send_msg("Not Decodable");
     }
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     oncli_send_msg(", Hops=%d, Max. Hops=%d", device->hops, device->max_hops);
     #endif
     
@@ -1394,10 +1394,10 @@ static void print_cmd_result(const char * const CMD,
         
         case ONCLI_INVALID_CMD_FOR_NODE:
         {
-            #if !defined(_ONE_NET_CLIENT)
+            #if !defined(ONE_NET_CLIENT)
             oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
               ONCLI_MASTER_STR);            
-            #elif !defined(_ONE_NET_MASTER)
+            #elif !defined(ONE_NET_MASTER)
             oncli_send_msg(ONCLI_INVALID_CMD_FOR_DEVICE_FMT, CMD,
               ONCLI_CLIENT_STR);            
             #else

@@ -105,7 +105,7 @@ static UInt16 pld_buffer_tail_idx = 0;
 
 UInt8 single_data_queue_size = 0;
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 extern BOOL device_is_master;
 extern BOOL client_joined_network;
 extern on_master_t * const master;
@@ -177,7 +177,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
   UInt8 msg_type, UInt8* raw_data, UInt8 data_len, UInt8 priority,
   const on_encoded_did_t* const src_did,
   const on_encoded_did_t* const enc_dst
-  #ifdef _PEER
+  #ifdef PEER
       , BOOL send_to_peer_list,
       UInt8 src_unit
   #endif
@@ -314,7 +314,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
         one_net_memmove(element->dst_did, NO_DESTINATION, ON_ENCODED_DID_LEN);
     }
     
-    #ifdef _PEER
+    #ifdef PEER
 	element->send_to_peer_list = send_to_peer_list;
     element->src_unit = src_unit;
     #endif
@@ -509,7 +509,7 @@ int single_data_queue_ready_to_send(void)
 #endif
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 /*!
     \ brief Determines whether a message must have an added message to the
             master tacked on to the end.
@@ -527,7 +527,7 @@ int single_data_queue_ready_to_send(void)
        either because the master is the recipient or the master is on the
        peer list (if relevant).
        
-    Note that for devices where _PEER is enabled, the second part of
+    Note that for devices where PEER is enabled, the second part of
         condition #7 will be checked elsewhere rather than from this function.
 	
 	\param[in] element An on_single_data_queue_t object containing the message
@@ -752,7 +752,7 @@ on_single_data_queue_t* send_bs_setup_msg(const block_stream_msg_t* bs_msg,
     block_stream_msg_t_to_admin_msg(setup_msg, bs_msg);
     return push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG, setup_msg,
       21, ONE_NET_HIGH_PRIORITY, NULL, dst
-      #ifdef _PEER
+      #ifdef PEER
           , FALSE,
           ONE_NET_DEV_UNIT
       #endif

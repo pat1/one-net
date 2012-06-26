@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 
 #include "one_net_status_codes.h"
@@ -142,7 +142,7 @@
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
@@ -296,7 +296,7 @@ on_message_status_t one_net_master_block_chunk_received(
               result in a call to a callback function with both the NACK
               reason and this return code passed as parameters.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_master_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
   const on_msg_hdr_t* const resp_msg_hdr,
@@ -387,7 +387,7 @@ one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
                not relevant / reliable.
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 void one_net_master_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
@@ -461,7 +461,7 @@ BOOL one_net_master_device_is_awake(BOOL responding,
   const on_raw_did_t *DID);
   
 #ifdef _BLOCK_MESSAGES_ENABLED
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Alerts the master when a device has requested that another device
            should be reserved for service as a multi-hop repeater.
@@ -716,6 +716,6 @@ on_message_status_t one_net_master_stream_txn_status(
 //! @} ON_MASTER_port_specific
 
 
-#endif // ifdef _ONE_NET_MASTER //
+#endif // ifdef ONE_NET_MASTER //
 
 #endif // _ONE_NET_MASTER_PORT_SPECIFIC_H //

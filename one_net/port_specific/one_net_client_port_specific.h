@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 
 
 #include "one_net_status_codes.h"
@@ -185,7 +185,7 @@ void one_net_client_client_added(const on_raw_did_t * const raw_did);
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack);
@@ -339,7 +339,7 @@ on_message_status_t one_net_client_block_chunk_received(
               result in a call to a callback function with both the NACK
               reason and this return code passed as parameters.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_client_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
   const on_msg_hdr_t* const resp_msg_hdr,
@@ -430,7 +430,7 @@ one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_ke
                not relevant / reliable.
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 void one_net_client_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack);
@@ -544,7 +544,7 @@ on_message_status_t one_net_client_block_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack);
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
 /*!
     \brief Application-level code called byu ONE-NET when this device is
            requested to function as a repeater for a block / stream message
@@ -670,7 +670,7 @@ on_message_status_t one_net_client_stream_txn_status(
 //! @} ON_CLIENT_port_specific
 
 
-#endif // ifdef _ONE_NET_CLIENT //
+#endif // ifdef ONE_NET_CLIENT //
 
 
 #endif // _ONE_NET_CLIENT_PORT_SPECIFIC_H //

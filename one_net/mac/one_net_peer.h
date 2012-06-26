@@ -48,7 +48,7 @@
 
 #include "config_options.h"
 
-#ifdef _PEER
+#ifdef PEER
 
 #include "one_net_types.h"
 #include "one_net.h"

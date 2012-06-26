@@ -10,7 +10,7 @@
 #include "config_options.h"
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 
 
 #include "one_net_client.h"
@@ -30,7 +30,7 @@
 #include "dfi.h"
 #endif
 #include "one_net_prand.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 
@@ -223,7 +223,7 @@ void init_auto_client(UInt8 index)
     master->device.data_rate = ONE_NET_DATA_RATE_38_4;
     master->device.features = THIS_DEVICE_FEATURES;
     one_net_memmove(master->device.did, MASTER_ENCODED_DID, ON_ENCODED_DID_LEN);
-    #ifndef _PEER
+    #ifndef PEER
     one_net_client_init(NULL, 0);
     #else
     one_net_reset_peers();
@@ -249,7 +249,7 @@ void init_serial_client(void)
     const UInt8* user_pin_memory;
     const on_base_param_t* base_param;
     UInt16 nv_memory_len, user_pin_memory_len;
-    #ifdef _PEER
+    #ifdef PEER
     const UInt8* peer_memory;
     UInt16 peer_memory_len;
     #endif
@@ -269,7 +269,7 @@ void init_serial_client(void)
           &nv_memory_len, &nv_memory);
     }
     
-    #ifdef _PEER
+    #ifdef PEER
     if(memory_loaded)
     {
         memory_loaded = eval_load(DFI_ST_ONE_NET_PEER_SETTINGS,
@@ -281,7 +281,7 @@ void init_serial_client(void)
     {
         one_net_status_t status;
         
-        #ifndef _PEER
+        #ifndef PEER
         status = one_net_client_init(nv_memory, nv_memory_len);
         #else
         status = one_net_client_init(nv_memory, nv_memory_len, peer_memory,
@@ -401,7 +401,7 @@ on_nack_rsn_t one_net_client_get_default_block_transfer_values(
 }
 
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
 /*!
     \brief Application-level code called byu ONE-NET when this device is
            requested to function as a repeater for a block / stream message
@@ -501,4 +501,4 @@ static void client_user_pin(void)
 
 
 
-#endif // #ifdef _ONE_NET_CLIENT //
+#endif // #ifdef ONE_NET_CLIENT //

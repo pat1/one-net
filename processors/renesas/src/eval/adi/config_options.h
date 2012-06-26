@@ -95,20 +95,20 @@
 
 // Master/Client
 
-#ifndef _ONE_NET_MASTER
-	#define _ONE_NET_MASTER
+#ifndef ONE_NET_MASTER
+//	#define ONE_NET_MASTER
 #endif
 
-#ifndef _ONE_NET_CLIENT
-	#define _ONE_NET_CLIENT
+#ifndef ONE_NET_CLIENT
+	#define ONE_NET_CLIENT
 #endif
 
 
 
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
-#ifndef _PEER
-	#define _PEER
+// Define PEER if your application implements peer assignments.  Default is PEER assigned
+#ifndef PEER
+	#define PEER
 #endif
 
 
@@ -139,14 +139,14 @@
     #endif
     
     // Multi-Hop 
-    #ifndef _ONE_NET_MULTI_HOP
-	    #define _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
+	    #define ONE_NET_MULTI_HOP
     #endif
     
     // sleeping devices cannot be repeaters.
-    #if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
-	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
-		    #define _ONE_NET_MH_CLIENT_REPEATER
+    #if defined(ONE_NET_CLIENT) && defined(ONE_NET_MULTI_HOP) && !defined(DEVICE_SLEEPS)
+	    #ifndef ONE_NET_MH_CLIENT_REPEATER
+		    #define ONE_NET_MH_CLIENT_REPEATER
 	    #endif
     #endif
     
@@ -169,7 +169,7 @@
         #endif
     #endif  
 
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_CLIENT)
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_CLIENT)
         // Relevant only for clients initiating block / stream.  Enable if the
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
@@ -199,7 +199,7 @@
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
 // if _IDLE is defined.
-#if defined(_IDLE) && defined(_ONE_NET_CLIENT)
+#if defined(_IDLE) && defined(ONE_NET_CLIENT)
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
 	#endif
@@ -209,7 +209,7 @@
 // simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.
-#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
+#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
     #ifndef _ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed.  Note.  Eval boards cannot be simple clients.
         //#define _ONE_NET_SIMPLE_CLIENT
@@ -483,7 +483,7 @@
 	#endif
 
     // Master Only Commands
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     
         // _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
         #ifndef _ENABLE_CHANNEL_COMMAND
@@ -500,7 +500,7 @@
 		    #define _ENABLE_CANCEL_INVITE_COMMAND
 	    #endif
 
-    	#ifdef _PEER
+    	#ifdef PEER
 	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
 		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
 			    #define _ENABLE_ASSIGN_PEER_COMMAND
@@ -551,7 +551,7 @@
 	#endif
 
 	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
         #ifndef _ENABLE_JOIN_COMMAND
 		    #define _ENABLE_JOIN_COMMAND
 	    #endif

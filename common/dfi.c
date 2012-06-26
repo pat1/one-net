@@ -65,7 +65,7 @@ const UInt8 dfi_segment_types_used[] =
     DFI_ST_DEVICE_MFG_DATA, /* TODO -- should this be on the list? */
     DFI_ST_ONE_NET_MASTER_SETTINGS,
     DFI_ST_ONE_NET_CLIENT_SETTINGS,
-    #ifdef _PEER
+    #ifdef PEER
     DFI_ST_ONE_NET_PEER_SETTINGS,
     #endif
     DFI_ST_APP_DATA_1,

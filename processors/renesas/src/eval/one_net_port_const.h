@@ -3,8 +3,8 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_CLIENT
-#include "one_net_client_port_const.h" // for the _DEVICE_SLEEPS constant, if
+#ifdef ONE_NET_CLIENT
+#include "one_net_client_port_const.h" // for the DEVICE_SLEEPS constant, if
                                        // defined.
 #endif
 
@@ -83,13 +83,13 @@ enum
 };
 
 
-#ifdef _PEER
+#ifdef PEER
 enum
 {
     //! Size of the peer table
     ONE_NET_MAX_PEER_UNIT = 8,
     
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     // subtract one for the actual recipient and another for the master
     // in case we need to send to it and it isn't already on the list
     ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 2
@@ -101,7 +101,7 @@ enum
 #endif
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 enum
 {
     //! The maximum number of hops
@@ -153,7 +153,7 @@ enum
     ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25,
     #endif
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     //! Multi-hop retpeater latency -- i.e. estimated time it takes for a
     //! repeater to forward a message in milliseconds
     ONE_NET_MH_LATENCY = 5

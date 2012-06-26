@@ -117,7 +117,7 @@ extern on_sending_dev_list_item_t sending_dev_list[];
 	  const tick_t timeout_time);
 #endif
 
-#ifndef _PEER
+#ifndef PEER
 one_net_status_t one_net_client_init(const UInt8 * const param,
   const UInt16 param_len);
 #else
@@ -129,7 +129,7 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
 tick_t one_net_client(void);
 
 
-#ifndef _PEER
+#ifndef PEER
 int client_nv_crc(const UInt8* param, int param_len);
 #else
 int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,

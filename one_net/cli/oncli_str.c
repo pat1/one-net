@@ -134,7 +134,7 @@ const char * const ONCLI_HIGH_STR = "high";
 #ifdef _ENABLE_LIST_COMMAND
 	//! Info command string
 	const char * const ONCLI_LIST_CMD_STR = "list";
-#ifdef _PEER
+#ifdef PEER
 	//! Format for printing peers in the CLI list command
 	const char * const ONCLI_LIST_PEER_FMT = "  %03d:%d:%03d:%d\n";
 
@@ -287,7 +287,7 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
     const char* const DISPLAY_STR = "display";
 #endif
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 	//! Command set the mh_repeater_avaialable variable true or false.
 	const char * const ONCLI_MH_REPEAT_CMD_STR = "mh_repeat";
 #endif
@@ -299,7 +299,7 @@ const char * const ONCLI_SETNI_CMD_STR = "setni";
 //! Format output to report the channel the device is on
 const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT = "%s %u\n";
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 //! Format output when a device successfully joined the network.
 const char * const ONCLI_DEVICE_ADD_FMT
   = "Device %.4s-%.4s added as %03X\n";
@@ -309,7 +309,7 @@ const char * const ONCLI_DEVICE_NOT_ADDED_FMT
   = "Device %.4s-%.4s not added.  Invite %s\n";
 #endif
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 //! Format output when a CLIENT successfully joins a network
 const char * const ONCLI_JOINED_FMT = "Successfully joined network as %03X\n";
 #endif
@@ -453,7 +453,7 @@ const char * const ONCLI_LOAD_FAIL_STR
 const char * const ONCLI_FATAL_ERR_1_STR = "\nFATAL ERROR: 1\n";
 
 
-#ifdef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
 //! String to display invite code
 const char * const ONCLI_DISPLAY_INVITE_STR = "Invite code: %.4s-%.4s\n";
 #endif
@@ -495,7 +495,7 @@ const char* const ONCLI_MSG_STATUS_STR[ON_NUM_MESSAGE_STATUS_CODES] =
 };
 
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 //! Format output to report that a client has missed its required check-in.
 const char* const ONCLI_CLIENT_MISS_CHECK_IN_FMT =
@@ -516,7 +516,7 @@ const char * const ONCLI_UNKNOWN_UPDATE_RESULT_FMT
   
 const char* const ONCLI_M_UPDATE_RESULT_DATA_RATE_STR = "DATA RATE";
 const char* const ONCLI_M_UPDATE_RESULT_KEY_STR = "NETWORK KEY";
-#ifdef _PEER
+#ifdef PEER
 const char* const ONCLI_M_UPDATE_RESULT_ASSIGN_PEER_STR = "ASSIGN PEER";
 const char* const ONCLI_M_UPDATE_RESULT_UNASSIGN_PEER_STR = "UNASSIGN PEER";
 #endif

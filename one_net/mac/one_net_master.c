@@ -46,10 +46,10 @@
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 #if _SINGLE_QUEUE_LEVEL < MED_SINGLE_QUEUE_LEVEL
-    #error "_SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if _ONE_NET_MASTER is defined"
+    #error "_SINGLE_QUEUE_LEVEL must be at least at level MED_SINGLE_QUEUE_LEVEL if ONE_NET_MASTER is defined"
 #endif
 
 
@@ -66,7 +66,7 @@
 #include "one_net_prand.h"
 #include "one_net_crc.h"
 #include "one_net.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 
@@ -84,7 +84,7 @@
 #define ON_INIT_CLIENT_SHIFT RAW_DID_SHIFT
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
     #define ON_INVITES_BEFORE_MULTI_HOP 5
 #endif
 
@@ -346,10 +346,10 @@ void one_net_master_clear_client_memory(void)
     master_param->next_client_did = ONE_NET_INITIAL_CLIENT_DID;
     master_param->client_count = 0;
     one_net_master_condense_client_memory();
-    #ifdef _PEER
+    #ifdef PEER
     one_net_reset_peers();
     #endif    
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     on_base_param->num_mh_devices = 1; // for the master
     on_base_param->num_mh_repeaters = 0; // new network, no clients,
                                          // master is not a repeater
@@ -422,7 +422,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
     // initialized so far.
     static UInt16 nv_param_size_initialized = 0;
     static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-    #ifdef _PEER
+    #ifdef PEER
     static UInt8 peer_memory_size_initialized = 0;
     #endif
     
@@ -461,7 +461,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
                 // Number of clients is invalid.  Reset and return "invalid"
                 nv_param_size_initialized = 0;
                 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-                #ifdef _PEER
+                #ifdef PEER
                 peer_memory_size_initialized = 0;
                 #endif
                 return ONS_INVALID_DATA;
@@ -493,8 +493,8 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
         
         
         // we have all of the non-volatile parameters filled in.  Depending
-        // on whether _PEER is enabled, we'll start filling that in.
-        #ifdef _PEER
+        // on whether PEER is enabled, we'll start filling that in.
+        #ifdef PEER
         {
             UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
               peer_memory_size_initialized;
@@ -522,14 +522,14 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
         // are initializing from scratch, so we want to reset some values.
         nv_param_size_initialized = 0;
         nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-        #ifdef _PEER
+        #ifdef PEER
         peer_memory_size_initialized = 0;
         #endif
         
 
         // Last thing to check is the CRC and also make sure that PARAM_LEN
         // is 0 (if not, we were passed too much data and we need to reject)
-        #ifndef _PEER
+        #ifndef PEER
         if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1))
         #else
         if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1,
@@ -540,7 +540,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM,
         }
     }
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     // check for repeater
     for(i = 0; i < master_param->client_count; i++)
     {
@@ -830,7 +830,7 @@ one_net_status_t one_net_master_remove_device(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(features_mh_capable(client->device.features))
     {
         on_base_param->num_mh_devices--;
@@ -850,7 +850,7 @@ one_net_status_t one_net_master_remove_device(
         client_list[i].send_remove_device_message = TRUE;
     }
     
-    #ifdef _PEER
+    #ifdef PEER
     // remove any peers of this device.
     one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
       (const on_encoded_did_t* const) &remove_device_did, ONE_NET_DEV_UNIT);
@@ -858,7 +858,7 @@ one_net_status_t one_net_master_remove_device(
     
     admin_pld[0] = remove_device_did[0];
     admin_pld[1] = remove_device_did[1];
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     admin_pld[2] = on_base_param->num_mh_devices;
     admin_pld[3] = on_base_param->num_mh_repeaters;
     #else
@@ -1062,7 +1062,7 @@ void one_net_master(void)
                 
                 txn = &invite_txn;
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 txn->retry++;
                 if(on_base_param->num_mh_repeaters &&
                   txn->retry > ON_INVITES_BEFORE_MULTI_HOP)
@@ -1079,7 +1079,7 @@ void one_net_master(void)
                     break; // we should never get here
                 }
                 
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 if(raw_pid | ONE_NET_RAW_PID_MH_MASK)
                 {
                     on_build_hops(&data_pkt_ptrs, 0,
@@ -1165,7 +1165,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         return ONS_DEVICE_LIMIT;
     }
     
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(features_mh_capable(features))
     {
         on_base_param->num_mh_devices++;
@@ -1213,7 +1213,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->next_check_in_time = get_tick_count() +
       MS_TO_TICK(5000 + client->keep_alive_interval);
       
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     client->device.max_hops = features_max_hops(features);
     client->device.hops = 0;
     #endif
@@ -1246,7 +1246,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
         out_master_param->device.features = THIS_DEVICE_FEATURES;
         out_master_param->device.msg_id = one_net_prand(get_tick_count(), 50);
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         out_master_param->device.max_hops = features_max_hops(THIS_DEVICE_FEATURES);
         out_master_param->device.hops = 0;
         #endif
@@ -1307,7 +1307,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 } // one_net_master_add_client //
 
 
-#ifdef _PEER
+#ifdef PEER
 /*!
     \brief (Un)Assigns a peer for a given client.
 
@@ -1592,7 +1592,7 @@ one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
     \return 8-bit CRC of the master parameters if valid
             -1 if invalid
 */
-#ifndef _PEER
+#ifndef PEER
 int master_nv_crc(const UInt8* param, int param_len)
 #else
 int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
@@ -1604,7 +1604,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     on_master_param_t* mast_param;
     UInt16 expected_param_len;
     
-    #ifdef _PEER
+    #ifdef PEER
     if(!peer_param)
     {
         peer_param = peer_storage;
@@ -1635,7 +1635,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
         return -1;
     }
     
-    #ifdef _PEER
+    #ifdef PEER
     // crc over peer parameters
     starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
       starting_crc, ON_PLD_CRC_ORDER);
@@ -2122,7 +2122,7 @@ static on_message_status_t on_master_single_data_hdlr(
         }
         #endif            
         default:   
-            #ifndef _ONE_NET_MULTI_HOP
+            #ifndef ONE_NET_MULTI_HOP
             msg_status = one_net_master_handle_single_pkt(
               &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
               &raw_src_did, (const on_raw_did_t* const) &raw_repeater_did,
@@ -2154,7 +2154,7 @@ static on_message_status_t on_master_single_data_hdlr(
             ONE_NET_HIGH_PRIORITY, NULL,
             (const on_encoded_did_t* const)
             &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
-        #ifdef _PEER
+        #ifdef PEER
             , FALSE,
             get_src_unit(ack_nack->payload->status_resp)
         #endif
@@ -2214,7 +2214,7 @@ omsdh_build_resp:
     }
 
     response_txn.key = (*txn)->key;
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     response_txn.hops = (*txn)->hops;
     response_txn.max_hops = (*txn)->max_hops;
     #endif
@@ -2271,7 +2271,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     on_decode(src_did, &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
     
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &(txn->retry));
     #else
@@ -2309,7 +2309,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
         
         if(txn->retry >= ON_MAX_RETRY)
         {
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             // we may be able to re-send with a higher max hops if there are
             // any multi-hop repeaters.  If there are repeaters out there
             // (and the repeater isn't the device we're sending to), we'll
@@ -2391,7 +2391,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
     
     switch(admin_type)
     {
-#ifdef _PEER
+#ifdef PEER
         case ON_ASSIGN_PEER:
         {
             update = ONE_NET_UPDATE_ASSIGN_PEER;
@@ -2521,7 +2521,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
           ack_nack, client);
     }
 
-    #ifndef _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, (const on_raw_did_t*) &dst, ack_nack);
     #else
@@ -2529,7 +2529,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
       raw_pld, (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
     
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_MULTI_HOP)
+    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
     if(bs_msg.transfer_in_progress)
     {
         ack_nack->handle = ON_ACK;
@@ -2981,7 +2981,7 @@ static void check_updates_in_progress(void)
                 admin_msg_id = ON_RM_DEV;
                 admin_payload[0] = remove_device_did[0];
                 admin_payload[1] = remove_device_did[1];
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 admin_payload[2] = on_base_param->num_mh_devices;
                 admin_payload[3] = on_base_param->num_mh_repeaters;
                 #else
@@ -3030,7 +3030,7 @@ static void check_updates_in_progress(void)
                 admin_msg_id = ON_ADD_DEV;
                 admin_payload[0] = add_device_did[0];
                 admin_payload[1] = add_device_did[1];
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 admin_payload[2] = on_base_param->num_mh_devices;
                 admin_payload[3] = on_base_param->num_mh_repeaters;
                 #else
@@ -3148,7 +3148,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
     if(one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       admin_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN, ONE_NET_LOW_PRIORITY,
       NULL, did
-      #ifdef _PEER
+      #ifdef PEER
       , FALSE,
       ONE_NET_DEV_UNIT
       #endif
@@ -3316,7 +3316,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             break;
         }
-        #ifdef _ONE_NET_MULTI_HOP
+        #ifdef ONE_NET_MULTI_HOP
         case ON_REQUEST_REPEATER:
         {
             UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
@@ -3637,7 +3637,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 ack_nack->payload->admin_msg[1] = (*device_change_did)[0];
                 ack_nack->payload->admin_msg[2] = (*device_change_did)[1];
-                #ifdef _ONE_NET_MULTI_HOP
+                #ifdef ONE_NET_MULTI_HOP
                 ack_nack->payload->admin_msg[3] = on_base_param->num_mh_devices;
                 ack_nack->payload->admin_msg[4] = on_base_param->num_mh_repeaters;
                 #else
@@ -3662,7 +3662,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             one_net_memmove(&((*client)->device.features),
               &DATA[1], sizeof(on_features_t));
-            #ifdef _ONE_NET_MULTI_HOP
+            #ifdef ONE_NET_MULTI_HOP
             (*client)->device.max_hops = features_max_hops(
               (*client)->device.features);
             #endif
@@ -4032,4 +4032,4 @@ static void check_clients_for_missed_check_ins(void)
 //! @} ONE-NET_MASTER
 
 
-#endif // if _ONE_NET_MASTER defined //
+#endif // if ONE_NET_MASTER defined //

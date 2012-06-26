@@ -1,9 +1,9 @@
-#ifndef _ONE_NET_MASTER_H
-#define _ONE_NET_MASTER_H
+#ifndef ONE_NET_MASTER_H
+#define ONE_NET_MASTER_H
 
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 #include "one_net.h"
 
@@ -74,7 +74,7 @@ typedef enum
     //! Updating the network key is complete
     ONE_NET_UPDATE_NETWORK_KEY = 0x01,
 
-    #ifdef _PEER
+    #ifdef PEER
     //! Assigning a peer
     ONE_NET_UPDATE_ASSIGN_PEER = 0x02,
 
@@ -198,7 +198,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
   on_base_param_t* out_base_param, on_master_t* out_master_param,
   BOOL send_update_to_network);
   
-#ifdef _PEER
+#ifdef PEER
 one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
   const on_raw_did_t * const SRC_DID, const UInt8 SRC_UNIT,
   const on_raw_did_t * const PEER_DID, const UInt8 PEER_UNIT);
@@ -213,7 +213,7 @@ one_net_status_t one_net_master_change_frag_dly(
 #endif
 one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags);
   
-#ifndef _PEER
+#ifndef PEER
 int master_nv_crc(const UInt8* param, int param_len);
 #else
 int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
@@ -329,4 +329,4 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
 
 #endif // if master is defined
 
-#endif // _ONE_NET_MASTER_H //
+#endif // ONE_NET_MASTER_H //
