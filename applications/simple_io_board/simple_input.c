@@ -270,10 +270,10 @@ on_message_status_t one_net_client_handle_ack_nack_response(
 */
 static void init_input(void)
 {
-    input_pin[0] = !p1_6;
-    /*input_pin[1] = INVAL2;
+    input_pin[0] = INVAL1;
+    input_pin[1] = INVAL2;
     input_pin[2] = INVAL3;
-    input_pin[3] = INVAL4;*/
+    input_pin[3] = INVAL4;
 } // init_input //
 
 
