@@ -4,9 +4,9 @@
 ;## ccom30 Version 5.31.30.001
 ;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
 ;## and Renesas Solutions Corp., All rights reserved.
-;## Compile Start Time Sun Feb 26 07:53:07 2012
+;## Compile Start Time Tue Jun 26 19:41:16 2012
 
-;## COMMAND_LINE: ccom30  C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_packet.i -o C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_packet.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+;## COMMAND_LINE: ccom30  C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_packet.i -o C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_packet.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
 
 
 ;## Normal Optimize		ON
@@ -20,53 +20,61 @@
 	.FB	0
 	._aopt	ON
 
-	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_packet.c", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/one_net/app/one_net_packet.c", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_constants.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_xtea.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 	._inspect	'F', 'p', "one_net_xtea_encipher", "$one_net_xtea_encipher", 'G', 155, 0, 00h, 0
 	._inspect	'F', 'p', "one_net_xtea_decipher", "$one_net_xtea_decipher", 'G', 157, 0, 00h, 0
 
-	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_packet.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
-	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 1380, 0, 00h, 0
-	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 1381, 0, 00h, 0
-	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 1382, 0, 00h, 0
-	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 1383, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 1384, 0, 00h, 0
-	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 1385, 0, 00h, 0
-	._inspect	'F', 'p', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 1386, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 1391, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 1393, 0, 00h, 0
-	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 1394, 0, 00h, 0
-	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 1396, 0, 00h, 0
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 
-;## #	FUNCTION packet_is_single
-
-;## #	FUNCTION packet_is_invite
-
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
-
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_encode.h", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../../../one_net/utility/one_net_encode.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 	._inspect	'F', 'p', "encoded_to_decoded_byte", "$encoded_to_decoded_byte", 'G', 100, 0, 00h, 0
 	._inspect	'F', 'p', "decoded_to_encoded_byte", "$decoded_to_encoded_byte", 'G', 101, 0, 00h, 0
 	._inspect	'F', 'p', "on_encode", "$on_encode", 'G', 103, 0, 00h, 0
 	._inspect	'F', 'p', "on_decode", "$on_decode", 'G', 105, 0, 00h, 0
 
-	._inspect	'M', "C:/HEWProj/tr/one_net/app/one_net_packet.c", "C:/HEWProj/tr/one_net/app/one_net_packet"
+	._inspect	'M', "C:/HEWProj/trJun26/one_net/app/one_net_packet.h", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
+	._inspect	'F', 'p', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 888, 0, 00h, 0
+	._inspect	'F', 'p', "get_raw_payload_len", "$get_raw_payload_len", 'G', 889, 0, 00h, 0
+	._inspect	'F', 'p', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 890, 0, 00h, 0
+	._inspect	'F', 'p', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 891, 0, 00h, 0
+	._inspect	'F', 'p', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 892, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_data", "$packet_is_data", 'G', 897, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_ack", "$packet_is_ack", 'G', 899, 0, 00h, 0
+	._inspect	'F', 'p', "packet_is_nack", "$packet_is_nack", 'G', 900, 0, 00h, 0
+	._inspect	'F', 'p', "get_single_response_pid", "$get_single_response_pid", 'G', 903, 0, 00h, 0
+	._inspect	'F', 'p', "packet_length_is_valid", "$packet_length_is_valid", 'G', 905, 0, 00h, 0
+	._inspect	'F', 'p', "get_default_num_blocks", "$get_default_num_blocks", 'G', 906, 0, 00h, 0
+
+;## #	FUNCTION packet_is_single
+
+;## #	FUNCTION packet_is_invite
+	._inspect	'F', 'p', "one_net_byte_stream_to_int16", "$one_net_byte_stream_to_int16", 'G', 1017, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_int16_to_byte_stream", "$one_net_int16_to_byte_stream", 'G', 1018, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_byte_stream_to_int32", "$one_net_byte_stream_to_int32", 'G', 1019, 0, 00h, 0
+	._inspect	'F', 'p', "one_net_int32_to_byte_stream", "$one_net_int32_to_byte_stream", 'G', 1020, 0, 00h, 0
+
+;## #	FUNCTION get_raw_pid
+
+;## #	FUNCTION put_raw_pid
+
+	._inspect	'M', "C:/HEWProj/trJun26/one_net/app/one_net_packet.c", "C:/HEWProj/trJun26/one_net/app/one_net_packet"
 
 ;## #	FUNCTION get_encoded_payload_len
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
 
 	.SECTION	program,CODE
 	._inspect	'U', 2, "program", "program", 0
-	._file	'C:/HEWProj/tr/one_net/app/one_net_packet.c'
+	._file	'C:/HEWProj/trJun26/one_net/app/one_net_packet.c'
 	._type	256,'T','SInt8',19
-	._type	257,'T','UInt8',3
+	._type	257,'T','UInt16',18
 	._type	258,'x',256,1
 	._type	258,'m','raw_pid',0,257
 	._func	'get_encoded_payload_len','G',0,258,$get_encoded_payload_len,0
@@ -77,12 +85,12 @@
 	.glb	$get_encoded_payload_len
 $get_encoded_payload_len:
 	._block
-	._var	'raw_pid','R',257,3
+	._var	'raw_pid','R',257,6
 	._eblock
 	._block
 	._var	'raw_pid','A',257,0
 	._block
-	._var	'raw_pid','R',257,3
+	._var	'raw_pid','R',257,6
 	._line	103
 ;## # C_SRC :	    SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
 	._eblock
@@ -94,19 +102,19 @@ $get_encoded_payload_len:
 	._line	104
 ;## # C_SRC :	    switch(num_payload_blocks)
 	cmp.b	#01H,R0H
-	jltu	L43
+	jltu	L67
 	cmp.b	#03H,R0H
-	jleu	L31
-L43:
+	jleu	L55
+L67:
 	cmp.b	#04H,R0H
-	jeq	L37
+	jeq	L61
 	._eblock
 	rts	
 	._line	105
 	._block
 	._line	106
 ;## # C_SRC :	        case 1: case 2: case 3: return 11 * num_payload_blocks;
-L31:
+L55:
 	._block
 	._var	'num_payload_blocks','R',256,1
 	mul.b	#0bH,R0L
@@ -114,7 +122,7 @@ L31:
 	rts	
 	._line	107
 ;## # C_SRC :	        case 4: return 43;
-L37:
+L61:
 	mov.b	#2bH,R0L
 	rts	
 E1:
@@ -130,7 +138,7 @@ M1:
 
 
 ;## #	FUNCTION get_raw_payload_len
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
 	._type	259,'x',256,1
@@ -146,7 +154,7 @@ $get_raw_payload_len:
 	._line	124
 ;## # C_SRC :	    SInt8 num_payload_blocks = get_num_payload_blocks(raw_pid);   
 	._block
-	._var	'raw_pid','R',257,3
+	._var	'raw_pid','R',257,6
 	._eblock
 	._inspect	'S', 'c', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 0, 124
 	jsr	$get_num_payload_blocks
@@ -156,12 +164,12 @@ $get_raw_payload_len:
 	._line	125
 ;## # C_SRC :	    switch(num_payload_blocks)
 	cmp.b	#01H,R0H
-	jltu	L59
+	jltu	L83
 	cmp.b	#03H,R0H
-	jleu	L47
-L59:
+	jleu	L71
+L83:
 	cmp.b	#04H,R0H
-	jne	L55
+	jne	L79
 	._eblock
 	._line	126
 	._block
@@ -169,7 +177,7 @@ L59:
 	._var	'num_payload_blocks','R',256,1
 	._line	127
 ;## # C_SRC :	        case 1: case 2: case 3: case 4:
-L47:
+L71:
 	._line	128
 ;## # C_SRC :	            return ONE_NET_XTEA_BLOCK_SIZE * num_payload_blocks + 1;
 	shl.b	#03H,R0L
@@ -178,7 +186,7 @@ L47:
 	rts	
 	._line	129
 ;## # C_SRC :	        default: return num_payload_blocks;
-L55:
+L79:
 	._block
 	._var	'num_payload_blocks','R',256,1
 	._eblock
@@ -195,67 +203,69 @@ M2:
 
 
 ;## #	FUNCTION get_num_payload_blocks
-;## #	FRAME	AUTO	( raw_pid)	size  1,	offset -1
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
-;## #	ARG Size(0)	Auto Size(1)	Context Size(5)
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
 	._type	260,'x',256,1
 	._type	260,'m','raw_pid',0,257
-	._func	'get_num_payload_blocks','G',1,260,$get_num_payload_blocks,0
-	._inspect	'F', 's', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 6
+	._func	'get_num_payload_blocks','G',0,260,$get_num_payload_blocks,0
+	._inspect	'F', 's', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 5
 	._line	143
 ;## # C_SRC :	{
 	.glb	$get_num_payload_blocks
 $get_num_payload_blocks:
-	enter	#01H
-	mov.b	R1L,-1[FB]	;  raw_pid  raw_pid 
 	._block
-	._var	'raw_pid','A',257,-1
-	._line	159
-;## # C_SRC :	    set_stay_awake_pid(&raw_pid, FALSE); // if it's not an ACK or a NACK, not a
-	push.b	#00H
-	._inspect	'S', 'p', 1
-	mova	-1[FB],R1	;  raw_pid 
-	._inspect	'S', 'c', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 0, 159
-	jsr	$set_stay_awake_pid
-	._line	161
-;## # C_SRC :	    set_ack_or_nack_pid(&raw_pid, TRUE); // if it's not an ACK or a NACK, not a
-	push.b	#01H
-	._inspect	'S', 'p', 1
-	mova	-1[FB],R1	;  raw_pid 
-	._inspect	'S', 'c', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 0, 161
-	jsr	$set_ack_or_nack_pid
-	._inspect	'S', 'p', -2
-	add.b	#02H,SP
-	._line	165
-;## # C_SRC :	    switch(raw_pid)
-	mov.b	-1[FB],R0L	;  raw_pid 
-	cmp.b	#1fH,R0L
-	jeq	L63
-	cmp.b	#01H,R0L
-	jeq	L65
-	mov.b	R0L,R0H
-	jeq	L65
-	._line	166
+	._var	'raw_pid','A',257,0
+	._line	144
+;## # C_SRC :	    SInt8 num_blocks = (SInt8) ((raw_pid >> 8) & 0x0F);
 	._block
-	._line	207
-;## # C_SRC :	            return -1;
+	._var	'raw_pid','R',257,6
+	mov.w	R1,A0	;  raw_pid  raw_pid 
+	._eblock
+	shl.w	#-08H,R1
+	._block
+	._var	'raw_pid','R',257,9
+	mov.b	R1L,R0L
+	._eblock
+	._block
+	._var	'num_blocks','R',256,1
+	._var	'raw_pid','R',257,9
+	._line	145
+;## # C_SRC :	    if((raw_pid & 0x3F) > ONE_NET_RAW_CLIENT_REQUEST_INVITE)
+	mov.b	A0,R0H
+	._eblock
+	._block
+	._var	'num_blocks','R',256,1
+	and.w	#3f0fH,R0
+	cmp.b	#0fH,R0H
+	jleu	L85
+	._eblock
+	._line	146
+	._block
+	._line	147
+;## # C_SRC :	        return -1;
+L139:
 	mov.b	#0ffH,R0L
-	exitd	
-	._line	167
-;## # C_SRC :	        case ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT:
-L63:
-	._line	168
-;## # C_SRC :	            return 3;
-	mov.b	#03H,R0L
-	exitd	
-	._line	170
-;## # C_SRC :	        case ONE_NET_RAW_SINGLE_DATA_ACK:
-L65:
-	._line	171
-;## # C_SRC :	            return 1;
-	mov.b	#01H,R0L
-	exitd	
+	rts	
+	._eblock
+L85:
+	._block
+	._var	'num_blocks','R',256,1
+	._line	150
+;## # C_SRC :	    if(num_blocks >= 1 && num_blocks <= 4)
+	cmp.b	#01H,R0L	;  num_blocks 
+	jlt	L139
+	cmp.b	#04H,R0L	;  num_blocks 
+	jgt	L139
+	._eblock
+	._line	151
+	._block
+	._block
+	._var	'num_blocks','R',256,1
+	._line	152
+;## # C_SRC :	        return num_blocks;
+	._eblock
+	rts	
 E3:
 	._eblock
 	._eblock
@@ -263,69 +273,68 @@ M3:
 	._efunc	M3
 	._inspect	'F', 'd', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 143, 0, 00h, 0
 	._inspect	'F', 't', "get_num_payload_blocks", 'G', 260
-	._inspect	'F', 'r', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 159, 0, 00h, 0
-	._inspect	'F', 'r', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 161, 0, 00h, 0
-	._inspect	'F', 'e', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 2, 0
+	._inspect	'F', 'e', "get_num_payload_blocks", "$get_num_payload_blocks", 'G', 0, 0
 
 
 ;## #	FUNCTION get_encoded_packet_len
 ;## #  FRAME   ARG (include_header)  size   1,    offset 5
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(1)	Auto Size(0)	Context Size(5)
 
-	._type	261,'T','BOOL',257
-	._type	262,'x',257,2
-	._type	262,'m','raw_pid',0,257
-	._type	262,'m','include_header',0,261
-	._func	'get_encoded_packet_len','G',0,262,$get_encoded_packet_len,0
+	._type	261,'T','UInt8',3
+	._type	262,'T','BOOL',261
+	._type	263,'x',261,2
+	._type	263,'m','raw_pid',0,257
+	._type	263,'m','include_header',0,262
+	._func	'get_encoded_packet_len','G',0,263,$get_encoded_packet_len,0
 	._inspect	'F', 's', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 5
-	._line	223
+	._line	170
 ;## # C_SRC :	{
 	.glb	$get_encoded_packet_len
 $get_encoded_packet_len:
 	enter	#00H
 	._block
 	._var	'raw_pid','A',257,0
-	._var	'include_header','A',261,5
-	._line	224
+	._var	'include_header','A',262,5
+	._line	171
 ;## # C_SRC :	    SInt8 pld_len = get_encoded_payload_len(raw_pid);
 	._block
-	._var	'raw_pid','R',257,3
+	._var	'raw_pid','R',257,6
 	._eblock
-	._inspect	'S', 'c', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 0, 224
+	._inspect	'S', 'c', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 0, 171
 	jsr	$get_encoded_payload_len
 	._block
 	._var	'pld_len','R',256,1
-	._line	229
+	._line	176
 ;## # C_SRC :	    UInt8 header_offset = include_header ? 0 : ON_ENCODED_RPTR_DID_IDX;
 	cmp.b	#00H,5[FB]	;  include_header 
 	stzx	#04H,#00H,R0H
 	._eblock
 	._block
 	._var	'pld_len','R',256,1
-	._var	'header_offset','R',257,2
-	._line	231
+	._var	'header_offset','R',261,2
+	._line	178
 ;## # C_SRC :	    if(pld_len < 0)
 	cmp.b	#00H,R0L	;  pld_len 
-	jpz	L79
+	jpz	L149
 	._eblock
-	._line	232
+	._line	179
 	._block
-	._line	234
+	._line	181
 ;## # C_SRC :	        return 0;
 	mov.b	#00H,R0L
 	exitd	
 	._eblock
-L79:
+L149:
 	._block
 	._var	'pld_len','R',256,1
-	._var	'header_offset','R',257,2
-	._line	240
+	._var	'header_offset','R',261,2
+	._line	187
 ;## # C_SRC :	    return ON_PLD_IDX + pld_len - header_offset;
 	add.b	#13H,R0L
 	._eblock
 	._block
-	._var	'header_offset','R',257,2
+	._var	'header_offset','R',261,2
 	sub.b	R0H,R0L	;  header_offset 
 	._eblock
 	exitd	
@@ -333,184 +342,10 @@ E4:
 	._eblock
 M4:
 	._efunc	M4
-	._inspect	'F', 'd', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 223, 0, 00h, 0
-	._inspect	'F', 't', "get_encoded_packet_len", 'G', 262
-	._inspect	'F', 'r', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 224, 0, 00h, 0
+	._inspect	'F', 'd', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 170, 0, 00h, 0
+	._inspect	'F', 't', "get_encoded_packet_len", 'G', 263
+	._inspect	'F', 'r', "get_encoded_payload_len", "$get_encoded_payload_len", 'G', 171, 0, 00h, 0
 	._inspect	'F', 'e', "get_encoded_packet_len", "$get_encoded_packet_len", 'G', 0, 0
-
-
-;## #	FUNCTION packet_is_stay_awake
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
-;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
-
-	._type	263,'x',261,1
-	._type	263,'m','raw_pid',0,257
-	._func	'packet_is_stay_awake','G',0,263,$packet_is_stay_awake,0
-	._inspect	'F', 's', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 5
-	._line	255
-;## # C_SRC :	{
-	.glb	$packet_is_stay_awake
-$packet_is_stay_awake:
-	._file	'C:/HEWProj/tr/one_net/app/one_net_packet.h'
-	._line	1430
-	._block
-	._var	'raw_pid','A',257,0
-	._line	1447
-;## # C_SRC :	    return (raw_pid < 0x10);
-	._block
-	._var	'raw_pid','R',257,3
-	cmp.b	#10H,R1L	;  raw_pid 
-	jgeu	L101
-	mov.b	#01H,R0L
-	jmp	L103
-	._eblock
-L101:
-	._block
-	._var	'raw_pid','R',257,3
-	mov.b	#00H,R0L
-L103:
-	._eblock
-	._file	'C:/HEWProj/tr/one_net/app/one_net_packet.c'
-	._line	255
-	._block
-	._var	'raw_pid','A',257,0
-	._block
-	._var	'raw_pid','R',257,3
-	._line	260
-;## # C_SRC :	    if(!packet_is_single(raw_pid))
-	mov.b	R0L,R0H
-	jne	L95
-	._eblock
-	._line	261
-	._block
-	._line	262
-;## # C_SRC :	        return FALSE;
-	mov.b	#00H,R0L
-	rts	
-	._eblock
-L95:
-	._block
-	._var	'raw_pid','R',257,3
-	._line	270
-;## # C_SRC :	            raw_pid == ONE_NET_ENCODED_SINGLE_DATA_NACK_STAY_AWAKE);
-	cmp.b	#0baH,R1L	;  raw_pid 
-	jeq	L147
-	cmp.b	#0b5H,R1L	;  raw_pid 
-	jeq	L147
-	._eblock
-	mov.b	#00H,R0L
-	jmp	L113
-L147:
-	mov.b	#01H,R0L
-L113:
-	rts	
-E5:
-	._eblock
-M5:
-	._efunc	M5
-	._inspect	'F', 'd', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 255, 0, 00h, 0
-	._inspect	'F', 't', "packet_is_stay_awake", 'G', 263
-	._inspect	'F', 'e', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 0, 0
-
-
-;## #	FUNCTION set_stay_awake_pid
-;## #	FRAME	AUTO	( raw_pid)	size  2,	offset -2
-;## #  FRAME   ARG (stay_awake)  size   1,    offset 5
-;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
-;## #	ARG Size(1)	Auto Size(2)	Context Size(5)
-
-	._type	264,'O',257
-	._type	265,'x',261,2
-	._type	265,'m','raw_pid',0,264
-	._type	265,'m','stay_awake',0,261
-	._func	'set_stay_awake_pid','G',2,265,$set_stay_awake_pid,0
-	._inspect	'F', 's', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 7
-	._line	290
-;## # C_SRC :	{
-	.glb	$set_stay_awake_pid
-$set_stay_awake_pid:
-	enter	#02H
-	mov.w	R1,-2[FB]	;  raw_pid  raw_pid 
-	._file	'C:/HEWProj/tr/one_net/app/one_net_packet.h'
-	._line	1447
-;## # C_SRC :	    return (raw_pid < 0x10);
-	mov.w	-2[FB],A0	;  raw_pid 
-	cmp.b	#10H,[A0]
-	jgeu	L159
-	mov.b	#01H,R0L
-	jmp	L161
-L159:
-	mov.b	#00H,R0L
-L161:
-	._file	'C:/HEWProj/tr/one_net/app/one_net_packet.c'
-	._line	290
-	._block
-	._type	266,'O',257
-	._var	'raw_pid','A',266,-2
-	._var	'stay_awake','A',261,5
-	._line	301
-;## # C_SRC :	    if(!packet_is_single(*raw_pid) ||packet_is_data(*raw_pid))
-	mov.b	R0L,R0H
-	jeq	L197
-	mov.w	-2[FB],A0	;  raw_pid 
-	mov.b	[A0],R1L
-	._inspect	'S', 'c', "packet_is_data", "$packet_is_data", 'G', 0, 301
-	jsr	$packet_is_data
-	mov.b	R0L,R0H
-	jeq	L149
-L197:
-	._line	302
-	._block
-	._line	303
-;## # C_SRC :	        return FALSE; // not a single ACK or a NACK.
-	mov.b	#00H,R0L
-	exitd	
-	._eblock
-L149:
-	._line	306
-;## # C_SRC :	    pid_is_stay_awake = packet_is_stay_awake(*raw_pid);
-	mov.w	-2[FB],A0	;  raw_pid 
-	mov.b	[A0],R1L
-	._inspect	'S', 'c', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 0, 306
-	jsr	$packet_is_stay_awake
-	._block
-	._var	'pid_is_stay_awake','R',261,1
-	._line	308
-;## # C_SRC :	    if(pid_is_stay_awake == stay_awake)
-	cmp.b	5[FB],R0L	;  stay_awake  pid_is_stay_awake 
-	jeq	L197
-	._eblock
-	._line	313
-;## # C_SRC :	    (*raw_pid) += 2;
-	mov.w	-2[FB],A0	;  raw_pid 
-	._block
-	._var	'pid_is_stay_awake','R',261,1
-	add.b	#02H,[A0]
-	._line	314
-;## # C_SRC :	    if(pid_is_stay_awake)
-	mov.b	R0L,R0H
-	jeq	L187
-	._eblock
-	._line	315
-	._block
-	._line	316
-;## # C_SRC :	        (*raw_pid) -= 4;
-	add.b	#-4,[A0]
-	._eblock
-L187:
-	._line	319
-;## # C_SRC :	    return TRUE;
-	mov.b	#01H,R0L
-	exitd	
-E6:
-	._eblock
-M6:
-	._efunc	M6
-	._inspect	'F', 'd', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 290, 0, 00h, 0
-	._inspect	'F', 't', "set_stay_awake_pid", 'G', 265
-	._inspect	'F', 'r', "packet_is_data", "$packet_is_data", 'G', 301, 0, 00h, 0
-	._inspect	'F', 'r', "packet_is_stay_awake", "$packet_is_stay_awake", 'G', 306, 0, 00h, 0
-	._inspect	'F', 'e', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 0, 0
 
 
 ;## #	FUNCTION set_ack_or_nack_pid
@@ -520,113 +355,186 @@ M6:
 ;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(1)	Auto Size(3)	Context Size(5)
 
-	._type	267,'O',257
-	._type	268,'x',261,2
-	._type	268,'m','raw_pid',0,267
-	._type	268,'m','is_ack',0,261
-	._func	'set_ack_or_nack_pid','G',3,268,$set_ack_or_nack_pid,0
+	._type	264,'O',257
+	._type	265,'x',262,2
+	._type	265,'m','raw_pid',0,264
+	._type	265,'m','is_ack',0,262
+	._func	'set_ack_or_nack_pid','G',3,265,$set_ack_or_nack_pid,0
 	._inspect	'F', 's', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 8
-	._line	339
+	._line	208
 ;## # C_SRC :	{
 	.glb	$set_ack_or_nack_pid
 $set_ack_or_nack_pid:
 	enter	#03H
 	mov.w	R1,-3[FB]	;  raw_pid  raw_pid 
 	._block
-	._type	269,'O',257
-	._var	'raw_pid','A',269,-3
-	._var	'is_ack','A',261,5
-	._var	'pid_is_nack','A',261,-1
-	._line	340
+	._type	266,'O',257
+	._var	'raw_pid','A',266,-3
+	._var	'is_ack','A',262,5
+	._var	'pid_is_nack','A',262,-1
+	._line	209
 ;## # C_SRC :	    BOOL pid_is_nack = packet_is_nack(*raw_pid);
 	mov.w	-3[FB],A0	;  raw_pid 
-	mov.b	[A0],R1L
-	._inspect	'S', 'c', "packet_is_nack", "$packet_is_nack", 'G', 0, 340
+	mov.w	[A0],R1
+	._inspect	'S', 'c', "packet_is_nack", "$packet_is_nack", 'G', 0, 209
 	jsr	$packet_is_nack
 	mov.b	R0L,-1[FB]	;  pid_is_nack 
-	._line	341
+	._line	210
 ;## # C_SRC :	    BOOL pid_is_ack  = packet_is_ack(*raw_pid);
 	mov.w	-3[FB],A0	;  raw_pid 
-	mov.b	[A0],R1L
-	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 341
+	mov.w	[A0],R1
+	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 210
 	jsr	$packet_is_ack
 	._block
-	._var	'pid_is_ack','R',261,1
-	._line	342
+	._var	'pid_is_ack','R',262,1
+	._line	211
 ;## # C_SRC :	    if(!pid_is_ack && !pid_is_nack)
 	mov.b	R0L,R0H
-	jne	L255
+	jne	L217
 	mov.b	-1[FB],R0H	;  pid_is_nack 
-	jne	L255
+	jne	L217
 	._eblock
-	._line	343
+	._line	212
 	._block
-	._line	344
+	._line	213
 ;## # C_SRC :	        return FALSE; // raw pid is not an ACK or a NACK.
-L257:
+L219:
 	mov.b	#00H,R0L
 	exitd	
 	._eblock
-L255:
+L217:
 	._block
-	._var	'pid_is_ack','R',261,1
-	._line	347
+	._var	'pid_is_ack','R',262,1
+	._line	216
 ;## # C_SRC :	    if(pid_is_ack == is_ack)
 	cmp.b	5[FB],R0L	;  is_ack  pid_is_ack 
-	jeq	L257
+	jeq	L219
 	._eblock
-	._line	352
+	._line	221
 ;## # C_SRC :	    (*raw_pid)++;
 	mov.w	-3[FB],A0	;  raw_pid 
-	add.b	#01H,[A0]
-	._line	353
+	add.w	#0001H,[A0]
+	._line	222
 ;## # C_SRC :	    if(is_ack)
 	mov.b	5[FB],R0L	;  is_ack 
-	jeq	L257
-	._line	354
+	jeq	L219
+	._line	223
 	._block
-	._line	355
+	._line	224
 ;## # C_SRC :	        (*raw_pid) -= 2;
-	add.b	#-2,[A0]
+	add.w	#-2,[A0]
 	._eblock
-	._line	359
+	._line	228
 ;## # C_SRC :	    return FALSE; // not an ACK or a NACK. encoded_pid unchanged
-	jmp	L257
-E7:
+	jmp	L219
+E5:
 	._eblock
-M7:
-	._efunc	M7
-	._inspect	'F', 'd', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 339, 0, 00h, 0
-	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 268
-	._inspect	'F', 'r', "packet_is_nack", "$packet_is_nack", 'G', 340, 0, 00h, 0
-	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 341, 0, 00h, 0
+M5:
+	._efunc	M5
+	._inspect	'F', 'd', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 208, 0, 00h, 0
+	._inspect	'F', 't', "set_ack_or_nack_pid", 'G', 265
+	._inspect	'F', 'r', "packet_is_nack", "$packet_is_nack", 'G', 209, 0, 00h, 0
+	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 210, 0, 00h, 0
 	._inspect	'F', 'e', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 0, 0
 
 
 ;## #	FUNCTION packet_is_data
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
-	._type	270,'x',261,1
-	._type	270,'m','raw_pid',0,257
-	._func	'packet_is_data','G',0,270,$packet_is_data,0
+	._type	267,'x',262,1
+	._type	267,'m','raw_pid',0,257
+	._func	'packet_is_data','G',0,267,$packet_is_data,0
 	._inspect	'F', 's', "packet_is_data", "$packet_is_data", 'G', 5
-	._line	413
+	._line	271
 ;## # C_SRC :	{
 	.glb	$packet_is_data
 $packet_is_data:
 	._block
 	._var	'raw_pid','A',257,0
-	._line	418
-;## # C_SRC :	    switch(raw_pid)
+	._line	272
+;## # C_SRC :	    raw_pid &= 0x3F;
 	._block
-	._var	'raw_pid','R',257,3
-	cmp.b	#00H,R1L	;  raw_pid 
+	._var	'raw_pid','R',257,6
+	and.w	#003fH,R1	;  raw_pid 
+	._line	274
+;## # C_SRC :	    switch(raw_pid)
 	stzx	#01H,#00H,R0L
 	._eblock
-	._line	419
+	._line	275
 	._block
-	._line	435
+	._line	286
+;## # C_SRC :	            return TRUE;
+	rts	
+E6:
+	._eblock
+	._eblock
+M6:
+	._efunc	M6
+	._inspect	'F', 'd', "packet_is_data", "$packet_is_data", 'G', 271, 0, 00h, 0
+	._inspect	'F', 't', "packet_is_data", 'G', 267
+	._inspect	'F', 'e', "packet_is_data", "$packet_is_data", 'G', 0, 0
+
+
+;## #	FUNCTION packet_is_nack
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	268,'x',262,1
+	._type	268,'m','raw_pid',0,257
+	._func	'packet_is_nack','G',0,268,$packet_is_nack,0
+	._inspect	'F', 's', "packet_is_nack", "$packet_is_nack", 'G', 5
+	._line	303
+;## # C_SRC :	{
+	.glb	$packet_is_nack
+$packet_is_nack:
+	._block
+	._var	'raw_pid','A',257,0
+	._line	304
+;## # C_SRC :	    return packet_is_ack(raw_pid - 1);
+	._block
+	._var	'raw_pid','R',257,6
+	add.w	#-1,R1
+	._eblock
+	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 304
+	jmp	$packet_is_ack
+E7:
+	._eblock
+M7:
+	._efunc	M7
+	._inspect	'F', 'd', "packet_is_nack", "$packet_is_nack", 'G', 303, 0, 00h, 0
+	._inspect	'F', 't', "packet_is_nack", 'G', 268
+	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 304, 0, 00h, 0
+	._inspect	'F', 'e', "packet_is_nack", "$packet_is_nack", 'G', 0, 0
+
+
+;## #	FUNCTION packet_is_ack
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
+
+	._type	269,'x',262,1
+	._type	269,'m','raw_pid',0,257
+	._func	'packet_is_ack','G',0,269,$packet_is_ack,0
+	._inspect	'F', 's', "packet_is_ack", "$packet_is_ack", 'G', 5
+	._line	318
+;## # C_SRC :	{
+	.glb	$packet_is_ack
+$packet_is_ack:
+	._block
+	._var	'raw_pid','A',257,0
+	._line	319
+;## # C_SRC :	    raw_pid &= 0x3F;
+	._block
+	._var	'raw_pid','R',257,6
+	and.w	#003fH,R1	;  raw_pid 
+	._line	321
+;## # C_SRC :	    switch(raw_pid)
+	cmp.w	#0001H,R1	;  raw_pid 
+	stzx	#01H,#00H,R0L
+	._eblock
+	._line	322
+	._block
+	._line	333
 ;## # C_SRC :	            return TRUE;
 	rts	
 E8:
@@ -634,204 +542,345 @@ E8:
 	._eblock
 M8:
 	._efunc	M8
-	._inspect	'F', 'd', "packet_is_data", "$packet_is_data", 'G', 413, 0, 00h, 0
-	._inspect	'F', 't', "packet_is_data", 'G', 270
-	._inspect	'F', 'e', "packet_is_data", "$packet_is_data", 'G', 0, 0
+	._inspect	'F', 'd', "packet_is_ack", "$packet_is_ack", 'G', 318, 0, 00h, 0
+	._inspect	'F', 't', "packet_is_ack", 'G', 269
+	._inspect	'F', 'e', "packet_is_ack", "$packet_is_ack", 'G', 0, 0
 
 
-;## #	FUNCTION packet_is_nack
-;## #	FRAME	AUTO	( raw_pid)	size  1,	offset -1
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
-;## #	ARG Size(0)	Auto Size(1)	Context Size(5)
+;## #	FUNCTION get_single_response_pid
+;## #	FRAME	AUTO	(raw_single_pid)	size  2,	offset -2
+;## #  FRAME   ARG (   isACK)  size   1,    offset 5
+;## #  FRAME   ARG (stay_awake)  size   1,    offset 6
+;## #  REGISTER ARG    (raw_single_pid)   size   2,   REGISTER R1
+;## #	ARG Size(2)	Auto Size(2)	Context Size(5)
 
-	._type	271,'x',261,1
-	._type	271,'m','raw_pid',0,257
-	._func	'packet_is_nack','G',1,271,$packet_is_nack,0
-	._inspect	'F', 's', "packet_is_nack", "$packet_is_nack", 'G', 6
-	._line	452
+	._type	270,'T','SInt16',16
+	._type	271,'x',270,3
+	._type	271,'m','raw_single_pid',0,257
+	._type	271,'m','isACK',0,262
+	._type	271,'m','stay_awake',0,262
+	._func	'get_single_response_pid','G',2,271,$get_single_response_pid,0
+	._inspect	'F', 's', "get_single_response_pid", "$get_single_response_pid", 'G', 7
+	._line	357
 ;## # C_SRC :	{
-	.glb	$packet_is_nack
-$packet_is_nack:
-	enter	#01H
-	mov.b	R1L,-1[FB]	;  raw_pid  raw_pid 
+	.glb	$get_single_response_pid
+$get_single_response_pid:
+	enter	#02H
+	mov.w	R1,-2[FB]	;  raw_single_pid  raw_single_pid 
 	._block
-	._var	'raw_pid','A',257,-1
-	._line	453
-;## # C_SRC :	    if(packet_is_data(raw_pid))
+	._var	'raw_single_pid','A',257,-2
+	._var	'isACK','A',262,5
+	._var	'stay_awake','A',262,6
+	._line	360
+;## # C_SRC :	    switch(raw_single_pid & 0x3F)
+	mov.b	-2[FB],R0L	;  raw_single_pid 
+	and.b	#3fH,R0L
+	jne	L245
+	._line	361
 	._block
-	._var	'raw_pid','R',257,3
+	._line	363
+;## # C_SRC :	          raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK; break;
+	mov.w	#0001H,R0	;  raw_resp_pid 
+	._block
+	._var	'raw_resp_pid','R',257,5
+	jmp	L253
 	._eblock
-	._inspect	'S', 'c', "packet_is_data", "$packet_is_data", 'G', 0, 453
-	jsr	$packet_is_data
+	._line	377
+;## # C_SRC :	        default:
+L245:
+	._line	378
+;## # C_SRC :	          if(packet_is_ack(raw_single_pid))
+	mov.w	-2[FB],R1	;  raw_single_pid 
+	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 378
+	jsr	$packet_is_ack
 	mov.b	R0L,R0H
-	jeq	L269
-	._line	454
+	jeq	L247
+	._line	379
 	._block
-	._line	455
-;## # C_SRC :	        return FALSE;
-	mov.b	#00H,R0L
+	._line	380
+;## # C_SRC :	              raw_resp_pid = raw_single_pid & 0x3F;
+	mov.w	-2[FB],R0	;  raw_single_pid  raw_resp_pid 
+	and.w	#003fH,R0	;  raw_resp_pid 
+	._block
+	._var	'raw_resp_pid','R',257,5
+	._eblock
+	._line	381
+;## # C_SRC :	          }
+	jmp	L253
+	._eblock
+	._line	382
+;## # C_SRC :	          else if(packet_is_nack(raw_single_pid))
+L247:
+	mov.w	-2[FB],R1	;  raw_single_pid 
+	._inspect	'S', 'c', "packet_is_nack", "$packet_is_nack", 'G', 0, 382
+	jsr	$packet_is_nack
+	mov.b	R0L,R0H
+	jeq	L251
+	._line	383
+	._block
+	._line	384
+;## # C_SRC :	              raw_resp_pid = (raw_single_pid & 0x3F) - 1; // make it an ACK
+	mov.w	-2[FB],R0	;  raw_single_pid 
+	and.w	#003fH,R0
+	add.w	#-1,R0	;  raw_resp_pid 
+	._block
+	._var	'raw_resp_pid','R',257,5
+	._eblock
+	._line	385
+;## # C_SRC :	          }
+	jmp	L253
+	._eblock
+	._line	386
+;## # C_SRC :	          else
+L251:
+	._line	387
+	._block
+	._line	388
+;## # C_SRC :	              return -1; // invalid
+	mov.w	#0ffffH,R0
 	exitd	
 	._eblock
-L269:
-	._line	457
-;## # C_SRC :	    return packet_is_ack(raw_pid - 1);
-	mov.b	-1[FB],R1L	;  raw_pid 
-	add.b	#-1,R1L
-	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 457
-	jsr	$packet_is_ack
+	._line	389
+;## # C_SRC :	          }
+L253:
+	._block
+	._var	'raw_resp_pid','R',257,5
+	._eblock
+	._line	393
+;## # C_SRC :	    if(!isACK)
+	cmp.b	#00H,5[FB]	;  isACK 
+	jne	L255
+	._eblock
+	._line	394
+	._block
+	._block
+	._var	'raw_resp_pid','R',257,5
+	._line	395
+;## # C_SRC :	        raw_resp_pid++; // change from ACK to NACK.
+	add.w	#0001H,R0	;  raw_resp_pid 
+	._eblock
+L255:
+	._line	399
+;## # C_SRC :	    raw_resp_pid |= (raw_single_pid & ONE_NET_RAW_PID_MH_MASK);
+	mov.w	-2[FB],R1	;  raw_single_pid 
+	and.w	#0080H,R1
+	or.w	R1,R0	;  raw_resp_pid 
+	._line	402
+;## # C_SRC :	    raw_resp_pid |= (raw_single_pid & 0xF00);
+	mov.w	-2[FB],R1	;  raw_single_pid 
+	and.w	#0f00H,R1
+	or.w	R1,R0	;  raw_resp_pid 
+	._line	405
+;## # C_SRC :	    if(stay_awake)
+	cmp.b	#00H,6[FB]	;  stay_awake 
+	jeq	L263
+	._eblock
+	._line	406
+	._block
+	._block
+	._var	'raw_resp_pid','R',257,5
+	._line	407
+;## # C_SRC :	        raw_resp_pid |= ONE_NET_RAW_PID_STAY_AWAKE_MASK;
+	or.b	#40H,R0L	;  raw_resp_pid 
+	._eblock
+L263:
+	._line	410
+;## # C_SRC :	    return raw_resp_pid;
+	._eblock
 	exitd	
 E9:
 	._eblock
 M9:
 	._efunc	M9
-	._inspect	'F', 'd', "packet_is_nack", "$packet_is_nack", 'G', 452, 0, 00h, 0
-	._inspect	'F', 't', "packet_is_nack", 'G', 271
-	._inspect	'F', 'r', "packet_is_data", "$packet_is_data", 'G', 453, 0, 00h, 0
-	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 457, 0, 00h, 0
-	._inspect	'F', 'e', "packet_is_nack", "$packet_is_nack", 'G', 0, 0
+	._inspect	'F', 'd', "get_single_response_pid", "$get_single_response_pid", 'G', 357, 0, 00h, 0
+	._inspect	'F', 't', "get_single_response_pid", 'G', 271
+	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 378, 0, 00h, 0
+	._inspect	'F', 'r', "packet_is_nack", "$packet_is_nack", 'G', 382, 0, 00h, 0
+	._inspect	'F', 'e', "get_single_response_pid", "$get_single_response_pid", 'G', 0, 0
 
 
-;## #	FUNCTION packet_is_ack
-;## #  REGISTER ARG    ( raw_pid)   size   1,   REGISTER R1L
+;## #	FUNCTION packet_length_is_valid
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
 ;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
-	._type	272,'x',261,1
+	._type	272,'x',262,1
 	._type	272,'m','raw_pid',0,257
-	._func	'packet_is_ack','G',0,272,$packet_is_ack,0
-	._inspect	'F', 's', "packet_is_ack", "$packet_is_ack", 'G', 5
-	._line	471
+	._func	'packet_length_is_valid','G',0,272,$packet_length_is_valid,0
+	._inspect	'F', 's', "packet_length_is_valid", "$packet_length_is_valid", 'G', 5
+	._line	415
 ;## # C_SRC :	{
-	.glb	$packet_is_ack
-$packet_is_ack:
+	.glb	$packet_length_is_valid
+$packet_length_is_valid:
 	._block
 	._var	'raw_pid','A',257,0
-	._line	476
-;## # C_SRC :	    if(raw_pid >= ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)
+	._line	416
+;## # C_SRC :	    UInt8 num_blocks = (UInt8)((raw_pid & 0xF00) >> 8);
 	._block
-	._var	'raw_pid','R',257,3
-	cmp.b	#1fH,R1L	;  raw_pid 
-	jltu	L275
+	._var	'raw_pid','R',257,6
+	mov.w	R1,A0	;  raw_pid  raw_pid 
 	._eblock
-	._line	477
+	and.w	#0f00H,R1
 	._block
-	._line	478
+	._var	'raw_pid','R',257,9
+	shl.w	#-08H,R1
+	mov.b	R1L,R0L
+	._eblock
+	._block
+	._var	'num_blocks','R',261,1
+	._var	'raw_pid','R',257,9
+	._line	417
+;## # C_SRC :	    UInt8 base_pid = (UInt8)(raw_pid & 0x3F);
+	mov.b	A0,R0H
+	and.b	#3fH,R0H	;  base_pid 
+	._eblock
+	._block
+	._var	'num_blocks','R',261,1
+	._var	'base_pid','R',261,2
+	._var	'raw_pid','R',257,9
+	._line	418
+;## # C_SRC :	    if(num_blocks == 0 || num_blocks > 3) // TODO --  make this 4
+	cmp.b	#00H,R0L	;  num_blocks 
+	jeq	L345
+	cmp.b	#03H,R0L	;  num_blocks 
+	jleu	L275
+	._eblock
+L345:
+	._line	419
+	._block
+	._line	420
 ;## # C_SRC :	        return FALSE;
 	mov.b	#00H,R0L
 	rts	
 	._eblock
 L275:
 	._block
-	._var	'raw_pid','R',257,3
-	._line	494
-;## # C_SRC :	    return (raw_pid % 2);
-	mov.b	R1L,R0L	;  raw_pid  raw_pid 
+	._var	'num_blocks','R',261,1
+	._var	'base_pid','R',261,2
+	._var	'raw_pid','R',257,9
+	._line	422
+;## # C_SRC :	    if(base_pid > ONE_NET_RAW_CLIENT_REQUEST_INVITE)
+	cmp.b	#0fH,R0H	;  base_pid 
+	jgtu	L345
 	._eblock
-	and.b	#01H,R0L
+	._line	428
+;## # C_SRC :	    if(packet_is_invite(raw_pid))
+	._block
+	._var	'num_blocks','R',261,1
+	._eblock
+	._eblock
+	._file	'C:/HEWProj/trJun26/one_net/app/one_net_packet.h'
+	._line	998
+	._block
+	._var	'raw_pid','A',257,0
+	._block
+	._var	'num_blocks','R',261,1
+	._line	999
+;## # C_SRC :	    raw_pid &= 0x3F;
+	and.w	#003fH,A0
+	._line	1000
+;## # C_SRC :	    return (raw_pid == ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT);
+	cmp.w	#000eH,A0
+	stzx	#01H,#00H,R0H
+	._file	'C:/HEWProj/trJun26/one_net/app/one_net_packet.c'
+	._line	428
+;## # C_SRC :	    if(packet_is_invite(raw_pid))
+	cmp.b	#00H,R0H
+	jeq	L319
+	._eblock
+	._line	432
+	._block
+	._block
+	._var	'num_blocks','R',261,1
+	._line	433
+;## # C_SRC :	        return (num_blocks == 3);
+	cmp.b	#03H,R0L	;  num_blocks 
+	stzx	#01H,#00H,R0L
+	._eblock
+L351:
 	rts	
+	._eblock
+L319:
+	._block
+	._var	'num_blocks','R',261,1
+	._line	437
+;## # C_SRC :	    return (num_blocks == 1);
+	cmp.b	#01H,R0L	;  num_blocks 
+	stzx	#01H,#00H,R0L
+	._eblock
+	jmp	L351
 E10:
 	._eblock
 M10:
 	._efunc	M10
-	._inspect	'F', 'd', "packet_is_ack", "$packet_is_ack", 'G', 471, 0, 00h, 0
-	._inspect	'F', 't', "packet_is_ack", 'G', 272
-	._inspect	'F', 'e', "packet_is_ack", "$packet_is_ack", 'G', 0, 0
+	._inspect	'F', 'd', "packet_length_is_valid", "$packet_length_is_valid", 'G', 415, 0, 00h, 0
+	._inspect	'F', 't', "packet_length_is_valid", 'G', 272
+	._inspect	'F', 'e', "packet_length_is_valid", "$packet_length_is_valid", 'G', 0, 0
 
 
-;## #	FUNCTION get_single_response_pid
-;## #	FRAME	AUTO	(raw_resp_pid)	size  1,	offset -2
-;## #	FRAME	AUTO	(raw_single_pid)	size  1,	offset -1
-;## #  FRAME   ARG (   isACK)  size   1,    offset 5
-;## #  FRAME   ARG (stay_awake)  size   1,    offset 6
-;## #  REGISTER ARG    (raw_single_pid)   size   1,   REGISTER R1L
-;## #	ARG Size(2)	Auto Size(2)	Context Size(5)
+;## #	FUNCTION get_default_num_blocks
+;## #  REGISTER ARG    ( raw_pid)   size   2,   REGISTER R1
+;## #	ARG Size(0)	Auto Size(0)	Context Size(5)
 
-	._type	273,'x',257,3
-	._type	273,'m','raw_single_pid',0,257
-	._type	273,'m','isACK',0,261
-	._type	273,'m','stay_awake',0,261
-	._func	'get_single_response_pid','G',2,273,$get_single_response_pid,0
-	._inspect	'F', 's', "get_single_response_pid", "$get_single_response_pid", 'G', 7
-	._line	517
+	._type	273,'x',256,1
+	._type	273,'m','raw_pid',0,257
+	._func	'get_default_num_blocks','G',0,273,$get_default_num_blocks,0
+	._inspect	'F', 's', "get_default_num_blocks", "$get_default_num_blocks", 'G', 5
+	._line	446
 ;## # C_SRC :	{
-	.glb	$get_single_response_pid
-$get_single_response_pid:
-	enter	#02H
-	mov.b	R1L,-1[FB]	;  raw_single_pid  raw_single_pid 
+	.glb	$get_default_num_blocks
+$get_default_num_blocks:
 	._block
-	._var	'raw_single_pid','A',257,-1
-	._var	'isACK','A',261,5
-	._var	'stay_awake','A',261,6
-	._var	'raw_resp_pid','A',257,-2
-	._line	524
-;## # C_SRC :	    switch(raw_single_pid)
-	jne	L293
-	._line	525
+	._var	'raw_pid','A',257,0
+	._line	447
+;## # C_SRC :	    raw_pid &= 0x3F;
 	._block
-	._line	527
-;## # C_SRC :	          raw_resp_pid = ONE_NET_RAW_SINGLE_DATA_ACK; break;
-	mov.b	#01H,-2[FB]	;  raw_resp_pid 
-	jmp	L289
-	._line	538
-;## # C_SRC :	        default:
-L293:
-	._line	539
-;## # C_SRC :	          if(!packet_is_ack(raw_single_pid) && !packet_is_nack(raw_single_pid))
-	mov.b	-1[FB],R1L	;  raw_single_pid 
-	._inspect	'S', 'c', "packet_is_ack", "$packet_is_ack", 'G', 0, 539
-	jsr	$packet_is_ack
-	mov.b	R0L,R0H
-	jne	L329
-	mov.b	-1[FB],R1L	;  raw_single_pid 
-	._inspect	'S', 'c', "packet_is_nack", "$packet_is_nack", 'G', 0, 539
-	jsr	$packet_is_nack
-	mov.b	R0L,R0H
-	jne	L329
-	._line	540
-	._block
-	._line	541
-;## # C_SRC :	              return 0;  // bad pid
-	mov.b	#00H,R0L
-	exitd	
+	._var	'raw_pid','R',257,6
+	and.w	#003fH,R1	;  raw_pid 
+	._line	448
+;## # C_SRC :	    if(raw_pid > ONE_NET_RAW_CLIENT_REQUEST_INVITE)
+	cmp.w	#000fH,R1	;  raw_pid 
+	jleu	L353
 	._eblock
-L329:
-	._line	543
-;## # C_SRC :	          raw_resp_pid = raw_single_pid;
-	mov.b	-1[FB],-2[FB]	;  raw_single_pid  raw_resp_pid 
+	._line	449
+	._block
+	._line	450
+;## # C_SRC :	        return -1;
+	mov.b	#0ffH,R0L
+	rts	
 	._eblock
-	._line	544
-;## # C_SRC :	    }
-L289:
-	._line	546
-;## # C_SRC :	    set_ack_or_nack_pid(&raw_resp_pid, isACK);
-	push.b	5[FB]	;  isACK 
-	._inspect	'S', 'p', 1
-	mova	-2[FB],R1	;  raw_resp_pid 
-	._inspect	'S', 'c', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 0, 546
-	jsr	$set_ack_or_nack_pid
-	._line	554
-;## # C_SRC :	    set_stay_awake_pid(&raw_resp_pid, stay_awake);
-	push.b	6[FB]	;  stay_awake 
-	._inspect	'S', 'p', 1
-	mova	-2[FB],R1	;  raw_resp_pid 
-	._inspect	'S', 'c', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 0, 554
-	jsr	$set_stay_awake_pid
-	._inspect	'S', 'p', -2
-	add.b	#02H,SP
-	._line	556
-;## # C_SRC :	    return raw_resp_pid;
-	mov.b	-2[FB],R0L	;  raw_resp_pid 
-	exitd	
+L353:
+	._block
+	._var	'raw_pid','R',257,6
+	._line	454
+;## # C_SRC :	    if(packet_is_invite(raw_pid))
+	._eblock
+	._eblock
+	._file	'C:/HEWProj/trJun26/one_net/app/one_net_packet.h'
+	._line	999
+;## # C_SRC :	    raw_pid &= 0x3F;
+	and.w	#003fH,R1
+	._line	1000
+;## # C_SRC :	    return (raw_pid == ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT);
+	cmp.w	#000eH,R1
+	stzx	#01H,#00H,R0L
+	._file	'C:/HEWProj/trJun26/one_net/app/one_net_packet.c'
+	._line	454
+;## # C_SRC :	    if(packet_is_invite(raw_pid))
+	cmp.b	#00H,R0L
+	stzx	#01H,#03H,R0L
+	._line	458
+	._block
+	._line	459
+;## # C_SRC :	        return 3;
+	rts	
 E11:
+	._eblock
 	._eblock
 M11:
 	._efunc	M11
-	._inspect	'F', 'd', "get_single_response_pid", "$get_single_response_pid", 'G', 517, 0, 00h, 0
-	._inspect	'F', 't', "get_single_response_pid", 'G', 273
-	._inspect	'F', 'r', "packet_is_ack", "$packet_is_ack", 'G', 539, 0, 00h, 0
-	._inspect	'F', 'r', "packet_is_nack", "$packet_is_nack", 'G', 539, 0, 00h, 0
-	._inspect	'F', 'r', "set_ack_or_nack_pid", "$set_ack_or_nack_pid", 'G', 546, 0, 00h, 0
-	._inspect	'F', 'r', "set_stay_awake_pid", "$set_stay_awake_pid", 'G', 554, 0, 00h, 0
-	._inspect	'F', 'e', "get_single_response_pid", "$get_single_response_pid", 'G', 2, 0
+	._inspect	'F', 'd', "get_default_num_blocks", "$get_default_num_blocks", 'G', 446, 0, 00h, 0
+	._inspect	'F', 't', "get_default_num_blocks", 'G', 273
+	._inspect	'F', 'e', "get_default_num_blocks", "$get_default_num_blocks", 'G', 0, 0
 
 	.glb	$one_net_xtea_encipher
 	.glb	$one_net_xtea_decipher
@@ -839,217 +888,249 @@ M11:
 	.glb	$decoded_to_encoded_byte
 	.glb	$on_encode
 	.glb	$on_decode
+	.glb	$one_net_byte_stream_to_int16
+	.glb	$one_net_int16_to_byte_stream
+	.glb	$one_net_byte_stream_to_int32
+	.glb	$one_net_int32_to_byte_stream
 ;#################################
 ;###  STATIC DATA INFORMATION  ###
 ;#################################
-	._type	274,'T','UInt16',18
-	._type	275,'T','SInt16',16
-	._type	276,'T','UInt32',7
-	._type	277,'T','SInt32',20
-	._type	278,'T','Float32',10
-	._type	279,'T','tick_t',276
-	._type	280,'Z',5,257
-	._type	281,'T','on_raw_nid_t',280
-	._type	282,'Z',2,257
-	._type	283,'T','on_raw_did_t',282
-	._type	284,'Z',6,257
-	._type	285,'T','on_raw_sid_t',284
-	._type	286,'Z',6,257
-	._type	287,'T','on_encoded_nid_t',286
-	._type	288,'Z',2,257
-	._type	289,'T','on_encoded_did_t',288
-	._type	290,'Z',8,257
-	._type	291,'T','on_encoded_sid_t',290
-	._type	292,'Z',16,257
-	._type	293,'T','one_net_xtea_key_t',292
-	._type	294,'Z',4,257
-	._type	295,'T','one_net_xtea_key_fragment_t',294
-	._type	296,'N',''
-	._type	296,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1',192
-	._type	296,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0',128
-	._type	296,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32',64
-	._type	296,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE',0
-	._type	297,'T','one_net_single_blk_encryption_t',296
-	._type	298,'v'
-	._type	299,'O',257
-	._type	300,'O',293
-	._type	301,'x',298,3
-	._type	301,'m','ROUNDS',0,257
-	._type	301,'m','data',0,299
-	._type	301,'m','KEY',0,300
-	._var	'one_net_xtea_encipher','F',301
-	._type	302,'v'
-	._type	303,'O',257
-	._type	304,'O',293
-	._type	305,'x',302,3
-	._type	305,'m','ROUNDS',0,257
-	._type	305,'m','data',0,303
-	._type	305,'m','KEY',0,304
-	._var	'one_net_xtea_decipher','F',305
-	._type	306,'N','_ona_msg_type'
-	._type	306,'m','ONA_TEXT',64
-	._type	306,'m','ONA_POWER_2_WATTS',63
-	._type	306,'m','ONA_POWER_WATTS',62
-	._type	306,'m','ONA_POWER_200_MILLIWATTS',61
-	._type	306,'m','ONA_POWER_50_MILLIWATTS',60
-	._type	306,'m','ONA_POWER_20_MILLIWATTS',59
-	._type	306,'m','ONA_POWER_2_MILLIWATTS',58
-	._type	306,'m','ONA_POWER',57
-	._type	306,'m','ONA_PEAK_GAS_THERM_HRS',56
-	._type	306,'m','ONA_PEAK_GAS_THERM_MINS',55
-	._type	306,'m','ONA_PEAK_GAS_THERM_SECS',54
-	._type	306,'m','ONA_PEAK_GAS',53
-	._type	306,'m','ONA_AVER_GAS_THERM_HRS',52
-	._type	306,'m','ONA_AVER_GAS_THERM_MINS',51
-	._type	306,'m','ONA_AVER_GAS_THERM_SECS',50
-	._type	306,'m','ONA_AVER_GAS',49
-	._type	306,'m','ONA_ACCUM_GAS_THERM_HRS',48
-	._type	306,'m','ONA_ACCUM_GAS_THERM_MINS',47
-	._type	306,'m','ONA_ACCUM_GAS_THERM_SECS',46
-	._type	306,'m','ONA_ACCUM_GAS',45
-	._type	306,'m','ONA_GAS_THERM_HRS',44
-	._type	306,'m','ONA_GAS_THERM_MINS',43
-	._type	306,'m','ONA_GAS_THERM_SECS',42
-	._type	306,'m','ONA_GAS',41
-	._type	306,'m','ONA_PEAK_ENERGY_20000_WATT_SECONDS',40
-	._type	306,'m','ONA_PEAK_ENERGY_2000_WATT_SECONDS',39
-	._type	306,'m','ONA_PEAK_ENERGY_200_WATT_SECONDS',38
-	._type	306,'m','ONA_PEAK_ENERGY_20_WATT_SECONDS',37
-	._type	306,'m','ONA_PEAK_ENERGY_2_WATT_SECONDS',36
-	._type	306,'m','ONA_PEAK_ENERGY',35
-	._type	306,'m','ONA_ACCUM_ENERGY_20000_WATT_SECONDS',34
-	._type	306,'m','ONA_ACCUM_ENERGY_2000_WATT_SECONDS',33
-	._type	306,'m','ONA_ACCUM_ENERGY_200_WATT_SECONDS',32
-	._type	306,'m','ONA_ACCUM_ENERGY_20_WATT_SECONDS',31
-	._type	306,'m','ONA_ACCUM_ENERGY_2_WATT_SECONDS',30
-	._type	306,'m','ONA_ACCUM_ENERGY',29
-	._type	306,'m','ONA_ENERGY_20000_WATT_SECONDS',28
-	._type	306,'m','ONA_ENERGY_2000_WATT_SECONDS',27
-	._type	306,'m','ONA_ENERGY_200_WATT_SECONDS',26
-	._type	306,'m','ONA_ENERGY_20_WATT_SECONDS',25
-	._type	306,'m','ONA_ENERGY_2_WATT_SECONDS',24
-	._type	306,'m','ONA_ENERGY',23
-	._type	306,'m','ONA_VOLTAGE_SIMPLE',22
-	._type	306,'m','ONA_VOLTAGE_100THS_VOLTS',21
-	._type	306,'m','ONA_VOLTAGE_10THS_VOLTS',20
-	._type	306,'m','ONA_VOLTAGE_VOLTS',19
-	._type	306,'m','ONA_VOLTAGE',18
-	._type	306,'m','ONA_TIME',17
-	._type	306,'m','ONA_DATE',16
-	._type	306,'m','ONA_SIMPLE_TEXT',15
-	._type	306,'m','ONA_COLOR',14
-	._type	306,'m','ONA_UNIT_TYPE',13
-	._type	306,'m','ONA_UNIT_TYPE_COUNT',12
-	._type	306,'m','ONA_UNUSED0',11
-	._type	306,'m','ONA_SEAL',10
-	._type	306,'m','ONA_OPENING',9
-	._type	306,'m','ONA_STATUS_INTERVAL',8
-	._type	306,'m','ONA_DIRECTION',7
-	._type	306,'m','ONA_SPEED_M_S',6
-	._type	306,'m','ONA_RAINFALL',5
-	._type	306,'m','ONA_PRESSURE',4
-	._type	306,'m','ONA_HUMIDITY',3
-	._type	306,'m','ONA_TEMPERATURE',2
-	._type	306,'m','ONA_PERCENT',1
-	._type	306,'m','ONA_SWITCH',0
-	._type	307,'T','ona_msg_type_t',306
-	._type	309,'O',257
-	._type	308,'S','',5
-	._type	308,'m','packet_bytes',309,0
-	._type	308,'m','raw_pid',257,2
-	._type	308,'m','msg_id',257,3
-	._type	308,'m','payload_len',257,4
-	._type	310,'T','on_pkt_t',308
-	._type	311,'N',''
-	._type	311,'m','ONS_SNGH_INTERNAL_ERR',47
-	._type	311,'m','ONS_BAD_KEY_FRAGMENT',46
-	._type	311,'m','ONS_BUSY',45
-	._type	311,'m','ONS_BAD_MSG_ID',44
-	._type	311,'m','ONS_PKT_RCVD',43
-	._type	311,'m','ONS_DEVICE_NOT_CAPABLE',42
-	._type	311,'m','ONS_FAIL',41
-	._type	311,'m','ONS_WRITE_ERR',40
-	._type	311,'m','ONS_READ_ERR',39
-	._type	311,'m','ONS_NOT_JOINED',38
-	._type	311,'m','ONS_DEVICE_LIMIT',37
-	._type	311,'m','ONS_DID_FAILED',36
-	._type	311,'m','ONS_NID_FAILED',35
-	._type	311,'m','ONS_INCORRECT_ADDR',34
-	._type	311,'m','ONS_BAD_ADDR',33
-	._type	311,'m','ONS_BROADCAST_ADDR',32
-	._type	311,'m','ONS_MULTICAST_ADDR',31
-	._type	311,'m','ONS_UNICAST_ADDR',30
-	._type	311,'m','ONS_UNHANDLED_PKT',29
-	._type	311,'m','ONS_BAD_PKT',28
-	._type	311,'m','ONS_BAD_PKT_TYPE',27
-	._type	311,'m','ONS_BAD_ENCODING',26
-	._type	311,'m','ONS_BAD_RAW_DATA',25
-	._type	311,'m','ONS_BAD_RAW_PKT_LEN',24
-	._type	311,'m','ONS_TXN_DOES_NOT_EXIST',23
-	._type	311,'m','ONS_TXN_QUEUED',22
-	._type	311,'m','ONS_STREAM_FAIL',21
-	._type	311,'m','ONS_STREAM_END',20
-	._type	311,'m','ONS_BLOCK_FAIL',19
-	._type	311,'m','ONS_BLOCK_END',18
-	._type	311,'m','ONS_SINGLE_FAIL',17
-	._type	311,'m','ONS_SINGLE_END',16
-	._type	311,'m','ONS_INCORRECT_NONCE',15
-	._type	311,'m','ONS_RX_NACK',14
-	._type	311,'m','ONS_RX_STAY_AWAKE',13
-	._type	311,'m','ONS_CRC_FAIL',12
-	._type	311,'m','ONS_UNHANDLED_VER',11
-	._type	311,'m','ONS_INTERNAL_ERR',10
-	._type	311,'m','ONS_TIME_OUT',9
-	._type	311,'m','ONS_CANCELED',8
-	._type	311,'m','ONS_RSRC_FULL',7
-	._type	311,'m','ONS_END',6
-	._type	311,'m','ONS_MORE',5
-	._type	311,'m','ONS_INVALID_DATA',4
-	._type	311,'m','ONS_ALREADY_IN_PROGRESS',3
-	._type	311,'m','ONS_NOT_INIT',2
-	._type	311,'m','ONS_BAD_PARAM',1
-	._type	311,'m','ONS_SUCCESS',0
-	._type	312,'T','one_net_status_t',311
-	._type	313,'N',''
-	._type	313,'m','ON_STARTUP_FAIL',2
-	._type	313,'m','ON_STARTUP_IN_PROGRESS',1
-	._type	313,'m','ON_STARTUP_SUCCESS',0
-	._type	314,'T','one_net_startup_status_t',313
-	._type	315,'N',''
-	._type	315,'m','ON_MIN_APPLICATION_STATUS_CODE',9
-	._type	315,'m','ON_NUM_MESSAGE_STATUS_CODES',9
-	._type	315,'m','ON_MSG_INTERNAL_ERR',8
-	._type	315,'m','ON_MSG_IGNORE',7
-	._type	315,'m','ON_MSG_TIMEOUT',6
-	._type	315,'m','ON_MSG_RESPOND',5
-	._type	315,'m','ON_MSG_FAIL',4
-	._type	315,'m','ON_MSG_SUCCESS',3
-	._type	315,'m','ON_MSG_ABORT',2
-	._type	315,'m','ON_MSG_CONTINUE',1
-	._type	315,'m','ON_MSG_DEFAULT_BHVR',0
-	._type	316,'T','on_message_status_t',315
-	._type	317,'x',257,2
-	._type	317,'m','encoded_byte',0,257
-	._type	317,'m','left_justify',0,261
-	._var	'encoded_to_decoded_byte','F',317
-	._type	318,'x',257,2
-	._type	318,'m','decoded_byte',0,257
-	._type	318,'m','left_justify',0,261
-	._var	'decoded_to_encoded_byte','F',318
-	._type	319,'O',257
-	._type	320,'O',257
-	._type	321,'x',312,3
-	._type	321,'m','encoded',0,319
-	._type	321,'m','RAW',0,320
-	._type	321,'m','ENCODED_SIZE',0,274
-	._var	'on_encode','F',321
-	._type	322,'O',257
-	._type	323,'O',257
-	._type	324,'x',312,3
-	._type	324,'m','raw',0,322
-	._type	324,'m','ENCODED',0,323
-	._type	324,'m','ENCODED_SIZE',0,274
-	._var	'on_decode','F',324
+	._type	274,'T','UInt32',7
+	._type	275,'T','SInt32',20
+	._type	276,'T','Float32',10
+	._type	277,'T','tick_t',274
+	._type	278,'Z',5,261
+	._type	279,'T','on_raw_nid_t',278
+	._type	280,'Z',2,261
+	._type	281,'T','on_raw_did_t',280
+	._type	282,'Z',6,261
+	._type	283,'T','on_raw_sid_t',282
+	._type	284,'Z',6,261
+	._type	285,'T','on_encoded_nid_t',284
+	._type	286,'Z',2,261
+	._type	287,'T','on_encoded_did_t',286
+	._type	288,'Z',8,261
+	._type	289,'T','on_encoded_sid_t',288
+	._type	290,'Z',16,261
+	._type	291,'T','one_net_xtea_key_t',290
+	._type	292,'Z',4,261
+	._type	293,'T','one_net_xtea_key_fragment_t',292
+	._type	294,'N',''
+	._type	294,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD1',192
+	._type	294,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_TBD0',128
+	._type	294,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_XTEA32',64
+	._type	294,'m','ONE_NET_SINGLE_BLOCK_ENCRYPT_NONE',0
+	._type	295,'T','one_net_single_blk_encryption_t',294
+	._type	296,'v'
+	._type	297,'O',261
+	._type	298,'O',291
+	._type	299,'x',296,3
+	._type	299,'m','ROUNDS',0,261
+	._type	299,'m','data',0,297
+	._type	299,'m','KEY',0,298
+	._var	'one_net_xtea_encipher','F',299
+	._type	300,'v'
+	._type	301,'O',261
+	._type	302,'O',291
+	._type	303,'x',300,3
+	._type	303,'m','ROUNDS',0,261
+	._type	303,'m','data',0,301
+	._type	303,'m','KEY',0,302
+	._var	'one_net_xtea_decipher','F',303
+	._type	304,'N',''
+	._type	304,'m','ONS_SNGH_INTERNAL_ERR',47
+	._type	304,'m','ONS_BAD_KEY_FRAGMENT',46
+	._type	304,'m','ONS_BUSY',45
+	._type	304,'m','ONS_BAD_MSG_ID',44
+	._type	304,'m','ONS_PKT_RCVD',43
+	._type	304,'m','ONS_DEVICE_NOT_CAPABLE',42
+	._type	304,'m','ONS_FAIL',41
+	._type	304,'m','ONS_WRITE_ERR',40
+	._type	304,'m','ONS_READ_ERR',39
+	._type	304,'m','ONS_NOT_JOINED',38
+	._type	304,'m','ONS_DEVICE_LIMIT',37
+	._type	304,'m','ONS_DID_FAILED',36
+	._type	304,'m','ONS_NID_FAILED',35
+	._type	304,'m','ONS_INCORRECT_ADDR',34
+	._type	304,'m','ONS_BAD_ADDR',33
+	._type	304,'m','ONS_BROADCAST_ADDR',32
+	._type	304,'m','ONS_MULTICAST_ADDR',31
+	._type	304,'m','ONS_UNICAST_ADDR',30
+	._type	304,'m','ONS_UNHANDLED_PKT',29
+	._type	304,'m','ONS_BAD_PKT',28
+	._type	304,'m','ONS_BAD_PKT_TYPE',27
+	._type	304,'m','ONS_BAD_ENCODING',26
+	._type	304,'m','ONS_BAD_RAW_DATA',25
+	._type	304,'m','ONS_BAD_RAW_PKT_LEN',24
+	._type	304,'m','ONS_TXN_DOES_NOT_EXIST',23
+	._type	304,'m','ONS_TXN_QUEUED',22
+	._type	304,'m','ONS_STREAM_FAIL',21
+	._type	304,'m','ONS_STREAM_END',20
+	._type	304,'m','ONS_BLOCK_FAIL',19
+	._type	304,'m','ONS_BLOCK_END',18
+	._type	304,'m','ONS_SINGLE_FAIL',17
+	._type	304,'m','ONS_SINGLE_END',16
+	._type	304,'m','ONS_RX_NACK',14
+	._type	304,'m','ONS_RX_STAY_AWAKE',13
+	._type	304,'m','ONS_CRC_FAIL',12
+	._type	304,'m','ONS_UNHANDLED_VER',11
+	._type	304,'m','ONS_INTERNAL_ERR',10
+	._type	304,'m','ONS_TIME_OUT',9
+	._type	304,'m','ONS_CANCELED',8
+	._type	304,'m','ONS_RSRC_FULL',7
+	._type	304,'m','ONS_END',6
+	._type	304,'m','ONS_MORE',5
+	._type	304,'m','ONS_INVALID_DATA',4
+	._type	304,'m','ONS_ALREADY_IN_PROGRESS',3
+	._type	304,'m','ONS_NOT_INIT',2
+	._type	304,'m','ONS_BAD_PARAM',1
+	._type	304,'m','ONS_SUCCESS',0
+	._type	305,'T','one_net_status_t',304
+	._type	306,'N',''
+	._type	306,'m','ON_STARTUP_FAIL',2
+	._type	306,'m','ON_STARTUP_IN_PROGRESS',1
+	._type	306,'m','ON_STARTUP_SUCCESS',0
+	._type	307,'T','one_net_startup_status_t',306
+	._type	308,'N',''
+	._type	308,'m','ON_MIN_APPLICATION_STATUS_CODE',17
+	._type	308,'m','ON_NUM_MESSAGE_STATUS_CODES',17
+	._type	308,'m','ON_MSG_PAUSE',16
+	._type	308,'m','ON_BS_MSG_SETUP_CHANGE',15
+	._type	308,'m','ON_MSG_ROUTE_UNAVAILABLE',14
+	._type	308,'m','ON_MSG_INTERNAL_ERR',13
+	._type	308,'m','ON_MSG_TERMINATE',12
+	._type	308,'m','ON_MSG_REJECT_CHUNK',11
+	._type	308,'m','ON_MSG_ACCEPT_CHUNK',10
+	._type	308,'m','ON_MSG_REJECT_PACKET',9
+	._type	308,'m','ON_MSG_ACCEPT_PACKET',8
+	._type	308,'m','ON_MSG_IGNORE',7
+	._type	308,'m','ON_MSG_TIMEOUT',6
+	._type	308,'m','ON_MSG_RESPOND',5
+	._type	308,'m','ON_MSG_FAIL',4
+	._type	308,'m','ON_MSG_SUCCESS',3
+	._type	308,'m','ON_MSG_ABORT',2
+	._type	308,'m','ON_MSG_CONTINUE',1
+	._type	308,'m','ON_MSG_DEFAULT_BHVR',0
+	._type	309,'T','on_message_status_t',308
+	._type	310,'x',261,2
+	._type	310,'m','encoded_byte',0,261
+	._type	310,'m','left_justify',0,262
+	._var	'encoded_to_decoded_byte','F',310
+	._type	311,'x',261,2
+	._type	311,'m','decoded_byte',0,261
+	._type	311,'m','left_justify',0,262
+	._var	'decoded_to_encoded_byte','F',311
+	._type	312,'O',261
+	._type	313,'O',261
+	._type	314,'x',305,3
+	._type	314,'m','encoded',0,312
+	._type	314,'m','RAW',0,313
+	._type	314,'m','ENCODED_SIZE',0,257
+	._var	'on_encode','F',314
+	._type	315,'O',261
+	._type	316,'O',261
+	._type	317,'x',305,3
+	._type	317,'m','raw',0,315
+	._type	317,'m','ENCODED',0,316
+	._type	317,'m','ENCODED_SIZE',0,257
+	._var	'on_decode','F',317
+	._type	318,'N','_ona_msg_type'
+	._type	318,'m','ONA_PEAK_GAS_THERM_HRS',79
+	._type	318,'m','ONA_PEAK_GAS_THERM_MINS',78
+	._type	318,'m','ONA_PEAK_GAS_THERM_SECS',77
+	._type	318,'m','ONA_PEAK_GAS',76
+	._type	318,'m','ONA_AVER_GAS_THERM_HRS',75
+	._type	318,'m','ONA_AVER_GAS_THERM_MINS',74
+	._type	318,'m','ONA_AVER_GAS_THERM_SECS',73
+	._type	318,'m','ONA_AVER_GAS',72
+	._type	318,'m','ONA_ACCUM_GAS_THERM_HRS',71
+	._type	318,'m','ONA_ACCUM_GAS_THERM_MINS',70
+	._type	318,'m','ONA_ACCUM_GAS_THERM_SECS',69
+	._type	318,'m','ONA_ACCUM_GAS',68
+	._type	318,'m','ONA_GAS_THERM_HRS',67
+	._type	318,'m','ONA_GAS_THERM_MINS',66
+	._type	318,'m','ONA_GAS_THERM_SECS',65
+	._type	318,'m','ONA_GAS',64
+	._type	318,'m','ONA_POWER_1000_KWATTS',60
+	._type	318,'m','ONA_POWER_10_KWATTS',59
+	._type	318,'m','ONA_POWER_100_WATTS',58
+	._type	318,'m','ONA_POWER_1_WATT',57
+	._type	318,'m','ONA_POWER',56
+	._type	318,'m','ONA_PEAK_ENERGY_10000_KWATT_HOUR',55
+	._type	318,'m','ONA_PEAK_ENERGY_100_KWATT_HOUR',54
+	._type	318,'m','ONA_PEAK_ENERGY_1_KWATT_HOUR',53
+	._type	318,'m','ONA_PEAK_ENERGY_1000_KWATT_SECONDS',52
+	._type	318,'m','ONA_PEAK_ENERGY_10_KWATT_SECONDS',51
+	._type	318,'m','ONA_PEAK_ENERGY_100_WATT_SECONDS',50
+	._type	318,'m','ONA_PEAK_ENERGY_1_WATT_SECONDS',49
+	._type	318,'m','ONA_PEAK_ENERGY',48
+	._type	318,'m','ONA_ACCUM_ENERGY_10000_KWATT_HOUR',47
+	._type	318,'m','ONA_ACCUM_ENERGY_100_KWATT_HOUR',46
+	._type	318,'m','ONA_ACCUM_ENERGY_1_KWATT_HOUR',45
+	._type	318,'m','ONA_ACCUM_ENERGY_1000_KWATT_SECONDS',44
+	._type	318,'m','ONA_ACCUM_ENERGY_10_KWATT_SECONDS',43
+	._type	318,'m','ONA_ACCUM_ENERGY_100_WATT_SECONDS',42
+	._type	318,'m','ONA_ACCUM_ENERGY_1_WATT_SECONDS',41
+	._type	318,'m','ONA_ACCUM_ENERGY',40
+	._type	318,'m','ONA_ENERGY_10000_KWATT_HOUR',39
+	._type	318,'m','ONA_ENERGY_100_KWATT_HOUR',38
+	._type	318,'m','ONA_ENERGY_1_KWATT_HOUR',37
+	._type	318,'m','ONA_ENERGY_1000_KWATT_SECONDS',36
+	._type	318,'m','ONA_ENERGY_10_KWATT_SECONDS',35
+	._type	318,'m','ONA_ENERGY_100_WATT_SECONDS',34
+	._type	318,'m','ONA_ENERGY_1_WATT_SECONDS',33
+	._type	318,'m','ONA_ENERGY',32
+	._type	318,'m','ONA_TEXT',25
+	._type	318,'m','ONA_SIMPLE_TEXT',24
+	._type	318,'m','ONA_VOLTAGE_SIMPLE',22
+	._type	318,'m','ONA_VOLTAGE_100THS_VOLTS',21
+	._type	318,'m','ONA_VOLTAGE_VOLTS',19
+	._type	318,'m','ONA_VOLTAGE',18
+	._type	318,'m','ONA_TIME',17
+	._type	318,'m','ONA_DATE',16
+	._type	318,'m','ONA_COLOR',14
+	._type	318,'m','ONA_UNIT_TYPE',13
+	._type	318,'m','ONA_UNIT_TYPE_COUNT',12
+	._type	318,'m','ONA_UNUSED0',11
+	._type	318,'m','ONA_SEAL',10
+	._type	318,'m','ONA_OPENING',9
+	._type	318,'m','ONA_STATUS_INTERVAL',8
+	._type	318,'m','ONA_DIRECTION',7
+	._type	318,'m','ONA_SPEED_M_S',6
+	._type	318,'m','ONA_RAINFALL',5
+	._type	318,'m','ONA_PRESSURE',4
+	._type	318,'m','ONA_HUMIDITY',3
+	._type	318,'m','ONA_TEMPERATURE',2
+	._type	318,'m','ONA_PERCENT',1
+	._type	318,'m','ONA_SWITCH',0
+	._type	319,'T','ona_msg_type_t',318
+	._type	321,'O',261
+	._type	320,'S','',7
+	._type	320,'m','packet_bytes',321,0
+	._type	320,'m','raw_pid',257,2
+	._type	320,'m','msg_id',257,4
+	._type	320,'m','payload_len',261,6
+	._type	322,'T','on_pkt_t',320
+	._type	323,'O',261
+	._type	324,'x',257,1
+	._type	324,'m','BYTE_STREAM',0,323
+	._var	'one_net_byte_stream_to_int16','F',324
+	._type	325,'v'
+	._type	326,'O',261
+	._type	327,'x',325,2
+	._type	327,'m','VAL',0,257
+	._type	327,'m','byte_stream',0,326
+	._var	'one_net_int16_to_byte_stream','F',327
+	._type	328,'O',261
+	._type	329,'x',274,1
+	._type	329,'m','BYTE_STREAM',0,328
+	._var	'one_net_byte_stream_to_int32','F',329
+	._type	330,'v'
+	._type	331,'O',261
+	._type	332,'x',330,2
+	._type	332,'m','VAL',0,274
+	._type	332,'m','byte_stream',0,331
+	._var	'one_net_int32_to_byte_stream','F',332
 ;#################################
 ;#################################
 ;#################################
@@ -1060,31 +1141,35 @@ M11:
 	._inspect	'V', 't', "UInt32", 'O', 7
 	._inspect	'V', 't', "SInt32", 'O', 20
 	._inspect	'V', 't', "Float32", 'O', 10
-	._inspect	'V', 't', "tick_t", 'O', 276
-	._inspect	'V', 't', "BOOL", 'O', 257
-	._inspect	'V', 't', "on_raw_nid_t", 'O', 280
-	._inspect	'V', 't', "on_raw_did_t", 'O', 282
-	._inspect	'V', 't', "on_raw_sid_t", 'O', 284
-	._inspect	'V', 't', "on_encoded_nid_t", 'O', 286
-	._inspect	'V', 't', "on_encoded_did_t", 'O', 288
-	._inspect	'V', 't', "on_encoded_sid_t", 'O', 290
-	._inspect	'V', 't', "one_net_xtea_key_t", 'O', 292
-	._inspect	'V', 't', "one_net_xtea_key_fragment_t", 'O', 294
-	._inspect	'V', 't', "one_net_single_blk_encryption_t", 'O', 296
-	._inspect	'F', 't', "one_net_xtea_encipher", 'G', 301
-	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 305
-	._inspect	'V', 't', "ona_msg_type_t", 'O', 306
-	._inspect	'V', 't', "on_pkt_t", 'O', 308
-	._inspect	'V', 't', "one_net_status_t", 'O', 311
-	._inspect	'V', 't', "one_net_startup_status_t", 'O', 313
-	._inspect	'V', 't', "on_message_status_t", 'O', 315
-	._inspect	'F', 't', "encoded_to_decoded_byte", 'G', 317
-	._inspect	'F', 't', "decoded_to_encoded_byte", 'G', 318
-	._inspect	'F', 't', "on_encode", 'G', 321
-	._inspect	'F', 't', "on_decode", 'G', 324
+	._inspect	'V', 't', "tick_t", 'O', 274
+	._inspect	'V', 't', "BOOL", 'O', 261
+	._inspect	'V', 't', "on_raw_nid_t", 'O', 278
+	._inspect	'V', 't', "on_raw_did_t", 'O', 280
+	._inspect	'V', 't', "on_raw_sid_t", 'O', 282
+	._inspect	'V', 't', "on_encoded_nid_t", 'O', 284
+	._inspect	'V', 't', "on_encoded_did_t", 'O', 286
+	._inspect	'V', 't', "on_encoded_sid_t", 'O', 288
+	._inspect	'V', 't', "one_net_xtea_key_t", 'O', 290
+	._inspect	'V', 't', "one_net_xtea_key_fragment_t", 'O', 292
+	._inspect	'V', 't', "one_net_single_blk_encryption_t", 'O', 294
+	._inspect	'F', 't', "one_net_xtea_encipher", 'G', 299
+	._inspect	'F', 't', "one_net_xtea_decipher", 'G', 303
+	._inspect	'V', 't', "one_net_status_t", 'O', 304
+	._inspect	'V', 't', "one_net_startup_status_t", 'O', 306
+	._inspect	'V', 't', "on_message_status_t", 'O', 308
+	._inspect	'F', 't', "encoded_to_decoded_byte", 'G', 310
+	._inspect	'F', 't', "decoded_to_encoded_byte", 'G', 311
+	._inspect	'F', 't', "on_encode", 'G', 314
+	._inspect	'F', 't', "on_decode", 'G', 317
+	._inspect	'V', 't', "ona_msg_type_t", 'O', 318
+	._inspect	'V', 't', "on_pkt_t", 'O', 320
+	._inspect	'F', 't', "one_net_byte_stream_to_int16", 'G', 324
+	._inspect	'F', 't', "one_net_int16_to_byte_stream", 'G', 327
+	._inspect	'F', 't', "one_net_byte_stream_to_int32", 'G', 329
+	._inspect	'F', 't', "one_net_int32_to_byte_stream", 'G', 332
 
 	.END
 
-;## Compile End Time Sun Feb 26 07:53:07 2012
+;## Compile End Time Tue Jun 26 19:41:16 2012
 
 

@@ -4,9 +4,9 @@
 ;## ccom30 Version 5.31.30.001
 ;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
 ;## and Renesas Solutions Corp., All rights reserved.
-;## Compile Start Time Sun Feb 26 01:06:00 2012
+;## Compile Start Time Tue Jun 26 19:41:19 2012
 
-;## COMMAND_LINE: ccom30  C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_prand.i -o C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_prand.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+;## COMMAND_LINE: ccom30  C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_prand.i -o C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_prand.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
 
 
 ;## Normal Optimize		ON
@@ -20,11 +20,11 @@
 	.FB	0
 	._aopt	ON
 
-	._inspect	'M', "C:/HEWProj/tr/one_net/utility/one_net_prand.c", "C:/HEWProj/tr/one_net/utility/one_net_prand"
+	._inspect	'M', "C:/HEWProj/trJun26/one_net/utility/one_net_prand.c", "C:/HEWProj/trJun26/one_net/utility/one_net_prand"
 
-	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/tr/one_net/utility/one_net_prand"
+	._inspect	'M', "C:/HEWProj/trJun26/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/trJun26/one_net/utility/one_net_prand"
 
-	._inspect	'M', "C:/HEWProj/tr/one_net/utility/one_net_prand.c", "C:/HEWProj/tr/one_net/utility/one_net_prand"
+	._inspect	'M', "C:/HEWProj/trJun26/one_net/utility/one_net_prand.c", "C:/HEWProj/trJun26/one_net/utility/one_net_prand"
 
 ;## #	FUNCTION one_net_prand
 ;## #  FRAME   ARG (MODIFIER)  size   4,    offset 5
@@ -34,7 +34,7 @@
 
 	.SECTION	program,CODE
 	._inspect	'U', 2, "program", "program", 0
-	._file	'C:/HEWProj/tr/one_net/utility/one_net_prand.c'
+	._file	'C:/HEWProj/trJun26/one_net/utility/one_net_prand.c'
 	._type	256,'T','UInt32',7
 	._type	257,'x',256,2
 	._type	257,'m','MODIFIER',5,256
@@ -42,7 +42,7 @@
 	._func	'one_net_prand','G',0,257,_one_net_prand,0
 	._inspect	'F', 's', "one_net_prand", "_one_net_prand", 'G', 5
 	._block
-	._line	103
+	._line	109
 ;## # C_SRC :	{
 	.glb	_one_net_prand
 _one_net_prand:
@@ -51,22 +51,22 @@ _one_net_prand:
 	._var	'MODIFIER','A',256,5
 	._var	'MAX_RAND','A',256,9
 	._var	'pseudo_rand','S',256,___S0_pseudo_rand
-	._inspect	'V', 'd', "pseudo_rand", "___S0_pseudo_rand", 'L', 105, 4, 0, 0, 00h
+	._inspect	'V', 'd', "pseudo_rand", "___S0_pseudo_rand", 'L', 111, 4, 0, 0, 00h
 	._inspect	'V', 't', "pseudo_rand", 'L', 256
-	._line	107
+	._line	113
 ;## # C_SRC :	    pseudo_rand = 1664525 * pseudo_rand + 1013904233;
 	push.w	#0019H
 	push.w	#660dH
 	._inspect	'S', 'p', 4
 	mov.w	___S0_pseudo_rand,R0
 	mov.w	___S0_pseudo_rand+2,R2
-	._inspect	'S', 'c', "", "__i4mulU", 'G', 0, 107
+	._inspect	'S', 'c', "", "__i4mulU", 'G', 0, 113
 	jsr.a	__i4mulU
 	add.w	#0f369H,R0
 	adc.w	#3c6eH,R2
 	mov.w	R0,___S0_pseudo_rand
 	mov.w	R2,___S0_pseudo_rand+2
-	._line	110
+	._line	116
 ;## # C_SRC :	    return (pseudo_rand + MODIFIER) % (MAX_RAND + 1);
 	mov.w	___S0_pseudo_rand,R0
 	mov.w	___S0_pseudo_rand+2,R2
@@ -78,7 +78,7 @@ _one_net_prand:
 	adcf.w	R3
 	pushm	R3,R1
 	._inspect	'S', 'p', 4
-	._inspect	'S', 'c', "", "__i4modU", 'G', 0, 110
+	._inspect	'S', 'c', "", "__i4modU", 'G', 0, 116
 	jsr.a	__i4modU
 	._inspect	'S', 'p', -8
 	add.b	#08H,SP
@@ -88,11 +88,11 @@ E1:
 	._eblock
 M1:
 	._efunc	M1
-	._inspect	'F', 'd', "one_net_prand", "_one_net_prand", 'G', 103, 0, 00h, 0
+	._inspect	'F', 'd', "one_net_prand", "_one_net_prand", 'G', 109, 0, 00h, 0
 	._inspect	'F', 't', "one_net_prand", 'G', 257
-	._inspect	'V', 'r', "pseudo_rand", 'L', 107, 4, 0, 0, 00h
-	._inspect	'V', 'r', "pseudo_rand", 'L', 107, 4, 0, 0, 00h
-	._inspect	'V', 'r', "pseudo_rand", 'L', 110, 4, 0, 0, 00h
+	._inspect	'V', 'r', "pseudo_rand", 'L', 113, 4, 0, 0, 00h
+	._inspect	'V', 'r', "pseudo_rand", 'L', 113, 4, 0, 0, 00h
+	._inspect	'V', 'r', "pseudo_rand", 'L', 116, 4, 0, 0, 00h
 	._inspect	'F', 'e', "one_net_prand", "_one_net_prand", 'G', 8, 0
 
 
@@ -134,6 +134,6 @@ ___S0_pseudo_rand:		;### C's name is pseudo_rand
 	.glb	__i4mulU
 	.END
 
-;## Compile End Time Sun Feb 26 01:06:00 2012
+;## Compile End Time Tue Jun 26 19:41:19 2012
 
 

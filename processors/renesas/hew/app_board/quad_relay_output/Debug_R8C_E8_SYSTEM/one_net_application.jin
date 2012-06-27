@@ -1,7 +1,7 @@
 #ASFILE
-"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_application.a30"
+"C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_application.a30"
 #ASOPT
--. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
 #BRANCHINFO
-W,399,1,3a,JSR,$one_net_memcmp
-W,464,1,58,JSR,$one_net_memcmp
+W,245,1,12,JSR,$one_net_memcmp
+W,311,1,30,JSR,$one_net_memcmp

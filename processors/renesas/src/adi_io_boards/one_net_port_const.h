@@ -58,15 +58,15 @@
     
     
 
-#if defined(QUAD_OUTPUT) || defined(_QUAD_INPUT)
+#if defined(QUAD_OUTPUT) || defined(QUAD_INPUT)
     //  This is a #define so it can be used by the preprocessor
     #define _NUM_IO_UNITS 4             //!< The number of io units.
-#elif defined(_DUAL_OUTPUT) // if QUAD_OUTPUT or _QUAD_INPUT is defined //
+#elif defined(DUAL_OUTPUT)
     //  This is a #define so it can be used by the preprocessor
     #define _NUM_IO_UNITS 2             //!< The number of io units.
-#else // none of QUAD_OUTPUT, _QUAD_INPUT or _DUAL_OUTPUT are defined //
-    #error Need to define QUAD_OUTPUT, _QUAD_INPUT, or _DUAL_OUTPUT
-#endif // else QUAD_OUTPUT, _QUAD_INPUT and _DUAL_OUTPUT are not defined //
+#else // none of QUAD_OUTPUT, QUAD_INPUT or DUAL_OUTPUT are defined //
+    #error Need to define QUAD_OUTPUT, QUAD_INPUT, or DUAL_OUTPUT
+#endif // else QUAD_OUTPUT, QUAD_INPUT and DUAL_OUTPUT are not defined //
 
 
 enum

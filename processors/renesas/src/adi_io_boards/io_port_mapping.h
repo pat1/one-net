@@ -105,7 +105,7 @@
 
 
 // io
-#ifdef _QUAD_INPUT
+#ifdef QUAD_INPUT
     #define INPUT1     p1_6
     #define INPUT2     p1_1
     #define INPUT3     p1_0
@@ -115,13 +115,13 @@
     #define INPUT2_DIR pd1_1
     #define INPUT3_DIR pd1_0
     #define INPUT4_DIR pd4_5
-#elif defined(_DUAL_OUTPUT) // ifdef _QUAD_INPUT //
+#elif defined(DUAL_OUTPUT)
     #define OUTPUT1     p1_6
     #define OUTPUT2     p1_1
 
     #define OUTPUT1_DIR pd1_6
     #define OUTPUT2_DIR pd1_1
-#elif defined(QUAD_OUTPUT) // ifdef _DUAL_OUTPUT_INPUT //
+#elif defined(QUAD_OUTPUT)
     #define OUTPUT1     p1_6
     #define OUTPUT2     p1_1
     #define OUTPUT3     p1_0
