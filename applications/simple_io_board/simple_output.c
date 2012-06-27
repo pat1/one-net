@@ -337,37 +337,37 @@ static BOOL set_output(UInt8 unit, BOOL ON)
 {
     switch(unit)
     {
-        #if _NUM_IO_UNITS > 0
+        #if NUM_IO_UNITS > 0
             case 0:
             {
                 OUTPUT1 = ON;
                 break;
             } // unit 0 case //
-        #endif // #if _NUM_IO_UNITS > 0 //
+        #endif // #if NUM_IO_UNITS > 0 //
 
-        #if _NUM_IO_UNITS > 1
+        #if NUM_IO_UNITS > 1
             case 1:
             {
                 OUTPUT2 = ON;
                 break;
             } // unit 1 case //
-        #endif // #if _NUM_IO_UNITS > 1 //
+        #endif // #if NUM_IO_UNITS > 1 //
 
-        #if _NUM_IO_UNITS > 2
+        #if NUM_IO_UNITS > 2
             case 2:
             {
                 OUTPUT3 = ON;
                 break;
             } // unit 3 case //
-        #endif // #if _NUM_IO_UNITS > 2 //
+        #endif // #if NUM_IO_UNITS > 2 //
 
-        #if _NUM_IO_UNITS > 3
+        #if NUM_IO_UNITS > 3
             case 3:
             {
                 OUTPUT4 = ON;
                 break;
             } // unit 4 case //
-        #endif // #if _NUM_IO_UNITS > 3 //
+        #endif // #if NUM_IO_UNITS > 3 //
 
         default:
         {
@@ -401,37 +401,37 @@ static BOOL get_output(UInt8 unit, UInt8* status)
     
     switch(unit)
     {
-        #if _NUM_IO_UNITS > 0
+        #if NUM_IO_UNITS > 0
             case 0:
             {
                 stat8 = OUTPUT1;
                 break;
             } // unit 0 case //
-        #endif // #if _NUM_IO_UNITS > 0 //
+        #endif // #if NUM_IO_UNITS > 0 //
 
-        #if _NUM_IO_UNITS > 1
+        #if NUM_IO_UNITS > 1
             case 1:
             {
                 stat8 = OUTPUT2;
                 break;
             } // unit 1 case //
-        #endif // #if _NUM_IO_UNITS > 1 //
+        #endif // #if NUM_IO_UNITS > 1 //
 
-        #if _NUM_IO_UNITS > 2
+        #if NUM_IO_UNITS > 2
             case 2:
             {
                 stat8 = OUTPUT3;
                 break;
             } // unit 2 case //
-        #endif // #if _NUM_IO_UNITS > 2 //
+        #endif // #if NUM_IO_UNITS > 2 //
 
-        #if _NUM_IO_UNITS > 3
+        #if NUM_IO_UNITS > 3
             case 3:
             {
                 stat8 = OUTPUT4;
                 break;
             } // unit 3 case //
-        #endif // #if _NUM_IO_UNITS > 3 //
+        #endif // #if NUM_IO_UNITS > 3 //
         
         default:
         {

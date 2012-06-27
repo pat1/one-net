@@ -123,35 +123,35 @@ void pal_init_ports(void)
     pur1  = 0x02;
 
     #ifdef QUAD_INPUT
-        #if _NUM_IO_UNITS > 0
+        #if NUM_IO_UNITS > 0
             INPUT1_DIR = INPUT;
         #endif // #if _NUM_IO_UNITS > 0 //
 
-        #if _NUM_IO_UNITS > 1
+        #if NUM_IO_UNITS > 1
             INPUT2_DIR = INPUT;
         #endif // #if _NUM_IO_UNITS > 1 //
 
-        #if _NUM_IO_UNITS > 2
+        #if NUM_IO_UNITS > 2
             INPUT3_DIR = INPUT;
         #endif // #if _NUM_IO_UNITS > 2 //
 
-        #if _NUM_IO_UNITS > 3
+        #if NUM_IO_UNITS > 3
             INPUT4_DIR = INPUT;
         #endif // #if _NUM_IO_UNITS > 3 //
     #elif defined(QUAD_OUTPUT) || defined(DUAL_OUTPUT)
-        #if _NUM_IO_UNITS > 0
+        #if NUM_IO_UNITS > 0
             OUTPUT1_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 0 //
 
-        #if _NUM_IO_UNITS > 1
+        #if NUM_IO_UNITS > 1
             OUTPUT2_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 1 //
 
-        #if _NUM_IO_UNITS > 2
+        #if NUM_IO_UNITS > 2
             OUTPUT3_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 2 //
 
-        #if _NUM_IO_UNITS > 3
+        #if NUM_IO_UNITS > 3
             OUTPUT4_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 3 //
     #else

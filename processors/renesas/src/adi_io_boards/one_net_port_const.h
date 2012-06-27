@@ -60,10 +60,10 @@
 
 #if defined(QUAD_OUTPUT) || defined(QUAD_INPUT)
     //  This is a #define so it can be used by the preprocessor
-    #define _NUM_IO_UNITS 4             //!< The number of io units.
+    #define NUM_IO_UNITS 4             //!< The number of io units.
 #elif defined(DUAL_OUTPUT)
     //  This is a #define so it can be used by the preprocessor
-    #define _NUM_IO_UNITS 2             //!< The number of io units.
+    #define NUM_IO_UNITS 2             //!< The number of io units.
 #else // none of QUAD_OUTPUT, QUAD_INPUT or DUAL_OUTPUT are defined //
     #error Need to define QUAD_OUTPUT, QUAD_INPUT, or DUAL_OUTPUT
 #endif // else QUAD_OUTPUT, QUAD_INPUT and DUAL_OUTPUT are not defined //
@@ -77,7 +77,7 @@ enum
 
     //! Number of units on this device.  This needs to be the sum of the values
     //! in ONE_NET_DEVICE_UNIT_TYPE
-    ONE_NET_NUM_UNITS = _NUM_IO_UNITS
+    ONE_NET_NUM_UNITS = NUM_IO_UNITS
 };
 
 

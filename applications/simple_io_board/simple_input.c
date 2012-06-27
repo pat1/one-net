@@ -172,7 +172,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
 	{
 		ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
 	}
-	else if(dst_unit >= _NUM_IO_UNITS)
+	else if(dst_unit >= NUM_IO_UNITS)
 	{
 		ack_nack->nack_reason = ON_NACK_RSN_UNIT_FUNCTION_ERR;
 	}
@@ -293,7 +293,7 @@ static BOOL get_pin_state(UInt8 unit, UInt32 *status)
 {
     UInt8 stat8;
 
-    if(!status || (unit >= _NUM_IO_UNITS))
+    if(!status || (unit >= NUM_IO_UNITS))
     {
         return FALSE;
     } // if any of the parameters are invalid //
