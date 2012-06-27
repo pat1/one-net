@@ -291,6 +291,14 @@ BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt)
 
 
 
+/* store the 8-bit destination unit data value in the payload buffer */
+void put_dst_unit(UInt8 data, UInt8 *payload)
+{
+    payload[ONA_MSG_DST_UNIT_IDX] = 
+        (payload[ONA_MSG_DST_UNIT_IDX]    & ~ONA_MSG_DST_UNIT_MASK) |
+        ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
+}
+
 /* put the 12-byte message header into the payload */
 void put_msg_hdr(UInt16 hdr, UInt8* payload)
 {
