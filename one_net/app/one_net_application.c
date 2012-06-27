@@ -291,6 +291,14 @@ BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt)
 
 
 
+/* store the 4-bit message type value in the raw payload buffer */
+void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
+{
+    payload[ON_PLD_MSG_TYPE_IDX] = 
+        (payload[ON_PLD_MSG_TYPE_IDX]    & ~ON_PLD_MSG_TYPE_MASK) |
+        (msg_type & ON_PLD_MSG_TYPE_MASK);
+}
+
 /* store the 8-bit destination unit data value in the payload buffer */
 void put_dst_unit(UInt8 data, UInt8 *payload)
 {
