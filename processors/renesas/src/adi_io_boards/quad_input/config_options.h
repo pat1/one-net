@@ -101,6 +101,14 @@
     #define QUAD_INPUT
 #endif
 
+#ifndef QUAD_OUTPUT
+//    #define QUAD_OUTPUT
+#endif
+
+#ifndef DUAL_OUTPUT
+//    #define DUAL_OUTPUT
+#endif
+
 
 
 // Master/Client
