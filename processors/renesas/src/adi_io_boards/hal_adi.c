@@ -131,7 +131,7 @@ void tal_init_ports(void)
     SYNCDET_DIR = INPUT;
 
     // define out compile time if desired
-    #ifdef _CHIP_ENABLE
+    #ifdef CHIP_ENABLE
         CHIP_ENABLE_DIR = OUTPUT;
     #endif // ifdef SYNC_DET //
 } // tal_init_ports //

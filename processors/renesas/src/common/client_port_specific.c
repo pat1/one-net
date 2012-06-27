@@ -45,12 +45,12 @@
 
 #include "flash.h"
 #include "one_net_port_specific.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 #include "io_port_mapping.h"
 #include "one_net.h"
-#ifdef _PEER
+#ifdef PEER
 #include "one_net_peer.h"
 #endif
 #include "client_util.h"
@@ -123,7 +123,7 @@ static UInt8 * nv_addr = (UInt8 *)DF_BLOCK_A_START;
     \return 0 if there are no valid parameters or a pointer to the parameters
       if they are valid.
 */
-#ifdef _PEER
+#ifdef PEER
 const UInt8 * read_param(UInt8 type, UInt16 * const len)
 #else
 const UInt8 * read_param(UInt16 * const len)
@@ -146,7 +146,7 @@ const UInt8 * read_param(UInt16 * const len)
       && ((const flash_hdr_t *)nv_addr)->type != INVALID_FLASH_DATA;
       nv_addr += sizeof(flash_hdr_t) + ((const flash_hdr_t *)nv_addr)->len)
     {
-        #ifdef _PEER
+        #ifdef PEER
         if(((const flash_hdr_t *)nv_addr)->type == type)
         #else
         if(((const flash_hdr_t *)nv_addr)->type == ONE_NET_CLIENT_FLASH_NV_DATA)
@@ -237,7 +237,7 @@ void one_net_client_save_settings(void)
 #else
     const flash_hdr_t nv_hdr = {ONE_NET_CLIENT_FLASH_NV_DATA,
       CLIENT_NV_PARAM_SIZE_BYTES};
-    #ifdef _PEER
+    #ifdef PEER
     const flash_hdr_t peer_nv_hdr = {ONE_NET_CLIENT_FLASH_PEER_DATA,
       PEER_STORAGE_SIZE_BYTES};
     UInt16 bytes_to_write = 2 * sizeof(flash_hdr_t) + CLIENT_NV_PARAM_SIZE_BYTES
@@ -267,7 +267,7 @@ void one_net_client_save_settings(void)
     } // if saving settings failed //
     nv_addr += sizeof(nv_hdr) + nv_hdr.len;
     
-    #ifdef _PEER
+    #ifdef PEER
     if(write_data_flash((UInt16)nv_addr, (const UInt8 *)&peer_nv_hdr,
       sizeof(peer_nv_hdr)) != sizeof(peer_nv_hdr) ||
       write_data_flash((UInt16)nv_addr + sizeof(peer_nv_hdr),

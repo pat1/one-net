@@ -41,7 +41,7 @@
 */
 #include "config_options.h"
 #include "pal.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 
@@ -154,7 +154,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 #define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tzs = 1; set_tx_led(TRUE)
 #else
 #define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; tzs = 1
@@ -170,7 +170,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 #define DISABLE_TX_BIT_INTERRUPTS()  tzs = 0; set_tx_led(FALSE)
 #else
 #define DISABLE_TX_BIT_INTERRUPTS()  tzs = 0

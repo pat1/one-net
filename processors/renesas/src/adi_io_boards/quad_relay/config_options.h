@@ -1,5 +1,5 @@
-#ifndef _ONE_NET_CONFIG_OPTIONS_H
-#define _ONE_NET_CONFIG_OPTIONS_H
+#ifndef ONE_NET_CONFIG_OPTIONS_H
+#define ONE_NET_CONFIG_OPTIONS_H
 
 //! \defgroup one_net_config_options Place configuration options here
 //! @{
@@ -54,14 +54,14 @@
 
 // If you do not want to use the config_options.h file to implment the #define
 // values (i.e. you are using an IDE and would rather define things there),
-// make sure you define a #define variable called _OVERRIDE_CONFIG_OPTIONS_FILE.
+// make sure you define a #define variable called OVERRIDE_CONFIG_OPTIONS_FILE.
 
 
 
-#ifndef _OVERRIDE_CONFIG_OPTIONS_FILE
+#ifndef OVERRIDE_CONFIG_OPTIONS_FILE
 
 
-// _OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
+// OVERRIDE_CONFIG_OPTIONS_FILE is not defined.  Use the code belo to define things.
 
 
 
@@ -91,33 +91,33 @@
 // if the unneeded cases are not handled.  All ACTUAL cases should be handled correctly even when this
 // option is not defined, so this option is simply to make the compiler happy. If you find a case that
 // truly is NOT handled when this is undefined, it should be considered a bug!
-#ifndef _COMPILE_WO_WARNINGS
-    // #define _COMPILE_WO_WARNINGS
+#ifndef COMPILE_WO_WARNINGS
+    // #define COMPILE_WO_WARNINGS
 #endif
 
 
 
-#ifndef _QUAD_OUTPUT
-    #define _QUAD_OUTPUT
+#ifndef QUAD_OUTPUT
+    #define QUAD_OUTPUT
 #endif
 
 
 
 // Master/Client
-#ifndef _ONE_NET_MASTER
-//	#define _ONE_NET_MASTER
+#ifndef ONE_NET_MASTER
+//	#define ONE_NET_MASTER
 #endif
 
-#ifndef _ONE_NET_CLIENT
-	#define _ONE_NET_CLIENT
+#ifndef ONE_NET_CLIENT
+	#define ONE_NET_CLIENT
 #endif
 
 
 
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
-#ifndef _PEER
-	#define _PEER
+// Define PEER if your application implements peer assignments.  Default is PEER assigned
+#ifndef PEER
+	#define PEER
 #endif
 
 // SINGLE_QUEUE_LEVEL - different levels of options for a single queue
@@ -125,13 +125,13 @@
 // MIN_SINGLE_QUEUE_LEVEL means no "times".
 // MED_SINGLE_QUEUE_LEVEL means send time, but no expire time
 // MAX_SINGLE_QUEUE_LEVEL means both send and expire times
-#ifndef _SINGLE_QUEUE_LEVEL
+#ifndef SINGLE_QUEUE_LEVEL
     #define NO_SINGLE_QUEUE_LEVEL 0
     #define MIN_SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL+1
 	#define MED_SINGLE_QUEUE_LEVEL MIN_SINGLE_QUEUE_LEVEL+1
 	#define MAX_SINGLE_QUEUE_LEVEL MED_SINGLE_QUEUE_LEVEL+1
 	
-	#define _SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
+	#define SINGLE_QUEUE_LEVEL NO_SINGLE_QUEUE_LEVEL
 #endif
 
 
@@ -140,51 +140,51 @@
 // increased flexibility for timing options.  Therefore they should have the
 // ability to stagger messages.  Therefore their "queue level" must be greater
 // than MIN_SINGLE_QUEUE_LEVEL.
-#if _SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
+#if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
     // Extended Single -- enable if this device can handle "extended"(i.e. large payload) single messages
-    #ifndef _EXTENDED_SINGLE
-    //    #define _EXTENDED_SINGLE
+    #ifndef EXTENDED_SINGLE
+    //    #define EXTENDED_SINGLE
     #endif
     
     // Multi-Hop 
-    #ifndef _ONE_NET_MULTI_HOP
-	 //   #define _ONE_NET_MULTI_HOP
+    #ifndef ONE_NET_MULTI_HOP
+	 //   #define ONE_NET_MULTI_HOP
     #endif
     
     // sleeping devices cannot be repeaters.
-    #if defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
-	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
-		    #define _ONE_NET_MH_CLIENT_REPEATER
+    #if defined(ONE_NET_MULTI_HOP) && !defined(DEVICE_SLEEPS)
+	    #ifndef ONE_NET_MH_CLIENT_REPEATER
+		    #define ONE_NET_MH_CLIENT_REPEATER
 	    #endif
     #endif
     
-    #if defined(_ONE_NET_MULTI_HOP) && defined(_EXTENDED_SINGLE)
+    #if defined(ONE_NET_MULTI_HOP) && defined(EXTENDED_SINGLE)
         // define if this device handles routing
     //    #define _ROUTE
     #endif
     
     // Block Messages
-    #ifndef _BLOCK_MESSAGES_ENABLED
-    //	#define _BLOCK_MESSAGES_ENABLED
+    #ifndef BLOCK_MESSAGES_ENABLED
+    //	#define BLOCK_MESSAGES_ENABLED
     #endif
 
     // Stream Messages -- available only if block messages are enabled.
-    #ifdef _BLOCK_MESSAGES_ENABLED
-        #ifndef _STREAM_MESSAGES_ENABLED
-        //	    #define _STREAM_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
+        #ifndef STREAM_MESSAGES_ENABLED
+        //	    #define STREAM_MESSAGES_ENABLED
         #endif
     #endif    
 #endif
 
-#ifndef _RANGE_TESTING
-//    #define _RANGE_TESTING
+#ifndef RANGE_TESTING
+//    #define RANGE_TESTING
 #endif
 
 // variable data rates are only available if block messages are enabled
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
     // Enable this if data rates can be changed to anything besides the 38,400 base.
-    #ifndef _DATA_RATE
-    //    #define _DATA_RATE
+    #ifndef DATA_RATE
+    //    #define DATA_RATE
     #endif
 #endif
 
@@ -192,38 +192,38 @@
 // simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.
-#if _SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(_EXTENDED_SINGLE) && !defined(_ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+#if SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
+    #ifndef ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed
-        #define _ONE_NET_SIMPLE_CLIENT
+        #define ONE_NET_SIMPLE_CLIENT
     #endif
 #endif
 
 
 // Idle Option - Should be defined if the device can ever be idle
-#ifndef _IDLE
-//  #define _IDLE
+#ifndef IDLE
+//  #define IDLE
 #endif
 
 
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
-// if _IDLE is defined.
-#if defined(_IDLE) && defined(_ONE_NET_CLIENT)
-    #ifndef _ENHANCED_INVITE
-//   #define _ENHANCED_INVITE
+// if IDLE is defined.
+#if defined(IDLE) && defined(ONE_NET_CLIENT)
+    #ifndef ENHANCED_INVITE
+//   #define ENHANCED_INVITE
 	#endif
 #endif
 
 
 // Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
 // define more than one.
-#ifndef _US_CHANNELS
-	#define _US_CHANNELS
+#ifndef US_CHANNELS
+	#define US_CHANNELS
 #endif
 
-#ifndef _EUROPE_CHANNELS
-	#define _EUROPE_CHANNELS
+#ifndef EUROPE_CHANNELS
+	#define EUROPE_CHANNELS
 #endif
 
 
@@ -236,22 +236,22 @@
 
 // Enable this if the device has the ability to save to / load from
 // non-volatile memory (i.e. Flash memory)
-#ifndef _NON_VOLATILE_MEMORY
-    #define _NON_VOLATILE_MEMORY
+#ifndef NON_VOLATILE_MEMORY
+    #define NON_VOLATILE_MEMORY
 #endif
 
-#ifdef _NON_VOLATILE_MEMORY
-    // _AUTO_SAVE should be defined if the parameters should be saved every
+#ifdef NON_VOLATILE_MEMORY
+    // AUTO_SAVE should be defined if the parameters should be saved every
     // time they change
-    #ifndef _AUTO_SAVE
-        #define _AUTO_SAVE
+    #ifndef AUTO_SAVE
+        #define AUTO_SAVE
     #endif
 #endif
 
 
 // Enable this if the device has transmit and receive LEDS
-#ifndef _HAS_LEDS
-    #define _HAS_LEDS
+#ifndef HAS_LEDS
+    #define HAS_LEDS
 #endif
 
 
@@ -260,9 +260,9 @@
 // override channel setting in the transcevier.  Comment out the
 // "#define _CHANNEL_OVERIDE" line for normal behavior.
 // behavior.
-#ifndef _CHANNEL_OVERRIDE
+#ifndef CHANNEL_OVERRIDE
 //    #define _CHANNEL_OVERIDE
-    #ifdef _CHANNEL_OVERRIDE
+    #ifdef CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2
     #endif
@@ -326,5 +326,5 @@
 //! @} one_net_config_options
 
 
-#endif // _OVERRIDE_CONFIG_OPTIONS_FILE //
-#endif // _ONE_NET_CONFIG_OPTIONS_H //
+#endif // OVERRIDE_CONFIG_OPTIONS_FILE //
+#endif // ONE_NET_CONFIG_OPTIONS_H //

@@ -48,7 +48,7 @@
 #include "hal_adi.h"
 #include "pal.h"
 #include "tal.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 #include "tick.h"
@@ -147,7 +147,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     UInt8 src_unit, dst_unit, msg_type, msg_data, original_state;
     ona_msg_class_t msg_class;
     UInt32 tmp;
-    #ifdef _PEER
+    #ifdef PEER
     ona_msg_class_t original_class;
     BOOL forward_to_peer = TRUE;
     #endif
@@ -165,7 +165,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
       &tmp);
     msg_data = (UInt8) tmp;
     
-    #ifdef _PEER  
+    #ifdef PEER  
     original_class = msg_class;
     #endif
       
@@ -182,7 +182,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
         if(msg_data == ONA_TOGGLE)
         {
             msg_data = !original_state;
-            #ifdef _PEER
+            #ifdef PEER
             forward_to_peer = FALSE;
             #endif
         }
@@ -238,7 +238,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
         
         set_output(dst_unit, msg_data);
 
-        #ifdef _PEER
+        #ifdef PEER
         // we may forward this message to our peer list
         if(forward_to_peer)
         {
@@ -455,7 +455,7 @@ void main(void)
 {
     const UInt8 * PARAM_PTR = NULL;
     UInt16 param_len = 0;
-    #ifdef _PEER
+    #ifdef PEER
     const UInt8* peer_param_ptr = NULL;
     UInt16 peer_param_len = 0;
     #endif
@@ -468,7 +468,7 @@ void main(void)
     TAL_INIT_TRANSCEIVER();
     INIT_PROCESSOR(TRUE);
     
-    #ifdef _HAS_LEDS
+    #ifdef HAS_LEDS
         initialize_leds();
     #endif    
     
@@ -476,7 +476,7 @@ void main(void)
     ENABLE_GLOBAL_INTERRUPTS();
     FLASH_ERASE_CHECK();
 
-    #ifdef _PEER
+    #ifdef PEER
     if(((PARAM_PTR = read_param(ONE_NET_CLIENT_FLASH_NV_DATA, &param_len))
       != NULL) && ((peer_param_ptr = read_param(ONE_NET_CLIENT_FLASH_PEER_DATA,
       &peer_param_len)) != NULL))
@@ -484,7 +484,7 @@ void main(void)
     if((PARAM_PTR = read_param(&param_len)) != NULL)
     #endif
     {
-        #ifdef _PEER
+        #ifdef PEER
         status = one_net_client_init(PARAM_PTR, param_len, peer_param_ptr,
           peer_param_len);
         #else

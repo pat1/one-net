@@ -121,7 +121,7 @@
 
     #define OUTPUT1_DIR pd1_6
     #define OUTPUT2_DIR pd1_1
-#elif defined(_QUAD_OUTPUT) // ifdef _DUAL_OUTPUT_INPUT //
+#elif defined(QUAD_OUTPUT) // ifdef _DUAL_OUTPUT_INPUT //
     #define OUTPUT1     p1_6
     #define OUTPUT2     p1_1
     #define OUTPUT3     p1_0
@@ -131,9 +131,9 @@
     #define OUTPUT2_DIR pd1_1
     #define OUTPUT3_DIR pd1_0
     #define OUTPUT4_DIR pd4_5
-#else // else if _QUAD_OUTPUT is defined //
+#else // else if QUAD_OUTPUT is defined //
     #error Unknown board type (see io_port_mapping.h)
-#endif // else _QUAD_INPUT, _QUAD_OUPUT, and _DUAL_OUTPUT are defined //
+#endif // else QUAD_INPUT, QUAD_OUPUT, and DUAL_OUTPUT are defined //
 
 
 // led

@@ -252,7 +252,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
         return NULL; // sending to ourself.  Why bother?
     }
     
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
     if(enc_dst && device_is_master)
     {
         if(!(*get_sender_info)(enc_dst))

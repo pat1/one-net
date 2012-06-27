@@ -71,7 +71,7 @@ typedef enum
     //! Value that represents the start of ONE-NET parameters
     ONE_NET_CLIENT_FLASH_NV_DATA = 0x00,
     
-    #ifdef _PEER
+    #ifdef PEER
     //! Value that represents the start of peer parameters
     ONE_NET_CLIENT_FLASH_PEER_DATA = 0x01
     #endif
@@ -98,7 +98,7 @@ typedef enum
 //! \ingroup client_util
 //! @{
 
-#ifdef _PEER
+#ifdef PEER
 const UInt8 * read_param(UInt8 type, UInt16 * const len);
 #else
 const UInt8 * read_param(UInt16 * const len);

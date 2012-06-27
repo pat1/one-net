@@ -137,7 +137,7 @@ BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 }
 
 
-// TODO -- add #ifdef check for _DATA_RATE?
+// TODO -- add #ifdef check for DATA_RATE?
 UInt8 features_highest_data_rate(on_features_t features)
 {
     UInt8 dr;

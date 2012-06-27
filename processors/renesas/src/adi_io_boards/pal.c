@@ -138,7 +138,7 @@ void pal_init_ports(void)
         #if _NUM_IO_UNITS > 3
             INPUT4_DIR = INPUT;
         #endif // #if _NUM_IO_UNITS > 3 //
-    #elif defined(_QUAD_OUTPUT) || defined(_DUAL_OUTPUT) // ifdef _QUAD_INPUT //
+    #elif defined(QUAD_OUTPUT) || defined(_DUAL_OUTPUT) // ifdef _QUAD_INPUT //
         #if _NUM_IO_UNITS > 0
             OUTPUT1_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 0 //
@@ -154,7 +154,7 @@ void pal_init_ports(void)
         #if _NUM_IO_UNITS > 3
             OUTPUT4_DIR = OUTPUT;
         #endif // #if _NUM_IO_UNITS > 3 //
-    #else // else if _QUAD_OUTPUT or _DUAL_OUTPUT is defined //
+    #else // else if QUAD_OUTPUT or _DUAL_OUTPUT is defined //
         #error Unknown board type (see init_ports in pal.c)
     #endif // else _QUAD_INPUT, _QUAD_OUPUT, and _DUAL_OUTPUT are defined //
 } // init_ports //
