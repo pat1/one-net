@@ -176,6 +176,7 @@ void add_peers_to_recipient_list(const on_single_data_queue_t*
 
     for(i = 0; i < ONE_NET_MAX_PEER_PER_TXN; i++)
     {
+        // change to INVALID_PEER?
         if(is_broadcast_did((const on_encoded_did_t*)
           (&(peer_list[i].peer_did))))
         {
@@ -217,117 +218,65 @@ one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT)
 {
-    UInt8 unit_list_index;
-    SInt8 insertion_index = -1; // negative means unset
+    UInt8 vacant_index;
     UInt8 num_peers_for_src = 0; // number of peers for this source
     
     if(!peer_list)
     {
-        peer_list = peer;
-    }
-    
-    
-    // make sure we have room
-    if(one_net_memcmp(INVALID_PEER,
-      peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
-      ON_ENCODED_DID_LEN) != 0)
-    {
-        // Last element is not empty.  List is full.
-        return ONS_RSRC_FULL;
+        peer_list = peer; // list notprovided, so we use the main list
     }
     
     // There are a few possibilities
-    // 1.  This peer assignment is already on the unit list.  If so, do nothing,
-	//     return ONS_SUCCESS
-    // 2.  This peer assignment is not on the unit list, but the unit list is
+    // 1.  Peer list is full.  If so, cannot add.  return ONS_RSRC_FULL.
+    // 2.  This peer assignment is already on the unit list.  If so, do nothing,
+	//     return ONS_SUCCESS.
+    // 3.  This peer assignment is not on the unit list, but the unit list is
 	//     full.  If so, do nothing and return ONS_RSRC_FULL.  Note that this is
     //     a separate criteria than the one directly above, which looked to see
     //     if the ENTIRE list was full.  This is a check of whether the UNIT
-    //     list is full.
-    // 3.  This peer assignment is not on the unit list, and the unit list is
-	//     not full.  If so, find the index it should be inserted into and
-    //     proceed to step 4.	
-    // 4.  Insert the new peer assignment in the unit list and return ONS_SUCCESS.
+    //     list is full.  Cannot add.  Return ONS_RSRC_FULL.
+    // 4.  This peer assignment is not on the unit list, and the unit list is
+	//     not full.  If so, proceed to step 5.	
+    // 5.  Insert the new peer assignment at the end of the peer list and
+    //     return ONS_SUCCESS.
 	
 
-    
-    // find a spot to add the peer.  List is ordered by source
-    // unit, then peer unit.  Empty spots should all be at the end and are
+    // find a spot to add the peer.  Empty spots should all be at the end and are
     // represented by ONE_NET_DEV_UNIT.
-    for(unit_list_index = 0; unit_list_index < ONE_NET_MAX_PEER_UNIT;
-      unit_list_index++)
+    for(vacant_index = 0; vacant_index < ONE_NET_MAX_PEER_UNIT; vacant_index++)
     {
-        if(one_net_memcmp(INVALID_PEER, peer_list[unit_list_index].peer_did,
-          ON_ENCODED_DID_LEN) == 0)
+        if(peer_list[vacant_index].peer_unit == ONE_NET_DEV_UNIT)
         {
-            // found end of list.
-            // found our insertion index if it's not already set
-            if(insertion_index == -1)
+            // we have found our insertion point. Insert here.
+            peer_list[vacant_index].src_unit = SRC_UNIT;
+            peer_list[vacant_index].peer_unit = PEER_UNIT;
+            one_net_memmove(peer_list[vacant_index].peer_did,
+              *PEER_DID, ON_ENCODED_DID_LEN);
+            
+        }
+        
+        if(peer_list[vacant_index].src_unit == SRC_UNIT)
+        {
+            if(peer_list[vacant_index].peer_unit == PEER_UNIT &&
+              one_net_memcmp(peer_list[vacant_index].peer_did, *PEER_DID,
+              ON_ENCODED_DID_LEN) == 0)
             {
-                insertion_index = unit_list_index;
+                // Already on list.  Do not add.
+                return ONS_SUCCESS;
             }
-            break;
-        }        
-        
-        if(peer_list[unit_list_index].src_unit > SRC_UNIT)
-        {
-            // found our insertion index if it's not already set
-            if(insertion_index == -1)
+            
+            // add one to the unit listand seeif we're outof room on the list
+            // for this particular unit.
+            num_peers_for_src++;
+            if(num_peers_for_src >= ONE_NET_MAX_PEER_PER_TXN)
             {
-                insertion_index = unit_list_index;
+                return ONS_RSRC_FULL;
             }
-            break;
-        }
-		else if(peer_list[unit_list_index].src_unit < SRC_UNIT)
-        {
-            continue;
-        }
-        
-        // source unit matches
-        if(peer_list[unit_list_index].peer_unit == PEER_UNIT)
-        {
-            // this peer is already on the list.  Nothing to do.
-            // Return ONS_SUCCESS
-            return ONS_SUCCESS;
-        }
-        
-        num_peers_for_src++; // found a peer for this source unit.
-        if(num_peers_for_src >= ONE_NET_MAX_PEER_PER_TXN)
-        {
-            // no more room for peers for this source unit
-            return ONS_RSRC_FULL;
-        }
-        
-        if(peer_list[unit_list_index].peer_unit > PEER_UNIT)
-		{
-            // found our insertion index if it's not already set
-            if(insertion_index == -1)
-            {
-                insertion_index = unit_list_index;
-            }
-		}
+        }      
 	}
      
-    // we should never have an invalid index here, but check just to make sure
-    if(insertion_index < 0 || insertion_index >= ONE_NET_MAX_PEER_UNIT)
-    {
-        return ONS_INTERNAL_ERR;
-    }
-    
-    if(insertion_index < ONE_NET_MAX_PEER_UNIT - 1)
-	{
-        // We're about to insert.  Move any elements that may be in the way down one.
-        one_net_memmove(&peer_list[insertion_index + 1],
-          &peer[insertion_index], sizeof(peer_list[insertion_index]) *
-          (ONE_NET_MAX_PEER_UNIT - insertion_index - 1));
-	}
-
-    // now fill in the new information.
-    peer_list[insertion_index].src_unit = SRC_UNIT;
-    peer_list[insertion_index].peer_unit = PEER_UNIT;
-    one_net_memmove(peer_list[insertion_index].peer_did, *PEER_DID,
-      ON_ENCODED_DID_LEN);
-	return ONS_SUCCESS;
+    // if we got to here, then all spots are taken, so we cannot add.
+	return ONS_RSRC_FULL;
 } // one_net_add_peer_to_list //
 
 
@@ -352,7 +301,11 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
   on_peer_unit_t* peer_list, const on_encoded_did_t * const PEER_DID,
   const UInt8 PEER_UNIT)
 {
-    int i;
+    // note : "Wildcards are units with value ONE_NET_DEV_UNIT and
+    // DIDs of INVALID_PEER_DID.  We go through the list and check each element
+    // to see if there is a match.  If so, we delete.
+    
+    SInt8 i; // signed because this can be negative
     
     if(!peer_list)
     {
@@ -363,8 +316,7 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
     for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
     {
         // check to see if we are at the end of the list
-        if(on_encoded_did_equal((const on_encoded_did_t* const)
-          &(peer_list[i].peer_did), &INVALID_PEER))
+        if(peer_list[i].peer_unit == ONE_NET_DEV_UNIT)
         {
             // end of the list.
             break;
@@ -400,9 +352,6 @@ one_net_status_t one_net_remove_peer_from_list(const UInt8 SRC_UNIT,
            - i - 1) * sizeof(on_peer_unit_t));
            
         // now blank out the last spot if not already blanked out.
-        one_net_memmove(&peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_did,
-            INVALID_PEER, ON_ENCODED_DID_LEN);
-        peer_list[ONE_NET_MAX_PEER_UNIT - 1].src_unit = ONE_NET_DEV_UNIT;
         peer_list[ONE_NET_MAX_PEER_UNIT - 1].peer_unit = ONE_NET_DEV_UNIT;
         
         i--; // we just deleted and we're going to increment at the top of the
