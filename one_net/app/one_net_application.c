@@ -290,6 +290,20 @@ BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt)
 #endif
 
 
+
+/* store the 32-bit message data in the payload buffer */
+void put_msg_data(UInt32 data, UInt8 *payload)
+{
+    data &= 0x000FFFFF;
+    payload[2] &= 0xF0;
+    payload[2] |= (data >> 16); 
+    payload[3] = data >> 8;
+    payload[4] = data;
+}
+
+
+
+
 //! @} ONE-NET_APP_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================
