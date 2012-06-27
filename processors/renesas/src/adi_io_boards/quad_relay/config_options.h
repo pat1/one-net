@@ -97,8 +97,8 @@
 
 
 
-#ifndef QUAD_INPUT
-    #define QUAD_INPUT
+#ifndef QUAD_OUTPUT
+    #define QUAD_OUTPUT
 #endif
 
 
