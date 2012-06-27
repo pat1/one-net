@@ -70,12 +70,7 @@ ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8* payload)
 }
 
 /* put the 12-byte message header into the payload */
-ONE_NET_INLINE void put_msg_hdr(UInt16 hdr, UInt8* payload)
-{
-    payload[ONA_MSG_HDR_IDX]   = hdr >> ONA_MSG_CLASS_TYPE_SHIFT;
-    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX+1] |= (hdr << ONA_MSG_CLASS_TYPE_SHIFT);
-}
+void put_msg_hdr(UInt16 hdr, UInt8* payload);
 
 ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8* payload)
 {

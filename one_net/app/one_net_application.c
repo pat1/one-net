@@ -291,6 +291,14 @@ BOOL on_parse_stream_pld(UInt8* buffer, stream_pkt_t* stream_pkt)
 
 
 
+/* put the 12-byte message header into the payload */
+void put_msg_hdr(UInt16 hdr, UInt8* payload)
+{
+    payload[ONA_MSG_HDR_IDX]   = hdr >> ONA_MSG_CLASS_TYPE_SHIFT;
+    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX+1] |= (hdr << ONA_MSG_CLASS_TYPE_SHIFT);
+}
+
 /* store the 32-bit message data in the payload buffer */
 void put_msg_data(UInt32 data, UInt8 *payload)
 {
