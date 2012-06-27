@@ -1,5 +1,5 @@
-#ifndef _FLASH_H
-#define _FLASH_H
+#ifndef FLASH_H
+#define FLASH_H
 
 //! \defgroup FLASH_R8C Data Flash Functionality for R8C
 //! @{
@@ -112,4 +112,4 @@ BOOL erase_data_flash(const UInt16 ADDR);
 
 //! @} FLASH
 
-#endif // _FLASH_H //
+#endif // FLASH_H //

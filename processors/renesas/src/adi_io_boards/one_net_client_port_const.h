@@ -1,5 +1,5 @@
-#ifndef _CLIENT_PORT_CONST_H
-#define _CLIENT_PORT_CONST_H
+#ifndef CLIENT_PORT_CONST_H
+#define CLIENT_PORT_CONST_H
 
 //! \defgroup CLIENT_port_const ONE-NET CLIENT Specific constants
 //! \ingroup ONE-NET_port_specific
@@ -94,4 +94,4 @@ enum
 
 //! @} CLIENT_port_const
 
-#endif // _CLIENT_PORT_CONST_H //
+#endif // CLIENT_PORT_CONST_H //

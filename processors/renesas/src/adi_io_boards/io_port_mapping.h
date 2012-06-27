@@ -1,5 +1,5 @@
-#ifndef _IO_PORT_MAPPING_H
-#define _IO_PORT_MAPPING_H
+#ifndef IO_PORT_MAPPING_H
+#define IO_PORT_MAPPING_H
 
 //! \defgroup IO_PORT_MAPPING_ADI_SW I/O Port Mapping for the ADI Switch Example
 //!   Project.

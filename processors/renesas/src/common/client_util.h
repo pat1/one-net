@@ -1,5 +1,5 @@
-#ifndef _CLIENT_UTIL_H
-#define _CLIENT_UTIL_H
+#ifndef CLIENT_UTIL_H
+#define CLIENT_UTIL_H
 
 //! \defgroup CLIENT_util ONE-NET CLIENT utility functionality
 //! @{
@@ -124,4 +124,4 @@ void flash_erase_check(void);
 
 //! @} CLIENT_util
 
-#endif // _CLIENT_UTIL_H //
+#endif // CLIENT_UTIL_H //

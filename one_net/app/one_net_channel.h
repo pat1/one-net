@@ -1,7 +1,7 @@
 // one_net_channel.h
 
-#ifndef ONE_NET_CHANNEL
-#define ONE_NET_CHANNEL
+#ifndef ONE_NET_CHANNEL_H
+#define ONE_NET_CHANNEL_H
 
 
 #include "config_options.h"

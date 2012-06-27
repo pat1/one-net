@@ -1,5 +1,5 @@
-#ifndef _LED_HAL_H
-#define _LED_HAL_H
+#ifndef LED_HAL_H
+#define LED_HAL_H
 
 
 #include "config_options.h"
@@ -114,4 +114,4 @@ void hal_init_ports_leds(void);
 #endif // ifdef HAS_LEDS //
 
 
-#endif // _LED_HAL_H //
+#endif // LED_HAL_H //

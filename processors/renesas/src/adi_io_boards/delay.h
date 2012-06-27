@@ -1,5 +1,5 @@
-#ifndef _DELAY_H
-#define _DELAY_H
+#ifndef DELAY_H
+#define DELAY_H
 
 //! \defgroup DELAY Short polled delays
 //! @{
@@ -94,4 +94,4 @@
 
 //! @} DELAY
 
-#endif // ifndef _DELAY_H //
+#endif // ifndef DELAY_H //
