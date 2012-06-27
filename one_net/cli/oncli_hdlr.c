@@ -1795,6 +1795,13 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     single text:2:3:004:"abcd" will send "abcd" from source unit 2 to dest. unit
       3 of device 004.
+    
+    
+    To send to the peer list, specify 000 for the DID.
+    
+    single text:2:3:000:"abcd" will send "abcd" from source unit 2 to dest. unit
+      3 to all device / unit pairs peered with unit 2 (note that "PEER" must be
+      enabled in config_options.h"
 
     
     \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
@@ -4653,6 +4660,9 @@ static oncli_status_t parse_invite_key(const char * ASCII,
     the source and destination unit numbers. Rather than writing a new 
     parse function, we decided to make the src_unit and dst_unit parameters
     optional.
+    
+    Entering 000 for the DID when send_to_peer_list is not NULL results in
+    the BOOL pointed to by send_to_peer_list being set to TRUE.
 
     \param[in] PARAM_PTR The ASCII parameter list.
     \param[out] src_unit The unit in the source device sending the message or NULL 
@@ -4738,6 +4748,13 @@ static const char * parse_ascii_tx_param(const char * PARAM_PTR,
         {
             return 0;
         }
+        
+        #ifdef PEER
+        if(did_to_u16(&raw_did) == 0)
+        {
+            *send_to_peer_list = TRUE;
+        }
+        #endif
     } // if the did is present //
     else
     {
