@@ -11,7 +11,7 @@ June 3, 2012 -- Currently these functions have not been thoroughly tested.
 */
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 /*!
     \brief Allows the application code to override whether a nack reason is fatal
 
@@ -24,7 +24,7 @@ June 3, 2012 -- Currently these functions have not been thoroughly tested.
 */
 void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!(*is_fatal) && nack_reason == ON_NACK_RSN_MIN_FATAL)
@@ -38,7 +38,7 @@ void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 
 void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(txn && ((UInt8*) txn == (UInt8*) msg))
@@ -51,11 +51,11 @@ void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 #endif
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
   UInt8* const max_hops)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(raw_dst && ((UInt8*) raw_dst == (UInt8*) max_hops))
@@ -69,10 +69,10 @@ on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(new_channel == 0xFF && new_data_rate == 0xFF)
@@ -85,11 +85,11 @@ void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 #endif
 
 
-#ifndef _ONE_NET_SIMPLE_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
   on_recipient_list_t** recipient_send_list)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(msg && ((UInt8*) msg == (UInt8*) recipient_send_list))
@@ -102,11 +102,11 @@ void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!bs_msg && !buffer && !ack_nack)
@@ -120,11 +120,11 @@ on_message_status_t one_net_block_get_next_payload(block_stream_msg_t* bs_msg,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
   UInt8* buffer, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!bs_msg && !buffer && !ack_nack)
@@ -138,7 +138,7 @@ on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
 #endif
 
 
-#ifdef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
 SInt8 one_net_get_alternate_channel(void)
 {
     while(1)
@@ -154,11 +154,11 @@ SInt8 one_net_get_alternate_channel(void)
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 void one_net_block_stream_transfer_requested(const block_stream_msg_t* const
   bs_msg, on_ack_nack_t* ack_nack)
 {
-    #ifdef _STREAM_MESSAGES_ENABLED
+    #ifdef STREAM_MESSAGES_ENABLED
     if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
     {
         return;

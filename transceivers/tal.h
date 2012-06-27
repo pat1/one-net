@@ -50,6 +50,13 @@
     functionality. 
 */
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                                  CONSTANTS
 //! \defgroup TAL_const
@@ -242,6 +249,11 @@ one_net_status_t tal_set_channel(const UInt8 channel);
 //! @} TAL_pub_func
 //!                         PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+#ifdef __cplusplus
+}
+#endif
+
 
 //! @} TAL
 

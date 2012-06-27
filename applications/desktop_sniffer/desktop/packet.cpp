@@ -308,12 +308,14 @@ bool packet::parse_payload(UInt16 raw_pid, UInt8* decrypted_payload_bytes,
 
 bool packet::filter_packet(const filter& fltr) const
 {
+cout << "p1\n";
     // test timestamp
     if(!fltr.value_accepted(filter::FILTER_TIMESTAMP,
         struct_timeval_to_milliseconds(this->timestamp)))
     {
         return false;
     }
+cout << "p2\n";
 
     // test source did
     if(!fltr.value_accepted(filter::FILTER_SRC_DID, raw_src_did))

@@ -1,6 +1,6 @@
 #include "config_options.h"
 
-#ifdef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
 
 
 #include "one_net_master.h"
@@ -8,7 +8,7 @@
 #include "one_net_constants.h"
 #include "one_net_message.h"
 #include "one_net_acknowledge.h"
-#ifdef _COMPILE_WO_WARNINGS
+#ifdef COMPILE_WO_WARNINGS
 #include "one_net_port_specific.h"
 #endif
 
@@ -118,7 +118,7 @@ June 3, 2012 -- Currently these functions have not been thoroughly tested.
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
@@ -128,14 +128,14 @@ on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack,
   UInt8 hops, UInt8* const max_hops)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!raw_pld && !msg_hdr && !src_did && !repeater_did && !ack_nack)
     {
         return ON_MSG_INTERNAL_ERR;
     }
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(!max_hops && hops == 0xFF)
     {
         return ON_MSG_INTERNAL_ERR;
@@ -147,7 +147,7 @@ on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Handles the received stream packet.
 	
@@ -163,7 +163,7 @@ on_message_status_t one_net_master_handle_single_pkt(const UInt8* const raw_pld,
 on_message_status_t one_net_master_handle_stream_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, stream_pkt_t* stream_pkt, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!txn && !bs_msg && !stream_pkt && !ack_nack)
@@ -176,7 +176,7 @@ on_message_status_t one_net_master_handle_stream_pkt(on_txn_t* txn,
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Handles the received block packet.
 	
@@ -192,7 +192,7 @@ on_message_status_t one_net_master_handle_stream_pkt(on_txn_t* txn,
 on_message_status_t one_net_master_handle_block_pkt(on_txn_t* txn,
   block_stream_msg_t* bs_msg, block_pkt_t* block_pkt, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!txn && !bs_msg && !block_pkt && !ack_nack)
@@ -220,7 +220,7 @@ on_message_status_t one_net_master_block_chunk_received(
   block_stream_msg_t* bs_msg, UInt32 byte_idx, UInt8 chunk_size,
   on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!bs_msg && !ack_nack && byte_idx == 0xFFFFFFFF && chunk_size == 0xFF)
@@ -322,7 +322,7 @@ on_message_status_t one_net_master_block_chunk_received(
               result in a call to a callback function with both the NACK
               reason and this return code passed as parameters.
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 on_message_status_t one_net_master_handle_ack_nack_response(
   UInt8* const raw_pld, on_msg_hdr_t* const msg_hdr,
   const on_msg_hdr_t* const resp_msg_hdr,
@@ -339,7 +339,7 @@ on_message_status_t one_net_master_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!raw_pld && msg_hdr && resp_msg_hdr && resp_ack_nack && src_did &&
@@ -347,7 +347,7 @@ on_message_status_t one_net_master_handle_ack_nack_response(
     {
         return ON_MSG_INTERNAL_ERR;
     }
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(hops == 255)
     {
         return ON_MSG_INTERNAL_ERR;
@@ -358,7 +358,7 @@ on_message_status_t one_net_master_handle_ack_nack_response(
 }
 
 
-#ifdef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
 /*!
     \brief Saves ONE-NET master settings to non-volatile memory
     
@@ -413,7 +413,7 @@ one_net_status_t one_net_master_erase_settings(void)
                not relevant / reliable.
     \return void
 */
-#ifndef _ONE_NET_MULTI_HOP
+#ifndef ONE_NET_MULTI_HOP
 void one_net_master_single_txn_status(on_message_status_t status,
   UInt8 retry_count, on_msg_hdr_t msg_hdr, const UInt8* data,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack)
@@ -423,10 +423,10 @@ void one_net_master_single_txn_status(on_message_status_t status,
   const on_raw_did_t *dst, on_ack_nack_t* ack_nack, SInt8 hops)
 #endif
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
-    #ifdef _ONE_NET_MULTI_HOP
+    #ifdef ONE_NET_MULTI_HOP
     if(hops == 0)
     {
         return;
@@ -446,7 +446,7 @@ void one_net_master_single_txn_status(on_message_status_t status,
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Application-level code called by ONE-NET when initiating a block
            transfer containing default the block / stream parameters and
@@ -478,7 +478,7 @@ on_nack_rsn_t one_net_master_get_default_block_transfer_values(
   UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay, UInt8* data_rate,
   UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(transfer_size == 0 && !dst && !priority && !chunk_size && !frag_delay &&
@@ -511,7 +511,7 @@ on_message_status_t one_net_master_handle_bs_ack_nack_response(
   on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!txn && !bs_msg && !pkt && !raw_payload_bytes && !ack_nack)
@@ -574,7 +574,7 @@ on_message_status_t one_net_master_block_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!msg && !terminating_device && !status && !ack_nack)
@@ -592,7 +592,7 @@ on_message_status_t one_net_master_block_txn_status(
 #endif
 
 
-#ifdef _STREAM_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Application-level code called by ONE-NET when initiating a stream
            transfer containing default the block / stream parameters and
@@ -622,7 +622,7 @@ on_nack_rsn_t one_net_master_get_default_stream_transfer_values(
   UInt16* frag_delay, UInt8* data_rate, UInt8* channel, UInt16* timeout,
   on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!dst && time_ms == 0 && !priority && !frag_delay && !data_rate &&
@@ -685,7 +685,7 @@ on_message_status_t one_net_master_stream_txn_status(
   const block_stream_msg_t* msg, const on_encoded_did_t* terminating_device,
   on_message_status_t* status, on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!msg && !terminating_device && !status && !ack_nack)
@@ -718,7 +718,7 @@ on_message_status_t one_net_master_stream_txn_status(
 void one_net_master_invite_result(one_net_status_t STATUS,
   one_net_xtea_key_t* KEY, const on_raw_did_t *CLIENT_DID)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(STATUS == ONS_SUCCESS && KEY && ((UInt8*) CLIENT_DID == (UInt8*) KEY))
@@ -746,7 +746,7 @@ void one_net_master_invite_result(one_net_status_t STATUS,
 void one_net_master_update_result(one_net_mac_update_t update,
   const on_raw_did_t* did, const on_ack_nack_t* ack_nack)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if((int)update == 0 && did && ((UInt8*) did == (UInt8*) ack_nack))
@@ -770,7 +770,7 @@ void one_net_master_update_result(one_net_mac_update_t update,
 */
 BOOL one_net_master_client_missed_check_in(on_client_t* client)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(!client)
@@ -800,7 +800,7 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
 */
 BOOL one_net_master_device_is_awake(BOOL responding, const on_raw_did_t *DID)
 {
-    #ifdef _COMPILE_WO_WARNINGS
+    #ifdef COMPILE_WO_WARNINGS
     // mess around with the variables doing trivial things to avoid unused
     // variable warnings.
     if(responding && !DID)
@@ -812,8 +812,8 @@ BOOL one_net_master_device_is_awake(BOOL responding, const on_raw_did_t *DID)
 }
 
   
-#ifdef _BLOCK_MESSAGES_ENABLED
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef BLOCK_MESSAGES_ENABLED
+#ifdef ONE_NET_MULTI_HOP
 /*!
     \brief Alerts the master when a device has requested that another device
            should be reserved for service as a multi-hop repeater.

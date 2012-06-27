@@ -8,6 +8,8 @@
 #include <cstdio>
 #include <cstring>
 #include <climits>
+#include <cassert>
+#include <iostream>
 using namespace std;
 
 
@@ -223,6 +225,9 @@ bool filter_list::value_accepted(uint64_t value) const
         return true;
     }
     int index;
+
+    cout << "k:" << accepted_values.size() << endl;
+
     return find_value(value, index);
 }
 
@@ -536,6 +541,9 @@ bool filter_list::find_value(uint64_t value, int& index) const
     list<filter_range>::const_iterator it;
     const int num_ranges = accepted_values.size();
 
+    cout << "g:" << value << ":" << num_ranges << endl;
+
+
     if(num_ranges == 0)
     {
         index = 0;
@@ -543,8 +551,11 @@ bool filter_list::find_value(uint64_t value, int& index) const
     }
 
     it = accepted_values.begin();
+
+
     for(index = 0; index < num_ranges; index++)
     {
+cout << "gg:" << index << ":" << value << ":" << it->getlow() << ":" << it->gethigh() << endl;
         if(value < it->getlow())
         {
             return false;
