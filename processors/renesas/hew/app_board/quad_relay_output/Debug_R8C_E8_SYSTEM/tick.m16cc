@@ -9,8 +9,6 @@
 -I"C:\HEWProj\trJun26\processors\renesas\hew\app_board\..\..\..\..\transceivers\adi"
 -I"C:\HEWProj\trJun26\processors\renesas\hew\app_board\..\..\..\..\transceivers"
 -I"C:\HEWProj\trJun26\processors\renesas\hew\app_board\..\..\src\r8c1"
--D_ONE_NET_SIMPLE_CLIENT
--D_QUAD_OUTPUT
 -c
 -finfo
 -dir "C:\HEWProj\trJun26\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"
