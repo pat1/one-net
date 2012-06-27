@@ -475,6 +475,31 @@ SInt8 get_default_num_blocks(UInt16 raw_pid)
 
 
 
+BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
+{
+    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
+    if(on_decode(raw_pld_arr, payload, ON_ENCODED_PID_SIZE)
+      != ONS_SUCCESS)
+    {
+        return FALSE;
+    }
+    
+    *raw_pid = one_net_byte_stream_to_int16(raw_pld_arr);
+    (*raw_pid) >>=  4;
+    return TRUE;
+}
+
+
+void put_raw_pid(UInt8* payload, UInt16 raw_pid)
+{
+    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];    
+    raw_pid <<= 4;
+    one_net_int16_to_byte_stream(raw_pid, raw_pld_arr);
+    on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
+}
+
+
+
 //! @} ONE-NET_PACKET_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
 //==============================================================================

@@ -1020,28 +1020,8 @@ UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
 void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 
 
-ONE_NET_INLINE BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
-{
-    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
-    if(on_decode(raw_pld_arr, payload, ON_ENCODED_PID_SIZE)
-      != ONS_SUCCESS)
-    {
-        return FALSE;
-    }
-    
-    *raw_pid = one_net_byte_stream_to_int16(raw_pld_arr);
-    (*raw_pid) >>=  4;
-    return TRUE;
-}
-
-
-ONE_NET_INLINE void put_raw_pid(UInt8* payload, UInt16 raw_pid)
-{
-    UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];    
-    raw_pid <<= 4;
-    one_net_int16_to_byte_stream(raw_pid, raw_pld_arr);
-    on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
-}
+BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid);
+void put_raw_pid(UInt8* payload, UInt16 raw_pid);
 
     
     
