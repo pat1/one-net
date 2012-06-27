@@ -302,6 +302,28 @@ void put_msg_data(UInt32 data, UInt8 *payload)
 }
 
 
+/* store the 12-bit message id in the raw payload buffer */
+void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
+{
+    payload[ON_PLD_MSG_ID_IDX] = (UInt8) ((msg_id & 0x0FF0) >> 4);
+    payload[ON_PLD_MSG_ID_IDX + 1] &= ON_RESP_HANDLE_BUILD_MASK;
+    payload[ON_PLD_MSG_ID_IDX + 1] |= ((UInt8) ((msg_id &
+      ON_RESP_HANDLE_BUILD_MASK) << 4));
+}
+
+
+#ifdef _BLOCK_MESSAGES_ENABLED
+/* stores the packet index in the raw payload buffer */
+void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
+{
+    UInt8 temp = payload[ON_BS_PLD_PKT_IDX-1];
+    pkt_idx &= 0x00FFFFFF;
+    one_net_int32_to_byte_stream(pkt_idx, &payload[ON_BS_PLD_PKT_IDX-1]);
+    payload[ON_BS_PLD_PKT_IDX-1] = temp;
+}
+#endif
+
+
 
 
 //! @} ONE-NET_APP_pub_func
