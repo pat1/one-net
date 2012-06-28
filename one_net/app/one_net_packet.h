@@ -194,8 +194,8 @@ typedef enum _ona_msg_type
     //! Set/Query/Report Seal Status
     ONA_SEAL = 0x0A,
 
-    //! Unused message
-    ONA_UNUSED0 = 0x0B,
+    //! Same as ONA_DIRECTION, but mesasured in radians, not degrees
+    ONA_DIRECTION_RADIANS = 0x0B,
 
     //! Set/Query/Report Unit Type Count 
     ONA_UNIT_TYPE_COUNT = 0x0C,
@@ -376,7 +376,68 @@ typedef enum _ona_msg_type
     ONA_PEAK_GAS_THERM_MINS = 0x4E,
 
     //! Peak Gas Therm-Hours
-    ONA_PEAK_GAS_THERM_HRS = 0x4F
+    ONA_PEAK_GAS_THERM_HRS = 0x4F,
+    
+    
+    // Servo and Motor Control, plus anything else.  See also the ONA_DIRECTION and
+    // ONA_DIRECTION_RADIANS messages for use with servos.
+    
+    //! Rotations per minute
+    ONA_RPM = 0x50,
+    
+    //! Rotations per second
+    ONA_RPS = 0x51,
+    
+    //! Rotations per hour
+    ONA_RPH = 0x52,
+    
+    //! Thousandths of a rotation per minute
+    ONA_RPM_THOUSANDTHS = 0x53,
+    
+    //! Thousandths of a rotation per second
+    ONA_RPS_THOUSANDTHS = 0x54,
+    
+    //! Thousandths of a rotation per hour
+    ONA_RPH_THOUSANDTHS = 0x55,
+    
+    //! Degrees per second
+    ONA_DEGREES_PER_SEC = 0x56,
+    
+    //! Degrees per millisecond
+    ONA_DEGREES_PER_MILLISEC = 0x57,
+    
+    //! Degrees per microsecond
+    ONA_DEGREES_PER_MICROSEC = 0x58,
+    
+    //! Radians per second
+    ONA_RADIANS_PER_SEC = 0x59,
+    
+    //! Degrees per millisecond
+    ONA_RADIANS_PER_MILLISEC = 0x5A,
+    
+    //! Degrees per microsecond
+    ONA_RADIANS_PER_MICROSEC = 0x5B,
+    
+    
+    // Time /Duration Messages.  See also ONA_TIMEand ONA_DATE
+    
+    //! Microseconds
+    ONA_MICROSEC = 0x60,
+
+    //! Microseconds
+    ONA_MILLISEC = 0x61,
+
+    //! Seconds
+    ONA_SEC = 0x62,
+
+    //! MInutes
+    ONA_MINUTES = 0x63,
+
+    //! Hours
+    ONA_HOURS = 0x64,
+
+    //! Days
+    ONA_DAYS = 0x65,
 } ona_msg_type_t;
 
 
@@ -685,7 +746,16 @@ enum
     //!           (i.e ONA_SWITCH)
     //! Bytes 2 thru 4 -- 20 bits.  Message data.  The "data" of the message.
     //!           For a normal switch message, this would be ONA_ON, ONA_OFF, or
-    //!           ONA_TOGGLE
+    //!           ONA_TOGGLE.
+    //!
+    //!           The MSB bit is the sign bit (0 for non-negative, 1 for negative).
+    //!           Negative numbers are NOT sent in 2's complement.  Instead, there
+    //!           is a sign bit, followed by the absolute value of the data.  For
+    //!           example, 9 and -9 would be sent as follows...
+    //!
+    //!           00000000000000001001   (9)
+    //!           10000000000000001001   (-9, same as 9 except that left-mostbit is
+    //!                                   1, denoting a negative number)
     //!
     //!
     //! First 12 bits(message type and class) are the "header".
