@@ -129,7 +129,7 @@ static UInt8 input_pin[ONE_NET_NUM_UNITS];
 
 
 static void init_input(void);
-static BOOL get_pin_state(UInt8 unit, UInt32 *status);
+static BOOL get_pin_state(UInt8 unit, SInt32 *status);
 static one_net_status_t send_switch_status_change_msg(UInt8 src_unit, 
   UInt8 status, UInt8 dst_unit, const on_encoded_did_t* const enc_dst);
 static void check_input_pin(void);
@@ -156,7 +156,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
 {
-	UInt32 msg_data;
+	SInt32 msg_data;
     UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
 
@@ -289,7 +289,7 @@ static void init_input(void)
               and invalid unit).
 */
 /* This gets pins according to unit 0, 1, 2, 3 */
-static BOOL get_pin_state(UInt8 unit, UInt32 *status)
+static BOOL get_pin_state(UInt8 unit, SInt32 *status)
 {
     UInt8 stat8;
 
