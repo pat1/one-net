@@ -146,7 +146,7 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     
     UInt8 src_unit, dst_unit, msg_type, msg_data, original_state;
     ona_msg_class_t msg_class;
-    UInt32 tmp;
+    SInt32 tmp;
     #ifdef PEER
     ona_msg_class_t original_class;
     BOOL forward_to_peer = TRUE;

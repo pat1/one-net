@@ -844,7 +844,7 @@ void print_app_payload(const UInt8* const pld, UInt8 pld_len)
 {
     UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
-    UInt32 msg_data;
+    SInt32 msg_data;
 
     on_parse_app_pld(pld, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);

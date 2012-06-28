@@ -101,14 +101,25 @@ ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
 }
 
 /* get the 32-bit message data from the payload buffer */
-ONE_NET_INLINE UInt32 get_msg_data(const UInt8* payload)
+ONE_NET_INLINE SInt32 get_msg_data(const UInt8* payload)
 {
-    UInt16 lsb = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
-    return (((UInt32)(payload[2] & 0x0F)) << 16) + lsb;
+    // 2 rightmost(least significant) bytes (bits 0 to 15, 0 is least
+    // significant bit)
+    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
+    
+    // add bits 16 - 18 (0 is the least significant bit)
+    msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
+    
+    // byte 19 is the sign bit.  0 is non-negative, 1 is negative
+    if(payload[2] & 0x08)
+    {
+        msg_data = -msg_data;
+    }
+    return msg_data;
 }
 
 /* store the 32-bit message data in the payload buffer */
-void put_msg_data(UInt32 data, UInt8 *payload);
+void put_msg_data(SInt32 data, UInt8 *payload);
 
 /* get the 8-bit source unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)
@@ -449,7 +460,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 // parsing functions
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
-  msg_type, UInt32* const msg_data);
+  msg_type, SInt32* const msg_data);
 #ifdef BLOCK_MESSAGES_ENABLED
 BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt);
 #endif

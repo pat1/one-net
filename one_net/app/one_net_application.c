@@ -220,7 +220,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
 */
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
-  msg_type, UInt32* const msg_data)
+  msg_type, SInt32* const msg_data)
 {
     if(!payload || !src_unit || !dst_unit || !msg_class || !msg_type ||
       !msg_data)
@@ -316,11 +316,21 @@ void put_msg_hdr(UInt16 hdr, UInt8* payload)
 }
 
 /* store the 32-bit message data in the payload buffer */
-void put_msg_data(UInt32 data, UInt8 *payload)
+void put_msg_data(SInt32 data, UInt8 *payload)
 {
-    data &= 0x000FFFFF;
+    // TODO -- can we make this function more efficient?
+    UInt8 sign = 0;
+    if(data < 0)
+    {
+        sign = 0x08;
+        data = -data;
+    }
+    
+    // data is now non-negative
+    data &= 0x0007FFFF;
     payload[2] &= 0xF0;
     payload[2] |= (data >> 16); 
+    payload[2] |= sign;
     payload[3] = data >> 8;
     payload[4] = data;
 }

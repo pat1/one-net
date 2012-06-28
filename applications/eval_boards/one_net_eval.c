@@ -432,7 +432,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 {
     UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
-    UInt32 msg_data;
+    SInt32 msg_data;
 
 
     #ifndef ONE_NET_MULTI_HOP
@@ -982,7 +982,7 @@ void eval_single_txn_status(on_message_status_t status,
     if(ack_nack->handle == ON_ACK_STATUS)
     {
         UInt8 src_unit = get_src_unit(ack_nack->payload->status_resp);
-        UInt32 msg_data = get_msg_data(ack_nack->payload->status_resp);
+        SInt32 msg_data = get_msg_data(ack_nack->payload->status_resp);
         oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(dst),
           msg_data);
     }
