@@ -282,7 +282,7 @@
 [LANGUAGE]
 "English" 
 [CONFIG_INFO_VD1]
-1 
+0 
 [CONFIG_INFO_VD2]
 0 
 [CONFIG_INFO_VD3]
@@ -318,15 +318,6 @@
 [WINDOW_POSITION_STATE_DATA_VD3]
 [WINDOW_POSITION_STATE_DATA_VD4]
 [WINDOW_Z_ORDER]
-"C:\HEWProj\trJun26\processors\renesas\src\adi_io_boards\led_hal.c" 
-"C:\HEWProj\trJun26\one_net\utility\one_net_led.c" 
-"C:\HEWProj\trJun26\applications\simple_io_board\simple_input.c" 
-"C:\HEWProj\trJun26\applications\simple_io_board\simple_output.c" 
-"C:\HEWProj\trJun26\one_net\mac\one_net_client.c" 
-"C:\HEWProj\trJun26\one_net\mac\one_net.c" 
-"C:\HEWProj\trJun26\processors\renesas\src\adi_io_boards\delay.h" 
-"C:\HEWProj\trJun26\transceivers\adi\adi.c" 
-"C:\HEWProj\trJun26\processors\renesas\src\adi_io_boards\quad_relay\config_options.h" 
 [TARGET_NAME]
 "R8C E8 SYSTEM" "" 0 
 [STATUSBAR_STATEINFO_VD1]

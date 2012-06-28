@@ -7,15 +7,7 @@
 [GENERAL_DATA]
 [BREAKPOINTS]
 [OPEN_WORKSPACE_FILES]
-"C:\HEWProj\tr\one_net\app\one_net_packet.h" 
-"C:\HEWProj\tr\one_net\mac\one_net.c" 
-"C:\HEWProj\tr\one_net\mac\one_net_client.c" 
-"C:\HEWProj\tr\one_net\utility\one_net_crc.c" 
 [WORKSPACE_FILE_STATES]
-"C:\HEWProj\tr\one_net\app\one_net_packet.h" 0 0 911 364 0 0 
-"C:\HEWProj\tr\one_net\mac\one_net.c" -4 -30 1033 637 1 3 
-"C:\HEWProj\tr\one_net\mac\one_net_client.c" 44 58 893 429 0 2 
-"C:\HEWProj\tr\one_net\utility\one_net_crc.c" 22 29 915 368 0 1 
 [LOADED_PROJECTS]
 "eval_adi" 
 [END]
