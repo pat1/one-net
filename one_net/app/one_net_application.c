@@ -346,7 +346,7 @@ void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
 }
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /* stores the packet index in the raw payload buffer */
 void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
 {
