@@ -96,7 +96,7 @@
 // Master/Client
 
 #ifndef ONE_NET_MASTER
-//	#define ONE_NET_MASTER
+	#define ONE_NET_MASTER
 #endif
 
 #ifndef ONE_NET_CLIENT
