@@ -29,7 +29,7 @@ struct app_payload_t
     UInt8 dst_unit;
     ona_msg_class_t msg_class;
     UInt8 msg_type;
-    UInt32 msg_data;
+    SInt32 msg_data;
 
     static string get_msg_class_string(UInt16 msg_class);
     bool detailed_app_payload_to_string(string& str) const;
