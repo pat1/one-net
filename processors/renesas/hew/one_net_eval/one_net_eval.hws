@@ -3,12 +3,12 @@
 [DATABASE_VERSION]
 "11.0" 
 [WORKSPACE_DETAILS]
-"one_net_eval" "C:\HEWProj\Jun27\processors\renesas\hew\one_net_eval" "C:\HEWProj\Jun27\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
+"one_net_eval" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\one_net_eval.hws" "M16C" "Renesas M16C Standard" 
 [SHARED_WORKSPACE_CONTROL_STATUS]
 "" "" "" 
 "" "" "" 
 [PROJECTS]
-"eval_adi" "C:\HEWProj\Jun27\processors\renesas\hew\one_net_eval\eval_adi" "C:\HEWProj\Jun27\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
+"eval_adi" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\eval_adi.hwp" 0 
 [INFORMATION]
 "No workspace information available" 
 [SCRAP]
