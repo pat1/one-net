@@ -598,7 +598,7 @@
 // a CLI option to change the values during runtime.
 #ifndef ONE_NET_SIMPLE_CLIENT
     #ifndef CLOCK_SLOW_DOWN
-        #define CLOCK_SLOW_DOWN
+    //    #define CLOCK_SLOW_DOWN
     #endif
     
     #ifdef CLOCK_SLOW_DOWN
@@ -609,19 +609,19 @@
         // tick_count will increment by 100 in a second, not 1000.  This value can be made large when
         // debugging so that packets do not fly by too fast for the human eye to register.  A
         // CLOCK_SLOW_DOWN_FACTOR of 1 should be used under normal circumstances.
-        #define CLOCK_SLOW_DOWN_FACTOR 15
+        #define CLOCK_SLOW_DOWN_FACTOR 1
     #endif
     
     // not to be confused with write_pause from DEBUGGING_TOOLS.  TA WRITE_PAUSE_FACTOR of 10 will pause
     // 10 tick counts before writing a message.  This can be useful for debugging so that a sniffer does
     // not lose any messages.
     #ifndef WRITE_PAUSE
-        #define WRITE_PAUSE
+    //    #define WRITE_PAUSE
     #endif
     
     #ifdef WRITE_PAUSE
         // Must be an integer >= 0
-        #define WRITE_PAUSE_FACTOR 10
+        #define WRITE_PAUSE_FACTOR 0
     #endif
 #endif
     
