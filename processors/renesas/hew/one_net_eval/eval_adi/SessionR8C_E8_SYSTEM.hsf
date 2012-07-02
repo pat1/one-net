@@ -384,6 +384,7 @@
 [WINDOW_POSITION_STATE_DATA_VD3]
 [WINDOW_POSITION_STATE_DATA_VD4]
 [WINDOW_Z_ORDER]
+"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\ClientOnlyBlockStream\config_options.h" 
 "C:\HEWProj\on_trun\processors\renesas\src\eval\adi\MasterOnlyBlockStream\config_options.h" 
 [TARGET_NAME]
 "R8C E8 SYSTEM" "" 0 
