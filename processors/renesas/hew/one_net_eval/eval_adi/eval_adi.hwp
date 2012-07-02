@@ -13,6 +13,7 @@
 "Debug" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Debug" 
 "Debug_M16C_R8C_Simulator" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Debug_M16C_R8C_Simulator" 
 "Debug_R8C_E8_SYSTEM" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM" 
+"DesktopSniffer" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\DesktopSniffer" 
 "Master_Block_Stream" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Master_Block_Stream" 
 "Release" "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Release" 
 [BUILD_PHASES]
@@ -178,8 +179,8 @@
 "C:\HEWProj\on_trun\processors\renesas\src\common\tal_adi.h" "User" "C header file" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\common\uart.c" "User" "C source file" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\common\uart.h" "User" "C header file" 2 
-"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\ClientOnlyBlockStream\README.txt" "User" "" 2 
-"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\ClientOnlyBlockStream\config_options.h" "User" "C header file" 2 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\DesktopSniffer\README.txt" "User" "" 2 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\DesktopSniffer\config_options.h" "User" "C header file" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\eval\adi\hal_adi.c" "User" "C source file" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\eval\adi\hal_adi.h" "User" "C header file" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\eval\adi\io_port_mapping.h" "User" "C header file" 2 
@@ -496,6 +497,75 @@
 [LINKAGE_ORDER_Debug_R8C_E8_SYSTEM]
 "C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\Debug_R8C_E8_SYSTEM\ncrt0.r30" 
 [GENERAL_DATA_CONFIGURATION_Debug_R8C_E8_SYSTEM]
+[OPTIONS_DesktopSniffer_Renesas M16C Assembler]
+"Assembly source file" "0bbdb2268d49cc10" 2 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\ncrt0.a30" "0bbdb2268d49cc10" 2 
+[OPTIONS_DesktopSniffer_Renesas M16C C Compiler]
+"C source file" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\applications\eval_boards\client_eval.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\applications\eval_boards\master_eval.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\applications\eval_boards\one_net_eval.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\applications\eval_boards\sniff_eval.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\common\cb.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\common\dfi.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\common\string\nprintf.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\common\string\str.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\app\one_net_acknowledge.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\app\one_net_application.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\app\one_net_features.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\app\one_net_message.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\app\one_net_packet.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\cli\oncli.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\cli\oncli_hdlr.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\cli\oncli_str.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\mac\one_net.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\mac\one_net_client.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\mac\one_net_master.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\mac\one_net_peer.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_crc.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_encode.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_led.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_memory.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_prand.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_timer.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\one_net\utility\one_net_xtea.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\common\one_net_port_specific.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\common\print.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\common\uart.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\hal_adi.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\adi\tal_adi.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\hal.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\led_hal.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\nv_hal.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\eval\pal.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\r8c23\flash.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\processors\renesas\src\r8c23\tick.c" "0471de181785dc10" 1 
+"C:\HEWProj\on_trun\transceivers\adi\adi.c" "0471de181785dc10" 1 
+[OPTIONS_DesktopSniffer_Renesas M16C Configurator]
+"Single Shot" "0072e754d94fcc10" 6 
+[OPTIONS_DesktopSniffer_Renesas M16C ConfiguratorR8C]
+"Single Shot" "0072e754d94fcc10" 6 
+[OPTIONS_DesktopSniffer_Renesas M16C Librarian]
+"Single Shot" "0072e754d94fcc10" 5 
+[OPTIONS_DesktopSniffer_Renesas M16C Linker]
+"Single Shot" "0b02d954d94fcc10" 3 
+[OPTIONS_DesktopSniffer_Renesas M16C Stype Converter]
+"Single Shot" "0b02d954d94fcc10" 4 
+[OPTIONS_DesktopSniffer]
+"" 0 
+"[V|VERSION|1] [B|COMMAND|1] [S|SPEC|UITRON4] " 6 
+"[V|VERSION|1] [B|DATALENGTH|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).mot^"] [S|CPU|R8C2X] " 4 
+"[V|VERSION|1] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|LIST|L|M] [B|JOPT|1] [S|CPU|R8C2X]
+" 2 
+"[V|VERSION|1] [S|INCLUDE|^"$(WORKSPDIR)\..\..\..\..\applications\eval_boards^"|^"$(WORKSPDIR)\..\..\src\r8c23^"|^"$(WORKSPDIR)\.\..\src\eval\adi\DesktopSniffer^"|^"$(WORKSPDIR)\..\..\src\eval\adi^"|^"$(WORKSPDIR)\..\..\src\eval^"|^"$(WORKSPDIR)\..\..\src\common^"|^"$(WORKSPDIR)\..\..\..\..\one_net\port_specific^"|^"$(WORKSPDIR)\..\..\..\..\one_net\mac^"|^"$(WORKSPDIR)\..\..\..\..\common^"|^"$(WORKSPDIR)\..\..\..\..\common\string^"|^"$(WORKSPDIR)\..\..\..\..\transceivers\adi^"|^"$(WORKSPDIR)\..\..\..\..\one_net\app^"|^"$(WORKSPDIR)\..\..\..\..\one_net\utility^"|^"$(WORKSPDIR)\..\..\..\..\one_net\cli^"|^"$(WORKSPDIR)\..\..\..\..\transceivers^"] [S|OUTPUT|OBJECTCODE] [B|INSPECTOR|1] [S|OUTPUTPATH|^"$(CONFIGDIR)\$(FILELEAF).r30^"] [S|OPTIMIZE|5] [B|OR|1] [B|O5OA|1] [B|OGLB_JMP|1] [B|FCHAR_ENUMERATOR|1] [B|FDOUBLE_32|1] [B|FNO_ALIGN|1] [B|FNO_CARRY|1] [B|FNEAR_ROM|1] [B|FSMALL_ARRAY|1] [B|FUSE_DIV|1] [S|CPU|R8C2X]
+" 1 
+"[V|VERSION|1] [S|MODE|CREATE|] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).lib^"] " 5 
+"[V|VERSION|3] [S|INPUTLIBRARY|^"L=nc30lib^"] [B|DEBUG|1] [B|MAP-S|1] [S|OUTPUT|^"$(CONFIGDIR)\$(PROJECTNAME).x30^"] [B|JOPT|1] [B|STARTUPLINK|1] [S|CPU|R8C2X]
+" 3 
+[EXCLUDED_FILES_DesktopSniffer]
+[LINKAGE_ORDER_DesktopSniffer]
+"C:\HEWProj\on_trun\processors\renesas\hew\one_net_eval\eval_adi\DesktopSniffer\ncrt0.r30" 
+[GENERAL_DATA_CONFIGURATION_DesktopSniffer]
 [OPTIONS_Master_Block_Stream_Renesas M16C Assembler]
 "Assembly source file" "0bbdb2268d49cc10" 2 
 "C:\HEWProj\on_trun\processors\renesas\src\eval\ncrt0.a30" "0bbdb2268d49cc10" 2 
@@ -667,6 +737,15 @@
 "MEMORY_MAPPING_OPTIONS" "Unknown Options" 
 [GENERAL_DATA_CONFIGURATION_SESSION_Debug_R8C_E8_SYSTEM_SessionR8C_E8_SYSTEM]
 [SESSION_DATA_CONFIGURATION_SESSION_Debug_R8C_E8_SYSTEM_SessionR8C_E8_SYSTEM]
+"MEMORY_MAPPING_OPTIONS" "Unknown Options" 
+[GENERAL_DATA_CONFIGURATION_SESSION_DesktopSniffer_DefaultSession]
+[SESSION_DATA_CONFIGURATION_SESSION_DesktopSniffer_DefaultSession]
+"MEMORY_MAPPING_OPTIONS" "" 
+[GENERAL_DATA_CONFIGURATION_SESSION_DesktopSniffer_SessionM16C_R8C_Simulator]
+[SESSION_DATA_CONFIGURATION_SESSION_DesktopSniffer_SessionM16C_R8C_Simulator]
+"MEMORY_MAPPING_OPTIONS" "Unknown Options" 
+[GENERAL_DATA_CONFIGURATION_SESSION_DesktopSniffer_SessionR8C_E8_SYSTEM]
+[SESSION_DATA_CONFIGURATION_SESSION_DesktopSniffer_SessionR8C_E8_SYSTEM]
 "MEMORY_MAPPING_OPTIONS" "Unknown Options" 
 [GENERAL_DATA_CONFIGURATION_SESSION_Master_Block_Stream_DefaultSession]
 [SESSION_DATA_CONFIGURATION_SESSION_Master_Block_Stream_DefaultSession]
