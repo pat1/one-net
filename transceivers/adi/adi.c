@@ -459,6 +459,15 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     }
     #endif    
     
+    #if defined(WRITE_PAUSE_FACTOR) && WRITE_PAUSE_FACTOR > 0
+    {
+        tick_t write_tick = get_tick_count() + MS_TO_TICK(WRITE_PAUSE_FACTOR);
+        while(get_tick_count() < write_tick)
+        {
+        }
+    }
+    #endif
+    
     
     tx_rf_idx = 0;
     tx_rf_data = data;

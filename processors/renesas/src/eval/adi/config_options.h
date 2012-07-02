@@ -593,6 +593,40 @@
     #define DEBUGGING_TOOLS
 #endif
 
+// More debugging below in case you do not want to define DEBUGGING_TOOLS.
+// Note these are compile-time constants.  For more control, you can make these variables and create
+// a CLI option to change the values during runtime.
+#ifndef ONE_NET_SIMPLE_CLIENT
+    #ifndef CLOCK_SLOW_DOWN
+        #define CLOCK_SLOW_DOWN
+    #endif
+    
+    #ifdef CLOCK_SLOW_DOWN
+        // Must be an integer >= 1
+        // A CLOCK_SLOW_DOWN_FACTOR of 10 would mean that when setting a timer for 50 ms, that timer
+        // will expire (in real time) in 500 ms (10 times as long).  For every tick interrupt (which
+        // occurs every milliseconds, the "tick_count" variable will increment by 1.  That means that
+        // tick_count will increment by 100 in a second, not 1000.  This value can be made large when
+        // debugging so that packets do not fly by too fast for the human eye to register.  A
+        // CLOCK_SLOW_DOWN_FACTOR of 1 should be used under normal circumstances.
+        #define CLOCK_SLOW_DOWN_FACTOR 15
+    #endif
+    
+    // not to be confused with write_pause from DEBUGGING_TOOLS.  TA WRITE_PAUSE_FACTOR of 10 will pause
+    // 10 tick counts before writing a message.  This can be useful for debugging so that a sniffer does
+    // not lose any messages.
+    #ifndef WRITE_PAUSE
+        #define WRITE_PAUSE
+    #endif
+    
+    #ifdef WRITE_PAUSE
+        // Must be an integer >= 0
+        #define WRITE_PAUSE_FACTOR 10
+    #endif
+#endif
+    
+    
+
 
 // enable this when you want more ROMDATA or other meemory.
 // Shortens strings to save memory, but the strings won't make

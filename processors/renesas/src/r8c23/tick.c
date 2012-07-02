@@ -94,6 +94,10 @@
 
 //! The number of ticks since the application started.
 static tick_t tick_count = 0;
+#if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+static tick_t processor_tick_count = 0;
+#endif
+
 
 //! @} TICK_pri_var
 //                              PRIVATE VARIABLES
@@ -162,12 +166,20 @@ tick_t get_tick_diff(tick_t now, tick_t then)
 void set_tick_count(tick_t new_tick_count)
 {
     tick_count = new_tick_count;
+    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    processor_tick_count = tick_count * CLOCK_SLOW_DOWN_FACTOR;
+    #endif
 }
 
 
 void increment_tick_count(tick_t increment)
 {
+    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    processor_tick_count += increment;
+    tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+    #else
     tick_count += increment;
+    #endif
 }
 
 
@@ -255,7 +267,12 @@ void disable_tick_timer(void)
 #pragma interrupt tick_timer_isr
 void tick_timer_isr(void)
 {
-    tick_count++;
+    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    processor_tick_count ++;
+    tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+    #else
+    tick_count ++;
+    #endif
 } // tick_timer //
 
 
