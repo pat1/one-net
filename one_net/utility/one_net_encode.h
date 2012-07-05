@@ -91,6 +91,13 @@ enum
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_encode_pub_func
@@ -107,6 +114,12 @@ one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED,
 //! @} ONE-NET_encode_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 //! @} ONE-NET_encode
 

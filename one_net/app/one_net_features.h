@@ -207,6 +207,12 @@ extern const on_features_t FEATURES_UNKNOWN;
 //==============================================================================
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_FEATURES_pub_func
@@ -235,6 +241,11 @@ BOOL features_dr_channel_capable(on_features_t features);
 //! @} ONE-NET_FEATURES_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 

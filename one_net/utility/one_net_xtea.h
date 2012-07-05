@@ -145,6 +145,13 @@ typedef enum
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
 //! \defgroup one_net_xtea_pub_func
@@ -159,6 +166,12 @@ void one_net_xtea_decipher(const UInt8 ROUNDS, UInt8 * data,
 //! @} one_net_xtea_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 //! @} one_net_xtea
 

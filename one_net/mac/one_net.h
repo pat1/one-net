@@ -774,6 +774,13 @@ extern UInt8 next_channel;
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
 //! \defgroup ONE-NET_pub_func
@@ -958,6 +965,11 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
 //! @} ONE-NET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+}
+#endif
 
 //! @} ONE-NET
 

@@ -81,6 +81,13 @@
 //                              PUBLIC VARIABLES END
 //==============================================================================
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
 //! \defgroup one_net_crc_pub_func
@@ -93,6 +100,13 @@ UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN,
 //! @} one_net_crc_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 //! @} one_net_crc
 
