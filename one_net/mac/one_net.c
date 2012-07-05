@@ -564,13 +564,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
                 break;
 	        case ON_ACK_VALUE:
                 val_present = TRUE;
-                val = ack_nack->payload->nack_value;
-                if(is_ack)
-                {
-                    *ack_nack_pld_ptr = ack_nack->payload->ack_value.uint8;
-                    ack_nack_pld_ptr++;
-                    val = ack_nack->payload->ack_value.uint32;
-                }
+                val = ack_nack->payload->ack_value;
                 break;
 	        case ON_ACK_TIME_MS:
             case ON_ACK_TIMEOUT_MS:

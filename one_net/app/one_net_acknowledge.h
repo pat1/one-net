@@ -223,13 +223,6 @@ typedef on_ack_handle_t on_ack_nack_handle_t; // it's all ints anyway
 typedef on_ack_handle_t on_nack_handle_t; // it's all ints anyway
 
 
-typedef struct
-{
-	UInt8 uint8;
-	UInt32 uint32;
-} ack_value_t;
-
-
 /*!
     The payload of an ACK or a NACK.
 */
@@ -240,10 +233,10 @@ typedef union
       //! "poll" responses.
     UInt8 admin_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
 	UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
-	ack_value_t ack_value;
     tick_t ack_time_ms;
 	UInt8 nack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN - 1];
       // subtract 1 byte for the nack reason
+	UInt32 ack_value;
 	UInt32 nack_value;
     tick_t nack_time_ms;
     one_net_xtea_key_fragment_t key_frag;

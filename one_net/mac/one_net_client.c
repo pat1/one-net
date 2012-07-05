@@ -2568,7 +2568,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             master->flags = DATA[1];
             ack_nack->handle = ON_ACK_VALUE;
-            ack_nack->payload->ack_value.uint8 = master->flags;
+            ack_nack->payload->ack_value = master->flags;
             #ifdef AUTO_SAVE
             save = TRUE;
             #endif
