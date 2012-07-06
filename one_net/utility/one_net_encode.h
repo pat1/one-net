@@ -110,6 +110,9 @@ one_net_status_t on_encode(UInt8 * encoded, const UInt8 * RAW,
   const UInt16 ENCODED_SIZE);
 one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED, 
   const UInt16 ENCODED_SIZE);
+one_net_status_t on_encode_uint16(UInt16* encoded, UInt16 decoded);
+one_net_status_t on_decode_uint16(UInt16* decoded, UInt16 encoded);
+
 
 //! @} ONE-NET_encode_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END

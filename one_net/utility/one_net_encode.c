@@ -42,6 +42,7 @@
 
 #include "config_options.h"
 #include "one_net_encode.h"
+#include "one_net_types.h"
 
 // TODO -- this is a bit messy.  Find a better #define test.
 #if defined(_R8C_TINY) && !defined(QUAD_OUTPUT)
@@ -445,6 +446,66 @@ one_net_status_t on_decode(UInt8 * raw, const UInt8 * ENCODED,
 
     return ONS_SUCCESS;
 } // on_decode //
+
+
+/*!
+    \brief Encodes a UInt16
+
+    Takes a UInt16 from 0 to 4095 and turns it into its encoded counterpart.  Note
+    that shifting takes place inside the function.  Thus the input is between 0 and
+    4095 (0x0000 to 0x0FFF) inclusive rather than 0x0000 to 0xFFF0.  Thus the 0x0001
+    will map to 0xB4BC rather than 0x0010 mapping to 0xB4BC.
+
+    \param[in] decoded The UInt16 to be converted.
+    \param[out] encoded The corresponding encoded value.
+    
+    \return ONS_SUCCESS if no parameters are NULL and encoded is a valid encoded value.
+            ONS_BAD_PARAM otherwise
+*/
+one_net_status_t on_encode_uint16(UInt16* encoded, UInt16 decoded)
+{
+    if(!encoded || decoded > 0xFFF)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    *encoded = ((RAW_TO_ENCODED[decoded >> 6]) << 8) + RAW_TO_ENCODED[decoded & 0x3F];
+    return ONS_SUCCESS;
+}
+
+
+/*!
+    \brief Decodes a properly encoded UInt16
+
+    Takes an encoded UInt16 and turns it into its decoded counterpart from 0 to 4095.  Note
+    that shifting takes place inside the function.  Thus the output is between 0 and
+    4095 (0x0000 to 0x0FFF) inclusive rather than 0x0000 to 0xFFF0.  Thus 0xB4BC
+    will map to 0x0001 rather than 0x0010.
+
+    \param[out] decoded The decoded value
+    \param[in] encoded The encoded value
+    \return ONS_SUCCESS if no parameters are NULL and encoded is a valid encoded value.
+            ONS_BAD_PARAM otherwise
+*/
+one_net_status_t on_decode_uint16(UInt16* decoded, UInt16 encoded)
+{
+    UInt16 low, high;
+    if(!decoded)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    high = encoded_to_decoded_byte(encoded >> 8, FALSE);
+    low = encoded_to_decoded_byte(encoded & 0xFF, FALSE);
+    if(high == 0xFF || low == 0xFF)
+    {
+        return ONS_BAD_PARAM;
+    }
+    
+    *decoded = (high << 6) + low;
+    return ONS_SUCCESS;
+}
+
 
 //! @} ONE-NET_encode_pub_func
 //                      PUBLIC FUNCTION IMPLEMENTATION END
