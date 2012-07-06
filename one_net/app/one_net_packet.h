@@ -948,6 +948,11 @@ typedef struct
 //==============================================================================
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 //==============================================================================
 //                      PUBLIC FUNCTION DECLARATIONS
@@ -1098,6 +1103,11 @@ void put_raw_pid(UInt8* payload, UInt16 raw_pid);
 //! @} ONE-NET_PACKET_pub_func
 //                      PUBLIC FUNCTION DECLARATIONS END
 //==============================================================================
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 //! @} ONE-NET_PACKET
