@@ -1003,6 +1003,21 @@ ONE_NET_INLINE BOOL packet_is_multihop(UInt16 raw_pid)
 
 
 /*!
+    \brief Determines whether a given PID represents a stay-awake packet.
+
+    Determines whether a given PID represents a stay-awake packet.
+
+    \param[in] raw_pid The pid to check
+
+    \return True if encoded_pid is a stay-awake packet, false otherwise.
+*/
+ONE_NET_INLINE BOOL packet_is_stay_awake(UInt16 raw_pid)
+{
+    return ((raw_pid & ONE_NET_RAW_PID_STAY_AWAKE_MASK) > 0);
+}
+
+
+/*!
     \brief Determines whether a given PID represents a single packet.
 
     Determines whether a given PID represents a single packet.
