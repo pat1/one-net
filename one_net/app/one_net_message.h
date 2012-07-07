@@ -59,6 +59,21 @@
 //! @{
 
 
+extern const on_encoded_did_t NO_DESTINATION;
+
+
+//! @} ONE-NET_MESSAGE_const
+//                                  CONSTANTS END
+//==============================================================================
+
+//==============================================================================
+//                                  TYPEDEFS
+//! \defgroup ONE-NET_MESSAGE_typedefs
+//! \ingroup ONE-NET_MESSAGE
+//! @{
+    
+    
+    
 /*!
     \brief Data Packet Message Types
 */
@@ -100,18 +115,168 @@ typedef enum
 } on_priority_t;
 
 
-extern const on_encoded_did_t NO_DESTINATION;
+//! Relevant only for non-simple clients.  This structure controls whether a client device can
+//! "slide off"(i.e. be replaced by another device) of a client's device list.  If the flag is
+//! set to ON_DEVICE_ALLOW_SLIDEOFF, it can be replaced.  If its value is ON_DEVICE_PROHIBIT_SLIDEOFF
+//! or ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, it cannot.
+typedef enum
+{
+    ON_DEVICE_ALLOW_SLIDEOFF, //! Set if the device should be allowed to "slide off" the list.
+    ON_DEVICE_PROHIBIT_SLIDEOFF, //! Set if the device should not be allowed to "slide off" the list.
+    ON_DEVICE_PROHIBIT_SLIDEOFF_LOCK, //! Set if the device should not be allowed to "slide off" the list and
+                                      //! is "locked".  This can be unlocked with a call to on_client_unlock_device_slideoff()
+} device_slideoff_t;
 
 
-//! @} ONE-NET_MESSAGE_const
-//                                  CONSTANTS END
-//==============================================================================
+/*!
+    \brief Info for communicating with a device.
 
-//==============================================================================
-//                                  TYPEDEFS
-//! \defgroup ONE-NET_MESSAGE_typedefs
-//! \ingroup ONE-NET_MESSAGE
-//! @{
+    This structure holds the information needed to receive from a device.
+*/
+typedef struct
+{
+    on_encoded_did_t did;           //!< Encoded Device ID of the sender
+    on_features_t features;         //!< features of the device.
+    #ifdef ONE_NET_MULTI_HOP
+    UInt8 max_hops;                 //!< May be different from max_hops in features and may change and may vary
+                                    //!< between devices depending on distance, noise, past experience, etc.
+                                    //!< This is the CURRENT maximum number of hops these two devices use
+                                    //!< if / when they use multi-hop
+    UInt8 hops;                     //!< The expected "best guess" of the current number of hops between the
+                                    //!< two devices.  This may or may not change often. If conditions, distances,
+                                    //!< and packet lengths tend to remain the same,this value will likely remain
+                                    //!< the same.
+    #endif
+    UInt8 data_rate;                //!< The current data rate the device is using
+    UInt16 msg_id;                  //!< The message id of the current or next transaction with this device(0 - 4095).
+    tick_t verify_time;             //!< The last time the message id was verified for this device
+} on_sending_device_t; 
+
+
+typedef struct
+{
+    on_sending_device_t sender;     //!< did, etc. from sender.
+    #ifndef ONE_NET_SIMPLE_CLIENT
+    UInt8 lru;                      //!< least recently used value
+    device_slideoff_t slideoff;    //!< Whether the device can "slide off" the list when the list gets full.
+    #endif
+} on_sending_dev_list_item_t;
+
+
+//! Transaction structure
+typedef struct
+{
+    //! The type of transaction (i.e. block, stream, invite, single, response)
+    //! See on_data_t for details.
+    UInt8 txn_type;
+    
+    //! The priority of the transaction
+    UInt8 priority;
+
+    //! How many times this txn has been tried
+    UInt8 retry;
+
+    //! The timer that contains the time the next transaction
+    //! is supposed to occur if this is a block or stream transaction.
+    UInt8 next_txn_timer;
+    
+    //! Time in ms before the message is considered timed out.  Note this is
+    //! 16 bit value rather than a UInt32 or tick_t because there is no way
+    //! we'll ever want to wait more than 65535 milliseconds for a response
+    UInt16 response_timeout;
+
+    //! The length of the data the packet contains (in bytes).  This will not
+    //! contain the hops field, so if a multihop packet is being sent, the
+    //! hop field size will need to be added to this value.  This value can
+    //! also be used to find the hops field in the packet since the hops field
+    //! is at a different index for each packet type
+    UInt8 data_len;
+
+    //! The packet to be sent
+    UInt8 * pkt;
+    
+    //! Device information for the recipient
+    on_sending_device_t* device;
+    
+    //! Key to use for this transaction
+    one_net_xtea_key_t* key;
+
+    #ifdef ONE_NET_MULTI_HOP
+    //! Number of hops
+    UInt8 hops;
+
+    //! Max number of hops
+    UInt8 max_hops;
+    #endif
+} on_txn_t;
+
+
+//! Data needed to communicate with the MASTER
+typedef struct
+{
+    //! Contains the information needed to send to / receive from the Master
+    on_sending_device_t device;
+
+    //! Interval at which the device must communicate with the MASTER(in ms)
+    //! If the interval is 0, clients are NOT expected to check in regularly
+    //! with the master.  To force a client to check in immediately, you can
+    //! set this to 1.  Don't set it to 0.  Setting it to 0 will cause the
+    //! device to think it is not supposed to check-in regularly.
+    UInt32 keep_alive_interval;
+    
+    //! Bitmap of communication and MASTER settable flags
+    //! (sent in the SETTINGS admin message).
+    UInt8 flags;
+} on_master_t;
+
+
+#ifdef ONE_NET_MASTER
+//! Parameters specific to the MASTER
+typedef struct
+{
+    #ifdef BLOCK_MESSAGES_ENABLED
+    UInt8 block_stream_flags;
+    #endif
+    
+    //! The next available DID to be handed to a CLIENT that joins the network.
+    UInt16 next_client_did;
+    
+    //! The number of CLIENTs currently in the network
+    UInt16 client_count;
+} on_master_param_t;
+
+
+//! Structure to keep track of the CLIENT
+typedef struct
+{
+    //! Keeps track of the communication and MASTER setable flags in the CLIENT
+    //! (the ones sent in the SETTINGS admin message).
+    UInt8 flags;
+
+    //! Indicates if using the current key or the old key.
+    BOOL use_current_key;
+    
+    //! If true, indicates that a device has been added and this client has
+    //! not yet been informed.
+    BOOL send_add_device_message;
+    
+    //! If true, indicates that a device has been removed and this client has
+    //! not yet been informed.
+    BOOL send_remove_device_message;
+    
+    //! Interval at which the client must communicate with the MASTER(in ms)
+    UInt32 keep_alive_interval;
+    
+    //! The latest time that the client is expected to check in.
+    tick_t next_check_in_time;
+    
+    on_sending_device_t device;
+} on_client_t;
+
+
+#include "one_net_master_port_const.h" // for ONE_NET_MASTER_MAX_CLIENTS
+
+#endif
 
 
 #ifndef _ONA_MSG_CLASS_T
@@ -396,30 +561,6 @@ typedef struct
     UInt8 len;
 } single_reg_exp_t;
 
-
-/*!
-    \brief Info for communicating with a device.
-
-    This structure holds the information needed to receive from a device.
-*/
-typedef struct
-{
-    on_encoded_did_t did;           //!< Encoded Device ID of the sender
-    on_features_t features;         //!< features of the device.
-    #ifdef ONE_NET_MULTI_HOP
-    UInt8 max_hops;                 //!< May be different from max_hops in features and may change and may vary
-                                    //!< between devices depending on distance, noise, past experience, etc.
-                                    //!< This is the CURRENT maximum number of hops these two devices use
-                                    //!< if / when they use multi-hop
-    UInt8 hops;                     //!< The expected "best guess" of the current number of hops between the
-                                    //!< two devices.  This may or may not change often. If conditions, distances,
-                                    //!< and packet lengths tend to remain the same,this value will likely remain
-                                    //!< the same.
-    #endif
-    UInt8 data_rate;                //!< The current data rate the device is using
-    UInt16 msg_id;                  //!< The message id of the current or next transaction with this device(0 - 4095).
-    tick_t verify_time;             //!< The last time the message id was verified for this device
-} on_sending_device_t; 
 
 
 #ifdef BLOCK_MESSAGES_ENABLED
@@ -726,6 +867,12 @@ UInt32 block_get_bytes_remaining(UInt32 transfer_size, UInt32 byte_index,
 // the chunk size is 1.  Otherwise it is whatever is stored in the message
 UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg);
 #endif
+
+
+
+
+
+
 
 
 
