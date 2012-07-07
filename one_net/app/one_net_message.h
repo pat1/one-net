@@ -741,6 +741,45 @@ extern on_recipient_list_t* recipient_send_list_ptr;
 //! \defgroup ONE-NET_MESSAGE_pub_func
 //! \ingroup ONE-NET_MESSAGE
 //! @{
+    
+    
+one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
+  on_ack_nack_t* const ack_nack);
+
+#ifdef ONE_NET_MULTI_HOP
+one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops);
+one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
+  UInt8* max_hops);
+#endif
+BOOL setup_pkt_ptr(UInt16 raw_pid, UInt8* pkt_bytes, UInt16 msg_id,
+  on_pkt_t* pkt);
+
+#ifdef ONE_NET_MULTI_HOP
+/*!
+    \brief Sets the hops for a device
+    
+    \param[in] raw_dst The raw device ID of the device's hops to change.
+    \param[in] hops The desired new number of hops for the device
+    
+    \return The new number of hops for the device.
+    \return -1 if device id could not be decoded or is not in this
+               device's sending table.
+*/
+SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops);
+
+
+/*!
+    \brief Sets the max_hops for a device
+    
+    \param[in] raw_dst The raw device ID of the device's max hops to change.
+    \param[in] max_hops The desired new number of max_hops for the device.
+    
+    \return The new maximum number of hops for the device
+    \return -1 if device id could not be decoded or is not in this
+               device's sending table.
+*/
+SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
+#endif    
 
 
 #ifdef DEBUGGING_TOOLS
