@@ -744,6 +744,12 @@ extern on_recipient_list_t* recipient_send_list_ptr;
 //! @{
     
     
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    
+    
 one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
   on_ack_nack_t* const ack_nack);
 
@@ -820,6 +826,10 @@ one_net_status_t on_encrypt(UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len);
 one_net_status_t on_decrypt(UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 
