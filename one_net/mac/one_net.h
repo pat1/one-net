@@ -649,28 +649,6 @@ extern "C"
 //! \ingroup ONE-NET
 //! @{
 
-
-#ifndef BLOCK_MESSAGES_ENABLED
-one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
-#else
-one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
-  block_stream_msg_t* bs_msg);
-#endif
-
-one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
-  BOOL stay_awake);
-  
-one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
-  const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
-  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
-  
-one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
-  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
-
-one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid);
   
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);

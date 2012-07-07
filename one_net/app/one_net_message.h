@@ -7,6 +7,7 @@
 #include "one_net_port_const.h"
 #include "one_net_features.h"
 #include "one_net_acknowledge.h"
+#include "tick.h"
 
 
 //! \defgroup ONE-NET_MESSAGE ONE-NET Message Definitions
@@ -779,7 +780,30 @@ SInt8 one_net_set_hops(const on_raw_did_t* const raw_did, UInt8 hops);
                device's sending table.
 */
 SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops);
-#endif    
+#endif
+
+
+#ifndef BLOCK_MESSAGES_ENABLED
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device);
+#else
+one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  block_stream_msg_t* bs_msg);
+#endif
+
+one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
+  BOOL stay_awake);
+  
+one_net_status_t on_build_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_nid_t* nid, const on_encoded_did_t* repeater_did,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
+  
+one_net_status_t on_build_my_pkt_addresses(const on_pkt_t* pkt_ptrs,
+  const on_encoded_did_t* dst_did, const on_encoded_did_t* src_did);
+
+one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid);    
 
 
 #ifdef DEBUGGING_TOOLS
