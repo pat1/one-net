@@ -649,27 +649,6 @@ extern "C"
 //! \ingroup ONE-NET
 //! @{
 
-  
-UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
-BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);
-BOOL verify_payload_crc(UInt16 raw_pid, const UInt8* decrypted);
-  
-
-
-// encrypting / decrypting
-#ifdef STREAM_MESSAGES_ENABLED
-one_net_status_t on_encrypt(BOOL is_stream_pkt, UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, UInt8 payload_len);
-one_net_status_t on_decrypt(BOOL is_stream_pkt, UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, UInt8 payload_len);
-#else
-one_net_status_t on_encrypt(UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, UInt8 payload_len);
-one_net_status_t on_decrypt(UInt8 * const data,
-  const one_net_xtea_key_t * const KEY, UInt8 payload_len);
-#endif
-
-
 
 // initialization
 void one_net_init(void);
