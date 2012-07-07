@@ -1283,7 +1283,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
             for(i = 0; i < debug_pkt_ptrs.payload_len; i++)
             {
                 oncli_send_msg("%02X ",
-                  debug_pkt_ptrs.packet_bytes[ON_PLD_IDX + i]);
+                  debug_pkt_ptrs.packet_bytes[ON_ENCODED_PLD_IDX + i]);
     
                 if((i % 16) == 15)
                 {
@@ -1298,7 +1298,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 oncli_send_msg("\nDecoded Payload (# of Bytes = %d)\n",
                   raw_pld_len);
                 if(on_decode(raw_payload_bytes,
-                  &(debug_pkt_ptrs.packet_bytes[ON_PLD_IDX]),
+                  &(debug_pkt_ptrs.packet_bytes[ON_ENCODED_PLD_IDX]),
                   debug_pkt_ptrs.payload_len) != ONS_SUCCESS)
                 {
                     oncli_send_msg("Not Decodable\n\n");
@@ -1448,7 +1448,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             if(packet_is_multihop(raw_pid))
                             {
                                 oncli_send_msg("Encoded Hops Field : %02X  ",
-                                  *(&(debug_pkt_ptrs.packet_bytes[ON_PLD_IDX])
+                                  *(&(debug_pkt_ptrs.packet_bytes[ON_ENCODED_PLD_IDX])
                                   + debug_pkt_ptrs.payload_len));
                                 if(on_parse_hops(&debug_pkt_ptrs,
                                   &(debug_pkt_ptrs.hops),

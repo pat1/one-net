@@ -182,9 +182,9 @@ UInt8 get_encoded_packet_len(UInt16 raw_pid, BOOL include_header)
     }
 
     #ifdef ONE_NET_MULTI_HOP
-    return ON_PLD_IDX + pld_len + mh_bytes - header_offset;
+    return ON_ENCODED_PLD_IDX + pld_len + mh_bytes - header_offset;
     #else
-    return ON_PLD_IDX + pld_len - header_offset;
+    return ON_ENCODED_PLD_IDX + pld_len - header_offset;
     #endif
 } // get_encoded_packet_len //
 

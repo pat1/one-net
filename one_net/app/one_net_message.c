@@ -188,7 +188,7 @@ one_net_status_t on_build_hops(on_pkt_t* pkt, UInt8 hops, UInt8 max_hops)
       ON_MAX_HOPS_BUILD_MASK) | ((hops << ON_HOPS_BUILD_SHIFT)
       & ON_HOPS_BUILD_MASK);
 
-    on_encode(&(pkt->packet_bytes[ON_PLD_IDX]) + pkt->payload_len,
+    on_encode(&(pkt->packet_bytes[ON_ENCODED_PLD_IDX]) + pkt->payload_len,
       &raw_hops, ON_ENCODED_HOPS_SIZE);
 
     return ONS_SUCCESS;
@@ -217,7 +217,7 @@ one_net_status_t on_parse_hops(const on_pkt_t* pkt, UInt8* hops,
     } // if any of the parameters are invalid //
     
     if((status = on_decode(&raw_hops_field,
-      &(pkt->packet_bytes[ON_PLD_IDX]) + pkt->payload_len,
+      &(pkt->packet_bytes[ON_ENCODED_PLD_IDX]) + pkt->payload_len,
       ON_ENCODED_HOPS_SIZE)) != ONS_SUCCESS)
     {
         return status;
@@ -477,12 +477,12 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     // as the raw_payload_bytes[] array.  We don't want to overwrite without
     // knowing, so we'll copy the payload to a buffer that is going to be
     // overwritten anyway to make sure.
-    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_PLD_IDX]), ack_nack->payload,
+    one_net_memmove(&(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]), ack_nack->payload,
       ack_nack_pld_len);
     
     // now move the pointer.
     ack_nack->payload = (ack_nack_payload_t*)
-      &(pkt_ptrs->packet_bytes[ON_PLD_IDX]);
+      &(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]);
 
     if(num_words <= 0)
     {
@@ -598,7 +598,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
       (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #endif
     {
-        status = on_encode(&(pkt_ptrs->packet_bytes[ON_PLD_IDX]),
+        status = on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]),
           raw_payload_bytes, num_words);
     } // if encrypting was successful //
 
@@ -723,7 +723,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
       (const one_net_xtea_key_t * const) txn->key, raw_pld_len)) == ONS_SUCCESS)
     #endif
     {
-        status = on_encode(&(pkt_ptrs->packet_bytes[ON_PLD_IDX]),
+        status = on_encode(&(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]),
           raw_payload_bytes, num_words);
     } // if encrypting was successful //
 
@@ -792,7 +792,7 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid)
     // of the message CRC.
     msg_crc_start = &(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_CRC_IDX]) +
       ONE_NET_ENCODED_MSG_CRC_LEN;
-    msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_PLD_IDX]) +
+    msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]) +
       pkt_ptrs->payload_len) - msg_crc_start;
     
     #ifdef ONE_NET_MULTI_HOP
@@ -840,7 +840,7 @@ UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs)
     UInt8* msg_crc_start =
       &(pkt_ptrs->packet_bytes[ON_ENCODED_MSG_CRC_IDX]) +
       ONE_NET_ENCODED_MSG_CRC_LEN;
-    UInt8 msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_PLD_IDX]) +
+    UInt8 msg_crc_calc_len = (&(pkt_ptrs->packet_bytes[ON_ENCODED_PLD_IDX]) +
       pkt_ptrs->payload_len) - msg_crc_start;
       
     UInt8 msg_crc = (UInt8) one_net_compute_crc(msg_crc_start,

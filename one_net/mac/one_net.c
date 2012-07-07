@@ -2620,8 +2620,8 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     pkt_bytes = (*this_txn)->pkt;
     
     if(one_net_read(&pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN],
-      ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN) !=
-      ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN)
+      ON_ENCODED_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN) !=
+      ON_ENCODED_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN)
     {
         return ONS_READ_ERR;
     }
@@ -2815,7 +2815,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         #endif
         one_net_memmove(&(mh_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
           &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-          ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);
+          ON_ENCODED_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);
         *this_txn = &mh_txn;
     }
     else
@@ -2849,7 +2849,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
               {
                   one_net_memmove(&(single_txn.pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
                     &((*this_txn)->pkt[ONE_NET_PREAMBLE_HEADER_LEN]),
-                    ON_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);                  
+                    ON_ENCODED_PLD_IDX - ONE_NET_PREAMBLE_HEADER_LEN);                  
                   *this_txn = &single_txn;
               }
               #endif
@@ -2881,7 +2881,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         return ONS_INTERNAL_ERR;
     }
 
-    if(one_net_read(&((*this_txn)->pkt[ON_PLD_IDX]), (*this_pkt_ptrs)->payload_len)
+    if(one_net_read(&((*this_txn)->pkt[ON_ENCODED_PLD_IDX]), (*this_pkt_ptrs)->payload_len)
       != (*this_pkt_ptrs)->payload_len)
     {
         return ONS_READ_ERR;
@@ -2905,7 +2905,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     {
         UInt8 raw_hops_field;
 
-        if(one_net_read(&((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+        if(one_net_read(&((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_PLD_IDX]) +
           (*this_pkt_ptrs)->payload_len, ON_ENCODED_HOPS_SIZE) !=
           ON_ENCODED_HOPS_SIZE)
         {
@@ -2913,7 +2913,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         }
 
         if(on_decode(&raw_hops_field,
-          &((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+          &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_PLD_IDX]) +
           (*this_pkt_ptrs)->payload_len, ON_ENCODED_HOPS_SIZE) != ONS_SUCCESS)
         {
             return ONS_BAD_ENCODING;
@@ -2939,7 +2939,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
             
             raw_hops_field = ((((*this_pkt_ptrs)->hops) << 3) +
               (*this_pkt_ptrs)->max_hops) << 2;
-            on_encode(&((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]) +
+            on_encode(&((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_PLD_IDX]) +
               (*this_pkt_ptrs)->payload_len, &raw_hops_field,
               ON_ENCODED_HOPS_SIZE);
             one_net_memmove(
@@ -2976,7 +2976,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     while(1)
     {        
         if((status = on_decode(raw_payload_bytes,
-          &((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]),
+          &((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_PLD_IDX]),
           (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
         {
             return status;
@@ -3092,7 +3092,7 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
         {
             return status;
         }
-        if((status = on_encode(&((*this_pkt_ptrs)->packet_bytes[ON_PLD_IDX]),
+        if((status = on_encode(&((*this_pkt_ptrs)->packet_bytes[ON_ENCODED_PLD_IDX]),
           raw_payload_bytes, (*this_pkt_ptrs)->payload_len)) != ONS_SUCCESS)
         {
             return status;
