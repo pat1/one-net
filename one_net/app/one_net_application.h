@@ -61,185 +61,6 @@
 
 
 
-/* get the 12-bit message header (message class, message type) */
-ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8* payload)
-{
-    UInt16 msg_hdr = payload[ONA_MSG_HDR_IDX];
-    msg_hdr <<= ONA_MSG_CLASS_TYPE_SHIFT;
-    return msg_hdr + (payload[ONA_MSG_HDR_IDX + 1] >> ONA_MSG_CLASS_TYPE_SHIFT);
-}
-
-/* put the 12-byte message header into the payload */
-void put_msg_hdr(UInt16 hdr, UInt8* payload);
-
-ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8* payload)
-{
-    UInt16 class_no_shift = (payload[ONA_MSG_HDR_IDX] & 0xF0);
-    return (class_no_shift << ONA_MSG_CLASS_TYPE_SHIFT);
-}
-
-ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
-  UInt8 *payload)
-{
-    msg_class &= ONA_MSG_CLASS_MASK;
-    payload[ONA_MSG_HDR_IDX] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX] |= (msg_class >> ONA_MSG_CLASS_TYPE_SHIFT);
-}
-
-ONE_NET_INLINE UInt8 get_msg_type(const UInt8 *payload)
-{
-    return ((payload[ONA_MSG_HDR_IDX] << ONA_MSG_CLASS_TYPE_SHIFT) +
-      (payload[ONA_MSG_HDR_IDX+1] >> ONA_MSG_CLASS_TYPE_SHIFT));
-}
-
-ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
-{
-    payload[ONA_MSG_HDR_IDX] &= 0xF0;
-    payload[ONA_MSG_HDR_IDX] |= (msg_type >> 4);
-    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
-}
-
-/* get the 32-bit message data from the payload buffer */
-ONE_NET_INLINE SInt32 get_msg_data(const UInt8* payload)
-{
-    // 2 rightmost(least significant) bytes (bits 0 to 15, 0 is least
-    // significant bit)
-    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
-    
-    // add bits 16 - 18 (0 is the least significant bit)
-    msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
-    
-    // byte 19 is the sign bit.  0 is non-negative, 1 is negative
-    if(payload[2] & 0x08)
-    {
-        msg_data = -msg_data;
-    }
-    return msg_data;
-}
-
-/* store the 32-bit message data in the payload buffer */
-void put_msg_data(SInt32 data, UInt8 *payload);
-
-/* get the 8-bit source unit data value from the payload buffer */
-ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)
-{
-    return (payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_SRC_UNIT_MASK) >> 
-            ONA_MSG_SRC_UNIT_SHIFT;
-}
-
-/* store the 8-bit source unit data value in the payload buffer */
-ONE_NET_INLINE void put_src_unit(UInt8 data , UInt8 *payload)
-{
-    payload[ONA_MSG_SRC_UNIT_IDX] = 
-        (payload[ONA_MSG_SRC_UNIT_IDX]    & ~ONA_MSG_SRC_UNIT_MASK) |
-        ((data << ONA_MSG_SRC_UNIT_SHIFT) &  ONA_MSG_SRC_UNIT_MASK);
-}
-
-/* get the 8-bit destination unit data value from the payload buffer */
-ONE_NET_INLINE UInt8 get_dst_unit(const UInt8 *payload)
-{
-    return (payload[ONA_MSG_DST_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK) >> 
-            ONA_MSG_DST_UNIT_SHIFT;
-}
-
-/* store the 8-bit destination unit data value in the payload buffer */
-void put_dst_unit(UInt8 data, UInt8 *payload);
-
-/* get the 4-bit message type value from the payload buffer */
-ONE_NET_INLINE UInt8 get_payload_msg_type(const UInt8 *payload)
-{
-    return (payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK);
-}
-
-/* store the 4-bit message type value in the raw payload buffer */
-void put_payload_msg_type(UInt8 msg_type, UInt8 *payload);
-
-// for responses, the ack / nack handle is precisely where the messge
-// type is for data packets, so we'll define some macros.
-#define get_ack_nack_handle(X) get_payload_msg_type(X)
-#define put_ack_nack_handle(X, Y) put_payload_msg_type(X, Y)
-
-
-/* get the 12-bit message id from the payload buffer */
-ONE_NET_INLINE UInt16 get_payload_msg_id(const UInt8 *payload)
-{
-    UInt16 msg_id = (((UInt16)payload[ON_PLD_MSG_ID_IDX]) << 4)
-      + (payload[ON_PLD_MSG_ID_IDX + 1] >> 4);
-    return msg_id;
-}
-
-/* store the 12-bit message id in the raw payload buffer */
-void put_payload_msg_id(UInt16 msg_id, UInt8 *payload);
-
-/* stores the chunk index in the raw payload buffer */
-ONE_NET_INLINE void put_bs_chunk_idx(UInt8 chunk_idx, UInt8* payload)
-{
-    payload[ON_BS_PLD_CHUNK_IDX] = 
-        ((payload[ON_BS_PLD_CHUNK_IDX] & 0xF0) | (chunk_idx >> 2));
-    payload[ON_BS_PLD_CHUNK_IDX+1] = 
-        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F) | (chunk_idx << 6));
-}
-
-
-/* gets the chunk index from the raw payload buffer */
-ONE_NET_INLINE UInt8 get_bs_chunk_idx(UInt8* payload)
-{
-    UInt8 chunk_idx = ((payload[ON_BS_PLD_CHUNK_IDX] & 0x0F) << 2);
-    chunk_idx += (payload[ON_BS_PLD_CHUNK_IDX+1] >> 6);
-    return chunk_idx;
-}
-
-
-/* stores the chunk index in the raw payload buffer */
-ONE_NET_INLINE void put_bs_chunk_size(UInt8 chunk_size, UInt8* payload)
-{
-    payload[ON_BS_PLD_CHUNK_IDX+1] = 
-        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | (chunk_size & 0x3F));
-}
-
-
-/* gets the chunk index from the raw payload buffer */
-ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
-{
-    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
-}
-
-
-/* stores whether a response is needed in the raw payload buffer */
-ONE_NET_INLINE void put_stream_response_needed(BOOL response_needed,
-  UInt8* payload)
-{
-    payload[ON_BS_PLD_CHUNK_IDX+1] = 
-        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | response_needed);
-}
-
-
-/* extracts whether a response is needed from the raw payload buffer */
-ONE_NET_INLINE BOOL get_stream_response_needed(UInt8* payload)
-{
-    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
-}
-
-
-
-#define put_stream_elapsed_time put_block_pkt_idx
-#define get_stream_elapsed_time get_block_pkt_idx
-
-
-/* stores the packet index in the raw payload buffer */
-void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload);
-
-
-/* gets the chunk index from the raw payload buffer */
-ONE_NET_INLINE UInt32 get_block_pkt_idx(UInt8* payload)
-{
-    UInt32 pkt_idx = one_net_byte_stream_to_int32(
-      &payload[ON_BS_PLD_PKT_IDX-1]);
-    return (pkt_idx & 0x00FFFFFF);
-}
-
-
 
 //! @} ONE-NET_APP_const
 //                                  CONSTANTS END
@@ -445,6 +266,11 @@ typedef enum
 //! @{
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 // address functions
 BOOL on_encoded_did_equal(const on_encoded_did_t * const LHS,
@@ -479,6 +305,191 @@ ONE_NET_INLINE on_encoded_did_t* get_encoded_did_from_sending_device(
     }
     return (on_encoded_did_t*) &(device->did);
 }
+
+
+/* get the 12-bit message header (message class, message type) */
+ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8* payload)
+{
+    UInt16 msg_hdr = payload[ONA_MSG_HDR_IDX];
+    msg_hdr <<= ONA_MSG_CLASS_TYPE_SHIFT;
+    return msg_hdr + (payload[ONA_MSG_HDR_IDX + 1] >> ONA_MSG_CLASS_TYPE_SHIFT);
+}
+
+/* put the 12-byte message header into the payload */
+void put_msg_hdr(UInt16 hdr, UInt8* payload);
+
+ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8* payload)
+{
+    UInt16 class_no_shift = (payload[ONA_MSG_HDR_IDX] & 0xF0);
+    return (class_no_shift << ONA_MSG_CLASS_TYPE_SHIFT);
+}
+
+ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
+  UInt8 *payload)
+{
+    msg_class &= ONA_MSG_CLASS_MASK;
+    payload[ONA_MSG_HDR_IDX] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX] |= (msg_class >> ONA_MSG_CLASS_TYPE_SHIFT);
+}
+
+ONE_NET_INLINE UInt8 get_msg_type(const UInt8 *payload)
+{
+    return ((payload[ONA_MSG_HDR_IDX] << ONA_MSG_CLASS_TYPE_SHIFT) +
+      (payload[ONA_MSG_HDR_IDX+1] >> ONA_MSG_CLASS_TYPE_SHIFT));
+}
+
+ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
+{
+    payload[ONA_MSG_HDR_IDX] &= 0xF0;
+    payload[ONA_MSG_HDR_IDX] |= (msg_type >> 4);
+    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
+    payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
+}
+
+/* get the 32-bit message data from the payload buffer */
+ONE_NET_INLINE SInt32 get_msg_data(const UInt8* payload)
+{
+    // 2 rightmost(least significant) bytes (bits 0 to 15, 0 is least
+    // significant bit)
+    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
+    
+    // add bits 16 - 18 (0 is the least significant bit)
+    msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
+    
+    // byte 19 is the sign bit.  0 is non-negative, 1 is negative
+    if(payload[2] & 0x08)
+    {
+        msg_data = -msg_data;
+    }
+    return msg_data;
+}
+
+/* store the 32-bit message data in the payload buffer */
+void put_msg_data(SInt32 data, UInt8 *payload);
+
+/* get the 8-bit source unit data value from the payload buffer */
+ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)
+{
+    return (payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_SRC_UNIT_MASK) >> 
+            ONA_MSG_SRC_UNIT_SHIFT;
+}
+
+/* store the 8-bit source unit data value in the payload buffer */
+ONE_NET_INLINE void put_src_unit(UInt8 data , UInt8 *payload)
+{
+    payload[ONA_MSG_SRC_UNIT_IDX] = 
+        (payload[ONA_MSG_SRC_UNIT_IDX]    & ~ONA_MSG_SRC_UNIT_MASK) |
+        ((data << ONA_MSG_SRC_UNIT_SHIFT) &  ONA_MSG_SRC_UNIT_MASK);
+}
+
+/* get the 8-bit destination unit data value from the payload buffer */
+ONE_NET_INLINE UInt8 get_dst_unit(const UInt8 *payload)
+{
+    return (payload[ONA_MSG_DST_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK) >> 
+            ONA_MSG_DST_UNIT_SHIFT;
+}
+
+/* store the 8-bit destination unit data value in the payload buffer */
+void put_dst_unit(UInt8 data, UInt8 *payload);
+
+/* get the 4-bit message type value from the payload buffer */
+ONE_NET_INLINE UInt8 get_payload_msg_type(const UInt8 *payload)
+{
+    return (payload[ON_PLD_MSG_TYPE_IDX] & ON_PLD_MSG_TYPE_MASK);
+}
+
+/* store the 4-bit message type value in the raw payload buffer */
+void put_payload_msg_type(UInt8 msg_type, UInt8 *payload);
+
+// for responses, the ack / nack handle is precisely where the messge
+// type is for data packets, so we'll define some macros.
+#define get_ack_nack_handle(X) get_payload_msg_type(X)
+#define put_ack_nack_handle(X, Y) put_payload_msg_type(X, Y)
+
+
+/* get the 12-bit message id from the payload buffer */
+ONE_NET_INLINE UInt16 get_payload_msg_id(const UInt8 *payload)
+{
+    UInt16 msg_id = (((UInt16)payload[ON_PLD_MSG_ID_IDX]) << 4)
+      + (payload[ON_PLD_MSG_ID_IDX + 1] >> 4);
+    return msg_id;
+}
+
+/* store the 12-bit message id in the raw payload buffer */
+void put_payload_msg_id(UInt16 msg_id, UInt8 *payload);
+
+/* stores the chunk index in the raw payload buffer */
+ONE_NET_INLINE void put_bs_chunk_idx(UInt8 chunk_idx, UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX] & 0xF0) | (chunk_idx >> 2));
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F) | (chunk_idx << 6));
+}
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt8 get_bs_chunk_idx(UInt8* payload)
+{
+    UInt8 chunk_idx = ((payload[ON_BS_PLD_CHUNK_IDX] & 0x0F) << 2);
+    chunk_idx += (payload[ON_BS_PLD_CHUNK_IDX+1] >> 6);
+    return chunk_idx;
+}
+
+
+/* stores the chunk index in the raw payload buffer */
+ONE_NET_INLINE void put_bs_chunk_size(UInt8 chunk_size, UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | (chunk_size & 0x3F));
+}
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
+{
+    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
+}
+
+
+/* stores whether a response is needed in the raw payload buffer */
+ONE_NET_INLINE void put_stream_response_needed(BOOL response_needed,
+  UInt8* payload)
+{
+    payload[ON_BS_PLD_CHUNK_IDX+1] = 
+        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | response_needed);
+}
+
+
+/* extracts whether a response is needed from the raw payload buffer */
+ONE_NET_INLINE BOOL get_stream_response_needed(UInt8* payload)
+{
+    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
+}
+
+
+
+#define put_stream_elapsed_time put_block_pkt_idx
+#define get_stream_elapsed_time get_block_pkt_idx
+
+
+/* stores the packet index in the raw payload buffer */
+void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload);
+
+
+/* gets the chunk index from the raw payload buffer */
+ONE_NET_INLINE UInt32 get_block_pkt_idx(UInt8* payload)
+{
+    UInt32 pkt_idx = one_net_byte_stream_to_int32(
+      &payload[ON_BS_PLD_PKT_IDX-1]);
+    return (pkt_idx & 0x00FFFFFF);
+}
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 
 
