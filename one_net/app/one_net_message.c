@@ -911,6 +911,51 @@ BOOL verify_payload_crc(UInt16 raw_pid, const UInt8* decrypted)
 }
 
 
+#ifndef _R8C_TINY
+// This is a helper function not used by ONE-NET. Just added it as a helper function for anyone
+// who wants it.  #defining it out to spare about 60 bytes of compiled code.
+// Note: Some compilers will automatically discard unused functions, but Renesas does not, so
+// adding the #ifndef guard.
+/*!
+    \brief Calculate the payload CRC is valid
+
+    \param[out] crc_calc The calculated payload 
+    \param[in] raw_pid The raw pid of the packet
+    \param[in] decrypted The decrypted bytes
+
+    \return TRUE if the message CRC is valid, FALSE otherwise
+*/
+BOOL calculate_payload_crc(UInt8* crc_calc, UInt16 raw_pid, const UInt8* decrypted)
+{
+    const UInt8* crc_calc_start;
+    UInt8 crc_calc_len;
+    SInt8 num_encoded_blocks = get_num_payload_blocks(raw_pid);
+    
+    if(num_encoded_blocks == 0)
+    {
+        return TRUE; // no CRC to check.
+    }
+    else if(num_encoded_blocks < 0)
+    {
+        return FALSE; // invalid CRC
+    }
+    
+    if(!decrypted || !crc_calc)
+    {
+        return FALSE; // bad parameter
+    }
+    
+    crc_calc_len = (UInt8) (num_encoded_blocks * ONE_NET_XTEA_BLOCK_SIZE -
+      ON_PLD_CRC_SIZE);
+    crc_calc_start = &decrypted[ON_PLD_CRC_SIZE];
+    *crc_calc = (UInt8) one_net_compute_crc(crc_calc_start, crc_calc_len,
+      ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+    
+    return TRUE;
+}
+#endif
+
+
 /*!
     \brief Encrypt the data passed in.
 

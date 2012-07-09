@@ -814,6 +814,13 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid);
 UInt8 calculate_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_msg_crc(const on_pkt_t* pkt_ptrs);
 BOOL verify_payload_crc(UInt16 raw_pid, const UInt8* decrypted);
+#ifndef _R8C_TINY
+// This is a helper function not used by ONE-NET. Just added it as a helper function for anyone
+// who wants it.  #defining it out to spare about 60 bytes of compiled code.
+// Note: Some compilers will automatically discard unused functions, but Renesas does not, so
+// adding the #ifndef guard.
+BOOL calculate_payload_crc(UInt8* crc_calc, UInt16 raw_pid, const UInt8* decrypted);
+#endif
   
 // encrypting / decrypting
 #ifdef STREAM_MESSAGES_ENABLED
