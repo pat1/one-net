@@ -127,6 +127,18 @@ UInt8 features_max_peers(on_features_t features)
 }
 
 
+UInt8 features_queue_size(on_features_t features)
+{
+    return (features.queue_values >> ON_QUEUE_SIZE_SHIFT);
+}
+
+
+UInt8 features_queue_level(on_features_t features)
+{
+    return ((features.queue_values & ON_QUEUE_LEVEL_MASK) >> ON_QUEUE_LEVEL_SHIFT);
+}
+
+
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
 {
     if(data_rate >= ONE_NET_DATA_RATE_LIMIT)

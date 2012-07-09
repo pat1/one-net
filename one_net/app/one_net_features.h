@@ -182,7 +182,7 @@ typedef struct
 {
     UInt8 feature_flags;
     UInt8 data_rates;
-    UInt8 queue_ack_nack_values;
+    UInt8 queue_values;
     UInt8 peers_hops;
 } on_features_t;
 
@@ -224,6 +224,8 @@ BOOL features_device_sleeps(on_features_t features);
 #ifndef ONE_NET_SIMPLE_CLIENT
 UInt8 features_max_hops(on_features_t features);
 UInt8 features_max_peers(on_features_t features);
+UInt8 features_queue_size(on_features_t features);
+UInt8 features_queue_level(on_features_t features);
 BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate);
 // TODO -- add #ifdef check for _DATA_RATE?
 UInt8 features_highest_data_rate(on_features_t features);
