@@ -835,10 +835,6 @@ one_net_status_t on_decrypt(UInt8 * const data,
   const one_net_xtea_key_t * const KEY, UInt8 payload_len);
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
 
 #ifdef DEBUGGING_TOOLS
 void get_queue_memory(UInt8** pld_buffer, on_single_data_queue_t** queue,
@@ -967,7 +963,9 @@ UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg);
 
 
 
-
+#ifdef __cplusplus
+}
+#endif
 
 
 
