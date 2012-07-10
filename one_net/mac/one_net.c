@@ -4331,6 +4331,8 @@ void terminate_bs_msg(block_stream_msg_t* bs_msg,
         one_net_memmove(response_ack_nack->payload,
           bs_msg->saved_ack_nack.payload, 5);
         
+        // TODO -- The length should be 10, not 11?  1 byte for status, 2 for terminating DID, 7 for the ACK/NACK with payload.
+        //         That adds up to 10, and the receiving end seems to only use 10 bytes.
         push_queue_element(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
           bs_txn.pkt, 11, ONE_NET_HIGH_PRIORITY, NULL,
           (const on_encoded_did_t* const) &bs_msg->dst->did
