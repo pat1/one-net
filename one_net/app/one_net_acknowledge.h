@@ -78,10 +78,10 @@ typedef enum
     ON_NACK_RSN_MIN_ONE_NET_NON_FATAL = ON_NACK_RSN_MIN_NON_FATAL,
 
     // 0x01 through 0x3F are reserved for non-fatal ONE-NET-defined errors
-	ON_NACK_RSN_RSRC_UNAVAIL_ERR = ON_NACK_RSN_MIN_ONE_NET_NON_FATAL,    //! resource(s) necessary to complete the transaction not currently available
-	ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.	
-	ON_NACK_RSN_BUSY_TRY_AGAIN,      //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET.
-	ON_NACK_RSN_BUSY_TRY_AGAIN_TIME, //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET, but application code may override.
+    ON_NACK_RSN_RSRC_UNAVAIL_ERR = ON_NACK_RSN_MIN_ONE_NET_NON_FATAL,    //! resource(s) necessary to complete the transaction not currently available
+    ON_NACK_RSN_INTERNAL_ERR,        //! something unanticipated occurred - Under normal circumstances, this should never be received (as it indicates an implementation fault in the sender); Devices are required to process it, however.    
+    ON_NACK_RSN_BUSY_TRY_AGAIN,      //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET.
+    ON_NACK_RSN_BUSY_TRY_AGAIN_TIME, //! Application level code specifying that the device cannot service the request at this time, but will likely be able to do so very soon.  Considered "non-fatal" by ONE-NET, but application code may override.
     ON_NACK_RSN_BAD_POSITION_ERROR,  //! Position/Offset is invalid and/or does not match what is expected by the device.
     ON_NACK_RSN_BAD_SIZE_ERROR,      //! Length/Size is invalid and/or does not mach what is expected by the device.  Different from ON_NACK_RSN_INVALID_LENGTH_ERRON_NACK_RSN_INVALID_LENGTH_ERR, which means that the device cannot HANDLE something this size.
     ON_NACK_RSN_BAD_ADDRESS_ERR,     //! DID or NID is either not decodable or is incorrect.
@@ -125,15 +125,15 @@ typedef enum
     // fatal ONE-NET Errors
     ON_NACK_RSN_MIN_FATAL = 0x80,
     ON_NACK_RSN_MIN_ONE_NET_FATAL = ON_NACK_RSN_MIN_FATAL,
-	ON_NACK_RSN_INVALID_LENGTH_ERR = ON_NACK_RSN_MIN_ONE_NET_FATAL,  //! specified Device/Unit cannot handle a transaction with the specified length
-	ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
-	ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
-	ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
-	ON_NACK_RSN_MISMATCH_UNIT_ERR,   //! Unit pair specified in Block Data Segment does not match that in Request to Receive Block
-	ON_NACK_RSN_BAD_DATA_ERR,        //! improperly formatted data
-	ON_NACK_RSN_TRANSACTION_ERR,     //! invalid transaction specified (such as a Block Data packet in the absence of a previous Block Request)
+    ON_NACK_RSN_INVALID_LENGTH_ERR = ON_NACK_RSN_MIN_ONE_NET_FATAL,  //! specified Device/Unit cannot handle a transaction with the specified length
+    ON_NACK_RSN_DEVICE_FUNCTION_ERR, //! specified Device lacks the functionality to properly process the received packet
+    ON_NACK_RSN_UNIT_FUNCTION_ERR,   //! specified Unit lacks the functionality to properly process the received packet (although the Device itself does)
+    ON_NACK_RSN_INVALID_UNIT_ERR,    //! nonexistent Unit specified
+    ON_NACK_RSN_MISMATCH_UNIT_ERR,   //! Unit pair specified in Block Data Segment does not match that in Request to Receive Block
+    ON_NACK_RSN_BAD_DATA_ERR,        //! improperly formatted data
+    ON_NACK_RSN_TRANSACTION_ERR,     //! invalid transaction specified (such as a Block Data packet in the absence of a previous Block Request)
     ON_NACK_RSN_MAX_FAILED_ATTEMPTS_REACHED, //! Attempted and failed too many times.
-	ON_NACK_RSN_BUSY,                //! Application level code specifying that the device cannot service the request at this time.  No specification of when to try again.  Considered "fatal" by ONE-NET.
+    ON_NACK_RSN_BUSY,                //! Application level code specifying that the device cannot service the request at this time.  No specification of when to try again.  Considered "fatal" by ONE-NET.
     ON_NACK_RSN_NO_RESPONSE_TXN,     //! The transaction has timed out with no response.
     ON_NACK_RSN_UNIT_IS_INPUT,       //! There was an attempt to do something to an input unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
     ON_NACK_RSN_UNIT_IS_OUTPUT,      //! There was an attempt to do something to an output unit which cannot be done.  This is a more detailed form of ON_NACK_RSN_UNIT_FUNCTION_ERR
@@ -170,17 +170,17 @@ typedef enum
 */
 typedef enum
 {
-	ON_ACK,                //! Normal ACK with no accompanying data
+    ON_ACK,                //! Normal ACK with no accompanying data
     ON_ACK_FEATURES,       //! Normal ACK accompanied with four bytes of features
-	ON_ACK_DATA,           //! The ACK is accompanied by 5 bytes of data.
-	ON_ACK_VALUE,          //! The ACK is accompanied by 8 bit and 32 bit unsigned integers.
-	ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing generic time in milliseconds
-	ON_ACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
-	ON_ACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
+    ON_ACK_DATA,           //! The ACK is accompanied by 5 bytes of data.
+    ON_ACK_VALUE,          //! The ACK is accompanied by 8 bit and 32 bit unsigned integers.
+    ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing generic time in milliseconds
+    ON_ACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
+    ON_ACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
                               //! the time specified.
-	ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
+    ON_ACK_SPEED_UP_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets faster by
                               //! the time specified.
-	ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to pause in milliseconds.
+    ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to pause in milliseconds.
     ON_ACK_RESPONSE_TIME_MS, // Same as ON_ACK_TIME_MS, but represents a request to set the response timeout / fragment delay
                              //! to this exact value.
     ON_ACK_ADMIN_MSG,      //! Sending back an Admin message with an ACK
@@ -188,7 +188,7 @@ typedef enum
     ON_ACK_BLK_PKTS_RCVD,  //! This is an ACK accompanied by a bitwise boolean array representing which packet indexes have and have not been received.
                            //! Valid only for block transactions.  Always sent as an ACK even if it represents a problem.
     ON_ACK_ROUTE,
-	ON_ACK_STATUS,         //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
+    ON_ACK_STATUS,         //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
     ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
                                   //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
                                   //! but their meanings are to be interpreted by the application code.
@@ -202,7 +202,7 @@ typedef enum
 
 /*!
     Specifies what a NACK means and whether there is any data accompanying it.  Same as ACK values.
-	Just defined here so you can use whichever you like.  These MUST correspond to the on_ack_handle_t values.
+    Just defined here so you can use whichever you like.  These MUST correspond to the on_ack_handle_t values.
 */
 #define ON_NACK ON_ACK
 #define ON_NACK_FEATURES ON_ACK_FEATURES
@@ -232,12 +232,12 @@ typedef union
       //! ACKs.  Generally, but not exclusively intended for "fast query"/
       //! "poll" responses.
     UInt8 admin_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
-	UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
+    UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
     tick_t ack_time_ms;
-	UInt8 nack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN - 1];
+    UInt8 nack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN - 1];
       // subtract 1 byte for the nack reason
-	UInt32 ack_value;
-	UInt32 nack_value;
+    UInt32 ack_value;
+    UInt32 nack_value;
     tick_t nack_time_ms;
     one_net_xtea_key_fragment_t key_frag;
     on_features_t features;
