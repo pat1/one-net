@@ -96,6 +96,13 @@
 //! \defgroup ONE-NET_port_specific_pub_func
 //! \ingroup ONE-NET_port_specific
 //! @{
+    
+    
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 /*!
     \brief Copies LEN bytes from SRC to dst
@@ -450,6 +457,10 @@ on_message_status_t one_net_stream_get_next_payload(block_stream_msg_t* bs_msg,
 SInt8 one_net_get_alternate_channel(void);
 #endif
 
+
+#ifdef __cplusplus
+}
+#endif
 
 
 
