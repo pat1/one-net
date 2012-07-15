@@ -301,7 +301,24 @@ on_payload::on_payload(UInt16 raw_pid, std::string payload, std::string key,
 
 on_payload::on_payload(const on_payload& pld)
 {
-
+    num_bytes = pld.num_bytes;
+    encrypted_payload = pld.encrypted_payload;
+    decrypted_payload = pld.encrypted_payload;
+    memcpy(encrypted_payload_bytes, pld.encrypted_payload_bytes,
+      sizeof(encrypted_payload_bytes));
+    memcpy(decrypted_payload_bytes, pld.decrypted_payload_bytes,
+      sizeof(decrypted_payload_bytes));
+    key = pld.key;
+    memcpy(key_bytes, pld.key_bytes, sizeof(key_bytes));
+    num_rounds = pld.num_rounds;
+    raw_pid = pld.raw_pid;
+    calculated_payload_crc = pld.calculated_payload_crc;
+    payload_crc = pld.payload_crc;
+    msg_id = pld.msg_id;
+    error_message = pld.error_message;
+    valid_decrypt = pld.valid_decrypt;
+    valid_crc = pld.valid_crc;
+    valid = pld.valid;
 }
 
 
@@ -542,7 +559,11 @@ on_single_data_payload::on_single_data_payload(UInt16 raw_pid, std::string paylo
 
 on_single_data_payload::on_single_data_payload(const on_single_data_payload& pld): on_payload(pld)
 {
-
+    payload_msg_type = pld.payload_msg_type;
+    is_app_pkt = pld.is_app_pkt;
+    is_admin_pkt = pld.is_admin_pkt;
+    is_features_pkt = pld.is_features_pkt;
+    is_route_pkt = pld.is_route_pkt;
 }
 
 
@@ -647,7 +668,11 @@ on_app_payload::on_app_payload(UInt16 raw_pid, std::string payload, std::string 
 
 on_app_payload::on_app_payload(const on_app_payload& pld): on_single_data_payload(pld)
 {
-
+    src_unit = pld.src_unit;
+    dst_unit = pld.dst_unit;
+    msg_class = pld.msg_class;
+    msg_type = pld.msg_type;
+    msg_data = pld.msg_data;
 }
 
 
@@ -824,6 +849,9 @@ on_response_payload::on_response_payload(UInt16 raw_pid, std::string payload, st
 on_response_payload::on_response_payload(const on_response_payload& pld): on_payload(pld)
 {
     ack_nack.payload = &ack_nack_payload;
+    ack_nack.nack_reason = pld.ack_nack.nack_reason;
+    ack_nack.handle = pld.ack_nack.handle;
+    memcpy(&ack_nack.payload, &pld.ack_nack.payload, sizeof(ack_nack_payload));
 }
 
 
@@ -1148,7 +1176,9 @@ on_admin_payload::on_admin_payload(UInt16 raw_pid, std::string payload, std::str
 
 on_admin_payload::on_admin_payload(const on_admin_payload& pld): on_single_data_payload(pld)
 {
-
+    admin_type = pld.admin_type;
+    memcpy(admin_data_bytes, pld.admin_data_bytes, sizeof(admin_data_bytes));
+    num_admin_bytes = pld.num_admin_bytes;
 }
 
 
@@ -1524,7 +1554,7 @@ on_features_payload::on_features_payload(UInt16 raw_pid, std::string payload, st
 
 on_features_payload::on_features_payload(const on_features_payload& pld): on_single_data_payload(pld)
 {
-
+    features = pld.features;
 }
 
 
@@ -1630,7 +1660,12 @@ on_invite_payload::on_invite_payload(UInt16 raw_pid, std::string payload, std::s
 
 on_invite_payload::on_invite_payload(const on_invite_payload& pld): on_payload(pld)
 {
-
+    version = pld.version;
+    raw_did = pld.raw_did;
+    network_key = pld.network_key;
+    memcpy(network_key_bytes, pld.network_key_bytes, sizeof(network_key_bytes));
+    features = pld.features;
+    features_bytes = pld.features_bytes;
 }
 
 
@@ -1752,7 +1787,7 @@ on_route_payload::on_route_payload(UInt16 raw_pid, std::string payload, std::str
 
 on_route_payload::on_route_payload(const on_route_payload& pld): on_single_data_payload(pld)
 {
-
+    memcpy(route_bytes, pld.route_bytes, sizeof(route_bytes));
 }
 
 
@@ -1889,7 +1924,9 @@ on_block_payload::on_block_payload(UInt16 raw_pid, std::string payload, std::str
 
 on_block_payload::on_block_payload(const on_block_payload& pld): on_payload(pld)
 {
+    block_pkt = pld.block_pkt;
     block_pkt.data = data;
+    memcpy(block_pkt.data, pld.block_pkt.data, sizeof(data));
 }
 
 
@@ -1989,7 +2026,9 @@ on_stream_payload::on_stream_payload(UInt16 raw_pid, std::string payload, std::s
 
 on_stream_payload::on_stream_payload(const on_stream_payload& pld): on_payload(pld)
 {
+    stream_pkt = pld.stream_pkt;
     stream_pkt.data = data;
+    memcpy(stream_pkt.data, pld.stream_pkt.data, sizeof(data));
 }
 
 
