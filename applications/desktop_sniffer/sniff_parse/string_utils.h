@@ -7,6 +7,7 @@
 #include "one_net_types.h"
 #include "one_net_constants.h"
 #include "one_net_xtea.h"
+#include "xtea_key.h"
 
 
 struct string_int_struct
@@ -66,6 +67,7 @@ bool format_invite_key_fragment(std::string& string_rep,
 bool format_invite_key_string(std::string& string_rep,
   const one_net_xtea_key_t& key);
 std::string format_key_string(const one_net_xtea_key_t& key);
+void display_keys(ostream& outs, bool invite_key, const vector<xtea_key>& keys);
 // Note: This function assumes that the encoded has been checked for validity
 std::string detailed_did_display(UInt16 encoded_did, UInt16 raw_did);
 // Note: This function assumes that the encoded has been checked for validity

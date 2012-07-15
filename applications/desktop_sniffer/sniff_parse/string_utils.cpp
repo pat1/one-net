@@ -821,9 +821,44 @@ std::string format_key_string(const one_net_xtea_key_t& key)
 }
 
 
+void display_keys(ostream& outs, bool invite_key, const vector<xtea_key>& keys)
+{
+    unsigned int num_keys = keys.size();
+
+    if(invite_key)
+    {
+        outs << "\n# of invite keys : " << num_keys << "\n";
+    }
+    else
+    {
+        outs << "\n# of keys : " << num_keys << "\n";
+    }
+
+    std::string str;
+    for(unsigned int i = 0; i < num_keys; i++)
+    {
+        outs << "Key " << i + 1 << " : ";
+        xtea_key key = keys[i];
+        if(invite_key)
+        {
+            format_invite_key_string(str, key.bytes);
+            outs << str;
+        }
+        else
+        {
+            outs << format_key_string(key.bytes);
+        }
+        outs << "\n";
+    }
+}
 
 
-// Note: This function assumes thethat the encoded has been checked for validity
+
+
+
+
+
+// Note: This function assumes that the encoded has been checked for validity
 std::string detailed_did_display(UInt16 encoded_did, UInt16 raw_did)
 {
     std::string tmp;
@@ -837,7 +872,7 @@ std::string detailed_did_display(UInt16 encoded_did, UInt16 raw_did)
 }
 
 
-// Note: This function assumes thethat the encoded has been checked for validity
+// Note: This function assumes that the encoded has been checked for validity
 std::string detailed_did_display(UInt16 did, bool is_encoded)
 {
     UInt16 encoded_did = did;
