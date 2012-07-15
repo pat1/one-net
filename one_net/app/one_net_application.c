@@ -264,7 +264,7 @@ BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt)
 #endif
 
 
-#ifdef BLOCK_MESSAGES_ENABLED
+#ifdef STREAM_MESSAGES_ENABLED
 /*!
     \brief Parses a single stream packet
     
