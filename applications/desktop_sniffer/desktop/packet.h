@@ -13,13 +13,22 @@
 using namespace std;
 
 
-extern "C"
-{
-    #include "one_net_packet.h"
-    #include "one_net_acknowledge.h"
-    #include "one_net_features.h"
-    #include "one_net_peer.h"
-};
+extern const unsigned int NUM_PIDS;
+extern string_int_struct raw_pid_strings[];
+extern const unsigned int NUM_NACK_REASONS;
+extern string_int_struct raw_nack_reason_strings[];
+extern const unsigned int NUM_ADMIN_MSG_TYPES;
+extern string_int_struct admin_msg_type_strings[];
+
+
+
+
+#include "one_net_packet.h"
+#include "one_net_acknowledge.h"
+#include "one_net_features.h"
+#include "one_net_peer.h"
+
+
 
 
 struct app_payload_t
@@ -218,14 +227,6 @@ private:
     UInt8 hops;
     UInt8 max_hops;
 };
-
-
-extern const unsigned int NUM_PIDS;
-extern string_int_struct raw_pid_strings[];
-extern const unsigned int NUM_NACK_REASONS;
-extern string_int_struct raw_nack_reason_strings[];
-extern const unsigned int NUM_ADMIN_MSG_TYPES;
-extern string_int_struct admin_msg_type_strings[];
 
 
 #endif	/* PACKET_H */

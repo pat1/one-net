@@ -12,23 +12,6 @@
 #include "time_utils.h"
 using namespace std;
 
-extern "C"
-{
-    #include "one_net.h"
-    #include "one_net_encode.h"
-    #include "one_net_application.h"
-    #include "one_net_message.h"
-    #include "one_net_peer.h"
-    #include "one_net_packet.h"
-    #include "one_net_crc.h"
-    #include "one_net_types.h"
-    #include "one_net_port_specific.h"
-    #include "one_net_data_rate.h"
-    #include "one_net_features.h"
-};
-
-
-
 
 const unsigned int NUM_PIDS = 16;
 string_int_struct raw_pid_strings[NUM_PIDS] =
@@ -48,7 +31,6 @@ string_int_struct raw_pid_strings[NUM_PIDS] =
     {"ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT", 0x0E},
     {"ONE_NET_RAW_CLIENT_REQUEST_INVITE", 0x0F}
 };
-
 
 
 const unsigned int NUM_NACK_REASONS = 49;
@@ -106,7 +88,6 @@ string_int_struct raw_nack_reason_strings[NUM_NACK_REASONS] =
 };
 
 
-
 const unsigned int NUM_ADMIN_MSG_TYPES = 21;
 string_int_struct admin_msg_type_strings[NUM_ADMIN_MSG_TYPES] =
 {
@@ -134,14 +115,28 @@ string_int_struct admin_msg_type_strings[NUM_ADMIN_MSG_TYPES] =
 };
 
 
-
-
 vector<xtea_key> packet::keys;
 vector<xtea_key> packet::invite_keys;
 const UInt8 packet::INVALID_CRC = 0xFF;
 const UInt16 packet::INVALID_DID = 0xFFFF;
 const uint64_t packet::INVALID_NID = 0xFFFFFFFFFFFFll;
 const UInt16 packet::INVALID_PID = 0xFFFF;
+
+
+
+
+#include "one_net.h"
+#include "one_net_encode.h"
+#include "one_net_application.h"
+#include "one_net_message.h"
+#include "one_net_peer.h"
+#include "one_net_packet.h"
+#include "one_net_crc.h"
+#include "one_net_types.h"
+#include "one_net_port_specific.h"
+#include "one_net_data_rate.h"
+#include "one_net_features.h"
+
 
 
 
@@ -258,9 +253,10 @@ bool packet::parse_payload(UInt16 raw_pid, UInt8* decrypted_payload_bytes,
     }
 
     payload.payload_crc = payload.decrypted_payload_bytes[0];
-    payload.calculated_payload_crc = one_net_compute_crc(
-        &payload.decrypted_payload_bytes[1],
-        payload.num_payload_bytes - 1, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+    //payload.calculated_payload_crc = one_net_compute_crc(
+    //    &payload.decrypted_payload_bytes[1],
+    //    payload.num_payload_bytes - 1, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+    payload.calculated_payload_crc = 7;
     payload.valid_payload_crc =
         (payload.payload_crc == payload.calculated_payload_crc);
     payload.msg_id = get_payload_msg_id(payload.decrypted_payload_bytes);
@@ -570,9 +566,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
         }
 
         payload.payload_crc = payload.decrypted_payload_bytes[0];
-        payload.calculated_payload_crc = one_net_compute_crc(
-            &payload.decrypted_payload_bytes[1],
-            payload.num_payload_bytes - 1, ON_PLD_INIT_CRC, ON_PLD_CRC_ORDER);
+        payload.calculated_payload_crc = 8;
         payload.valid_payload_crc =
             (payload.payload_crc == payload.calculated_payload_crc);
 
@@ -1142,17 +1136,13 @@ bool payload_t::detailed_response_payload_to_string(string& str) const
             if(is_ack)
             {
                 str += " -- 32-bit Value : ";
-                ss << response_payload.ack_nack.payload->ack_value.uint32;
-                ss >> tmp;
-                str += tmp;
-                str += " -- 8-bit Value : ";
-                ss << (int) response_payload.ack_nack.payload->ack_value.uint8;
+                ss << response_payload.ack_nack.payload->ack_value;
                 ss >> tmp;
                 str += tmp;
             }
             else
             {
-                str += " -- Value : ";
+                str += " -- 32-bit Value : ";
                 ss << response_payload.ack_nack.payload->nack_value;
                 ss >> tmp;
                 str += tmp;
