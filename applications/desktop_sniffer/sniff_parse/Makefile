@@ -86,7 +86,7 @@ libonenetlib.a: $(ONE_NET_LIB_OBJS)
 
 SNIFF_PARSE_PATH = -I.
 
-SNIFF_PARSE_OBJS = cpp_attribute.o cpp_sniff_parse.o cpp_packet.o cpp_string_utils.o
+SNIFF_PARSE_OBJS = cpp_attribute.o cpp_sniff_parse.o cpp_packet.o cpp_string_utils.o cpp_xtea_key.o
 
 sniff_parse: $(SNIFF_PARSE_OBJS) libonenetlib.a
 	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) $(SNIFF_PARSE_OBJS) -L. -lonenetlib -o sniff_parse
@@ -102,6 +102,9 @@ cpp_packet.o:
 
 cpp_string_utils.o:
 	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) string_utils.cpp -o cpp_string_utils.o
+
+cpp_xtea_key.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) xtea_key.cpp -o cpp_xtea_key.o
 
 
 clean:
