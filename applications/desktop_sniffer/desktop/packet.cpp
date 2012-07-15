@@ -528,7 +528,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     max_hops = 0;
     if(is_mh_pkt)
     {
-        encoded_hops_field = enc_pkt_bytes[ON_PLD_IDX + pkt_ptr.payload_len];
+        encoded_hops_field = enc_pkt_bytes[ON_ENCODED_PLD_IDX + pkt_ptr.payload_len];
         if((decoded_hops_field = encoded_to_decoded_byte(encoded_hops_field,
             false)) = 0xFF)
         {
@@ -542,7 +542,7 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
         }
     }
 
-    if(on_decode(encrypted_payload_bytes, &enc_pkt_bytes[ON_PLD_IDX],
+    if(on_decode(encrypted_payload_bytes, &enc_pkt_bytes[ON_ENCODED_PLD_IDX],
       encoded_payload_len) != ONS_SUCCESS)
     {
         valid_decode = false;
@@ -711,7 +711,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
             return false;
         }
 
-        if(num_bytes_rcvd == ON_PLD_IDX - 1)
+        if(num_bytes_rcvd == ON_ENCODED_PLD_IDX - 1)
         {
             pkt.enc_pid = one_net_byte_stream_to_int16(
               &bytes[ON_ENCODED_PID_IDX]);
@@ -1402,7 +1402,7 @@ bool packet::display(const attribute& att, ostream& outs) const
     {
         outs << dec << "# Encoded Payload Bytes = " << (int) encoded_payload_len
             << "\n";
-        if(!bytes_to_hex_string(&enc_pkt_bytes[ON_PLD_IDX],
+        if(!bytes_to_hex_string(&enc_pkt_bytes[ON_ENCODED_PLD_IDX],
           encoded_payload_len, str, ' ', 1, 24))
         {
             return false;
