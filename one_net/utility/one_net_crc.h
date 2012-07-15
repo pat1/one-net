@@ -104,7 +104,7 @@ UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN,
 
 #ifdef __cplusplus
 extern "C"
-{
+}
 #endif
 
 
