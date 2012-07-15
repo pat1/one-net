@@ -6,6 +6,7 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 #include "on_packet.h"
 #include "string_utils.h"
 #include "attribute.h"
@@ -2357,7 +2358,112 @@ on_packet::on_packet(std::string encoded_packet, std::string key)
 
 on_packet::on_packet(const on_packet& orig)
 {
+    timestamp_ms = orig.timestamp_ms;
+    encoded_packet = orig.encoded_packet;
+    encoded_payload = orig.encoded_payload;
+    decoded_payload = orig.decoded_payload;
+    memcpy(encoded_packet_bytes, orig.encoded_packet_bytes,
+      sizeof(encoded_packet_bytes));
+    memcpy(encoded_payload_bytes, orig.encoded_payload_bytes,
+      sizeof(encoded_payload_bytes));
+    memcpy(decoded_payload_bytes, orig.decoded_payload_bytes,
+      sizeof(decoded_payload_bytes));
+    preamble_header = orig.preamble_header;
+    num_encoded_bytes = orig.num_encoded_bytes;
+    encoded_payload_len = orig.encoded_payload_len;
+    decoded_payload_len = orig.decoded_payload_len;
+    raw_src_did = orig.raw_src_did;
+    raw_rptr_did = orig.raw_rptr_did;
+    raw_dst_did = orig.raw_dst_did;
+    raw_nid = orig.raw_nid;
+    enc_src_did = orig.enc_src_did;
+    enc_rptr_did = orig.enc_rptr_did;
+    enc_dst_did = orig.enc_dst_did;
+    enc_nid = orig.enc_nid;
+    enc_pid = orig.enc_pid;
+    raw_pid = orig.raw_pid;
+    enc_msg_crc = orig.enc_msg_crc;
+    msg_crc = orig.msg_crc;
+    calculated_msg_crc = orig.calculated_msg_crc;
+    hops = orig.hops;
+    max_hops = orig.max_hops;
+    encoded_hops_field = orig.encoded_hops_field;
+    raw_hops_field = orig.raw_hops_field;
+    valid_digits = orig.valid_digits;
+    valid_msg_crc = orig.valid_msg_crc;
+    valid_decode = orig.valid_decode;
+    valid_pid = orig.valid_pid;
+    valid = orig.valid;
+    is_invite_pkt = orig.is_invite_pkt;
+    is_single_data_pkt = orig.is_single_data_pkt;
+    is_response_pkt = orig.is_response_pkt;
+    is_ack_pkt = orig.is_ack_pkt;
+    is_nack_pkt = orig.is_nack_pkt;
+    is_route_pkt = orig.is_route_pkt;
+    is_block_pkt = orig.is_block_pkt;
+    is_stream_pkt = orig.is_stream_pkt;
+    is_app_pkt = orig.is_app_pkt;
+    is_admin_pkt = orig.is_admin_pkt;
+    is_features_pkt = orig.is_features_pkt;
+    is_multihop_pkt = orig.is_multihop_pkt;
+    is_stay_awake_pkt = orig.is_stay_awake_pkt;
+    num_payload_blocks = orig.num_payload_blocks;
+    error_message = orig.error_message;
 
+    if(payload == NULL)
+    {
+        // should never get here?
+        return;
+    }
+
+    if(this->is_single_data_pkt)
+    {
+        if(is_app_pkt)
+        {
+            on_app_payload* oap = dynamic_cast<on_app_payload*>(orig.payload);
+            payload = new on_app_payload(*oap);
+        }
+        else if(is_admin_pkt)
+        {
+            on_admin_payload* oap = dynamic_cast<on_admin_payload*>(orig.payload);
+            payload = new on_admin_payload(*oap);
+        }
+        else if(is_features_pkt)
+        {
+            on_features_payload* ofp = dynamic_cast<on_features_payload*>(orig.payload);
+            payload = new on_features_payload(*ofp);
+        }
+        else if(is_route_pkt)
+        {
+            on_route_payload* orp = dynamic_cast<on_route_payload*>(orig.payload);
+            payload = new on_route_payload(*orp);
+        }
+        else
+        {
+            on_single_data_payload* osdp = dynamic_cast<on_single_data_payload*>(orig.payload);
+            payload = new on_single_data_payload(*osdp);
+        }
+    }
+    else if(this->is_invite_pkt)
+    {
+        on_invite_payload* oip = dynamic_cast<on_invite_payload*>(orig.payload);
+        payload = new on_invite_payload(*oip);
+    }
+    else if(this->is_response_pkt)
+    {
+        on_response_payload* orp = dynamic_cast<on_response_payload*>(orig.payload);
+        payload = new on_response_payload(*orp);
+    }
+    else if(this->is_block_pkt)
+    {
+        on_block_payload* obp = dynamic_cast<on_block_payload*>(orig.payload);
+        payload = new on_block_payload(*obp);
+    }
+    else if(this->is_stream_pkt)
+    {
+        on_stream_payload* osp = dynamic_cast<on_stream_payload*>(orig.payload);
+        payload = new on_stream_payload(*osp);
+    }
 }
 
 
