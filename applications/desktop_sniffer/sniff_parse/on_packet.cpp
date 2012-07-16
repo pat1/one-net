@@ -563,25 +563,19 @@ void on_single_data_payload::default_display(const on_single_data_payload& obj, 
 void on_single_data_payload::display(UInt8 verbosity, const attribute* att,
   ostream& outs) const
 {
+    if(att == NULL)
+    {
+        attribute attr;
+        on_single_data_payload::display(verbosity, &attr, outs);
+        return;
+    }
+
     if(on_single_data_payload::disp_single_data_pay == NULL)
     {
         return;
     }
 
-    bool create_attribute = false;
-
-    if(att == NULL)
-    {
-        create_attribute = true;
-        att = new attribute();
-    }
-
     (*disp_single_data_pay)(*this, verbosity, att, outs);
-
-    if(create_attribute)
-    {
-        delete att;
-    }
 }
 
 
@@ -2393,7 +2387,7 @@ on_packet::on_packet(const on_packet& orig)
 
 on_packet::~on_packet()
 {
-
+    delete payload;
 }
 
 
