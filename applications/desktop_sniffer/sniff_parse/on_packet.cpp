@@ -131,29 +131,6 @@ on_payload::on_payload()
 }
 
 
-on_payload::on_payload(UInt16 raw_pid)
-{
-    this->raw_pid = raw_pid;
-    num_bytes = get_raw_payload_len(raw_pid);
-    valid_crc = false;
-    valid = false;
-    error_message = "";
-    key.assign(32, '0');
-    encrypted_payload = "";
-    decrypted_payload = "";
-
-    if(num_bytes < 0)
-    {
-        error_message = "Invalid Raw PID";
-    }
-    else
-    {
-        decrypted_payload.assign(2 * num_bytes, '0');
-        encrypted_payload.assign(2 * num_bytes, '0');
-    }
-}
-
-
 on_payload::on_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted)
 {
@@ -515,11 +492,6 @@ on_single_data_payload::on_single_data_payload(): on_payload()
 }
 
 
-on_single_data_payload::on_single_data_payload(UInt16 raw_pid): on_payload(raw_pid)
-{
-}
-
-
 on_single_data_payload::on_single_data_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted): on_payload(raw_pid, payload, key, encrypted)
 {
@@ -630,11 +602,6 @@ display_on_single_data_pay_func on_single_data_payload::disp_single_data_pay = &
 
 
 on_app_payload::on_app_payload(): on_single_data_payload()
-{
-}
-
-
-on_app_payload::on_app_payload(UInt16 raw_pid): on_single_data_payload(raw_pid)
 {
 }
 
@@ -821,11 +788,6 @@ display_on_app_pay_func on_app_payload::disp_app_pay = &on_app_payload::default_
 on_response_payload::on_response_payload(): on_payload()
 {
     ack_nack.payload = &ack_nack_payload;
-}
-
-
-on_response_payload::on_response_payload(UInt16 raw_pid): on_payload(raw_pid)
-{
 }
 
 
@@ -1147,11 +1109,6 @@ display_on_response_pay_func on_response_payload::disp_response_pay = &on_respon
 
 
 on_admin_payload::on_admin_payload(): on_single_data_payload()
-{
-}
-
-
-on_admin_payload::on_admin_payload(UInt16 raw_pid): on_single_data_payload(raw_pid)
 {
 }
 
@@ -1535,11 +1492,6 @@ on_features_payload::on_features_payload(): on_single_data_payload()
 }
 
 
-on_features_payload::on_features_payload(UInt16 raw_pid): on_single_data_payload(raw_pid)
-{
-}
-
-
 on_features_payload::on_features_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted): on_single_data_payload(raw_pid, payload, key, encrypted)
 {
@@ -1627,11 +1579,6 @@ display_on_features_pay_func on_features_payload::disp_features_pay = &on_featur
 
 
 on_invite_payload::on_invite_payload(): on_payload()
-{
-}
-
-
-on_invite_payload::on_invite_payload(UInt16 raw_pid): on_payload(raw_pid)
 {
 }
 
@@ -1772,11 +1719,6 @@ on_route_payload::on_route_payload(): on_single_data_payload()
 }
 
 
-on_route_payload::on_route_payload(UInt16 raw_pid): on_single_data_payload(raw_pid)
-{
-}
-
-
 on_route_payload::on_route_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted): on_single_data_payload(raw_pid, payload, key, encrypted)
 {
@@ -1901,12 +1843,6 @@ on_block_payload::on_block_payload(): on_payload()
 }
 
 
-on_block_payload::on_block_payload(UInt16 raw_pid): on_payload(raw_pid)
-{
-    block_pkt.data = data;
-}
-
-
 on_block_payload::on_block_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted): on_payload(raw_pid, payload, key, encrypted)
 {
@@ -2007,12 +1943,6 @@ on_stream_payload::on_stream_payload(): on_payload()
 }
 
 
-on_stream_payload::on_stream_payload(UInt16 raw_pid): on_payload(raw_pid)
-{
-    stream_pkt.data = data;
-}
-
-
 on_stream_payload::on_stream_payload(UInt16 raw_pid, std::string payload, std::string key,
   bool encrypted): on_payload(raw_pid, payload, key, encrypted)
 {
@@ -2102,12 +2032,6 @@ display_on_stream_pay_func on_stream_payload::disp_stream_pay = &on_stream_paylo
 
 
 on_packet::on_packet()
-{
-
-}
-
-
-on_packet::on_packet(UInt16 pid)
 {
 
 }

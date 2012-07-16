@@ -23,7 +23,6 @@ class on_payload
 {
 public:
     on_payload();
-    on_payload(UInt16 raw_pid);
     on_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_payload(const on_payload& pld);
@@ -66,7 +65,6 @@ class on_single_data_payload: public on_payload
 {
 public:
     on_single_data_payload();
-    on_single_data_payload(UInt16 raw_pid);
     on_single_data_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_single_data_payload(const on_single_data_payload& pld);
@@ -99,7 +97,6 @@ class on_app_payload: public on_single_data_payload
 {
 public:
     on_app_payload();
-    on_app_payload(UInt16 raw_pid);
     on_app_payload(UInt8 src_unit, UInt8 dst_unit, ona_msg_class_t msg_class,
       UInt8 msg_type, SInt32 msg_data);
     on_app_payload(UInt16 raw_pid, std::string payload, std::string key,
@@ -138,7 +135,6 @@ class on_response_payload: public on_payload
 {
 public:
     on_response_payload();
-    on_response_payload(UInt16 raw_pid);
     on_response_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_response_payload(const on_response_payload& pld);
@@ -268,7 +264,6 @@ class on_admin_payload: public on_single_data_payload
 {
 public:
     on_admin_payload();
-    on_admin_payload(UInt16 raw_pid);
     on_admin_payload(const UInt8* bytes, UInt8 num_bytes = 5);
     on_admin_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
@@ -317,7 +312,6 @@ class on_features_payload: public on_single_data_payload
 {
 public:
     on_features_payload();
-    on_features_payload(UInt16 raw_pid);
     on_features_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_features_payload(const on_features_payload& pld);
@@ -342,7 +336,6 @@ class on_route_payload: public on_single_data_payload
 {
 public:
     on_route_payload();
-    on_route_payload(UInt16 raw_pid);
     on_route_payload(UInt8* route_bytes);
     on_route_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
@@ -372,7 +365,6 @@ class on_invite_payload: public on_payload
 {
 public:
     on_invite_payload();
-    on_invite_payload(UInt16 raw_pid);
     on_invite_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_invite_payload(const on_invite_payload& pld);
@@ -405,7 +397,6 @@ class on_block_payload: public on_payload
 {
 public:
     on_block_payload();
-    on_block_payload(UInt16 raw_pid);
     on_block_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_block_payload(const on_block_payload& pld);
@@ -433,7 +424,6 @@ class on_stream_payload: public on_payload
 {
 public:
     on_stream_payload();
-    on_stream_payload(UInt16 raw_pid);
     on_stream_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
     on_stream_payload(const on_stream_payload& pld);
@@ -460,7 +450,6 @@ class on_packet
 {
 public:
     on_packet();
-    on_packet(UInt16 pid);
     on_packet(std::string encoded_bytes, std::string key);
     on_packet(const on_packet& orig);
     virtual ~on_packet();
