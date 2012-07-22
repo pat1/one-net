@@ -5,6 +5,12 @@
 #include <iomanip>
 #include <algorithm>
 
+#ifdef WIN32
+#include "Winsock2.h" // for struct timeval
+#else
+#include "sys/time.h" // for struct timeval
+#endif
+
 
 
 // return -1 if all whitespace
@@ -764,10 +770,10 @@ bool format_invite_key_fragment(std::string& string_rep,
             string_rep = "Unprintable";
             return false;
         }
-        
+
         string_rep += c;
     }
-    
+
     return true;
 }
 

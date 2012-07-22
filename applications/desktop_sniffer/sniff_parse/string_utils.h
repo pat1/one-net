@@ -9,6 +9,12 @@
 #include "one_net_xtea.h"
 #include "xtea_key.h"
 
+#ifdef WIN32
+#include "Winsock2.h" // for struct timeval
+#else
+#include "sys/time.h" // for struct timeval
+#endif
+
 
 struct string_int_struct
 {

@@ -8,8 +8,11 @@ CFLAGS = -Wall -Werror
 CPPFLAGS = -Wall -Werror
 
 
-
+#ifndef WIN32
 ONE_NET_LIB_PATH = -I../../../applications/desktop_sniffer/desktop -I../../../processors/linux -I../../../processors/linux/common -I../../../one_net/app -I../../../one_net/utility -I../../../one_net/port_specific -I../../../one_net/mac -I../../../transceivers -I../../../processors/renesas/src/eval -I../../../processors/renesas/src/eval/adi
+#else
+ONE_NET_LIB_PATH = -I../../../applications/desktop_sniffer/desktop -I../../../processors/windows -I../../../processors/windows/common -I../../../one_net/app -I../../../one_net/utility -I../../../one_net/port_specific -I../../../one_net/mac -I../../../transceivers -I../../../processors/renesas/src/eval -I../../../processors/renesas/src/eval/adi
+#else
 
 ONE_NET_LIB_OBJS = one_net_xtea.o one_net_crc.o one_net_encode.o one_net_memory.o one_net_prand.o one_net_timer.o one_net_features.o one_net_packet.o one_net_message.o one_net_peer.o one_net_application.o one_net_acknowledge.o one_net_port_specific.o one_net.o one_net_client.o one_net_master.o tick.o dummy_client_app_functions.o dummy_master_app_functions.o dummy_one_net_app_functions.o dummy_transceiver_functions.o
 
