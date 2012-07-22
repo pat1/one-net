@@ -2206,7 +2206,7 @@ on_packet::on_packet(std::string encoded_packet, std::string key)
 
     decoded_payload = bytes_to_hex_string(decoded_payload_bytes, decoded_payload_len);
 
-    if((raw_pid & 0x3F) < NUM_PIDS)
+    if((UInt16)(raw_pid & 0x3F) < NUM_PIDS)
     {
         valid_pid = true;
     }
