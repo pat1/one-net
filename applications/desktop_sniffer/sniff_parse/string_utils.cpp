@@ -282,17 +282,42 @@ bool string_to_uint32(std::string str, UInt32& value, bool hex)
 
 bool string_to_uint64_t(std::string str, uint64_t& value, bool hex)
 {
+    // TODO -- not thoroughly tested.  This function has been changed to handle 
+    // compilers where the %lld format is the same as the %ld format.
     if(!legal_digits(str, hex, false))
     {
         return false;
     }
-
-    const char* format = hex ? "%llx" : "%lld";
-    if(sscanf(str.c_str(), format, &value) != 1)
+    
+    uint32_t value32;
+    if(str.length() <= 8)
     {
-        return false;
+        const char* format = hex ? "%x" : "%d";
+        if(sscanf(str.c_str(), format, &value32) != 1)
+        {
+            return false;
+        }
+        
+        value = value32;
+        return true;
     }
-
+    
+    uint64_t high_order, low_order;
+    std::string high_order_string = str.substr(0, str.length() - 8);
+    std::string low_order_string = str.substr(str.length() - 8);
+    string_to_uint64_t(low_order_string, low_order, hex);
+    string_to_uint64_t(high_order_string, high_order, hex);
+    
+    value = high_order;
+    if(hex)
+    {
+        value <<= 32;
+    }
+    else
+    {
+        value *= 100000000;
+    }
+    value += low_order;
     return true;
 }
 
@@ -359,17 +384,14 @@ bool string_to_int64_t(std::string str, int64_t& value, bool hex)
         value = -value;
         return ret;
     }
-    if(!legal_digits(str, hex, false))
+
+    uint64_t uint64_value;
+    if(!string_to_uint64_t(str, uint64_value, hex))
     {
         return false;
     }
 
-    const char* format = hex ? "%llx" : "%lld";
-    if(sscanf(str.c_str(), format, &value) != 1)
-    {
-        return false;
-    }
-
+    value = (int64_t) uint64_value;
     return true;
 }
 
