@@ -1303,6 +1303,7 @@ void one_net(on_txn_t ** txn)
             UInt16 raw_pid = ONE_NET_RAW_BLOCK_DATA;
             #endif            
             one_net_status_t status;
+            on_message_status_t msg_status;
             // TODO -- I think there's a global buffer somewhere so we don't
             // need to set our own buffer.  However, the stack size shouldn't
             // be very high here so it's no big deal.
@@ -1336,7 +1337,7 @@ void one_net(on_txn_t ** txn)
             if(transfer_type == ON_BLK_TRANSFER)
             #endif
             {
-                status = one_net_block_get_next_payload(&bs_msg, buffer,
+                msg_status = one_net_block_get_next_payload(&bs_msg, buffer,
                   &ack_nack);
             }
             #ifdef STREAM_MESSAGES_ENABLED
@@ -1348,12 +1349,12 @@ void one_net(on_txn_t ** txn)
                   bs_msg.bs.stream.last_response_time > 5000);
                 bs_msg.bs.stream.elapsed_time = TICK_TO_MS(tick_now -
                   bs_msg.bs.stream.start_time);
-                status = one_net_stream_get_next_payload(&bs_msg, buffer,
+                msg_status = one_net_stream_get_next_payload(&bs_msg, buffer,
                   &ack_nack);
             }
             #endif
                   
-            if(status == ON_MSG_CONTINUE)
+            if(msg_status == ON_MSG_CONTINUE)
             {
                 // fill in the addresses
                 if(on_build_my_pkt_addresses(&data_pkt_ptrs,
@@ -1428,7 +1429,7 @@ void one_net(on_txn_t ** txn)
                 #endif
                 on_state++;
             }
-            else if(status == ON_MSG_PAUSE)
+            else if(msg_status == ON_MSG_PAUSE)
             {
                 UInt32 pause_time = bs_msg.bs.block.chunk_pause;
                 if(ack_nack.handle == ON_ACK_PAUSE_TIME_MS)
