@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <stdio.h>
 
 #ifdef WIN32
 #include "Winsock2.h" // for struct timeval
@@ -282,13 +283,13 @@ bool string_to_uint32(std::string str, UInt32& value, bool hex)
 
 bool string_to_uint64_t(std::string str, uint64_t& value, bool hex)
 {
-    // TODO -- not thoroughly tested.  This function has been changed to handle 
+    // TODO -- not thoroughly tested.  This function has been changed to handle
     // compilers where the %lld format is the same as the %ld format.
     if(!legal_digits(str, hex, false))
     {
         return false;
     }
-    
+
     uint32_t value32;
     if(str.length() <= 8)
     {
@@ -297,17 +298,17 @@ bool string_to_uint64_t(std::string str, uint64_t& value, bool hex)
         {
             return false;
         }
-        
+
         value = value32;
         return true;
     }
-    
+
     uint64_t high_order, low_order;
     std::string high_order_string = str.substr(0, str.length() - 8);
     std::string low_order_string = str.substr(str.length() - 8);
     string_to_uint64_t(low_order_string, low_order, hex);
     string_to_uint64_t(high_order_string, high_order, hex);
-    
+
     value = high_order;
     if(hex)
     {
@@ -643,10 +644,10 @@ bool encoded_nid_to_string(const on_encoded_nid_t* enc_nid, std::string& str)
         return false;
     }
     on_raw_nid_t raw_nid;
-    bool ret = true;
+
     if(on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) != ONS_SUCCESS)
     {
-        ret = false;
+        return false;
     }
     str = bytes_to_hex_string((const UInt8*) enc_nid, 6);
     str = "0x" + str;
@@ -839,7 +840,7 @@ std::string format_key_string(const one_net_xtea_key_t& key)
     std::string string_rep = "";
     for(int i = 0; i < ONE_NET_XTEA_KEY_LEN; i++)
     {
-        if(i > 0 & i % 4 == 0)
+        if((i > 0) && (i % 4 == 0))
         {
             string_rep += "-";
         }
