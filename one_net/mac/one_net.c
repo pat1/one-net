@@ -2395,10 +2395,11 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
         
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_MSG_ID;
 
-        if(one_net_reject_bad_msg_id((*txn)->device) ||
+        if(!one_net_reject_bad_msg_id((*txn)->device) ||
           sing_pkt_ptr->msg_id > (*txn)->device->msg_id)
         {
-            // valid new message id for a new message we haven't seen before.
+            // We either do not care about invalid message ids or we received a
+            // valid message id for a new message we haven't seen before.
             (*txn)->device->msg_id = sing_pkt_ptr->msg_id;
             (*txn)->device->verify_time = 0;
             ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
