@@ -1440,7 +1440,7 @@ void one_net(on_txn_t ** txn)
             }
             else
             {
-                terminate_bs_msg(&bs_msg, NULL, status, &ack_nack);
+                terminate_bs_msg(&bs_msg, NULL, msg_status, &ack_nack);
             }
             break;
         }
