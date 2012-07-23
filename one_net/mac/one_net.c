@@ -2225,7 +2225,6 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
   UInt8* raw_payload, on_ack_nack_t* ack_nack)
 {
     UInt8 msg_type;
-    UInt16 msg_id;
     BOOL src_features_known, use_current_key;
     
     if(!txn || !(*txn) || !raw_payload || !ack_nack)
@@ -2234,7 +2233,6 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     }
 
     ack_nack->payload = (ack_nack_payload_t*) &raw_payload[ON_PLD_DATA_IDX];
-    msg_id = get_payload_msg_id(raw_payload); // unused at present.
     
     // March 2, 2012 -- Removing all nonce code!
     
