@@ -8,7 +8,7 @@
 
 
 /*
-These are "dummy" functions.  Copy / paste / change / use them as a skeleton 
+These are "dummy" functions.  Copy / paste / change / use them as a skeleton
 for your application code.
 June 3, 2012 -- Currently these functions have not been thoroughly tested.
 */
@@ -40,30 +40,28 @@ one_net_status_t tal_set_channel(const UInt8 channel)
         #endif
         return ONS_SUCCESS;
     } // if the parameter is valid //
-    
+
     return ONS_BAD_PARAM;
 } // tal_set_channel //
 
 
 one_net_status_t tal_set_data_rate(UInt8 data_rate)
 {
-    one_net_status_t status;
-    
     #ifndef DATA_RATE_CHANNEL
     if(data_rate != ONE_NET_DATA_RATE_38_4)
     {
         return ONS_DEVICE_NOT_CAPABLE;
     }
     #else
-    
+
     if(!features_data_rate_capable(THIS_DEVICE_FEATURES, data_rate))
     {
         return ONS_DEVICE_NOT_CAPABLE;
     }
     #endif
-    
-    current_data_rate = data_rate;    
-    return status;
+
+    current_data_rate = data_rate;
+    return ONS_SUCCESS;
 }
 
 
