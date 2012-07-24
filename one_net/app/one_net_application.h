@@ -361,7 +361,11 @@ SInt32 get_msg_data(const UInt8* payload, UInt8 app_msg_type);
 #endif
 
 /* store the 20- or 28-bit message data in the payload buffer */
+#ifndef ONE_NET_CLIENT
+void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type);
+#else
 void put_msg_data(SInt32 data, UInt8 *payload);
+#endif
 
 /* get the 4-bit source unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)

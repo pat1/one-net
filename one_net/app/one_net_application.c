@@ -389,7 +389,8 @@ SInt32 get_msg_data(const UInt8* payload, UInt8 app_msg_type)
 }
 #endif
 
-/* store the 32-bit message data in the payload buffer */
+/* store the 20- or 28-bit message data in the payload buffer */
+#ifdef ONE_NET_CLIENT
 void put_msg_data(SInt32 data, UInt8 *payload)
 {
     // TODO -- can we make this function more efficient?
@@ -408,6 +409,41 @@ void put_msg_data(SInt32 data, UInt8 *payload)
     payload[3] = data >> 8;
     payload[4] = data;
 }
+#else
+void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type)
+{
+    // TODO -- can we make this function more efficient?
+    UInt8 sign = 0;
+    if(data < 0)
+    {
+        sign = 0x08;
+        data = -data;
+    }
+    
+    // data is now non-negative
+    data &= 0x07FFFFFF;
+    Uint8 shift = 16;
+    UInt8 sign_index = 2;
+    if(app_msg_type == ON_APP_MSG_TYPE_2)
+    {
+        sign_index = 1;
+        payload[2] = data >> 16;
+        shift = 24;
+    }
+    else
+    {
+        data >>= 8;
+    }
+    
+    
+    payload[3] = data >> 8;
+    payload[4] = data;
+    payload[sign_index] &= 0xF0;
+    payload[sign_index] |= (data >> shift); 
+    payload[sign_index] |= sign;
+}
+#endif
+
 
 
 /* store the 12-bit message id in the raw payload buffer */
