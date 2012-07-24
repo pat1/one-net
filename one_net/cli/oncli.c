@@ -786,7 +786,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
             
             // TODO -- pld_len isn't being set correctly somewhere.  Fix it.
             // For now, hard-coding in 5.
-            print_app_payload(ack_nack->payload->status_resp, /*pld_len*/5);
+            print_app_payload(ack_nack->payload->status_resp, ON_APP_MSG, /*pld_len*/5);
             break;
         }
         
@@ -829,15 +829,16 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
            payload
 
     \param[in] pld The 5, 13, or 21 byte payload
+    \param[in] app_msg_type The parsing method for the APP data.
     \param[in] pld_len The length of the payload (5, 13, or 21 bytes)
 */
-void print_app_payload(const UInt8* const pld, UInt8 pld_len)
+void print_app_payload(const UInt8* const pld, UInt8 app_msg_type, UInt8 pld_len)
 {
     UInt8 src_unit, dst_unit, msg_type;
     ona_msg_class_t msg_class;
     SInt32 msg_data;
 
-    on_parse_app_pld(pld, &src_unit, &dst_unit, &msg_class, &msg_type,
+    on_parse_app_pld(pld, app_msg_type, &src_unit, &dst_unit, &msg_class, &msg_type,
       &msg_data);
 
     oncli_send_msg("App payload : 0x");
@@ -916,8 +917,6 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
     {
         case ON_ADMIN_MSG:
             print_admin_payload(&raw_payload[ON_PLD_DATA_IDX]); break;
-        case ON_APP_MSG:
-            print_app_payload(&raw_payload[ON_PLD_DATA_IDX], pld_len); break;
         case ON_FEATURE_MSG:
             oncli_print_features(
               *((on_features_t*)&raw_payload[ON_PLD_DATA_IDX])); break;
@@ -925,6 +924,11 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
         case ON_ROUTE_MSG:
             print_route(&raw_payload[ON_PLD_DATA_IDX]); break;
         #endif
+        default:
+            if(msg_pld_type <= ON_APP_MSG_TYPE_4)
+            {
+                print_app_payload(&raw_payload[ON_PLD_DATA_IDX], msg_pld_type, pld_len); break;
+            }
     }
 }
 

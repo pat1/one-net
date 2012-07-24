@@ -1228,7 +1228,7 @@ on_single_data_queue_t* push_queue_element(UInt16 raw_pid,
         {
             return NULL;
         }
-        if(msg_type == ON_APP_MSG)
+        if(msg_type < ON_ADMIN_MSG) // message is an APP message
         {
             priority = ONE_NET_LOW_PRIORITY;
             if(bs_msg.priority == ONE_NET_HIGH_PRIORITY)

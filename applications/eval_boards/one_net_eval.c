@@ -456,14 +456,14 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
         return ON_MSG_IGNORE;
     }
     
-    on_parse_app_pld(raw_pld, &src_unit, &dst_unit, &msg_class, &msg_type,
-      &msg_data);
+    on_parse_app_pld(raw_pld, ON_APP_MSG, &src_unit, &dst_unit, &msg_class,
+      &msg_type, &msg_data);
 
     #if DEBUG_VERBOSE_LEVEL > 3
     if(verbose_level > 3)
     {
         oncli_send_msg("eval_hdl_sng: ");
-        print_app_payload(raw_pld, 5);
+        print_app_payload(raw_pld, ON_APP_MSG, 5);
         oncli_send_msg("\n");
         ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     }

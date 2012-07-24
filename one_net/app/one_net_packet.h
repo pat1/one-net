@@ -438,6 +438,9 @@ typedef enum _ona_msg_type
 
     //! Days
     ONA_DAYS = 0x65,
+    
+    //! Unknown -- used when message type is unknown or irrelevant
+    ONA_MSG_TYPE_UNKNOWN = 0xFF
 } ona_msg_type_t;
 
 

@@ -80,7 +80,14 @@ extern const on_encoded_did_t NO_DESTINATION;
 */
 typedef enum
 {
-    ON_APP_MSG,                     //!< Application message type
+    ON_APP_MSG,                     //!< Application message type (normal parsing - units, class, type, data)
+    
+    // Note -- ON_APP_MSG_TYPE_2, ON_APP_MSG_TYPE_3, and ON_APP_MSG_TYPE_4 are not implemented as of July 23, 2012,
+    //         but can still be used by the application code.
+    // TODO -- Implement in ONE-NET so these can be used.
+    ON_APP_MSG_TYPE_2,              //!< Application message type (no units, includes class, type, data -- units are interpreted as ONE_NET_DEV_UNIT)
+    ON_APP_MSG_TYPE_3,              //!< Application message type (no units or class, includes type and data -- units are interpreted as ONE_NET_DEV_UNIT)
+    ON_APP_MSG_TYPE_4,              //!< Application message type (no units, class, or type -- data should be interpreted as an array -- units are interpreted as ONE_NET_DEV_UNIT)
     ON_ADMIN_MSG,                   //!< Admin message type
     ON_FEATURE_MSG,                 //!< A request for features
     #ifdef ROUTE
@@ -328,7 +335,10 @@ typedef UInt16 ona_msg_class_t;
 //!< Fast Query / "poll" status of a unit
 #define ONA_FAST_QUERY             0x700
 
-// Message classes 0x800 to 0xF00 are currently unused
+//!< Used when the message class is not applicable or is unknown
+#define ONA_CLASS_UNKNOWN          0x800
+
+// Message classes 0x900 to 0xF00 are currently unused
 
 
 //!< Used to mask message class bits

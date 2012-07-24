@@ -209,6 +209,7 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
     \brief Parses a single application message
     
     \param[in] payload the payload of the message
+    \param[in] app_msg_type -- message type of the application message (either ON_APP_MSG, ON_APP_MSG_TYPE_2, ON_APP_MSG_TYPE_3, ON_APP_MSG_TYPE_4)
     \param[out] src_unit the source unit of the message
     \param[out] dst_unit the destination unit of the message
     \param[out] msg_class the message class of the message
@@ -218,9 +219,15 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
     \return TRUE if parsed successfully
     \return FALSE if not parsed successfully
 */
+#ifndef ONE_NET_SIMPLE_CLIENT
+BOOL on_parse_app_pld(const UInt8* const payload, UInt8 app_msg_type, UInt8* const src_unit,
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  msg_type, SInt32* const msg_data)
+#else
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data)
+#endif
 {
     if(!payload || !src_unit || !dst_unit || !msg_class || !msg_type ||
       !msg_data)
@@ -228,11 +235,20 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
         return FALSE;
     }
     
+    #ifndef ONE_NET_SIMPLE_CLIENT
+    if(app_msg_type > ON_APP_MSG_TYPE_4)
+    {
+        return FALSE; // invalid application message type
+    }
+    #endif
+
     *src_unit = get_src_unit(payload);
     *dst_unit = get_dst_unit(payload);
     *msg_class = get_msg_class(payload);
     *msg_type = get_msg_type(payload);
     *msg_data = get_msg_data(payload);
+    
+    // TODO -- finish for non-simple client.
     return TRUE;
 }
 
@@ -264,7 +280,7 @@ BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt)
 #endif
 
 
-#ifdef STREAM_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 /*!
     \brief Parses a single stream packet
     

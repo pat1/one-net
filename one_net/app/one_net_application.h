@@ -284,9 +284,15 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 
 
 // parsing functions
+#ifndef ONE_NET_SIMPLE_CLIENT
+BOOL on_parse_app_pld(const UInt8* const payload, UInt8 app_msg_type, UInt8* const src_unit,
+  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  msg_type, SInt32* const msg_data);
+#else
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
   UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data);
+#endif
 #ifdef BLOCK_MESSAGES_ENABLED
 BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt);
 #endif

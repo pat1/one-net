@@ -177,7 +177,7 @@ const char * oncli_msg_status_str(on_message_status_t status);
 #if DEBUG_VERBOSE_LEVEL > 3
 void print_msg_hdr(const on_msg_hdr_t* const msg_hdr);
 void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len);
-void print_app_payload(const UInt8* const payload, UInt8 pld_len);
+void print_app_payload(const UInt8* const pld, UInt8 app_msg_type, UInt8 pld_len);
 #ifdef BLOCK_MESSAGES_ENABLED
 #ifndef STREAM_MESSAGES_ENABLED
 void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id);
