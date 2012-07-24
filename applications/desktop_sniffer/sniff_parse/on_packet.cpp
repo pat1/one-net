@@ -619,8 +619,9 @@ on_app_payload::on_app_payload(UInt16 raw_pid, std::string payload, std::string 
         return;
     }
 
-    if(!on_parse_app_pld(&this->decrypted_payload_bytes[ONA_DATA_INDEX], &this->src_unit,
-      &this->dst_unit, &this->msg_class, &this->msg_type, &this->msg_data))
+    if(!on_parse_app_pld(&this->decrypted_payload_bytes[ONA_DATA_INDEX],
+      payload_msg_type, &this->src_unit, &this->dst_unit, &this->msg_class,
+      &this->msg_type, &this->msg_data))
     {
         error_message = "Could not parse Application payload";
         valid = false;
@@ -993,8 +994,8 @@ void on_response_payload::default_ack_nack_display(const on_ack_nack_t& ack_nack
             UInt8 src_unit, dst_unit, msg_type;
             ona_msg_class_t msg_class;
             SInt32 msg_data;           
-            if(!on_parse_app_pld(ack_nack.payload->status_resp, &src_unit, &dst_unit,
-              &msg_class, &msg_type, &msg_data))
+            if(!on_parse_app_pld(ack_nack.payload->status_resp, ON_APP_MSG,
+              &src_unit, &dst_unit, &msg_class, &msg_type, &msg_data))
             {
                 outs << "Could not parse status response.";
             }
