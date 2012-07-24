@@ -160,8 +160,11 @@ packet::~packet()
 
 bool packet::parse_app_payload(payload_t& payload)
 {
+    // TODO -- do not assume ON_APP_MSG.  Could be ON_APP_MSG_TYPE_2 or
+    // something else
+
     return on_parse_app_pld(&payload.decrypted_payload_bytes[ON_PLD_DATA_IDX],
-        &payload.app_payload.src_unit, &payload.app_payload.dst_unit,
+        ON_APP_MSG, &payload.app_payload.src_unit, &payload.app_payload.dst_unit,
         &payload.app_payload.msg_class, &payload.app_payload.msg_type,
         &payload.app_payload.msg_data);
 }
