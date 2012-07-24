@@ -86,13 +86,21 @@ typedef enum
     //         but can still be used by the application code.
     // TODO -- Implement in ONE-NET so these can be used.
     ON_APP_MSG_TYPE_2,              //!< Application message type (no units, includes class, type, data -- units are interpreted as ONE_NET_DEV_UNIT)
-    ON_APP_MSG_TYPE_3,              //!< Application message type (no units or class, includes type and data -- units are interpreted as ONE_NET_DEV_UNIT)
-    ON_APP_MSG_TYPE_4,              //!< Application message type (no units, class, or type -- data should be interpreted as an array -- units are interpreted as ONE_NET_DEV_UNIT)
+    ON_APP_MSG_TYPE_3,              //!< Application message type (Special case ONE-NET-specified format.  Has type, but not class, units, or data based as an integer.  Parsing will be based on type.)
+    ON_APP_MSG_TYPE_4,              //!< Application message type (no units, class, or type -- data should be interpreted as an array -- The interpretation of the array may or may not be application-specific)
     ON_ADMIN_MSG,                   //!< Admin message type
     ON_FEATURE_MSG,                 //!< A request for features
     #ifdef ROUTE
-    ON_ROUTE_MSG                    //!< A routing message
+    ON_ROUTE_MSG,                   //!< A routing message
     #endif
+    
+    ON_RESERVED_MSG_TYPE_1,              //!< Unspecified, but reserved for future use
+    ON_RESERVED_MSG_TYPE_2,              //!< Unspecified, but reserved for future use
+    ON_RESERVED_MSG_TYPE_3,              //!< Unspecified, but reserved for future use
+    
+    // add any application-specific parsing techniques other than array data specified as ON_APP_MSG_TYPE_4 below
+    ON_APPLICATION_SPECIFIC_MIN_MSG_TYPE,
+    ON_APPLICATION_SPECIFIC_MAX_MSG_TYPE = 0x0F,
 } on_msg_type_t;
 
 

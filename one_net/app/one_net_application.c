@@ -315,7 +315,15 @@ void put_payload_msg_type(UInt8 msg_type, UInt8 *payload)
         (msg_type & ON_PLD_MSG_TYPE_MASK);
 }
 
-/* store the 8-bit destination unit data value in the payload buffer */
+/* store the 4-bit source unit data value in the payload buffer */
+void put_src_unit(UInt8 data, UInt8 *payload)
+{
+    payload[ONA_MSG_SRC_UNIT_IDX] = 
+        (payload[ONA_MSG_SRC_UNIT_IDX]    & ~ONA_MSG_SRC_UNIT_MASK) |
+        ((data << ONA_MSG_SRC_UNIT_SHIFT) &  ONA_MSG_SRC_UNIT_MASK);
+}
+
+/* store the 4-bit destination unit data value in the payload buffer */
 void put_dst_unit(UInt8 data, UInt8 *payload)
 {
     payload[ONA_MSG_DST_UNIT_IDX] = 

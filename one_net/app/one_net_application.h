@@ -373,29 +373,24 @@ ONE_NET_INLINE SInt32 get_msg_data(const UInt8* payload)
 /* store the 32-bit message data in the payload buffer */
 void put_msg_data(SInt32 data, UInt8 *payload);
 
-/* get the 8-bit source unit data value from the payload buffer */
+/* get the 4-bit source unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_src_unit(const UInt8 *payload)
 {
     return (payload[ONA_MSG_SRC_UNIT_IDX] & ONA_MSG_SRC_UNIT_MASK) >> 
             ONA_MSG_SRC_UNIT_SHIFT;
 }
 
-/* store the 8-bit source unit data value in the payload buffer */
-ONE_NET_INLINE void put_src_unit(UInt8 data , UInt8 *payload)
-{
-    payload[ONA_MSG_SRC_UNIT_IDX] = 
-        (payload[ONA_MSG_SRC_UNIT_IDX]    & ~ONA_MSG_SRC_UNIT_MASK) |
-        ((data << ONA_MSG_SRC_UNIT_SHIFT) &  ONA_MSG_SRC_UNIT_MASK);
-}
+/* store the 4-bit source unit data value in the payload buffer */
+void put_src_unit(UInt8 data , UInt8 *payload);
 
-/* get the 8-bit destination unit data value from the payload buffer */
+/* get the 4-bit destination unit data value from the payload buffer */
 ONE_NET_INLINE UInt8 get_dst_unit(const UInt8 *payload)
 {
     return (payload[ONA_MSG_DST_UNIT_IDX] & ONA_MSG_DST_UNIT_MASK) >> 
             ONA_MSG_DST_UNIT_SHIFT;
 }
 
-/* store the 8-bit destination unit data value in the payload buffer */
+/* store the 4-bit destination unit data value in the payload buffer */
 void put_dst_unit(UInt8 data, UInt8 *payload);
 
 /* get the 4-bit message type value from the payload buffer */
