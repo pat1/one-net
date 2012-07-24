@@ -77,14 +77,17 @@ extern const char HEX_DIGIT[];
 
 #if DEBUG_VERBOSE_LEVEL > 3
 // change for any custom message header printouts you want
-// adjust the "3" below to the actual number of types if you add anything
+// adjust the array sizes below to the actual number of types if you add anything
 #ifdef ROUTE
-static const char* const MSG_TYPE_STR[4] =
+static const char* const MSG_TYPE_STR[7] =
 #else
-static const char* const MSG_TYPE_STR[3] =
+static const char* const MSG_TYPE_STR[6] =
 #endif
 {
     "App",
+    "App2",
+    "App3",
+    "App4",
     "Admin",
     "Features",
     #ifdef ROUTE
