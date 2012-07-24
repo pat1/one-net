@@ -249,6 +249,22 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
     *dst_unit = get_dst_unit(payload);
     *msg_class = get_msg_class(payload);
     *msg_type = get_msg_type(payload);
+    
+    #ifndef ONE_NET_SIMPLE_CLIENT
+    if(app_msg_type > ON_APP_MSG)
+    {
+        *src_unit = ONE_NET_DEV_UNIT;
+        *dst_unit = ONE_NET_DEV_UNIT;
+    }
+    if(app_msg_type > ON_APP_MSG_TYPE_2)
+    {
+        *msg_class = ONA_CLASS_UNKNOWN;
+    }
+    if(app_msg_type == ON_APP_MSG_TYPE_4)
+    {
+        *msg_type = ONA_MSG_TYPE_UNKNOWN;
+    }
+    #endif
 
     return TRUE;
 }
