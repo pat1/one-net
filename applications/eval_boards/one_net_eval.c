@@ -630,7 +630,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     // we don't need to fill in the type.  It's already there since this is
     // the same memory as the raw payload!
 
-    put_msg_data(msg_data, ack_nack->payload->status_resp);
+    put_msg_data(msg_data, ack_nack->payload->status_resp, ON_APP_MSG);
     return ON_MSG_CONTINUE;
 }
 
@@ -1831,7 +1831,7 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
 
     put_src_unit(src_unit, raw_pld);
     put_msg_hdr(ONA_STATUS_CHANGE | ONA_SWITCH, raw_pld);
-    put_msg_data(status, raw_pld);
+    put_msg_data(status, raw_pld, ON_APP_MSG);
     put_dst_unit(dst_unit, raw_pld);
 
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,

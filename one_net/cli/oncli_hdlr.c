@@ -2076,7 +2076,7 @@ static oncli_status_t parse_and_send_pin_msg(
     
     if(msg_class == ONA_STATUS || msg_class == ONA_COMMAND)
     {
-        put_msg_data(pin_value, raw_pld);
+        put_msg_data(pin_value, raw_pld, ON_APP_MSG);
     }
 
 

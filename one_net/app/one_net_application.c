@@ -430,6 +430,9 @@ void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type)
 {
     // TODO -- can we make this function more efficient?
     UInt8 sign = 0;
+    UInt8 shift = 16;
+    UInt8 sign_index = 2;
+    
     if(data < 0)
     {
         sign = 0x08;
@@ -438,8 +441,6 @@ void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type)
     
     // data is now non-negative
     data &= 0x07FFFFFF;
-    Uint8 shift = 16;
-    UInt8 sign_index = 2;
     if(app_msg_type == ON_APP_MSG_TYPE_2)
     {
         sign_index = 1;
