@@ -240,15 +240,16 @@ BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
     {
         return FALSE; // invalid application message type
     }
+    *msg_data = get_msg_data(payload, app_msg_type);
+    #else
+    *msg_data = get_msg_data(payload);
     #endif
 
     *src_unit = get_src_unit(payload);
     *dst_unit = get_dst_unit(payload);
     *msg_class = get_msg_class(payload);
     *msg_type = get_msg_type(payload);
-    *msg_data = get_msg_data(payload);
-    
-    // TODO -- finish for non-simple client.
+
     return TRUE;
 }
 
@@ -338,6 +339,55 @@ void put_msg_hdr(UInt16 hdr, UInt8* payload)
     payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
     payload[ONA_MSG_HDR_IDX+1] |= (hdr << ONA_MSG_CLASS_TYPE_SHIFT);
 }
+
+/* get the 20- or 28-bit message data from the payload buffer */
+#ifdef ONE_NET_SIMPLE_CLIENT
+SInt32 get_msg_data(const UInt8* payload)
+{
+    // 2 rightmost(least significant) bytes (bits 0 to 15, 0 is least
+    // significant bit)
+    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
+    
+    // add bits 16 - 18 (0 is the least significant bit)
+    msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
+    
+    // byte 19 is the sign bit.  0 is non-negative, 1 is negative
+    if(payload[2] & 0x08)
+    {
+        msg_data = -msg_data;
+    }
+    return msg_data;
+}
+#else
+SInt32 get_msg_data(const UInt8* payload, UInt8 app_msg_type)
+{
+    BOOL is_type2 = (app_msg_type == ON_APP_MSG_TYPE_2);
+    // 2 or 3 rightmost(least significant) bytes (bits 0 to 15 or 23, 0 is least
+    // significant bit)
+    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
+    
+    if(is_type2)
+    {
+        // add bits 16 to 23
+        msg_data += (((SInt32) payload[2]) << 16);
+        
+        // add bits 24 - 26 (0 is the least significant bit)
+        msg_data += (((SInt32)(payload[1] & 0x07)) << 24);
+    }
+    else
+    {
+        // add bits 16 - 18(0 is the least significant bit)
+        msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
+    }
+    
+    // bit 19 or 27 is the sign bit.  0 is non-negative, 1 is negative
+    if(payload[2-is_type2] & 0x08)
+    {
+        msg_data = -msg_data;
+    }
+    return msg_data;
+}
+#endif
 
 /* store the 32-bit message data in the payload buffer */
 void put_msg_data(SInt32 data, UInt8 *payload)

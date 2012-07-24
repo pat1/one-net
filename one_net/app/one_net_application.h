@@ -352,25 +352,15 @@ ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
     payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
 }
 
-/* get the 32-bit message data from the payload buffer */
-ONE_NET_INLINE SInt32 get_msg_data(const UInt8* payload)
-{
-    // 2 rightmost(least significant) bytes (bits 0 to 15, 0 is least
-    // significant bit)
-    SInt32 msg_data = (((UInt16)payload[3]) << 8) | ((UInt16)payload[4]);
-    
-    // add bits 16 - 18 (0 is the least significant bit)
-    msg_data += (((SInt32)(payload[2] & 0x07)) << 16);
-    
-    // byte 19 is the sign bit.  0 is non-negative, 1 is negative
-    if(payload[2] & 0x08)
-    {
-        msg_data = -msg_data;
-    }
-    return msg_data;
-}
 
-/* store the 32-bit message data in the payload buffer */
+/* get the 20- or 28-bit message data from the payload buffer */
+#ifdef ONE_NET_SIMPLE_CLIENT
+SInt32 get_msg_data(const UInt8* payload);
+#else
+SInt32 get_msg_data(const UInt8* payload, UInt8 app_msg_type);
+#endif
+
+/* store the 20- or 28-bit message data in the payload buffer */
 void put_msg_data(SInt32 data, UInt8 *payload);
 
 /* get the 4-bit source unit data value from the payload buffer */
