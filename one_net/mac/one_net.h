@@ -102,22 +102,22 @@
 enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
-    ONE_NET_VERSION_MINOR =     2,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  1,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     106 //! ONE-NET build version number
+    ONE_NET_VERSION_MINOR =     3,  //! ONE-NET minor version number
+    ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     107 //! ONE-NET build version number
 };
 
 
 enum
 {
     //! The ONE-NET version
-    ON_VERSION = 0x08,
+    ON_VERSION = 0x09,
 
     //! The version of the parameter structures
-    ON_PARAM_VERSION = 0x08,
+    ON_PARAM_VERSION = 0x09,
 
     //! The version of the MASTER Invite New CLIENT packet.
-    ON_INVITE_PKT_VERSION = 0x01,
+    ON_INVITE_PKT_VERSION = 0x02,
 
     //! The maximum number of times to try a transaction
     ON_MAX_RETRY = 8,
