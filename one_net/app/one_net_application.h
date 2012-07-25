@@ -361,7 +361,7 @@ SInt32 get_msg_data(const UInt8* payload, UInt8 app_msg_type);
 #endif
 
 /* store the 20- or 28-bit message data in the payload buffer */
-#ifndef ONE_NET_CLIENT
+#ifndef ONE_NET_SIMPLE_CLIENT
 void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type);
 #else
 void put_msg_data(SInt32 data, UInt8 *payload);
