@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     }
 
     UInt8 num_plaintext_bytes = num_encrypted_bytes;
-    memcpy(plaintext_bytes, plaintext_bytes, num_plaintext_bytes);
+    memcpy(plaintext_bytes, encrypted_bytes, num_plaintext_bytes);
     UInt8 num_blocks = num_plaintext_bytes / ONE_NET_XTEA_BLOCK_SIZE;
 
     if(!ParseArgsForRounds(argc, argv, rounds, error))

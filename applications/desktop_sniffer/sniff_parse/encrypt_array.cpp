@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
           (const one_net_xtea_key_t* const) key);
     }
 
-    string plaintext_str = bytes_to_hex_string(encrypted_bytes, num_encrypted_bytes);
+    string encrypted_str = bytes_to_hex_string(encrypted_bytes, num_encrypted_bytes);
 
     if(!ParseArgsForOutputStream(argc, argv, &outs, error))
     {
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
         exit(0);
     }
 
-    *outs << plaintext_str;
+    *outs << encrypted_str;
     close_stream(outs);
     return 0;
 }
