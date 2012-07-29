@@ -34,4 +34,8 @@ make_config: make_configure.c
 	gcc make_configure.c -o make_config
 
 clean:
-	rm -f make_config *.o *.a sniff_parse *~
+	@ if [ -f $(MAKE_CONFIG) ]; then \
+	make clean -f Makefile.$(OPSYS); \
+	else \
+	make clean -f Makefile.linux; \
+	fi 

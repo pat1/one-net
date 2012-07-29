@@ -1,4 +1,8 @@
-all: sniff_parse libonenetlib.a
+all: sniff_parse utilities libonenetlib.a
+
+UTILITIES = encode_value decode_value encode_array decode_array encrypt_array decrypt_array encode_did decode_did encode_nid decode_nid calc_crc dec_to_hex hex_to_dec
+
+utilities: $(UTILITIES)
 
 onenetlib: libonenetlib.a
 
@@ -12,6 +16,7 @@ ONE_NET_LIB_PATH = -I../../../applications/desktop_sniffer/desktop -I../../../pr
 
 
 ONE_NET_LIB_OBJS = one_net_xtea.o one_net_crc.o one_net_encode.o one_net_memory.o one_net_prand.o one_net_timer.o one_net_features.o one_net_packet.o one_net_message.o one_net_peer.o one_net_application.o one_net_acknowledge.o one_net_port_specific.o one_net.o one_net_client.o one_net_master.o tick.o dummy_client_app_functions.o dummy_master_app_functions.o dummy_one_net_app_functions.o dummy_transceiver_functions.o
+
 
 one_net_xtea.o: ../../../one_net/utility/one_net_xtea.c
 	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../one_net/utility/one_net_xtea.c -o one_net_xtea.o
@@ -49,8 +54,8 @@ one_net_application.o: ../../../one_net/app/one_net_application.c
 one_net_acknowledge.o: ../../../one_net/app/one_net_acknowledge.c
 	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../one_net/app/one_net_acknowledge.c -o one_net_acknowledge.o
 
-one_net_port_specific.o: ../../../processors/linux/one_net_port_specific.c
-	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../processors/linux/one_net_port_specific.c -o one_net_port_specific.o
+one_net_port_specific.o: ../../../processors/windows/one_net_port_specific.c
+	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../processors/windows/one_net_port_specific.c -o one_net_port_specific.o
 
 one_net.o: ../../../one_net/mac/one_net.c
 	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../one_net/mac/one_net.c -o one_net.o
@@ -61,8 +66,8 @@ one_net_client.o: ../../../one_net/mac/one_net_client.c
 one_net_master.o: ../../../one_net/mac/one_net_master.c
 	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../one_net/mac/one_net_master.c -o one_net_master.o
 
-tick.o: ../../../processors/linux/common/tick.c
-	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../processors/linux/common/tick.c -o tick.o
+tick.o: ../../../processors/windows/common/tick.c
+	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../processors/windows/common/tick.c -o tick.o
 
 dummy_client_app_functions.o: ../../../applications/dummy/dummy_client_application.c
 	gcc -c $(CFLAGS) $(ONE_NET_LIB_PATH) ../../../applications/dummy/dummy_client_application.c -o dummy_client_app_functions.o
@@ -110,5 +115,108 @@ cpp_filter.o:
 	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) filter.cpp -o cpp_filter.o
 
 
+UTILITIES_PATH = -I.
+
+ENCODE_VALUE_OBJS = cpp_encode_value.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DECODE_VALUE_OBJS = cpp_decode_value.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+ENCODE_DID_OBJS = cpp_encode_did.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DECODE_DID_OBJS = cpp_decode_did.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+ENCODE_NID_OBJS = cpp_encode_nid.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DECODE_NID_OBJS = cpp_decode_nid.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+ENCODE_ARRAY_OBJS = cpp_encode_array.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DECODE_ARRAY_OBJS = cpp_decode_array.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+ENCRYPT_ARRAY_OBJS = cpp_encrypt_array.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DECRYPT_ARRAY_OBJS = cpp_decrypt_array.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+CALCULATE_CRC_OBJS = cpp_calc_crc.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DEC_TO_HEX_OBJS = cpp_dec_to_hex.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+HEX_TO_DEC_OBJS = cpp_hex_to_dec.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+
+
+encode_value: $(ENCODE_VALUE_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(ENCODE_VALUE_OBJS) -L. -lonenetlib -o encode_value
+
+decode_value: $(DECODE_VALUE_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DECODE_VALUE_OBJS) -L. -lonenetlib -o decode_value
+
+encode_did: $(ENCODE_DID_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(ENCODE_DID_OBJS) -L. -lonenetlib -o encode_did
+
+decode_did: $(DECODE_DID_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DECODE_DID_OBJS) -L. -lonenetlib -o decode_did
+
+encode_nid: $(ENCODE_NID_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(ENCODE_NID_OBJS) -L. -lonenetlib -o encode_nid
+
+decode_nid: $(DECODE_NID_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DECODE_NID_OBJS) -L. -lonenetlib -o decode_nid
+
+encode_array: $(ENCODE_ARRAY_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(ENCODE_ARRAY_OBJS) -L. -lonenetlib -o encode_array
+
+decode_array: $(DECODE_ARRAY_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DECODE_ARRAY_OBJS) -L. -lonenetlib -o decode_array
+
+encrypt_array: $(ENCRYPT_ARRAY_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(ENCRYPT_ARRAY_OBJS) -L. -lonenetlib -o encrypt_array
+
+decrypt_array: $(DECRYPT_ARRAY_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DECRYPT_ARRAY_OBJS) -L. -lonenetlib -o decrypt_array
+
+calc_crc: $(CALCULATE_CRC_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(CALCULATE_CRC_OBJS) -L. -lonenetlib -o calc_crc
+
+dec_to_hex: $(DEC_TO_HEX_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DEC_TO_HEX_OBJS) -L. -lonenetlib -o dec_to_hex
+
+hex_to_dec: $(HEX_TO_DEC_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(HEX_TO_DEC_OBJS) -L. -lonenetlib -o hex_to_dec
+
+
+cpp_parse_utility_args.o: parse_utility_args.h parse_utility_args.cpp
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) parse_utility_args.cpp -o cpp_parse_utility_args.o
+
+cpp_encode_value.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) encode_value.cpp -o cpp_encode_value.o
+
+cpp_decode_value.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) decode_value.cpp -o cpp_decode_value.o
+
+cpp_encode_array.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) encode_array.cpp -o cpp_encode_array.o
+
+cpp_decode_array.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) decode_array.cpp -o cpp_decode_array.o
+
+cpp_encode_did.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) encode_did.cpp -o cpp_encode_did.o
+
+cpp_decode_did.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) decode_did.cpp -o cpp_decode_did.o
+
+cpp_encode_nid.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) encode_nid.cpp -o cpp_encode_nid.o
+
+cpp_decode_nid.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) decode_nid.cpp -o cpp_decode_nid.o
+
+cpp_encrypt_array.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) encrypt_array.cpp -o cpp_encrypt_array.o
+
+cpp_decrypt_array.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) decrypt_array.cpp -o cpp_decrypt_array.o
+
+cpp_calc_crc.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) calc_crc.cpp -o cpp_calc_crc.o
+
+cpp_dec_to_hex.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) dec_to_hex.cpp -o cpp_dec_to_hex.o
+
+cpp_hex_to_dec.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) hex_to_dec.cpp -o cpp_hex_to_dec.o
+
+
+
 clean:
-	rm -f $(ONE_NET_LIB_OBJS) $(SNIFF_PARSE_OBJS) libonenetlib.a sniff_parse *.o *~
+	rm -f $(ONE_NET_LIB_OBJS) $(SNIFF_PARSE_OBJS) libonenetlib.a sniff_parse $(UTILITIES) *.o *~
+
+
