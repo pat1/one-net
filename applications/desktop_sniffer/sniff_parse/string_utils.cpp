@@ -13,7 +13,6 @@
 #endif
 
 
-
 // return -1 if all whitespace
 int find_first_non_whitespace_index(std::string& str)
 {
@@ -23,6 +22,25 @@ int find_first_non_whitespace_index(std::string& str)
     while(i < stringlen)
     {
         if(!isspace(str[i]))
+        {
+            return i;
+        }
+        i++;
+    }
+
+    return -1;
+}
+
+
+// return -1 if all non-zero
+int find_first_non_zero_index(std::string& str)
+{
+    int stringlen = str.length();
+    int i = 0;
+
+    while(i < stringlen)
+    {
+        if(str[i] != '0')
         {
             return i;
         }
@@ -96,6 +114,27 @@ void strip_leading_whitespace(std::string& str)
 
     if(index == -1)
     {
+        str = "";
+        return;
+    }
+
+    str = str.substr(index);
+}
+
+
+void strip_leading_zeroes(std::string& str)
+{
+    strip_leading_and_trailing_whitespace(str);
+
+
+    int index = find_first_non_zero_index(str);    
+    if(index == -1)
+    {
+        if(str.length() > 0 && str[0] == '0')
+        {
+            str = "0";
+            return;
+        }
         str = "";
         return;
     }
@@ -570,6 +609,7 @@ std::string uint64_to_hex_string(uint64_t value)
 bool hex_string_to_bytes(std::string hex_string, UInt8* bytes, UInt8& num_bytes)
 {
     int string_len = hex_string.length();
+
     if(string_len % 2 != 0 || string_len > 2 * num_bytes)
     {
         return false;
@@ -643,12 +683,13 @@ bool encoded_nid_to_string(const on_encoded_nid_t* enc_nid, std::string& str)
         str = "Internal Error";
         return false;
     }
-    on_raw_nid_t raw_nid;
 
+    on_raw_nid_t raw_nid;
     if(on_decode(raw_nid, *enc_nid, ON_ENCODED_NID_LEN) != ONS_SUCCESS)
     {
         return false;
     }
+
     str = bytes_to_hex_string((const UInt8*) enc_nid, 6);
     str = "0x" + str;
     return true;
@@ -660,7 +701,7 @@ bool encoded_nid_to_string(uint64_t enc_nid, std::string& str)
     std::string enc_nid_str;
     UInt8 enc_nid_bytes[8];
     enc_nid_str = uint64_to_hex_string(enc_nid);
-    UInt8 num_bytes;
+    UInt8 num_bytes = sizeof(enc_nid_bytes);
     hex_string_to_bytes(enc_nid_str, enc_nid_bytes, num_bytes);
     return encoded_nid_to_string((const on_encoded_nid_t*) &enc_nid_bytes[2], str);
 }
@@ -942,4 +983,17 @@ std::map<std::string, int> create_string_int_map(const string_int_struct pairs[]
 
     return string_int_map;
 }
+
+
+
+
+std::string strip_leading0x(std::string str)
+{
+    if(str.length() >= 2 && str.substr(0, 2) == "0x")
+    {
+        return str.substr(2);
+    }
+    return str;
+}
+
 

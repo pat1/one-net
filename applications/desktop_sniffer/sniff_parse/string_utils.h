@@ -24,10 +24,12 @@ struct string_int_struct
 
 
 int find_first_non_whitespace_index(std::string& str);
+int find_first_non_zero_index(std::string& str);
 int find_last_non_whitespace_index(std::string& str);
 int find_first_whitespace_index(std::string& str);
 int find_last_whitespace_index(std::string& str);
 void strip_leading_whitespace(std::string& str);
+void strip_leading_zeroes(std::string& str);
 void strip_trailing_whitespace(std::string& str);
 void strip_leading_and_trailing_whitespace(std::string& str);
 void strip_all_whitespace(std::string& str);
@@ -84,6 +86,8 @@ std::map<int, std::string> create_int_string_map(const string_int_struct pairs[]
   unsigned int size);
 std::map<std::string, int> create_string_int_map(const string_int_struct pairs[],
   unsigned int size);
+
+std::string strip_leading0x(std::string str);
 
 
 
