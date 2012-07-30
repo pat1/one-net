@@ -24,7 +24,10 @@ bool ParseArgsForKey(int argc, char* argv[], one_net_xtea_key_t& key,
                 error = "Could not open " + std::string(argv[i+1]) + " for reading.";
                 return false;
             }
-            ins >> key_string;
+
+            getline(ins, key_string, '\n');
+            strip_all_whitespace(key_string);
+            strip_all_hyphens(key_string);
             ins.close();
             
         }
@@ -75,9 +78,11 @@ bool ParseArgsForInputArray(int argc, char* argv[], UInt8* bytes,
                 error = "Could not open " + std::string(argv[i+1]) + " for reading.";
                 return false;
             }
-            ins >> array_string;
-            ins.close();
-            
+
+            getline(ins, array_string, '\n');
+            strip_all_whitespace(array_string);
+            strip_all_hyphens(array_string);
+            ins.close();            
         }
         else if(strcmp(argv[i], "-i") == 0)
         {
