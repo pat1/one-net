@@ -714,27 +714,6 @@ enum
 };
 
 
-
-//! Payload CRC releated constants
-enum
-{
-    //! The size of the crc in the payload (in bytes)
-    ON_PLD_CRC_SIZE = 1,
-
-    //! The initial payload crc
-    ON_PLD_INIT_CRC = 0xFF,
-
-    //! The order of the payload crc
-    ON_PLD_CRC_ORDER = 8,
-
-    //! The initial crc for the non-volatile parameters
-    ON_PARAM_INIT_CRC = 0xFF,
-
-    //! The order of the crc computed over the non-volatile parameters
-    ON_PARAM_CRC_ORDER = 8
-};
-
-
 /* Normal Single message payload constants */
 enum
 {

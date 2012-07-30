@@ -76,16 +76,37 @@
 //! \defgroup one_net_crc_pub_var
 //! \ingroup one_net_crc
 //! @{
-
-//! @} one_net_crc_pub_var
-//                              PUBLIC VARIABLES END
-//==============================================================================
-
-
+    
+    
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+    
+    
+//! Payload CRC releated constants
+enum
+{
+    //! The size of the crc in the payload (in bytes)
+    ON_PLD_CRC_SIZE = 1,
+
+    //! The initial payload crc
+    ON_PLD_INIT_CRC = 0xFF,
+
+    //! The order of the payload crc
+    ON_PLD_CRC_ORDER = 8,
+
+    //! The initial crc for the non-volatile parameters
+    ON_PARAM_INIT_CRC = 0xFF,
+
+    //! The order of the crc computed over the non-volatile parameters
+    ON_PARAM_CRC_ORDER = 8
+};    
+    
+
+//! @} one_net_crc_pub_var
+//                              PUBLIC VARIABLES END
+//==============================================================================
 
 
 //==============================================================================
@@ -110,4 +131,3 @@ UInt16 one_net_compute_crc(const UInt8 * const DATA, const UInt8 LEN,
 //! @} one_net_crc
 
 #endif // ONE_NET_CRC_H //
-
