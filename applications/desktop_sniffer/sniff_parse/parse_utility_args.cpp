@@ -96,6 +96,7 @@ bool ParseArgsForInputArray(int argc, char* argv[], UInt8* bytes,
         if(!hex_string_to_bytes(array_string, bytes, num_bytes))
         {
             error = "Could not parse input string into valid hex array.";
+            return false;
         }
         return true;
     }
