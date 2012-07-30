@@ -90,9 +90,7 @@ typedef enum
     ON_APP_MSG_TYPE_4,              //!< Application message type (no units, class, or type -- data should be interpreted as an array -- The interpretation of the array may or may not be application-specific)
     ON_ADMIN_MSG,                   //!< Admin message type
     ON_FEATURE_MSG,                 //!< A request for features
-    #ifdef ROUTE
     ON_ROUTE_MSG,                   //!< A routing message
-    #endif
     
     ON_RESERVED_MSG_TYPE_1,              //!< Unspecified, but reserved for future use
     ON_RESERVED_MSG_TYPE_2,              //!< Unspecified, but reserved for future use
