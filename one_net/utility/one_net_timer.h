@@ -88,6 +88,11 @@
 #endif
 
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 
 enum
 {
@@ -257,6 +262,10 @@ void synchronize_last_tick(void);
 //==============================================================================
 
 //! @} ONE-NET_TIMER
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ONE_NET_TIMER_H //
 
