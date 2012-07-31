@@ -2663,6 +2663,15 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
     {
         return ONS_BAD_PKT_TYPE;
     }
+    
+    #ifdef PID_BLOCK
+    // only care about the least significant 8 bits
+    if(pid_is_blocked((UInt8) raw_pid))
+    {
+        // We are filtering this PID out, so we'll pretend we did not hear it.
+        return ONS_READ_ERR;
+    }
+    #endif
 
     dst_is_broadcast = is_broadcast_did((const on_encoded_did_t*)
       (&pkt_bytes[ON_ENCODED_DST_DID_IDX]));
@@ -3144,7 +3153,7 @@ void set_pid_block_sa(pid_block_criteria_t sa_block)
 
 void set_pid_block_mh(pid_block_criteria_t mh_block)
 {
-    pid_block_info.sa_block = mh_block;
+    pid_block_info.mh_block = mh_block;
 }
 
 
@@ -3161,16 +3170,29 @@ BOOL pid_is_blocked(UInt8 raw_pid)
     
     if(pid_block_info.sa_block != PID_ACCEPT)
     {
-        if(sa && pid_block_info.sa_block == PID_REJECT_IF_PRESENT)
+        if(sa && (pid_block_info.sa_block == PID_REJECT_IF_PRESENT))
         {
-            return FALSE;
+            return TRUE;
         }
-        if(mh && pid_block_info.mh_block == PID_REJECT_IF_PRESENT)
+        if(!sa && (pid_block_info.sa_block != PID_REJECT_IF_PRESENT))
         {
-            return FALSE;
+            return TRUE;
         }
     }
     
+    if(pid_block_info.mh_block != PID_ACCEPT)
+    {
+        if(mh && (pid_block_info.mh_block == PID_REJECT_IF_PRESENT))
+        {
+            return TRUE;
+        }
+        if(!mh && (pid_block_info.mh_block != PID_REJECT_IF_PRESENT))
+        {
+            return TRUE;
+        }
+    }
+    
+    raw_pid &= 0x3F;
     if(raw_pid > 0x0F)
     {
         // TODO -- Bad PID as of 2.3.0.  Might be good in the future.  Really reject here?
@@ -3178,7 +3200,7 @@ BOOL pid_is_blocked(UInt8 raw_pid)
     }
     
     mask <<= raw_pid;
-    return ((pid_block_info.block_pid_list & mask) > 0);  
+    return ((pid_block_info.block_pid_list & mask) == 0);
 }
 #endif
 

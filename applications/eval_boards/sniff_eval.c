@@ -172,6 +172,9 @@ oncli_status_t oncli_reset_sniff(const UInt8 CHANNEL, tick_t sniff_time_ms)
 */
 void sniff_eval(void)
 {
+    #ifdef PID_BLOCK
+    UInt16 raw_pid;
+    #endif
     tick_t packet_time_ms;
     UInt8 pkt[ON_MAX_ENCODED_PKT_SIZE];
     UInt8* pkt_wo_header = &pkt[ON_ENCODED_RPTR_DID_IDX];
@@ -218,6 +221,20 @@ void sniff_eval(void)
       &(pkt[ON_ENCODED_RPTR_DID_IDX])))
     {
         // we are filtering the packets.  Ignore this one.
+        return;
+    }
+    #endif
+    
+    #ifdef PID_BLOCK
+    if(!get_raw_pid(&pkt[ON_ENCODED_PID_IDX], &raw_pid))
+    {
+        return;
+    }
+    
+    // only care about the least significant 8 bits
+    if(pid_is_blocked((UInt8) raw_pid))
+    {
+        // We are filtering this PID out, so we'll pretend we did not hear it.
         return;
     }
     #endif
