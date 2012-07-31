@@ -108,6 +108,29 @@ enum
 };
 
 
+#ifdef PID_BLOCK
+typedef enum
+{
+    PID_REJECT_IF_PRESENT, //! packet is accepted ONLY if this attribute is NOT present
+    PID_ACCEPT_IF_PRESENT, //! packet is accepted ONLY if this attribute is present
+    PID_ACCEPT             //! packet is accepted regardless of wether this attribute is present
+} pid_block_criteria_t;
+
+
+typedef struct
+{
+    //! Stores whether PIDs are blocked or not
+    //! Interpreted as a 16 bit boolean array.  PID is accepted if the bit is 1, rejected if 0.
+    //! PID 0x03 will be accepted if the 3rd bit index is true.  Index 0 is the least significant bit
+    //! xxxxxxxxxxxx1xxx   --> PID 3 accepted
+    //! xxxxxxxxxxxx0xxx   --> PID 3 rejected
+    UInt16 block_pid_list;
+    pid_block_criteria_t sa_block; //! Stores whether Stay-Awake PIDs are accepted
+    pid_block_criteria_t mh_block; //! Stores whether Multi-Hop PIDs are accepted
+} pid_block_t;
+#endif
+
+
 enum
 {
     //! The ONE-NET version
@@ -508,6 +531,11 @@ extern on_txn_t single_txn;
 extern on_txn_t bs_txn;
 #endif
 
+#ifdef PID_BLOCK
+extern BOOL pid_blocking_on;
+extern pid_block_t pid_block_info;
+#endif
+
 
 //! An array that contains the number of of units of each type that this
 //! device supports.  If values are changed here, see ONE_NET_NUM_UNIT_TYPES &
@@ -669,10 +697,9 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
   
 
 #ifdef PID_BLOCK
-void enable_pid_blocking(BOOL on);
-BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids, BOOL* on);
-BOOL adjust_blocked_pid_array(UInt8 pid, BOOL add);
-void reset_blocked_pid_array(void);
+void set_pid_block(UInt8 raw_pid, BOOL accept);
+void set_pid_block_sa(pid_block_criteria_t sa_block);
+void set_pid_block_mh(pid_block_criteria_t mh_block);
 BOOL pid_is_blocked(UInt8 pid);
 #endif
 

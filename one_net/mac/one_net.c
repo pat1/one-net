@@ -236,6 +236,14 @@ tick_t key_change_request_time = 0;
 extern BOOL features_override; // defined in one_net_message.c
 #endif
 
+#ifdef PID_BLOCK
+//! Stores which PIDs are accepted.
+pid_block_t pid_block_info = {0xFFFF, PID_ACCEPT, PID_ACCEPT};
+
+//! If true, filter pids.  If false, do not.
+BOOL pid_blocking_on = FALSE;
+#endif
+
 
 
 //                              PUBLIC VARIABLES
@@ -259,13 +267,6 @@ on_state_t on_state = ON_INIT_STATE;
       ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
 #endif
 
-#ifdef PID_BLOCK
-//! Stores the PIDs that are blocked
-static UInt8 pid_block_array[PID_BLOCK_ARRAY_SIZE];
-
-//! If true, block pids.  If false, do not.
-static BOOL pid_blocking_on = FALSE;
-#endif
 
 #ifdef RANGE_TESTING
 //! Stores the DIDs of the devices which are in range.
@@ -337,9 +338,6 @@ void one_net_init(void)
     #endif
     single_msg_ptr = NULL;
     single_txn.priority = ONE_NET_NO_PRIORITY;
-    #ifdef PID_BLOCK
-    reset_blocked_pid_array();
-    #endif
     #ifdef RANGE_TESTING
     reset_range_test_did_array();
     #endif
@@ -3108,109 +3106,79 @@ one_net_status_t on_rx_packet(on_txn_t** this_txn, on_pkt_t** this_pkt_ptrs,
 
 
 #ifdef PID_BLOCK
-void enable_pid_blocking(BOOL on)
+void set_pid_block(UInt8 raw_pid, BOOL accept)
 {
-    pid_blocking_on = on;
-}
-
-
-BOOL pids_blocked(UInt8* blocked_pid_list, UInt8* num_blocked_pids, BOOL* on)
-{
-    UInt8 i = 0;
-    UInt8 arr_size;
-
+    UInt16 mask = 1;
     
-    if(!blocked_pid_list || !num_blocked_pids || !on)
+    if(raw_pid == 0xFF)
     {
-        return FALSE; // bad parameter.
-    }
-
-    arr_size = *num_blocked_pids;
-    *num_blocked_pids = 0;
-    
-    while(i < PID_BLOCK_ARRAY_SIZE && pid_block_array[i] != 0xFF)
-    {
-        i++;
-        if(i >= arr_size)
+        if(accept)
         {
-            return FALSE; // no room.
+            pid_block_info.block_pid_list = 0xFFFF;
         }
-    }
-    
-    *num_blocked_pids = i;
-    one_net_memmove(blocked_pid_list, pid_block_array, *num_blocked_pids);
-    *on = pid_blocking_on;
-    return TRUE;
-}
-
-
-BOOL adjust_blocked_pid_array(UInt8 pid, BOOL add)
-{
-    SInt8 i;
-    SInt8 index = -1;
-    SInt8 empty_index = -1;
-    
-    for(i = PID_BLOCK_ARRAY_SIZE - 1; i >= 0 ; i--)
-    {
-        if(pid_block_array[i] == 0xFF)
+        else
         {
-            empty_index = i;
+            pid_block_info.block_pid_list = 0;
         }
-        else if(pid_block_array[i] == pid)
-        {
-            index = i;
-        }
+        return;
+    }
+    else if(raw_pid > 0x0F)
+    {
+        return;
     }
     
-    if(!add && index == -1)
+    mask <<= raw_pid;
+    pid_block_info.block_pid_list &= ~mask;
+    if(accept)
     {
-        return TRUE; // nothing to do
-    }
-    else if(add && index != -1)
-    {
-        return TRUE; // nothing to do.
-    }
-    else if(add && empty_index == -1)
-    {
-        return FALSE; // no room.
-    }
-    else if(add)
-    {
-        pid_block_array[empty_index] = pid;
-        return TRUE; // added
-    }
-    else
-    {
-        pid_block_array[index] = 0xFF;
-        return TRUE; // removed        
+        pid_block_info.block_pid_list |= mask;
     }
 }
 
 
-void reset_blocked_pid_array(void)
+void set_pid_block_sa(pid_block_criteria_t sa_block)
 {
-    one_net_memset(pid_block_array, 0xFF, PID_BLOCK_ARRAY_SIZE);
+    pid_block_info.sa_block = sa_block;
 }
 
 
-BOOL pid_is_blocked(UInt8 pid)
+void set_pid_block_mh(pid_block_criteria_t mh_block)
 {
-    SInt8 i;
+    pid_block_info.sa_block = mh_block;
+}
+
+
+BOOL pid_is_blocked(UInt8 raw_pid)
+{
+    BOOL sa = packet_is_stay_awake(raw_pid);
+    BOOL mh = packet_is_multihop(raw_pid);
+    UInt16 mask = 1;
     
     if(!pid_blocking_on)
     {
         return FALSE;
     }
     
-    for(i = PID_BLOCK_ARRAY_SIZE - 1; i >= 0 ; i--)
+    if(pid_block_info.sa_block != PID_ACCEPT)
     {
-        if(pid_block_array[i] == pid)
+        if(sa && pid_block_info.sa_block == PID_REJECT_IF_PRESENT)
         {
-            return TRUE;
+            return FALSE;
+        }
+        if(mh && pid_block_info.mh_block == PID_REJECT_IF_PRESENT)
+        {
+            return FALSE;
         }
     }
     
-    return FALSE;    
+    if(raw_pid > 0x0F)
+    {
+        // TODO -- Bad PID as of 2.3.0.  Might be good in the future.  Really reject here?
+        return TRUE;
+    }
+    
+    mask <<= raw_pid;
+    return ((pid_block_info.block_pid_list & mask) > 0);  
 }
 #endif
 

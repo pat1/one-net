@@ -3567,10 +3567,17 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     pid block:on  --> turns pid blocking on
     pid block:off  --> turns pid blocking off
-    pid block:clear --> makes all PIDs not ignored
-    pid block:display --> Displays all ignored PIDs
-    pid block:add:3F --> Ignore raw pid 0x3F
-    pid block:remove:3F --> Do not ignore raw pid 0x3F
+    pid block:display --> Displays criteria
+    pid block:accept:FF --> Accept all PIDs
+    pid block:reject:FF --> Accept no PIDs
+    pid block:accept:01 --> Accept raw pid 0x01
+    pid block:reject:01 --> Reject raw pid 0x01
+    pid block:accept:sa --> Accept ONLY Stay-Awake packets.
+    pid block:reject:sa --> Accept ONLY non-Stay-Awake packets.
+    pid block:all:sa -->    Accept packets regardless of Stay-Awake status.
+    pid block:accept:mh --> Accept ONLY Multi-Hop packets.
+    pid block:reject:mh --> Accept ONLY Multi-Hop packets.
+    pid block:all:mh -->    Accept packets regardless of Multi-Hop status.
     
     \param ASCII_PARAM_LIST ASCII parameter list.
     
@@ -3587,10 +3594,11 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt8 raw_pid;
     BOOL turn_on = FALSE;
     BOOL turn_off = FALSE;
-    BOOL clear = FALSE;
     BOOL display = FALSE;
-    BOOL add = FALSE;
-    BOOL on;
+    BOOL sa = FALSE;
+    BOOL mh = FALSE;
+    BOOL adjust_array = FALSE;
+    pid_block_criteria_t crit;
 
     if(!ASCII_PARAM_LIST)
     {
@@ -3607,11 +3615,6 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         PARAM_PTR += strlen(ONCLI_OFF_STR);
         turn_off = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
-    {
-        PARAM_PTR += strlen(CLEAR_STR);
-        clear = TRUE;
-    }
     else if(!strnicmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
     {
         PARAM_PTR += strlen(DISPLAY_STR);
@@ -3619,14 +3622,20 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     }
     else
     {
-        if(!strnicmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
+        if(!strnicmp(PARAM_PTR, "accept", strlen("accept")))
         {
-            add = TRUE;
-            PARAM_PTR += strlen(ADD_STR);
+            crit = PID_ACCEPT_IF_PRESENT;
+            PARAM_PTR += strlen("accept");
         }
-        else if(!strnicmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
+        else if(!strnicmp(PARAM_PTR, "reject", strlen("reject")))
         {
-            PARAM_PTR += strlen(REMOVE_STR);
+            crit = PID_REJECT_IF_PRESENT;
+            PARAM_PTR += strlen("remove");
+        }
+        else if(!strnicmp(PARAM_PTR, "all", strlen("all")))
+        {
+            crit = PID_ACCEPT;
+            PARAM_PTR += strlen("all");
         }
         else
         {
@@ -3639,12 +3648,29 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
         PARAM_PTR++;
         
-        // read in the pid
-        if(ascii_hex_to_byte_stream(PARAM_PTR, &raw_pid, sizeof(raw_pid) * 2)
-          != sizeof(raw_pid) * 2)
+        // See if the next string is "sa" or "mh".  Otherwise it should be a PID
+        if(!strnicmp(PARAM_PTR, "sa", strlen("sa")))
+        {
+            sa = TRUE;
+        }
+        else if(!strnicmp(PARAM_PTR, "mh", strlen("mh")))
+        {
+            mh = TRUE;
+        }
+        else if(crit == PID_ACCEPT)
         {
             return ONCLI_PARSE_ERR;
-        } // if converting the source peer did failed //
+        }
+        else
+        {
+            adjust_array = TRUE;
+            // read in the pid
+            if(ascii_hex_to_byte_stream(PARAM_PTR, &raw_pid, sizeof(raw_pid) * 2)
+              != sizeof(raw_pid) * 2)
+            {
+                return ONCLI_PARSE_ERR;
+            }
+        } // if converting the did failed //
         PARAM_PTR += (sizeof(raw_pid) * 2);
     }
     
@@ -3655,40 +3681,45 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     if(turn_on || turn_off)
     {
-        enable_pid_blocking(turn_on);
-        return ONCLI_SUCCESS;
-    }
-    else if(clear)
-    {
-        reset_blocked_pid_array();
-        return ONCLI_SUCCESS;
+        pid_blocking_on = turn_on;
     }
     else if(display)
     {
+        // TODO -- place display code in oncli.h and oncli.c
         UInt8 i;
-        UInt8 pid_array[PID_BLOCK_ARRAY_SIZE];
-        UInt8 num_block = PID_BLOCK_ARRAY_SIZE;
-        if(!pids_blocked(pid_array, &num_block, &on))
-        {
-            oncli_send_msg("PID Block Device List Unretrievable.\n");
-            return ONCLI_CMD_FAIL;
-        }
+        UInt16 mask = 0x01;
+        const char* const ACCEPT_REJECT_STR[3] = {"Reject", "Accept", "N/A"};
         
-        oncli_send_msg("PID Blocking is %s : # of PIDs Blocked : %d\n",
-          (on ? ONCLI_ON_STR : ONCLI_OFF_STR), num_block);
-        for(i = 0; i < num_block; i++)
+        oncli_send_msg("PID Blocking is %s\n", pid_blocking_on ? ONCLI_ON_STR : ONCLI_OFF_STR);
+        for(i = 0; i < 0x0F; i++)
         {
-            oncli_send_msg("Raw Blocked PID : %02X\n", pid_array[i]);
+            oncli_send_msg("PID 0x%02X:%s\n", i,
+              ACCEPT_REJECT_STR[((mask & pid_block_info.block_pid_list) > 0)]);
+            delay_ms(1);
+            mask <<= 1;
         }
-        return ONCLI_SUCCESS;
+        oncli_send_msg("Stay Awake:%s\n",
+              ACCEPT_REJECT_STR[pid_block_info.sa_block]);
+        oncli_send_msg("Multi-Hop:%s\n",
+              ACCEPT_REJECT_STR[pid_block_info.mh_block]);
     }
-    
-    if(adjust_blocked_pid_array(raw_pid, add))
+    else if(sa)
     {
-        return ONCLI_SUCCESS;
+        set_pid_block_sa(crit);
     }
-    
-    return ONCLI_CMD_FAIL;
+    else if(mh)
+    {
+        set_pid_block_mh(crit);
+    }
+    else if(adjust_array)
+    {
+        set_pid_block(raw_pid, (crit == PID_ACCEPT_IF_PRESENT));
+    }
+    else
+    {
+        return ONCLI_CMD_FAIL;
+    }
+    return ONCLI_SUCCESS;
 } // pid_block_cmd_hdlr //
 #endif
 
