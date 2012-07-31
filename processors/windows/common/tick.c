@@ -40,7 +40,8 @@
 
 
 #include "tick.h"
-#include <Winsock2.h> // for struct timeval
+#include "one_net_types.h"
+#include <windows.h>
 
 
 //==============================================================================
@@ -72,9 +73,14 @@
 //! @{
 
 
-#define TICK_MAX   0xFFFFFFFF         //! The maximum value of a tick
-#define TICK_1MS   1000               //!< Number of ticks in a millisecond
-#define TICK_100MS 10000              //!< Number of ticks in 100 microseconds
+
+//! The maximum value of a tick
+#define TICK_MAX   0xFFFFFFFF
+//! 1 tick per millisecond
+#define TICK_1MS 1
+//! There are 10,000 100-nanosecond intervals in 1 millisecond
+#define HUNDRED_NANO_PER_MILLI 10000
+
 
 //! @} TICK_type_defs
 //                                  TYPEDEFS_END
@@ -87,7 +93,7 @@
 //! @{
 
 
-static struct timeval time0;
+static uint64_t time0;
 static tick_t tick_count = 0;
 static BOOL tick_enabled = FALSE;
 
@@ -103,10 +109,15 @@ static BOOL tick_enabled = FALSE;
 //! @{
 
 
-static BOOL timeval_greater(struct timeval time1, struct timeval time2);
-static tick_t elapsed_ticks(struct timeval start_time, struct timeval end_time);
-static struct timeval calculate_start_time_from_tick_count(tick_t tick_count);
+static uint64_t calculate_start_time_from_tick_count(tick_t tick_count);
 static void update_tick_count(void);
+static uint64_t FILETIME_to_uint64_t(FILETIME ft);
+// Commenting out since this function is not called from anywhere and we can't compile
+// with warnings treated as errors if we leave it in.  Might be useful, so simply commenting
+// it out rather than deleting it.
+#if 0
+static FILETIME uint64_t_to_FILETIME(uint64_t hundred_nano_since_1601);
+#endif
 
 
 
@@ -119,26 +130,28 @@ static void update_tick_count(void);
 //! \defgroup TICK_pub_func
 //! \ingroup TICK
 //! @{
-    
+
 
 void init_tick(void)
 {
     tick_enabled = TRUE;
     tick_count = 0;
-    gettimeofday(&time0, NULL);
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    time0 = FILETIME_to_uint64_t(ft);
 } // init_tick //
-    
+
 
 tick_t ms_to_tick(UInt32 ms)
 {
     return ms * TICK_1MS;
-} // tick_to_ms //
-    
+} // ms_to_tick //
+
 
 UInt32 tick_to_ms(tick_t num_ticks)
 {
     return num_ticks / TICK_1MS;
-} // ms_to_tick //
+} // tick_to_ms //
 
 
 tick_t get_tick_count(void)
@@ -226,72 +239,47 @@ void disable_tick_timer(void)
 //! @{
 
 
-static BOOL timeval_greater(struct timeval time1, struct timeval time2)
+static uint64_t FILETIME_to_uint64_t(FILETIME ft)
 {
-    if(time1.tv_sec > time2.tv_sec)
-    {
-        return TRUE;
-    }
-    else if(time1.tv_sec < time2.tv_sec)
-    {
-        return FALSE;
-    }
-    else
-    {
-        return (time1.tv_usec > time2.tv_usec);
-    }
+    uint64_t hundred_nano_since_1601 = ft.dwHighDateTime;
+    hundred_nano_since_1601 <<= 32;
+    hundred_nano_since_1601 += ft.dwLowDateTime;
+    return hundred_nano_since_1601;
 }
 
 
-static tick_t elapsed_ticks(struct timeval start_time, struct timeval end_time)
+// Commenting out since this function is not called from anywhere and we can't compile
+// with warnings treated as errors if we leave it in.  Might be useful, so simply commenting
+// it out rather than deleting it.
+#if 0
+static FILETIME uint64_t_to_FILETIME(uint64_t hundred_nano_since_1601)
 {
-    struct timeval time_diff = {0, 0};
-
-    if(timeval_greater(start_time, end_time))
-    {
-        return 0; // no negative times
-    }
-
-    time_diff.tv_sec = end_time.tv_sec - start_time.tv_sec;
-    if(end_time.tv_usec < start_time.tv_usec)
-    {
-        time_diff.tv_sec--;
-        end_time.tv_usec += 1000000;
-    }
-    time_diff.tv_usec = end_time.tv_usec - start_time.tv_usec;
-    return (tick_t)(time_diff.tv_sec * 1000000 + time_diff.tv_usec);
+    FILETIME ft;
+    ft.dwLowDateTime = (DWORD)(hundred_nano_since_1601 & 0xFFFFFFFF);
+    ft.dwHighDateTime = (DWORD)(hundred_nano_since_1601 >> 32);
+    return ft;
 }
+#endif
 
 
-static struct timeval calculate_start_time_from_tick_count(tick_t tick_count)
+static uint64_t calculate_start_time_from_tick_count(tick_t tick_count)
 {
-    // TODO -- not a problem here since a tick is defined as exactly 1
-    // microsecond, intentionally in order to make the math easy with
-    // struct timeval, but the formula below will not work if a tick
-    // was defined as anything else. Consider using the TICK_1MS and / or
-    // the TICK_1S values and creating a more generic conversion formula
-    // rather than hardcoding 1 million.
-
-    struct timeval current_time, start_time;
-    gettimeofday(&current_time, NULL);
-    current_time.tv_sec--;
-    current_time.tv_usec += 1000000;
-    start_time.tv_sec = current_time.tv_sec - (tick_count / 1000000);
-    start_time.tv_usec = current_time.tv_usec - (tick_count % 1000000);
-    if(start_time.tv_usec >= 1000000)
-    {
-        start_time.tv_sec++;
-        start_time.tv_usec -= 1000000;
-    }
-    return start_time;
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t current_time = FILETIME_to_uint64_t(ft);
+    uint64_t tick_count_100_nano = HUNDRED_NANO_PER_MILLI * ((uint64_t) tick_to_ms(tick_count));
+    return current_time - tick_count_100_nano;
 }
 
 
 static void update_tick_count(void)
 {
-    struct timeval time_now;
-    gettimeofday(&time_now, NULL);
-    tick_count = elapsed_ticks(time0, time_now);
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t hundred_nano_since_1601 = FILETIME_to_uint64_t(ft);
+    uint64_t elapsed_100_nano = hundred_nano_since_1601 - time0;
+    UInt32 elapsed_ms = (UInt32)(elapsed_100_nano / HUNDRED_NANO_PER_MILLI);
+    tick_count = ms_to_tick(elapsed_ms);
 }
 
 
