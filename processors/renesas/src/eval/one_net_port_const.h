@@ -121,15 +121,6 @@ enum
 #endif
 
 
-#ifdef PID_BLOCK
-enum
-{
-    //! For debugging purposes.  The maximum number of PIDs that can be blocked
-    PID_BLOCK_ARRAY_SIZE = 5
-};
-#endif
-
-
 // Note : When experimenting with multi-hop, try changing ONE_NET_MH_LATENCY.
 // If this value is too small, there may be collisions on the repeat.  If
 // you increase this value, be aware that you may also need to increase
