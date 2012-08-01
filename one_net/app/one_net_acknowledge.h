@@ -233,12 +233,12 @@ typedef union
       //! "poll" responses.
     UInt8 admin_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
     UInt8 ack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
-    tick_t ack_time_ms;
+    UInt32 ack_time_ms;
     UInt8 nack_payload[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN - 1];
       // subtract 1 byte for the nack reason
     UInt32 ack_value;
     UInt32 nack_value;
-    tick_t nack_time_ms;
+    UInt32 nack_time_ms;
     one_net_xtea_key_fragment_t key_frag;
     #ifdef EXTENDED_SINGLE
     one_net_xtea_key_t key;
