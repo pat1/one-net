@@ -837,7 +837,7 @@ string on_response_payload::get_ack_nack_handle_string(bool is_ack,
     on_ack_nack_handle_t handle)
 {
     string prefix_str = is_ack ? "ACK " : "NACK ";
-    static const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
+    static const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MAX_HANDLE+1] =
     {
         "NO PAYLOAD",
         "FEATURES",
@@ -849,19 +849,24 @@ string on_response_payload::get_ack_nack_handle_string(bool is_ack,
         "SPEED UP TIME MS",
         "PAUSE TIME MS",
         "RESPONSE TIME MS",
-        "ADMIN MSG",
-        "KEY FRAG",
+        "KEY / KEY FRAG",
+
+        // the 4 handles below are only valid for ACKs
         "BLOCK PACKETS RCVD",
         "ROUTE",
-        "STATUS" // note : this one isn't valid for NACKs
+        "APP MSG",
+        "ADMIN MSG",
+
+        "USR MSG"
     };
 
 
-    if((int)handle >= ON_ACK_MIN_APPLICATION_HANDLE)
+    if((int)handle > ON_ACK_MAX_HANDLE)
     {
         return "UNKNOWN";
     }
-    if(!is_ack && (int)handle == ON_ACK_STATUS)
+    if(!is_ack && ((int)handle >= ON_ACK_BLK_PKTS_RCVD &&
+      (int)handle <= ON_ACK_ADMIN_MSG))
     {
         return "INVALID";
     }
@@ -884,7 +889,7 @@ UInt8 on_response_payload::get_num_relevant_bytes_from_ack_nack_handle(
       (is_ack ? ON_PLD_DATA_IDX : ON_PLD_DATA_IDX + 1);
 
 
-    if(ack_nack.handle >= (int) ON_ACK_MIN_APPLICATION_HANDLE)
+    if(ack_nack.handle == (int) ON_ACK_APPLICATION_HANDLE)
     {
         return num_raw_bytes;
     }
@@ -901,14 +906,12 @@ UInt8 on_response_payload::get_num_relevant_bytes_from_ack_nack_handle(
         case ON_ACK_ADMIN_MSG:
             // can't really tell, so say it is num_raw_bytes
             return num_raw_bytes;
-        case ON_ACK_KEY_FRAGMENT:
+        case ON_ACK_KEY:
             return ONE_NET_XTEA_KEY_FRAGMENT_SIZE;
-        case ON_ACK_BLK_PKTS_RCVD:
+        case ON_ACK_BLK_PKTS_RCVD: case ON_ACK_APP_MSG:
             return 5;
         case ON_ACK_ROUTE:
             return num_raw_bytes;
-        case ON_ACK_STATUS:
-            return 5;
         default:
             return 0;
     }
@@ -987,28 +990,28 @@ void on_response_payload::default_ack_nack_display(const on_ack_nack_t& ack_nack
               att, outs);
             break;
         }
-        case ON_ACK_STATUS:
+        case ON_ACK_APP_MSG:
         {
-            outs << "Status Response : ";
+            outs << "Single App Message : ";
             
             UInt8 src_unit, dst_unit, msg_type;
             ona_msg_class_t msg_class;
             SInt32 msg_data;           
-            if(!on_parse_app_pld(ack_nack.payload->status_resp, ON_APP_MSG,
+            if(!on_parse_app_pld(ack_nack.payload->app_msg, ON_APP_MSG,
               &src_unit, &dst_unit, &msg_class, &msg_type, &msg_data))
             {
-                outs << "Could not parse status response.";
+                outs << "Could not parse single app message response.";
             }
             else
             {
-                on_app_payload status_payload(src_unit, dst_unit, msg_class,
+                on_app_payload app_msg_payload(src_unit, dst_unit, msg_class,
                   msg_type, msg_data);
-                on_app_payload::default_display_application_payload_info(status_payload,
+                on_app_payload::default_display_application_payload_info(app_msg_payload,
                   verbosity, att, outs);
             }
             break;
         }
-        case ON_ACK_KEY_FRAGMENT:
+        case ON_ACK_KEY:
         {
            outs << bytes_to_hex_string(ack_nack.payload->key_frag,
                ONE_NET_XTEA_KEY_FRAGMENT_SIZE, ' ', 1, 0);
