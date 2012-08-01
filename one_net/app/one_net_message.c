@@ -266,22 +266,8 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
 
     // fill in the payload based on the handle
     {
-        BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
-            case ON_ACK_FEATURES:
-            case ON_ACK_KEY_FRAGMENT:
-            case ON_ACK_STATUS:
-	        case ON_ACK_DATA:
-            case ON_ACK_ADMIN_MSG:
-            #ifdef BLOCK_MESSAGES_ENABLED
-            case ON_ACK_BLK_PKTS_RCVD:
-            #endif
-            
-            // TODO -- ON_ACK_ROUTE case seems to be missing? Why?
-            
-                // nothing to do with these.
-                break;
 	        case ON_ACK_VALUE:
 	        case ON_ACK_TIME_MS:
             case ON_ACK_TIMEOUT_MS:
@@ -289,22 +275,15 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
             case ON_ACK_SPEED_UP_TIME_MS:
             case ON_ACK_RESPONSE_TIME_MS:
             case ON_ACK_PAUSE_TIME_MS:
-                val_present = TRUE;
+                // reverse the bytes if necessary
+                // assign it to nack_value.  Doesn't matter.  They all point
+                // to the same place
+                ack_nack->payload->nack_value = one_net_byte_stream_to_int32(
+                  raw_bytes);
                 break;
-            #ifdef COMPILE_WO_WARNINGS
-            // add default case that does nothing for clean compile
             default:
+                // Payload is treated as an array.  Do nothing.
                 break;
-            #endif
-        }
-        
-        if(val_present)
-        {              
-            // reverse the bytes if necessary
-            // assign it to nack_value.  Doesn't matter.  They all point
-            // to the same place
-            ack_nack->payload->nack_value = one_net_byte_stream_to_int32(
-              raw_bytes);
         }
     } 
     
@@ -482,15 +461,6 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
         return ONS_INTERNAL_ERR; // not a data PID
     }
     
-    // make the payload portion all random first for extra security
-    {
-        UInt8 i;
-        for(i = ON_PLD_DATA_IDX; i < raw_pld_len - 1; i++)
-        {
-            raw_payload_bytes[i] = one_net_prand(get_tick_count(), 255);
-        }
-    }
-    
     // build the ack and nack
     if(!is_ack)
     {
@@ -502,50 +472,26 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     
     // fill in the payload based on the handle
     {
-        UInt32 val = ack_nack->payload->ack_time_ms; // time case
-        BOOL val_present = FALSE;
         switch(ack_nack->handle)
         {
-            case ON_ACK_FEATURES:
-            case ON_ACK_KEY_FRAGMENT:
-                // both features and key fragments are 4 bytes long.
-                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload, 4);
-                break;
-            case ON_ACK_STATUS:
-	        case ON_ACK_DATA:
-            case ON_ACK_ADMIN_MSG:
-            #ifdef ROUTE
-            case ON_ACK_ROUTE:
-            #endif
-            #ifdef BLOCK_MESSAGES_ENABLED
-            case ON_ACK_BLK_PKTS_RCVD:
-            #endif            
-                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
-                  ack_nack_pld_len);
-                break;
 	        case ON_ACK_VALUE:
-                val_present = TRUE;
-                val = ack_nack->payload->ack_value;
-                break;
 	        case ON_ACK_TIME_MS:
             case ON_ACK_TIMEOUT_MS:
             case ON_ACK_SLOW_DOWN_TIME_MS:
             case ON_ACK_SPEED_UP_TIME_MS:
             case ON_ACK_RESPONSE_TIME_MS:
             case ON_ACK_PAUSE_TIME_MS:
-                val_present = TRUE;
-                // time case is initialized above
+                // These are the value cases.
+                // Adjust to MSB first and stick into the ACK / NACK payload
+                one_net_int32_to_byte_stream(ack_nack->payload->ack_value,
+                  ack_nack_pld_ptr);
                 break;
-            #ifdef COMPILE_WO_WARNINGS
-            // add default case that does nothing for clean compile
             default:
+                // Treat as an array. Hence no endianness issue.  Simply copy
+                // the bytes.
+                one_net_memmove(ack_nack_pld_ptr, ack_nack->payload,
+                  ack_nack_pld_len);
                 break;
-            #endif
-        }
-        
-        if(val_present)
-        {
-            one_net_int32_to_byte_stream(val, ack_nack_pld_ptr);
         }
     }
 
