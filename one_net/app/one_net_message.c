@@ -283,13 +283,6 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
                 // nothing to do with these.
                 break;
 	        case ON_ACK_VALUE:
-                val_present = TRUE;
-                if(is_ack)
-                {
-                    raw_bytes++;  // first byte is UInt8, no endian conversion
-                }
-                
-                break;
 	        case ON_ACK_TIME_MS:
             case ON_ACK_TIMEOUT_MS:
             case ON_ACK_SLOW_DOWN_TIME_MS:
