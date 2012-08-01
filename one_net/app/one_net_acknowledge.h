@@ -239,7 +239,6 @@ typedef union
     UInt32 ack_value;
     UInt32 nack_value;
     UInt32 nack_time_ms;
-    one_net_xtea_key_fragment_t key_frag;
     #ifdef EXTENDED_SINGLE
     one_net_xtea_key_t key;
     #endif
