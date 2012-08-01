@@ -2437,7 +2437,7 @@ on_message_status_t rx_single_data(on_txn_t** txn, on_pkt_t* sing_pkt_ptr,
     {
         ack_nack->nack_reason = ON_NACK_RSN_BAD_KEY;
         // fill in the new key fragment in the NACK reason.
-        ack_nack->handle = ON_NACK_KEY_FRAGMENT;
+        ack_nack->handle = ON_NACK_KEY;
         one_net_memmove(ack_nack->payload->key_frag,
           &(on_base_param->current_key[3 * ONE_NET_XTEA_KEY_FRAGMENT_SIZE]),
           ONE_NET_XTEA_KEY_FRAGMENT_SIZE);

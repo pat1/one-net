@@ -164,8 +164,8 @@ void one_net_client_client_added(const on_raw_did_t * const raw_did);
 	\param[out] ack_nack: Contains three parts...
                   nack_reason... if nacking, the reason for the NACK.  Irrelevant for ACKs
 	            handle... if including a payload, how the payload should be parsed.
-                  For example, if this is a ffast query or command response that contains
-                  a status message, the handle should be set to ON_ACK_STATUS.
+                  For example, if this is a fast query or command response that contains
+                  a status message, the handle should be set to ON_ACK_APP_MSG.
                   If the message contains a time, this should be set to
                   ON_ACK_TIME_MS or ON_NACK_MS.  If the message contains an
                   application-specific value, this should be set to ON_ACK_VALUE

@@ -754,8 +754,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
     oncli_send_msg(ACK_NACK_DISPLAY_FMT, is_ack ? ONCLI_ACK_STR :
       ONCLI_NACK_STR, ack_nack->nack_reason,
       get_nack_reason_str(ack_nack->nack_reason), ack_nack->handle,
-      ack_nack->handle < ON_ACK_MIN_APPLICATION_HANDLE ?
-      ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle] : EMPTY_STRING);
+      ACK_NACK_HANDLE_STR_ARRAY[ack_nack->handle]);
       
     oncli_send_msg(" : Payload : ");
 
@@ -783,13 +782,13 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
             break;
         }
         
-        case ON_ACK_STATUS:
+        case ON_ACK_APP_MSG:
         {
             oncli_send_msg("\n");
             
             // TODO -- pld_len isn't being set correctly somewhere.  Fix it.
             // For now, hard-coding in 5.
-            print_app_payload(ack_nack->payload->status_resp, ON_APP_MSG, /*pld_len*/5);
+            print_app_payload(ack_nack->payload->app_msg, ON_APP_MSG, /*pld_len*/5);
             break;
         }
         

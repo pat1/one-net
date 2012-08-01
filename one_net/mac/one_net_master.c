@@ -2146,17 +2146,17 @@ static on_message_status_t on_master_single_data_hdlr(
     
     // if this was a normal query response, we'll send a message in addition
     // to the ACK.
-    if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
-      ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
+    if(ack_nack->handle == ON_ACK_APP_MSG && get_msg_class(
+      ack_nack->payload->app_msg) == ONA_STATUS_QUERY_RESP)
     {
         one_net_master_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
-            ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+            ack_nack->payload->app_msg, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL,
             (const on_encoded_did_t* const)
             &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
         #ifdef PEER
             , FALSE,
-            get_src_unit(ack_nack->payload->status_resp)
+            get_src_unit(ack_nack->payload->app_msg)
         #endif
             , 0
         #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   

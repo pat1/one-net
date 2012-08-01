@@ -537,7 +537,7 @@ const char* const ONCLI_ACK_STR = "ACK";
 const char* const ONCLI_NACK_STR = "NACK";
 
 
-const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
+const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MAX_HANDLE+1] =
 {
     "",
     "FEATURES",
@@ -549,12 +549,15 @@ const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
     "SPEED UP TIME MS",
     "PAUSE TIME MS",
     "RESPONSE TIME MS",
-    "ADMIN MSG",
-    "KEY FRAG",
+    "KEY",
+        
+    // note: The four handles below are only valid for ACK messages.
     "BLK PKTS RCVD",
     "ROUTE",
-    "STATUS" // note : this one isn't valid for NACKs but is included
-                     // for ease of programming.
+    "APP",
+    "ADMIN",
+    
+    "USR"
 };
 
 

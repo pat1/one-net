@@ -620,17 +620,18 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
             return ON_MSG_CONTINUE;
     }
 
-    ack_nack->handle = ON_ACK_STATUS;
+    // weare sending back a status message
+    ack_nack->handle = ON_ACK_APP_MSG;
 
     // source and destination are reversed in the response.
-    put_src_unit(dst_unit, ack_nack->payload->status_resp);
-    put_dst_unit(src_unit, ack_nack->payload->status_resp);
-    put_msg_class(msg_class, ack_nack->payload->status_resp);
+    put_src_unit(dst_unit, ack_nack->payload->app_msg);
+    put_dst_unit(src_unit, ack_nack->payload->app_msg);
+    put_msg_class(msg_class, ack_nack->payload->app_msg);
 
     // we don't need to fill in the type.  It's already there since this is
     // the same memory as the raw payload!
 
-    put_msg_data(msg_data, ack_nack->payload->status_resp, ON_APP_MSG);
+    put_msg_data(msg_data, ack_nack->payload->app_msg, ON_APP_MSG);
     return ON_MSG_CONTINUE;
 }
 
@@ -979,10 +980,11 @@ void eval_single_txn_status(on_message_status_t status,
     }
     #endif
     
-    if(ack_nack->handle == ON_ACK_STATUS)
+    if(ack_nack->handle == ON_ACK_APP_MSG && ONA_IS_STATUS_MESSAGE(
+      get_msg_type(ack_nack->payload->app_msg)))
     {
-        UInt8 src_unit = get_src_unit(ack_nack->payload->status_resp);
-        SInt32 msg_data = get_msg_data(ack_nack->payload->status_resp, ON_APP_MSG);
+        UInt8 src_unit = get_src_unit(ack_nack->payload->app_msg);
+        SInt32 msg_data = get_msg_data(ack_nack->payload->app_msg, ON_APP_MSG);
         oncli_send_msg(ONCLI_DEVICE_STATE_FMT, src_unit, did_to_u16(dst),
           msg_data);
     }

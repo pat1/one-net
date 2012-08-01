@@ -1159,16 +1159,16 @@ static on_message_status_t on_client_single_data_hdlr(
     
     // if this was a normal query response, we'll send a message in addition
     // to the ACK.
-    if(ack_nack->handle == ON_ACK_STATUS && get_msg_class(
-      ack_nack->payload->status_resp) == ONA_STATUS_QUERY_RESP)
+    if(ack_nack->handle == ON_ACK_APP_MSG && get_msg_class(
+      ack_nack->payload->app_msg) == ONA_STATUS_QUERY_RESP)
     {
         one_net_client_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
-            ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+            ack_nack->payload->app_msg, ONA_SINGLE_PACKET_PAYLOAD_LEN,
             ONE_NET_HIGH_PRIORITY, NULL, (const on_encoded_did_t* const)
             &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX])
         #ifdef PEER
             , FALSE,
-            get_src_unit(ack_nack->payload->status_resp)
+            get_src_unit(ack_nack->payload->app_msg)
         #endif
         #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL   
 	        , 0
@@ -2467,7 +2467,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             
             // we now have the right key.  Send it back in the ACK.  We'll
             // encrypt using the NEW key.
-            ack_nack->handle = ON_ACK_KEY_FRAGMENT;
+            ack_nack->handle = ON_ACK_KEY;
             one_net_memmove(ack_nack->payload->key_frag, &DATA[1],
               ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
             txn->key = &(on_base_param->current_key);

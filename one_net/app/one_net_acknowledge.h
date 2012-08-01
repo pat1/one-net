@@ -162,9 +162,12 @@ typedef enum
 // compiler could not care less, but consistency makes it easier for us humans to read.
 
 // Note that "handle" does not refer to the computer science term "handle".  Rather, it refers to
-// how ONE-NET should interpret and "handle" packet information (either as random padding (ON_ACK/ON_NACK),
-// a generic data array (ON_ACK_DATA, ON_NACK_DATA), a 32-but integer value (ON_ACK_32_BIT_INT/ON_NACK_32_BIT),
-// or a status message(ON_ACK_STATUS), possibly in response to a query.
+// how ONE-NET should interpret and "handle" packet information (either as no payload (ON_ACK/ON_NACK),
+// a generic data array (ON_ACK_DATA, ON_NACK_DATA), a route message (ON_ACK_ROUTE, ON_NACK_ROUTE),
+// a 32-but integer value (ON_ACK_VALUE / ON_NACK_VALUE) or any of the time handles), a features message,
+// (ON_ACK_FEATURES, ON_NACK_FEATURES),  or for ACKs only, a bitwise array of block packets received
+// (ON_ACK_BLK_PKTS_RCVD), or a single administration or application message(ON_ACK_ADMIN_MSG, ON_ACK_APP_MSG),
+// possibly in response to a query.
 /*!
     Specifies what an ACK means and whether there is any data accompanying it
 */
@@ -183,20 +186,16 @@ typedef enum
     ON_ACK_PAUSE_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to pause in milliseconds.
     ON_ACK_RESPONSE_TIME_MS, // Same as ON_ACK_TIME_MS, but represents a request to set the response timeout / fragment delay
                              //! to this exact value.
-    ON_ACK_ADMIN_MSG,      //! Sending back an Admin message with an ACK
-    ON_ACK_KEY_FRAGMENT,   //! This ACK or NACK is sent when sending a key fragment.
+    ON_ACK_KEY,   //! This ACK or NACK is sent when sending a key fragment or a key (the packet length will determine which it is)
     ON_ACK_BLK_PKTS_RCVD,  //! This is an ACK accompanied by a bitwise boolean array representing which packet indexes have and have not been received.
                            //! Valid only for block transactions.  Always sent as an ACK even if it represents a problem.
     ON_ACK_ROUTE,
-    ON_ACK_STATUS,         //! The ACK is accompanied by the device's current status.  This will usually be in response to a "fast query" request
-    ON_ACK_MIN_APPLICATION_HANDLE, //! Application-specific handles are allowable and will be treated by ONE-NET
-                                  //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
-                                  //! but their meanings are to be interpreted by the application code.
-                                  
-    // TODO -- handle is 4 bits.  We need a constant for this, not 15.
-    ON_ACK_MAX_APPLICATION_HANDLE = 15 //! Application-specific handles are allowable and will be treated by ONE-NET
-                                  //! as ON_ACK_DATA when building and parsing packets.  They are provided by ONE-NET
-                                  //! but their meanings are to be interpreted by the application code.
+    ON_ACK_APP_MSG,         //! The ACK is accompanied by an application message
+    ON_ACK_ADMIN_MSG,      //! Sending back an Admin message with an ACK
+    ON_ACK_APPLICATION_HANDLE, //! Application-specific handle.  This will be treated by ONE-NET
+                                  //! as ON_ACK_DATA when building and parsing packets.  It is provided by ONE-NET
+                                  //! but its meaning is to be interpreted by the application code.
+    ON_ACK_MAX_HANDLE = 15 //! Application-specific handles are allowable and will be treated by ONE-NET
 } on_ack_handle_t;
 
 
@@ -214,10 +213,9 @@ typedef enum
 #define ON_NACK_SPEED_UP_TIME_MS ON_ACK_SPEED_UP_TIME_MS
 #define ON_NACK_PAUSE_TIME_MS ON_ACK_PAUSE_TIME_MS
 #define ON_NACK_RESPONSE_TIME_MS ON_ACK_RESPONSE_TIME_MS
-#define ON_NACK_ADMIN_MSG ON_ACK_ADMIN_MSG
-#define ON_NACK_KEY_FRAGMENT ON_ACK_KEY_FRAGMENT
-#define ON_NACK_MIN_APPLICATION_HANDLE ON_ACK_MIN_APPLICATION_HANDLE
-#define ON_NACK_MAX_APPLICATION_HANDLE ON_ACK_MAX_APPLICATION_HANDLE
+#define ON_NACK_KEY ON_ACK_KEY
+#define ON_NACK_APPLICATION_HANDLE ON_ACK_APPLICATION_HANDLE
+#define ON_NACK_MAX_HANDLE ON_ACK_MAX_HANDLE
 
 typedef on_ack_handle_t on_ack_nack_handle_t; // it's all ints anyway
 typedef on_ack_handle_t on_nack_handle_t; // it's all ints anyway
@@ -228,7 +226,7 @@ typedef on_ack_handle_t on_nack_handle_t; // it's all ints anyway
 */
 typedef union
 {
-    UInt8 status_resp[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN]; //! only valid for
+    UInt8 app_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN]; //! only valid for
       //! ACKs.  Generally, but not exclusively intended for "fast query"/
       //! "poll" responses.
     UInt8 admin_msg[ONA_MAX_SINGLE_PACKET_PAYLOAD_LEN];
