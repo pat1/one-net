@@ -240,6 +240,10 @@ typedef union
     UInt32 nack_value;
     tick_t nack_time_ms;
     one_net_xtea_key_fragment_t key_frag;
+    #ifdef EXTENDED_SINGLE
+    one_net_xtea_key_t key;
+    #endif
+    one_net_xtea_key_fragment_t key_frag;
     on_features_t features;
 } ack_nack_payload_t;
 
