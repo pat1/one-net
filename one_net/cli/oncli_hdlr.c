@@ -2032,7 +2032,7 @@ static oncli_status_t parse_and_send_pin_msg(
     PARAM_PTR = endptr;
     
     unit = one_net_strtol(PARAM_PTR, &endptr, 16);
-    if(unit >= ONE_NET_NUM_UNITS)
+    if(msg_class == ONA_STATUS && unit >= ONE_NET_NUM_UNITS)
     {
         return ONCLI_PARSE_ERR;
     }
