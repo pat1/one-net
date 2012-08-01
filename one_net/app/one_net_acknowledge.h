@@ -173,7 +173,7 @@ typedef enum
     ON_ACK,                //! Normal ACK with no accompanying data
     ON_ACK_FEATURES,       //! Normal ACK accompanied with four bytes of features
     ON_ACK_DATA,           //! The ACK is accompanied by 5 bytes of data.
-    ON_ACK_VALUE,          //! The ACK is accompanied by 8 bit and 32 bit unsigned integers.
+    ON_ACK_VALUE,          //! The ACK is accompanied by a 32 bit unsigned integers.
     ON_ACK_TIME_MS,        //! The ACK is accompanied by a 32 bit unsigned integer representing generic time in milliseconds
     ON_ACK_TIMEOUT_MS,     //! Same as ON_ACK_TIME_MS, but represents the fact that something has timed out.
     ON_ACK_SLOW_DOWN_TIME_MS, //! Same as ON_ACK_TIME_MS, but represents a request to send the packets slower by
