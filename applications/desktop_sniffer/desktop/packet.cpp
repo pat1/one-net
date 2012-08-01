@@ -922,7 +922,7 @@ string payload_t::get_ack_nack_handle_string(bool is_ack,
     on_ack_nack_handle_t handle)
 {
     string prefix_str = is_ack ? "ACK " : "NACK ";
-    static const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MIN_APPLICATION_HANDLE] =
+    static const char* const ACK_NACK_HANDLE_STR_ARRAY[ON_ACK_MAX_HANDLE+1] =
     {
         "NO PAYLOAD",
         "FEATURES",
@@ -934,18 +934,23 @@ string payload_t::get_ack_nack_handle_string(bool is_ack,
         "SPEED UP TIME MS",
         "PAUSE TIME MS",
         "RESPONSE TIME MS",
-        "ADMIN MSG",
-        "KEY FRAG",
+        "KEY FRAG / KEY",
+
+        // the 4 handles bleow are only valid for ACKs
         "BLOCK PACKETS RCVD",
         "ROUTE",
-        "STATUS" // note : this one isn't valid for NACKs
+        "APP MSG",
+        "ADMIN MSG",
+
+        "USR/APP-CODE MSG"
     };
 
-    if((int)handle >= ON_ACK_MIN_APPLICATION_HANDLE)
+    if((int)handle == ON_ACK_APPLICATION_HANDLE)
     {
         return "UNKNOWN";
     }
-    if(!is_ack && (int)handle == ON_ACK_STATUS)
+    if(!is_ack && ((int)handle <= ON_ACK_BLK_PKTS_RCVD &&
+      (int)handle <= ON_ADMIN_MSG))
     {
         return "INVALID";
     }
