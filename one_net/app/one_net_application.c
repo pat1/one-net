@@ -443,17 +443,18 @@ void put_msg_data(SInt32 data, UInt8 *payload, UInt8 app_msg_type)
     data &= 0x07FFFFFF;
     if(app_msg_type == ON_APP_MSG_TYPE_2)
     {
+        // 28 bit message data
         sign_index = 1;
-        payload[2] = data >> 16;
+        payload[2] = (data >> 16);
         shift = 24;
     }
     else
     {
-        data >>= 8;
+        // 20 bit message data
+        data &= 0x0007FFFF;
     }
-    
-    
-    payload[3] = data >> 8;
+     
+    payload[3] = (data >> 8);
     payload[4] = data;
     payload[sign_index] &= 0xF0;
     payload[sign_index] |= (data >> shift); 
