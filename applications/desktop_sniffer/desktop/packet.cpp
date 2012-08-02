@@ -1033,6 +1033,19 @@ bool payload_t::detailed_features_to_string(on_features_t features, string& str)
     str += "\nMax Peers : ";
     byte_to_hex_string(features_max_peers(features), tmp);
     str += tmp;
+    str += "\nQueue Size : ";
+    byte_to_hex_string(features_queue_size(features), tmp);
+    str += tmp;
+    str += "\nQueue Level : ";
+    byte_to_hex_string(features_queue_level(features), tmp);
+    str += tmp;
+
+    str += "\nData Rate / Channel Change : ";
+    str += (features_dr_channel_capable(features) ? "Capable" : "Not Capable");
+    str += "\nExtended Single : ";
+    str += (features_extended_single_capable(features) ? "Capable" : "Not Capable");
+    str += "\nRoute : ";
+    str += (features_route_capable(features) ? "Capable" : "Not Capable");
     str += "\nMulti-Hop : ";
     str += (features_mh_capable(features) ? "Capable" : "Not Capable");
     str += "\nMulti-Hop Repeat : ";
@@ -1043,16 +1056,6 @@ bool payload_t::detailed_features_to_string(on_features_t features, string& str)
     str += (features_stream_capable(features) ? "Capable" : "Not Capable");
     str += "\nDevice Sleeps : ";
     str += (features_device_sleeps(features) ? "True" : "False");
-
-
-    // TODO -- are we really placing with queueu level?  Just comment out at the
-    // moment.
-    #if 0
-    str += "\nACK / NACK Level (obsolete -- replace with queue level) : ";
-    byte_to_hex_string(features_ack_nack_level(features), tmp);
-    str += tmp;
-    #endif
-
 
     str += "\n\nData Rates...\n\n";
     detailed_data_rates_to_string(features, tmp);

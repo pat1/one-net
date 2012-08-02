@@ -462,6 +462,10 @@ std::string on_payload::detailed_features_to_string(on_features_t features, UInt
     str += byte_to_hex_string(features_queue_level(features));
     str += "\nData Rate / Channel Change : ";
     str += (features_dr_channel_capable(features) ? "Capable" : "Not Capable");
+    str += "\nExtended Single : ";
+    str += (features_extended_single_capable(features) ? "Capable" : "Not Capable");
+    str += "\nRoute : ";
+    str += (features_route_capable(features) ? "Capable" : "Not Capable");
     str += "\nMulti-Hop : ";
     str += (features_mh_capable(features) ? "Capable" : "Not Capable");
     str += "\nMulti-Hop Repeat : ";
@@ -472,9 +476,6 @@ std::string on_payload::detailed_features_to_string(on_features_t features, UInt
     str += (features_stream_capable(features) ? "Capable" : "Not Capable");
     str += "\nDevice Sleeps : ";
     str += (features_device_sleeps(features) ? "True" : "False");
-
-
-
     str += "\n\nData Rates...\n\n";
     str += detailed_data_rates_to_string(features);
     str += "\n";
