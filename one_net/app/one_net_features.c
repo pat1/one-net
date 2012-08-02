@@ -55,7 +55,7 @@
 
 const on_features_t THIS_DEVICE_FEATURES =
 {
-    THIS_DEVICE_FEATURE_BITS, THIS_DEVICE_DATA_RATES,
+    THIS_DEVICE_FEATURE_BITS, THIS_DEVICE_DATA_RATES_EXTENDED_SINGLE_ROUTE,
     THIS_DEVICE_QUEUE_BITS, THIS_DEVICE_PEERS_HOPS
 };
 
@@ -145,7 +145,8 @@ BOOL features_data_rate_capable(on_features_t features, UInt8 data_rate)
     {
         return FALSE;
     }
-    return (((features.data_rates >> data_rate) & 0x01) != 0);
+    return (((features.data_rates_extended_single_route_flags >> data_rate) &
+      0x01) != 0);
 }
 
 
@@ -221,6 +222,20 @@ BOOL features_simple_client(on_features_t features)
 BOOL features_dr_channel_capable(on_features_t features)
 {
     return ((features.feature_flags & ON_DR_CHANNEL_CHANGE_FEATURE_MASK) != 0);
+}
+
+
+BOOL features_extended_single_capable(on_features_t features)
+{
+    return ((features.data_rates_extended_single_route_flags &
+      ON_EXTENDED_SINGLE_FEATURE_MASK) != 0);
+}
+
+
+BOOL features_route_capable(on_features_t features)
+{
+    return ((features.data_rates_extended_single_route_flags &
+      ON_ROUTE_FEATURE_MASK) != 0);
 }
 #endif
 

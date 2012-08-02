@@ -88,6 +88,24 @@ enum
 };
 
 
+/*!
+    Extended Single And Route (bits 6 and 7 of byte 1 -- bytes 0 to 5 are data rates)
+    Bit 7 is most significant bit, bit 0 is least significant
+
+    01000001 represents a device that has Extended Single, but not Route Capabilities, and can only function at the 38,400 data rate
+*/
+enum
+{
+    ON_EXTENDED_SINGLE_FEATURE_SHIFT    = 6,  //! Bit 6 -- Mask = 0x40.  True if capable of sending 3-block XTEA Block messages.
+    ON_ROUTE_FEATURE_SHIFT              = 7,  //! Bit 7 -- Mask = 0x80.  True if capable of participating in Route Messages.
+    
+    ON_EXTENDED_SINGLE_FEATURE_MASK     = 0x40,  //! Bit 6 -- Mask = 0x40.  True if capable of sending 3-block XTEA Block messages.
+    ON_ROUTE_FEATURE_MASK               = 0x80,  //! Bit 7 -- Mask = 0x80.  True if participating in Route Messages.
+};
+
+
+
+
 enum
 {
     ON_QUEUE_SIZE_MASK = 0xF0,
@@ -140,7 +158,7 @@ enum
         #endif
         ,
         
-    THIS_DEVICE_DATA_RATES =
+    THIS_DEVICE_DATA_RATES_EXTENDED_SINGLE_ROUTE =
         // note -- all devices have 38,400
         ONE_NET_DATA_RATE_38_4_MASK        
         #ifdef DATA_RATE_76_8_CAPABLE
@@ -157,6 +175,12 @@ enum
         #endif
         #ifdef DATA_RATE_230_4_CAPABLE
             + ONE_NET_DATA_RATE_230_4_MASK
+        #endif
+        #ifdef EXTENDED_SINGLE
+            + ON_EXTENDED_SINGLE_FEATURE_MASK
+        #endif
+        #ifdef ROUTE
+            + ON_ROUTE_FEATURE_MASK
         #endif
         ,
 
@@ -181,7 +205,7 @@ enum
 typedef struct
 {
     UInt8 feature_flags;
-    UInt8 data_rates;
+    UInt8 data_rates_extended_single_route_flags;
     UInt8 queue_values;
     UInt8 peers_hops;
 } on_features_t;
@@ -238,6 +262,8 @@ BOOL features_block_capable(on_features_t features);
 BOOL features_stream_capable(on_features_t features);
 BOOL features_simple_client(on_features_t features);
 BOOL features_dr_channel_capable(on_features_t features);
+BOOL features_extended_single_capable(on_features_t features);
+BOOL features_route_capable(on_features_t features);
 #endif
 
 //! @} ONE-NET_FEATURES_pub_func
