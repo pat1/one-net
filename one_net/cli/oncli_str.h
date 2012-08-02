@@ -210,11 +210,6 @@ extern const char* const ONCLI_BLOCK_CMD_STR;
 extern const char* const ONCLI_STREAM_CMD_STR;
 #endif
 
-#ifdef ONE_NET_MULTI_HOP
-extern const char * const ONCLI_MH_REPEAT_CMD_STR;
-#endif
-
-
 // Response Formats
 extern const char * const ONCLI_GET_CHANNEL_RESPONSE_FMT;
 

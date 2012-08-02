@@ -118,11 +118,6 @@ enum
 //! Parameter delimiter
 static const char ONCLI_PARAM_DELIMITER = ':';
 
-// debugging -- temporary
-static const char* ADD_DEV_CMD_STR = "add dev";
-
-
-
 
 //! @} oncli_hdlr_const
 //								CONSTANTS END
@@ -143,24 +138,6 @@ static const char* ADD_DEV_CMD_STR = "add dev";
 //! \defgroup oncli_hdlr_pri_var
 //! \ingroup oncli_hdlr
 //! @{
-
-// temporary --  debugging
-static const on_features_t add_master_features = {0x2E, 0x03, 0x3F, 0x87};
-static const on_raw_nid_t  add_nid = {0x00, 0x00, 0x00, 0x00, 0x10};
-static const one_net_xtea_key_t add_key = {0x00, 0x01, 0x02, 0x03, 0x04,
-  0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-  
-// TODO -- change this to use the master port constant definitions?
-// Add the ON_REJECT_INVALID_MSG_ID flag too.
-static const UInt8 add_flags = ON_JOINED | ON_SEND_TO_MASTER;
-
-static const tick_t add_keep_alive = 1800000;
-static const UInt8 add_channel = 1;
-#ifdef BLOCK_MESSAGES_ENABLED
-static const UInt8 add_fragment_delay_low = 125;
-static const UInt8 add_fragment_delay_high = 25;
-#endif
-
 
 
 #ifdef DEBUGGING_TOOLS
@@ -373,17 +350,6 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #ifdef STREAM_MESSAGES_ENABLED
 static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
-
-#ifdef ONE_NET_MULTI_HOP
-// temporary debugging
-static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-#endif
-
-// temporary debugging
-static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST);
-
-
-
 
 // Parsing functions.
 static UInt16 ascii_hex_to_byte_stream(const char * STR, UInt8 * byte_stream,
@@ -890,22 +856,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the change keep alive command was received //
 	#endif
-
-    // debugging temporary
-    else if(!strnicmp("add dev", CMD, 7))
-    {
-        *CMD_STR = ADD_DEV_CMD_STR;
-
-        if(CMD[7] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &add_dev_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the "add dev" command was received //
     
 	#ifdef ENABLE_CHANGE_KEY_COMMAND
     else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
@@ -1047,24 +997,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
         *cmd_hdlr = &range_test_cmd_hdlr;
-
-        return ONCLI_SUCCESS;
-    } // else if the range test command was received //
-    #endif
-    
-    #ifdef ONE_NET_MULTI_HOP
-    if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
-      strlen(ONCLI_MH_REPEAT_CMD_STR)))
-    {
-        *CMD_STR = ONCLI_MH_REPEAT_CMD_STR;
-
-        if(CMD[strlen(ONCLI_MH_REPEAT_CMD_STR)] != ONCLI_PARAM_DELIMITER)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if the end the command is not valid //
-
-        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
-        *cmd_hdlr = &mh_repeat_cmd_hdlr;
 
         return ONCLI_SUCCESS;
     } // else if the range test command was received //
@@ -2259,95 +2191,6 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     return oncli_set_user_pin_type(pin, pin_type);
 } // user_pin_cmd_hdlr //
 #endif
-
-
-// temporary -- debugging
-#include "one_net_master.h"
-#include "one_net_prand.h"
-static oncli_status_t add_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    on_raw_did_t did;
-    on_features_t features;
-    on_base_param_t out_base_param;
-    on_master_t out_master_param;
-
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    if(!device_is_master)
-    {
-        // read in the did
-        if(ascii_hex_to_byte_stream(PARAM_PTR, did, ONCLI_ASCII_RAW_DID_SIZE)
-          != ONCLI_ASCII_RAW_DID_SIZE)
-        {
-            return ONCLI_PARSE_ERR;
-        } // if converting the source peer did failed //
-        PARAM_PTR += ONCLI_ASCII_RAW_DID_SIZE;
-    }
-    else
-    {
-        // read in features
-        if(ascii_hex_to_byte_stream(PARAM_PTR, (UInt8*) &features,
-          2 * sizeof(on_features_t)) != 2 * sizeof(on_features_t))
-        {
-            return ONCLI_PARSE_ERR;
-        } // if converting the features failed //    
-    
-        PARAM_PTR += (2 * sizeof(on_features_t));
-    }
-    
-    if(*PARAM_PTR != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    } // if malformed parameter //
-
-    #ifdef ONE_NET_MASTER
-    if(device_is_master)
-    {
-        if(one_net_master_add_client(features, &out_base_param,
-          &out_master_param, FALSE) != ONS_SUCCESS)
-        {
-            return ONCLI_CMD_FAIL;
-        }        
-    }
-    #endif
-    #ifdef ONE_NET_CLIENT
-    if(!device_is_master)
-    {
-        on_encode(&(on_base_param->sid[ON_ENCODED_NID_LEN]), did,
-          ON_ENCODED_DID_LEN);
-        on_encode(on_base_param->sid, add_nid, ON_ENCODED_NID_LEN);
-        master->device.features = add_master_features;
-        reset_msg_ids();
-        one_net_memmove(master->device.did, MASTER_ENCODED_DID,
-          ON_ENCODED_DID_LEN);
-    #ifdef ONE_NET_MULTI_HOP
-        master->device.max_hops = features_max_hops(add_master_features);       
-        master->device.hops = 0;
-    #endif
-        one_net_memmove(on_base_param->current_key, add_key,
-          sizeof(one_net_xtea_key_t));
-        master->keep_alive_interval = add_keep_alive;
-        master->flags = add_flags;
-        on_base_param->channel = add_channel;
-    #ifdef BLOCK_MESSAGES_ENABLED
-        on_base_param->fragment_delay_low = add_fragment_delay_low;
-        on_base_param->fragment_delay_high = add_fragment_delay_high;
-    #endif
-    
-        on_state = ON_LISTEN_FOR_DATA;
-        client_joined_network = TRUE;
-        client_looking_for_invite = FALSE;
-    }
-    #endif
-
-    return ONCLI_SUCCESS;
-}
-
 
 
 #ifdef ENABLE_INVITE_COMMAND
@@ -3867,69 +3710,6 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     return ONCLI_CMD_FAIL;
 } // range_test_cmd_hdlr //
-#endif
-
-
-#ifdef ONE_NET_MULTI_HOP
-/*!
-    \brief Sets the on_base_param->num_mh_devices and on_base_param->num_mh_repeaters counts manually
-    
-    This function is useful mostly for debugging multi-hop applications.
-    Multi-hop works only when on_base_param->num_mh_repeat is a positive number.  Setting
-    these variables, particularly the on_base_param->num_mh_repeat variable, can serve to
-    
-    1) Quickly turn multi-hop on and off.
-    2) Correct these variable values if they become incorrect due to either
-       a non-ONE-NET wireless invite or deletion process (i.e. manual adding
-       or deleting a device through the command line or otherwise).
-    3) Or due to losing these values due to power cycling.
-    4) Or due to any other experiment or bug that may cause these values to
-       become incorrect.
-
-    \param[in] ASCII_PARAM_LIST String containing the memory to load
-
-    \return ONCLI_SUCCESS if the parsing of the string worked and the parsed
-                values were valid.
-            ONCLI_PARSE_ERR if the string could not be parsed.
-            ONCLI_BAD_PARAM if the string parsed correctly, but the parsed
-                values were invalid.
-*/
-static oncli_status_t mh_repeat_cmd_hdlr(const char * const ASCII_PARAM_LIST)
-{
-    const char * PARAM_PTR = ASCII_PARAM_LIST;
-    const char* endptr = 0;
-    int num_mh = 0;
-    int num_mh_repeat = 0;
-
-    if(!ASCII_PARAM_LIST)
-    {
-        return ONCLI_BAD_PARAM;
-    } // if the parameter is invalid //
-    
-    num_mh = one_net_strtol(PARAM_PTR, &endptr, 10);
-    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != ':')
-    {
-        return ONCLI_PARSE_ERR;
-    }    
-    endptr++;
-    PARAM_PTR = endptr;
-    num_mh_repeat = one_net_strtol(PARAM_PTR, &endptr, 10);
-    if(*endptr == 0 || endptr == PARAM_PTR || *endptr != '\n')
-    {
-        return ONCLI_PARSE_ERR;
-    }
-    
-    if(num_mh_repeat > num_mh)
-    {
-        // all multi-hop repeaters are multi-hop, so this is an impossible
-        // scenario.
-        return ONCLI_BAD_PARAM;
-    }
-
-    on_base_param->num_mh_devices = num_mh;
-    on_base_param->num_mh_repeaters = num_mh_repeat;
-    return ONCLI_SUCCESS;
-}
 #endif
 
 
