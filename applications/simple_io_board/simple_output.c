@@ -222,10 +222,10 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
     }
     
     // source and destination are reversed
-    put_src_unit(dst_unit, ack_nack->payload->status_resp);
-    put_dst_unit(src_unit, ack_nack->payload->status_resp);
-    put_msg_data(msg_data, ack_nack->payload->status_resp);
-    put_msg_type(ONA_SWITCH, ack_nack->payload->status_resp);
+    put_src_unit(dst_unit, ack_nack->payload->app_msg);
+    put_dst_unit(src_unit, ack_nack->payload->app_msg);
+    put_msg_data(msg_data, ack_nack->payload->app_msg);
+    put_msg_type(ONA_SWITCH, ack_nack->payload->app_msg);
     
     if(msg_class == ONA_STATUS_COMMAND_RESP)
     {
@@ -242,10 +242,10 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
         // we may forward this message to our peer list
         if(forward_to_peer)
         {
-            put_msg_class(original_class, ack_nack->payload->status_resp);
+            put_msg_class(original_class, ack_nack->payload->app_msg);
 
             if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_APP_MSG,
-              ack_nack->payload->status_resp, ONA_SINGLE_PACKET_PAYLOAD_LEN,
+              ack_nack->payload->app_msg, ONA_SINGLE_PACKET_PAYLOAD_LEN,
               ONE_NET_HIGH_PRIORITY, NULL, NULL, TRUE, dst_unit))
             {
             }
@@ -253,8 +253,8 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
         #endif
     }
 
-    ack_nack->handle = ON_ACK_STATUS;
-    put_msg_class(msg_class, ack_nack->payload->status_resp); 
+    ack_nack->handle = ON_ACK_APP_MSG;
+    put_msg_class(msg_class, ack_nack->payload->app_msg); 
     return ON_MSG_CONTINUE;
 } // one_net_client_handle_single_pkt //
 
