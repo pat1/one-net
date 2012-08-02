@@ -463,13 +463,15 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     }
     #endif    
     
-    #if defined(WRITE_PAUSE_FACTOR) && WRITE_PAUSE_FACTOR > 0
-    {
-        tick_t write_tick = get_tick_count() + MS_TO_TICK(WRITE_PAUSE_FACTOR);
-        while(get_tick_count() < write_tick)
+    #ifdef WRITE_PAUSE
+        #if WRITE_PAUSE_FACTOR > 0
         {
+            tick_t write_tick = get_tick_count() + MS_TO_TICK(WRITE_PAUSE_FACTOR);
+            while(get_tick_count() < write_tick)
+            {
+            }
         }
-    }
+        #endif
     #endif
     
     
