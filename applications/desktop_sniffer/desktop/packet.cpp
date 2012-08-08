@@ -666,7 +666,7 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
         timestamp.tv_sec = timestamp_ms / 1000;
         timestamp.tv_usec = (timestamp_ms % 1000) * 1000;
         ss >> tmp;
-        if(tmp != "received")
+        if(tmp != "received" && tmp != "sending" && tmp != "sent")
         {
             return false;
         }

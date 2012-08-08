@@ -52,7 +52,7 @@ bool sniffer_format_to_hex_string(std::string line, std::string& packet_hex_stri
         ss.seekg(ios_base::beg);
         ss >> timestamp_ms_static;
         ss >> tmp;
-        if(tmp != "received")
+        if(tmp != "received" && tmp != "sending" && tmp != "sent")
         {
             return false;
         }
