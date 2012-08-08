@@ -411,17 +411,24 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     {
         proceed = FALSE;
         synchronize_last_tick();
+        
+        #if DEBUG_VERBOSE_LEVEL > 2
+        if(verbose_level > 2)
+        {
+            oncli_send_msg("\n\n%lu sending %u bytes:\n",
+              TICK_TO_MS(get_tick_count()), len);
+        }
+        #endif
+        
         #if DEBUG_VERBOSE_LEVEL > 5
         if(verbose_level > 5)
         {
-            oncli_send_msg("\n\nPause : About to write...\n");
             display_pkt(data, len, NULL, 0, NULL, 0);
         }
         #endif
         #if DEBUG_VERBOSE_LEVEL > 2
         if(verbose_level <= 5 && verbose_level > 2)
         {
-            oncli_send_msg("\n\nPause : About to write...\n");
             xdump(data, len);
         }
         #endif
