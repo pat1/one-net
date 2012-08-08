@@ -116,8 +116,8 @@ UInt32* debug_intervals[NUM_DEBUG_INTERVALS] =
     #ifdef ONE_NET_MASTER
     &one_net_master_invite_send_time, // 2
     &one_net_master_channel_scan_time, // 3
-    &invite_transaction_timeout, // 4
     #endif
+    &invite_transaction_timeout // 2 if ONE_NET_MASTER not defined, 4 if it is
 };
 
 
