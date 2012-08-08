@@ -889,23 +889,29 @@ void print_bs_pkt(const block_stream_pkt_t* bs_pkt, BOOL print_msg_id,
     oncli_send_msg("%s payload : 0x", packet_is_stream ? "Stream" : "Block");
     #endif
     
+    // Note: We do not need to differentiate between block and stream
+    // packets in the lines below because the Message IDs and data offsets
+    // are the same in the block_pkt_t and stream_pkt_t structions which
+    // make up the block_stream_pkt_t union.
     uart_write_int8_hex_array(bs_pkt->block_pkt.data, FALSE,
       ON_BS_DATA_PLD_SIZE);
-    
+    oncli_send_msg(" : ");
     if(print_msg_id)
     {
-        oncli_send_msg(" : Msg Id-->0x%03X", bs_pkt->block_pkt.msg_id);
+        oncli_send_msg("Msg Id-->0x%03X : ", bs_pkt->block_pkt.msg_id);
     }
     
     #ifdef STREAM_MESSAGES_ENABLED
     if(packet_is_stream)
     {
-        oncli_send_msg("Time-->%ld\n", bs_pkt->stream_pkt.elapsed_time);
+        oncli_send_msg("Response Needed-->%s : Time-->%ld\n",
+          bs_pkt->stream_pkt.response_needed ? TRUE_STR : FALSE_STR,
+          bs_pkt->stream_pkt.elapsed_time);
     }
     else
     #endif
     {
-        oncli_send_msg(" : Chunk Idx-->%d : Chunk Size-->%d : ",
+        oncli_send_msg("Chunk Idx-->%d : Chunk Size-->%d : ",
           bs_pkt->block_pkt.chunk_idx, bs_pkt->block_pkt.chunk_size);
         oncli_send_msg("Byte Idx-->%ld\n", bs_pkt->block_pkt.byte_idx);
     }

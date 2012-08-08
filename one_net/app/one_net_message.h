@@ -699,10 +699,10 @@ typedef struct
 typedef struct
 {
     UInt16 msg_id;
+    UInt8* data;
+    UInt32 byte_idx;
     UInt8 chunk_idx;
     UInt8 chunk_size;
-    UInt32 byte_idx;
-    UInt8* data;
 } block_pkt_t;
 
 
@@ -712,9 +712,9 @@ typedef struct
 typedef struct
 {
     UInt16 msg_id;
+    UInt8* data;
     UInt32 elapsed_time; // in milliseconds, not ticks
     BOOL response_needed;
-    UInt8* data;
 } stream_pkt_t;
 
 
