@@ -1202,6 +1202,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
         if((i % 16) == 15)
         {
             oncli_send_msg("\n");
+            delay_ms(1);
         } // if need to output a new line //
     } // loop to output the bytes that were read //
     oncli_send_msg("\n\n");
@@ -1290,6 +1291,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 if((i % 16) == 15)
                 {
                     oncli_send_msg("\n");
+                    delay_ms(1);
                 } // if need to output a new line //
             } // loop to output the bytes that were read //
             
@@ -1314,6 +1316,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     if((i % 16) == 15)
                     {
                         oncli_send_msg("\n");
+                        delay_ms(1);
                     } // if need to output a new line //
                 } // loop to output the raw payload //
                 oncli_send_msg("\n");
@@ -1431,6 +1434,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                             if((i % 16) == 15)
                             {
                                 oncli_send_msg("\n");
+                                delay_ms(1);
                             } // if need to output a new line //
                         } // loop to output the raw payload //
                         oncli_send_msg("\n");
