@@ -1407,15 +1407,25 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                     
                     for(j = 0; j < num_keys; j++)
                     {
+                        #if DEBUG_VERBOSE_LEVEL > 4
+                        #ifdef BLOCK_MESSAGES_ENABLED
+                        block_stream_pkt_t bs_pkt;
+                        #ifdef STREAM_MESSAGES_ENABLED
+                        BOOL is_stream_pkt = (data_type == ON_STREAM);
+                        #endif
+                        #endif
+                        #endif
                         UInt8 calc_payload_crc;
                         BOOL crc_match;
                         oncli_send_msg("Decrypted using key ");
+                        delay_ms(1);
                         oncli_print_xtea_key(&keys[j]);
                         oncli_send_msg("\n");
+                        delay_ms(1);
                         one_net_memmove(decrypted, encrypted, raw_pld_len);
                         
                         #ifdef STREAM_MESSAGES_ENABLED
-                        if(on_decrypt(data_type == ON_STREAM, decrypted,
+                        if(on_decrypt(is_stream_pkt, decrypted,
                           (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
                           ONS_SUCCESS)
                         #else
@@ -1481,6 +1491,28 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         {
                             print_single(raw_pid, decrypted);
                         }
+                        #ifdef STREAM_MESSAGES_ENABLED
+                        else if(is_stream_pkt)
+                        {
+                            if(on_parse_stream_pld(decrypted, &bs_pkt.stream_pkt))
+                            {
+                                print_bs_pkt(&bs_pkt, TRUE, TRUE);
+                            }
+                        }
+                        #endif
+                        #ifdef BLOCK_MESSAGES_ENABLED
+                        else if(packet_is_block(raw_pid))
+                        {   
+                            if(on_parse_block_pld(decrypted, &bs_pkt.block_pkt))
+                            {
+                                #ifdef STREAM_MESSAGES_ENABLED
+                                print_bs_pkt(&bs_pkt, TRUE, FALSE);
+                                #else
+                                print_bs_pkt(&bs_pkt, TRUE);
+                                #endif
+                            }
+                        }
+                        #endif
                         else if(packet_is_ack(raw_pid) ||
                           packet_is_nack(raw_pid))
                         {
