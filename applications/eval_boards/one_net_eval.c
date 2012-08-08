@@ -1319,7 +1319,7 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                 oncli_send_msg("\n");
                 
                 {
-                    UInt8 decrypted[ON_MAX_RAW_PLD_LEN];
+                    UInt8 decrypted[ON_MAX_RAW_PLD_LEN_WITH_TECH];
                     UInt8 j;
                     UInt8* encrypted = (UInt8*) raw_payload_bytes;
                     on_data_t data_type;
