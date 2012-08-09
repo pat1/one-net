@@ -1850,7 +1850,7 @@ on_block_payload::on_block_payload(UInt16 raw_pid, std::string payload, std::str
     {
         this->block_pkt.chunk_idx = get_bs_chunk_idx(decrypted_payload_bytes);
         this->block_pkt.chunk_size = get_bs_chunk_size(decrypted_payload_bytes);
-        this->block_pkt.byte_idx = get_block_pkt_idx(decrypted_payload_bytes);
+        this->block_pkt.byte_idx = get_block_byte_idx(decrypted_payload_bytes);
         memcpy(block_pkt.data, &decrypted_payload_bytes[ON_BS_DATA_PLD_IDX],
           sizeof(data));
     }
