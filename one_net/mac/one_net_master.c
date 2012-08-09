@@ -1725,12 +1725,9 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
     *data_rate = ONE_NET_DATA_RATE_38_4;
     *channel = on_base_param->channel;    
     
-    if(transfer_size <= 2000)
+    if(transfer_size > ON_SHORT_BLOCK_TRANSFER_MAX_SIZE)
     {
         // if it's <= 2000 bytes, use the base parameters no matter what
-    }
-    else
-    {
         UInt8 src_flags, dst_flags;
         on_features_t src_features, dst_features;
         

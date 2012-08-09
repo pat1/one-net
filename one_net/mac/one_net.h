@@ -168,6 +168,9 @@ extern const on_encoded_did_t MASTER_ENCODED_DID;
 //! every 5000 milliseconds.
 #define STREAM_RESPONSE_INTERVAL 5000
 
+//! All transfer sizes <= 2000 bytes are considered "short"
+#define ON_SHORT_BLOCK_TRANSFER_MAX_SIZE 2000
+
 
     
 //! @} ONE-NET_const

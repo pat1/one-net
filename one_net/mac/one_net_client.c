@@ -787,7 +787,7 @@ on_nack_rsn_t on_client_get_default_block_transfer_values(
     
     // first see if this is a long transfer.  If it is not, there's not much to
     // do.
-    if(transfer_size > 2000)
+    if(transfer_size > ON_SHORT_BLOCK_TRANSFER_MAX_SIZE)
     {
         // this is a long transfer.  We may or may not want to switch data
         // rates
