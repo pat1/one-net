@@ -1344,7 +1344,7 @@ void one_net(on_txn_t ** txn)
                 // We need a response we haven't gotten one in the last 5
                 // seconds.
                 bs_msg.response_needed = (tick_now -
-                  bs_msg.bs.stream.last_response_time > 5000);
+                  bs_msg.bs.stream.last_response_time > STREAM_RESPONSE_INTERVAL);
                 bs_msg.bs.stream.elapsed_time = TICK_TO_MS(tick_now -
                   bs_msg.bs.stream.start_time);
                 msg_status = one_net_stream_get_next_payload(&bs_msg, buffer,

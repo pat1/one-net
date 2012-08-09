@@ -163,6 +163,11 @@ enum
 extern const on_raw_did_t MASTER_RAW_DID;
 extern const on_encoded_did_t MASTER_ENCODED_DID;
 
+//! The interval at which to wait for an ACK in Stream Transactions. If defined
+//! as 5000, the device sending a Stream Data transaction will pause for an ACK
+//! every 5000 milliseconds.
+#define STREAM_RESPONSE_INTERVAL 5000
+
 
     
 //! @} ONE-NET_const
