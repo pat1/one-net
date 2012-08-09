@@ -432,7 +432,7 @@ ONE_NET_INLINE UInt8 get_bs_chunk_idx(UInt8* payload)
 }
 
 
-/* stores the chunk index in the raw payload buffer */
+/* stores the chunk size in the raw payload buffer */
 ONE_NET_INLINE void put_bs_chunk_size(UInt8 chunk_size, UInt8* payload)
 {
     payload[ON_BS_PLD_CHUNK_IDX+1] = 
@@ -440,7 +440,7 @@ ONE_NET_INLINE void put_bs_chunk_size(UInt8 chunk_size, UInt8* payload)
 }
 
 
-/* gets the chunk index from the raw payload buffer */
+/* gets the chunk size from the raw payload buffer */
 ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
 {
     return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
@@ -451,33 +451,32 @@ ONE_NET_INLINE UInt8 get_bs_chunk_size(UInt8* payload)
 ONE_NET_INLINE void put_stream_response_needed(BOOL response_needed,
   UInt8* payload)
 {
-    payload[ON_BS_PLD_CHUNK_IDX+1] = 
-        ((payload[ON_BS_PLD_CHUNK_IDX+1] & 0xC0) | response_needed);
+    payload[ON_BS_STREAM_RESPONSE_NEEDED_IDX] = response_needed;
 }
 
 
 /* extracts whether a response is needed from the raw payload buffer */
 ONE_NET_INLINE BOOL get_stream_response_needed(UInt8* payload)
 {
-    return (payload[ON_BS_PLD_CHUNK_IDX+1] & 0x3F);
+    return payload[ON_BS_STREAM_RESPONSE_NEEDED_IDX];
 }
 
 
 
-#define put_stream_elapsed_time put_block_pkt_idx
-#define get_stream_elapsed_time get_block_pkt_idx
+#define put_stream_elapsed_time put_block_byte_idx
+#define get_stream_elapsed_time get_block_byte_idx
 
 
-/* stores the packet index in the raw payload buffer */
-void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload);
+/* stores the byte index in the raw payload buffer */
+void put_block_byte_idx(UInt32 byte_idx, UInt8* payload);
 
 
-/* gets the chunk index from the raw payload buffer */
-ONE_NET_INLINE UInt32 get_block_pkt_idx(UInt8* payload)
+/* gets the byte index from the raw payload buffer */
+ONE_NET_INLINE UInt32 get_block_byte_idx(UInt8* payload)
 {
-    UInt32 pkt_idx = one_net_byte_stream_to_int32(
-      &payload[ON_BS_PLD_PKT_IDX-1]);
-    return (pkt_idx & 0x00FFFFFF);
+    UInt32 byte_idx = one_net_byte_stream_to_int32(
+      &payload[ON_BS_PLD_BYTE_IDX-1]);
+    return (byte_idx & 0x00FFFFFF);
 }
 
 

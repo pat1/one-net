@@ -640,7 +640,7 @@ one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
                 put_bs_chunk_idx(bs_msg->bs.block.chunk_idx, raw_payload_bytes);
                 put_bs_chunk_size(bs_msg->bs.block.chunk_size,
                   raw_payload_bytes);
-                put_block_pkt_idx(bs_msg->bs.block.byte_idx, raw_payload_bytes);
+                put_block_byte_idx(bs_msg->bs.block.byte_idx, raw_payload_bytes);
             }
         }
         

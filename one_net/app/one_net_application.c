@@ -290,7 +290,7 @@ BOOL on_parse_block_pld(UInt8* buffer, block_pkt_t* block_pkt)
     block_pkt->msg_id = get_payload_msg_id(buffer);
     block_pkt->chunk_idx = get_bs_chunk_idx(buffer);
     block_pkt->chunk_size = get_bs_chunk_size(buffer);
-    block_pkt->byte_idx = get_block_pkt_idx(buffer);
+    block_pkt->byte_idx = get_block_byte_idx(buffer);
     block_pkt->data = &buffer[ON_BS_DATA_PLD_IDX];
     return TRUE;
 }
@@ -475,13 +475,13 @@ void put_payload_msg_id(UInt16 msg_id, UInt8 *payload)
 
 
 #ifdef BLOCK_MESSAGES_ENABLED
-/* stores the packet index in the raw payload buffer */
-void put_block_pkt_idx(UInt32 pkt_idx, UInt8* payload)
+/* stores the byte index in the raw payload buffer */
+void put_block_byte_idx(UInt32 byte_idx, UInt8* payload)
 {
-    UInt8 temp = payload[ON_BS_PLD_PKT_IDX-1];
-    pkt_idx &= 0x00FFFFFF;
-    one_net_int32_to_byte_stream(pkt_idx, &payload[ON_BS_PLD_PKT_IDX-1]);
-    payload[ON_BS_PLD_PKT_IDX-1] = temp;
+    UInt8 temp = payload[ON_BS_PLD_BYTE_IDX-1];
+    byte_idx &= 0x00FFFFFF;
+    one_net_int32_to_byte_stream(byte_idx, &payload[ON_BS_PLD_BYTE_IDX-1]);
+    payload[ON_BS_PLD_BYTE_IDX-1] = temp;
 }
 #endif
 
