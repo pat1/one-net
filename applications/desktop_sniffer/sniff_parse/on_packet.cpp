@@ -404,7 +404,7 @@ void on_payload::default_display(const on_payload& obj, UInt8 verbosity,
 }
 
 
-std::string on_payload::detailed_data_rates_to_string(on_features_t features)
+static std::string data_rate_to_string(UInt8 data_rate)
 {
     // Data Rate Strings
     const char* const DATA_RATE_STR[ONE_NET_DATA_RATE_LIMIT] =
@@ -417,14 +417,44 @@ std::string on_payload::detailed_data_rates_to_string(on_features_t features)
         "230,400"
     };
 
+    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
+    {
+        return "Invalid";
+    }
+    return DATA_RATE_STR[data_rate];
+}
+
+
+static std::string priority_to_string(UInt8 priority)
+{
+    // Priority Strings
+    const char* const PRIORITY_STR[3] =
+    {
+        "None",
+        "Low Priority",
+        "High"
+    };
+
+    if(priority >= 3)
+    {
+        return "Invalid";
+    }
+    return PRIORITY_STR[priority];
+}
+
+
+std::string on_payload::detailed_data_rates_to_string(on_features_t features)
+{
+
+
     std::string str;
 
     str = "";
-    for(int i = 0; i < ONE_NET_DATA_RATE_LIMIT; i++)
+    for(UInt8 i = 0; i < ONE_NET_DATA_RATE_LIMIT; i++)
     {
         BOOL dr_capable = features_data_rate_capable(features, i);
         str += "Data rate ";
-        str += DATA_RATE_STR[i];
+        str += data_rate_to_string(i);
         if(i < 2)
         {
             str += " ";
@@ -1385,15 +1415,18 @@ void on_admin_payload::admin_payload_details_to_stream(
 
         case ON_REQUEST_BLOCK_STREAM:
         {
+            UInt8 priority = get_bs_priority(obj.bs_transfer_request.bs_flags);
+            UInt8 hops = get_bs_hops(obj.bs_transfer_request.bs_flags);
+            UInt8 data_rate = obj.bs_transfer_request.data_rate;
             bool transfer_type = get_bs_transfer_type(obj.bs_transfer_request.bs_flags);
+
             outs << "Block / Stream Flags : 0x";
-            outs << (int) obj.bs_transfer_request.bs_flags << " (Bits = "
+            outs << hex << (int) obj.bs_transfer_request.bs_flags << " (Bits = "
                  << value_to_bit_string(obj.flags, 8) << ")";
 
-            outs << " -- Hops : ";
-            outs << (int) get_bs_hops(obj.bs_transfer_request.bs_flags) <<
-            outs << " -- Priority : ";
-            outs << (int) get_bs_priority(obj.bs_transfer_request.bs_flags) <<
+            outs << " -- Hops : " << dec << (int) hops;
+            outs << " -- Priority : " << dec << (int) priority
+                 << "(" << priority_to_string(priority) << ")";
             outs << " -- Transfer Type : ";
             outs << ((transfer_type == ON_BLK_TRANSFER) ? "Block" : "Stream");
             outs << "\n";
@@ -1401,13 +1434,14 @@ void on_admin_payload::admin_payload_details_to_stream(
             if(transfer_type == ON_BLK_TRANSFER)
             {
                 outs << "Transfer Size : " << obj.bs_transfer_request.transfer_size << " -- ";
-                outs << "Chunk Size : " << obj.bs_transfer_request.chunk_size << " -- ";
+                outs << "Chunk Size : " << (int) obj.bs_transfer_request.chunk_size << " -- ";
             }
 
             outs << "Frag Delay : " << obj.bs_transfer_request.frag_delay_ms << " ms -- ";
             outs << "Chunk Pause : " << obj.bs_transfer_request.chunk_pause_ms << " ms -- ";
-            outs << "Channel : " << obj.bs_transfer_request.channel << " -- ";
-            outs << "Data Rate : " << obj.bs_transfer_request.data_rate << " -- ";
+            outs << "Channel : " << (int) obj.bs_transfer_request.channel << " -- ";
+            outs << "Data Rate : " << (int) data_rate
+                 << "(" << data_rate_to_string(data_rate) << ") -- ";
             outs << "Timeout : " << obj.bs_transfer_request.timeout_ms << " ms -- ";
             outs << "Dest. DID -- " << detailed_did_display(obj.bs_transfer_request.enc_dst_did,
               obj.bs_transfer_request.raw_dst_did);
@@ -1415,17 +1449,24 @@ void on_admin_payload::admin_payload_details_to_stream(
         }
 
         case ON_REQUEST_REPEATER:
+        {
+            UInt8 priority = obj.reserve_repeater.priority;
+            UInt8 data_rate = obj.reserve_repeater.data_rate;
+
             outs << "Repeater DID : " << detailed_did_display(obj.reserve_repeater.enc_rptr_did,
               obj.reserve_repeater.raw_rptr_did);
             outs << " -- Source DID : " << detailed_did_display(obj.reserve_repeater.enc_src_did,
               obj.reserve_repeater.raw_src_did);
             outs << " -- Destination DID : " << detailed_did_display(obj.reserve_repeater.enc_dst_did,
               obj.reserve_repeater.raw_dst_did);
-            outs << " -- Channel : " << dec << obj.reserve_repeater.channel;
-            outs << " -- Data Rate : " << dec << obj.reserve_repeater.data_rate;
-            outs << " -- Priority : " << dec << obj.reserve_repeater.priority;
+            outs << " -- Channel : " << dec << (int) obj.reserve_repeater.channel;
+            outs << "Data Rate : " << (int) data_rate
+                 << "(" << data_rate_to_string(data_rate) << ")";
+            outs << " -- Priority : " << dec << (int) priority
+                 << "(" << priority_to_string(priority) << ")";
             outs<< "\n";
             break;
+        }
 
         case ON_TERMINATE_BLOCK_STREAM:
             outs << "Terminating DID : " << detailed_did_display(obj.terminate_block_stream.enc_terminating_did,
