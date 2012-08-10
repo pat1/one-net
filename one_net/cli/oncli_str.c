@@ -563,6 +563,7 @@ const char* const ACK_NACK_DISPLAY_FMT = "%s : Nack Reason-->0x%02X(%s) : "
 
 
 #ifdef DEBUGGING_TOOLS
+const char* const ONCLI_CSDF_CMD_STR = "csdf";
 const char* const ONCLI_MEMDUMP_CMD_STR = "memdump";
 const char* const ONCLI_MEMLOAD_CMD_STR = "memload";
 const char* const ONCLI_MEMSET_CMD_STR = "memset";

@@ -94,8 +94,11 @@
 
 //! The number of ticks since the application started.
 static tick_t tick_count = 0;
-#if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+#if (defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1) || defined(DEBUGGING_TOOLS)
 static tick_t processor_tick_count = 0;
+#ifdef DEBUGGING_TOOLS
+UInt8 csdf = 1;
+#endif
 #endif
 
 
@@ -166,17 +169,25 @@ tick_t get_tick_diff(tick_t now, tick_t then)
 void set_tick_count(tick_t new_tick_count)
 {
     tick_count = new_tick_count;
-    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    #if (defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1) || defined(DEBUGGING_TOOLS)
+    #ifndef DEBUGGING_TOOLS
     processor_tick_count = tick_count * CLOCK_SLOW_DOWN_FACTOR;
+    #else
+    processor_tick_count = tick_count * csdf;
+    #endif
     #endif
 }
 
 
 void increment_tick_count(tick_t increment)
 {
-    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    #if (defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1) || defined(DEBUGGING_TOOLS)
     processor_tick_count += increment;
+    #ifndef DEBUGGING_TOOLS
     tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+    #else
+    tick_count = processor_tick_count / csdf;
+    #endif
     #else
     tick_count += increment;
     #endif
@@ -267,9 +278,13 @@ void disable_tick_timer(void)
 #pragma interrupt tick_timer_isr
 void tick_timer_isr(void)
 {
-    #if defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1
+    #if (defined(CLOCK_SLOW_DOWN_FACTOR) && CLOCK_SLOW_DOWN_FACTOR > 1) || defined(DEBUGGING_TOOLS)
     processor_tick_count ++;
+    #ifndef DEBUGGING_TOOLS
     tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+    #else
+    tick_count = processor_tick_count / csdf;
+    #endif
     #else
     tick_count ++;
     #endif

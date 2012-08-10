@@ -386,6 +386,7 @@ static int get_memory_loc(UInt8** mem_ptr, debug_memory_t memory_type,
   int index, int offset);
 static int parse_memory_str(UInt8** mem_ptr,
   const char * const ASCII_PARAM_LIST);
+static oncli_status_t csdf_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t memory_cmd_hdlr(
   const char * const ASCII_PARAM_LIST);
 static oncli_status_t memdump_cmd_hdlr(void);
@@ -1003,6 +1004,21 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef DEBUGGING_TOOLS
+    if(!strnicmp(ONCLI_CSDF_CMD_STR, CMD, strlen(ONCLI_CSDF_CMD_STR)))
+    {
+        *CMD_STR = ONCLI_CSDF_CMD_STR;
+
+        if(CMD[strlen(ONCLI_CSDF_CMD_STR)] != ONCLI_PARAM_DELIMITER)
+        {
+            return ONCLI_PARSE_ERR;
+        } // if the end the command is not valid //
+
+        *next_state = ONCLI_RX_PARAM_NEW_LINE_STATE;
+        *cmd_hdlr = &csdf_cmd_hdlr;
+
+        return ONCLI_SUCCESS;
+    } // else if the csdf command was received //
+
     if(!strnicmp(ONCLI_MEMORY_CMD_STR, CMD, strlen(ONCLI_MEMORY_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMORY_CMD_STR;
@@ -4130,6 +4146,34 @@ static int parse_memory_str(UInt8** mem_ptr,
     }
 
     return get_memory_loc(mem_ptr, memory_type, index, offset);
+}
+
+
+extern UInt8 csdf;
+static oncli_status_t csdf_cmd_hdlr(const char * const ASCII_PARAM_LIST)
+{
+    tick_t old_tick_count = get_tick_count();
+    long new_csdf;
+    const char* ptr = ASCII_PARAM_LIST;
+    const char* end_ptr = ptr;
+    if(!ASCII_PARAM_LIST)
+    {
+        return ONCLI_PARSE_ERR;
+    }
+
+    new_csdf = one_net_strtol(ptr, (char **)&end_ptr, 0);
+    
+    if(!end_ptr || end_ptr == ptr || *end_ptr != '\n' ||
+        new_csdf < 1 || new_csdf > 255)
+    {
+        return ONCLI_PARSE_ERR;
+    } // if parsing the data failed //
+    
+    
+    csdf = (UInt8) new_csdf;
+    set_tick_count(old_tick_count);
+    oncli_send_msg("csdf=%u write_pause=%lu tick_count=%lu\n", csdf, write_pause, get_tick_count());
+    return ONCLI_SUCCESS;
 }
 
 
