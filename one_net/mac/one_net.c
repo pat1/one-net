@@ -1274,15 +1274,6 @@ void one_net(on_txn_t ** txn)
                 // set the timer to send immediately
                 ont_set_timer((*txn)->next_txn_timer, 0);
                 single_msg_ptr = &single_msg;
-                
-                #ifdef ROUTE
-                if(get_raw_pid(&(data_pkt_ptrs.packet_bytes[ON_ENCODED_PID_IDX]),
-                  &raw_pid) && ((raw_pid & 0x3F) == ONE_NET_RAW_ROUTE))
-                {
-                    route_start_time = get_tick_count();
-                }
-                #endif
-                
                 return;
             }
 
@@ -1535,6 +1526,15 @@ void one_net(on_txn_t ** txn)
             if(one_net_write_done())
             {
                 UInt32 new_timeout_ms;
+                
+                #ifdef ROUTE
+                UInt16 raw_pid;
+                if(get_raw_pid(&((*txn)->pkt[ON_ENCODED_PID_IDX]), &raw_pid) &&
+                  ((raw_pid & 0x3F) == ONE_NET_RAW_ROUTE))
+                {
+                    route_start_time = get_tick_count();
+                }                                
+                #endif
                 
                 #ifdef BLOCK_MESSAGES_ENABLED
                 if(on_state == ON_BS_SEND_DATA_WRITE_WAIT)
