@@ -1178,13 +1178,21 @@ on_admin_payload::~on_admin_payload()
 
 void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
 {
-    // TODO -- check num_bytes vs. num_admin_bytes, make sure things are big enough.
+    if(num_bytes > sizeof(admin_data_bytes) + 1)
+    {
+        this->valid = false;
+        error_message = "Internal Error : Storage buffer is not large enough.";
+        return;
+    }
+
     if(pld_bytes == NULL)
     {
         this->valid = false;
+        error_message = "Internal Error : NULL parameter.";
         return;
     }
     this->admin_type = pld_bytes[0];
+    memcpy(this->admin_data_bytes, &pld_bytes[1], num_bytes);
     memcpy(this->bytes, &pld_bytes[1], num_bytes);
 
     switch(this->admin_type)
@@ -1243,19 +1251,35 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
 
         case ON_REQUEST_BLOCK_STREAM: num_admin_bytes = 20;
           // much is irrelevant for stream
-          this->bs_transfer_request.transfer_size = one_net_byte_stream_to_int32(&bytes[1]);
-          this->bs_transfer_request.frag_delay_ms = one_net_byte_stream_to_int16(&bytes[6]);
-          this->bs_transfer_request.chunk_pause_ms = one_net_byte_stream_to_int16(&bytes[8]);
-          this->bs_transfer_request.timeout_ms = one_net_byte_stream_to_int16(&bytes[12]);
-          this->bs_transfer_request.enc_dst_did = one_net_byte_stream_to_int16(&bytes[14]);
+          this->bs_transfer_request.bs_flags =
+            pld_bytes[BLOCK_STREAM_SETUP_FLAGS_IDX];
+          this->bs_transfer_request.transfer_size =
+            one_net_byte_stream_to_int32(&pld_bytes[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
+          this->bs_transfer_request.chunk_size =
+            pld_bytes[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
+          this->bs_transfer_request.frag_delay_ms =
+            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+          this->bs_transfer_request.chunk_pause_ms =
+            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
+          this->bs_transfer_request.channel =
+            pld_bytes[BLOCK_STREAM_SETUP_CHANNEL_IDX];
+          this->bs_transfer_request.data_rate =
+            pld_bytes[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
+          this->bs_transfer_request.timeout_ms =
+            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
+          this->bs_transfer_request.enc_dst_did =
+            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_DST_IDX]);
+
           if(on_decode_uint16(&this->bs_transfer_request.raw_dst_did,
             this->bs_transfer_request.enc_dst_did) != ONS_SUCCESS)
           {
               valid = false;
               error_message = "Unable to decode Dst DID.";
+              return;
           }
 
-          this->bs_transfer_request.estimated_time_ms = one_net_byte_stream_to_int32(&bytes[16]);
+          this->bs_transfer_request.estimated_time_ms =
+            one_net_byte_stream_to_int32(&pld_bytes[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
           break;
 
         case ON_REQUEST_REPEATER: num_admin_bytes = 13;
@@ -1282,6 +1306,9 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
           }
 
           this->reserve_repeater.transfer_time_ms = one_net_byte_stream_to_int32(&bytes[6]);
+          this->reserve_repeater.channel = one_net_byte_stream_to_int32(&bytes[10]);
+          this->reserve_repeater.data_rate = one_net_byte_stream_to_int32(&bytes[11]);
+          this->reserve_repeater.priority = one_net_byte_stream_to_int32(&bytes[12]);
           break;
 
         case ON_TERMINATE_BLOCK_STREAM: num_admin_bytes = 10;
@@ -1338,7 +1365,7 @@ void on_admin_payload::admin_payload_details_to_stream(
     outs << "(" << on_admin_payload::get_admin_type_string(obj.admin_type);
     outs << ") -- Num Admin Payload Bytes : ";
     outs << dec << (int) obj.num_admin_bytes << " -- ";
-    str = bytes_to_hex_string(obj.bytes, obj.num_admin_bytes, ' ', 1, 24);
+    str = bytes_to_hex_string(obj.admin_data_bytes, obj.num_admin_bytes, ' ', 1, 24);
     outs << str << "\n";
 
     if(verbosity <= 10 || !att->get_attribute(attribute::ATTRIBUTE_PAYLOAD_DETAIL))
@@ -1445,6 +1472,8 @@ void on_admin_payload::admin_payload_details_to_stream(
             outs << "Timeout : " << obj.bs_transfer_request.timeout_ms << " ms -- ";
             outs << "Dest. DID -- " << detailed_did_display(obj.bs_transfer_request.enc_dst_did,
               obj.bs_transfer_request.raw_dst_did);
+            outs << " -- Estimated Transfer Time : " << obj.bs_transfer_request.estimated_time_ms
+                 << " ms";
             break;
         }
 
