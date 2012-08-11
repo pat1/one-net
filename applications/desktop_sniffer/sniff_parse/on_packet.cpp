@@ -969,7 +969,7 @@ void on_response_payload::default_ack_nack_display(const on_ack_nack_t& ack_nack
     {
         outs << " -- Nack Reason : " << hex << "0x" << byte_to_hex_string((UInt8) ack_nack.nack_reason);
 
-        if(!att->get_attribute(attribute::ATTRIBUTE_PAYLOAD_DETAIL) || verbosity <= 10)
+        if(att->get_attribute(attribute::ATTRIBUTE_PAYLOAD_DETAIL) && verbosity > 10)
         {
             outs << " (" << on_response_payload::get_nack_reason_string(ack_nack.nack_reason)
                  << ")";
