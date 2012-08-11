@@ -172,12 +172,19 @@ typedef enum
     ON_BS_MSG_SETUP_CHANGE,  //! The Block / Stream parameters have changed and the
                              //! setup process should start again with the new parameters.
     ON_MSG_PAUSE,        //! Pause the transaction
-    ON_NUM_MESSAGE_STATUS_CODES,
+    ON_NUM_MESSAGE_STATUS_CODES, //! The number of predefined message codes except for
+                                 //! "Unset" and "General Error"
+    
+    //! 0x11 - 0x7D are reserved for future use
+    
+    ON_MSG_STATUS_UNSET = 0x7E, //! Catch-all fill-in for when no code fits
+    ON_MSG_GENERAL_ERR = 0x7F, //! Catch-all fill-in error code for when no other error code fits
     
     //! Any on_message_status_t value >= ON_MIN_APPLICATION_STATUS_CODE is to
     //! be interpreted purely by the application handler.  These codes will
     //! be user-supplied and vary from application to application.
-    ON_MIN_APPLICATION_STATUS_CODE = ON_NUM_MESSAGE_STATUS_CODES
+    ON_MIN_APPLICATION_STATUS_CODE = 0x80,
+    ON_MAX_APPLICATION_STATUS_CODE = 0xFF,
 } on_message_status_t;
 
 
