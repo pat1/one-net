@@ -1208,8 +1208,8 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
         case ON_REMOVE_DEV_RESP: num_admin_bytes = 4; break;
 
         case ON_CHANGE_DATA_RATE_CHANNEL: num_admin_bytes = 6;
-          this->dr_channel.pause_time_ms = one_net_byte_stream_to_int16(&bytes[2]);
-          this->dr_channel.dormant_time_ms = one_net_byte_stream_to_int16(&bytes[4]);
+          this->dr_channel.pause_time_ms = one_net_byte_stream_to_uint16(&bytes[2]);
+          this->dr_channel.dormant_time_ms = one_net_byte_stream_to_uint16(&bytes[4]);
           break;
 
         case ON_REQUEST_KEY_CHANGE: num_admin_bytes = 0; break;
@@ -1217,11 +1217,11 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
         // TODO -- Does ON_CHANGE_FRAGMENT_DELAY_RESP have a payload?
         case ON_CHANGE_FRAGMENT_DELAY_RESP:
         case ON_CHANGE_FRAGMENT_DELAY: num_admin_bytes = 4;
-          this->change_frag_delay.frag_delay_low_ms = one_net_byte_stream_to_int16(&bytes[ON_FRAG_LOW_IDX]);
-          this->change_frag_delay.frag_delay_high_ms = one_net_byte_stream_to_int16(&bytes[ON_FRAG_HIGH_IDX]);
+          this->change_frag_delay.frag_delay_low_ms = one_net_byte_stream_to_uint16(&bytes[ON_FRAG_LOW_IDX]);
+          this->change_frag_delay.frag_delay_high_ms = one_net_byte_stream_to_uint16(&bytes[ON_FRAG_HIGH_IDX]);
           break;
         case ON_CHANGE_KEEP_ALIVE: num_admin_bytes = 4; break;
-          this->value = one_net_byte_stream_to_int32(&bytes[0]);
+          this->value = one_net_byte_stream_to_uint32(&bytes[0]);
           break;
 
         // the structures of these two message pairs are identical, so treat them the same
@@ -1231,7 +1231,7 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
         case ON_UNASSIGN_PEER:
         {
             num_admin_bytes = 4;
-            this->add_remove_client.enc_did = one_net_byte_stream_to_int16(&bytes[0]);
+            this->add_remove_client.enc_did = one_net_byte_stream_to_uint16(&bytes[0]);
             if(on_decode_uint16(&this->add_remove_client.raw_did,
               this->add_remove_client.enc_did) != ONS_SUCCESS)
             {
@@ -1254,21 +1254,21 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
           this->bs_transfer_request.bs_flags =
             pld_bytes[BLOCK_STREAM_SETUP_FLAGS_IDX];
           this->bs_transfer_request.transfer_size =
-            one_net_byte_stream_to_int32(&pld_bytes[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
+            one_net_byte_stream_to_uint32(&pld_bytes[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
           this->bs_transfer_request.chunk_size =
             pld_bytes[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
           this->bs_transfer_request.frag_delay_ms =
-            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
+            one_net_byte_stream_to_uint16(&pld_bytes[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
           this->bs_transfer_request.chunk_pause_ms =
-            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
+            one_net_byte_stream_to_uint16(&pld_bytes[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
           this->bs_transfer_request.channel =
             pld_bytes[BLOCK_STREAM_SETUP_CHANNEL_IDX];
           this->bs_transfer_request.data_rate =
             pld_bytes[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
           this->bs_transfer_request.timeout_ms =
-            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
+            one_net_byte_stream_to_uint16(&pld_bytes[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
           this->bs_transfer_request.enc_dst_did =
-            one_net_byte_stream_to_int16(&pld_bytes[BLOCK_STREAM_SETUP_DST_IDX]);
+            one_net_byte_stream_to_uint16(&pld_bytes[BLOCK_STREAM_SETUP_DST_IDX]);
 
           if(on_decode_uint16(&this->bs_transfer_request.raw_dst_did,
             this->bs_transfer_request.enc_dst_did) != ONS_SUCCESS)
@@ -1279,13 +1279,13 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
           }
 
           this->bs_transfer_request.estimated_time_ms =
-            one_net_byte_stream_to_int32(&pld_bytes[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
+            one_net_byte_stream_to_uint32(&pld_bytes[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
           break;
 
         case ON_REQUEST_REPEATER: num_admin_bytes = 13;
-          this->reserve_repeater.enc_rptr_did = one_net_byte_stream_to_int16(&bytes[0]);
-          this->reserve_repeater.enc_src_did = one_net_byte_stream_to_int16(&bytes[2]);
-          this->reserve_repeater.enc_dst_did = one_net_byte_stream_to_int16(&bytes[4]);
+          this->reserve_repeater.enc_rptr_did = one_net_byte_stream_to_uint16(&bytes[0]);
+          this->reserve_repeater.enc_src_did = one_net_byte_stream_to_uint16(&bytes[2]);
+          this->reserve_repeater.enc_dst_did = one_net_byte_stream_to_uint16(&bytes[4]);
           if(on_decode_uint16(&this->reserve_repeater.raw_rptr_did,
             this->reserve_repeater.enc_rptr_did) != ONS_SUCCESS)
           {
@@ -1305,14 +1305,14 @@ void on_admin_payload::parse_bytes(const UInt8* pld_bytes, UInt8 num_bytes)
               error_message = "Unable to decode Destination DID.";
           }
 
-          this->reserve_repeater.transfer_time_ms = one_net_byte_stream_to_int32(&bytes[6]);
-          this->reserve_repeater.channel = one_net_byte_stream_to_int32(&bytes[10]);
-          this->reserve_repeater.data_rate = one_net_byte_stream_to_int32(&bytes[11]);
-          this->reserve_repeater.priority = one_net_byte_stream_to_int32(&bytes[12]);
+          this->reserve_repeater.transfer_time_ms = one_net_byte_stream_to_uint32(&bytes[6]);
+          this->reserve_repeater.channel = one_net_byte_stream_to_uint32(&bytes[10]);
+          this->reserve_repeater.data_rate = one_net_byte_stream_to_uint32(&bytes[11]);
+          this->reserve_repeater.priority = one_net_byte_stream_to_uint32(&bytes[12]);
           break;
 
         case ON_TERMINATE_BLOCK_STREAM: num_admin_bytes = 10;
-          this->terminate_block_stream.enc_terminating_did = one_net_byte_stream_to_int16(&bytes[0]);
+          this->terminate_block_stream.enc_terminating_did = one_net_byte_stream_to_uint16(&bytes[0]);
           if(on_decode_uint16(&this->terminate_block_stream.raw_terminating_did,
             this->terminate_block_stream.enc_terminating_did) != ONS_SUCCESS)
           {

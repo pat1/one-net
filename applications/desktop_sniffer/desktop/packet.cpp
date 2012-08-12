@@ -461,11 +461,11 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     payload.num_payload_bytes = tmp - 1;
 
 
-    enc_rptr_did = one_net_byte_stream_to_int16(
+    enc_rptr_did = one_net_byte_stream_to_uint16(
       &enc_pkt_bytes[ON_ENCODED_RPTR_DID_IDX]);
-    enc_dst_did = one_net_byte_stream_to_int16(
+    enc_dst_did = one_net_byte_stream_to_uint16(
       &enc_pkt_bytes[ON_ENCODED_DST_DID_IDX]);
-    enc_src_did = one_net_byte_stream_to_int16(
+    enc_src_did = one_net_byte_stream_to_uint16(
       &enc_pkt_bytes[ON_ENCODED_SRC_DID_IDX]);
 
 
@@ -478,12 +478,12 @@ bool packet::fill_in_packet_values(struct timeval timestamp, UInt16 raw_pid,
     }
     else
     {
-        UInt32 tmp = one_net_byte_stream_to_int32(raw_nid_bytes);
+        UInt32 tmp = one_net_byte_stream_to_uint32(raw_nid_bytes);
         raw_nid = (tmp << 4) + (raw_nid_bytes[4] >> 4);
         enc_nid = (enc_pkt_bytes[ON_ENCODED_NID_IDX]) << 8;
         enc_nid += enc_pkt_bytes[ON_ENCODED_NID_IDX+1];
         enc_nid <<= 32;
-        enc_nid += one_net_byte_stream_to_int32(
+        enc_nid += one_net_byte_stream_to_uint32(
           &enc_pkt_bytes[ON_ENCODED_NID_IDX + 2]);
     }
 
@@ -710,14 +710,14 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
 
         if(num_bytes_rcvd == ON_ENCODED_PLD_IDX - 1)
         {
-            pkt.enc_pid = one_net_byte_stream_to_int16(
+            pkt.enc_pid = one_net_byte_stream_to_uint16(
               &bytes[ON_ENCODED_PID_IDX]);
             UInt8 raw_pid_bytes[ON_ENCODED_PID_SIZE];
             pkt.raw_pid = 0xFFFF; // just make it invalid
             if(on_decode(raw_pid_bytes, &bytes[ON_ENCODED_PID_IDX],
               ON_ENCODED_PID_SIZE) == ONS_SUCCESS)
             {
-                pkt.raw_pid = (one_net_byte_stream_to_int16(raw_pid_bytes)) >> 4;
+                pkt.raw_pid = (one_net_byte_stream_to_uint16(raw_pid_bytes)) >> 4;
             }
 
             if(num_bytes_expected != (int) get_encoded_packet_len(pkt.raw_pid,

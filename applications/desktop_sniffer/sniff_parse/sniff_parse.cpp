@@ -96,7 +96,7 @@ bool sniffer_format_to_hex_string(std::string line, std::string& packet_hex_stri
 
         if(num_bytes_rcvd == ON_ENCODED_PLD_IDX - 1)
         {
-            enc_pid = one_net_byte_stream_to_int16(
+            enc_pid = one_net_byte_stream_to_uint16(
               &bytes[ON_ENCODED_PID_IDX]);
             if(on_decode_uint16(&raw_pid, enc_pid) != ONS_SUCCESS)
             {
