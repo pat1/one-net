@@ -161,101 +161,126 @@
 
 typedef enum _ona_msg_type
 {
-    //! Set/Query/Report Switch Status
+    //! (0-1-2)(OFF/ON/TOGGLE)
     ONA_SWITCH = 0x00,
 
-    //! Set/Query/Report Percent Status
+    //! Represents 1/100th of a Percent Intervals.  10,000 = 100%
     ONA_PERCENT = 0x01,
 
-    //! Set/Query/Report Temperature Status
+    //! Represents 1/100th of a Degree Kelvin.  100,000 = 1000 degrees Kelvin
     ONA_TEMPERATURE = 0x02,
 
-    //! Set/Query/Report Humidity Status
+    //! Represents 1/100th of a Percent Intervals.  5000 = 50%
     ONA_HUMIDITY = 0x03,
 
-    //! Set/Query/Report Pressure Status
-    ONA_PRESSURE = 0x04,
+    //! Represents 1/100th of a millibar.  10,000 = 100 mb
+    ONA_PRESSURE_100THS_MBAR = 0x04,
+    
+    //! Represents a millibar.  100 = 100 mb
+    ONA_PRESSURE_MBAR = 0x05,
+    
+    //! Represents length in angstroms.  10,000 = 10,000 angstroms, 1 micrometer
+    ONA_LENGTH_ANGSTROM = 0x06,
+    
+    //! Represents length in micrometers.  100 = 100 micrometers, 0.1 mmm
+    ONA_LENGTH_MICRO = 0x07,
+    
+    //! Represents length in 1/10ths of a millimeter.  100 = 10 mm, 1 cm
+    ONA_LENGTH_10THS_MM = 0x08,
+    
+    //! Represents length in centimeters.  1000 = 1000 cm, 10 meters
+    ONA_LENGTH_CM = 0x09,
+    
+    //! Represents length in meters.  10,000 = 10,000 meters, 10 kilometers
+    ONA_LENGTH_METER = 0x0A,
+    
+    //! Represents depth in 1/10th millimeter increments.  10,000 = 1 meter
+    ONA_DEPTH_10THS_MM = 0x0B,
+    
+    //! Represents depth in centimeter increments.  100 = 1 meter
+    ONA_DEPTH_CM = 0x0C,
+    
+    //! Represents depth in meter increments.  100 = 100 meters
+    ONA_DEPTH_METER = 0x0D,
+    
+    //! Represents velocity in 1/10th millimeters / second increments.  10,000 = 1 meter /second
+    ONA_VELOCITY_10THS_MM_SEC = 0x0E,
+    
+    //! Represents velocity in centimeters per second increments.  100 = 1 meter / second
+    ONA_VELOCITY_CM_SEC = 0x0F,
+    
+    //! Represents an angle measurement in 1/100th degree increments.  10,000 = 100 degrees
+    ONA_DIRECTION = 0x10,
+    
+    //! Represents an angle measurement in 1/1000th degree increments in radians.  2,000 = 2 degrees in radians
+    ONA_DIRECTION_RADIANS = 0x11,
 
-    //! Set/Query/Report Rainfall Status
-    ONA_RAINFALL = 0x05,
+    //! Opening Status.  Generally used for doors, windows, gates, etc. (0 = closed, 1 = open)
+    ONA_OPENING = 0x12,
 
-    //! Set/Query/Report Speed Status
-    ONA_SPEED_M_S = 0x06,
-
-    //! Set/Query/Report Direction Status
-    ONA_DIRECTION = 0x07,
-
-    //! Query status interval
-    ONA_STATUS_INTERVAL = 0x08,
-
-    //! Set/Query/Report Opening Status (called Access in the specification)
-    ONA_OPENING = 0x09,
-
-    //! Set/Query/Report Seal Status
-    ONA_SEAL = 0x0A,
-
-    //! Same as ONA_DIRECTION, but mesasured in radians, not degrees
-    ONA_DIRECTION_RADIANS = 0x0B,
+    //! Seal Status.  (0 = sealed / unbroken / intact, 1 = sealed / broken)
+    //! Generally used to test whether something is still intact (i.e. window unbroken, fuse still connected, wire not cut, etc.)
+    //! Used often in alarms / intrusion detection
+    ONA_SEAL = 0x13,
 
     //! Set/Query/Report Unit Type Count 
-    ONA_UNIT_TYPE_COUNT = 0x0C,
+    ONA_UNIT_TYPE_COUNT = 0x14,
 
     //! Set/Query/Report Unit Type
-    ONA_UNIT_TYPE = 0x0D,
-
-    //! Set/Query/Report Color
-    ONA_COLOR = 0x0E,
-
-    //! Query/Report Date
-    ONA_DATE = 0x10,
-
-    //! Query/Report Time
-    ONA_TIME = 0x11,
+    ONA_UNIT_TYPE = 0x15,
+    
+    //! Time in microseconds
+    ONA_TIME_MICRO_SEC = 0x16,
+    
+    //! Time in milliseconds
+    ONA_TIME_MS = 0x17,
+    
+    //! Time in seconds
+    ONA_TIME_SEC = 0x18,
+    
+    //! Time of Day (0 - 86,399) -- Represents the number of seconds after midnight
+    ONA_TIME_OF_DAY = 0x19,
 
     //! Query Voltage
-    ONA_VOLTAGE = 0x12,
+    ONA_VOLTAGE = 0x1A,
 
-    //! Report Voltage (in volts)
-    ONA_VOLTAGE_VOLTS = 0x13,
+    //! Voltage (in volts)
+    ONA_VOLTAGE_VOLTS = 0x1B,
 
-    //! Report Voltage (in 100ths of a volt)
-    ONA_VOLTAGE_100THS_VOLTS = 0x15,
+    //! Voltage (in 100ths of a volt)
+    ONA_VOLTAGE_100THS_VOLTS = 0x1C,
 
-    //! Report Voltage (in simple good/bad)
-    ONA_VOLTAGE_SIMPLE = 0x16,
+    //! Voltage (in simple good/bad -- 0 = Good, 1 = Bad)
+    ONA_VOLTAGE_SIMPLE = 0x1D,
     
+    //! ASCII Simple Text (2 ASCII chars, no NULL terminator)
+    ONA_SIMPLE_TEXT = 0x1E,
     
-    
-    //! Send Simple Text (2 ASCII chars, no NULL terminator)
-    ONA_SIMPLE_TEXT = 0x18,
-    
-    //! Send Text (ASCII string with C-Style NULL terminator)
-    ONA_TEXT = 0x19,
-
-
+    //! ASCII Text (ASCII string with C-Style NULL terminator)
+    ONA_TEXT = 0x1F,
 
     //! Incremental Energy Query 
     ONA_ENERGY = 0x20,
     
-    //! Report Incremental Energy (in 1 Watt-Second units)
+    //! Incremental Energy (in 1 Watt-Second units)
     ONA_ENERGY_1_WATT_SECONDS = 0x21,
 
-    //! Report Incremental Energy (in 100 Watt-Seconds units)
+    //! Incremental Energy (in 100 Watt-Seconds units)
     ONA_ENERGY_100_WATT_SECONDS = 0x22,
 
-    //! Report Incremental Energy (in 10 Kilowatt-Seconds units)
+    //! Incremental Energy (in 10 Kilowatt-Seconds units)
     ONA_ENERGY_10_KWATT_SECONDS = 0x23,
 
-    //! Report Incremental Energy (in 1000 Kilowatt-Seconds units)
+    //! Incremental Energy (in 1000 Kilowatt-Seconds units)
     ONA_ENERGY_1000_KWATT_SECONDS = 0x24,
 
-    //! Report Incremental Energy (in Kilowatt-Hour units)
+    //! Incremental Energy (in Kilowatt-Hour units)
     ONA_ENERGY_1_KWATT_HOUR = 0x25,
 
-    //! Report Incremental Energy (in 100 Kilowatt-Hour units)
+    //! Incremental Energy (in 100 Kilowatt-Hour units)
     ONA_ENERGY_100_KWATT_HOUR = 0x26,
 
-    //! Report Incremental Energy (in 10,000 Kilowatt-Hour units)
+    //! Incremental Energy (in 10,000 Kilowatt-Hour units)
     ONA_ENERGY_10000_KWATT_HOUR = 0x27,
 
 
@@ -263,25 +288,25 @@ typedef enum _ona_msg_type
     //! Accumulated Energy Query 
     ONA_ACCUM_ENERGY = 0x28,
     
-    //! Report Accumulated Energy (in 1 Watt-Second units)
+    //! Accumulated Energy (in 1 Watt-Second units)
     ONA_ACCUM_ENERGY_1_WATT_SECONDS = 0x29,
 
-    //! Report Accumulated Energy (in 100 Watt-Seconds units)
+    //! Accumulated Energy (in 100 Watt-Seconds units)
     ONA_ACCUM_ENERGY_100_WATT_SECONDS = 0x2A,
 
-    //! Report Accumulated Energy (in 10 Kilowatt-Seconds units)
+    //! Accumulated Energy (in 10 Kilowatt-Seconds units)
     ONA_ACCUM_ENERGY_10_KWATT_SECONDS = 0x2B,
 
-    //! Report Accumulated Energy (in 1000 Kilowatt-Seconds units)
+    //! Accumulated Energy (in 1000 Kilowatt-Seconds units)
     ONA_ACCUM_ENERGY_1000_KWATT_SECONDS = 0x2C,
 
-    //! Report Accumulated Energy (in Kilowatt-Hour units)
+    //! Accumulated Energy (in Kilowatt-Hour units)
     ONA_ACCUM_ENERGY_1_KWATT_HOUR = 0x2D,
 
-    //! Report Accumulated Energy (in 100 Kilowatt-Hour units)
+    //! Accumulated Energy (in 100 Kilowatt-Hour units)
     ONA_ACCUM_ENERGY_100_KWATT_HOUR = 0x2E,
 
-    //! Report Accumulated Energy (in 10,000 Kilowatt-Hour units)
+    //! Accumulated Energy (in 10,000 Kilowatt-Hour units)
     ONA_ACCUM_ENERGY_10000_KWATT_HOUR = 0x2F,
     
     
@@ -289,25 +314,25 @@ typedef enum _ona_msg_type
     //! Peak Energy Query 
     ONA_PEAK_ENERGY = 0x30,
     
-    //! Report Peak Energy (in 1 Watt-Second units)
+    //! Peak Energy (in 1 Watt-Second units)
     ONA_PEAK_ENERGY_1_WATT_SECONDS = 0x31,
 
-    //! Report Peak Energy (in 100 Watt-Seconds units)
+    //! Peak Energy (in 100 Watt-Seconds units)
     ONA_PEAK_ENERGY_100_WATT_SECONDS = 0x32,
 
-    //! Report Peak Energy (in 10 Kilowatt-Seconds units)
+    //! Peak Energy (in 10 Kilowatt-Seconds units)
     ONA_PEAK_ENERGY_10_KWATT_SECONDS = 0x33,
 
-    //! Report Peak Energy (in 1000 Kilowatt-Seconds units)
+    //! Peak Energy (in 1000 Kilowatt-Seconds units)
     ONA_PEAK_ENERGY_1000_KWATT_SECONDS = 0x34,
 
-    //! Report Peak Energy (in Kilowatt-Hour units)
+    //! Peak Energy (in Kilowatt-Hour units)
     ONA_PEAK_ENERGY_1_KWATT_HOUR = 0x35,
 
-    //! Report Peak Energy (in 100 Kilowatt-Hour units)
+    //! Peak Energy (in 100 Kilowatt-Hour units)
     ONA_PEAK_ENERGY_100_KWATT_HOUR = 0x36,
 
-    //! Report Peak Energy (in 10,000 Kilowatt-Hour units)
+    //! RPeak Energy (in 10,000 Kilowatt-Hour units)
     ONA_PEAK_ENERGY_10000_KWATT_HOUR = 0x37,
     
     
@@ -315,16 +340,16 @@ typedef enum _ona_msg_type
     //! Power Query 
     ONA_POWER = 0x38,
     
-    //! Report Power (in 1 Watt units)
+    //! Power (in 1 Watt units)
     ONA_POWER_1_WATT = 0x39,
 
-    //! Report Power (in 100 Watt units)
+    //! Power (in 100 Watt units)
     ONA_POWER_100_WATTS = 0x3A,
 
-    //! Report Power (in 10 Kilowatt units)
+    //! Power (in 10 Kilowatt units)
     ONA_POWER_10_KWATTS = 0x3B,
 
-    //! Report Power (in 1000 Kilowatt units)
+    //! Power (in 1000 Kilowatt units)
     ONA_POWER_1000_KWATTS = 0x3C,
 
 
@@ -382,65 +407,79 @@ typedef enum _ona_msg_type
     // Servo and Motor Control, plus anything else.  See also the ONA_DIRECTION and
     // ONA_DIRECTION_RADIANS messages for use with servos.
     
-    //! Rotations per minute
-    ONA_RPM = 0x50,
+    //! Angular Velocity -- Rotations per minute
+    ONA_VELOCITY_RPM = 0x50,
     
-    //! Rotations per second
-    ONA_RPS = 0x51,
+    //! Angular Velocity -- Rotations per second
+    ONA_VELOCITY_RPS = 0x51,
     
-    //! Rotations per hour
-    ONA_RPH = 0x52,
+    //! Angular Velocity -- Rotations per hour
+    ONA_VELOCITY_RPH = 0x52,
     
-    //! Thousandths of a rotation per minute
-    ONA_RPM_THOUSANDTHS = 0x53,
+    //! Angular Velocity -- Thousandths of a rotation per minute
+    ONA_VELOCITY_RPM_THOUSANDTHS = 0x53,
     
-    //! Thousandths of a rotation per second
-    ONA_RPS_THOUSANDTHS = 0x54,
+    //! Angular Velocity -- Thousandths of a rotation per second
+    ONA_VELOCITY_RPS_THOUSANDTHS = 0x54,
     
-    //! Thousandths of a rotation per hour
-    ONA_RPH_THOUSANDTHS = 0x55,
+    //! Angular Velocity -- Thousandths of a rotation per hour
+    ONA_VELOCITY_RPH_THOUSANDTHS = 0x55,
     
-    //! Degrees per second
-    ONA_DEGREES_PER_SEC = 0x56,
+    //! Angular Velocity -- Degrees per second
+    ONA_VELOCITY_DEGREES_PER_SEC = 0x56,
     
-    //! Degrees per millisecond
-    ONA_DEGREES_PER_MILLISEC = 0x57,
+    //! Angular Velocity -- Degrees per millisecond
+    ONA_VELOCITY_DEGREES_PER_MILLISEC = 0x57,
     
-    //! Degrees per microsecond
-    ONA_DEGREES_PER_MICROSEC = 0x58,
+    //! Angular Velocity -- Degrees per microsecond
+    ONA_VELOCITY_DEGREES_PER_MICROSEC = 0x58,
     
-    //! Radians per second
-    ONA_RADIANS_PER_SEC = 0x59,
+    //! Angular Velocity -- Radians per second
+    ONA_VELOCITY_RADIANS_PER_SEC = 0x59,
     
-    //! Degrees per millisecond
-    ONA_RADIANS_PER_MILLISEC = 0x5A,
+    //! Angular Velocity -- Degrees per millisecond
+    ONA_VELOCITY_RADIANS_PER_MILLISEC = 0x5A,
     
-    //! Degrees per microsecond
-    ONA_RADIANS_PER_MICROSEC = 0x5B,
+    //! Angular Velocity -- Degrees per microsecond
+    ONA_VELOCITY_RADIANS_PER_MICROSEC = 0x5B,
     
     
-    // Time /Duration Messages.  See also ONA_TIMEand ONA_DATE
     
-    //! Microseconds
-    ONA_MICROSEC = 0x60,
-
-    //! Microseconds
-    ONA_MILLISEC = 0x61,
-
-    //! Seconds
-    ONA_SEC = 0x62,
-
-    //! MInutes
-    ONA_MINUTES = 0x63,
-
-    //! Hours
-    ONA_HOURS = 0x64,
-
-    //! Days
-    ONA_DAYS = 0x65,
+    //! Codes 0x5C to 0x7E are reserved for future use
+    
     
     //! Unknown -- used when message type is unknown or irrelevant
-    ONA_MSG_TYPE_UNKNOWN = 0xFF
+    ONA_MSG_TYPE_UNKNOWN = 0x7F,
+    
+    
+    //! Codes 0x80 to 0xBF cannot be contained in 20 bits and thus require special parsing
+    ONA_MSG_TYPE_MIN_SPECIAL_PARSE = 0x80,
+    
+    //! The number of seconds since January 1, 1970. Corresponds to the time_t structure in C.
+    ONA_SEC_SINCE_1970 = 0x80,
+    
+    //! Date: Month / Day / Year
+    ONA_DATE = 0x81,
+    
+    //! The number of milliseconds since the program started
+    ONA_PROGRAM_RUN_TIME_MS = 0x82,
+    
+    //! The number of seconds since the program started
+    ONA_PROGRAM_RUN_TIME_SEC = 0x83,
+    
+    //! Color in 24-bit RGB format
+    ONA_COLOR = 0x84,
+    
+    //! Codes 0x85 to 0xBF are reserved for future use.
+    
+    ONA_MSG_TYPE_MAX_SPECIAL_PARSE = 0xBF,
+    
+    
+    //! Codes 0xC0 to 0xFF are application-specific types. Application code writers can
+    //! add codes here starting with 0xC0 if none of the other types match their needs
+    ONA_MSG_TYPE_MIN_APLICATION = 0xC0,
+    
+    ONA_MSG_TYPE_MAX_APLICATION = 0xFF,
 } ona_msg_type_t;
 
 
