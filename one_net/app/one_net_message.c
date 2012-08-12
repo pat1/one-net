@@ -1800,7 +1800,11 @@ UInt8 get_current_bs_chunk_size(const block_stream_msg_t* bs_msg)
         return 1;
     }
     
+    #ifndef COMPILE_WO_WARNINGS
     if(num_packets_left >= 40 + bs_msg->bs.block.chunk_size)
+    #else
+    if(num_packets_left >= (UInt8) (40 + bs_msg->bs.block.chunk_size))
+    #endif
     {
         return bs_msg->bs.block.chunk_size;
     }
