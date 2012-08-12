@@ -482,7 +482,7 @@ ONE_NET_INLINE UInt32 get_block_byte_idx(UInt8* payload)
 
 
 
-/* "Special" parsing functions are below
+/* "Special" parsing functions are below */
 
 /* gets the 32 bit unsigned integer representing a time from the payload */
 ONE_NET_INLINE UInt32 get_time_payload_data(UInt8* payload)
