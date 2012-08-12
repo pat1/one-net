@@ -648,7 +648,7 @@ typedef struct
 typedef struct
 {
     UInt32 transfer_size;
-    SInt32 byte_idx;
+    SInt32 byte_idx; // TODO -- Why is this unsigned?
     UInt8 chunk_idx;
     UInt8 chunk_size;
     UInt16 chunk_pause;

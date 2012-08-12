@@ -2552,8 +2552,14 @@ static on_message_status_t rx_block_resp_pkt(on_txn_t* txn,
                 case ON_NACK_RSN_INVALID_BYTE_INDEX:
                     bs_msg->bs.block.byte_idx = ack_nack->payload->nack_value;
                     
+                    // TODO -- why is one of these unsigned?
+                    #ifndef COMPILE_WO_WARNINGS
                     if(bs_msg->bs.block.byte_idx * ON_BS_DATA_PLD_SIZE >=
                       bs_msg->bs.block.transfer_size)
+                    #else
+                    if((UInt32) (bs_msg->bs.block.byte_idx * ON_BS_DATA_PLD_SIZE) >=
+                      bs_msg->bs.block.transfer_size)
+                    #endif
                     {
                         terminate_bs_msg(bs_msg, NULL, ON_MSG_SUCCESS,
                           NULL);
@@ -4474,7 +4480,13 @@ static on_message_status_t rx_block_data(on_txn_t* txn, block_stream_msg_t* bs_m
       
     ack_nack->nack_reason = ON_NACK_RSN_NO_ERROR;
     ack_nack->handle = ON_NACK_VALUE;
+    
+    // TODO -- why is one of these unsigned?
+    #ifndef COMPILE_WO_WARNINGS
     if(block_pkt->byte_idx != bs_msg->bs.block.byte_idx)
+    #else
+    if(block_pkt->byte_idx != (UInt32)bs_msg->bs.block.byte_idx)
+    #endif
     {
         ack_nack->payload->nack_value = bs_msg->bs.block.byte_idx;
         ack_nack->nack_reason = ON_NACK_RSN_INVALID_BYTE_INDEX;
