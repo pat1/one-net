@@ -480,6 +480,66 @@ ONE_NET_INLINE UInt32 get_block_byte_idx(UInt8* payload)
 }
 
 
+
+
+/* "Special" parsing functions are below
+
+/* gets the 32 bit unsigned integer representing a time from the payload */
+ONE_NET_INLINE UInt32 get_time_payload_data(UInt8* payload)
+{
+    return one_net_byte_stream_to_int32(&payload[1]);
+}
+
+
+/* puts the 32 bit unsigned integer representing a time from the payload */
+ONE_NET_INLINE void put_time_payload_data(UInt8* payload, UInt32 time_data)
+{
+    one_net_int32_to_byte_stream(time_data, &payload[1]);
+}
+
+
+/* gets the 24 bit unsigned integer representing a color in RGB format */
+ONE_NET_INLINE void get_rgb_payload_data(UInt8* payload, UInt32* rgb, UInt8* unit)
+{
+    *rgb = one_net_byte_stream_to_int32(&payload[1]);
+    *rgb >>= 8;
+    *unit = (payload[1] & 0x0F);
+}
+
+
+/* puts the 24 bit unsigned integer representing a color in RGB format */
+ONE_NET_INLINE void put_rgb_payload_data(UInt8* payload, UInt32 rgb, UInt8 unit)
+{
+    unit = (payload[1] & 0xF0) + (unit & 0x0F);
+    one_net_int32_to_byte_stream(rgb, &payload[1]);
+    payload[1] = unit;
+}
+
+
+/* gets the date from the payload */
+ONE_NET_INLINE void get_date_payload_data(UInt8* payload, UInt8* month,
+  UInt8* day, UInt16* year)
+{
+    *month = payload[1] & 0x0F;
+    *day = payload[2];
+    *year = payload[3];
+    *year <<= 8;
+    *year += payload[4];
+}
+
+
+/* puts the date into the payload */
+ONE_NET_INLINE void set_date_payload_data(UInt8* payload, UInt8 month,
+  UInt8 day, UInt16 year)
+{
+    payload[1] = (payload[1] & 0xF0) + (month & 0x0F);
+    payload[2] = day;
+    payload[3] = (year << 8);
+    payload[4] = (year & 0xFF);
+}
+
+
+
 #ifdef __cplusplus
 }
 #endif
