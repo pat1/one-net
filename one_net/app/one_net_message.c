@@ -278,7 +278,7 @@ one_net_status_t on_parse_response_pkt(UInt8 raw_pid, UInt8* raw_bytes,
                 // reverse the bytes if necessary
                 // assign it to nack_value.  Doesn't matter.  They all point
                 // to the same place
-                ack_nack->payload->nack_value = one_net_byte_stream_to_int32(
+                ack_nack->payload->nack_value = one_net_byte_stream_to_uint32(
                   raw_bytes);
                 break;
             default:
@@ -483,7 +483,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
             case ON_ACK_PAUSE_TIME_MS:
                 // These are the value cases.
                 // Adjust to MSB first and stick into the ACK / NACK payload
-                one_net_int32_to_byte_stream(ack_nack->payload->ack_value,
+                one_net_uint32_to_byte_stream(ack_nack->payload->ack_value,
                   ack_nack_pld_ptr);
                 break;
             default:
@@ -1707,19 +1707,19 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
 {
     // msg buffer must be at least 21 bytes
     bs_msg->flags = msg[BLOCK_STREAM_SETUP_FLAGS_IDX];
-    bs_msg->frag_dly = one_net_byte_stream_to_int16(
+    bs_msg->frag_dly = one_net_byte_stream_to_uint16(
       &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
 
     // irrelevant for stream 
-    bs_msg->bs.block.transfer_size = one_net_byte_stream_to_int32(
+    bs_msg->bs.block.transfer_size = one_net_byte_stream_to_uint32(
       &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
     bs_msg->bs.block.chunk_size = msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX];
-    bs_msg->bs.block.chunk_pause = one_net_byte_stream_to_int16(
+    bs_msg->bs.block.chunk_pause = one_net_byte_stream_to_uint16(
       &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
       
     bs_msg->channel = msg[BLOCK_STREAM_SETUP_CHANNEL_IDX];
     bs_msg->data_rate = msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX];
-    bs_msg->timeout = one_net_byte_stream_to_int16(
+    bs_msg->timeout = one_net_byte_stream_to_uint16(
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
 
     bs_msg->src = NULL;
@@ -1736,7 +1736,7 @@ void admin_msg_to_block_stream_msg_t(const UInt8* msg, block_stream_msg_t*
     }
       
     bs_msg->time = get_tick_count() +
-      MS_TO_TICK(one_net_byte_stream_to_int32(
+      MS_TO_TICK(one_net_byte_stream_to_uint32(
       &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]));
 }
 
@@ -1749,7 +1749,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     msg[BLOCK_STREAM_SETUP_FLAGS_IDX] = bs_msg->flags;      
     msg[BLOCK_STREAM_SETUP_CHANNEL_IDX] = bs_msg->channel;
     msg[BLOCK_STREAM_SETUP_DATA_RATE_IDX] = bs_msg->data_rate;
-    one_net_int16_to_byte_stream(bs_msg->timeout,
+    one_net_uint16_to_byte_stream(bs_msg->timeout,
       &msg[BLOCK_STREAM_SETUP_TIMEOUT_IDX]);
     one_net_memmove(&msg[BLOCK_STREAM_SETUP_DST_IDX], bs_msg->dst->did,
       ON_ENCODED_DID_LEN);
@@ -1757,7 +1757,7 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
     #ifdef STREAM_MESSAGES_ENABLED  
     if(get_bs_transfer_type(bs_msg->flags) == ON_STREAM_TRANSFER)
     {
-        one_net_int32_to_byte_stream(bs_msg->time,
+        one_net_uint32_to_byte_stream(bs_msg->time,
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
     }
     else
@@ -1766,19 +1766,19 @@ void block_stream_msg_t_to_admin_msg(UInt8* msg, const block_stream_msg_t*
         tick_t est_tick = 0;
         tick_t cur_tick = get_tick_count();
         
-        one_net_int32_to_byte_stream(bs_msg->bs.block.transfer_size,
+        one_net_uint32_to_byte_stream(bs_msg->bs.block.transfer_size,
           &msg[BLOCK_STREAM_SETUP_TRANSFER_SIZE_IDX]);
         msg[BLOCK_STREAM_SETUP_CHUNK_SIZE_IDX] = bs_msg->bs.block.chunk_size;
-        one_net_int16_to_byte_stream(bs_msg->frag_dly,
+        one_net_uint16_to_byte_stream(bs_msg->frag_dly,
           &msg[BLOCK_STREAM_SETUP_FRAG_DLY_IDX]);
-        one_net_int16_to_byte_stream(bs_msg->bs.block.chunk_pause,
+        one_net_uint16_to_byte_stream(bs_msg->bs.block.chunk_pause,
           &msg[BLOCK_STREAM_SETUP_CHUNK_PAUSE_IDX]);
         
         if(cur_tick < bs_msg->time)
         {
             est_tick = bs_msg->time - cur_tick;
         }
-        one_net_int32_to_byte_stream(TICK_TO_MS(est_tick),
+        one_net_uint32_to_byte_stream(TICK_TO_MS(est_tick),
           &msg[BLOCK_STREAM_SETUP_ESTIMATED_TIME_IDX]);
     }
 }

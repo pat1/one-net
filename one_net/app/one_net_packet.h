@@ -1151,10 +1151,10 @@ ONE_NET_INLINE BOOL packet_is_route(UInt16 raw_pid)
 // dependecies.  Just declare a few functions from it here to avoid compiler
 // errors.
 
-UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
-void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
-UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
-void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
+UInt16 one_net_byte_stream_to_uint16(const UInt8 * const BYTE_STREAM);
+void one_net_uint16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
+UInt32 one_net_byte_stream_to_uint32(const UInt8 * const BYTE_STREAM);
+void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 
 
 BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid);

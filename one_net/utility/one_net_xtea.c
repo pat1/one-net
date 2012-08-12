@@ -118,13 +118,13 @@ void one_net_xtea_encipher(const UInt8 ROUNDS, UInt8 * data,
     UInt8 i;
     
     // get v
-    v[0] = one_net_byte_stream_to_int32(data);
-    v[1] = one_net_byte_stream_to_int32(data + sizeof(UInt32));
+    v[0] = one_net_byte_stream_to_uint32(data);
+    v[1] = one_net_byte_stream_to_uint32(data + sizeof(UInt32));
 
     // get k
     for(i = 0; i < sizeof(UInt32); i++)
     {
-        k[i] = one_net_byte_stream_to_int32((const UInt8 * const)KEY
+        k[i] = one_net_byte_stream_to_uint32((const UInt8 * const)KEY
           + i * sizeof(UInt32));
     } // loop to get k //
 
@@ -136,8 +136,8 @@ void one_net_xtea_encipher(const UInt8 ROUNDS, UInt8 * data,
     } // encipher loop //
 
     // convert output to byte stream
-    one_net_int32_to_byte_stream(v[0], data);
-    one_net_int32_to_byte_stream(v[1], data + sizeof(UInt32));
+    one_net_uint32_to_byte_stream(v[0], data);
+    one_net_uint32_to_byte_stream(v[1], data + sizeof(UInt32));
 } // one_net_xtea_encipher //
 
 
@@ -160,13 +160,13 @@ void one_net_xtea_decipher(const UInt8 ROUNDS, UInt8 * data,
     UInt8 i;
 
     // get v
-    v[0] = one_net_byte_stream_to_int32(data);
-    v[1] = one_net_byte_stream_to_int32(data + sizeof(v[0]));
+    v[0] = one_net_byte_stream_to_uint32(data);
+    v[1] = one_net_byte_stream_to_uint32(data + sizeof(v[0]));
 
     // get k
     for(i = 0; i < sizeof(UInt32); i++)
     {
-        k[i] = one_net_byte_stream_to_int32((const UInt8 * const)KEY + i
+        k[i] = one_net_byte_stream_to_uint32((const UInt8 * const)KEY + i
           * sizeof(UInt32));
     } // loop to get k //
     
@@ -178,8 +178,8 @@ void one_net_xtea_decipher(const UInt8 ROUNDS, UInt8 * data,
     } // loop to decipher //
 
     // convert output to byte_stream
-    one_net_int32_to_byte_stream(v[0], data);
-    one_net_int32_to_byte_stream(v[1], data + sizeof(v[0]));
+    one_net_uint32_to_byte_stream(v[0], data);
+    one_net_uint32_to_byte_stream(v[1], data + sizeof(v[0]));
 } // one_net_xtea_decipher //
 
 //! @} one_net_xtea_pub_func

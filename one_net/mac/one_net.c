@@ -3783,8 +3783,8 @@ on_nack_rsn_t on_change_dr_channel(const on_encoded_did_t* enc_did,
     pld[0] = ON_CHANGE_DATA_RATE_CHANNEL;
     pld[1] = new_channel;
     pld[2] = new_data_rate;
-    one_net_int16_to_byte_stream(pause_time_ms, &pld[3]);
-    one_net_int16_to_byte_stream(dormant_time_ms, &pld[5]);
+    one_net_uint16_to_byte_stream(pause_time_ms, &pld[3]);
+    one_net_uint16_to_byte_stream(dormant_time_ms, &pld[5]);
     
     return (one_net_send_single(ONE_NET_RAW_SINGLE_DATA, ON_ADMIN_MSG,
       pld, 7, ONE_NET_LOW_PRIORITY, NULL, enc_did
@@ -4189,7 +4189,7 @@ on_single_data_queue_t* request_reserve_repeater(
       ON_ENCODED_DID_LEN);
     one_net_memmove(&pld[5], bs_msg->dst->did, ON_ENCODED_DID_LEN);
     
-    one_net_int32_to_byte_stream(est_transfer_time, &pld[7]);
+    one_net_uint32_to_byte_stream(est_transfer_time, &pld[7]);
     pld[11] = bs_msg->channel;
     pld[12] = bs_msg->data_rate;
     pld[13] = get_bs_priority(bs_msg->flags);

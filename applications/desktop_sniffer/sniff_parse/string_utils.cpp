@@ -127,7 +127,7 @@ void strip_leading_zeroes(std::string& str)
     strip_leading_and_trailing_whitespace(str);
 
 
-    int index = find_first_non_zero_index(str);    
+    int index = find_first_non_zero_index(str);
     if(index == -1)
     {
         if(str.length() > 0 && str[0] == '0')
@@ -578,7 +578,7 @@ std::string uint16_to_hex_string(UInt16 value)
 {
     UInt8 bytes[2];
     std::string str;
-    one_net_int16_to_byte_stream(value, bytes);
+    one_net_uint16_to_byte_stream(value, bytes);
     str = bytes_to_hex_string(bytes, 2);
     return str;
 }
@@ -588,7 +588,7 @@ std::string uint32_to_hex_string(UInt32 value)
 {
     std::string str;
     UInt8 bytes[4];
-    one_net_int32_to_byte_stream(value, bytes);
+    one_net_uint32_to_byte_stream(value, bytes);
     str = bytes_to_hex_string(bytes, 4);
     return str;
 }

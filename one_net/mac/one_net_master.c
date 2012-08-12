@@ -646,7 +646,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 
     one_net_memmove(invite_key, *KEY, sizeof(invite_key));
     raw_invite[ON_INVITE_VERSION_IDX] = ON_INVITE_PKT_VERSION;
-    one_net_int16_to_byte_stream(master_param->next_client_did,
+    one_net_uint16_to_byte_stream(master_param->next_client_did,
       &(raw_invite[ON_INVITE_ASSIGNED_DID_IDX]));
     one_net_memmove(&(raw_invite[ON_INVITE_KEY_IDX]),
       on_base_param->current_key, sizeof(on_base_param->current_key));
@@ -733,7 +733,7 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.msg_id = data_pkt_ptrs.msg_id;
-    one_net_int16_to_byte_stream(master_param->next_client_did,
+    one_net_uint16_to_byte_stream(master_param->next_client_did,
       raw_invite_did);
     on_encode(client->device.did, raw_invite_did,
       ON_ENCODED_DID_LEN);
@@ -1217,7 +1217,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     client->device.max_hops = features_max_hops(features);
     client->device.hops = 0;
     #endif
-    one_net_int16_to_byte_stream(master_param->next_client_did, raw_did);
+    one_net_uint16_to_byte_stream(master_param->next_client_did, raw_did);
     on_encode(client->device.did, raw_did, ON_ENCODED_DID_LEN);
     
     
@@ -1451,7 +1451,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
 
-    one_net_int32_to_byte_stream(KEEP_ALIVE, pld);
+    one_net_uint32_to_byte_stream(KEEP_ALIVE, pld);
 
     return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, 
       (const on_encoded_did_t * const)&dst, pld, 0);
@@ -1542,8 +1542,8 @@ one_net_status_t one_net_master_change_frag_dly(
         return ONS_DEVICE_NOT_CAPABLE;
     }
 
-    one_net_int16_to_byte_stream(LOW_DELAY, &pld[ON_FRAG_LOW_IDX]);
-    one_net_int16_to_byte_stream(HIGH_DELAY, &pld[ON_FRAG_HIGH_IDX]);
+    one_net_uint16_to_byte_stream(LOW_DELAY, &pld[ON_FRAG_LOW_IDX]);
+    one_net_uint16_to_byte_stream(HIGH_DELAY, &pld[ON_FRAG_HIGH_IDX]);
 
     return send_admin_pkt(ON_CHANGE_FRAGMENT_DELAY,
       (const on_encoded_did_t * const)&dst, pld, 0);
@@ -2838,8 +2838,8 @@ static void sort_client_list_by_encoded_did(void)
         on_decode(raw_did2, client_list[i].device.did,
           ON_ENCODED_DID_LEN);
           
-        if(one_net_byte_stream_to_int16(raw_did1) >
-          one_net_byte_stream_to_int16(raw_did2))
+        if(one_net_byte_stream_to_uint16(raw_did1) >
+          one_net_byte_stream_to_uint16(raw_did2))
         {
             // swap.
             on_client_t temp = client_list[i-1];
@@ -2877,7 +2877,7 @@ static UInt16 find_lowest_vacant_did(void)
         for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
         {
             on_decode(raw_did, client_list[i].device.did, ON_ENCODED_DID_LEN);
-            if(one_net_byte_stream_to_int16(raw_did) == vacant_did)
+            if(one_net_byte_stream_to_uint16(raw_did) == vacant_did)
             {
                 // this did is already taken, so increment
                 vacant_did += ON_CLIENT_DID_INCREMENT;
@@ -3202,8 +3202,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #ifdef DATA_RATE_CHANNEL
         case ON_CHANGE_DATA_RATE_CHANNEL:
         {
-            UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
-            UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
+            UInt16 pause_time_ms = one_net_byte_stream_to_uint16(&DATA[3]);
+            UInt16 dormant_time_ms = one_net_byte_stream_to_uint16(&DATA[5]);
             ack_nack->nack_reason = on_change_dr_channel(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
@@ -3316,7 +3316,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #ifdef ONE_NET_MULTI_HOP
         case ON_REQUEST_REPEATER:
         {
-            UInt32 estimated_time = one_net_byte_stream_to_int32(&DATA[7]);
+            UInt32 estimated_time = one_net_byte_stream_to_uint32(&DATA[7]);
             on_client_t* rptr_client = client_info(
               (const on_encoded_did_t* const) &DATA[1]);
             on_client_t* src_client = client_info(
@@ -3587,10 +3587,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                   && !fragment_delay_sent)
                 {
                     ack_nack->payload->admin_msg[0] = ON_CHANGE_FRAGMENT_DELAY;
-                    one_net_int16_to_byte_stream(
+                    one_net_uint16_to_byte_stream(
                       on_base_param->fragment_delay_low,
                       &(ack_nack->payload->admin_msg[1]));
-                    one_net_int16_to_byte_stream(
+                    one_net_uint16_to_byte_stream(
                       on_base_param->fragment_delay_high,
                       &(ack_nack->payload->admin_msg[3]));
                     break;

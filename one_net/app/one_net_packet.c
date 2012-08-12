@@ -484,7 +484,7 @@ BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
         return FALSE;
     }
     
-    *raw_pid = one_net_byte_stream_to_int16(raw_pld_arr);
+    *raw_pid = one_net_byte_stream_to_uint16(raw_pld_arr);
     (*raw_pid) >>=  4;
     return TRUE;
 }
@@ -494,7 +494,7 @@ void put_raw_pid(UInt8* payload, UInt16 raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];    
     raw_pid <<= 4;
-    one_net_int16_to_byte_stream(raw_pid, raw_pld_arr);
+    one_net_uint16_to_byte_stream(raw_pid, raw_pld_arr);
     on_encode(payload, raw_pld_arr, ON_ENCODED_PID_SIZE);
 }
 

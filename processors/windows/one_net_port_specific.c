@@ -149,7 +149,7 @@ SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 }
 
 
-UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM)
+UInt16 one_net_byte_stream_to_uint16(const UInt8 * const BYTE_STREAM)
 {
     UInt16 val;
     val = (((UInt16)BYTE_STREAM[0]) << 8) & 0xFF00;
@@ -159,14 +159,14 @@ UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM)
 } // one_net_byte_stream_to_int16 //
 
 
-void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
+void one_net_uint16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
 {
     byte_stream[0] = (UInt8)(VAL >> 8);
     byte_stream[1] = (UInt8)VAL;
 } // one_net_int16_to_byte_stream //
 
 
-UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM)
+UInt32 one_net_byte_stream_to_uint32(const UInt8 * const BYTE_STREAM)
 {
     UInt32 val;
     val = (((UInt32)BYTE_STREAM[0]) << 24) & 0xFF000000;
@@ -178,7 +178,7 @@ UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM)
 } // one_net_byte_stream_to_int32 //
 
 
-void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
+void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 {
     byte_stream[0] = (UInt8)(VAL >> 24);
     byte_stream[1] = (UInt8)(VAL >> 16);
@@ -202,11 +202,11 @@ UInt16 did_to_u16(const on_raw_did_t *DID)
 
 /*!
     \brief converts a U16 value to a raw DID
-    
+
     \param[in] raw_did_int -- the UInt16 representation of the raw DID
       (0 - 4015 range)
     \param[out] raw_did -- the converted raw DID
-    
+
     \return True if the conversion was successful, false otherwise
 */
 BOOL u16_to_did(UInt16 raw_did_int, on_raw_did_t* raw_did)
@@ -215,7 +215,7 @@ BOOL u16_to_did(UInt16 raw_did_int, on_raw_did_t* raw_did)
     {
         return FALSE;
     }
-    
+
     (*raw_did)[1] = ((raw_did_int & 0x0F) << RAW_DID_SHIFT);
     (*raw_did)[0] = (raw_did_int >> RAW_DID_SHIFT);
     return TRUE;

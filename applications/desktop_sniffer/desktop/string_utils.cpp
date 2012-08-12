@@ -24,7 +24,7 @@ int find_first_non_whitespace_index(string& str)
 {
     int stringlen = str.length();
     int i = 0;
-    
+
     while(i < stringlen)
     {
         if(!isspace(str[i]))
@@ -33,7 +33,7 @@ int find_first_non_whitespace_index(string& str)
         }
         i++;
     }
-    
+
     return -1;
 }
 
@@ -43,7 +43,7 @@ int find_last_non_whitespace_index(string& str)
 {
     int stringlen = str.length();
     int i = stringlen - 1;
-    
+
     while(i >= 0)
     {
         if(!isspace(str[i]))
@@ -52,7 +52,7 @@ int find_last_non_whitespace_index(string& str)
         }
         i--;
     }
-    
+
     return -1;
 }
 
@@ -98,13 +98,13 @@ int find_last_whitespace_index(string& str)
 void strip_leading_whitespace(string& str)
 {
     int index = find_first_non_whitespace_index(str);
-    
+
     if(index == -1)
     {
         str = "";
         return;
     }
-    
+
     str = str.substr(index);
 }
 
@@ -112,13 +112,13 @@ void strip_leading_whitespace(string& str)
 void strip_trailing_whitespace(string& str)
 {
     int index = find_last_non_whitespace_index(str);
-    
+
     if(index == -1)
     {
         str = "";
         return;
     }
-    
+
     str = str.substr(0, index + 1);
 }
 
@@ -222,7 +222,7 @@ bool ascii_char_to_nibble(char c, UInt8& nibble)
     {
         return false;
     }
-    
+
     if(isdigit(c))
     {
         nibble = c - '0';
@@ -628,7 +628,7 @@ bool nibble_to_hex_char(UInt8 nibble, char& hex_char)
     {
         hex_char = (nibble + 'A' -  10);
     }
-    
+
     return true;
 }
 
@@ -648,7 +648,7 @@ bool hex_char_to_nibble(char hex_char, UInt8& nibble)
     {
         nibble = hex_char - 'A' + 10;
     }
-    
+
     return true;
 }
 
@@ -719,7 +719,7 @@ bool bytes_to_hex_string(const UInt8* bytes, UInt8 num_bytes,
 bool uint16_to_hex_string(UInt16 value, string& str)
 {
     UInt8 bytes[2];
-    one_net_int16_to_byte_stream(value, bytes);
+    one_net_uint16_to_byte_stream(value, bytes);
     return bytes_to_hex_string(bytes, 2, str, ' ', 0, 0);
 }
 
@@ -727,7 +727,7 @@ bool uint16_to_hex_string(UInt16 value, string& str)
 bool uint32_to_hex_string(UInt32 value, string& str)
 {
     UInt8 bytes[4];
-    one_net_int32_to_byte_stream(value, bytes);
+    one_net_uint32_to_byte_stream(value, bytes);
     return bytes_to_hex_string(bytes, 4, str, ' ', 0, 0);
 }
 
@@ -861,7 +861,7 @@ string value_to_bit_string(UInt32 value, unsigned int num_bits)
 
     string str;
     str.assign(num_bits, '0');
-    
+
     unsigned int mask = 1;
     for(unsigned int i = num_bits; i > 0; i--)
     {

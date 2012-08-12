@@ -480,7 +480,7 @@ void put_block_byte_idx(UInt32 byte_idx, UInt8* payload)
 {
     UInt8 temp = payload[ON_BS_PLD_BYTE_IDX-1];
     byte_idx &= 0x00FFFFFF;
-    one_net_int32_to_byte_stream(byte_idx, &payload[ON_BS_PLD_BYTE_IDX-1]);
+    one_net_uint32_to_byte_stream(byte_idx, &payload[ON_BS_PLD_BYTE_IDX-1]);
     payload[ON_BS_PLD_BYTE_IDX-1] = temp;
 }
 #endif

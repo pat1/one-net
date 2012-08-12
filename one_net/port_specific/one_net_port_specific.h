@@ -189,7 +189,7 @@ SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n);
 
     \return The 16-bit value contained in the 2 bytes of BYTE_STREAM (BYTE_STREAM is in big-endian (MSB) order).
 */
-UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
+UInt16 one_net_byte_stream_to_uint16(const UInt8 * const BYTE_STREAM);
 
 
 /*!
@@ -200,7 +200,7 @@ UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM);
 
     \return void
 */
-void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
+void one_net_uint16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
 
 
 /*!
@@ -211,7 +211,7 @@ void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream);
 
     \return The 32-bit value contained in the 4 bytes of BYTE_STREAM (BYTE_STREAM is in big-endian (MSB) order).
 */
-UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
+UInt32 one_net_byte_stream_to_uint32(const UInt8 * const BYTE_STREAM);
 
 
 /*!
@@ -222,7 +222,7 @@ UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM);
 
     \return void
 */
-void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
+void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 
 
 /*!

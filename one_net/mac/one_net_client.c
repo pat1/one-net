@@ -1640,9 +1640,9 @@ static on_message_status_t on_client_single_txn_hdlr(on_txn_t ** txn,
                         {
                             // changing both within one message.  If a value is 0, then, it
                             // is irrelevant.
-                            UInt16 new_frag_low = one_net_byte_stream_to_int16(
+                            UInt16 new_frag_low = one_net_byte_stream_to_uint16(
                               &ack_nack->payload->admin_msg[1 + ON_FRAG_LOW_IDX]);
-                            UInt16 new_frag_high = one_net_byte_stream_to_int16(
+                            UInt16 new_frag_high = one_net_byte_stream_to_uint16(
                               &ack_nack->payload->admin_msg[1 + ON_FRAG_HIGH_IDX]);
               
                             if(new_frag_low == 0)
@@ -2318,8 +2318,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         #ifdef DATA_RATE_CHANNEL
         case ON_CHANGE_DATA_RATE_CHANNEL:
         {
-            UInt16 pause_time_ms = one_net_byte_stream_to_int16(&DATA[3]);
-            UInt16 dormant_time_ms = one_net_byte_stream_to_int16(&DATA[5]);
+            UInt16 pause_time_ms = one_net_byte_stream_to_uint16(&DATA[3]);
+            UInt16 dormant_time_ms = one_net_byte_stream_to_uint16(&DATA[5]);
             ack_nack->nack_reason = on_change_dr_channel(NULL,
               pause_time_ms, dormant_time_ms, DATA[1], DATA[2]);
             break;
@@ -2517,9 +2517,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             // changing both within one message.  If a value is 0, then, it
             // is irrelevant.
-            UInt16 new_frag_low = one_net_byte_stream_to_int16(
+            UInt16 new_frag_low = one_net_byte_stream_to_uint16(
               &DATA[1 + ON_FRAG_LOW_IDX]);
-            UInt16 new_frag_high = one_net_byte_stream_to_int16(
+            UInt16 new_frag_high = one_net_byte_stream_to_uint16(
               &DATA[1 + ON_FRAG_HIGH_IDX]);
               
             if(new_frag_low == 0)
@@ -2550,7 +2550,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
 
         case ON_CHANGE_KEEP_ALIVE:
         {
-            master->keep_alive_interval = one_net_byte_stream_to_int32(
+            master->keep_alive_interval = one_net_byte_stream_to_uint32(
               &DATA[1]);
             ont_set_timer(ONT_KEEP_ALIVE_TIMER, master->keep_alive_interval);
             #ifdef AUTO_SAVE
