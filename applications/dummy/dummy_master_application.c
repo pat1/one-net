@@ -860,6 +860,13 @@ void one_net_master_repeater_requested(on_client_t* src_client,
   UInt8 data_rate, UInt8 priority, UInt32 estimated_time,
   on_ack_nack_t* ack_nack)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(src_client && dst_client && repeater_client && channel == 0 &&
+      data_rate == 0 && priority == 0 && estimated_time == 0 && ack_nack)
+    {
+        // do nothing
+    }
+    #endif
 }
 #endif
 #endif
