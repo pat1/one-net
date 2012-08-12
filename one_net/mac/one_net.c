@@ -430,9 +430,6 @@ void one_net(on_txn_t ** txn)
         #endif
         case ON_LISTEN_FOR_DATA:
         {
-            #ifdef ROUTE
-            UInt16 raw_pid;
-            #endif
             #ifdef ONE_NET_MULTI_HOP
             on_raw_did_t raw_did;
             #endif
