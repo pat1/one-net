@@ -196,7 +196,7 @@ void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 */
 UInt16 did_to_u16(const on_raw_did_t *DID)
 {
-    return one_net_byte_stream_to_int16(*DID) >> RAW_DID_SHIFT;
+    return one_net_byte_stream_to_uint16(*DID) >> RAW_DID_SHIFT;
 } // did_to_u16 //
 
 
