@@ -65,6 +65,13 @@ chip_connection::chip_connection(string device_name, speed_t baud_rate)
 
 chip_connection::chip_connection(const chip_connection& orig)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(orig) == 12)
+    {
+        // do nothing
+    }
+    #endif
 }
 
 

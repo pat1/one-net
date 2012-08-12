@@ -219,6 +219,14 @@ bool packet::parse_response_payload(payload_t& payload)
 
 bool packet::parse_invite_payload(payload_t& payload)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(payload) == 12)
+    {
+        // do nothing
+    }
+    #endif
+
     payload.invite_payload.version =
         payload.decrypted_payload_bytes[ON_INVITE_VERSION_IDX];
     payload.invite_payload.raw_did = did_to_u16((const on_raw_did_t*)
@@ -235,6 +243,14 @@ bool packet::parse_invite_payload(payload_t& payload)
 
 bool packet::parse_block_payload(payload_t& payload)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(payload) == 12)
+    {
+        // do nothing
+    }
+    #endif
+
     return false;
 }
 
@@ -744,18 +760,42 @@ bool packet::create_packet(string line, const filter& fltr, packet& pkt)
 
 bool packet::create_packet(int fd, const filter& fltr, packet& pkt)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(fd) + sizeof(fltr) + sizeof(pkt) == 12)
+    {
+        // do nothing
+    }
+    #endif
+
     return false;
 }
 
 
 bool packet::create_packet(FILE* file, const filter& fltr, packet& pkt)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(file) + sizeof(fltr) + sizeof(pkt) == 12)
+    {
+        // do nothing
+    }
+    #endif
+
     return false;
 }
 
 
 bool packet::create_packet(istream& is, const filter& fltr, packet& pkt)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    // meaningless code to avoid compile warnings
+    if(sizeof(is) + sizeof(fltr) + sizeof(pkt) == 12)
+    {
+        // do nothing
+    }
+    #endif
+
     return false;
 }
 
