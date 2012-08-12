@@ -971,7 +971,7 @@ void eval_single_txn_status(on_message_status_t status,
               ON_ENCODED_DID_LEN);
             append_raw_did_to_route(ack_nack->payload->ack_payload,
               (const on_raw_did_t* const) raw_did);
-            oncli_send_msg("Route Time:%ld ms:", route_time);
+            oncli_send_msg("Route Time:%ld ms:", TICK_TO_MS(route_time));
             print_route(ack_nack->payload->ack_payload);
             oncli_send_msg("\n");
         }
