@@ -289,8 +289,8 @@ on_state_t on_state = ON_INIT_STATE;
 
 #ifdef ONE_NET_MH_CLIENT_REPEATER
     // Transaction for forwarding on MH packets.
-    static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
-      ONT_MH_TIMER, 0, 0, encoded_pkt_bytes, 0, 0};
+    static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_NO_PRIORITY, 0,
+      ONT_MH_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL, 0, 0};
 #endif
 
 
