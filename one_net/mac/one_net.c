@@ -120,10 +120,11 @@ on_pkt_hdlr_set_t pkt_hdlr;
 //! a function to retrieve the sender information
 one_net_get_sender_info_func_t get_sender_info;
 
+
+#ifndef ONE_NET_MULTI_HOP
 //! Used to send a response
 on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
-  ONT_RESPONSE_TIMER, 0, 0, NULL,
-  NULL, NULL};
+  ONT_RESPONSE_TIMER, 0, 0, NULL, NULL, NULL};
 
 //! Used to send a single message
 on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
@@ -134,7 +135,21 @@ on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
     on_txn_t bs_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
       ONT_BS_TIMER, 0, 0, NULL, NULL, NULL};
 #endif // if block messages are enabled //
+#else
+//! Used to send a response
+on_txn_t response_txn = {ON_RESPONSE, ONE_NET_NO_PRIORITY, 0,
+  ONT_RESPONSE_TIMER, 0, 0, NULL, NULL, NULL, 0, 0};
 
+//! Used to send a single message
+on_txn_t single_txn = {ON_SINGLE, ONE_NET_NO_PRIORITY, 0, ONT_SINGLE_TIMER, 0,
+  0, NULL, NULL, NULL, 0, 0};
+
+#ifdef BLOCK_MESSAGES_ENABLED
+    //! The current block transaction
+    on_txn_t bs_txn = {ON_BLOCK, ONE_NET_NO_PRIORITY, 0,
+      ONT_BS_TIMER, 0, 0, NULL, NULL, NULL, 0, 0};
+#endif // if block messages are enabled //
+#endif
 
 
 //! true if device is functioning as a master, false otherwise
