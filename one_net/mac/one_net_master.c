@@ -222,8 +222,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   
   
 static void admin_txn_hdlr(const UInt8* const raw_pld,
-  const on_raw_did_t* const raw_did, on_message_status_t status,
-  const on_ack_nack_t* const ack_nack, on_client_t* client);
+  const on_raw_did_t* const raw_did, const on_ack_nack_t* const ack_nack,
+  on_client_t* client);
 
 #ifdef BLOCK_MESSAGES_ENABLED
 static on_message_status_t on_master_block_data_hdlr(on_txn_t* txn,
@@ -266,8 +266,8 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
   tick_t send_time_from_now);
   
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
-  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
-  on_client_t ** client, on_ack_nack_t* ack_nack);
+  SRC_DID, const UInt8 * const DATA, on_client_t ** client,
+  on_ack_nack_t* ack_nack);
 
 static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
 static on_client_t* get_invite_client(void);
@@ -765,6 +765,13 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 one_net_status_t one_net_master_cancel_invite(
   const one_net_xtea_key_t* const KEY)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(KEY)
+    {
+        // do nothing!
+    }
+    #endif
+    
     invite_txn.priority = ONE_NET_NO_PRIORITY;
     ont_stop_timer(invite_txn.next_txn_timer);
     ont_stop_timer(ONT_INVITE_TIMER);
@@ -2092,7 +2099,7 @@ static on_message_status_t on_master_single_data_hdlr(
         case ON_ADMIN_MSG:
             msg_status = handle_admin_pkt((const on_encoded_did_t* const)
               &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]),
-              &raw_pld[ON_PLD_DATA_IDX], *txn, &client, ack_nack);
+              &raw_pld[ON_PLD_DATA_IDX], &client, ack_nack);
             break;
         #ifdef ROUTE
         case ON_ROUTE_MSG:
@@ -2373,13 +2380,12 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 
     \param[in] raw_pld The raw payload of the packet that was sent.
     \param[in] raw_did The raw did of the CLIENT the packet was sent to.
-    \param[in] status The status of the transaction.
     \param[in] ack_nack The CLIENT the pkt was sent to.
     \param[out] client the client that was the recipient of this packet.
 */
 static void admin_txn_hdlr(const UInt8* const raw_pld,
-  const on_raw_did_t* const raw_did, on_message_status_t status,
-  const on_ack_nack_t* const ack_nack, on_client_t* client)
+  const on_raw_did_t* const raw_did, const on_ack_nack_t* const ack_nack,
+  on_client_t* client)
 {
     UInt8 admin_type = raw_pld[0];
     one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
@@ -2514,7 +2520,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     
     if(*msg_type == ON_ADMIN_MSG)
     {
-        admin_txn_hdlr(raw_pld, (const on_raw_did_t* const) &dst, status,
+        admin_txn_hdlr(raw_pld, (const on_raw_did_t* const) &dst,
           ack_nack, client);
     }
 
@@ -3169,7 +3175,6 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
 
     \param[in] SRC The sender of the admin packet.
     \param[in] DATA The admin packet.
-    \param[in/out] txn The transaction of the admin packet.
     \param[in/out] client The CLIENT the message is from if the CLIENT is
       already part of the network.  If the CLIENT is not yet part of the
       network and it is a new CLIENT being added to the network, the new CLIENT
@@ -3180,8 +3185,8 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
             ON_MSG_IGNORE if the message should be ignored
 */
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
-  SRC_DID, const UInt8 * const DATA, on_txn_t* txn,
-  on_client_t ** client, on_ack_nack_t* ack_nack)
+  SRC_DID, const UInt8 * const DATA, on_client_t ** client,
+  on_ack_nack_t* ack_nack)
 {
     on_raw_did_t raw_did;
 
