@@ -193,6 +193,7 @@ extern on_master_t * const master;
 extern on_sending_dev_list_item_t sending_dev_list[];
 #endif
 
+#ifndef ONE_NET_MULTI_HOP
 //! The current invite transaction
 on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #ifdef ONE_NET_MASTER
@@ -200,6 +201,16 @@ on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
 #else
   ONT_INVITE_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL};
 #endif
+#else
+//! The current invite transaction
+on_txn_t invite_txn = {ON_INVITE, ONE_NET_NO_PRIORITY, 0,
+#ifdef ONE_NET_MASTER
+  ONT_INVITE_SEND_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL, 0, 0};
+#else
+  ONT_INVITE_TIMER, 0, 0, encoded_pkt_bytes, NULL, NULL,  0, 0};
+#endif
+#endif
+
   
 #ifdef ONE_NET_CLIENT
 extern BOOL client_looking_for_invite;
@@ -279,7 +290,7 @@ on_state_t on_state = ON_INIT_STATE;
 #ifdef ONE_NET_MH_CLIENT_REPEATER
     // Transaction for forwarding on MH packets.
     static on_txn_t mh_txn = {ON_NO_TXN, ONE_NET_LOW_PRIORITY, 0,
-      ONT_MH_TIMER, 0, 0, encoded_pkt_bytes};
+      ONT_MH_TIMER, 0, 0, encoded_pkt_bytes, 0, 0};
 #endif
 
 
