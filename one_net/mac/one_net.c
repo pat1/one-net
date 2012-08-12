@@ -1074,8 +1074,8 @@ void one_net(on_txn_t ** txn)
                                 response_txn.priority = ONE_NET_HIGH_PRIORITY;
                                 
                                 if(on_build_response_pkt(&bs_msg.saved_ack_nack,
-                                  &response_pkt_ptrs, &response_txn, bs_msg.src,
-                                  FALSE) != ONS_SUCCESS)
+                                  &response_pkt_ptrs, &response_txn, FALSE) !=
+                                  ONS_SUCCESS)
                                 {
                                     break;
                                 }
@@ -1219,12 +1219,12 @@ void one_net(on_txn_t ** txn)
                 #endif
                 #ifndef BLOCK_MESSAGES_ENABLED
                 if(on_build_data_pkt(single_msg.payload,
-                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  device)!= ONS_SUCCESS)
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn) !=
+                  ONS_SUCCESS)
                 #else
                 if(on_build_data_pkt(single_msg.payload,
-                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  device, NULL)!= ONS_SUCCESS)
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn, NULL) !=
+                  ONS_SUCCESS)
                 #endif
                 {
                     // An error of some sort occurred.  Abort.
@@ -1373,7 +1373,7 @@ void one_net(on_txn_t ** txn)
                       bs_msg.bs.block.chunk_size);
 
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
-                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
+                      &data_pkt_ptrs, &bs_txn, &bs_msg);
                     // change back if it was changed before.
                     bs_msg.bs.block.chunk_size = (UInt8) original_chunk_size;
                 }
@@ -1386,7 +1386,7 @@ void one_net(on_txn_t ** txn)
                         return;
                     }
                     status = on_build_data_pkt(buffer, ON_APP_MSG,
-                      &data_pkt_ptrs, &bs_txn, bs_msg.dst, &bs_msg);
+                      &data_pkt_ptrs, &bs_txn, &bs_msg);
                 }
                 #endif
 
@@ -1862,12 +1862,12 @@ void one_net(on_txn_t ** txn)
                   &data_pkt_ptrs) &&
                   #ifndef BLOCK_MESSAGES_ENABLED
                   on_build_data_pkt(single_msg.payload,
-                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  (*txn)->device) == ONS_SUCCESS &&
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn) ==
+                  ONS_SUCCESS &&
                   #else
                   on_build_data_pkt(single_msg.payload,
-                  single_msg.msg_type, &data_pkt_ptrs, &single_txn,
-                  (*txn)->device, NULL) == ONS_SUCCESS &&
+                  single_msg.msg_type, &data_pkt_ptrs, &single_txn, NULL) ==
+                  ONS_SUCCESS &&
                   #endif
                   on_complete_pkt_build(
                   &data_pkt_ptrs, single_msg.raw_pid) == ONS_SUCCESS)

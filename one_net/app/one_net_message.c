@@ -427,8 +427,7 @@ SInt8 one_net_set_max_hops(const on_raw_did_t* const raw_did, UInt8 max_hops)
 
 
 one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
-  BOOL stay_awake)
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, BOOL stay_awake)
 {
     UInt8 status;
     SInt8 raw_pld_len = get_raw_payload_len(pkt_ptrs->raw_pid);
@@ -436,7 +435,7 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
     BOOL is_ack = (ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR);
     UInt8* ack_nack_pld_ptr = &raw_payload_bytes[ON_PLD_DATA_IDX];
     UInt8 ack_nack_pld_len = raw_pld_len - 1 - ON_PLD_DATA_IDX;
-    
+
     // change pid if necessary
     pkt_ptrs->raw_pid = get_single_response_pid(pkt_ptrs->raw_pid, is_ack,
       stay_awake);
@@ -547,11 +546,10 @@ one_net_status_t on_build_response_pkt(on_ack_nack_t* ack_nack,
 
 #ifndef BLOCK_MESSAGES_ENABLED
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device)
+  on_pkt_t* pkt_ptrs, on_txn_t* txn)
 #else
 one_net_status_t on_build_data_pkt(const UInt8* raw_pld, UInt8 msg_type,
-  on_pkt_t* pkt_ptrs, on_txn_t* txn, on_sending_device_t* device,
-  block_stream_msg_t* bs_msg)
+  on_pkt_t* pkt_ptrs, on_txn_t* txn, block_stream_msg_t* bs_msg)
 #endif
 {
     UInt8 status;

@@ -2217,8 +2217,8 @@ omsdh_build_resp:
     #endif
     *txn = &response_txn;
 
-    if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, device,
-      FALSE) != ONS_SUCCESS)
+    if(on_build_response_pkt(ack_nack, &response_pkt_ptrs, *txn, FALSE) !=
+      ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
