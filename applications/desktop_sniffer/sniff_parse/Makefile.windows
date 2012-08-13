@@ -1,6 +1,6 @@
 all: sniff_parse utilities libonenetlib.a
 
-UTILITIES = encode_value decode_value encode_array decode_array encrypt_array decrypt_array encode_did decode_did encode_nid decode_nid calc_crc dec_to_hex hex_to_dec
+UTILITIES = encode_value decode_value encode_array decode_array encrypt_array decrypt_array encode_did decode_did encode_nid decode_nid calc_crc dec_to_hex hex_to_dec display_flags_byte calculate_flags_byte
 
 utilities: $(UTILITIES)
 
@@ -130,6 +130,8 @@ DECRYPT_ARRAY_OBJS = cpp_decrypt_array.o cpp_string_utils.o cpp_xtea_key.o cpp_p
 CALCULATE_CRC_OBJS = cpp_calc_crc.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
 DEC_TO_HEX_OBJS = cpp_dec_to_hex.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
 HEX_TO_DEC_OBJS = cpp_hex_to_dec.o cpp_string_utils.o cpp_xtea_key.o cpp_parse_utility_args.o
+DISPLAY_FLAGS_BYTE_OBJS = cpp_display_flags_byte.o cpp_string_utils.o cpp_xtea_key.o cpp_on_display.o
+CALCULATE_FLAGS_BYTE_OBJS = cpp_calculate_flags_byte.o
 
 
 encode_value: $(ENCODE_VALUE_OBJS) libonenetlib.a
@@ -170,6 +172,13 @@ dec_to_hex: $(DEC_TO_HEX_OBJS) libonenetlib.a
 
 hex_to_dec: $(HEX_TO_DEC_OBJS) libonenetlib.a
 	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(HEX_TO_DEC_OBJS) -L. -lonenetlib -o hex_to_dec
+
+display_flags_byte: $(DISPLAY_FLAGS_BYTE_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(DISPLAY_FLAGS_BYTE_OBJS) -L. -lonenetlib -o display_flags_byte
+
+calculate_flags_byte: $(CALCULATE_FLAGS_BYTE_OBJS) libonenetlib.a
+	g++ $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) $(CALCULATE_FLAGS_BYTE_OBJS) -L. -lonenetlib -o calculate_flags_byte
+
 
 
 cpp_parse_utility_args.o: parse_utility_args.h parse_utility_args.cpp
@@ -214,9 +223,13 @@ cpp_dec_to_hex.o:
 cpp_hex_to_dec.o:
 	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) hex_to_dec.cpp -o cpp_hex_to_dec.o
 
+cpp_display_flags_byte.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) display_flags_byte.cpp -o cpp_display_flags_byte.o
+
+cpp_calculate_flags_byte.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(UTILITIES_PATH) calculate_flags_byte.cpp -o cpp_calculate_flags_byte.o
+
 
 
 clean:
 	rm -f $(ONE_NET_LIB_OBJS) $(SNIFF_PARSE_OBJS) libonenetlib.a sniff_parse $(UTILITIES) *.o *~
-
-
