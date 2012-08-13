@@ -98,7 +98,7 @@
 
 #ifdef AUTO_MODE
 //! The interval in ms to automatically send data when in auto mode.
-//! 1 second
+//! 2.5 seconds
 #define AUTO_INTERVAL 2500
 
 //! The timeout after a user switches the mode switch before the device
@@ -110,16 +110,16 @@
 
 #ifdef SNIFFER_MODE
 // constants for the sniffer
-//! Number of ms of inactivity before the prompt is displayed. 5s
+//! Number of ms of inactivity before the prompt is displayed. 5 seconds
 #define SNIFF_PROMPT_PERIOD 5000
 
 //! Number of ms to wait after user input has been detected before
-//! sniffing the channel again.  5s
+//! sniffing the channel again.  5 seconds
 #define SNIFF_USER_INPUT_PAUSE_TIME 5000
 #endif
 
 //! Number of ms to wait after user input has been detected before
-//! sniffing the channel again.  5s
+//! sniffing the channel again.  5 seconds
 #define SERIAL_PROMPT_PERIOD 5000
 
 
