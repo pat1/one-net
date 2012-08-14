@@ -1639,15 +1639,32 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
     The single command has the form
     
-    single:SRC UNIT:DST UNIT:RAW DST DID:AABBCCDDEE
+    single:RAW DST DID:AABBCCDDEE
     
     where AABBCCDDEE is the packet to send in ASCII hex characters ('0' - '9',
-    'A' - 'F' (lower case is valid also)).  Only the parameters (starting with
-    SRC UNIT) are passed in.
+    'A' - 'F' (lower case is valid also)).
+    
+    If sending to the peer list, instead of specifiying a destination did, use 000.
     
     
-    single:1:2:005:1250000002 would be a message from unit 1 to unit 2 telling
-                              it to toggle its relay.
+    For example, a "toggle" relay command from unit 1 would be the following.
+    
+    single:XXX:0051U00002   where XXX is the destination DID and U is the destination unit.
+                            If XXX is a real device, U will need to be specified.  This message
+                            will NOT go to the peer list.
+                            
+                            To send to the peer list, specify the destination device as 000.  In this
+                            case, the destination unit will be overwritten, so it can be anything.  In
+                            the example below, U has been replaced with F, which is the ONE_NET_DEV_UNIT,
+                            or device as a whole.
+    
+    single:000:0051F00002 would be a message from unit 1 to all units peered with unit 1
+           telling them to toggle their relays.
+                              
+    single:004:0051200002 would be a message from unit 1 to unit 2 of 004 telling
+           it to toggle its relay.
+                              
+                              
     
     \param ASCII_PARAM_LIST ASCII parameter list.  The parameters in this list
       should be seperated by ':'.
@@ -1670,7 +1687,7 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     on_encoded_did_t enc_dst;
-    UInt8 src_unit, dst_unit;
+    UInt8 src_unit;
     #ifdef PEER
     BOOL send_to_peer_list;
     #endif
@@ -1684,11 +1701,10 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 
     // get the send parameters
     #ifdef PEER
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst, &send_to_peer_list)))
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, NULL, NULL,
+      &enc_dst, &send_to_peer_list)))
     #else
-    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, &src_unit,
-      &dst_unit, &enc_dst)))
+    if(!(PARAM_PTR = parse_ascii_tx_param(ASCII_PARAM_LIST, NULL, NULL, &enc_dst)))
     #endif
     {
         return ONCLI_PARSE_ERR;
@@ -1707,8 +1723,9 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     {
         return ONCLI_PARSE_ERR;
     } // if parsing the data portion failed //
-
     
+    
+    src_unit = get_src_unit(raw_pld);
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL,
