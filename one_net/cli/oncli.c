@@ -852,14 +852,13 @@ void print_app_payload(const UInt8* const pld, UInt8 app_msg_type, UInt8 pld_len
 
     if(app_msg_type <= ON_APP_MSG_TYPE_2)
     {
-        const char* const FMT[ON_APP_MSG_TYPE_2+1] = {"%05X", "%07X"};
-        oncli_send_msg(" : Class-->0x%03X : Type-->0x%02X", msg_class, msg_type);
+        oncli_send_msg(" : Type-->0x%02X : Class-->0x%1X : ", msg_type, msg_class);
         if(app_msg_type == ON_APP_MSG)
         {
-            oncli_send_msg(" : Src Unit-->0x%1X : Dst Unit-->0x%1X", src_unit, dst_unit);
+            oncli_send_msg("Src Unit-->0x%1X : Dst Unit-->0x%1X : ", src_unit,
+              dst_unit);
         }
-        oncli_send_msg(" : Data-->0x");
-        oncli_send_msg(FMT[app_msg_type], msg_data);
+        oncli_send_msg("Data-->%ld", msg_data);
     }
     oncli_send_msg("\n");
 }
