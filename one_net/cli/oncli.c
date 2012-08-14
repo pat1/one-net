@@ -841,7 +841,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
 void print_app_payload(const UInt8* const pld, UInt8 app_msg_type, UInt8 pld_len)
 {
     UInt8 src_unit, dst_unit, msg_type;
-    ona_msg_class_t msg_class;
+    UInt8 msg_class;
     SInt32 msg_data;
 
     on_parse_app_pld(pld, app_msg_type, &src_unit, &dst_unit, &msg_class, &msg_type,

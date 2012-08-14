@@ -286,11 +286,11 @@ BOOL is_broadcast_did(const on_encoded_did_t* did);
 // parsing functions
 #ifndef ONE_NET_SIMPLE_CLIENT
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8 app_msg_type, UInt8* const src_unit,
-  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  UInt8* const dst_unit, UInt8* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data);
 #else
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
-  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  UInt8* const dst_unit, UInt8* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data);
 #endif
 #ifdef BLOCK_MESSAGES_ENABLED
@@ -312,44 +312,26 @@ ONE_NET_INLINE on_encoded_did_t* get_encoded_did_from_sending_device(
     return (on_encoded_did_t*) &(device->did);
 }
 
-
-/* get the 12-bit message header (message class, message type) */
-ONE_NET_INLINE UInt16 get_msg_hdr(const UInt8* payload)
+ONE_NET_INLINE UInt8 get_msg_class(const UInt8* payload)
 {
-    UInt16 msg_hdr = payload[ONA_MSG_HDR_IDX];
-    msg_hdr <<= ONA_MSG_CLASS_TYPE_SHIFT;
-    return msg_hdr + (payload[ONA_MSG_HDR_IDX + 1] >> ONA_MSG_CLASS_TYPE_SHIFT);
+    return (payload[ONA_MSG_CLASS_IDX] >> 4);
 }
 
-/* put the 12-byte message header into the payload */
-void put_msg_hdr(UInt16 hdr, UInt8* payload);
-
-ONE_NET_INLINE ona_msg_class_t get_msg_class(const UInt8* payload)
-{
-    UInt16 class_no_shift = (payload[ONA_MSG_HDR_IDX] & 0xF0);
-    return (class_no_shift << ONA_MSG_CLASS_TYPE_SHIFT);
-}
-
-ONE_NET_INLINE void put_msg_class(ona_msg_class_t msg_class,
+ONE_NET_INLINE void put_msg_class(UInt8 msg_class,
   UInt8 *payload)
 {
-    msg_class &= ONA_MSG_CLASS_MASK;
-    payload[ONA_MSG_HDR_IDX] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX] |= (msg_class >> ONA_MSG_CLASS_TYPE_SHIFT);
+    payload[ONA_MSG_CLASS_IDX] &= 0x0F;
+    payload[ONA_MSG_CLASS_IDX] |= (msg_class << 4);
 }
 
 ONE_NET_INLINE UInt8 get_msg_type(const UInt8 *payload)
 {
-    return ((payload[ONA_MSG_HDR_IDX] << ONA_MSG_CLASS_TYPE_SHIFT) +
-      (payload[ONA_MSG_HDR_IDX+1] >> ONA_MSG_CLASS_TYPE_SHIFT));
+    return payload[ONA_MSG_TYPE_IDX];
 }
 
 ONE_NET_INLINE void put_msg_type(UInt8 msg_type, UInt8* payload)
 {
-    payload[ONA_MSG_HDR_IDX] &= 0xF0;
-    payload[ONA_MSG_HDR_IDX] |= (msg_type >> 4);
-    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX+1] |= (msg_type << 4);
+    payload[ONA_MSG_TYPE_IDX] = msg_type;
 }
 
 

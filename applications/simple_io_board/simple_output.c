@@ -141,14 +141,11 @@ on_message_status_t one_net_client_handle_single_pkt(const UInt8* const raw_pld,
   on_msg_hdr_t* const msg_hdr, const on_raw_did_t* const src_did,
   const on_raw_did_t* const repeater_did, on_ack_nack_t* const ack_nack)
 {
-    // Rough skeleton -- this will change!
-    
-    
     UInt8 src_unit, dst_unit, msg_type, msg_data, original_state;
-    ona_msg_class_t msg_class;
+    UInt8 msg_class;
     SInt32 tmp;
     #ifdef PEER
-    ona_msg_class_t original_class;
+    UInt8 original_class;
     BOOL forward_to_peer = TRUE;
     #endif
     

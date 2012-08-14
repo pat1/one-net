@@ -221,11 +221,11 @@ BOOL is_broadcast_did(const on_encoded_did_t* did)
 */
 #ifndef ONE_NET_SIMPLE_CLIENT
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8 app_msg_type, UInt8* const src_unit,
-  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  UInt8* const dst_unit, UInt8* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data)
 #else
 BOOL on_parse_app_pld(const UInt8* const payload, UInt8* const src_unit,
-  UInt8* const dst_unit, ona_msg_class_t* const msg_class, UInt8* const
+  UInt8* const dst_unit, UInt8* const msg_class, UInt8* const
   msg_type, SInt32* const msg_data)
 #endif
 {
@@ -346,14 +346,6 @@ void put_dst_unit(UInt8 data, UInt8 *payload)
     payload[ONA_MSG_DST_UNIT_IDX] = 
         (payload[ONA_MSG_DST_UNIT_IDX]    & ~ONA_MSG_DST_UNIT_MASK) |
         ((data << ONA_MSG_DST_UNIT_SHIFT) &  ONA_MSG_DST_UNIT_MASK);
-}
-
-/* put the 12-byte message header into the payload */
-void put_msg_hdr(UInt16 hdr, UInt8* payload)
-{
-    payload[ONA_MSG_HDR_IDX]   = hdr >> ONA_MSG_CLASS_TYPE_SHIFT;
-    payload[ONA_MSG_HDR_IDX+1] &= 0x0F;
-    payload[ONA_MSG_HDR_IDX+1] |= (hdr << ONA_MSG_CLASS_TYPE_SHIFT);
 }
 
 /* get the 20- or 28-bit message data from the payload buffer */

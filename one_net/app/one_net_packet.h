@@ -761,8 +761,8 @@ enum
 {
     //! Five bytes are as follows...
     //!
-    //! Bytes 0 and 1 -- Leftmost 12 bits (all of byte 0, 4 MSB bytes of byte 1) are message class and type
-    //!                  Source unit is the 4 LSB bytes of byte 1.
+    //! Byte 0 -- Message type
+    //! Byte 1 -- 4 MSB bits are the message class, 4 LSB bits are the source unit.
     //! Byte 2 -- 4 MSB bytes are the destination unit.
     //!
     //! Bytes 2 thru 4 -- 20 bits.  Message data.  The "data" of the message.
@@ -779,46 +779,38 @@ enum
     //!                                   1, denoting a negative number)
     //!
     //!
-    //! First 12 bits(message type and class) are the "header".
-    //!
     //!
     //! So a "Turn switch on command from unit 4 to unit 6 would be as follows
     //!
-    //! Message Class = ONA_COMMAND = 5 = 0101 (note ONA_COMMAND is 0x500.
-    //!                                         We are isolating the left-most
-    //!                                         4 bits.)
-    //!
-    //! Message Type = ONA_SWITCH   = 0 = 00000000 (8 bits)
-    //!
+    //! Message Type = ONA_SWITCH   = 0 = 00000000
+    //! Message Class = ONA_COMMAND = 5 = 0101
     //! Source Unit                 = 4 = 0100
     //! Destination Unit            = 6 = 0110
-    //!
     //! Message Data = ONA_ON       = 1 = 00000000000000000001 (20 bits)
 
     //!
     //!
     //! 5 byte message is...
     //!
-    //! CCCCTTTTTTTTTTTTSSSSDDDDXXXXXXXXXXXXXXXX
-    //! 0101000000000000010001100000000000000001
+    //! TTTTTTTTCCCCSSSSDDDDXXXXXXXXXXXXXXXXXXXX
+    //! 0000000001010100011000000000000000000001
     //!
-    //! which is 0x5004600001 in Hex
+    //! which is 0x0054600001 in Hex
     //!
-    //! C = Message Class
     //! T = Message Type
+    //! C = Message Class
     //! S = Source Unit
     //! D = Dest. Unit
     //! X = Message Data
-    //!
-    //! Again, Class and Type are combined into "Header".
     //!
     //! one_net_application.h defines "getters" and "setters" for source
     //! unit, destination unit, header, and data.
     //!
     //! 1) put_src_unit and get_src_unit
     //! 2) put_dst_unit and get_dst_unit
-    //! 3) put_msg_hdr and get_msg_hdr
-    //! 4) put_msg_data and get_msg_data
+    //! 3) put_msg_class and get_msg_class
+    //! 4) put_msg_type and get_msg_type
+    //! 5) put_msg_data and get_msg_data
     //!
     //!
     //! To place the message above into a 5 byte payload, the following
@@ -828,19 +820,12 @@ enum
     //!   UInt8 payload[5];
     //!   put_src_unit(4, payload);
     //!   put_dst_unit(6, payload);
-    //!   put_msg_hdr(ONA_COMMAND | ONA_SWITCH, payload);
+    //!   put_msg_type(ONA_SWITCH, payload);
+    //!   put_msg_class(ONA_COMMAND, payload);
     //!   put_msg_data(ONA_ON, ON_APP_MSG, payload);
     //!
     //!
-    //!   The message classes are shifted 8 bits precisely so that the "OR"
-    //!   operator will work as above.  ONA_COMMAND is defined as 0x500, that
-    //!   is 5 followed by 8 empty bits.  ONA_SWITCH is 0x00, which is
-    //!   exactly 8 bits long.  Thus the message class and message type do
-    //!   not overlap and the message class is shifted in such a way that the
-    //!   | ("OR") operator can be used.
-    //!
-    //!
-    //!   The "get" functions work in precisely the reverse order, so they
+    //!   The "get" functions work in precisely in the reverse, so they
     //!   take a five byte payload and parse it.
     //!
     //!
@@ -864,25 +849,18 @@ enum
     
     //! 5 byte message is...
     //!
-    //! CCCCTTTTTTTTTTTTXXXXXXXXXXXXXXXXXXXXXXXX
-    //! 0101000000000000000000000000000000000001
+    //! TTTTTTTTCCCCXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    //! 0000000001010000000000000000000000000001
     //!
-    //! which is 0x5000000001 in Hex
+    //! which is 0x0050000001 in Hex
     //!
     //! C = Message Class
     //! T = Message Type
     //! X = Message Data
     //!
-    //! ON_APP_MSG_TYPE_3 contains any ONE-NET specified message formats which do not use message classes
-    //! or treat the data as integers.  ONA_DATE is an example of this.
-    //!
-    //! ON_APP_MSG_TYPE_4 does not include message class or message type.  The payload is considered
-    //! as array data.  ONE-NET does not parse this format.  Messages in this format should not be
-    //! considered portable since the parsing is application-dependent.
-    //!
-    //! ON_APP_MSG, ON_APP_MSG_TYPE_2, and ON_APP_MSG_TYPE_3 should be considered portable.  ON_APP_MSG_TYPE_4
-    //! is not portable.  In addition, applications can use any other unused payload message type formats
-    //! and define their own parsing mechanisms.  These should also not be considered portable.
+    //! ON_APP_MSG_TYPE_3 contains the message type, but no message class.
+    //! ON_APP_MSG_TYPE_4 is simply data.  There is no type, class, or units.  Only
+    //! application-level functions can parse this
     
 
 
@@ -894,7 +872,8 @@ enum
     ONA_MSG_DST_UNIT_MASK  = 0xF0,  // Where the bits are in the byte
     ONA_MSG_DST_UNIT_SHIFT = 4,     // Shift left this much to put them in
 
-    ONA_MSG_HDR_IDX = 0,
+    ONA_MSG_TYPE_IDX = 0,
+    ONA_MSG_CLASS_IDX = 1,
 
     //! Index of Message Data within payload
     ONA_TEXT_DATA_IDX = 3,

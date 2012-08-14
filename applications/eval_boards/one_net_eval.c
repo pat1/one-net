@@ -431,7 +431,7 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
 #endif
 {
     UInt8 src_unit, dst_unit, msg_type;
-    ona_msg_class_t msg_class;
+    UInt8 msg_class;
     SInt32 msg_data;
 
 
@@ -981,7 +981,7 @@ void eval_single_txn_status(on_message_status_t status,
     #endif
     
     if(ack_nack->handle == ON_ACK_APP_MSG && ONA_IS_STATUS_MESSAGE(
-      get_msg_type(ack_nack->payload->app_msg)))
+      get_msg_class(ack_nack->payload->app_msg)))
     {
         UInt8 src_unit = get_src_unit(ack_nack->payload->app_msg);
         SInt32 msg_data = get_msg_data(ack_nack->payload->app_msg, ON_APP_MSG);
@@ -1868,9 +1868,11 @@ one_net_status_t send_switch_status_change_msg(UInt8 src_unit,
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
 
     put_src_unit(src_unit, raw_pld);
-    put_msg_hdr(ONA_STATUS_CHANGE | ONA_SWITCH, raw_pld);
-    put_msg_data(status, raw_pld, ON_APP_MSG);
     put_dst_unit(dst_unit, raw_pld);
+    put_msg_type(ONA_SWITCH, raw_pld);
+    put_msg_class(ONA_STATUS_CHANGE, raw_pld);
+    put_msg_data(status, raw_pld, ON_APP_MSG);
+
 
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
@@ -1971,7 +1973,8 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
 
     put_src_unit(src_unit, raw_pld);
     put_dst_unit(dst_unit, raw_pld);
-    put_msg_hdr(ONA_COMMAND | ONA_SIMPLE_TEXT, raw_pld);    
+    put_msg_class(ONA_COMMAND, raw_pld);    
+    put_msg_type(ONA_SIMPLE_TEXT, raw_pld);
 
     // simple text 
     one_net_memmove(&raw_pld[ONA_TEXT_DATA_IDX], text,

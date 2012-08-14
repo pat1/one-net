@@ -267,7 +267,7 @@ static oncli_status_t query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t fast_query_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t parse_and_send_pin_msg(
-  const char * const ASCII_PARAM_LIST, UInt16 msg_class);
+  const char * const ASCII_PARAM_LIST, UInt8 msg_class);
 #endif
 
 #ifdef ENABLE_SET_DR_CHANNEL_COMMAND
@@ -1848,7 +1848,8 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #endif
     
     // store the message class/message type in the payload
-    put_msg_hdr(ONA_COMMAND | msg_type, raw_pld);
+    put_msg_class(ONA_COMMAND, raw_pld);
+    put_msg_type(msg_type, raw_pld);
 
     // store the source and destination unit numbers in the payload
     put_dst_unit(dst_unit, raw_pld);
@@ -1930,7 +1931,7 @@ static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     
 
     \param[in] ASCII_PARAM_LIST ASCII parameter list.
-    \param[in] msg_class Themessage class of the outgoing single app message
+    \param[in] msg_class The message class of the outgoing single app message
 
     \return ONCLI_SUCCESS if the command was succesful
             ONCLI_BAD_PARAM If any of the parameters passed into this function
@@ -1940,7 +1941,7 @@ static oncli_status_t set_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
             See user_pin for more return values.
 */
 static oncli_status_t parse_and_send_pin_msg(
-  const char * const ASCII_PARAM_LIST, UInt16 msg_class)
+  const char * const ASCII_PARAM_LIST, UInt8 msg_class)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
     const char * endptr = NULL;
@@ -1958,7 +1959,8 @@ static oncli_status_t parse_and_send_pin_msg(
     } // if the parameter is invalid //
 
     // store the message class/message type in the payload
-    put_msg_hdr(msg_class | ONA_SWITCH, raw_pld);
+    put_msg_class(msg_class, raw_pld);
+    put_msg_type(ONA_SWITCH, raw_pld);
     
     raw_did_int = one_net_strtol(PARAM_PTR, &endptr, 16);
     if(raw_did_int < 0x001 || raw_did_int > 0xFFF || *endptr != ':')

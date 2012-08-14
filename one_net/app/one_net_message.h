@@ -293,8 +293,6 @@ typedef struct
 #endif
 
 
-#ifndef _ONA_MSG_CLASS_T
-#define _ONA_MSG_CLASS_T
     
 // note : ON_STATUS_QUERY_RESP and ON_STATUS_FAST_QUERY_RESP are subsets of status messages.
 // They just add a little more information, which the application is free to ignore.  In
@@ -313,52 +311,44 @@ typedef struct
 // ONA_IS_STATUS_MESSAGE(X) macro as a bit-mask.
 
 
-typedef UInt16 ona_msg_class_t;
 
 
 //!< Status of a unit (not part of an ACK -- or part of an ACk but not
 //!< fit any of the categories below)
-#define ONA_STATUS                 0x000
+#define ONA_STATUS                 0x0
 
 //!< Status of a unit has changed(i.e. switch has been flipped)
-#define ONA_STATUS_CHANGE          0x100
+#define ONA_STATUS_CHANGE          0x1
 
 //!< Status of a unit (in the ACK in response to a query)
-#define ONA_STATUS_QUERY_RESP      0x200
+#define ONA_STATUS_QUERY_RESP      0x2
 
 //!< Status of a unit (in the ACK in response to a fast query)
-#define ONA_STATUS_FAST_QUERY_RESP 0x300
+#define ONA_STATUS_FAST_QUERY_RESP 0x3
 
 //!< Status of a unit (in the ACK in response to a command)
-#define ONA_STATUS_COMMAND_RESP    0x400
+#define ONA_STATUS_COMMAND_RESP    0x4
 
 //!< Command to change status of a unit
-#define ONA_COMMAND                0x500
+#define ONA_COMMAND                0x5
 
 //!< Query status of a unit
-#define ONA_QUERY                  0x600
+#define ONA_QUERY                  0x6
 
 //!< Fast Query / "poll" status of a unit
-#define ONA_FAST_QUERY             0x700
+#define ONA_FAST_QUERY             0x7
 
 //!< Used when the message class is not applicable or is unknown
-#define ONA_CLASS_UNKNOWN          0x800
+#define ONA_CLASS_UNKNOWN          0x8
 
-// Message classes 0x900 to 0xF00 are currently unused
+// Message classes 0x9 to 0xF are currently unused
 
-
-//!< Used to mask message class bits
-#define ONA_MSG_CLASS_MASK         0xF00
-
-//!< Used to shift the message class and message type bits
-#define ONA_MSG_CLASS_TYPE_SHIFT 4
 
 //!< Status Message Macro.  This can be used to quickly ascertain whether he message
 //!< is a status message if all status messages are to treated the same.
-#define ONA_IS_STATUS_MESSAGE(X) ((X & ONA_MSG_CLASS_MASK) <= ONA_STATUS_COMMAND_RESP)
+#define ONA_IS_STATUS_MESSAGE(X) (X <= ONA_STATUS_COMMAND_RESP)
 
 
-#endif // _ONA_MSG_CLASS_T
 
 
 /*!
