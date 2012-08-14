@@ -925,11 +925,11 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
     UInt8 pld_len = ONE_NET_XTEA_BLOCK_SIZE * get_num_payload_blocks(pid) -
       ON_PLD_DATA_IDX;
     
-    oncli_send_msg("Single -- Msg Type=0x%01X(%s)\n", msg_pld_type,
+    oncli_send_msg("Single -- Msg Type=0x%1X(%s)\n", msg_pld_type,
       #ifdef ROUTE
-      msg_pld_type < 4 ? MSG_TYPE_STR[msg_pld_type] : "");
+      msg_pld_type < 7 ? MSG_TYPE_STR[msg_pld_type] : "");
       #else
-      msg_pld_type < 3 ? MSG_TYPE_STR[msg_pld_type] : "");
+      msg_pld_type < 6 ? MSG_TYPE_STR[msg_pld_type] : "");
       #endif
       
     switch(msg_pld_type)
