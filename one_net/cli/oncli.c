@@ -789,10 +789,7 @@ void print_ack_nack(const on_ack_nack_t* ack_nack, UInt8 pld_len)
         case ON_ACK_APP_MSG:
         {
             oncli_send_msg("\n");
-            
-            // TODO -- pld_len isn't being set correctly somewhere.  Fix it.
-            // For now, hard-coding in 5.
-            print_app_payload(ack_nack->payload->app_msg, ON_APP_MSG, /*pld_len*/5);
+            print_app_payload(ack_nack->payload->app_msg, ON_APP_MSG, pld_len);
             break;
         }
         
@@ -955,7 +952,8 @@ void print_single(UInt16 pid, const UInt8* raw_payload)
 void print_response(UInt16 pid, const UInt8* raw_payload)
 {
     on_ack_nack_t ack_nack;
-    UInt8 pld_len = get_num_payload_blocks(pid) - ON_PLD_DATA_IDX;
+    UInt8 pld_len = ONE_NET_XTEA_BLOCK_SIZE * get_num_payload_blocks(pid) -
+      ON_PLD_DATA_IDX;
     on_parse_response_pkt(pid, raw_payload, &ack_nack);
     print_ack_nack(&ack_nack, pld_len);
 }
