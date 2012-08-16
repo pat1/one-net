@@ -36,7 +36,7 @@ struct app_payload_t
     UInt8 num_bytes;
     UInt8 src_unit;
     UInt8 dst_unit;
-    ona_msg_class_t msg_class;
+    UInt8 msg_class;
     UInt8 msg_type;
     SInt32 msg_data;
 

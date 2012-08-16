@@ -97,7 +97,7 @@ class on_app_payload: public on_single_data_payload
 {
 public:
     on_app_payload();
-    on_app_payload(UInt8 src_unit, UInt8 dst_unit, ona_msg_class_t msg_class,
+    on_app_payload(UInt8 src_unit, UInt8 dst_unit, UInt8 msg_class,
       UInt8 msg_type, SInt32 msg_data);
     on_app_payload(UInt16 raw_pid, std::string payload, std::string key,
       bool encrypted);
@@ -115,7 +115,7 @@ public:
 private:
     UInt8 src_unit;
     UInt8 dst_unit;
-    ona_msg_class_t msg_class;
+    UInt8 msg_class;
     UInt8 msg_type;
     SInt32 msg_data;
 

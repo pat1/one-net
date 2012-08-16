@@ -636,7 +636,7 @@ on_app_payload::on_app_payload(): on_single_data_payload()
 }
 
 
-on_app_payload::on_app_payload(UInt8 src_unit, UInt8 dst_unit, ona_msg_class_t msg_class,
+on_app_payload::on_app_payload(UInt8 src_unit, UInt8 dst_unit, UInt8 msg_class,
       UInt8 msg_type, SInt32 msg_data)
 {
     this->src_unit = src_unit;
@@ -1031,7 +1031,7 @@ void on_response_payload::default_ack_nack_display(const on_ack_nack_t& ack_nack
             outs << "Single App Message : ";
             
             UInt8 src_unit, dst_unit, msg_type;
-            ona_msg_class_t msg_class;
+            UInt8 msg_class;
             SInt32 msg_data;           
             if(!on_parse_app_pld(ack_nack.payload->app_msg, ON_APP_MSG,
               &src_unit, &dst_unit, &msg_class, &msg_type, &msg_data))
