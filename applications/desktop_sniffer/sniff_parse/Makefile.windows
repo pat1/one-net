@@ -108,6 +108,9 @@ cpp_packet.o:
 cpp_string_utils.o:
 	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) string_utils.cpp -o cpp_string_utils.o
 
+cpp_on_display.o:
+	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) on_display.cpp -o cpp_on_display.o
+
 cpp_xtea_key.o:
 	g++ -c $(CPPFLAGS) $(ONE_NET_LIB_PATH) $(SNIFF_PARSE_PATH) xtea_key.cpp -o cpp_xtea_key.o
 
