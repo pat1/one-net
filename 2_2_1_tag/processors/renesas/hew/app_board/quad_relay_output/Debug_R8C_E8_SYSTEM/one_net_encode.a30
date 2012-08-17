@@ -1,0 +1,1188 @@
+	._LANG	'C','5.31.30.001','REV.F'
+
+;##    C Compiler		 OUTPUT
+;## ccom30 Version 5.31.30.001
+;## Copyright(C) 2001(2003,2004). Renesas Technology Corp.
+;## and Renesas Solutions Corp., All rights reserved.
+;## Compile Start Time Sun Feb 26 01:06:00 2012
+
+;## COMMAND_LINE: ccom30  C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_encode.i -o C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_encode.a30 -finfo -O5 -OR -dS -OSA -fCE -WNP -fD32 -fNA -fNC -fSA -fUD -Wall -R8C -fNROM
+
+
+;## Normal Optimize		ON
+;## ROM size Optimize		ON
+;## Speed Optimize		OFF
+;## Default ROM is		near
+;## Default RAM is		near
+
+	.GLB	__SB__
+	.SB	__SB__
+	.FB	0
+	._aopt	ON
+
+	._inspect	'M', "C:/HEWProj/tr/one_net/utility/one_net_encode.c", "C:/HEWProj/tr/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../../../one_net/mac/one_net_status_codes.h", "C:/HEWProj/tr/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/tr/processors/renesas/hew/app_board/../../src/common/one_net_types.h", "C:/HEWProj/tr/one_net/utility/one_net_encode"
+
+	._inspect	'M', "C:/HEWProj/tr/one_net/utility/one_net_encode.h", "C:/HEWProj/tr/one_net/utility/one_net_encode"
+	._inspect	'F', 'p', "encoded_to_decoded_byte", "$encoded_to_decoded_byte", 'G', 100, 0, 00h, 0
+	._inspect	'F', 'p', "decoded_to_encoded_byte", "$decoded_to_encoded_byte", 'G', 101, 0, 00h, 0
+	._inspect	'F', 'p', "on_encode", "$on_encode", 'G', 103, 0, 00h, 0
+	._inspect	'F', 'p', "on_decode", "$on_decode", 'G', 105, 0, 00h, 0
+
+	._inspect	'M', "C:/HEWProj/tr/one_net/utility/one_net_encode.c", "C:/HEWProj/tr/one_net/utility/one_net_encode"
+	._inspect	'V', 'd', "RAW_TO_ENCODED", "_RAW_TO_ENCODED", 'S', 68, 64, 0, 0, 00h
+	._inspect	'V', 'd', "ENCODED_TO_RAW_H_NIB", "_ENCODED_TO_RAW_H_NIB", 'S', 85, 16, 0, 0, 00h
+	._inspect	'V', 'd', "ENCODED_TO_RAW_L_NIB", "_ENCODED_TO_RAW_L_NIB", 'S', 102, 16, 0, 0, 00h
+
+;## #	FUNCTION encoded_to_decoded_byte
+;## #  FRAME   ARG (left_justify)  size   1,    offset 5
+;## #  REGISTER ARG    (encoded_byte)   size   1,   REGISTER R1L
+;## #	ARG Size(1)	Auto Size(0)	Context Size(5)
+
+
+	.SECTION	program,CODE
+	._inspect	'U', 2, "program", "program", 0
+	._file	'C:/HEWProj/tr/one_net/utility/one_net_encode.c'
+	._type	256,'T','UInt8',3
+	._type	257,'T','BOOL',256
+	._type	258,'x',256,2
+	._type	258,'m','encoded_byte',0,256
+	._type	258,'m','left_justify',0,257
+	._func	'encoded_to_decoded_byte','G',0,258,$encoded_to_decoded_byte,0
+	._inspect	'F', 's', "encoded_to_decoded_byte", "$encoded_to_decoded_byte", 'G', 5
+	._block
+	._line	194
+;## # C_SRC :	{
+	.glb	$encoded_to_decoded_byte
+$encoded_to_decoded_byte:
+	enter	#00H
+	._block
+	._var	'encoded_byte','R',256,3
+	._eblock
+	._block
+	._var	'encoded_byte','A',256,0
+	._var	'left_justify','A',257,5
+	._block
+	._var	'encoded_byte','R',256,3
+	._line	196
+;## # C_SRC :	        ENCODED_TO_RAW_L_NIB[encoded_byte % 16];
+	mov.b	R1L,R0L	;  encoded_byte  encoded_byte 
+	._eblock
+	shl.b	#-4,R1L
+	._block
+	._var	'encoded_byte','R',256,1
+	mov.b	R1L,A0
+	mov.b	_ENCODED_TO_RAW_H_NIB[A0],R0H
+	and.b	#0fH,R0L
+	._eblock
+	mov.b	R0L,A0
+	add.b	_ENCODED_TO_RAW_L_NIB[A0],R0H	;  decoded_byte 
+	._block
+	._var	'decoded_byte','R',256,2
+	._line	197
+;## # C_SRC :	    if(decoded_byte >= 0x40)
+	cmp.b	#40H,R0H	;  decoded_byte 
+	jltu	L1
+	._eblock
+	._line	198
+	._block
+	._line	199
+;## # C_SRC :	        return 0xFF; // invalid
+	mov.b	#0ffH,R0L
+	exitd	
+	._eblock
+L1:
+	._block
+	._var	'decoded_byte','R',256,2
+	._line	202
+;## # C_SRC :	    return left_justify ? (decoded_byte << 2) : decoded_byte;
+	mov.b	5[FB],R0L	;  left_justify 
+	jeq	L15
+	shl.b	#02H,R0H
+	._eblock
+L25:
+	mov.b	R0H,R0L
+	exitd	
+L15:
+	._block
+	._var	'decoded_byte','R',256,2
+	._eblock
+	jmp	L25
+E1:
+	._eblock
+	._eblock
+M1:
+	._efunc	M1
+	._inspect	'F', 'd', "encoded_to_decoded_byte", "$encoded_to_decoded_byte", 'G', 194, 0, 00h, 0
+	._inspect	'F', 't', "encoded_to_decoded_byte", 'G', 258
+	._inspect	'V', 'r', "ENCODED_TO_RAW_H_NIB", 'S', 196, 16, 0, 0, 00h
+	._inspect	'V', 'r', "ENCODED_TO_RAW_L_NIB", 'S', 196, 16, 0, 0, 00h
+	._inspect	'F', 'e', "encoded_to_decoded_byte", "$encoded_to_decoded_byte", 'G', 0, 0
+
+
+;## #	FUNCTION decoded_to_encoded_byte
+;## #  FRAME   ARG (left_justify)  size   1,    offset 5
+;## #  REGISTER ARG    (decoded_byte)   size   1,   REGISTER R1L
+;## #	ARG Size(1)	Auto Size(0)	Context Size(5)
+
+	._type	259,'x',256,2
+	._type	259,'m','decoded_byte',0,256
+	._type	259,'m','left_justify',0,257
+	._func	'decoded_to_encoded_byte','G',0,259,$decoded_to_encoded_byte,0
+	._inspect	'F', 's', "decoded_to_encoded_byte", "$decoded_to_encoded_byte", 'G', 5
+	._line	257
+;## # C_SRC :	{
+	.glb	$decoded_to_encoded_byte
+$decoded_to_encoded_byte:
+	enter	#00H
+	._block
+	._var	'decoded_byte','A',256,0
+	._var	'left_justify','A',257,5
+	._line	258
+;## # C_SRC :	    if(left_justify)
+	._block
+	._var	'decoded_byte','R',256,3
+	mov.b	5[FB],R0L	;  left_justify 
+	jeq	L27
+	._eblock
+	._line	259
+	._block
+	._block
+	._var	'decoded_byte','R',256,3
+	._line	260
+;## # C_SRC :	        decoded_byte >>= 2;
+	shl.b	#-2,R1L	;  decoded_byte 
+	._eblock
+L27:
+	._line	263
+;## # C_SRC :	    if(decoded_byte >= 0x40)
+	cmp.b	#40H,R1L	;  decoded_byte 
+	jltu	L31
+	._eblock
+	._line	264
+	._block
+	._line	265
+;## # C_SRC :	        return 0xFF; // invalid
+	mov.b	#0ffH,R0L
+	exitd	
+	._eblock
+L31:
+	._block
+	._var	'decoded_byte','R',256,3
+	._line	268
+;## # C_SRC :	    return RAW_TO_ENCODED[decoded_byte];
+	mov.b	R1L,A0
+	._eblock
+	mov.b	_RAW_TO_ENCODED[A0],R0L
+	exitd	
+E2:
+	._eblock
+M2:
+	._efunc	M2
+	._inspect	'F', 'd', "decoded_to_encoded_byte", "$decoded_to_encoded_byte", 'G', 257, 0, 00h, 0
+	._inspect	'F', 't', "decoded_to_encoded_byte", 'G', 259
+	._inspect	'V', 'r', "RAW_TO_ENCODED", 'S', 268, 64, 0, 0, 00h
+	._inspect	'F', 'e', "decoded_to_encoded_byte", "$decoded_to_encoded_byte", 'G', 0, 0
+
+
+;## #	FUNCTION on_encode
+;## #	FRAME	AUTO	(encoded_idx)	size  2,	offset -6
+;## #	FRAME	AUTO	(     RAW)	size  2,	offset -4
+;## #	FRAME	AUTO	( encoded)	size  2,	offset -2
+;## #  FRAME   ARG (ENCODED_SIZE)  size   2,    offset 5
+;## #  REGISTER ARG    ( encoded)   size   2,   REGISTER R1
+;## #  REGISTER ARG    (     RAW)   size   2,   REGISTER R2
+;## #	ARG Size(2)	Auto Size(6)	Context Size(5)
+
+	._type	260,'N',''
+	._type	260,'m','ONS_SNGH_INTERNAL_ERR',47
+	._type	260,'m','ONS_BAD_KEY_FRAGMENT',46
+	._type	260,'m','ONS_BUSY',45
+	._type	260,'m','ONS_BAD_MSG_ID',44
+	._type	260,'m','ONS_PKT_RCVD',43
+	._type	260,'m','ONS_DEVICE_NOT_CAPABLE',42
+	._type	260,'m','ONS_FAIL',41
+	._type	260,'m','ONS_WRITE_ERR',40
+	._type	260,'m','ONS_READ_ERR',39
+	._type	260,'m','ONS_NOT_JOINED',38
+	._type	260,'m','ONS_DEVICE_LIMIT',37
+	._type	260,'m','ONS_DID_FAILED',36
+	._type	260,'m','ONS_NID_FAILED',35
+	._type	260,'m','ONS_INCORRECT_ADDR',34
+	._type	260,'m','ONS_BAD_ADDR',33
+	._type	260,'m','ONS_BROADCAST_ADDR',32
+	._type	260,'m','ONS_MULTICAST_ADDR',31
+	._type	260,'m','ONS_UNICAST_ADDR',30
+	._type	260,'m','ONS_UNHANDLED_PKT',29
+	._type	260,'m','ONS_BAD_PKT',28
+	._type	260,'m','ONS_BAD_PKT_TYPE',27
+	._type	260,'m','ONS_BAD_ENCODING',26
+	._type	260,'m','ONS_BAD_RAW_DATA',25
+	._type	260,'m','ONS_BAD_RAW_PKT_LEN',24
+	._type	260,'m','ONS_TXN_DOES_NOT_EXIST',23
+	._type	260,'m','ONS_TXN_QUEUED',22
+	._type	260,'m','ONS_STREAM_FAIL',21
+	._type	260,'m','ONS_STREAM_END',20
+	._type	260,'m','ONS_BLOCK_FAIL',19
+	._type	260,'m','ONS_BLOCK_END',18
+	._type	260,'m','ONS_SINGLE_FAIL',17
+	._type	260,'m','ONS_SINGLE_END',16
+	._type	260,'m','ONS_INCORRECT_NONCE',15
+	._type	260,'m','ONS_RX_NACK',14
+	._type	260,'m','ONS_RX_STAY_AWAKE',13
+	._type	260,'m','ONS_CRC_FAIL',12
+	._type	260,'m','ONS_UNHANDLED_VER',11
+	._type	260,'m','ONS_INTERNAL_ERR',10
+	._type	260,'m','ONS_TIME_OUT',9
+	._type	260,'m','ONS_CANCELED',8
+	._type	260,'m','ONS_RSRC_FULL',7
+	._type	260,'m','ONS_END',6
+	._type	260,'m','ONS_MORE',5
+	._type	260,'m','ONS_INVALID_DATA',4
+	._type	260,'m','ONS_ALREADY_IN_PROGRESS',3
+	._type	260,'m','ONS_NOT_INIT',2
+	._type	260,'m','ONS_BAD_PARAM',1
+	._type	260,'m','ONS_SUCCESS',0
+	._type	261,'T','one_net_status_t',260
+	._type	262,'O',256
+	._type	263,'O',256
+	._type	264,'T','UInt16',18
+	._type	265,'x',261,3
+	._type	265,'m','encoded',0,262
+	._type	265,'m','RAW',0,263
+	._type	265,'m','ENCODED_SIZE',0,264
+	._func	'on_encode','G',6,265,$on_encode,0
+	._inspect	'F', 's', "on_encode", "$on_encode", 'G', 11
+	._line	286
+;## # C_SRC :	{
+	.glb	$on_encode
+$on_encode:
+	enter	#06H
+	mov.w	R1,-2[FB]	;  encoded  encoded 
+	mov.w	R2,-4[FB]	;  RAW  RAW 
+	._block
+	._type	266,'O',256
+	._var	'encoded','A',266,-2
+	._type	267,'O',256
+	._var	'RAW','A',267,-4
+	._var	'ENCODED_SIZE','A',264,5
+	._var	'encoded_idx','A',264,-6
+	._line	289
+;## # C_SRC :	    if(!encoded || !RAW || !ENCODED_SIZE)
+	cmp.w	#0000H,-2[FB]	;  encoded 
+	jeq	L133
+	cmp.w	#0000H,-4[FB]	;  RAW 
+	jeq	L133
+	cmp.w	#0000H,5[FB]	;  ENCODED_SIZE 
+	jne	L45
+L133:
+	._line	290
+	._block
+	._line	291
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.b	#01H,R0L
+	exitd	
+	._eblock
+L45:
+	._line	294
+;## # C_SRC :	    val = 0;
+	mov.w	#0000H,R0	;  val 
+	._line	295
+;## # C_SRC :	    raw_idx = 0;
+	mov.w	#0000H,A0	;  raw_idx 
+	._block
+	._var	'raw_idx','R',264,9
+	._line	296
+;## # C_SRC :	    step = 0;
+	mov.w	#0000H,R0	;  step 
+	._eblock
+	._block
+	._var	'step','R',264,5
+	._var	'raw_idx','R',264,9
+	._line	310
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	mov.w	#0000H,-6[FB]	;  encoded_idx 
+L85:
+	._line	310
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	cmp.w	5[FB],-6[FB]	;  ENCODED_SIZE  encoded_idx 
+	jgeu	L89
+	._eblock
+	._line	311
+	._block
+	._block
+	._var	'step','R',264,5
+	._var	'raw_idx','R',264,9
+	._line	312
+;## # C_SRC :	        switch(step)
+	mov.w	R0,R1	;  step  step 
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	jeq	L99
+	cmp.w	#0001H,R0
+	jeq	L101
+	cmp.w	#0002H,R0
+	jeq	L103
+	._eblock
+	._block
+	._var	'raw_idx','R',264,9
+	cmp.w	#0003H,R0
+	jeq	L105
+	._eblock
+	._line	345
+	._block
+	._line	347
+;## # C_SRC :	                return ONS_INTERNAL_ERR;
+	mov.b	#0aH,R0L
+	exitd	
+	._eblock
+	._line	313
+	._block
+	._line	314
+;## # C_SRC :	            case 0:
+L99:
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._eblock
+	._line	315
+	._block
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._line	316
+;## # C_SRC :	                val = (RAW[raw_idx] >> 2) & 0x3F;
+	mov.w	A0,R0	;  raw_idx  raw_idx 
+	._eblock
+	add.w	-4[FB],A0	;  RAW 
+	._block
+	._var	'raw_idx','R',264,5
+	._var	'step','R',264,6
+	mov.w	R0,R2	;  raw_idx  raw_idx 
+	._eblock
+	mov.b	[A0],R0L
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	shl.b	#-2,R0L
+	and.b	#3fH,R0L
+	mov.b	R0L,A0
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	._line	317
+;## # C_SRC :	                step++;
+L131:
+	add.w	#0001H,R1	;  step 
+	._line	318
+;## # C_SRC :	                break;
+	jmp	L97
+	._eblock
+	._eblock
+	._line	321
+;## # C_SRC :	            case 1:
+L101:
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._eblock
+	._line	322
+	._block
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._line	323
+;## # C_SRC :	                val = (RAW[raw_idx++] << 4) & 0x30;
+	._eblock
+	._block
+	._var	'step','R',264,6
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	shl.b	#04H,R0L
+	and.b	#30H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._line	324
+;## # C_SRC :	                val |= (RAW[raw_idx] >> 4) & 0x0F;
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,8
+	shl.b	#-4,R0L
+	and.b	#0fH,R0L
+L135:
+	._eblock
+	mov.b	#00H,R0H
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,8
+	or.w	R0,R3	;  val 
+	._line	325
+;## # C_SRC :	                step++;
+	mov.w	R3,A0	;  val  val 
+	._eblock
+	jmp	L131
+	._eblock
+	._line	329
+;## # C_SRC :	            case 2:
+L103:
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._eblock
+	._line	330
+	._block
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._line	331
+;## # C_SRC :	                val = (RAW[raw_idx++] << 2) & 0x3C;
+	._eblock
+	._block
+	._var	'step','R',264,6
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	shl.b	#02H,R0L
+	and.b	#3cH,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_2
+	.stk	-3
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,9
+	._line	332
+;## # C_SRC :	                val |= (RAW[raw_idx] >> 6) & 0x03;
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,8
+	shl.b	#-6,R0L
+	and.b	#03H,R0L
+	jmp	L135
+	._eblock
+	._eblock
+	._line	337
+;## # C_SRC :	            case 3:
+L105:
+	._block
+	._var	'raw_idx','R',264,9
+	._eblock
+	._line	338
+	._block
+	._block
+	._var	'raw_idx','R',264,9
+	._line	339
+;## # C_SRC :	                val = RAW[raw_idx++] & 0x3F;
+	._eblock
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_1
+	.stk	-3
+	._block
+	._var	'raw_idx','R',264,9
+	and.b	#3fH,R0L
+	mov.b	R0L,A1
+	._eblock
+	._block
+	._var	'raw_idx','R',264,9
+	._var	'val','R',264,10
+	._line	340
+;## # C_SRC :	                step = 0;
+	mov.w	#0000H,R0	;  step 
+	._eblock
+	._block
+	._var	'step','R',264,5
+	._var	'raw_idx','R',264,9
+	._var	'val','R',264,10
+	._line	341
+;## # C_SRC :	                break;
+	mov.w	A0,R1	;  raw_idx  raw_idx 
+	._eblock
+	mov.w	A1,A0	;  val  val 
+	mov.w	R1,R2	;  raw_idx  raw_idx 
+	mov.w	R0,R1	;  step  step 
+	._eblock
+	._eblock
+	._line	350
+;## # C_SRC :	        } // switch (step)
+L97:
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	._line	352
+;## # C_SRC :	        encoded[encoded_idx] = RAW_TO_ENCODED[val];
+	mov.w	-2[FB],A1	;  encoded 
+	add.w	-6[FB],A1	;  encoded_idx 
+	mov.b	_RAW_TO_ENCODED[A0],[A1]	;  val 
+	._eblock
+	._block
+	._var	'step','R',264,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	add.w	#0001H,-6[FB]	;  encoded_idx 
+	mov.w	R2,A0	;  raw_idx  raw_idx 
+	._eblock
+	mov.w	R1,R0	;  step  step 
+	jmp	L85
+L89:
+	._line	355
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.b	#00H,R0L
+	exitd	
+E3:
+_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_2:
+	mov.b	#00H,R0H
+	mov.w	A0,R2
+	add.w	-4[FB],A0
+	mov.w	R0,R3
+	mov.b	[A0],R0L
+	rts	
+E_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_2:
+
+_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_1:
+	mov.w	A0,A1
+	inc.w	A0
+	add.w	-4[FB],A1
+	mov.b	[A1],R0L
+	rts	
+E_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_1:
+
+	._eblock
+M3:
+	._efunc	M3
+	._inspect	'F', 'd', "on_encode", "$on_encode", 'G', 286, 0, 00h, 0
+	._inspect	'F', 't', "on_encode", 'G', 265
+	._inspect	'V', 'r', "RAW_TO_ENCODED", 'S', 352, 64, 0, 0, 00h
+	._inspect	'F', 'e', "on_encode", "$on_encode", 'G', 0, 0
+
+
+;## #	FUNCTION on_decode
+;## #	FRAME	AUTO	(encoded_idx)	size  2,	offset -6
+;## #	FRAME	AUTO	(    step)	size  2,	offset -4
+;## #	FRAME	AUTO	( ENCODED)	size  2,	offset -2
+;## #  FRAME   ARG (ENCODED_SIZE)  size   2,    offset 5
+;## #  REGISTER ARG    (     raw)   size   2,   REGISTER R1
+;## #  REGISTER ARG    ( ENCODED)   size   2,   REGISTER R2
+;## #	ARG Size(2)	Auto Size(6)	Context Size(5)
+
+	._type	268,'O',256
+	._type	269,'O',256
+	._type	270,'x',261,3
+	._type	270,'m','raw',0,268
+	._type	270,'m','ENCODED',0,269
+	._type	270,'m','ENCODED_SIZE',0,264
+	._func	'on_decode','G',6,270,$on_decode,0
+	._inspect	'F', 's', "on_decode", "$on_decode", 'G', 11
+	._line	373
+;## # C_SRC :	{
+	.glb	$on_decode
+$on_decode:
+	enter	#06H
+	mov.w	R2,-2[FB]	;  ENCODED  ENCODED 
+	._block
+	._type	271,'O',256
+	._var	'raw','A',271,0
+	._type	272,'O',256
+	._var	'ENCODED','A',272,-2
+	._var	'ENCODED_SIZE','A',264,5
+	._var	'encoded_idx','A',264,-6
+	._var	'step','A',264,-4
+	._line	376
+;## # C_SRC :	    if(!ENCODED || !raw || !ENCODED_SIZE)
+	._block
+	._type	273,'O',256
+	._var	'raw','R',273,6
+	jeq	L237
+	cmp.w	#0000H,R1	;  raw 
+	jeq	L237
+	cmp.w	#0000H,5[FB]	;  ENCODED_SIZE 
+	jne	L137
+	._eblock
+L237:
+	._line	377
+	._block
+	._line	378
+;## # C_SRC :	        return ONS_BAD_PARAM;
+	mov.b	#01H,R0L
+	exitd	
+	._eblock
+L137:
+	._block
+	._type	274,'O',256
+	._var	'raw','R',274,6
+	._line	381
+;## # C_SRC :	    val = 0;
+	mov.w	#0000H,R0	;  val 
+	._line	382
+;## # C_SRC :	    raw_idx = 0;
+	mov.w	#0000H,R0	;  raw_idx 
+	._eblock
+	._block
+	._var	'raw_idx','R',264,5
+	._type	275,'O',256
+	._var	'raw','R',275,6
+	._line	383
+;## # C_SRC :	    step = 0;
+	mov.w	#0000H,-4[FB]	;  step 
+	._line	388
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	mov.w	#0000H,-6[FB]	;  encoded_idx 
+L177:
+	._line	388
+;## # C_SRC :	    for(encoded_idx = 0; encoded_idx < ENCODED_SIZE; encoded_idx++)
+	cmp.w	5[FB],-6[FB]	;  ENCODED_SIZE  encoded_idx 
+	jgeu	L181
+	._eblock
+	._line	389
+	._block
+	._block
+	._var	'raw_idx','R',264,5
+	._type	276,'O',256
+	._var	'raw','R',276,6
+	._line	391
+;## # C_SRC :	         + ENCODED_TO_RAW_L_NIB[ENCODED[encoded_idx] & 0x0F];
+	mov.w	-2[FB],A0	;  ENCODED 
+	add.w	-6[FB],A0	;  encoded_idx 
+	mov.w	R0,R2	;  raw_idx  raw_idx 
+	._eblock
+	mov.b	[A0],R0L
+	._block
+	._type	277,'O',256
+	._var	'raw','R',277,6
+	._var	'raw_idx','R',264,7
+	shl.b	#-4,R0L
+	and.b	#0fH,R0L
+	mov.b	R0L,A1
+	mov.b	_ENCODED_TO_RAW_H_NIB[A1],R0L
+	mov.b	[A0],R0H
+	and.b	#0fH,R0H
+	mov.b	R0H,A0
+	add.b	_ENCODED_TO_RAW_L_NIB[A0],R0L
+	mov.b	#00H,R0H
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._type	278,'O',256
+	._var	'raw','R',278,6
+	._var	'raw_idx','R',264,7
+	._line	394
+;## # C_SRC :	        if(val >= 0x40)
+	cmp.w	#0040H,R0	;  val 
+	jltu	L189
+	._eblock
+	._line	395
+	._block
+	._line	396
+;## # C_SRC :	            return ONS_BAD_ENCODING;
+	mov.b	#1aH,R0L
+	exitd	
+	._eblock
+L189:
+	._block
+	._var	'val','R',264,5
+	._type	279,'O',256
+	._var	'raw','R',279,6
+	._var	'raw_idx','R',264,7
+	._line	399
+;## # C_SRC :	        switch(step)
+	mov.w	-4[FB],R3	;  step 
+	jeq	L201
+	cmp.w	#0001H,R3
+	jeq	L203
+	cmp.w	#0002H,R3
+	jeq	L205
+	cmp.w	#0003H,R3
+	jeq	L207
+	._eblock
+	._line	432
+	._block
+	._line	434
+;## # C_SRC :	                return ONS_INTERNAL_ERR;
+	mov.b	#0aH,R0L
+	exitd	
+	._eblock
+	._line	400
+	._block
+	._line	401
+;## # C_SRC :	            case 0:
+L201:
+	._block
+	._var	'val','R',264,5
+	._type	280,'O',256
+	._var	'raw','R',280,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._line	402
+	._block
+	._block
+	._var	'val','R',264,5
+	._type	281,'O',256
+	._var	'raw','R',281,6
+	._var	'raw_idx','R',264,7
+	._line	403
+;## # C_SRC :	                raw[raw_idx] = (val << 2) & 0xFC;
+	._eblock
+	._block
+	._type	282,'O',256
+	._var	'raw','R',282,6
+	._var	'raw_idx','R',264,7
+	shl.b	#02H,R0L
+	and.b	#0fcH,R0L
+	mov.w	R1,A0	;  raw  raw 
+	._eblock
+	add.w	R2,A0	;  raw_idx 
+	._block
+	._type	283,'O',256
+	._var	'raw','R',283,6
+	._var	'raw_idx','R',264,7
+	mov.b	R0L,[A0]
+	._line	404
+;## # C_SRC :	                step++;
+L235:
+	add.w	#0001H,-4[FB]	;  step 
+	._line	405
+;## # C_SRC :	                break;
+	jmp	L199
+	._eblock
+	._eblock
+	._line	408
+;## # C_SRC :	            case 1:
+L203:
+	._block
+	._var	'val','R',264,5
+	._type	284,'O',256
+	._var	'raw','R',284,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._line	409
+	._block
+	._block
+	._var	'val','R',264,5
+	._type	285,'O',256
+	._var	'raw','R',285,6
+	._var	'raw_idx','R',264,7
+	._line	410
+;## # C_SRC :	                raw[raw_idx++] |= (val >> 4) & 0x03;
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._type	286,'O',256
+	._var	'raw','R',286,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',264,5
+	._type	287,'O',256
+	._var	'raw','R',287,6
+	._var	'raw_idx','R',264,7
+	mov.w	R0,A0	;  val  val 
+	._eblock
+	shl.w	#-04H,R0
+	._block
+	._type	288,'O',256
+	._var	'raw','R',288,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	and.b	#03H,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_3
+	.stk	-3
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	._type	289,'O',256
+	._var	'raw','R',289,10
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,8
+	._type	290,'O',256
+	._var	'raw','R',290,10
+	._line	411
+;## # C_SRC :	                raw[raw_idx] = (val << 4) & 0xF0;
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._type	291,'O',256
+	._var	'raw','R',291,10
+	shl.b	#04H,R0L
+	and.b	#0f0H,R0L
+L239:
+	._eblock
+	mov.w	A1,R1	;  raw  raw 
+	add.w	R2,A1	;  raw_idx 
+	._block
+	._type	292,'O',256
+	._var	'raw','R',292,6
+	._var	'raw_idx','R',264,7
+	mov.b	R0L,[A1]
+	._line	412
+;## # C_SRC :	                step++;
+	jmp	L235
+	._eblock
+	._eblock
+	._line	416
+;## # C_SRC :	            case 2:
+L205:
+	._block
+	._var	'val','R',264,5
+	._type	293,'O',256
+	._var	'raw','R',293,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._line	417
+	._block
+	._block
+	._var	'val','R',264,5
+	._type	294,'O',256
+	._var	'raw','R',294,6
+	._var	'raw_idx','R',264,7
+	._line	418
+;## # C_SRC :	                raw[raw_idx++] |= (val >> 2) & 0x0F;
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._type	295,'O',256
+	._var	'raw','R',295,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',264,5
+	._type	296,'O',256
+	._var	'raw','R',296,6
+	._var	'raw_idx','R',264,7
+	mov.w	R0,A0	;  val  val 
+	._eblock
+	shl.w	#-02H,R0
+	._block
+	._type	297,'O',256
+	._var	'raw','R',297,6
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	and.b	#0fH,R0L
+	.stk	3
+	jsr	_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_3
+	.stk	-3
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,9
+	._type	298,'O',256
+	._var	'raw','R',298,10
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._var	'val','R',264,8
+	._type	299,'O',256
+	._var	'raw','R',299,10
+	._line	419
+;## # C_SRC :	                raw[raw_idx] = (val << 6) & 0xC0;
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._type	300,'O',256
+	._var	'raw','R',300,10
+	shl.b	#06H,R0L
+	and.b	#0c0H,R0L
+	jmp	L239
+	._eblock
+	._eblock
+	._line	424
+;## # C_SRC :	            case 3:
+L207:
+	._block
+	._var	'val','R',264,5
+	._type	301,'O',256
+	._var	'raw','R',301,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	._line	425
+	._block
+	._block
+	._var	'val','R',264,5
+	._type	302,'O',256
+	._var	'raw','R',302,6
+	._var	'raw_idx','R',264,7
+	._line	426
+;## # C_SRC :	                raw[raw_idx++] |= val & 0x3F;
+	._eblock
+	._block
+	._var	'val','R',264,5
+	._type	303,'O',256
+	._var	'raw','R',303,6
+	mov.w	R2,R3
+	._eblock
+	add.w	#0001H,R2	;  raw_idx 
+	._block
+	._var	'val','R',264,5
+	._type	304,'O',256
+	._var	'raw','R',304,6
+	._var	'raw_idx','R',264,7
+	mov.w	R1,A0	;  raw  raw 
+	._eblock
+	add.w	R3,R1
+	._block
+	._var	'val','R',264,5
+	._var	'raw_idx','R',264,7
+	._type	305,'O',256
+	._var	'raw','R',305,9
+	._eblock
+	._block
+	._var	'raw_idx','R',264,7
+	._type	306,'O',256
+	._var	'raw','R',306,9
+	and.b	#3fH,R0L
+	mov.w	R1,A1
+	._eblock
+	or.b	R0L,[A1]
+	._block
+	._var	'raw_idx','R',264,7
+	._type	307,'O',256
+	._var	'raw','R',307,9
+	._line	427
+;## # C_SRC :	                step = 0;
+	mov.w	#0000H,-4[FB]	;  step 
+	._line	428
+;## # C_SRC :	                break;
+	mov.w	A0,R1	;  raw  raw 
+	._eblock
+	._eblock
+	._eblock
+	._line	437
+;## # C_SRC :	        } // switch (step)
+L199:
+	._block
+	._type	308,'O',256
+	._var	'raw','R',308,6
+	._var	'raw_idx','R',264,7
+	._eblock
+	add.w	#0001H,-6[FB]	;  encoded_idx 
+	mov.w	R2,R0	;  raw_idx  raw_idx 
+	._eblock
+	jmp	L177
+L181:
+	._line	440
+;## # C_SRC :	    return ONS_SUCCESS;
+	mov.b	#00H,R0L
+	exitd	
+E4:
+_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_3:
+	mov.w	R1,A1
+	add.w	R3,R1
+	mov.w	A0,R3
+	mov.w	R1,A0
+	or.b	R0L,[A0]
+	mov.w	R3,A0
+	mov.b	A0,R0L
+	rts	
+E_Aopt_CHEWProjtrprocessorsrenesashewappboardquadrelayoutputDebugR8CE8SYSTEMonenetencode_3:
+
+	._eblock
+M4:
+	._efunc	M4
+	._inspect	'F', 'd', "on_decode", "$on_decode", 'G', 373, 0, 00h, 0
+	._inspect	'F', 't', "on_decode", 'G', 270
+	._inspect	'V', 'r', "ENCODED_TO_RAW_H_NIB", 'S', 391, 16, 0, 0, 00h
+	._inspect	'V', 'r', "ENCODED_TO_RAW_L_NIB", 'S', 391, 16, 0, 0, 00h
+	._inspect	'F', 'e', "on_decode", "$on_decode", 'G', 0, 0
+
+
+	.SECTION	rom_NE,ROMDATA,align
+	._inspect	'U', 4, "rom_NE", "rom_NE", 0
+_RAW_TO_ENCODED:
+	.byte	0b4H
+	.byte	0bcH
+	.byte	0b3H
+	.byte	0baH
+	.byte	0b5H
+	.byte	0b9H
+	.byte	0b6H
+	.byte	0b2H
+	.byte	0c4H
+	.byte	0ccH
+	.byte	0c3H
+	.byte	0caH
+	.byte	0c5H
+	.byte	0c9H
+	.byte	0c6H
+	.byte	0c2H
+	.byte	34H	;  '4'
+	.byte	3cH	;  '<'
+	.byte	33H	;  '3'
+	.byte	3aH	;  ':'
+	.byte	35H	;  '5'
+	.byte	39H	;  '9'
+	.byte	36H	;  '6'
+	.byte	32H	;  '2'
+	.byte	0a4H
+	.byte	0acH
+	.byte	0a3H
+	.byte	0aaH
+	.byte	0a5H
+	.byte	0a9H
+	.byte	0a6H
+	.byte	0a2H
+	.byte	54H	;  'T'
+	.byte	5cH	;  '\'
+	.byte	53H	;  'S'
+	.byte	5aH	;  'Z'
+	.byte	55H	;  'U'
+	.byte	59H	;  'Y'
+	.byte	56H	;  'V'
+	.byte	52H	;  'R'
+	.byte	94H
+	.byte	9cH
+	.byte	93H
+	.byte	9aH
+	.byte	95H
+	.byte	99H
+	.byte	96H
+	.byte	92H
+	.byte	64H	;  'd'
+	.byte	6cH	;  'l'
+	.byte	63H	;  'c'
+	.byte	6aH	;  'j'
+	.byte	65H	;  'e'
+	.byte	69H	;  'i'
+	.byte	66H	;  'f'
+	.byte	62H	;  'b'
+	.byte	0d4H
+	.byte	0dcH
+	.byte	0d3H
+	.byte	0daH
+	.byte	0d5H
+	.byte	0d9H
+	.byte	0d6H
+	.byte	0d2H
+_ENCODED_TO_RAW_H_NIB:
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	10H
+	.byte	40H	;  '@'
+	.byte	20H	;  ' '
+	.byte	30H	;  '0'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	28H	;  '('
+	.byte	18H
+	.byte	00H
+	.byte	08H
+	.byte	38H	;  '8'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+_ENCODED_TO_RAW_L_NIB:
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	07H
+	.byte	02H
+	.byte	00H
+	.byte	04H
+	.byte	06H
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	05H
+	.byte	03H
+	.byte	40H	;  '@'
+	.byte	01H
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+	.byte	40H	;  '@'
+;#################################
+;###  STATIC DATA INFORMATION  ###
+;#################################
+	._type	309,'N',''
+	._type	309,'m','ON_STARTUP_FAIL',2
+	._type	309,'m','ON_STARTUP_IN_PROGRESS',1
+	._type	309,'m','ON_STARTUP_SUCCESS',0
+	._type	310,'T','one_net_startup_status_t',309
+	._type	311,'N',''
+	._type	311,'m','ON_MIN_APPLICATION_STATUS_CODE',9
+	._type	311,'m','ON_NUM_MESSAGE_STATUS_CODES',9
+	._type	311,'m','ON_MSG_INTERNAL_ERR',8
+	._type	311,'m','ON_MSG_IGNORE',7
+	._type	311,'m','ON_MSG_TIMEOUT',6
+	._type	311,'m','ON_MSG_RESPOND',5
+	._type	311,'m','ON_MSG_FAIL',4
+	._type	311,'m','ON_MSG_SUCCESS',3
+	._type	311,'m','ON_MSG_ABORT',2
+	._type	311,'m','ON_MSG_CONTINUE',1
+	._type	311,'m','ON_MSG_DEFAULT_BHVR',0
+	._type	312,'T','on_message_status_t',311
+	._type	313,'T','SInt8',19
+	._type	314,'T','SInt16',16
+	._type	315,'T','UInt32',7
+	._type	316,'T','SInt32',20
+	._type	317,'T','Float32',10
+	._type	318,'T','tick_t',315
+	._type	319,'Z',64,256
+	._var	'RAW_TO_ENCODED','S',319,_RAW_TO_ENCODED
+	._type	320,'Z',16,256
+	._var	'ENCODED_TO_RAW_H_NIB','S',320,_ENCODED_TO_RAW_H_NIB
+	._type	321,'Z',16,256
+	._var	'ENCODED_TO_RAW_L_NIB','S',321,_ENCODED_TO_RAW_L_NIB
+;#################################
+;#################################
+;#################################
+	._inspect	'V', 't', "one_net_status_t", 'O', 260
+	._inspect	'V', 't', "one_net_startup_status_t", 'O', 309
+	._inspect	'V', 't', "on_message_status_t", 'O', 311
+	._inspect	'V', 't', "UInt8", 'O', 3
+	._inspect	'V', 't', "SInt8", 'O', 19
+	._inspect	'V', 't', "UInt16", 'O', 18
+	._inspect	'V', 't', "SInt16", 'O', 16
+	._inspect	'V', 't', "UInt32", 'O', 7
+	._inspect	'V', 't', "SInt32", 'O', 20
+	._inspect	'V', 't', "Float32", 'O', 10
+	._inspect	'V', 't', "tick_t", 'O', 315
+	._inspect	'V', 't', "BOOL", 'O', 256
+	._inspect	'V', 't', "RAW_TO_ENCODED", 'S', 319
+	._inspect	'V', 't', "ENCODED_TO_RAW_H_NIB", 'S', 320
+	._inspect	'V', 't', "ENCODED_TO_RAW_L_NIB", 'S', 321
+
+	.END
+
+;## Compile End Time Sun Feb 26 01:06:00 2012
+
+

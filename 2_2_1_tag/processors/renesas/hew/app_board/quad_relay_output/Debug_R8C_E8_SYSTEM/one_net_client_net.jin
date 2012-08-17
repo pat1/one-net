@@ -1,0 +1,27 @@
+#ASFILE
+"C:\HEWProj\2_0_Bet_16K\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_client_net.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\2_0_Bet_16K\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,350,1,82,JSR,$on_client_encoded_master_did
+W,393,1,a5,JSR,$on_encode
+W,415,1,c1,JSR,$on_client_send_single
+W,534,1,118,JSR,$on_encoded_did_equal
+W,549,1,135,JSR,$one_net_memmove
+W,577,1,159,JSR,$on_encoded_did_equal
+W,611,1,198,JSR,$on_encoded_did_equal
+W,890,1,2df,JSR,$one_net_memmove
+W,1235,1,3da,JSR,$on_decode
+W,1250,1,3f1,JSR,$one_net_client_single_txn_status
+W,1269,1,408,JSR,$one_net_client_single_txn_status
+W,1322,1,442,JSR,_on_client_send_to_master
+W,1332,1,44f,JSR,$on_client_encoded_master_did
+W,1392,1,47d,JSR,$on_client_send_single
+W,1408,1,496,JSR,$one_net_client_single_txn_status
+W,1440,1,4c0,JSR,$one_net_client_single_txn_status
+W,1459,1,4d6,JSR,$one_net_client_single_txn_status
+W,1563,1,512,JSR,$one_net_memmove
+W,1703,1,59b,JSR,$one_net_memmove
+W,1986,1,63b,JSR,$on_encoded_did_equal
+W,2161,1,6c9,JSR,$one_net_memmove
+W,2174,1,6e3,JSR,$one_net_memmove

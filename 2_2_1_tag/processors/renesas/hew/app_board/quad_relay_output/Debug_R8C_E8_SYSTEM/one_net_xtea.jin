@@ -1,0 +1,15 @@
+#ASFILE
+"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\one_net_xtea.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,152,1,f,JSR,$one_net_byte_stream_to_int32
+W,158,1,16,JSR,$one_net_byte_stream_to_int32
+W,171,1,25,JSR,$one_net_byte_stream_to_int32
+W,210,1,5f,JSR,$one_net_int32_to_byte_stream
+W,218,1,6e,JSR,$one_net_int32_to_byte_stream
+W,377,1,168,JSR,$one_net_byte_stream_to_int32
+W,383,1,16f,JSR,$one_net_byte_stream_to_int32
+W,396,1,17e,JSR,$one_net_byte_stream_to_int32
+W,435,1,1b8,JSR,$one_net_int32_to_byte_stream
+W,443,1,1c7,JSR,$one_net_int32_to_byte_stream

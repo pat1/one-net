@@ -1,0 +1,22 @@
+#ASFILE
+"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\simple_output.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,701,1,28,JSR,$on_parse_app_pld
+W,953,1,146,JSR,$push_queue_element
+W,1050,1,17d,JSR,_clr_flash
+W,1054,1,185,JMP,$one_net_client_look_for_invite
+W,1084,1,189,JMP,$one_net_client_look_for_invite
+W,1502,1,232,JSR,_pal_init_ports
+W,1505,1,236,JSR,_tal_init_transceiver
+W,1509,1,23c,JSR,$pal_init_processor
+W,1512,1,240,JSR,_initialize_leds
+W,1515,1,244,JSR,_init_tick
+W,1518,1,248,JSR,_pal_enable_global_interrupts
+W,1521,1,24c,JSR,_flash_erase_check
+W,1526,1,255,JSR,$read_param
+W,1532,1,263,JSR,$read_param
+W,1545,1,278,JSR,$one_net_client_init
+W,1559,1,288,JSR,$one_net_client_look_for_invite
+W,1566,1,28c,JSR,_one_net_client

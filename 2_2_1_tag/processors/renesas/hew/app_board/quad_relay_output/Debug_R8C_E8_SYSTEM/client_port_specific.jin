@@ -1,0 +1,16 @@
+#ASFILE
+"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM\client_port_specific.a30"
+#ASOPT
+-. -N --N -finfo +jopt2 -D__R8C__=1 -R8C1b -O"C:\HEWProj\tr\processors\renesas\hew\app_board\quad_relay_output\Debug_R8C_E8_SYSTEM"  
+#BRANCHINFO
+W,441,1,11,JSR,_pal_exit
+W,508,1,59,JSR,$erase_data_flash
+W,512,1,61,JMP,$erase_data_flash
+W,570,1,95,JSR,$rx_led_blink
+W,593,1,ab,JSR,$tx_led_blink
+W,653,1,dc,JSR,$erase_data_flash
+W,658,1,e7,JSR,$erase_data_flash
+W,678,1,100,JSR,$write_data_flash
+W,689,1,117,JSR,$write_data_flash
+W,709,1,135,JSR,$write_data_flash
+W,720,1,14c,JSR,$write_data_flash
