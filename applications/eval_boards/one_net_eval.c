@@ -1562,6 +1562,34 @@ void initialize_default_pin_directions(BOOL is_master)
 }
 
 
+// Aug. 21, 2012.  Quick Fix For user pin initialization
+// TODO -- Change initialization code to send status of input pins upon initialization
+// and handle things better altogether.
+// TODO -- Pin state (high / low) does not appear to be saving correctly.  Pin type (input/output)
+// seems to be saving correctly.  Revisit the saving and loading of pins.
+void initialize_pin_states_and_directions_from_user_pin(void)
+{
+    UInt8 i;
+    for(i = 0; i < NUM_USER_PINS; i++)
+    {
+        UInt8 saved_state = user_pin[i].old_state;        
+        oncli_set_user_pin_type(i, user_pin[i].pin_type);
+        
+        if(user_pin[i].pin_type == ON_OUTPUT_PIN)
+        {
+            switch(i)
+            {
+                case 0: USER_PIN0 = saved_state; break;
+                case 1: USER_PIN1 = saved_state; break;
+                case 2: USER_PIN2 = saved_state; break;
+                case 3: USER_PIN3 = saved_state; break;
+            }
+        }
+    }
+}
+
+
+
 #ifdef DATA_RATE_CHANNEL
 void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 {

@@ -165,6 +165,7 @@ void init_auto_client(UInt8 index);
 
 
 void initialize_default_pin_directions(BOOL is_master);
+void initialize_pin_states_and_directions_from_user_pin(void);
 void check_user_pins(void);
 void disable_user_pins(void);
 void send_user_pin_input(void);

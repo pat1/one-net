@@ -405,8 +405,9 @@ void init_serial_master(SInt8 channel)
         }
         else
         {
-            // so far, so good.  Copy the pin info and we should be done.
+            // so far, so good.  Set the pins and we should be done.
             one_net_memmove(user_pin, user_pin_memory, sizeof(user_pin));
+            initialize_pin_states_and_directions_from_user_pin();
         }
     }
     
