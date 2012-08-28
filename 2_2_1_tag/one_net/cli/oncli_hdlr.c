@@ -496,8 +496,6 @@ static oncli_status_t route_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
   UInt8 * const next_state, oncli_cmd_hdlr_t * const cmd_hdlr)
 {
-    oncli_status_t oncli_status = ONCLI_INTERNAL_ERR;
-
     if(!CMD || !CMD_STR || !next_state || !cmd_hdlr)
     {
         return ONCLI_BAD_PARAM;
@@ -567,8 +565,6 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
     else if(!strncmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
     {
-        oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SNIFF_CMD_STR) + 1);
-        
         *CMD_STR = ONCLI_SNIFF_CMD_STR;
 
         if(CMD[strlen(ONCLI_SNIFF_CMD_STR)] != ONCLI_PARAM_DELIMITER)
