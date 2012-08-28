@@ -320,7 +320,7 @@ oncli_status_t set_dr_channel_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #if defined(_ENABLE_ASSIGN_PEER_COMMAND) || defined(_ENABLE_UNASSIGN_PEER_COMMAND)
-static oncli_change_peer_list(BOOL ASSIGN,
+static oncli_status_t oncli_change_peer_list(BOOL ASSIGN,
   const char * const ASCII_PARAM_LIST);
 #endif
 
@@ -2501,18 +2501,18 @@ static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     \param ASCII_PARAM_LIST ASCII parameter list.
     
     \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
+            ONCLI_RSRC_FULL If the peer assignment is for the master and there
               is no room on the list.
               are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
               properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+            ONCLI_INVALID_DST If the either address is undecipherable or not
               part of the network or both addresses are the same.
             ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
               master-only command.
             ONCLI_CMD_FAIL For any other failure
 */
-static oncli_change_peer_list(BOOL ASSIGN,
+static oncli_status_t oncli_change_peer_list(BOOL ASSIGN,
   const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
@@ -2614,12 +2614,12 @@ static oncli_change_peer_list(BOOL ASSIGN,
     \param [in] ASCII_PARAM_LIST ASCII parameter list.
     
     \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
+            ONCLI_RSRC_FULL If the peer assignment is for the master and there
               is no room on the list.
               are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
               properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+            ONCLI_INVALID_DST If the either address is undecipherable or not
               part of the network or both addresses are the same.
             ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
               master-only command.
@@ -2654,12 +2654,12 @@ static oncli_status_t assign_peer_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     \param ASCII_PARAM_LIST ASCII parameter list.
     
     \return ONCLI_SUCCESS if the command was succesful
-            ONS_RSRC_FULL If the peer assignment is for the master and there
+            ONCLI_RSRC_FULL If the peer assignment is for the master and there
               is no room on the list.
               are invalid.
             ONCLI_PARSE_ERR If the cli command/parameters are not formatted
               properly.
-            ONS_INCORRECT_ADDR If the either address is undecipherable or not
+            ONCLI_INVALID_DST If the either address is undecipherable or not
               part of the network or both addresses are the same.
             ONCLI_INVALID_CMD_FOR_NODE If a client attempts to execute this
               master-only command.
