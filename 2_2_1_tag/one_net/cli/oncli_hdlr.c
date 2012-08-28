@@ -506,7 +506,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     *cmd_hdlr = 0;
 
 	#ifdef _ENABLE_ECHO_COMMAND
-    if(!strnicmp(ONCLI_ECHO_CMD_STR, CMD, strlen(ONCLI_ECHO_CMD_STR)))
+    if(!strncmp(ONCLI_ECHO_CMD_STR, CMD, strlen(ONCLI_ECHO_CMD_STR)))
     {
         *CMD_STR = ONCLI_ECHO_CMD_STR;
         
@@ -523,7 +523,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_LIST_COMMAND 
-    if(!strnicmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
+    if(!strncmp(ONCLI_LIST_CMD_STR, CMD, strlen(ONCLI_LIST_CMD_STR)))
     {
         *CMD_STR = ONCLI_LIST_CMD_STR;
 
@@ -537,7 +537,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_ERASE_COMMAND 
-    else if(!strnicmp(ONCLI_ERASE_CMD_STR, CMD, strlen(ONCLI_ERASE_CMD_STR)))
+    else if(!strncmp(ONCLI_ERASE_CMD_STR, CMD, strlen(ONCLI_ERASE_CMD_STR)))
     {
         *CMD_STR = ONCLI_ERASE_CMD_STR;
 
@@ -551,7 +551,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_SAVE_COMMAND 
-    else if(!strnicmp(ONCLI_SAVE_CMD_STR, CMD, strlen(ONCLI_SAVE_CMD_STR)))
+    else if(!strncmp(ONCLI_SAVE_CMD_STR, CMD, strlen(ONCLI_SAVE_CMD_STR)))
     {
         *CMD_STR = ONCLI_SAVE_CMD_STR;
 
@@ -565,7 +565,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 
 	#if defined(_SNIFFER_MODE) && defined(_ENABLE_SNIFF_COMMAND)
-    else if(!strnicmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
+    else if(!strncmp(ONCLI_SNIFF_CMD_STR, CMD, strlen(ONCLI_SNIFF_CMD_STR)))
     {
         oncli_status = sniff_cmd_hdlr(CMD + strlen(ONCLI_SNIFF_CMD_STR) + 1);
         
@@ -584,7 +584,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_SINGLE_COMMAND    
-    else if(!strnicmp(ONCLI_SINGLE_TXT_CMD_STR, CMD, strlen(ONCLI_SINGLE_TXT_CMD_STR)))
+    else if(!strncmp(ONCLI_SINGLE_TXT_CMD_STR, CMD, strlen(ONCLI_SINGLE_TXT_CMD_STR)))
     {
         *CMD_STR = ONCLI_SINGLE_TXT_CMD_STR;
 
@@ -599,7 +599,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the send single text command was received //    
     
-    else if(!strnicmp(ONCLI_SINGLE_CMD_STR, CMD, strlen(ONCLI_SINGLE_CMD_STR)))
+    else if(!strncmp(ONCLI_SINGLE_CMD_STR, CMD, strlen(ONCLI_SINGLE_CMD_STR)))
     {
         *CMD_STR = ONCLI_SINGLE_CMD_STR;
 
@@ -614,7 +614,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the send single command was received //
     
-    else if(!strnicmp(ONCLI_STATUS_PIN_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_STATUS_PIN_CMD_STR, CMD,
       strlen(ONCLI_STATUS_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_STATUS_PIN_CMD_STR;
@@ -630,7 +630,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the status pin command was received //
     
-    else if(!strnicmp(ONCLI_QUERY_PIN_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_QUERY_PIN_CMD_STR, CMD,
       strlen(ONCLI_QUERY_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_QUERY_PIN_CMD_STR;
@@ -646,7 +646,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the query command was received //
 
-    else if(!strnicmp(ONCLI_FAST_QUERY_PIN_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_FAST_QUERY_PIN_CMD_STR, CMD,
       strlen(ONCLI_FAST_QUERY_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_FAST_QUERY_PIN_CMD_STR;
@@ -662,7 +662,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the fast query command was received //
     
-    else if(!strnicmp(ONCLI_SET_PIN_CMD_STR, CMD, strlen(ONCLI_SET_PIN_CMD_STR)))
+    else if(!strncmp(ONCLI_SET_PIN_CMD_STR, CMD, strlen(ONCLI_SET_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_SET_PIN_CMD_STR;
 
@@ -679,7 +679,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif // _ENABLE_SINGLE_COMMAND //
 
 	#ifdef _ENABLE_SET_DR_CHANNEL_COMMAND
-    else if(!strnicmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_SET_DR_CHANNEL_CMD_STR, CMD,
       strlen(ONCLI_SET_DR_CHANNEL_CMD_STR)))
     {
         *CMD_STR = ONCLI_SET_DR_CHANNEL_CMD_STR;
@@ -697,7 +697,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
     #ifdef _ENABLE_BAUD_COMMAND
-    else if(!strnicmp(ONCLI_BAUD_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_BAUD_CMD_STR, CMD,
       strlen(ONCLI_BAUD_CMD_STR)))
     {
         *CMD_STR = ONCLI_BAUD_CMD_STR;
@@ -715,7 +715,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _ENABLE_VERBOSE_LEVEL_COMMAND
-    else if(!strnicmp(ONCLI_VERBOSE_LEVEL_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_VERBOSE_LEVEL_CMD_STR, CMD,
       strlen(ONCLI_VERBOSE_LEVEL_CMD_STR)))
     {
         *CMD_STR = ONCLI_VERBOSE_LEVEL_CMD_STR;
@@ -733,7 +733,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
 	#ifdef _ENABLE_USER_PIN_COMMAND
-    else if(!strnicmp(ONCLI_USER_PIN_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_USER_PIN_CMD_STR, CMD,
       strlen(ONCLI_USER_PIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_USER_PIN_CMD_STR;
@@ -751,7 +751,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_INVITE_COMMAND
-    else if(!strnicmp(ONCLI_INVITE_CMD_STR, CMD, strlen(ONCLI_INVITE_CMD_STR)))
+    else if(!strncmp(ONCLI_INVITE_CMD_STR, CMD, strlen(ONCLI_INVITE_CMD_STR)))
     {
         *CMD_STR = ONCLI_INVITE_CMD_STR;
 
@@ -768,7 +768,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 	
 	#ifdef _ENABLE_CANCEL_INVITE_COMMAND
-    else if(!strnicmp(ONCLI_CANCEL_INVITE_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_CANCEL_INVITE_CMD_STR, CMD,
       strlen(ONCLI_CANCEL_INVITE_CMD_STR)))
     {
         *CMD_STR = ONCLI_CANCEL_INVITE_CMD_STR;
@@ -783,7 +783,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 
 	#ifdef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-    else if(!strnicmp(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR)))
     {
         *CMD_STR = ONCLI_CHANGE_FRAGMENT_DELAY_CMD_STR;
@@ -802,7 +802,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 
 	#ifdef _ENABLE_REMOVE_DEVICE_COMMAND
-    else if(!strnicmp(ONCLI_RM_DEV_CMD_STR, CMD, strlen(ONCLI_RM_DEV_CMD_STR)))
+    else if(!strncmp(ONCLI_RM_DEV_CMD_STR, CMD, strlen(ONCLI_RM_DEV_CMD_STR)))
     {
         *CMD_STR = ONCLI_RM_DEV_CMD_STR;
 
@@ -819,7 +819,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_ASSIGN_PEER_COMMAND
-    else if(!strnicmp(ONCLI_ASSIGN_PEER_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_ASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_ASSIGN_PEER_CMD_STR)))
     {
         *CMD_STR = ONCLI_ASSIGN_PEER_CMD_STR;
@@ -837,7 +837,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 		
 	#ifdef _ENABLE_UNASSIGN_PEER_COMMAND	
-    else if(!strnicmp(ONCLI_UNASSIGN_PEER_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_UNASSIGN_PEER_CMD_STR, CMD,
       strlen(ONCLI_UNASSIGN_PEER_CMD_STR)))
     {
         *CMD_STR = ONCLI_UNASSIGN_PEER_CMD_STR;
@@ -855,7 +855,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 
 	#ifdef _ENABLE_SET_FLAGS_COMMAND
-    else if(!strnicmp(ONCLI_SET_FLAGS_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_SET_FLAGS_CMD_STR, CMD,
       strlen(ONCLI_SET_FLAGS_CMD_STR)))
     {
         *CMD_STR = ONCLI_SET_FLAGS_CMD_STR;
@@ -873,7 +873,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-    else if(!strnicmp(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_KEEP_ALIVE_CMD_STR)))
     {
         *CMD_STR = ONCLI_CHANGE_KEEP_ALIVE_CMD_STR;
@@ -892,7 +892,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
 
     // debugging temporary
-    else if(!strnicmp("add dev", CMD, 7))
+    else if(!strncmp("add dev", CMD, 7))
     {
         *CMD_STR = ADD_DEV_CMD_STR;
 
@@ -908,7 +908,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     } // else if the "add dev" command was received //
     
 	#ifdef _ENABLE_CHANGE_KEY_COMMAND
-    else if(!strnicmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
+    else if(!strncmp(ONCLI_CHANGE_KEY_CMD_STR, CMD,
       strlen(ONCLI_CHANGE_KEY_CMD_STR)))
     {
         *CMD_STR = ONCLI_CHANGE_KEY_CMD_STR;
@@ -926,7 +926,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
     #ifdef _BLOCK_MESSAGES_ENABLED
-    if(!strnicmp(ONCLI_BLOCK_CMD_STR, CMD, strlen(ONCLI_BLOCK_CMD_STR)))
+    if(!strncmp(ONCLI_BLOCK_CMD_STR, CMD, strlen(ONCLI_BLOCK_CMD_STR)))
     {
         *CMD_STR = ONCLI_BLOCK_CMD_STR;
 
@@ -943,7 +943,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _STREAM_MESSAGES_ENABLED
-    if(!strnicmp(ONCLI_STREAM_CMD_STR, CMD, strlen(ONCLI_STREAM_CMD_STR)))
+    if(!strncmp(ONCLI_STREAM_CMD_STR, CMD, strlen(ONCLI_STREAM_CMD_STR)))
     {
         *CMD_STR = ONCLI_STREAM_CMD_STR;
 
@@ -960,7 +960,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
   
 	#ifdef _ENABLE_CHANNEL_COMMAND
-    if(!strnicmp(ONCLI_CHANNEL_CMD_STR, CMD,
+    if(!strncmp(ONCLI_CHANNEL_CMD_STR, CMD,
       strlen(ONCLI_CHANNEL_CMD_STR)))
     {
         *CMD_STR = ONCLI_CHANNEL_CMD_STR;
@@ -978,7 +978,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 	#endif
     
 	#ifdef _ENABLE_JOIN_COMMAND
-    if(!strnicmp(ONCLI_JOIN_CMD_STR, CMD, strlen(ONCLI_JOIN_CMD_STR)))
+    if(!strncmp(ONCLI_JOIN_CMD_STR, CMD, strlen(ONCLI_JOIN_CMD_STR)))
     {
         *CMD_STR = ONCLI_JOIN_CMD_STR;
 
@@ -1000,7 +1000,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _ENABLE_SETNI_COMMAND
-    if(!strnicmp(ONCLI_SETNI_CMD_STR, CMD, strlen(ONCLI_SETNI_CMD_STR)))
+    if(!strncmp(ONCLI_SETNI_CMD_STR, CMD, strlen(ONCLI_SETNI_CMD_STR)))
     {
         *CMD_STR = ONCLI_SETNI_CMD_STR;
 
@@ -1017,7 +1017,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _PID_BLOCK
-    if(!strnicmp(ONCLI_PID_BLOCK_CMD_STR, CMD,
+    if(!strncmp(ONCLI_PID_BLOCK_CMD_STR, CMD,
       strlen(ONCLI_PID_BLOCK_CMD_STR)))
     {
         *CMD_STR = ONCLI_PID_BLOCK_CMD_STR;
@@ -1035,7 +1035,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _RANGE_TESTING
-    if(!strnicmp(ONCLI_RANGE_TEST_CMD_STR, CMD,
+    if(!strncmp(ONCLI_RANGE_TEST_CMD_STR, CMD,
       strlen(ONCLI_RANGE_TEST_CMD_STR)))
     {
         *CMD_STR = ONCLI_RANGE_TEST_CMD_STR;
@@ -1053,7 +1053,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _ONE_NET_MULTI_HOP
-    if(!strnicmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
+    if(!strncmp(ONCLI_MH_REPEAT_CMD_STR, CMD,
       strlen(ONCLI_MH_REPEAT_CMD_STR)))
     {
         *CMD_STR = ONCLI_MH_REPEAT_CMD_STR;
@@ -1071,7 +1071,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _DEBUGGING_TOOLS
-    if(!strnicmp(ONCLI_MEMORY_CMD_STR, CMD, strlen(ONCLI_MEMORY_CMD_STR)))
+    if(!strncmp(ONCLI_MEMORY_CMD_STR, CMD, strlen(ONCLI_MEMORY_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMORY_CMD_STR;
 
@@ -1086,7 +1086,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the memory command was received //
 
-    if(!strnicmp(ONCLI_MEMLOAD_CMD_STR, CMD, strlen(ONCLI_MEMLOAD_CMD_STR)))
+    if(!strncmp(ONCLI_MEMLOAD_CMD_STR, CMD, strlen(ONCLI_MEMLOAD_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMLOAD_CMD_STR;
 
@@ -1101,7 +1101,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the memload command was received //
 
-    if(!strnicmp(ONCLI_MEMSET_CMD_STR, CMD, strlen(ONCLI_MEMSET_CMD_STR)))
+    if(!strncmp(ONCLI_MEMSET_CMD_STR, CMD, strlen(ONCLI_MEMSET_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMSET_CMD_STR;
 
@@ -1116,7 +1116,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the memset command was received //
 
-    if(!strnicmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
+    if(!strncmp(ONCLI_MEMDUMP_CMD_STR, CMD, strlen(ONCLI_MEMDUMP_CMD_STR)))
     {
         *CMD_STR = ONCLI_MEMDUMP_CMD_STR;
 
@@ -1128,7 +1128,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return memdump_cmd_hdlr();
     } // else if the memdump command was received //
 
-    if(!strnicmp(ONCLI_INTERVAL_CMD_STR, CMD, strlen(ONCLI_INTERVAL_CMD_STR)))
+    if(!strncmp(ONCLI_INTERVAL_CMD_STR, CMD, strlen(ONCLI_INTERVAL_CMD_STR)))
     {
         *CMD_STR = ONCLI_INTERVAL_CMD_STR;
 
@@ -1143,7 +1143,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
         return ONCLI_SUCCESS;
     } // else if the interval command was received //
 
-    if(!strnicmp(ONCLI_PAUSE_CMD_STR, CMD, strlen(ONCLI_PAUSE_CMD_STR)))
+    if(!strncmp(ONCLI_PAUSE_CMD_STR, CMD, strlen(ONCLI_PAUSE_CMD_STR)))
     {
         *CMD_STR = ONCLI_PAUSE_CMD_STR;
 
@@ -1154,7 +1154,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return pause_cmd_hdlr();
     } // else if the pause command was received //
-    if(!strnicmp(ONCLI_RATCHET_CMD_STR, CMD, strlen(ONCLI_RATCHET_CMD_STR)))
+    if(!strncmp(ONCLI_RATCHET_CMD_STR, CMD, strlen(ONCLI_RATCHET_CMD_STR)))
     {
         *CMD_STR = ONCLI_RATCHET_CMD_STR;
 
@@ -1165,7 +1165,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
 
         return ratchet_cmd_hdlr();
     } // else if the ratchet command was received //
-    if(!strnicmp(ONCLI_PROCEED_CMD_STR, CMD, strlen(ONCLI_PROCEED_CMD_STR)))
+    if(!strncmp(ONCLI_PROCEED_CMD_STR, CMD, strlen(ONCLI_PROCEED_CMD_STR)))
     {
         *CMD_STR = ONCLI_PROCEED_CMD_STR;
 
@@ -1179,7 +1179,7 @@ oncli_status_t oncli_parse_cmd(const char * const CMD, const char ** CMD_STR,
     #endif
     
     #ifdef _ENABLE_ROUTE_COMMAND
-    if(!strnicmp(ONCLI_ROUTE_CMD_STR, CMD, strlen(ONCLI_ROUTE_CMD_STR)))
+    if(!strncmp(ONCLI_ROUTE_CMD_STR, CMD, strlen(ONCLI_ROUTE_CMD_STR)))
     {
         *CMD_STR = ONCLI_ROUTE_CMD_STR;
 
@@ -1242,12 +1242,12 @@ oncli_status_t echo_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
 
-    if(!strnicmp(ONCLI_ON_STR, ASCII_PARAM_LIST, strlen(ONCLI_ON_STR)))
+    if(!strncmp(ONCLI_ON_STR, ASCII_PARAM_LIST, strlen(ONCLI_ON_STR)))
     {
         echo = TRUE;
         len = strlen(ONCLI_ON_STR);
     } // if going to quiet mode //
-    else if(!strnicmp(ONCLI_OFF_STR, ASCII_PARAM_LIST, strlen(ONCLI_OFF_STR)))
+    else if(!strncmp(ONCLI_OFF_STR, ASCII_PARAM_LIST, strlen(ONCLI_OFF_STR)))
     {
         echo = FALSE;
         len = strlen(ONCLI_OFF_STR);
@@ -2224,17 +2224,17 @@ static oncli_status_t user_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     } // if malformed parameter //
 
     // check the action
-    if(!strnicmp(PARAM_PTR, ONCLI_INPUT_STR, strlen(ONCLI_INPUT_STR)))
+    if(!strncmp(PARAM_PTR, ONCLI_INPUT_STR, strlen(ONCLI_INPUT_STR)))
     {
         pin_type = ON_INPUT_PIN;
         PARAM_PTR += strlen(ONCLI_INPUT_STR);
     } // if it should be an input //
-    else if(!strnicmp(PARAM_PTR, ONCLI_OUTPUT_STR, strlen(ONCLI_OUTPUT_STR)))
+    else if(!strncmp(PARAM_PTR, ONCLI_OUTPUT_STR, strlen(ONCLI_OUTPUT_STR)))
     {
         pin_type = ON_OUTPUT_PIN;
         PARAM_PTR += strlen(ONCLI_OUTPUT_STR);
     } // else if it should be an output //
-    else if(!strnicmp(PARAM_PTR, ONCLI_DISABLE_STR, strlen(ONCLI_DISABLE_STR)))
+    else if(!strncmp(PARAM_PTR, ONCLI_DISABLE_STR, strlen(ONCLI_DISABLE_STR)))
     {
         pin_type = ON_DISABLE_PIN;
         PARAM_PTR += strlen(ONCLI_DISABLE_STR);
@@ -2989,12 +2989,12 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
     } // if malformed parameter //
     
     // read in the priority
-    if(!strnicmp(PARAM_PTR, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
+    if(!strncmp(PARAM_PTR, ONCLI_LOW_STR, strlen(ONCLI_LOW_STR)))
     {
         priority = ONE_NET_LOW_PRIORITY;
         PARAM_PTR += strlen(ONCLI_LOW_STR);
     } // if it's low priority //
-    else if(!strnicmp(PARAM_PTR, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
+    else if(!strncmp(PARAM_PTR, ONCLI_HIGH_STR, strlen(ONCLI_HIGH_STR)))
     {
         priority = ONE_NET_HIGH_PRIORITY;
         PARAM_PTR += strlen(ONCLI_HIGH_STR);
@@ -3590,34 +3590,34 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
+    if(!strncmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
     {
         PARAM_PTR += strlen(ONCLI_ON_STR);
         turn_on = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
+    else if(!strncmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
     {
         PARAM_PTR += strlen(ONCLI_OFF_STR);
         turn_off = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
+    else if(!strncmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
     {
         PARAM_PTR += strlen(CLEAR_STR);
         clear = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
+    else if(!strncmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
     {
         PARAM_PTR += strlen(DISPLAY_STR);
         display = TRUE;
     }
     else
     {
-        if(!strnicmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
+        if(!strncmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
         {
             add = TRUE;
             PARAM_PTR += strlen(ADD_STR);
         }
-        else if(!strnicmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
+        else if(!strncmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
         {
             PARAM_PTR += strlen(REMOVE_STR);
         }
@@ -3726,34 +3726,34 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_BAD_PARAM;
     } // if the parameter is invalid //
     
-    if(!strnicmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
+    if(!strncmp(PARAM_PTR, ONCLI_ON_STR, strlen(ONCLI_ON_STR)))
     {
         PARAM_PTR += strlen(ONCLI_ON_STR);
         turn_on = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
+    else if(!strncmp(PARAM_PTR, ONCLI_OFF_STR, strlen(ONCLI_OFF_STR)))
     {
         PARAM_PTR += strlen(ONCLI_OFF_STR);
         turn_off = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
+    else if(!strncmp(PARAM_PTR, CLEAR_STR, strlen(CLEAR_STR)))
     {
         PARAM_PTR += strlen(CLEAR_STR);
         clear = TRUE;
     }
-    else if(!strnicmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
+    else if(!strncmp(PARAM_PTR, DISPLAY_STR, strlen(DISPLAY_STR)))
     {
         PARAM_PTR += strlen(DISPLAY_STR);
         display = TRUE;
     }
     else
     {
-        if(!strnicmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
+        if(!strncmp(PARAM_PTR, ADD_STR, strlen(ADD_STR)))
         {
             add = TRUE;
             PARAM_PTR += strlen(ADD_STR);
         }
-        else if(!strnicmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
+        else if(!strncmp(PARAM_PTR, REMOVE_STR, strlen(REMOVE_STR)))
         {
             PARAM_PTR += strlen(REMOVE_STR);
         }
@@ -4254,7 +4254,7 @@ static int parse_memory_str(UInt8** mem_ptr,
     
     for(i = 0; !found && i < DEBUG_MEMORY_COUNT; i++)
     {
-        if(!strnicmp(debug_memory_str[i], ptr, strlen(debug_memory_str[i])))
+        if(!strncmp(debug_memory_str[i], ptr, strlen(debug_memory_str[i])))
         {
             memory_type = i;
             found = TRUE;
@@ -4488,7 +4488,7 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
 
     // get the region
 #ifdef _US_CHANNELS
-    if(!strnicmp(ASCII, ONCLI_US_STR, strlen(ONCLI_US_STR)))
+    if(!strncmp(ASCII, ONCLI_US_STR, strlen(ONCLI_US_STR)))
     {
         region = ONCLI_US;
         ASCII += strlen(ONCLI_US_STR);
@@ -4496,9 +4496,9 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
 #endif
 #ifdef _EUROPE_CHANNELS
 #ifdef _US_CHANNELS
-    else if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+    else if(!strncmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
 #else
-    if(!strnicmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
+    if(!strncmp(ASCII, ONCLI_EUR_STR, strlen(ONCLI_EUR_STR)))
 #endif
     {
         region = ONCLI_EUR;
