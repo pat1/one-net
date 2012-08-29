@@ -64,7 +64,6 @@
 */
 
 #include "one_net_types.h"
-
 #include "one_net_peer.h"
 
 
@@ -104,44 +103,6 @@ typedef struct
 } dfi_segment_hdr_t;
 
 
-#ifndef _ATXMEGA256A3B
-//! Identifies the type of data contained in a data flash segment
-typedef enum
-{
-    //! Used to indicate no segment type
-    DFI_ST_NO_SEGMENT_TYPE =            0x00,
-
-    //! Value that represents start of unused flash data
-    DFI_ST_UNUSED_FLASH_DATA =          0xFF,
-
-    //! Device manufacturing data
-    DFI_ST_DEVICE_MFG_DATA =            0x01,
-
-    //! ONE-NET master settings data
-    DFI_ST_ONE_NET_MASTER_SETTINGS =    0x11,
-
-    //! ONE-NET client settings data
-    DFI_ST_ONE_NET_CLIENT_SETTINGS =    0x12,
-
-    #ifdef _PEER
-    //! ONE-NET peer settings data
-    DFI_ST_ONE_NET_PEER_SETTINGS =      0x13,
-    #endif
-
-    //! General application data of user defined type 1
-    DFI_ST_APP_DATA_1 =                 0x21,
-
-    //! General application data of user defined type 2
-    DFI_ST_APP_DATA_2 =                 0x22,
-
-    //! General application data of user defined type 3
-    DFI_ST_APP_DATA_3 =                 0x23,
-
-    //! General application data of user defined type 4
-    DFI_ST_APP_DATA_4 =                 0x24
-
-} dfi_segment_type_t;
-#else
 //! Identifies the type of data contained in a data eeprom segment
 typedef enum
 {
@@ -152,7 +113,6 @@ typedef enum
 //    DFI_ST_UNUSED_EEPROM_DATA =          0xFF,
 
     //! MANUFACTURING DATA
-
     //! Device manufacturing data type
     DFI_ST_DEVICE_MFG_DATA                    =     0x01,
 
@@ -160,80 +120,59 @@ typedef enum
     DFI_EEPROM_DEVICE_MFG_DATA_OFFSET         =     0x00,
 
     //! Device manufacturing data size (in bytes)
-    DFI_EEPROM_DEVICE_MFG_DATA_SIZE           =     0x16,       // 22
+    DFI_EEPROM_DEVICE_MFG_DATA_SIZE           =     0x16,
 
 
     //! MASTER SEETINGS
-
-    //! Mmaster settings data type
+    //! Master settings data type
     DFI_ST_ONE_NET_MASTER_SETTINGS            =      0x02,
 
     //! Start EEPROM address of one net master settings data
     DFI_EEPROM_ONE_NET_MASTER_SETTINGS_OFFSET =   (DFI_EEPROM_DEVICE_MFG_DATA_OFFSET + DFI_EEPROM_DEVICE_MFG_DATA_SIZE),    // 22
-                                                   /// 22
 
     //! Device one net master settings data size (in bytes)
-    DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE   =   183, // (sizeof(on_base_param_t) + sizeof(on_master_param_t) +
-                                                       // ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t)),
-                                                       //! 43 + 5 + (5 * 27) = 183
+    DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE   =  sizeof(on_base_param_t) + sizeof(on_master_param_t) +
+                                                 ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t)
 
     //! CLIENT SEETINGS
-
     //! Client settings data type
     DFI_ST_ONE_NET_CLIENT_SETTINGS            =    0x03,
 
     //! Start EEPROM address of one net client settings data
     DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_OFFSET =    (DFI_EEPROM_ONE_NET_MASTER_SETTINGS_OFFSET + DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE),
-                                                   //! 205
-
-    //! Device one net client settings data size (in bytes)
-    DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE   =  63,   // (sizeof(on_base_param_t) + sizeof(on_master_t)),
-                                                       //! 43 + 20 = 63
-
 
     //! PEER SEETINGS
-
     //! Peer settings data type
     DFI_ST_ONE_NET_PEER_SETTINGS              =    0x04,
 
     //! Start EEPROM address of one net peer settings data
-    DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET   =  (DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_OFFSET + DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE),
-                                                 //! 268
+    DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET   =  DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_OFFSET + DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE,
 
-////#ifdef _PEER
+    #ifdef _PEER
     //! Device one net peer settings data size (in bytes)
     DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE     =  (ONE_NET_MAX_PEER_UNIT * sizeof(on_peer_unit_t)),
-                                                //! 8 * 4 = 32
-////#endif
+    #endif
 
 
     //! APPLICATION DATA 1
-
     //! General application data of user defined type 5
     DFI_ST_APP_DATA_1                            =    0x05,
 
-//#ifdef _PEER
+    #ifdef _PEER
     //! Start EEPROM address of one net appilication 1 data
     DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET =  (DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET + DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE),
-                                                    //! 300
-//#else
+    #else
     //! Start EEPROM address of one net appilication 1 data
-//    DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET =  DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET,
-                                                    //!
-//#endif
-
-    //! Device one net application 1 data size (in bytes)
-    DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE   =    12,
+    DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET =  DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET,                                                //!
+    #endif
 
 
     //! APPLICATION DATA 2
-
     //! General application data of user defined type 6
     DFI_ST_APP_DATA_2                             = 0x06,
 
     //! Start EEPROM address of one net appilication 2 data
     DFI_EEPROM_ONE_NET_APPLICATION_2_DATA_OFFSET  =  (DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET + DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE),
-                                                    //! 312
 
     //! Device one net application 2 data size (in bytes)
     DFI_EEPROM_ONE_NET_APPLICATION_2_DATA_SIZE   =    0,
@@ -241,30 +180,27 @@ typedef enum
 
 
     //! APPLICATION DATA 3
-
     //! General application data of user defined type 7
     DFI_ST_APP_DATA_3                            =  0x07,
 
     //! Start EEPROM address of one net appilication 3 data
     DFI_EEPROM_ONE_NET_APPLICATION_3_DATA_OFFSET =  (DFI_EEPROM_ONE_NET_APPLICATION_2_DATA_OFFSET + DFI_EEPROM_ONE_NET_APPLICATION_2_DATA_SIZE),
-                                                    //! 312
 
     //! Device one net application 3 data size (in bytes)
     DFI_EEPROM_ONE_NET_APPLICATION_3_DATA_SIZE   =    0,
 
 
     //! APPLICATION DATA 4
-
     //! General application data of user defined type 8
     DFI_ST_APP_DATA_4                            =  0x08,
 
     //! Start EEPROM address of one net appilication 4 data
     DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_OFFSET =  (DFI_EEPROM_ONE_NET_APPLICATION_3_DATA_OFFSET + DFI_EEPROM_ONE_NET_APPLICATION_3_DATA_SIZE),
-                                                    //! 312
 
     //! Device one net application 4 data size (in bytes)
     DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_SIZE   =    0,
 
+	
     //! EEPROM MANUFATURING SAVED
     //! On startup this byte is read, when the EEPROM is new and this address was never written, the vaue of this
     //! address is 0xFF
@@ -275,7 +211,7 @@ typedef enum
 
     //! Start EEPROM address of eeprom saved byte
     DFI_EEPROM_ONE_NET_EEPROM_MANUFATURING_SAVED_OFFSET =  (DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_OFFSET + DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_SIZE),
-                                                            /// 312
+
     //! Device eeprom saved size (in bytes)
     DFI_EEPROM_ONE_NET_MANUFATURING_SAVED_EEPROM_SIZE      =  1,
 
@@ -293,7 +229,6 @@ typedef enum
     //! Start EEPROM address of eeprom saved byte
     DFI_EEPROM_ONE_NET_EEPROM_MASTER_SAVED_OFFSET =  (DFI_EEPROM_ONE_NET_EEPROM_MANUFATURING_SAVED_OFFSET +
                                                       DFI_EEPROM_ONE_NET_MANUFATURING_SAVED_EEPROM_SIZE),
-                                                      /// 313
 
     //! Device eeprom saved size (in bytes)
     DFI_EEPROM_ONE_NET_MASTER_SAVED_EEPROM_SIZE      =  1,
@@ -313,7 +248,6 @@ typedef enum
     //! Start EEPROM address of eeprom saved byte
     DFI_EEPROM_ONE_NET_EEPROM_CLIENT_SAVED_OFFSET =  (DFI_EEPROM_ONE_NET_EEPROM_MASTER_SAVED_OFFSET +
                                                       DFI_EEPROM_ONE_NET_MASTER_SAVED_EEPROM_SIZE),
-                                                      /// 314
 
     //! Device eeprom saved size (in bytes)
     DFI_EEPROM_ONE_NET_CLIENT_SAVED_EEPROM_SIZE      =  1,
@@ -334,13 +268,10 @@ typedef enum
     //! Start EEPROM address of eeprom saved byte
     DFI_EEPROM_ONE_NET_EEPROM_MODE_SAVED_OFFSET =  (DFI_EEPROM_ONE_NET_EEPROM_CLIENT_SAVED_OFFSET +
                                                       DFI_EEPROM_ONE_NET_CLIENT_SAVED_EEPROM_SIZE),
-                                                      /// 315
 
     //! Device eeprom saved size (in bytes)
     DFI_EEPROM_ONE_NET_MODE_SAVED_EEPROM_SIZE      =  1
-
 } dfi_segment_type_t;
-#endif
 //! @} dfi_typedefs
 //								TYPEDEFS END
 //==========================================================================
@@ -356,8 +287,6 @@ extern const UInt8 dfi_segment_types_used[];
 extern const UInt8 dfi_segment_types_used_count;
 
 
-#ifdef _ATXMEGA256A3B
-#ifdef _NON_VOLATILE_MEMORY
 extern BOOL eeprom_manufacturing_saved;
 extern BOOL eeprom_master_saved;
 extern BOOL eeprom_client_saved;
@@ -369,9 +298,6 @@ extern UInt8 master_settings[DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE];
 extern UInt8 peer_settings[DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE];
 #endif
 extern UInt8 user_pins_settings[DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE];
-#endif
-////////////////////////////////////////////////////////////////////////
-#endif
 
 
 //! @} dfi_pub_var
@@ -412,7 +338,7 @@ extern UInt8 user_pins_settings[DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE];
 #ifndef _ATXMEGA256A3B
 UInt8 * dfi_find_last_segment_of_type(dfi_segment_type_t segment_type);
 #else
-UInt16 * dfi_find_last_segment_of_type(dfi_segment_type_t segment_type, UInt16 *segment_size);
+UInt16 * dfi_find_last_segment_of_type(dfi_segment_type_t segment_type);
 #endif
 
 /*!
@@ -485,6 +411,4 @@ void dfi_delete_segments_except_for(
 
 
 #endif // ifdef _NON_VOLATILE_MEMORY //
-
-
 #endif // #ifdef _DFI_H //
