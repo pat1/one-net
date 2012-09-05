@@ -115,8 +115,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="common" />
-    <Folder Include="common\string" />
     <Folder Include="transceivers" />
     <Folder Include="processors" />
     <Folder Include="one_net\mac" />
@@ -146,17 +144,9 @@
       <SubType>compile</SubType>
       <Link>sniff_eval.c</Link>
     </Compile>
-    <Compile Include="common\cb.c">
+    <Compile Include="..\..\..\..\..\common\cb.c">
       <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="common\dfi.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="common\string\nprintf.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="common\string\str.c">
-      <SubType>compile</SubType>
+      <Link>cb.c</Link>
     </Compile>
     <Compile Include="one_net\app\one_net_acknowledge.c">
       <SubType>compile</SubType>
