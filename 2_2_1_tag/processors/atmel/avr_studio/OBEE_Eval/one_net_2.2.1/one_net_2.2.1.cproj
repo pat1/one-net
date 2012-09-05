@@ -115,7 +115,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="transceivers" />
     <Folder Include="processors" />
     <Folder Include="one_net\mac" />
     <Folder Include="one_net" />
@@ -147,6 +146,10 @@
     <Compile Include="..\..\..\..\..\common\cb.c">
       <SubType>compile</SubType>
       <Link>cb.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\transceivers\adi\atmel_adi.c">
+      <SubType>compile</SubType>
+      <Link>atmel_adi.c</Link>
     </Compile>
     <Compile Include="one_net\app\one_net_acknowledge.c">
       <SubType>compile</SubType>
@@ -233,9 +236,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="processors\OBE\tick.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="transceivers\adi.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
