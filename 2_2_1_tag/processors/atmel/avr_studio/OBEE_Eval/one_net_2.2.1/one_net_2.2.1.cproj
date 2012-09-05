@@ -116,7 +116,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="processors" />
-    <Folder Include="one_net\mac" />
     <Folder Include="one_net" />
     <Folder Include="one_net\utility" />
     <Folder Include="one_net\port_specific" />
@@ -177,21 +176,25 @@
       <SubType>compile</SubType>
       <Link>oncli_str.c</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\one_net\mac\one_net.c">
+      <SubType>compile</SubType>
+      <Link>one_net.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\mac\one_net_client.c">
+      <SubType>compile</SubType>
+      <Link>one_net_client.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\mac\one_net_master.c">
+      <SubType>compile</SubType>
+      <Link>one_net_master.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\mac\one_net_peer.c">
+      <SubType>compile</SubType>
+      <Link>one_net_peer.c</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\transceivers\adi\atmel_adi.c">
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
-    </Compile>
-    <Compile Include="one_net\mac\one_net.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\mac\one_net_client.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\mac\one_net_master.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\mac\one_net_peer.c">
-      <SubType>compile</SubType>
     </Compile>
     <Compile Include="one_net\utility\one_net_crc.c">
       <SubType>compile</SubType>
