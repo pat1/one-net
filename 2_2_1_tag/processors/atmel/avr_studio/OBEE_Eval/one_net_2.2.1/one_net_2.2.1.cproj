@@ -116,7 +116,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="processors" />
-    <Folder Include="processors\common" />
     <Folder Include="processors\OBE" />
     <Folder Include="processors\OBE\adi" />
   </ItemGroup>
@@ -221,14 +220,17 @@
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
     </Compile>
-    <Compile Include="processors\common\one_net_port_specific.c">
+    <Compile Include="..\..\..\src\common\one_net_port_specific.c">
       <SubType>compile</SubType>
+      <Link>one_net_port_specific.c</Link>
     </Compile>
-    <Compile Include="processors\common\print.c">
+    <Compile Include="..\..\..\src\common\spi.c">
       <SubType>compile</SubType>
+      <Link>spi.c</Link>
     </Compile>
-    <Compile Include="processors\common\uart.c">
+    <Compile Include="..\..\..\src\common\uart.c">
       <SubType>compile</SubType>
+      <Link>uart.c</Link>
     </Compile>
     <Compile Include="processors\OBE\adi\hal_adi.c">
       <SubType>compile</SubType>
