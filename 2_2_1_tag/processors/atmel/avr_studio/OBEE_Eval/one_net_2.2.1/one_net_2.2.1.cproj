@@ -117,7 +117,6 @@
   <ItemGroup>
     <Folder Include="processors" />
     <Folder Include="processors\OBE" />
-    <Folder Include="processors\OBE\adi" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\..\..\applications\obee\client_eval.c">
@@ -232,11 +231,13 @@
       <SubType>compile</SubType>
       <Link>uart.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\adi\hal_adi.c">
+    <Compile Include="..\..\..\src\obee_eval\adi\hal_adi.c">
       <SubType>compile</SubType>
+      <Link>hal_adi.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\adi\tal_adi.c">
+    <Compile Include="..\..\..\src\obee_eval\adi\tal_adi.c">
       <SubType>compile</SubType>
+      <Link>tal_adi.c</Link>
     </Compile>
     <Compile Include="processors\OBE\eeprom_driver.c">
       <SubType>compile</SubType>
