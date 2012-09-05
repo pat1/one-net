@@ -118,7 +118,6 @@
     <Folder Include="processors" />
     <Folder Include="one_net\mac" />
     <Folder Include="one_net" />
-    <Folder Include="one_net\cli" />
     <Folder Include="one_net\utility" />
     <Folder Include="one_net\port_specific" />
     <Folder Include="processors\common" />
@@ -166,18 +165,21 @@
       <SubType>compile</SubType>
       <Link>one_net_packet.c</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\one_net\cli\oncli.c">
+      <SubType>compile</SubType>
+      <Link>oncli.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\cli\oncli_hdlr.c">
+      <SubType>compile</SubType>
+      <Link>oncli_hdlr.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\cli\oncli_str.c">
+      <SubType>compile</SubType>
+      <Link>oncli_str.c</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\transceivers\adi\atmel_adi.c">
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
-    </Compile>
-    <Compile Include="one_net\cli\oncli.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\cli\oncli_hdlr.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\cli\oncli_str.c">
-      <SubType>compile</SubType>
     </Compile>
     <Compile Include="one_net\mac\one_net.c">
       <SubType>compile</SubType>
