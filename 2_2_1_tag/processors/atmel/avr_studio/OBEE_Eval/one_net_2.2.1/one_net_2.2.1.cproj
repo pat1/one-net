@@ -116,9 +116,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="processors" />
-    <Folder Include="one_net" />
-    <Folder Include="one_net\utility" />
-    <Folder Include="one_net\port_specific" />
     <Folder Include="processors\common" />
     <Folder Include="processors\OBE" />
     <Folder Include="processors\OBE\adi" />
@@ -192,30 +189,37 @@
       <SubType>compile</SubType>
       <Link>one_net_peer.c</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_crc.c">
+      <SubType>compile</SubType>
+      <Link>one_net_crc.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_encode.c">
+      <SubType>compile</SubType>
+      <Link>one_net_encode.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_led.c">
+      <SubType>compile</SubType>
+      <Link>one_net_led.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_memory.c">
+      <SubType>compile</SubType>
+      <Link>one_net_memory.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_prand.c">
+      <SubType>compile</SubType>
+      <Link>one_net_prand.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_timer.c">
+      <SubType>compile</SubType>
+      <Link>one_net_timer.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\utility\one_net_xtea.c">
+      <SubType>compile</SubType>
+      <Link>one_net_xtea.c</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\transceivers\adi\atmel_adi.c">
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_crc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_encode.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_led.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_memory.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_prand.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_timer.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\utility\one_net_xtea.c">
-      <SubType>compile</SubType>
     </Compile>
     <Compile Include="processors\common\one_net_port_specific.c">
       <SubType>compile</SubType>
