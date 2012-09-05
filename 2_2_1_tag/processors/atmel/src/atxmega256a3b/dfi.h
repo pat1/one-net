@@ -141,6 +141,10 @@ typedef enum
     //! Start EEPROM address of one net client settings data
     DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_OFFSET =    (DFI_EEPROM_ONE_NET_MASTER_SETTINGS_OFFSET + DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE),
 
+    //! Device one net client settings data size (in bytes)
+    DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE   =  sizeof(on_base_param_t) + sizeof(on_master_t),
+
+
     //! PEER SEETINGS
     //! Peer settings data type
     DFI_ST_ONE_NET_PEER_SETTINGS              =    0x04,
@@ -165,6 +169,9 @@ typedef enum
     //! Start EEPROM address of one net appilication 1 data
     DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET =  DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET,                                                //!
     #endif
+	
+    //! Device one net application 1 data size (in bytes)
+    DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE   =    12, // TODO --  Where does the 12 come from?
 
 
     //! APPLICATION DATA 2
