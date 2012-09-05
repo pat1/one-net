@@ -115,10 +115,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="processors" />
-    <Folder Include="processors\OBE" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\..\..\..\..\applications\obee\client_eval.c">
       <SubType>compile</SubType>
       <Link>client_eval.c</Link>
@@ -239,20 +235,25 @@
       <SubType>compile</SubType>
       <Link>tal_adi.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\eeprom_driver.c">
+    <Compile Include="..\..\..\src\obee_eval\eeprom_driver.c">
       <SubType>compile</SubType>
+      <Link>eeprom_driver.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\hal.c">
+    <Compile Include="..\..\..\src\obee_eval\hal.c">
       <SubType>compile</SubType>
+      <Link>hal.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\nv_hal.c">
+    <Compile Include="..\..\..\src\obee_eval\nv_hal.c">
       <SubType>compile</SubType>
+      <Link>nv_hal.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\pal.c">
+    <Compile Include="..\..\..\src\obee_eval\pal.c">
       <SubType>compile</SubType>
+      <Link>pal.c</Link>
     </Compile>
-    <Compile Include="processors\OBE\tick.c">
+    <Compile Include="..\..\..\src\obee_eval\tick.c">
       <SubType>compile</SubType>
+      <Link>tick.c</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
