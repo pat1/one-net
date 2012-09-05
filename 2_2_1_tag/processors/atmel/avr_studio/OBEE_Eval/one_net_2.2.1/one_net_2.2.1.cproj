@@ -76,46 +76,45 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>../../../../../../applications/obee</Value>
-      <Value>../../../../../../one_net/app</Value>
-      <Value>../../../../../../one_net/cli</Value>
-      <Value>../../../../../../one_net/mac</Value>
-      <Value>../../../../../../one_net/port_specific</Value>
-      <Value>../../../../../../common</Value>
-      <Value>../../../../../../common/string</Value>
-      <Value>../../../../../../one_net/utility</Value>
-      <Value>../../../../src/atxmega256a3b</Value>
-      <Value>../../../../src/obee_eval/adi</Value>
-      <Value>../../../../src/obee_eval</Value>
-      <Value>../../../../src/common</Value>
-      <Value>../../../../../../transceivers/adi</Value>
-      <Value>../../../../../../transceivers</Value>
-      <Value>c:\program files\atmel\atmel studio 6.0\extensions\atmel\avrgcc\3.4.0.65\avrtoolchain\avr\include</Value>
-      <Value>C:\Program Files\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\avr\include\avr</Value>
-    </ListValues>
-  </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>m</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>../../../../../../applications/obee</Value>
+            <Value>../../../../../../one_net/app</Value>
+            <Value>../../../../../../one_net/cli</Value>
+            <Value>../../../../../../one_net/mac</Value>
+            <Value>../../../../../../one_net/port_specific</Value>
+            <Value>../../../../../../common</Value>
+            <Value>../../../../../../common/string</Value>
+            <Value>../../../../../../one_net/utility</Value>
+            <Value>../../../../src/atxmega256a3b</Value>
+            <Value>../../../../src/obee_eval/adi</Value>
+            <Value>../../../../src/obee_eval</Value>
+            <Value>../../../../src/common</Value>
+            <Value>../../../../../../transceivers/adi</Value>
+            <Value>../../../../../../transceivers</Value>
+            <Value>c:\program files\atmel\atmel studio 6.0\extensions\atmel\avrgcc\3.4.0.65\avrtoolchain\avr\include</Value>
+            <Value>C:\Program Files\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\avr\include\avr</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>m</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="applications" />
     <Folder Include="common" />
     <Folder Include="common\string" />
     <Folder Include="transceivers" />
@@ -131,17 +130,21 @@
     <Folder Include="processors\OBE\adi" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="applications\client_eval.c">
+    <Compile Include="..\..\..\..\..\applications\obee\client_eval.c">
       <SubType>compile</SubType>
+      <Link>client_eval.c</Link>
     </Compile>
-    <Compile Include="applications\master_eval.c">
+    <Compile Include="..\..\..\..\..\applications\obee\master_eval.c">
       <SubType>compile</SubType>
+      <Link>master_eval.c</Link>
     </Compile>
-    <Compile Include="applications\one_net_eval.c">
+    <Compile Include="..\..\..\..\..\applications\obee\one_net_eval.c">
       <SubType>compile</SubType>
+      <Link>one_net_eval.c</Link>
     </Compile>
-    <Compile Include="applications\sniff_eval.c">
+    <Compile Include="..\..\..\..\..\applications\obee\sniff_eval.c">
       <SubType>compile</SubType>
+      <Link>sniff_eval.c</Link>
     </Compile>
     <Compile Include="common\cb.c">
       <SubType>compile</SubType>
