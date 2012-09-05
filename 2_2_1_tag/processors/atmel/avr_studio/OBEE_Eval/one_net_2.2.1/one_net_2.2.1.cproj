@@ -118,7 +118,6 @@
     <Folder Include="processors" />
     <Folder Include="one_net\mac" />
     <Folder Include="one_net" />
-    <Folder Include="one_net\app" />
     <Folder Include="one_net\cli" />
     <Folder Include="one_net\utility" />
     <Folder Include="one_net\port_specific" />
@@ -147,24 +146,29 @@
       <SubType>compile</SubType>
       <Link>cb.c</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\one_net\app\one_net_acknowledge.c">
+      <SubType>compile</SubType>
+      <Link>one_net_acknowledge.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\app\one_net_application.c">
+      <SubType>compile</SubType>
+      <Link>one_net_application.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\app\one_net_features.c">
+      <SubType>compile</SubType>
+      <Link>one_net_features.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\app\one_net_message.c">
+      <SubType>compile</SubType>
+      <Link>one_net_message.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\one_net\app\one_net_packet.c">
+      <SubType>compile</SubType>
+      <Link>one_net_packet.c</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\transceivers\adi\atmel_adi.c">
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
-    </Compile>
-    <Compile Include="one_net\app\one_net_acknowledge.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\app\one_net_application.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\app\one_net_features.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\app\one_net_message.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="one_net\app\one_net_packet.c">
-      <SubType>compile</SubType>
     </Compile>
     <Compile Include="one_net\cli\oncli.c">
       <SubType>compile</SubType>
