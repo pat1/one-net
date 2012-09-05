@@ -2056,10 +2056,42 @@ static oncli_status_t parse_and_send_pin_msg(
         dst_unit = ONE_NET_DEV_UNIT;
         switch(src_unit)
         {
+        #ifndef _ATXMEGA256A3B
             case 0: pin_value = USER_PIN0; break;
             case 1: pin_value = USER_PIN1; break;
             case 2: pin_value = USER_PIN2; break;
             case 3: pin_value = USER_PIN3; break;
+        #else
+            // TODO -- Can the code below be made more efficient?
+            case 0:
+                pin_value = USER_PIN0_INPUT_PORT_REG & (1 << USER_PIN0_BIT);
+                if(pin_value != 0)
+                {
+	                pin_value = 1;
+                }
+                break;
+            case 1:
+                pin_value = USER_PIN1_INPUT_PORT_REG & (1 << USER_PIN1_BIT);
+                if(pin_value != 0)
+                {
+	                pin_value = 1;
+                }
+                break;
+            case 2:
+                pin_value = USER_PIN2_INPUT_PORT_REG & (1 << USER_PIN2_BIT);
+                if(pin_value != 0)
+                {
+	                pin_value = 1;
+                }
+                break;
+            case 3:
+                pin_value = USER_PIN3_INPUT_PORT_REG & (1 << USER_PIN3_BIT);
+                if(pin_value != 0)
+                {
+	                pin_value = 1;
+                }
+                break;
+        #endif
         }
     }
     
