@@ -132,7 +132,7 @@ typedef enum
 
     //! Device one net master settings data size (in bytes)
     DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE   =  sizeof(on_base_param_t) + sizeof(on_master_param_t) +
-                                                 ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t)
+                                                 ONE_NET_MASTER_MAX_CLIENTS * sizeof(on_client_t),
 
     //! CLIENT SEETINGS
     //! Client settings data type
