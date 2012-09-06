@@ -364,6 +364,9 @@ UInt8 bit_mask = 0;
 //! clear.
 extern cb_rec_t uart_tx_cb;
 
+//! From tick.c
+extern BOOL tick_flag;
+
 #ifdef _ATXMEGA256A3B
 BOOL ignore_interrupt = FALSE;
 #endif
