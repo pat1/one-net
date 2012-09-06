@@ -512,7 +512,7 @@ BOOL tal_channel_is_clear(void)
 
 
 
-UInt16 tal_write_packet(const UInt8 * data, const UInt16 len)
+UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
 {
     BOOL uart_pause_needed = FALSE;
 
