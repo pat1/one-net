@@ -341,8 +341,8 @@ void init_serial_client(void)
       }
    }
    else  // if(eeprom_client_saved)
+#endif // _NON_VOLATILE_MEMORY is defined
    {
-#endif
         #ifdef _UART
         oncli_send_msg("Parameters have not been loaded from eeprom.\n");
         #endif
