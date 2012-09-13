@@ -219,6 +219,10 @@
       <SubType>compile</SubType>
       <Link>atmel_adi.c</Link>
     </Compile>
+    <Compile Include="..\..\..\src\atxmega256a3b\atxmega256a3b_dfi.c">
+      <SubType>compile</SubType>
+      <Link>atxmega256a3b_dfi.c</Link>
+    </Compile>
     <Compile Include="..\..\..\src\common\one_net_port_specific.c">
       <SubType>compile</SubType>
       <Link>one_net_port_specific.c</Link>
