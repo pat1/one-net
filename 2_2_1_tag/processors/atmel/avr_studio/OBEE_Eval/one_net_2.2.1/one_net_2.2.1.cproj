@@ -135,6 +135,10 @@
       <SubType>compile</SubType>
       <Link>cb.c</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\common\string\str.c">
+      <SubType>compile</SubType>
+      <Link>str.c</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\one_net\app\one_net_acknowledge.c">
       <SubType>compile</SubType>
       <Link>one_net_acknowledge.c</Link>
