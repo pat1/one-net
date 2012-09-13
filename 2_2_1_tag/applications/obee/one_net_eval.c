@@ -1883,12 +1883,13 @@ static void eval_set_modes_from_switch_positions(void)
 
 static void eval_set_master_or_client(void)
 {
+#ifdef _NON_VOLATILE_MEMORY
+
     // read eeprom operation mode byte(master= 1 or client = 0, if value is 0xFF defaults to client)
     UInt16 address = DFI_EEPROM_ONE_NET_EEPROM_MODE_SAVED_OFFSET;
     UInt8 read_byte = eeprom_read_byte((UInt16)address);
 
     #ifdef _ONE_NET_CLIENT
-
     #ifdef _ONE_NET_MASTER
     // note : this includes devices which are both master and clients
     if((read_byte == 0) || (read_byte == 0xFF))
@@ -1911,7 +1912,7 @@ static void eval_set_master_or_client(void)
     }
     else
     {
-        // this condition could not happen (when the option _ONE_NET_CLIENT is disbaled in the file config_options.h and
+        // this condition could not happen (when the option _ONE_NET_CLIENT is disabled in the file config_options.h and
         // the project is rebuild, then the EEPROM IS ERASED
     }
     #endif   // #ifdef _ONE_NET_CLIENT
@@ -1925,11 +1926,24 @@ static void eval_set_master_or_client(void)
     }
     else
     {
-        // this condition could not happen (when the option _ONE_NET_MASTER is disbaled in the file config_options.h and
+        // this condition could not happen (when the option _ONE_NET_MASTER is disabled in the file config_options.h and
         // the project is rebuild, then the EEPROM IS ERASED
     }
     #endif
+	
+#else
+    // this code executes when we are not using non-volatile memory.  Default is client if
+    // both _ONE_NET_MASTER and _ONE_NET_CLIENT are both defined.
+    // TODO -- Physical switches are not part of this project, correct?
+    #ifdef _ONE_NET_CLIENT
+    device_is_master = FALSE;
+    node_loop_func = &client_eval;
+    #else
+    device_is_master = TRUE;
+    node_loop_func = &master_eval;
+    #endif
 
+#endif
 }
 
 #ifdef _AUTO_MODE

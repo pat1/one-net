@@ -342,8 +342,14 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 #endif
 {
 #ifdef _NON_VOLATILE_MEMORY
+   UInt8 i;
    UInt16 address = 0;
    UInt8 read_byte = 0;
+   
+   
+   // TODO -- Is load_nv_memory used anywhere?  If load_nv_memory is false, we should
+   // make a call to one_net_master_reset_master
+   
 
    // Reading the eeprom_manufacturing_saved,eeprom_master_saved and eeprom_client_saved values
    // from EEPROM
@@ -365,14 +371,11 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
    }
 
 
-
    // set eeprom_user_pins_saved address in eeprom
    address = DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_OFFSET;
 
    // get user pins settings from eeprom
    eeprom_read_block ((UInt8 *)user_pins_settings, (UInt16)address, DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE);
-
-
 
 
    // set eeprom_master_saved address in eeprom
@@ -391,7 +394,6 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
    }
 
    // first initialize all clients to broadcast
-   UInt8 i;
    for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
    {
        client_list[i].device.did[0] = 0xB4;
@@ -401,24 +403,28 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 
    if(eeprom_master_saved)
    {
+      one_net_status_t status;
       // set master settings address in eeprom
       UInt16 address = DFI_EEPROM_ONE_NET_MASTER_SETTINGS_OFFSET;
+	  
+      #ifdef _PEER
+      // set peer settings address in eeprom
+      UInt16 peer_address = DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET;
+	  #endif
 
       // get master settings from eeprom
       eeprom_read_block ((UInt8 *)master_settings, (UInt16)address, DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE);
 
       #ifdef _PEER
-      // set peer settings address in eeprom
-      UInt16 peer_address = DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET;
-      // get peer seetings from eeprom
+      // get peer settings from eeprom
       eeprom_read_block ((UInt8 *)peer_settings, (UInt16)peer_address, DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE);
 	  
       one_net_memmove(peer_storage, peer_settings, PEER_STORAGE_SIZE_BYTES);	  
       #endif
 
-      one_net_status_t status;
       status = one_net_master_init(master_settings, DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE);
 
+      // TODO -- Derek 9/12/2012 -- Why is this commented out?  Are we sure status will never be ONS_MORE?
 	  /*
       #ifdef _PEER
       if(status == ONS_MORE)
@@ -430,7 +436,6 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 
       if(status == ONS_SUCCESS)
       {
-
             // so far, so good.  Copy the pin info and we should be done.
             one_net_memmove(user_pin, user_pins_settings, sizeof(user_pin));
 
@@ -443,13 +448,9 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
             #ifdef _UART
             oncli_send_msg("Parameters have not been loaded from eeprom.\n");
             #endif
-            #endif
             // start a brand new network
             one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
-        #ifdef _NON_VOLATILE_MEMORY
       }
-        #endif
-       ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
    }
    else   // if(eeprom_master_saved)
    {
@@ -459,9 +460,13 @@ void init_serial_master(BOOL load_nv_memory, SInt8 channel)
 
         // start a brand new network
         one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
-
-        ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
    }
+#else // if _NON_VOLATILE_MEMORY is not defined
+   // start a brand new network since we are not loading from eeprom
+   one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
+#endif // if _NON_VOLATILE_MEMORY is defined
+   
+   ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
 } // init_serial_master //
 
 
