@@ -351,37 +351,37 @@
 
 #ifdef _AT_LEAST_ONE_COMMAND_ENABLED
 
-	// _ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
-	#ifndef _ENABLE_SINGLE_COMMAND
-		#define _ENABLE_SINGLE_COMMAND
+	// ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
+	#ifndef ENABLE_SINGLE_COMMAND
+		#define ENABLE_SINGLE_COMMAND
 	#endif
 
     #ifdef BLOCK_MESSAGES_ENABLED
-	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
-	    #ifndef _ENABLE_BLOCK_COMMAND
-		    #define _ENABLE_BLOCK_COMMAND
+	    // ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
+	    #ifndef ENABLE_BLOCK_COMMAND
+		    #define ENABLE_BLOCK_COMMAND
 	    #endif
 
-	    // _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
-	    #ifndef _ENABLE_BLOCK_TEXT_COMMAND
-		    #define _ENABLE_BLOCK_TEXT_COMMAND
+	    // ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
+	    #ifndef ENABLE_BLOCK_TEXT_COMMAND
+		    #define ENABLE_BLOCK_TEXT_COMMAND
 	    #endif
 	#endif
 
     #ifdef NON_VOLATILE_MEMORY
-        // _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
-        #ifndef _ENABLE_ERASE_COMMAND
-            #define _ENABLE_ERASE_COMMAND
+        // ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
+        #ifndef ENABLE_ERASE_COMMAND
+            #define ENABLE_ERASE_COMMAND
         #endif
 
-        // _ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
-        #ifndef _ENABLE_SAVE_COMMAND
-	        #define _ENABLE_SAVE_COMMAND
+        // ENABLE_SAVE_COMMAND should be defined if you are implementing the "save" command option
+        #ifndef ENABLE_SAVE_COMMAND
+	        #define ENABLE_SAVE_COMMAND
         #endif
 
-        // _ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
-        #ifndef _ENABLE_SETNI_COMMAND
-            #define _ENABLE_SETNI_COMMAND
+        // ENABLE_SETNI_COMMAND should be defined if you are implementing the "setni" command option
+        #ifndef ENABLE_SETNI_COMMAND
+            #define ENABLE_SETNI_COMMAND
         #endif
 
         // _AUTO_SAVE should be defined if the parameters should be saved every
@@ -391,55 +391,55 @@
         #endif
     #endif
 
-	// _ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
-	#ifndef _ENABLE_DUMP_COMMAND
-	//	#define _ENABLE_DUMP_COMMAND
+	// ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
+	#ifndef ENABLE_DUMP_COMMAND
+	//	#define ENABLE_DUMP_COMMAND
 	#endif
 
-	// _ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
-	#ifdef _ENABLE_SINGLE_COMMAND
-		#ifndef _ENABLE_RSINGLE_COMMAND
-	//		#define _ENABLE_RSINGLE_COMMAND
+	// ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
+	#ifdef ENABLE_SINGLE_COMMAND
+		#ifndef ENABLE_RSINGLE_COMMAND
+	//		#define ENABLE_RSINGLE_COMMAND
 		#endif
 	#endif
 
-	// _ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
-	/*#ifndef _ENABLE_RSSI_COMMAND
-		#define _ENABLE_RSSSI_COMMAND
+	// ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
+	/*#ifndef ENABLE_RSSI_COMMAND
+		#define _ENABLE_RSSI_COMMAND
 	#endif*/
 
-	// _ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
-	#ifndef _ENABLE_LIST_COMMAND
-		#define _ENABLE_LIST_COMMAND
+	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
+	#ifndef ENABLE_LIST_COMMAND
+		#define ENABLE_LIST_COMMAND
 	#endif
 
     // Master Only Commands
     #ifdef ONE_NET_MASTER
 
-        // _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
-        #ifndef _ENABLE_CHANNEL_COMMAND
-            #define _ENABLE_CHANNEL_COMMAND
+        // ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
+        #ifndef ENABLE_CHANNEL_COMMAND
+            #define ENABLE_CHANNEL_COMMAND
         #endif
 
-	    // _ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
-	    #ifndef _ENABLE_INVITE_COMMAND
-		    #define _ENABLE_INVITE_COMMAND
+	    // ENABLE_INVITE_COMMAND should be defined if you are implementing the "invite" command option
+	    #ifndef ENABLE_INVITE_COMMAND
+		    #define ENABLE_INVITE_COMMAND
 	    #endif
 
-	    // _ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
-	    #ifndef _ENABLE_CANCEL_INVITE_COMMAND
-		    #define _ENABLE_CANCEL_INVITE_COMMAND
+	    // ENABLE_CANCEL_INVITE_COMMAND should be defined if you are implementing the "cancel invite" command option
+	    #ifndef ENABLE_CANCEL_INVITE_COMMAND
+		    #define ENABLE_CANCEL_INVITE_COMMAND
 	    #endif
 
     	#ifdef PEER
-	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
-		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
-			    #define _ENABLE_ASSIGN_PEER_COMMAND
+	    	// ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
+		    #ifndef ENABLE_ASSIGN_PEER_COMMAND
+			    #define ENABLE_ASSIGN_PEER_COMMAND
 		    #endif
 
-		    // _ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
-		    #ifndef _ENABLE_UNASSIGN_PEER_COMMAND
-			    #define _ENABLE_UNASSIGN_PEER_COMMAND
+		    // ENABLE_UNASSIGN_PEER_COMMAND should be defined if you are implementing the "unassign peer" command option
+		    #ifndef ENABLE_UNASSIGN_PEER_COMMAND
+			    #define ENABLE_UNASSIGN_PEER_COMMAND
 		    #endif
 	    #endif
 
@@ -471,64 +471,64 @@
         #endif
 	#endif
 
-	// _ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
-	#ifndef _ENABLE_GET_CHANNEL_COMMAND
-	//	#define _ENABLE_GET_CHANNEL_COMMAND
+	// ENABLE_GET_CHANNEL_COMMAND should be defined if you are implementing the "get channel" command option
+	#ifndef ENABLE_GET_CHANNEL_COMMAND
+	//	#define ENABLE_GET_CHANNEL_COMMAND
 	#endif
 
-	// _ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
-	#ifndef _ENABLE_USER_PIN_COMMAND
-		#define _ENABLE_USER_PIN_COMMAND
+	// ENABLE_USER_PIN_COMMAND should be defined if you are implementing the "user pin" command option
+	#ifndef ENABLE_USER_PIN_COMMAND
+		#define ENABLE_USER_PIN_COMMAND
 	#endif
 
-	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
+	// ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
     #ifdef DEVICE_SLEEPS
-        #ifndef _ENABLE_JOIN_COMMAND
-		    #define _ENABLE_JOIN_COMMAND
+        #ifndef ENABLE_JOIN_COMMAND
+		    #define ENABLE_JOIN_COMMAND
 	    #endif
     #endif
 
-	// _ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
+	// ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
 	#ifdef _SNIFFER_MODE
-		#ifndef _ENABLE_SNIFF_COMMAND
-			#define _ENABLE_SNIFF_COMMAND
+		#ifndef ENABLE_SNIFF_COMMAND
+			#define ENABLE_SNIFF_COMMAND
 		#endif
 	#endif
 
-	// _ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
-	#ifndef _ENABLE_MODE_COMMAND
-		#define _ENABLE_MODE_COMMAND
+	// ENABLE_MODE_COMMAND should be defined if you are implementing the "mode" command option
+	#ifndef ENABLE_MODE_COMMAND
+		#define ENABLE_MODE_COMMAND
 	#endif
 
-	// _ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
-	#ifndef _ENABLE_ECHO_COMMAND
-		#define _ENABLE_ECHO_COMMAND
+	// ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
+	#ifndef ENABLE_ECHO_COMMAND
+		#define ENABLE_ECHO_COMMAND
 	#endif
 
-    // _ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
+    // ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
     #ifdef _DATA_RATE_CHANNEL
-        #ifndef _ENABLE_SET_DR_CHANNEL_COMMAND
-        //    #define _ENABLE_SET_DR_CHANNEL_COMMAND
+        #ifndef ENABLE_SET_DR_CHANNEL_COMMAND
+        //    #define ENABLE_SET_DR_CHANNEL_COMMAND
         #endif
     #endif
 
-    // _ENABLE_ROUTE_COMMAND should be defined if you are implementing the "route" command option
+    // ENABLE_ROUTE_COMMAND should be defined if you are implementing the "route" command option
     #ifdef ROUTE
-        #ifndef _ENABLE_ROUTE_COMMAND
-            #define _ENABLE_ROUTE_COMMAND
+        #ifndef ENABLE_ROUTE_COMMAND
+            #define ENABLE_ROUTE_COMMAND
         #endif
     #endif
 
     #ifdef _UART
-        // _ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
-        #ifndef _ENABLE_BAUD_COMMAND
-            #define _ENABLE_BAUD_COMMAND
+        // ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
+        #ifndef ENABLE_BAUD_COMMAND
+            #define ENABLE_BAUD_COMMAND
         #endif
 
-        // _ENABLE_VERBOSE_LEVEL_COMMAND should be enabled if you are implementing
+        // ENABLE_VERBOSE_LEVEL_COMMAND should be enabled if you are implementing
         // the "verbose level" command
-        #ifndef _ENABLE_VERBOSE_LEVEL_COMMAND
-            #define _ENABLE_VERBOSE_LEVEL_COMMAND
+        #ifndef ENABLE_VERBOSE_LEVEL_COMMAND
+            #define ENABLE_VERBOSE_LEVEL_COMMAND
         #endif
     #endif
 #endif
@@ -549,12 +549,12 @@
 #endif
 
 
-// enable this when you want more ROMDATA or other meemory.
+// enable this when you want more ROMDATA or other memory.
 // Shortens strings to save memory, but the strings won't make
 // much sense (i.e. "zo" instead of "STATUS QUERY".  Generally used for
 // developers.  You need to look at the arrays in "oncli.c" and elsewhere
 // to make sense of the shortens strings.  However, shortening the strings
-// can allow you to use the ebugger and use other debugging tools.
+// can allow you to use the debugger and use other debugging tools.
 
 // TODO  --  shorten some strings in oncli_str.c to save memory / code space.
 #ifndef MINIMIZE_STRING_LENGTHS
