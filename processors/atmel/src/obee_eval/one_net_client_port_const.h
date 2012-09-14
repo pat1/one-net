@@ -49,8 +49,8 @@
 
 
  //! Define this if this device ever goes to sleep.
-#ifndef _DEVICE_SLEEPS
-   // #define _DEVICE_SLEEPS
+#ifndef DEVICE_SLEEPS
+   // #define DEVICE_SLEEPS
 #endif
 
 

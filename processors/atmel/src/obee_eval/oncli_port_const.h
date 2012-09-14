@@ -52,7 +52,7 @@
 
 #include "config_options.h"
 
-#ifdef _ENABLE_CLI
+#ifdef ENABLE_CLI
 
 #include "tick.h"
 
