@@ -40,16 +40,16 @@
 */
 
 
-#ifdef _ONE_NET_MASTER
-	#undef _ONE_NET_MASTER
+#ifdef ONE_NET_MASTER
+	#undef ONE_NET_MASTER
 #endif
 
-#ifdef _ONE_NET_CLIENT
-	#undef _ONE_NET_CLIENT
+#ifdef ONE_NET_CLIENT
+	#undef ONE_NET_CLIENT
 #endif
 
-#ifdef _PEER
-	#undef _PEER
+#ifdef PEER
+	#undef PEER
 #endif
 
 #ifdef _BLOCK_MESSAGES_ENABLED

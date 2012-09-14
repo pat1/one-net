@@ -65,7 +65,7 @@ const UInt8 dfi_segment_types_used[] =
     DFI_ST_DEVICE_MFG_DATA, /* TODO -- should this be on the list? */
     DFI_ST_ONE_NET_MASTER_SETTINGS,
     DFI_ST_ONE_NET_CLIENT_SETTINGS,
-    #ifdef _PEER
+    #ifdef PEER
     DFI_ST_ONE_NET_PEER_SETTINGS,
     #endif
     DFI_ST_APP_DATA_1,
@@ -117,7 +117,7 @@ BOOL eeprom_client_saved;
 UInt8 manufacturing_settings[DFI_EEPROM_DEVICE_MFG_DATA_SIZE];
 UInt8 client_settings[DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE];
 UInt8 master_settings[DFI_EEPROM_ONE_NET_MASTER_SETTINGS_SIZE];
-#ifdef _PEER
+#ifdef PEER
 UInt8 peer_settings[DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE];
 #endif
 UInt8 user_pins_settings[DFI_EEPROM_ONE_NET_APPLICATION_1_DATA_SIZE];
@@ -158,7 +158,7 @@ UInt16 * dfi_find_last_segment_of_type(dfi_segment_type_t segment_type)
          start_address = DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_OFFSET;
          break;
 
-#ifdef _PEER
+#ifdef PEER
       case DFI_ST_ONE_NET_PEER_SETTINGS:        //! 4
          start_address = DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET;
          break;
@@ -236,7 +236,7 @@ UInt16 * dfi_write_segment_of_type(dfi_segment_type_t segment_type, UInt8 * data
          segment_size = DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE;
          break;
 
-      #ifdef _PEER
+      #ifdef PEER
       case DFI_ST_ONE_NET_PEER_SETTINGS:        //! 4
          start_address = DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET;
          segment_size = DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE;
@@ -366,7 +366,7 @@ void dfi_delete_segments_except_for(
                  segment_size = DFI_EEPROM_ONE_NET_CLIENT_SETTINGS_SIZE;
                  break;
 
-              #ifdef _PEER
+              #ifdef PEER
               case DFI_ST_ONE_NET_PEER_SETTINGS:        //! 4
                  start_address = DFI_EEPROM_ONE_NET_PEER_SETTINGS_OFFSET;
                  segment_size = DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE;

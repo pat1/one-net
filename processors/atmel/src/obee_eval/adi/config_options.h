@@ -82,20 +82,20 @@
 
 // Master/Client
 
-#ifndef _ONE_NET_MASTER
-	#define _ONE_NET_MASTER
+#ifndef ONE_NET_MASTER
+	#define ONE_NET_MASTER
 #endif
 
-#ifndef _ONE_NET_CLIENT
-	#define _ONE_NET_CLIENT
+#ifndef ONE_NET_CLIENT
+	#define ONE_NET_CLIENT
 #endif
 
 
 
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
-// Define _PEER if your application implements peer assignments.  Default is _PEER assigned
-#ifndef _PEER
-	#define _PEER
+// Define PEER if your application implements peer assignments.  Default is PEER assigned
+#ifndef PEER
+	#define PEER
 #endif
 
 
@@ -131,7 +131,7 @@
     #endif
 
     // sleeping devices cannot be repeaters.
-    #if defined(_ONE_NET_CLIENT) && defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
+    #if defined(ONE_NET_CLIENT) && defined(_ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
 	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
 		    #define _ONE_NET_MH_CLIENT_REPEATER
 	    #endif
@@ -414,7 +414,7 @@
 	#endif
 
     // Master Only Commands
-    #ifdef _ONE_NET_MASTER
+    #ifdef ONE_NET_MASTER
 
         // _ENABLE_CHANNEL_COMMAND should be defined if you are implementing the "channel" command option
         #ifndef _ENABLE_CHANNEL_COMMAND
@@ -431,7 +431,7 @@
 		    #define _ENABLE_CANCEL_INVITE_COMMAND
 	    #endif
 
-    	#ifdef _PEER
+    	#ifdef PEER
 	    	// _ENABLE_ASSIGN_PEER_COMMAND should be defined if you are implementing the "assign peer" command option
 		    #ifndef _ENABLE_ASSIGN_PEER_COMMAND
 			    #define _ENABLE_ASSIGN_PEER_COMMAND
