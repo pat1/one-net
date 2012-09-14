@@ -64,8 +64,8 @@
 	#undef ONE_NET_MULTI_HOP
 #endif
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
-	#undef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
+	#undef ONE_NET_MH_CLIENT_REPEATER
 #endif
 
 #ifdef _RANGE_TESTING
@@ -116,8 +116,8 @@
 	#undef _R8C_TINY
 #endif
 
-#ifdef _NON_VOLATILE_MEMORY
-    #undef _NON_VOLATILE_MEMORY
+#ifdef NON_VOLATILE_MEMORY
+    #undef NON_VOLATILE_MEMORY
 #endif
 
 #ifdef _DATA_RATE_CHANNEL
@@ -244,8 +244,8 @@
 	#undef _EVAL_0005_NO_REVISION
 #endif
 
-#ifdef _DEBUGGING_TOOLS
-    #undef _DEBUGGING_TOOLS
+#ifdef DEBUGGING_TOOLS
+    #undef DEBUGGING_TOOLS
 #endif
 
 #ifdef SINGLE_QUEUE_LEVEL
@@ -256,20 +256,20 @@
     #undef EXTENDED_SINGLE
 #endif
 
-#ifdef _MINIMIZE_STRING_LENGTHS
-   #undef _MINIMIZE_STRING_LENGTHS
+#ifdef MINIMIZE_STRING_LENGTHS
+   #undef MINIMIZE_STRING_LENGTHS
 #endif
 
-#ifdef _HAS_LEDS
-    #undef _HAS_LEDS
+#ifdef HAS_LEDS
+    #undef HAS_LEDS
 #endif
 
 #ifdef _BLOCKING_UART
     #undef _BLOCKING_UART
 #endif
 
-#ifdef _CHANNEL_OVERRIDE
-    #undef _CHANNEL_OVERIDE
+#ifdef CHANNEL_OVERRIDE
+    #undef CHANNEL_OVERRIDE
 #endif
 
 #ifdef CHANNEL_OVERRIDE_CHANNEL

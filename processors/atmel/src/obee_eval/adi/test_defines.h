@@ -86,9 +86,9 @@
     #endif
 #endif
 
-#ifdef _ONE_NET_MH_CLIENT_REPEATER
+#ifdef ONE_NET_MH_CLIENT_REPEATER
     #ifndef ONE_NET_MULTI_HOP
-        #error "ONE_NET_MULTI_HOP must be defined if _ONE_NET_MH_CLIENT_REPEATER is defined."
+        #error "ONE_NET_MULTI_HOP must be defined if ONE_NET_MH_CLIENT_REPEATER is defined."
     #endif
 #endif
 
@@ -148,8 +148,8 @@
     #endif
 #endif
 
-#if defined(_ONE_NET_MH_CLIENT_REPEATER) && defined(_DEVICE_SLEEPS)
-    #error "_ONE_NET_MH_CLIENT_REPEATER and _DEVICE_SLEEPS cannot both be defined."
+#if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(DEVICE_SLEEPS)
+    #error "ONE_NET_MH_CLIENT_REPEATER and DEVICE_SLEEPS cannot both be defined."
 #endif
 
 

@@ -131,9 +131,9 @@
     #endif
 
     // sleeping devices cannot be repeaters.
-    #if defined(ONE_NET_CLIENT) && defined(ONE_NET_MULTI_HOP) && !defined(_DEVICE_SLEEPS)
-	    #ifndef _ONE_NET_MH_CLIENT_REPEATER
-		    #define _ONE_NET_MH_CLIENT_REPEATER
+    #if defined(ONE_NET_CLIENT) && defined(ONE_NET_MULTI_HOP) && !defined(DEVICE_SLEEPS)
+	    #ifndef ONE_NET_MH_CLIENT_REPEATER
+		    #define ONE_NET_MH_CLIENT_REPEATER
 	    #endif
     #endif
 
@@ -156,7 +156,7 @@
         #endif
     #endif
 
-    #if defined(BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_CLIENT)
+    #if defined(BLOCK_MESSAGES_ENABLED) && defined(DEVICE_SLEEPS)
         // Relevant only for clients initiating block / stream.  Enable if the
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
@@ -186,7 +186,7 @@
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
 // if _IDLE is defined.
-#if defined(_IDLE) && defined(_ONE_NET_CLIENT)
+#if defined(_IDLE) && defined(DEVICE_SLEEPS)
     #ifndef _ENHANCED_INVITE
 	    #define _ENHANCED_INVITE
 	#endif
@@ -303,8 +303,8 @@
 
 // Enable this if the device has the ability to save to / load from
 // non-volatile memory (i.e. Flash memory)
-#ifndef _NON_VOLATILE_MEMORY
-    #define _NON_VOLATILE_MEMORY
+#ifndef NON_VOLATILE_MEMORY
+    #define NON_VOLATILE_MEMORY
 #endif
 
 
@@ -368,7 +368,7 @@
 	    #endif
 	#endif
 
-    #ifdef _NON_VOLATILE_MEMORY
+    #ifdef NON_VOLATILE_MEMORY
         // _ENABLE_ERASE_COMMAND should be defined if you are implementing the "erase" command option
         #ifndef _ENABLE_ERASE_COMMAND
             #define _ENABLE_ERASE_COMMAND
@@ -482,7 +482,7 @@
 	#endif
 
 	// _ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
-    #ifdef _ONE_NET_CLIENT
+    #ifdef DEVICE_SLEEPS
         #ifndef _ENABLE_JOIN_COMMAND
 		    #define _ENABLE_JOIN_COMMAND
 	    #endif
@@ -544,8 +544,8 @@
 //#endif
 
 
-#ifndef _DEBUGGING_TOOLS
-    #define _DEBUGGING_TOOLS
+#ifndef DEBUGGING_TOOLS
+    #define DEBUGGING_TOOLS
 #endif
 
 
@@ -557,22 +557,22 @@
 // can allow you to use the ebugger and use other debugging tools.
 
 // TODO  --  shorten some strings in oncli_str.c to save memory / code space.
-#ifndef _MINIMIZE_STRING_LENGTHS
- //   #define _MINIMIZE_STRING_LENGTHS
+#ifndef MINIMIZE_STRING_LENGTHS
+ //   #define MINIMIZE_STRING_LENGTHS
 #endif
 
 
 // Enable this if the device has transmit and receive LEDS
-#ifndef _HAS_LEDS
-//    #define _HAS_LEDS
+#ifndef HAS_LEDS
+//    #define HAS_LEDS
 #endif
 
-// Enable _ONE_NET_MEMORY is you are implementing the ONE-NET versions of
-// malloc and free.  If _ONE_NET_MEMORY is enabled, you must define
+// Enable ONE_NET_MEMORY is you are implementing the ONE-NET versions of
+// malloc and free.  If ONE_NET_MEMORY is enabled, you must define
 // ONE_NET_HEAP_SIZE and ONE_NET_HEAP_NUM_ENTRIES in
 // one_net_port_const.h.
-#ifndef _ONE_NET_MEMORY
-//    #define _ONE_NET_MEMORY
+#ifndef ONE_NET_MEMORY
+//    #define ONE_NET_MEMORY
 #endif
 
 
@@ -582,9 +582,9 @@
 // override channel setting in the transcevier.  Comment out the
 // "#define _CHANNEL_OVERIDE" line for normal behavior.
 // behavior.
-#ifndef _CHANNEL_OVERRIDE
+#ifndef CHANNEL_OVERRIDE
 //    #define _CHANNEL_OVERIDE
-    #ifdef _CHANNEL_OVERRIDE
+    #ifdef CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2
     #endif
