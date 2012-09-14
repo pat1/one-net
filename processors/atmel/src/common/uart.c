@@ -44,7 +44,7 @@
 
 #include "config_options.h"
 
-#ifdef _UART
+#ifdef UART
 
 #include "uart.h"
 #include "cb.h"
@@ -313,7 +313,7 @@ UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN)
     UInt8 byte;
     char* end_of_line = "\r\n";
 
-    #ifdef _BLOCKING_UART
+    #ifdef BLOCKING_UART
     // add 15 for a little bit of a buffer
     while(cb_bytes_free(&uart_tx_cb) < (LEN + 15))
     {
@@ -421,7 +421,7 @@ void uart_write_int8_hex_array(const UInt8* DATA, BOOL separate, UInt16 len)
 // uart_tx_isr( void )
 ISR(USARTC0_DRE_vect)
 {
-    #ifdef _UART
+    #ifdef UART
     UInt8 byte;
 
     // if there was a TX interrupt and the cb is not empty, get a byte
@@ -456,7 +456,7 @@ ISR(USARTC0_DRE_vect)
 // uart_rx_isr(void)
 ISR(USARTC0_RXC_vect)
 {
-    #ifdef _UART
+    #ifdef UART
 	UInt8 byte;
 
 	byte = USARTC0.DATA;

@@ -161,34 +161,34 @@
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
         // request permission from the client.
-        #ifndef _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
-       	    #define _BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+        #ifndef BLOCK_STREAM_REQUEST_MASTER_PERMISSION
+       	    #define BLOCK_STREAM_REQUEST_MASTER_PERMISSION
         #endif
     #endif
 #endif
 
 
-#ifndef _RANGE_TESTING
-    #define _RANGE_TESTING
+#ifndef RANGE_TESTING
+    #define RANGE_TESTING
 #endif
 
-#ifndef _PID_BLOCK
-    #define _PID_BLOCK
+#ifndef PID_BLOCK
+    #define PID_BLOCK
 #endif
 
 
 // Idle Option - Should be defined if the device can ever be idle
-#ifndef _IDLE
-    #define _IDLE
+#ifndef IDLE
+    #define IDLE
 #endif
 
 
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
-// if _IDLE is defined.
-#if defined(_IDLE) && defined(DEVICE_SLEEPS)
-    #ifndef _ENHANCED_INVITE
-	    #define _ENHANCED_INVITE
+// if IDLE is defined.
+#if defined(IDLE) && defined(DEVICE_SLEEPS)
+    #ifndef ENHANCED_INVITE
+	    #define ENHANCED_INVITE
 	#endif
 #endif
 
@@ -197,40 +197,40 @@
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.
 #if SINGLE_QUEUE_LEVEL <= MIN_SINGLE_QUEUE_LEVEL && !defined(EXTENDED_SINGLE) && !defined(ONE_NET_MULTI_HOP)
-    #ifndef _ONE_NET_SIMPLE_CLIENT
+    #ifndef ONE_NET_SIMPLE_CLIENT
         // comment in or out as needed.  Note.  Eval boards cannot be simple clients.
-        //#define _ONE_NET_SIMPLE_CLIENT
+        //#define ONE_NET_SIMPLE_CLIENT
     #endif
 #endif
 
 
 // Locale for channels (Europe or U.S.A.).  At least one locale must be defined.  You can
 // define more than one.
-#ifndef _US_CHANNELS
-	#define _US_CHANNELS
+#ifndef US_CHANNELS
+	#define US_CHANNELS
 #endif
 
-#ifndef _EUROPE_CHANNELS
-	#define _EUROPE_CHANNELS
+#ifndef EUROPE_CHANNELS
+	#define EUROPE_CHANNELS
 #endif
 
 
 // Evaluation Board Options
 
-#ifndef _ONE_NET_EVAL
-	#define _ONE_NET_EVAL
+#ifndef ONE_NET_EVAL
+	#define ONE_NET_EVAL
 #endif
 
-#ifndef _UART
+#ifndef UART
     // Enable this if there is UART
-    #define _UART
+    #define UART
 
-    // define the base baud rate.  Define _DEFAULT_BAUD_RATE as 38400 or 115200.
-    // If _DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
+    // define the base baud rate.  Define DEFAULT_BAUD_RATE as 38400 or 115200.
+    // If DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
     // command-line option.  "baud:38400" or
-    #ifndef _DEFAULT_BAUD_RATE
-        #define _DEFAULT_BAUD_RATE 115200
+    #ifndef DEFAULT_BAUD_RATE
+        #define DEFAULT_BAUD_RATE 115200
     #endif
 #endif
 
@@ -239,26 +239,26 @@
 // more detailed the display will be.  This value must be positive
 // if using the sniffer, using the debugging tools, and can also be
 // set if adding any of your own debugging statements.
-#ifdef _UART
+#ifdef UART
     // You can change the value below.
-    #define _DEBUG_VERBOSE_LEVEL 6
+    #define DEBUG_VERBOSE_LEVEL 6
 #else
     // DO NOT change the value below.
-    #define _DEBUG_VERBOSE_LEVEL 0
+    #define DEBUG_VERBOSE_LEVEL 0
 #endif
 
 
 
-#ifdef _ONE_NET_EVAL
-	// _AUTO_MODE should be defined if you want the Auto Mode option available
-	#ifndef _AUTO_MODE
-//		#define _AUTO_MODE
+#ifdef ONE_NET_EVAL
+	// AUTO_MODE should be defined if you want the Auto Mode option available
+	#ifndef AUTO_MODE
+//		#define AUTO_MODE
 	#endif
 
-	// _SNIFFER_MODE should be defined if you want the Sniffer Mode option available
-    #if _DEBUG_VERBOSE_LEVEL > 0
-	    #ifndef _SNIFFER_MODE
-		    #define _SNIFFER_MODE
+	// SNIFFER_MODE should be defined if you want the Sniffer Mode option available
+    #if DEBUG_VERBOSE_LEVEL > 0
+	    #ifndef SNIFFER_MODE
+		    #define SNIFFER_MODE
 	    #endif
     #endif
 #endif
@@ -311,26 +311,26 @@
 // Enable this if data rates can be changed to anything besides the 38,400 base
 // or the channel can be changed back and forth at run-time for anything but the
 // invite process.
-#ifndef _DATA_RATE_CHANNEL
-    #define _DATA_RATE_CHANNEL
+#ifndef DATA_RATE_CHANNEL
+    #define DATA_RATE_CHANNEL
 #endif
 
 
-#ifdef _UART
+#ifdef UART
     // "Blocking" versus "Non-blocking" uart.
-    #ifndef _BLOCKING_UART
-        #define _BLOCKING_UART
+    #ifndef BLOCKING_UART
+        #define BLOCKING_UART
     #endif
 
     // Command line interface
-    #ifndef _ENABLE_CLI
-        #define _ENABLE_CLI
+    #ifndef ENABLE_CLI
+        #define ENABLE_CLI
     #endif
 #endif
 
 
 
-// #defines below are only relevant if _ENABLE_CLI is defined.  Each CLI option should have its
+// #defines below are only relevant if ENABLE_CLI is defined.  Each CLI option should have its
 // own #define for maximum ease of enabling and disabling features.  CLI options that don't make
 // sense without other CLI options should be nested.
 
@@ -341,15 +341,15 @@
 // there is no CLI.  However, at the present time there is a lot of functions with "oncli" return types that
 // perhaps should not have "oncli" return types.  I think these should probably be changed for more versatility,
 // but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
-// define the _ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
-// _AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
-#ifdef _ENABLE_CLI
-	#ifndef _AT_LEAST_ONE_COMMAND_ENABLED
-		#define _AT_LEAST_ONE_COMMAND_ENABLED
+// define the ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
+// AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
+#ifdef ENABLE_CLI
+	#ifndef AT_LEAST_ONE_COMMAND_ENABLED
+		#define AT_LEAST_ONE_COMMAND_ENABLED
 	#endif
 #endif
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
 
 	// ENABLE_SINGLE_COMMAND should be defined if you are implementing the "single" and "single text" command options
 	#ifndef ENABLE_SINGLE_COMMAND
@@ -384,10 +384,10 @@
             #define ENABLE_SETNI_COMMAND
         #endif
 
-        // _AUTO_SAVE should be defined if the parameters should be saved every
+        // AUTO_SAVE should be defined if the parameters should be saved every
         // time they change
-        #ifndef _AUTO_SAVE
-           // #define _AUTO_SAVE
+        #ifndef AUTO_SAVE
+           // #define AUTO_SAVE
         #endif
     #endif
 
@@ -405,7 +405,7 @@
 
 	// ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
 	/*#ifndef ENABLE_RSSI_COMMAND
-		#define _ENABLE_RSSI_COMMAND
+		#define ENABLE_RSSI_COMMAND
 	#endif*/
 
 	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
@@ -443,30 +443,30 @@
 		    #endif
 	    #endif
 
-	    // _ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
-	    #ifndef _ENABLE_CHANGE_KEY_COMMAND
-		    #define _ENABLE_CHANGE_KEY_COMMAND
+	    // ENABLE_CHANGE_KEY_COMMAND should be defined if you are implementing the "change key" command option
+	    #ifndef ENABLE_CHANGE_KEY_COMMAND
+		    #define ENABLE_CHANGE_KEY_COMMAND
 	    #endif
 
-	    // _ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
-	    #ifndef _ENABLE_REMOVE_DEVICE_COMMAND
-		    #define _ENABLE_REMOVE_DEVICE_COMMAND
+	    // ENABLE_REMOVE_DEVICE_COMMAND should be defined if you are implementing the "remove device" command option
+	    #ifndef ENABLE_REMOVE_DEVICE_COMMAND
+		    #define ENABLE_REMOVE_DEVICE_COMMAND
 	    #endif
 
-	    // _ENABLE_SET_FLAGS_COMMAND should be defined if you are implementing the "set flags" command option
-	    #ifndef _ENABLE_SET_FLAGS_COMMAND
-		    #define _ENABLE_SET_FLAGS_COMMAND
+	    // ENABLE_SET_FLAGS_COMMAND should be defined if you are implementing the "set flags" command option
+	    #ifndef ENABLE_SET_FLAGS_COMMAND
+		    #define ENABLE_SET_FLAGS_COMMAND
 	    #endif
 
-	    // _ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
-	    #ifndef _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
-		    #define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+	    // ENABLE_CHANGE_KEEP_ALIVE_COMMAND should be defined if you are implementing the "change keep-alive" command option
+	    #ifndef ENABLE_CHANGE_KEEP_ALIVE_COMMAND
+		    #define ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	    #endif
 
         #ifdef BLOCK_MESSAGES_ENABLED
-    	    // _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
-    	    #ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
-    		    #define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    	    // ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
+    	    #ifndef ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
+    		    #define ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
     	    #endif
         #endif
 	#endif
@@ -489,7 +489,7 @@
     #endif
 
 	// ENABLE_SNIFF_COMMAND should be defined if you are implementing the "sniff" command option
-	#ifdef _SNIFFER_MODE
+	#ifdef SNIFFER_MODE
 		#ifndef ENABLE_SNIFF_COMMAND
 			#define ENABLE_SNIFF_COMMAND
 		#endif
@@ -506,7 +506,7 @@
 	#endif
 
     // ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
-    #ifdef _DATA_RATE_CHANNEL
+    #ifdef DATA_RATE_CHANNEL
         #ifndef ENABLE_SET_DR_CHANNEL_COMMAND
         //    #define ENABLE_SET_DR_CHANNEL_COMMAND
         #endif
@@ -519,7 +519,7 @@
         #endif
     #endif
 
-    #ifdef _UART
+    #ifdef UART
         // ENABLE_BAUD_COMMAND should be enabled if you are implementing the "baud" command
         #ifndef ENABLE_BAUD_COMMAND
             #define ENABLE_BAUD_COMMAND
@@ -539,8 +539,8 @@
 // Other Options
 
 
-//#ifndef _EVAL_0005_NO_REVISION
-//	#define _EVAL_0005_NO_REVISION
+//#ifndef EVAL_0005_NO_REVISION
+//	#define EVAL_0005_NO_REVISION
 //#endif
 
 
@@ -579,7 +579,7 @@
 
 // Use this feature to override any random channel searching and select a
 // particular channel.  See one_net_channel.h.  Selecting this option will
-// override channel setting in the transcevier.  Comment out the
+// override channel setting in the transceiver.  Comment out the
 // "#define _CHANNEL_OVERIDE" line for normal behavior.
 // behavior.
 #ifndef CHANNEL_OVERRIDE
