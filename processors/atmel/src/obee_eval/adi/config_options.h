@@ -144,19 +144,19 @@
 
     // Block Messages
     #ifdef _ROUTE
-        #ifndef _BLOCK_MESSAGES_ENABLED
-        	#define _BLOCK_MESSAGES_ENABLED
+        #ifndef BLOCK_MESSAGES_ENABLED
+        	#define BLOCK_MESSAGES_ENABLED
         #endif
     #endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
         // Stream Messages -- available only if block messages are enabled.
-        #ifndef _STREAM_MESSAGES_ENABLED
-        	#define _STREAM_MESSAGES_ENABLED
+        #ifndef STREAM_MESSAGES_ENABLED
+        	#define STREAM_MESSAGES_ENABLED
         #endif
     #endif
 
-    #if defined(_BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_CLIENT)
+    #if defined(BLOCK_MESSAGES_ENABLED) && defined(_ONE_NET_CLIENT)
         // Relevant only for clients initiating block / stream.  Enable if the
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
@@ -356,7 +356,7 @@
 		#define _ENABLE_SINGLE_COMMAND
 	#endif
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
 	    // _ENABLE_BLOCK_COMMAND should be defined if you are implementing the "block" command option
 	    #ifndef _ENABLE_BLOCK_COMMAND
 		    #define _ENABLE_BLOCK_COMMAND
@@ -463,7 +463,7 @@
 		    #define _ENABLE_CHANGE_KEEP_ALIVE_COMMAND
 	    #endif
 
-        #ifdef _BLOCK_MESSAGES_ENABLED
+        #ifdef BLOCK_MESSAGES_ENABLED
     	    // _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND should be defined if you are implementing the "change fragment delay" command option
     	    #ifndef _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
     		    #define _ENABLE_CHANGE_FRAGMENT_DELAY_COMMAND
