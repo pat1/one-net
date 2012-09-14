@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
- #ifdef _ONE_NET_CLIENT
+ #ifdef ONE_NET_CLIENT
  #include "one_net_client_port_const.h" // for the _DEVICE_SLEEPS constant, if defined.
  #endif
  #include "one_net_data_rate.h"
@@ -80,13 +80,13 @@ enum
 };
 
 
-#ifdef _PEER
+#ifdef PEER
 enum
 {
     //! Size of the peer table
     ONE_NET_MAX_PEER_UNIT = 8,
 
-    #ifdef _ONE_NET_CLIENT
+    #ifdef ONE_NET_CLIENT
     // subtract one for the actual recipient and another for the master
     // in case we need to send to it and it isn't already on the list
     ONE_NET_MAX_PEER_PER_TXN = ONE_NET_MAX_RECIPIENTS - 2
@@ -98,7 +98,7 @@ enum
 #endif
 
 
-#ifdef _ONE_NET_MULTI_HOP
+#ifdef ONE_NET_MULTI_HOP
 enum
 {
     //! The maximum number of hops
@@ -107,7 +107,7 @@ enum
 #endif
 
 
-#ifdef _RANGE_TESTING
+#ifdef RANGE_TESTING
 enum
 {
     //! When Multi-Hop range testing (i.e. declaring devices in and out of
@@ -117,7 +117,7 @@ enum
 };
 #endif
 
-#ifdef _PID_BLOCK
+#ifdef PID_BLOCK
 enum
 {
    //! For debugging purposes.  The maximum number of PIDs that can be blocked
@@ -142,7 +142,7 @@ enum
     //! Time in ms a device waits for a response (50ms)
     ONE_NET_RESPONSE_TIME_OUT = 50,
 
-    #ifdef _BLOCK_MESSAGES_ENABLED
+    #ifdef BLOCK_MESSAGES_ENABLED
     //! Base Fragment delay in ms for low priority transactions (125ms)
     ONE_NET_FRAGMENT_DELAY_LOW_PRIORITY = 125,
 
@@ -150,8 +150,8 @@ enum
     ONE_NET_FRAGMENT_DELAY_HIGH_PRIORITY = 25,
     #endif
 
-    #ifdef _ONE_NET_MULTI_HOP
-    //! Multi-hop retpeater latency -- i.e. estimated time it takes for a
+    #ifdef ONE_NET_MULTI_HOP
+    //! Multi-hop repeater latency -- i.e. estimated time it takes for a
     //! repeater to forward a message in milliseconds
     ONE_NET_MH_LATENCY = 5
     #endif
@@ -194,11 +194,11 @@ enum
 };
 
 
-#ifdef _ONE_NET_MEMORY
+#ifdef ONE_NET_MEMORY
 // see one_net_memory.h
 enum
 {
-    // Size of the "heap".  one_net_memory provices a poor-man's "heap" for
+    // Size of the "heap".  one_net_memory provides a poor-man's "heap" for
     // embedded systems when you want to use a heap but can't or don't want
     // to use malloc, calloc, realloc, free from stdlib.h.
     ONE_NET_HEAP_SIZE = 100,
@@ -234,7 +234,7 @@ enum
 #endif
 
 
-#ifdef _BLOCK_MESSAGES_ENABLED
+#ifdef BLOCK_MESSAGES_ENABLED
 //! Default chunk size for block / stream transfers.  Must be between 1 and
 //! 40, inclusive.
 #define DEFAULT_BS_CHUNK_SIZE 4

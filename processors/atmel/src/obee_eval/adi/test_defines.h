@@ -57,13 +57,13 @@
 //! \ingroup one_net_test_defines
 
 
-#ifndef _ONE_NET_EVAL
-    #error "This is an Eval Board.  _ONE_NET_EVAL must be defined."
+#ifndef ONE_NET_EVAL
+    #error "This is an Eval Board.  ONE_NET_EVAL must be defined."
 #endif
 
-#ifdef _ONE_NET_SIMPLE_CLIENT
-    #ifdef _ONE_NET_EVAL
-        #error "_ONE_NET_EVAL and _ONE_NET_SIMPLE_CLIENT cannot both defined."
+#ifdef ONE_NET_SIMPLE_CLIENT
+    #ifdef ONE_NET_EVAL
+        #error "ONE_NET_EVAL and ONE_NET_SIMPLE_CLIENT cannot both defined."
     #endif
 #endif
 
@@ -92,13 +92,13 @@
     #endif
 #endif
 
-#if !defined(_US_CHANNELS) && !defined(_EUROPE_CHANNELS)
-    #error "_US_CHANELS and _EUROPE_CHANNELS cannot both be undefined."
+#if !defined(US_CHANNELS) && !defined(EUROPE_CHANNELS)
+    #error "US_CHANELS and EUROPE_CHANNELS cannot both be undefined."
 #endif
 
-#ifdef _BLOCKING_UART
-    #ifndef _UART
-        #error "_UART must be defined if _BLOCKING_UART is defined."
+#ifdef BLOCKING_UART
+    #ifndef UART
+        #error "UART must be defined if BLOCKING_UART is defined."
     #endif
 #endif
 
@@ -124,8 +124,8 @@
     #ifdef STREAM_MESSAGES_ENABLED
         #error "Simple clients cannot have STREAM_MESSAGES_ENABLED defined."
     #endif
-    #ifdef _DATA_RATE_CHANNEL
-        #error "Simple clients cannot have _DATA_RATE_CHANNEL defined."
+    #ifdef DATA_RATE_CHANNEL
+        #error "Simple clients cannot have DATA_RATE_CHANNEL defined."
     #endif
     #ifndef ONE_NET_CLIENT
         #error "Simple clients must have ONE_NET_CLIENT defined."
