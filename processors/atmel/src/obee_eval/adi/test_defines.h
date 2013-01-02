@@ -37,6 +37,7 @@
 
     Test configuration definitions here for compatibility.
 
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -93,7 +94,7 @@
 #endif
 
 #if !defined(US_CHANNELS) && !defined(EUROPE_CHANNELS)
-    #error "US_CHANELS and EUROPE_CHANNELS cannot both be undefined."
+    #error "US_CHANNELS and EUROPE_CHANNELS cannot both be undefined."
 #endif
 
 #ifdef BLOCKING_UART
@@ -105,7 +106,7 @@
 // Simple clients cannot be masters, queue messages for future sending, have extended single,
 // block, stream, or multi-hop capability.  Some of this is mutually exclusive, so it's not
 // needed to test.  However, for easier readability, we'll test even some of the redundant tests.
-#ifdef _ONE_NET_SIMPLE_CLIENT
+#ifdef ONE_NET_SIMPLE_CLIENT
     #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
         #error "Simple clients cannot have SINGLE_QUEUE_LEVEL greater than MIN_SINGLE_QUEUE_LEVEL."
     #endif

@@ -156,6 +156,33 @@ one_net_status_t one_net_reset_peers(void)
 
 
 /*!
+    \brief Counts the number of peers in a peer list.
+    
+    Counts the number of peers in a peer list
+    
+    \return The number of peers in the peer list
+*/
+// TODO -- Do we need/want this function?
+UInt8 one_net_count_peers(const on_peer_unit_t* peer_list)
+{
+    UInt8 i;
+    if(!peer_list)
+    {
+        peer_list = peer; // list not provided, so we use the main list
+    }
+    
+    for(i = 0; i < ONE_NET_MAX_PEER_UNIT; i++)
+    {
+        if(peer_list[i].peer_unit == ONE_NET_DEV_UNIT)
+        {
+            return i;
+        }
+    }
+    return ONE_NET_MAX_PEER_UNIT;
+}
+
+
+/*!
     \brief Adds matching peer did / units to a message recipient list
     
     \param[in] msg the message being sent

@@ -168,9 +168,6 @@ extern on_client_t * const client_list;
 //! The state the ONCLI is in
 static UInt8 state;
 
-//! The verbosity mode of the device
-static oncli_verbose_t verbosity = ONCLI_QUIET;
-
 // The number of bytes in the command string so far.  This variable is so
 // the strlen doesn't have to be computed every time.
 static UInt16 input_len = 0;
@@ -364,14 +361,14 @@ void oncli_print_xtea_key(const one_net_xtea_key_t* KEY)
     
     \return ONCLI_SUCCESS if the DID was successfully output
 */
-oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did)
+oncli_status_t oncli_print_did(const on_encoded_did_t* enc_did)
 {
     on_raw_did_t raw_did;
     if(on_decode(raw_did, *enc_did, ON_ENCODED_DID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_CMD_FAIL;
     }
-    oncli_send_msg("DID: 0x%03X", did_to_u16(&raw_did));
+    oncli_send_msg("DID: 0x%03X", did_to_u16((const on_raw_did_t*) &raw_did));
     return ONCLI_SUCCESS;
 } // oncli_print_did //
 
@@ -383,13 +380,13 @@ oncli_status_t oncli_print_did(const on_encoded_did_t* const enc_did)
         
     \return ONCLI_SUCCESS If the SID was successfully output.
 */
-oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
+oncli_status_t oncli_print_sid(const on_encoded_sid_t* enc_sid)
 {
     on_raw_nid_t raw_nid;
     UInt8 i, nibble;
 
     // first extract the nid portion and decode it.
-    if(on_decode(raw_nid, *enc_sid, ON_ENCODED_NID_LEN) != ONCLI_SUCCESS)
+    if(on_decode(raw_nid, *enc_sid, ON_ENCODED_NID_LEN) != ONS_SUCCESS)
     {
         return ONCLI_CMD_FAIL;
     }
@@ -414,7 +411,7 @@ oncli_status_t oncli_print_sid(const on_encoded_sid_t* const enc_sid)
     }
     oncli_send_msg("\n");
 
-    if(oncli_print_did((on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])))
+    if(oncli_print_did((const on_encoded_did_t*)(&((*enc_sid)[ON_ENCODED_NID_LEN])))
       != ONCLI_SUCCESS)
     {
         return ONCLI_CMD_FAIL;
@@ -460,15 +457,14 @@ oncli_status_t oncli_print_peer_list(void)
     on_raw_did_t my_raw_did, raw_did;
     UInt8 i;
     BOOL at_least_one_peer = FALSE;
-    oncli_status_t status;
       
     oncli_send_msg(ONCLI_LIST_PEER_TABLE_HEADING);
     
-    if((status = on_decode(my_raw_did,
-      &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_RAW_DID_LEN))
+    if(on_decode(my_raw_did,
+      &(on_base_param->sid[ON_ENCODED_NID_LEN]), ON_RAW_DID_LEN)
       != ONS_SUCCESS)
     {
-        return status;
+        return ONCLI_INVALID_DST;
     }
 
     //
@@ -485,14 +481,14 @@ oncli_status_t oncli_print_peer_list(void)
         //
         // found a peer, print it
         //
-        if((status = on_decode(raw_did, peer[i].peer_did, ON_RAW_DID_LEN))
+        if(on_decode(raw_did, peer[i].peer_did, ON_RAW_DID_LEN)
           != ONS_SUCCESS)
         {
-            return status;
+            return ONCLI_INVALID_DST;
         }
         
-        oncli_send_msg(ONCLI_LIST_PEER_FMT, did_to_u16(&my_raw_did),
-          peer[i].src_unit, did_to_u16(&raw_did), peer[i].peer_unit);
+        oncli_send_msg(ONCLI_LIST_PEER_FMT, did_to_u16((const on_raw_did_t*) &my_raw_did),
+          peer[i].src_unit, did_to_u16((const on_raw_did_t*) &raw_did), peer[i].peer_unit);
         at_least_one_peer = TRUE;
     }
     if (!at_least_one_peer)
@@ -637,7 +633,7 @@ void oncli_send_msg(const char * const FMT, ...)
     } // if the output string is too short //
 
     va_end(ap);
-    uart_write(output, output_len);
+    uart_write((const UInt8*) output, output_len);
 } // oncli_send_msg //
 
 
@@ -717,7 +713,7 @@ void print_route(const UInt8* const route)
     UInt8 index = 0;
     UInt16 raw_did_int;
     
-    while(raw_did_int = extract_raw_did_from_route(route, index))
+    while((raw_did_int = extract_raw_did_from_route(route, index)))
     {
         if(index > 0)
         {
@@ -1001,7 +997,7 @@ void print_recipient_list(const on_recipient_list_t* const recip_list)
         {
             oncli_send_msg("Recip. %d : %02X%02X(%03X):%1X\n", i + 1,
               recip_list->recipient_list[i].did[0],
-              recip_list->recipient_list[i].did[1], did_to_u16(&raw_did),
+              recip_list->recipient_list[i].did[1], did_to_u16((const on_raw_did_t*) &raw_did),
               recip_list->recipient_list[i].unit);
         }
     }
@@ -1064,7 +1060,7 @@ void print_sending_device_t(const on_sending_device_t* const device)
         device->did[1]);
     if(on_decode(raw_did, device->did, ON_ENCODED_DID_LEN) == ONS_SUCCESS)
     {
-        oncli_send_msg("0x%03X", did_to_u16(&raw_did));
+        oncli_send_msg("0x%03X", did_to_u16((const on_raw_did_t*) &raw_did));
     }
     else
     {
@@ -1150,7 +1146,7 @@ static void read_onc(void)
     }
     #endif
     
-    while(input_len < sizeof(input) - 1 && oncli_read(&(input[input_len]), 1))
+    while(input_len < sizeof(input) - 1 && oncli_read((UInt8*) &(input[input_len]), 1))
     {
         #ifdef HANDLE_BACKSPACE
         if (input[input_len] == '\b') { // special case for backspace

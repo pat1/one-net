@@ -496,21 +496,6 @@ void main(void)
 
     while(1)
     {
-        // Dec. 3, 2011 -- commenting out
-        #if 0
-        if(tx_led_timer && tx_led_timer < one_net_tick())
-        {
-            TURN_OFF(TX_LED);
-            tx_led_timer = 0;
-        } // if time to turn off the tx led //
-        
-        if(rx_led_timer && rx_led_timer < one_net_tick())
-        {
-            TURN_OFF(RX_LED);
-            rx_led_timer = 0;
-        } // if time to turn off the rx led //
-        #endif
-
         one_net_client();
     } // main loop //
 } // main //

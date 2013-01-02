@@ -1136,7 +1136,7 @@ UInt32 one_net_byte_stream_to_uint32(const UInt8 * const BYTE_STREAM);
 void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream);
 
 
-BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid);
+BOOL get_raw_pid(const UInt8* payload, UInt16* raw_pid);
 void put_raw_pid(UInt8* payload, UInt16 raw_pid);
 
     

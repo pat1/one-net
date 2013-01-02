@@ -7,7 +7,25 @@
 [GENERAL_DATA]
 [BREAKPOINTS]
 [OPEN_WORKSPACE_FILES]
+"C:\on_tr\applications\eval_boards\client_eval.c" 
+"C:\on_tr\applications\eval_boards\master_eval.c" 
+"C:\on_tr\applications\eval_boards\one_net_eval.c" 
+"C:\on_tr\common\dfi.h" 
+"C:\on_tr\one_net\app\one_net_message.h" 
+"C:\on_tr\one_net\cli\oncli.c" 
+"C:\on_tr\one_net\cli\oncli_hdlr.c" 
+"C:\on_tr\one_net\cli\oncli_port.h" 
+"C:\on_tr\one_net\port_specific\one_net_master_port_specific.h" 
 [WORKSPACE_FILE_STATES]
+"C:\on_tr\applications\eval_boards\client_eval.c" 66 87 1458 345 0 3 
+"C:\on_tr\applications\eval_boards\master_eval.c" 44 58 1414 462 0 2 
+"C:\on_tr\applications\eval_boards\one_net_eval.c" 110 145 1458 345 0 5 
+"C:\on_tr\common\dfi.h" -4 -30 1605 771 1 8 
+"C:\on_tr\one_net\app\one_net_message.h" 88 116 1458 345 0 4 
+"C:\on_tr\one_net\cli\oncli.c" 0 0 1458 304 0 6 
+"C:\on_tr\one_net\cli\oncli_hdlr.c" 22 29 1410 458 0 1 
+"C:\on_tr\one_net\cli\oncli_port.h" 22 29 1458 304 0 7 
+"C:\on_tr\one_net\port_specific\one_net_master_port_specific.h" 0 0 1410 458 0 0 
 [LOADED_PROJECTS]
 "eval_adi" 
 [END]

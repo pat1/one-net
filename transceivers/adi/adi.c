@@ -660,7 +660,7 @@ one_net_status_t tal_set_channel(const UInt8 channel)
         // parameter here.  Make sure CHANNEL_OVERRIDE is NOT defined if
         // NOT overriding the channel.
         #ifdef CHANNEL_OVERRIDE
-        current_channel = CHANNEL_OVERRIDE_CHANNEL
+        current_channel = CHANNEL_OVERRIDE_CHANNEL;
         #else
         current_channel = channel;
         #endif

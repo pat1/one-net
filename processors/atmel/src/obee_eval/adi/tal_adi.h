@@ -43,6 +43,8 @@
 
     This file declares the transceiver specific functionality needed by
     the ADI transceiver.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 #include "one_net_status_codes.h"

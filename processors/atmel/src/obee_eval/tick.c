@@ -33,9 +33,11 @@
 
 /*!
     \file tick.c
-    \brief Renesas specific timing module.
+    \brief Atxmega256a3b specific timing module.
 
     This module contains functionality associated with timing.
+	
+    2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -44,8 +46,8 @@
 // and everything else is working.
 
 
-#include <io.h>
-#include <interrupt.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 
 #include "tick.h"
@@ -174,7 +176,7 @@ void init_tick_1(void)
    // Set the Programmable Interrupt Controller multi level interrupts to LOW
    PMIC.CTRL |= PMIC_LOLVLEN_bm;
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
   // for IO output debug ///////////////////
   // set the io for output
 //  PORTD.DIR |= (1 << PIN6_bp);
@@ -240,7 +242,7 @@ void init_tick(void)
    //  Enable timer tick interrupt
    ENABLE_TICK_TIMER();
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
    // for IO output debug ///////////////////
    // set the IO for output
 //   PORTD.DIRSET |= (1 << PIN6_bp);
@@ -296,7 +298,7 @@ void delay_ms(UInt16 count)
     // specified number of milliseconds.
     UInt16 i;
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
     // output debug IO ///////////////
 //    static UInt8 led_state = 0;
     //////////////////////////////////
@@ -323,7 +325,7 @@ void delay_ms(UInt16 count)
     asm("NOP");
     /////////////////////////////////////////////////
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 /*
     // output debug IO ///////////////
     if(led_state == 0)
@@ -350,7 +352,7 @@ void delay_100s_us(UInt16 count)
     // specified number of microseconds.
     UInt16 i;
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
     // output debug IO ///////////////
 // static UInt8 led_state = 0;
     //////////////////////////////////
@@ -367,7 +369,7 @@ void delay_100s_us(UInt16 count)
     asm("NOP");
     /////////////////////////////////////////////////
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 /*
     // output debug IO ///////////////
     if(led_state == 0)
@@ -426,7 +428,7 @@ void disable_tick_timer(void)
 // This timer interrupt is the general timer that its tick time is 1 mili second
 ISR(TCC0_OVF_vect)
 {
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
     // output debug IO ///////////////
   //  static UInt8 led_state = 0;
     //////////////////////////////////
@@ -435,7 +437,7 @@ ISR(TCC0_OVF_vect)
     tick_count++;
     tick_flag = TRUE;
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 /*
       // output debug IO ///////////////
        if(led_state == 0)

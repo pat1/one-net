@@ -35,6 +35,8 @@
 /*!
     \file led_hal.c
     \brief The ONE-NET evaluation project hardware abstraction layer for LEDs.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 

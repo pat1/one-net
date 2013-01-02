@@ -50,6 +50,8 @@
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
+	  
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -77,7 +79,7 @@ enum
     //! Timer to output prompt if no incoming data for a certain period.
     PROMPT_TIMER,
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
     //! Timer used when user input has been detected before continuing on.
     USER_INPUT_TIMER,
 #endif

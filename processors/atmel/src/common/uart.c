@@ -33,12 +33,15 @@
 
 /*!
     \file uart.c
-
-    \brief Contains functions for accessing the Renesas serial port
+	
+    \brief Contains functions for accessing the Atxmega256a3b serial port
       and using the cb functions for passing data to and from the ISRs.
 
-    Contains functions for initializing the Renesas serial port for interrupt
+    Contains functions for initializing the Atxmega256a3b serial port for interrupt
     driven i/o and interrupt service routines (ISRs) for handling serial data.
+
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -50,8 +53,12 @@
 #include "cb.h"
 #include "one_net_port_const.h"
 
-#include <interrupt.h>
-#include <io.h>
+#include <avr/interrupt.h>
+#include <avr/io.h>
+
+extern BOOL binary_mode;
+extern BOOL newline_rcvd;
+extern BOOL command_processed;
 
 //==============================================================================
 //								CONSTANTS
@@ -311,17 +318,17 @@ UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN)
     UInt16 bytes_written = 0;
     UInt16 i;
     UInt8 byte;
-    char* end_of_line = "\r\n";
-
+    
     #ifdef BLOCKING_UART
     // add 15 for a little bit of a buffer
     while(cb_bytes_free(&uart_tx_cb) < (LEN + 15))
     {
     }
     #endif
-
+    
     for (i = 0; i < LEN; i++)
     {
+        #ifdef UART_CARRIAGE_RETURN_CONVERT
         if (DATA[i]== '\r')
         {
             continue;
@@ -329,13 +336,15 @@ UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN)
         else if (DATA[i]== '\n')
         {
             // silently send a newline
-            if(cb_enqueue(&uart_tx_cb, (const UInt8 *)end_of_line, 2) != 2)
+            char* end_of_line = "\r\n";
+            if(cb_enqueue(&uart_tx_cb, end_of_line, 2) != 2)
             {
                 break;
             }
             bytes_written += 2;
         }
         else
+        #endif
         {
             if(cb_enqueue(&uart_tx_cb, &DATA[i], 1) != 1)
             {
@@ -344,9 +353,8 @@ UInt16 uart_write(const UInt8 * const DATA, const UInt16 LEN)
             ++bytes_written;
         }
     }
-
+    
     if(TX_BUFFER_EMPTY())
-//    if((USARTC0.STATUS & USART_DREIF_bm) == USART_DREIF_bm)
     {
         if(cb_dequeue(&uart_tx_cb, &byte, 1) == 1)
         {
@@ -458,16 +466,51 @@ ISR(USARTC0_RXC_vect)
 {
     #ifdef UART
 	UInt8 byte;
-
+    BOOL place_byte_in_buffer = TRUE;
+    
 	byte = USARTC0.DATA;
+    
+    if(command_processed && newline_rcvd)
+    {
+        cb_clear(&uart_rx_cb);
+        // reset
+        newline_rcvd = FALSE;
+        command_processed = FALSE;
+    }
+    
+    if(!binary_mode)
+    {
+        if(byte == '\r')
+        {
+            byte = '\n'; // Minicom seems to send out '\r', not '\n'
+        }
+        
+        if(newline_rcvd)
+        {
+            // can only handle one newline at a time and we already have one
+            // throw away all carriage returns when not in binary mode
+            place_byte_in_buffer = FALSE;
+        }
+        else if(byte == '\n')
+        {
+            newline_rcvd = TRUE;
+        }
+        #ifndef HANDLE_BACKSPACE
+        else if(byte == '\b' || byte == 127) // delete is 127,  TODO - use named
+        {                                    // constant for 127
+            place_byte_in_buffer = FALSE;
+        }
+        #endif 
+    }
+    
 
     // put this byte in circular buffer (sizeof(char) is always 1)
-    if(cb_putqueue(&uart_rx_cb, byte) != 1)
+    if(place_byte_in_buffer && cb_putqueue(&uart_rx_cb, byte) != 1)
     {
         uart_rx_cb.flags |= CB_FLAG_OVERFLOW;
     } // if the receive buffer overflowed //
-    #endif
 
+    #endif
 } // uart_receive_isr //
 
 //! @} uart_pub_func

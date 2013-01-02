@@ -38,8 +38,10 @@
 
     This file implements the processor specific functionality needed by the ADI
     transceiver (such as interrupts for the various communication).  This file
-    is for R8C devices that have the ADI set up to use TimerZ has the transmit
-    bit interrupt, and INT1 as the data clock interrupt for receive mode.
+    is for atxmega256a3b devices that have the ADI set up to use Timercc1 has the transmit
+    bit interrupt, and INT0 as the data clock interrupt for receive mode.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 #include "config_options.h"
 
@@ -50,8 +52,8 @@
 #include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
 
-#include <io.h>
-#include <interrupt.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 //=============================================================================
 //                                  CONSTANTS
@@ -90,7 +92,7 @@ extern UInt16 tx_rf_idx;
 extern const UInt8 * tx_rf_data;
 extern UInt8 bit_mask;
 
-//#ifdef _ATXMEGA256A3B
+//#ifdef ATXMEGA256A3B
 extern BOOL ignore_interrupt;
 //#endif
 
@@ -153,7 +155,7 @@ void tal_init_ports(void)
     // set up data and clock pins
 //    RF_DATA_DIR = INPUT;
       RF_DATA_DIR_REG &= ~(1 << RF_DATA_DIR_BIT);         // pin 2
-	  #ifndef _ATXMEGA256A3B_EVAL
+	  #ifndef ATXMEGA256A3B_EVAL
       RF_DATA_DIR_REG &= ~(1 << RF_DATA_ALT_DIR_BIT);     // pin 3
 	  #endif
 
@@ -165,7 +167,7 @@ void tal_init_ports(void)
       SYNCDET_DIR_REG &= ~(1 << SYNCDET_DIR_BIT);
 
     // define out compile time if desired
-    #ifdef _CHIP_ENABLE
+    #ifdef CHIP_ENABLE
 //        CHIP_ENABLE_DIR = OUTPUT;
       CHIP_ENABLE_DIR_REG |= (1 << CHIP_ENABLE_DIR_BIT);
     #endif // ifdef SCHIP_ENABLE //
@@ -250,7 +252,7 @@ ISR(TCC1_OVF_vect)
     \return  void
 */
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 // RF rcv bit isr(void)
 ISR(PORTE_INT0_vect)
 {

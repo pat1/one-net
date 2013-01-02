@@ -433,6 +433,13 @@ on_message_status_t eval_handle_single(const UInt8* const raw_pld,
     UInt8 src_unit, dst_unit, msg_type;
     UInt8 msg_class;
     SInt32 msg_data;
+    
+    #ifdef COMPILE_WO_WARNINGS
+    if(hops == 255)
+    {
+        return ON_MSG_INTERNAL_ERR;
+    }
+    #endif
 
 
     #ifndef ONE_NET_MULTI_HOP
@@ -653,6 +660,21 @@ on_message_status_t eval_handle_ack_nack_response(
   UInt8 hops, UInt8* const max_hops)
 #endif
 {
+    #ifdef COMPILE_WO_WARNINGS
+    #ifdef ONE_NET_MULTI_HOP
+    if(hops == 255 && !max_hops)
+    {
+        return ON_MSG_CONTINUE;
+    }
+    #endif
+    if(!retries && !src_did && !repeater_did && !msg_hdr && !resp_msg_hdr && !raw_pld)
+    {
+        return ON_MSG_CONTINUE;
+    }
+    #endif    
+    
+    
+    
     #ifdef BLOCK_MESSAGES_ENABLED
     if(bs_msg.transfer_in_progress && raw_pld[0] == ON_REQUEST_BLOCK_STREAM)
     {
@@ -877,6 +899,12 @@ void oncli_print_user_pin_cfg(void)
 on_message_status_t one_net_adjust_hops(const on_raw_did_t* const raw_dst,
   UInt8* const max_hops)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(!raw_dst || !max_hops)
+    {
+        return ON_MSG_DEFAULT_BHVR;
+    }
+    #endif
     return ON_MSG_DEFAULT_BHVR;
 }
 #endif
@@ -1426,10 +1454,10 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
                         
                         #ifdef STREAM_MESSAGES_ENABLED
                         if(on_decrypt(is_stream_pkt, decrypted,
-                          (one_net_xtea_key_t*)keys[j], raw_pld_len) !=
+                          (const one_net_xtea_key_t*)keys[j], raw_pld_len) !=
                           ONS_SUCCESS)
                         #else
-                        if(on_decrypt(decrypted, (one_net_xtea_key_t*)keys[j],
+                        if(on_decrypt(decrypted, (const one_net_xtea_key_t*)keys[j],
                           raw_pld_len) != ONS_SUCCESS)
                         #endif
                         {
@@ -1534,6 +1562,12 @@ void display_pkt(const UInt8* packet_bytes, UInt8 num_bytes,
 void one_net_adjust_recipient_list(const on_single_data_queue_t* const msg,
   on_recipient_list_t** recipient_send_list)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(!msg || !recipient_send_list)
+    {
+        return;
+    }
+    #endif
 }
 #endif
 
@@ -1614,11 +1648,23 @@ void one_net_data_rate_channel_changed(UInt8 new_channel, UInt8 new_data_rate)
 void one_net_adjust_fatal_nack(on_nack_rsn_t nack_reason, BOOL* is_fatal)
 {
     // Empty function.  No adjustment.
+    #ifdef COMPILE_WO_WARNINGS
+    if(nack_reason == ON_NACK_RSN_NO_ERROR || is_fatal == NULL)
+    {
+        return;
+    }
+    #endif
 }
 
 
 void one_net_single_msg_loaded(on_txn_t** txn, on_single_data_queue_t* msg)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(txn == NULL || msg == NULL)
+    {
+        return;
+    }
+    #endif
 }
 #endif
 
@@ -2046,6 +2092,12 @@ one_net_status_t send_simple_text_command(const char* text, UInt8 src_unit,
 static void print_text_packet(const UInt8 *txn_str, const UInt8 *TXT,
   UInt16 TXT_LEN, const on_raw_did_t *SRC_ADDR)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(txn_str == NULL)
+    {
+        return;
+    }
+    #endif
     oncli_send_msg(ONCLI_RX_TXT_FMT, did_to_u16(SRC_ADDR), TXT_LEN, TXT);
 } // print_text_packet //
 #endif

@@ -32,10 +32,13 @@
 */
 
 /*!
-    \file dfi.c
-    \brief Contains functions for accessing circular buffers.
+    \file atxmega256a3b_dfi.c
+    \brief Contains functions for data EEPROM interface
 
-    Contains the implementation of functions for accessing circular buffers.
+    Contains the implementation of functions for data EEPROM interface
+
+
+    2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -71,13 +74,11 @@ const UInt8 dfi_segment_types_used[] =
     DFI_ST_APP_DATA_1,
     DFI_ST_APP_DATA_2,
     DFI_ST_APP_DATA_3,
-    DFI_ST_APP_DATA_4
-    #ifdef _ATXMEGA256A3B
-    ,DFI_ST_ONE_NET_EEPROM_MANUFATURING_SAVED,
+    DFI_ST_APP_DATA_4,
+    DFI_ST_ONE_NET_EEPROM_MANUFACTURING_SAVED,
     DFI_ST_ONE_NET_EEPROM_MASTER_SAVED,
     DFI_ST_ONE_NET_EEPROM_CLIENT_SAVED,
     DFI_ST_ONE_NET_EEPROM_MODE_SAVED
-    #endif
 };
 
 //! the number of entries in dfi_segment_types_used
@@ -180,9 +181,9 @@ UInt16 * dfi_find_last_segment_of_type(dfi_segment_type_t segment_type)
          start_address = DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_OFFSET;
          break;
 
-      case DFI_ST_ONE_NET_EEPROM_MANUFATURING_SAVED: ///! 9
+      case DFI_ST_ONE_NET_EEPROM_MANUFACTURING_SAVED: ///! 9
       {
-         start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFATURING_SAVED_OFFSET;
+         start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFACTURING_SAVED_OFFSET;
         break;
       }
 
@@ -263,9 +264,9 @@ UInt16 * dfi_write_segment_of_type(dfi_segment_type_t segment_type, UInt8 * data
          segment_size = DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_SIZE;
          break;
 
-      case DFI_ST_ONE_NET_EEPROM_MANUFATURING_SAVED: ///! 9
-         start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFATURING_SAVED_OFFSET;
-         segment_size = DFI_EEPROM_ONE_NET_MANUFATURING_SAVED_EEPROM_SIZE;
+      case DFI_ST_ONE_NET_EEPROM_MANUFACTURING_SAVED: ///! 9
+         start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFACTURING_SAVED_OFFSET;
+         segment_size = DFI_EEPROM_ONE_NET_MANUFACTURING_SAVED_EEPROM_SIZE;
         break;
 
 
@@ -393,9 +394,9 @@ void dfi_delete_segments_except_for(
                  segment_size = DFI_EEPROM_ONE_NET_APPLICATION_4_DATA_SIZE;
                  break;
 
-              case DFI_ST_ONE_NET_EEPROM_MANUFATURING_SAVED:   //! 9
-                 start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFATURING_SAVED_OFFSET;
-                 segment_size = DFI_EEPROM_ONE_NET_MANUFATURING_SAVED_EEPROM_SIZE;
+              case DFI_ST_ONE_NET_EEPROM_MANUFACTURING_SAVED:   //! 9
+                 start_address = DFI_EEPROM_ONE_NET_EEPROM_MANUFACTURING_SAVED_OFFSET;
+                 segment_size = DFI_EEPROM_ONE_NET_MANUFACTURING_SAVED_EEPROM_SIZE;
                  break;
 
               case DFI_ST_ONE_NET_EEPROM_MASTER_SAVED:   //! 10

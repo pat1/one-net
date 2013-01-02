@@ -40,6 +40,8 @@
 /*!
     \file nv_hal.c
     \brief The ONE-NET Evaluation Project Hardware Abstraction Layer for non-volatile memory.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -137,100 +139,28 @@ typedef struct
 //! \ingroup nv_hal
 //! @{
 
-/*!
-    \brief Checks to see if the data flash should be erased (and erases it if
-      it should -- i.e. erase if a "shorting device" is attached to the uart port).
 
-    Checks if the uart rx & tx pins are connected to indicate that the flash
-    should be erased (i.e. a person has physically attached a shorting plus
-    that does this)
+/*!
+    \brief Erases the data eeprom.
 
     \param void
 
-    \return void
+    \return TRUE if erasing the entire data eeprom was successful
+            FALSE if erasing the entire data eeprom failed
 */
-#if 0
-void flash_erase_check(void)
+BOOL eval_erase_data_eeprom(void)
 {
-    UInt8 i;
-
-    FLASH_CHECK_TX_PIN_DIR = OUTPUT;
-    FLASH_CHECK_RX_PIN_DIR = INPUT;
-
-    // Note that all pullups were enabled in init_ports(), so, in
-    // particular, the FLASH_CHECK_RX_PIN is pulled up.
-
-    FLASH_CHECK_TX_PIN = 0;
-
-    //
-    // Loop to see if FLASH_CHECK_RX_PIN follows FLASH_CHECK_TX_pin
-    //
-    for (i = 0; i < 2; i++)
-    {
-        FLASH_CHECK_TX_PIN = !FLASH_CHECK_TX_PIN;
-		delay_ms(2); // dje: give the rx time to get through RS-232
-        if (FLASH_CHECK_RX_PIN != FLASH_CHECK_TX_PIN)
-        {
-            //
-            // Pins not connected: Give a quick blink
-            // of the Rx LED (the green one) and return
-            // since the shorting plug is not connected.  If it was, the two
-            // pins would be physically connected and would therefore share
-            // the same state and we would not get here
-            FLASH_CHECK_TX_PIN = 0;
-            rx_led_blink(125, 1);
-            return;
-        } // if the pins aren't connected //
-    }
-    //
-    // Pins are connected: Erase the flash and give something like a
-    // two second blink on the Tx LED (the red one).
-    //
-    eval_erase_data_flash();
-    tx_led_blink(2000, 1);
-} // flash_erase_check //
-#endif
-
-/*!
-    \brief Erases the data flash.
-
-    \param void
-
-    \return TRUE if erasing the entire data flash was successful
-            FALSE if erasing the entire data flash failed
-*/
-BOOL eval_erase_data_flash(void)
-{
-    UInt8 segment_type_list[] = { DFI_ST_DEVICE_MFG_DATA, DFI_ST_ONE_NET_EEPROM_MANUFATURING_SAVED };
+    UInt8 segment_type_list[] = { DFI_ST_DEVICE_MFG_DATA, DFI_ST_ONE_NET_EEPROM_MANUFACTURING_SAVED };
     UInt8 segment_type_list_size = sizeof(segment_type_list);
 
     //
     // delete all segments except for the manufacturing data segment type
-    // and eeprom manufacturine saved data segment type
+    // and eeprom manufacturing saved data segment type
     //
     dfi_delete_segments_except_for(segment_type_list, segment_type_list_size);
 
     return TRUE;
-} // eval_erase_data_flash //
-
-
-/*!
-
-    \param[in]  NV_DATA_TYPE The type of data to restore.  See dfi_segment_type_t.
-    \param[out] len The length (in bytes) of the data being restored.
-    \param[out] DATA Pointer to retrieve the location of the data.
-
-    \return TRUE if the data was loaded successfully
-            FALSE if the data was not loaded successfully
-*/
-BOOL eval_load(const UInt8 NV_DATA_TYPE, UInt16 * const len,
-  const UInt16 ** const DATA)
-{
-
-    return(TRUE);
-
-} // eval_load //
-
+} // eval_erase_data_eeprom //
 
 
 /*!
@@ -276,28 +206,26 @@ BOOL eval_save(void)
 
 
     // first calculate the crc, length, and type of memory
-    #ifdef _PEER
+    #ifdef PEER
 
     #if !defined(ONE_NET_CLIENT)
-    on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
-    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-      * sizeof(on_client_t);
+    on_base_param->crc = master_nv_crc(NULL, NULL);
+    nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     #elif !defined(ONE_NET_MASTER)
-    on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
+    on_base_param->crc = client_nv_crc(NULL, NULL);
     nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     #else
     if(device_is_master)
     {
-        on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
-        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-            * sizeof(on_client_t);
+        on_base_param->crc = master_nv_crc(NULL, NULL);
+        nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     }
     else
     {
-        on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
+        on_base_param->crc = client_nv_crc(NULL, NULL);
         nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     }
@@ -308,32 +236,29 @@ BOOL eval_save(void)
 
 
     #if !defined(ONE_NET_CLIENT)
-    on_base_param->crc = master_nv_crc(NULL, -1);
-    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-      * sizeof(on_client_t);
+    on_base_param->crc = master_nv_crc(NULL);
+    nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     #elif !defined(ONE_NET_MASTER)
-    on_base_param->crc = client_nv_crc(NULL, -1);
+    on_base_param->crc = client_nv_crc(NULL);
     nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     #else
     if(device_is_master)
     {
-        on_base_param->crc = master_nv_crc(NULL, -1);
-        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-            * sizeof(on_client_t);
+        on_base_param->crc = master_nv_crc(NULL);
+        nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     }
     else
     {
-        on_base_param->crc = client_nv_crc(NULL, -1);
+        on_base_param->crc = client_nv_crc(NULL);
         nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     }
     #endif
 
     #endif   // #ifdef PEER
-
 
     //
     // Write the ONE-NET parameters
@@ -346,7 +271,6 @@ BOOL eval_save(void)
         return FALSE;
     }
 
-
     //
     // Write the pin configuration using DFI_ST_APP_DATA_1 segment type
     //
@@ -356,7 +280,6 @@ BOOL eval_save(void)
     {
         return FALSE;
     }
-
 
 #ifdef PEER
     //
@@ -375,7 +298,7 @@ BOOL eval_save(void)
 
     #ifdef ONE_NET_MASTER
     if(device_is_master)
-    {
+    {        
         // write a 1 to location DFI_EEPROM_ONE_NET_EEPROM_MASTER_SAVED_OFFSET
         eeprom_write_byte ((UInt16)DFI_EEPROM_ONE_NET_EEPROM_MASTER_SAVED_OFFSET, 1);
 
@@ -405,6 +328,31 @@ BOOL eval_save(void)
     return TRUE;
 } // eval_save //
 
+
+one_net_status_t one_net_save_mfg_settings(const on_raw_sid_t* raw_sid,
+  const one_net_xtea_key_t* invite_key)
+{
+    UInt8 mfg_data_segment[ON_RAW_SID_LEN + ONE_NET_XTEA_KEY_LEN];
+    
+    // TODO -- make sure manufacturing data does not already exist.  If so, return
+    // ONS_FAIL if there is.
+    
+    one_net_memmove(mfg_data_segment, *raw_sid, ON_RAW_SID_LEN);
+    one_net_memmove(&mfg_data_segment[ON_RAW_SID_LEN], *invite_key,
+      ONE_NET_XTEA_KEY_LEN);
+    
+    if(*(UInt16 *)(dfi_write_segment_of_type(DFI_ST_DEVICE_MFG_DATA, &mfg_data_segment[0],
+      sizeof(mfg_data_segment))) == 0xFFFF)
+    {
+        return ONS_FAIL;
+    }
+
+    // write a 1 to location DFI_EEPROM_ONE_NET_EEPROM_MANUFACTURING_SAVED_OFFSET
+    eeprom_write_byte ((UInt16)DFI_EEPROM_ONE_NET_EEPROM_MANUFACTURING_SAVED_OFFSET, 1);
+    eeprom_manufacturing_saved = TRUE;
+    
+    return ONS_SUCCESS;
+}
 
 
 //! @} nv_hal_pub_func

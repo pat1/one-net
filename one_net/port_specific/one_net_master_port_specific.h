@@ -366,7 +366,7 @@ on_raw_sid_t* one_net_master_get_raw_sid(void);
     \return ONS_SUCCESS If reseting to MASTER mode was successful
             ONS_FAIL If the command failed
 */
-one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
+one_net_status_t one_net_master_reset_master(const on_raw_sid_t* raw_sid,
   SInt8 channel);
 
 

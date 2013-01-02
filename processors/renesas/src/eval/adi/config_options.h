@@ -243,7 +243,7 @@
     // define the base baud rate.  Define DEFAULT_BAUD_RATE as 38400 or 115200.
     // If DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
-    // command-line option.  "baud:38400" or
+    // command-line option.  "baud:38400" or "baud:115200".
     #ifndef DEFAULT_BAUD_RATE
         #define DEFAULT_BAUD_RATE 115200
     #endif
@@ -448,19 +448,6 @@
         #endif
     #endif
 
-	// ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
-	#ifdef ENABLE_SINGLE_COMMAND
-		#ifndef ENABLE_RSINGLE_COMMAND
-		    // Implement the "rsingle" command.
-	//		#define ENABLE_RSINGLE_COMMAND
-		#endif
-	#endif
-
-	// ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
-	/*#ifndef ENABLE_RSSI_COMMAND
-		#define ENABLE_RSSI_COMMAND
-	#endif*/
-
 	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
 	#ifndef ENABLE_LIST_COMMAND
 		#define ENABLE_LIST_COMMAND
@@ -659,7 +646,7 @@
 // Use this feature to override any random channel searching and select a
 // particular channel.  See one_net_channel.h.  Selecting this option will
 // override channel setting in the transcevier.  Comment out the
-// "#define _CHANNEL_OVERIDE" line for normal behavior.
+// "#define CHANNEL_OVERRIDE" line for normal behavior.
 // behavior.
 #ifndef CHANNEL_OVERRIDE
 //    #define CHANNEL_OVERRIDE

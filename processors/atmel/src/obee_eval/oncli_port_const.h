@@ -40,13 +40,15 @@
 /*!
     \file oncli_port_const.h
     \brief ONE-NET Command Line Interface port specific constants.
-
+	
     These are constants that are specific to each device that implements the
     ONE-NET Command Line Interface.
 
     \note See one_net.h for the version of the ONE-NET source as a whole.  If
       any one file is modified, the version number in one_net.h will need to be
       updated.
+	  
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -110,7 +112,7 @@ enum
 
 //! @} oncli_port_const
 
-#endif // #ifdef _ENABLE_CLI
+#endif // #ifdef ENABLE_CLI
 
 #endif // _ONCLI_PORT_CONST_H //
 

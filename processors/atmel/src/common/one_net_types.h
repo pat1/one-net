@@ -44,6 +44,8 @@
 
     This file defines known types and sizes.  It is processor dependent, so it
     will need to be changed when the processor is changed.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 

@@ -35,11 +35,14 @@
 /*!
     \file tal_adi.c
     \brief Processor abstraction layer for the ADI ADF7025.
-
+	
     This file implements the functionality needed by the ADI
     transceiver (such as interrupts for the various communication).  This file
-    is for R8C devices that have the ADI set up to use TimerZ has the transmit
+    is for Atxmega256a3b devices that have the ADI set up to use Timercc1 has the transmit
     bit interrupt, and INT1 as the data clock interrupt for receive mode.
+
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 #include "config_options.h"
@@ -51,8 +54,8 @@
 #include "tal.h"
 
 
-#include <io.h>
-#include <interrupt.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 //=============================================================================
 //                                  CONSTANTS
@@ -141,7 +144,7 @@ one_net_status_t init_rf_interrupts(UInt8 DATA_RATE)
 
 
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 
     // initialize the INT0 interrupt of IO port PORTE pin 1 to handle RX_BIT_CLK for receive mode
     // rising edge instead of falling edge on PORTE pin 1
@@ -192,7 +195,7 @@ one_net_status_t init_rf_interrupts(UInt8 DATA_RATE)
     PMIC.CTRL |= PMIC_MEDLVLEN_bm;
 
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
     // for IO output debug ///////////////////
     // set the IO for output debug
 //    PORTD.DIR |= (1 << PIN6_bp);

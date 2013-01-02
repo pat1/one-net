@@ -40,6 +40,8 @@
 /*!
     \file one_net_client_port_const.h
     \brief ONE-NET CLIENT specific constants.
+	
+    2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 

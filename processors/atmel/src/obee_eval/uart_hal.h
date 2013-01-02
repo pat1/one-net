@@ -45,6 +45,8 @@
     This file needs to declare the baud rate and initial uart0 control value.
     The uart settings need to be of the form BAUD_9600, BAUD_19200, etc.
     The initial uart0 control value needs to be defined INIT_UART0_CONTROL.
+	
+    2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -66,7 +68,6 @@
 //! @{
 
 //! The baud rate numbers are assuming a 20Mhz system clock divided by 1
-//! Note that the -1 is done when the uart brg register is set
 typedef enum
 {
     BAUD_115200 = 0,               //!< Baud rate of 115200

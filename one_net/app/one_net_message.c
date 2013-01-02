@@ -737,8 +737,8 @@ one_net_status_t on_complete_pkt_build(on_pkt_t* pkt_ptrs, UInt8 pid)
     if(packet_is_multihop(pid))
     {
         one_net_status_t status;
-        if((status = on_build_hops(pkt_ptrs, pkt_ptrs->hops, pkt_ptrs->max_hops)
-          != ONS_SUCCESS))
+        if((status = on_build_hops(pkt_ptrs, pkt_ptrs->hops, pkt_ptrs->max_hops))
+          != ONS_SUCCESS)
         {
             return status;
         }

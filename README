@@ -1,12 +1,14 @@
 README
 
-August 16, 2012, 2012
+November 19, 2012
 
 
-This is the official release of ONE-NET Version 2.3.0.  This release includes documentation.  Please see the docs folder.
-All features are now implemented.  ONE-NET Version 2.3.0 is the first NON-Beta release.
+This is the official release of ONE-NET Version 2.3.1.  This release includes some enhancements and bug fixes, a new porting guide, and a port of the Renesas Evaluation Module project to the Atmel chip.  Special thanks to Arie Rechavel at D&H Global Enterprise, LLC. for spearheading this port.
+
+All features are now implemented.  ONE-NET Version 2.3.1 is the second NON-Beta release.
 For the C++ utilities, please see the applications/desktop_sniffer/sniff_parse and execute the Makefile.
 The main project is the Renesas Evaluation Board Project located at processors/renesas/hew/one_net_eval/one_net_eval.hws
+The Atmel version of the Evaluation Board Project is located at processors/atmel/avr_studio/obee_eval/one_net_2.3.1.atsln
 
 The main repository is located at https://one-net.svn.sourceforge.net/svnroot/one-net
 The trunk is located at https://one-net.svn.sourceforge.net/svnroot/one-net/trunk

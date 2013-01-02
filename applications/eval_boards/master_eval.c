@@ -200,6 +200,14 @@ BOOL one_net_master_device_is_awake(BOOL responding,
         ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     }
     #endif
+    
+    #ifdef COMPILE_WO_WARNINGS
+    if(responding)
+    {
+        return FALSE;
+    }
+    #endif
+        
     return FALSE;
 } // one_net_master_device_is_awake //
 
@@ -269,6 +277,13 @@ void one_net_master_invite_result(one_net_status_t STATUS,
 BOOL one_net_master_remove_device_result(const on_raw_did_t *DID,
   BOOL SUCCEEDED)
 {
+    #ifdef COMPILE_WO_WARNINGS
+    if(!DID && !SUCCEEDED)
+    {
+        return TRUE;
+    }
+    #endif    
+    
     return TRUE;
 } // one_net_master_remove_device_result //
 
@@ -309,7 +324,7 @@ void init_auto_master(void)
     #ifdef PEER
     one_net_reset_peers();
     #endif
-    one_net_master_init(NULL, 0);
+    one_net_master_init(NULL, 0, MEMORY_GENERIC);
     reset_msg_ids();
     
     // initialize timer for auto mode to send right away
@@ -341,7 +356,6 @@ void init_serial_master(SInt8 channel)
     BOOL memory_loaded;
     const UInt8* nv_memory;
     const UInt8* user_pin_memory;
-    const on_base_param_t* base_param;
     UInt16 nv_memory_len, user_pin_memory_len;
     #ifdef PEER
     const UInt8* peer_memory;
@@ -352,10 +366,11 @@ void init_serial_master(SInt8 channel)
     {
         memory_loaded = eval_load(DFI_ST_APP_DATA_1, &user_pin_memory_len,
           &user_pin_memory);
+          
         if(user_pin_memory_len != sizeof(user_pin))
         {
             memory_loaded = FALSE;
-        }
+        }        
     }
     else
     {
@@ -386,7 +401,11 @@ void init_serial_master(SInt8 channel)
     if(memory_loaded)
     {
         one_net_status_t status;
+        #ifdef PEER
+        status = one_net_master_init(nv_memory, nv_memory_len, MEMORY_NON_PEER);
+        #else
         status = one_net_master_init(nv_memory, nv_memory_len);
+        #endif
         
         #ifdef PEER
         if(status != ONS_MORE)
@@ -395,7 +414,7 @@ void init_serial_master(SInt8 channel)
         }
         else
         {
-            status = one_net_master_init(peer_memory, peer_memory_len);
+            status = one_net_master_init(peer_memory, peer_memory_len, MEMORY_PEER);
         }
         #endif
         
@@ -424,7 +443,7 @@ void init_serial_master(SInt8 channel)
         #endif
 #endif
         // start a brand new network
-        one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
+        one_net_master_reset_master((const on_raw_sid_t*)one_net_master_get_raw_sid(), channel);
 #ifdef NON_VOLATILE_MEMORY
     }
 #endif
@@ -456,7 +475,7 @@ void master_eval(void)
 } // master_eval //
 
 
-one_net_status_t one_net_master_reset_master(on_raw_sid_t* raw_sid,
+one_net_status_t one_net_master_reset_master(const on_raw_sid_t* raw_sid,
   SInt8 channel)
 {
     node_loop_func = &master_eval;
@@ -564,7 +583,7 @@ BOOL one_net_master_client_missed_check_in(on_client_t* client)
     #ifdef UART
     on_raw_did_t raw_did;
     on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);
-    oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16(&raw_did));
+    oncli_send_msg(ONCLI_CLIENT_MISS_CHECK_IN_FMT, did_to_u16((const on_raw_did_t*)&raw_did));
     
     ont_set_timer(PROMPT_TIMER, SERIAL_PROMPT_PERIOD);
     #endif

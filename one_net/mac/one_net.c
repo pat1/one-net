@@ -3972,7 +3972,7 @@ BOOL one_net_reject_bad_msg_id(const on_sending_device_t* device)
     #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
-        on_client_t* client = client_info((const on_encoded_did_t* const)
+        on_client_t* client = client_info((const on_encoded_did_t*)
           device->did);
         if(client == NULL)
         {

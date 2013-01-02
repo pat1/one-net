@@ -37,6 +37,8 @@
     \brief Contains common hardware declarations.  Implementation will be
         processor-specific and possibly hardware-specific.  Not all ports will
         implement all functions here.
+		
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -45,7 +47,7 @@
 #include "tick.h"
 #include "one_net_application.h" // for "INPUT" and "OUTPUT"
 
-#include <interrupt.h>
+#include <avr/interrupt.h>
 #include <stdlib.h>
 
 
@@ -130,7 +132,7 @@ void pal_init_ports(void)
 
 void pal_high_speed_mode(void)
 {
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
     // set PC7 as an output
     PORTC.DIRSET = PIN7_bm;
 

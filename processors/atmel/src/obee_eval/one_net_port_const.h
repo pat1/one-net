@@ -4,7 +4,7 @@
 #include "config_options.h"
 
  #ifdef ONE_NET_CLIENT
- #include "one_net_client_port_const.h" // for the _DEVICE_SLEEPS constant, if defined.
+ #include "one_net_client_port_const.h" // for the DEVICE_SLEEPS constant, if defined.
  #endif
  #include "one_net_data_rate.h"
 
@@ -48,6 +48,8 @@
     \brief Application specific ONE-NET constants.
 
     These are constants that are specific to each ONE-NET device
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -151,7 +153,7 @@ enum
     #endif
 
     #ifdef ONE_NET_MULTI_HOP
-    //! Multi-hop repeater latency -- i.e. estimated time it takes for a
+    //! Multi-hop retpeater latency -- i.e. estimated time it takes for a
     //! repeater to forward a message in milliseconds
     ONE_NET_MH_LATENCY = 5
     #endif
@@ -182,8 +184,8 @@ enum
 // uart buffer size
 enum
 {
-    UART_RX_BUF_SIZE = 100,   //!< Size of the uart receive buffer
-    UART_TX_BUF_SIZE = 100    //!< Size of the uart transmit buffer
+    UART_RX_BUF_SIZE = 500,   //!< Size of the uart receive buffer
+    UART_TX_BUF_SIZE = 500    //!< Size of the uart transmit buffer
 };
 
 
@@ -198,7 +200,7 @@ enum
 // see one_net_memory.h
 enum
 {
-    // Size of the "heap".  one_net_memory provides a poor-man's "heap" for
+    // Size of the "heap".  one_net_memory provices a poor-man's "heap" for
     // embedded systems when you want to use a heap but can't or don't want
     // to use malloc, calloc, realloc, free from stdlib.h.
     ONE_NET_HEAP_SIZE = 100,

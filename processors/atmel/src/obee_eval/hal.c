@@ -37,6 +37,8 @@
     \brief Contains common hardware declarations.  Implementation will be
         processor-specific and possibly hardware-specific.  Not all ports will
         implement all functions here.
+		
+        2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 

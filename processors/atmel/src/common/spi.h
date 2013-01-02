@@ -38,6 +38,8 @@
 /*!
     \file spi.h
     \brief Driver for the spi port on the R8C series microcontroller.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 

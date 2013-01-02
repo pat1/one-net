@@ -130,10 +130,9 @@ tick_t one_net_client(void);
 
 
 #ifndef PEER
-int client_nv_crc(const UInt8* param, int param_len);
+int client_nv_crc(const UInt8* param);
 #else
-int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len);
+int client_nv_crc(const UInt8* param, const UInt8* peer_param);
 #endif
 
 #ifdef BLOCK_MESSAGES_ENABLED

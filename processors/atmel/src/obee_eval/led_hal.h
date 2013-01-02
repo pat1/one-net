@@ -5,7 +5,7 @@
 #include "config_options.h"
 
 
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 
 #include "io_port_mapping.h"
 #include "hal.h"
@@ -18,6 +18,8 @@
 /*!
     \file one_net_eval_hal.h
     \brief ONE-NET Evaluation Hardware Abstraction Layer for LEDs.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -111,7 +113,7 @@ void hal_init_ports_leds(void);
 //! @} led_hal
 
 
-#endif // ifdef _HAS_LEDS //
+#endif // ifdef HAS_LEDS //
 
 
 #endif // _LED_HAL_H //

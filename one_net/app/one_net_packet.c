@@ -475,7 +475,7 @@ SInt8 get_default_num_blocks(UInt16 raw_pid)
 
 
 
-BOOL get_raw_pid(UInt8* payload, UInt16* raw_pid)
+BOOL get_raw_pid(const UInt8* payload, UInt16* raw_pid)
 {
     UInt8 raw_pld_arr[ON_ENCODED_PID_SIZE];
     if(on_decode(raw_pld_arr, payload, ON_ENCODED_PID_SIZE)

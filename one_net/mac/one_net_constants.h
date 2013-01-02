@@ -61,29 +61,28 @@
 
 
 //! Address related constants
-enum
-{
-    //! Raw Network ID length (in bytes needed to store the value)
-    ON_RAW_NID_LEN = 5,
 
-    //! Raw Device ID length (in bytes needed to store the value)
-    ON_RAW_DID_LEN = 2,
+//! Raw Network ID length (in bytes needed to store the value)
+#define ON_RAW_NID_LEN 5
 
-    //! Raw System ID length (in bytes)
-    ON_RAW_SID_LEN = 6,
+//! Raw Device ID length (in bytes needed to store the value)
+#define ON_RAW_DID_LEN 2
 
-    //! Encoded Network ID length (in bytes)
-    ON_ENCODED_NID_LEN = 6,
+//! Raw System ID length (in bytes)
+#define ON_RAW_SID_LEN 6
 
-    //! Encoded Device ID length (in bytes)
-    ON_ENCODED_DID_LEN = 2,
+//! Encoded Network ID length (in bytes)
+#define ON_ENCODED_NID_LEN 6
 
-    //! Encoded SID length (in bytes)
-    ON_ENCODED_SID_LEN = 8,
-    
-    //! Number of bits to shift when converting between raw and encoded DIDs
-    RAW_DID_SHIFT = 4
-};
+//! Encoded Device ID length (in bytes)
+#define ON_ENCODED_DID_LEN 2
+
+//! Encoded SID length (in bytes)
+#define ON_ENCODED_SID_LEN 8
+
+//! Number of bits to shift when converting between raw and encoded DIDs
+#define RAW_DID_SHIFT 4
+
 
 
 //! type of a raw Network ID

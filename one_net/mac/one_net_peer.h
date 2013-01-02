@@ -131,6 +131,7 @@ extern on_peer_unit_t* const peer;
 
 
 one_net_status_t one_net_reset_peers(void);
+UInt8 one_net_count_peers(const on_peer_unit_t* peer_list);
 void add_peers_to_recipient_list(const on_single_data_queue_t*
   msg, on_recipient_list_t* send_list, const on_peer_unit_t* peer_list);
 one_net_status_t one_net_add_peer_to_list(const UInt8 SRC_UNIT,

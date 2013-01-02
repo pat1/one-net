@@ -162,6 +162,11 @@ void one_net_client_invite_result(const on_raw_did_t * const RAW_DID,
         case ONS_SUCCESS:
           // print the joined message
           oncli_send_msg(ONCLI_JOINED_FMT, did_to_u16(RAW_DID));
+          return;
+        #ifdef COMPILE_WO_WARNINGS
+        default:
+          return;
+        #endif
     }
     #endif
 }
@@ -247,7 +252,6 @@ void init_serial_client(void)
     BOOL memory_loaded;
     const UInt8* nv_memory;
     const UInt8* user_pin_memory;
-    const on_base_param_t* base_param;
     UInt16 nv_memory_len, user_pin_memory_len;
     #ifdef PEER
     const UInt8* peer_memory;
@@ -294,9 +298,9 @@ void init_serial_client(void)
             oncli_send_msg("Parameters have not been loaded from flash.\n");
             #endif
             #ifndef ENHANCED_INVITE
-            one_net_client_reset_client(one_net_client_get_invite_key());
+            one_net_client_reset_client((const one_net_xtea_key_t*)one_net_client_get_invite_key());
             #else
-            one_net_client_reset_client(one_net_client_get_invite_key(), 0,
+            one_net_client_reset_client((const one_net_xtea_key_t*)one_net_client_get_invite_key(), 0,
               ONE_NET_MAX_CHANNEL, 0);
             #endif
         }
@@ -313,11 +317,14 @@ void init_serial_client(void)
     else
 #endif
     {
+        #if defined(NON_VOLATILE_MEMORY) && defined(UART)
+        oncli_send_msg("Parameters have not been loaded from flash.\n");
+        #endif
         #ifdef ENHANCED_INVITE
-        one_net_client_reset_client(one_net_client_get_invite_key(), 0,
+        one_net_client_reset_client((const one_net_xtea_key_t*)one_net_client_get_invite_key(), 0,
           ONE_NET_MAX_CHANNEL, 0);
         #else
-        one_net_client_reset_client(one_net_client_get_invite_key());
+        one_net_client_reset_client((const one_net_xtea_key_t*)one_net_client_get_invite_key());
         #endif
     }
 }

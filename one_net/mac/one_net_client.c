@@ -457,7 +457,7 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
     
     if(param)
     {
-        if(param_len != CLIENT_NV_PARAM_SIZE_BYTES)
+        if(param_len < CLIENT_NV_PARAM_SIZE_BYTES)
         {
             return ONS_BAD_PARAM;
         }
@@ -468,16 +468,15 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
     {
         return status;
     } // if initializing the internals failed //
-    
+
     #ifdef PEER
     if(peer_param != NULL)
-    {
-        if(peer_param_len > PEER_STORAGE_SIZE_BYTES || peer_param_len %
-          sizeof(on_peer_unit_t) != 0)
+    {        
+        if(peer_param_len < PEER_STORAGE_SIZE_BYTES)
         {
             return ONS_BAD_PARAM;
         }
-        one_net_memmove(peer_storage, peer_param, peer_param_len);
+        one_net_memmove(peer_storage, peer_param, PEER_STORAGE_SIZE_BYTES);
     }
     #endif
 
@@ -488,8 +487,7 @@ one_net_status_t one_net_client_init(const UInt8 * const param,
 
     on_state = ON_LISTEN_FOR_DATA;
     client_joined_network = TRUE;
-	client_looking_for_invite = FALSE;
-   
+	client_looking_for_invite = FALSE;   
     return ONS_SUCCESS;
 } // one_net_client_init //
 
@@ -698,20 +696,15 @@ tick_t one_net_client(void)
     
     \param[in] param pointer to non-volatile parameters.  If NULL,
                on_base_param is used.
-    \param[in] param_len Length of non-volatile parameters.  If negative, this
-               is disregarded.
     \param[in] peer_param pointer to peer parameters.  If NULL,
                peer is used.
-    \param[in] peer_param_len Length of peer parameters.  If negative, this
-               is disregarded.
     \return 8-bit CRC of the client parameters if valid
             -1 if invalid
 */
 #ifndef PEER
-int client_nv_crc(const UInt8* param, int param_len)
+int client_nv_crc(const UInt8* param)
 #else
-int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len)
+int client_nv_crc(const UInt8* param, const UInt8* peer_param)
 #endif
 {
     UInt16 starting_crc = ON_PLD_INIT_CRC;
@@ -722,22 +715,12 @@ int client_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     {
         peer_param = peer_storage;
     }
-    if(peer_param_len >= 0 && peer_param_len != PEER_STORAGE_SIZE_BYTES)
-    {
-        return -1;
-    }
     #endif
     
     if(!param)
     {
         param = nv_param;
-    }
-    
-    if(param_len >= 0 && param_len != CLIENT_NV_PARAM_SIZE_BYTES)
-    {
-        return -1;
-    }
-    
+    }    
 
     #ifdef PEER
     // crc over peer parameters

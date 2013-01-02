@@ -41,6 +41,7 @@
     Place any configuration options you want in this file.  Leave it
 	empty if there are no configuration options.
 
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -78,6 +79,17 @@
 // in.
 
 
+// Enable this if you are compiling with options such as "-Wall -Werror" and need things to compile
+// without any warnings.  This may add to the code size, so small embedded devices with limited
+// code space and possibly RAM resources will generally not have this enabled, and desktop applications
+// and large embedded devices with resources to spare may want to enable this option.  Generally
+// this option involves adding a default case to all switch statements which might give a warning
+// if the unneeded cases are not handled.  All ACTUAL cases should be handled correctly even when this
+// option is not defined, so this option is simply to make the compiler happy. If you find a case that
+// truly is NOT handled when this is undefined, it should be considered a bug!
+#ifndef COMPILE_WO_WARNINGS
+    #define COMPILE_WO_WARNINGS
+#endif
 
 
 // Master/Client
@@ -156,7 +168,7 @@
         #endif
     #endif
 
-    #if defined(BLOCK_MESSAGES_ENABLED) && defined(DEVICE_SLEEPS)
+    #if defined(BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_CLIENT)
         // Relevant only for clients initiating block / stream.  Enable if the
         // client has the ability to request permission from the master for
         // long block and stream transfers.  Do not enable if the device cannot
@@ -186,7 +198,7 @@
 // Enhanced Invite Option - Should be defined if you need the option of specifying a
 // timeout time or specifying a specific channel range for invitations.  Only valid
 // if IDLE is defined.
-#if defined(IDLE) && defined(DEVICE_SLEEPS)
+#if defined(IDLE) && defined(ONE_NET_CLIENT)
     #ifndef ENHANCED_INVITE
 	    #define ENHANCED_INVITE
 	#endif
@@ -224,15 +236,97 @@
 #ifndef UART
     // Enable this if there is UART
     #define UART
+#endif
 
+#ifdef UART    
     // define the base baud rate.  Define DEFAULT_BAUD_RATE as 38400 or 115200.
     // If DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
-    // command-line option.  "baud:38400" or
+    // command-line option.  "baud:38400" or "baud:115200".
     #ifndef DEFAULT_BAUD_RATE
         #define DEFAULT_BAUD_RATE 115200
     #endif
+    
+    // Binary and linefeed options are listed below.  There are four...
+    //
+    // 1) UART_CARRIAGE_RETURN_CONVERT
+    //        This option should be defined if you are using a simple Serial
+    //        Data Interface program such as TeraTerm, Minicom, or
+    //        HyperTerminal on a desktop computer, all data is to be interpreted
+    //        as text, and you are using a command-line-interface where the
+    //        commands are parsed as text and output is written as text from the
+    //        embedded device and that that text is read from and written to the
+    //        terminal "as-is" (i.e. no further parsing takes place).  An
+    //        example of this is the ONE-NET Evaluation Board used in its normal
+    //        command-line-interface fashion, which is what is assumed when the
+    //        Evaluation Board is shipped.
+    //
+    //        Defining this option will cause all '\r' characters to
+    //        be dropped and all '\n' characters to be replaced with "\r\n".
+    //        If you are using an Evaluation board in the normal fashion, you
+    //        want to have this option defined.
+    //
+    //        If, on the other hand, instead of using TeraTerm, Minicom, or
+    //        HyperTerminal, the other end of the serial cable is connected to
+    //        an application written in C, C++, Perl, etc., this program may
+    //        have its own mode of parsing and wish to handle any "\r\n"
+    //        conversions itself.  On the other hand, a desktop application
+    //        might still choose to leave this option enabled.  It's important,
+    //        of course that each side of the communication knows what to expect
+    //        in terms of the data format.
+    //
+    //        Similarly, the data could be sent not as text, but rather as
+    //        simple binary data where the ASCII table is irrelevant. In this
+    //        case, values corresponding to of '\r' and '\n' should not be
+    //        interpreted as carriage returns and newlines, so no conversion
+    //        should be done.  Make sure that this option is not defined in this
+    //        case.
+    //
+    //
+    // 2) HANDLE_UART_BY_LINE
+    //        Enable this option if, for whatever reason, you want to handle the UART
+    //        line by line rather than character by character.  Examples may include
+    //        using a desktop program as a command line interface.  Note that echoing
+    //        input character by character will not be allowed if this option is defined.
+    //        When using the Eval Board as a command-line-interface with a program
+    //        like TeraTerm, Minicom, or HyperTerminal, do not define this option.
+    //
+    // 3) HANDLE_BACKSPACE
+    //        Enable this option if you want the ability to erase a mistyped character
+    //        Generally, DO NOT enable this if you are writing a Desktop Command-Line-
+    //        Interface in a language like, C, C++, Perl, etc. because all backspace
+    //        handling will generally occur in that program.  Note that this option is
+    //        not available if handling the uart input by line rather than by character.
+    //
+    // 4) ALLOW_INPUT_ECHOING
+    //        Enable this option if you would like input echoing to occur.  If using
+    //        TeraTerm, Minicom, or HyperTerminal, you should generally echo the input.
+    //        If writing your own command-line-interface, generally you will not want
+    //        to echo.
+    //
+    //        Note that you can enable this option and still not choose to echo.  This
+    //        option merely gives you the option to turn it on and off.
+    //
+    
+    #ifndef UART_CARRIAGE_RETURN_CONVERT
+        #define UART_CARRIAGE_RETURN_CONVERT
+    #endif
+    
+    #ifndef HANDLE_UART_BY_LINE
+        //#define HANDLE_UART_BY_LINE
+    #endif
+    
+    #ifndef HANDLE_UART_BY_LINE
+        #ifndef HANDLE_BACKSPACE
+            #define HANDLE_BACKSPACE
+        #endif
+    #endif
+    
+    #ifndef ALLOW_INPUT_ECHOING
+        #define ALLOW_INPUT_ECHOING
+    #endif
 #endif
+
 
 // Enter 0 for no printouts, 1 for minimal printouts, 2 for semi-detailed printouts,
 // 3 for more detailed printouts, etc.  The higher the number, the
@@ -267,21 +361,13 @@
 
 // Other Options
 
-#ifndef _CHIP_ENABLE
-	#define _CHIP_ENABLE
+#ifndef CHIP_ENABLE
+	#define CHIP_ENABLE
 #endif
 
-//#ifndef _R8C_TINY
-//	#define _R8C_TINY
-//#endif
-
-#ifndef _ATXMEGA256A3B
-  #define _ATXMEGA256A3B
+#ifndef ATXMEGA256A3B
+  #define ATXMEGA256A3B
 #endif
-
-//#ifndef _8_MHZ_CLOCK
-//  #define _8_MHZ_CLOCK
-//#endif
 
 #ifndef _110592_MHZ_CLOCK             // adi eval board
 //  #define  _110592_MHZ_CLOCK
@@ -292,12 +378,10 @@
 #endif
 
 
-#ifdef _ATXMEGA256A3B
-   // define eval board or OBE board (when the following _ATXMEGA256A3B_EVAL is not defined)
-    #ifndef _ATXMEGA256A3B_EVAL
-//     #define _ATXMEGA256A3B_EVAL
-	 // when using the emulator uncomment the following, if not using the emulator comment out the following
-//	 #define _ATXMEGA256A3B_EVAL_USER_PIN
+#ifdef ATXMEGA256A3B
+   // define eval board or OBE board (when the following ATXMEGA256A3B_EVAL is not defined)
+    #ifndef ATXMEGA256A3B_EVAL
+//     #define ATXMEGA256A3B_EVAL
    #endif
 #endif
 
@@ -341,7 +425,7 @@
 // there is no CLI.  However, at the present time there is a lot of functions with "oncli" return types that
 // perhaps should not have "oncli" return types.  I think these should probably be changed for more versatility,
 // but right now I am going to leave them intact.  Thus for Eval boards, even if you never use a CLI, you should
-// define the ENABLE_CLI option to get mit to compile.  Instead, I have created a new variable called
+// define the ENABLE_CLI option to get it to compile.  Instead, I have created a new variable called
 // AT_LEAST_ONE_COMMAND_ENABLED, which can be defined or not defined.
 #ifdef ENABLE_CLI
 	#ifndef AT_LEAST_ONE_COMMAND_ENABLED
@@ -362,9 +446,9 @@
 		    #define ENABLE_BLOCK_COMMAND
 	    #endif
 
-	    // ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
-	    #ifndef ENABLE_BLOCK_TEXT_COMMAND
-		    #define ENABLE_BLOCK_TEXT_COMMAND
+	    // _ENABLE_BLOCK_TEXT_COMMAND should be defined if you are implementing the "block text" command option
+	    #ifndef _ENABLE_BLOCK_TEXT_COMMAND
+		    #define _ENABLE_BLOCK_TEXT_COMMAND
 	    #endif
 	#endif
 
@@ -390,23 +474,6 @@
            // #define AUTO_SAVE
         #endif
     #endif
-
-	// ENABLE_DUMP_COMMAND should be defined if you are implementing the "dump" command option
-	#ifndef ENABLE_DUMP_COMMAND
-	//	#define ENABLE_DUMP_COMMAND
-	#endif
-
-	// ENABLE_RSINGLE_COMMAND should be defined if you are implementing the "rsingle" command option
-	#ifdef ENABLE_SINGLE_COMMAND
-		#ifndef ENABLE_RSINGLE_COMMAND
-	//		#define ENABLE_RSINGLE_COMMAND
-		#endif
-	#endif
-
-	// ENABLE_RSSI_COMMAND should be defined if you are implementing the "rssi" command option
-	/*#ifndef ENABLE_RSSI_COMMAND
-		#define ENABLE_RSSI_COMMAND
-	#endif*/
 
 	// ENABLE_LIST_COMMAND should be defined if you are implementing the "list" command option
 	#ifndef ENABLE_LIST_COMMAND
@@ -482,7 +549,7 @@
 	#endif
 
 	// ENABLE_JOIN_COMMAND should be defined if you are implementing the "join" command option
-    #ifdef DEVICE_SLEEPS
+    #ifdef ONE_NET_CLIENT
         #ifndef ENABLE_JOIN_COMMAND
 		    #define ENABLE_JOIN_COMMAND
 	    #endif
@@ -501,9 +568,11 @@
 	#endif
 
 	// ENABLE_ECHO_COMMAND should be defined if you are implementing the "echo" command option
-	#ifndef ENABLE_ECHO_COMMAND
-		#define ENABLE_ECHO_COMMAND
-	#endif
+    #ifdef ALLOW_INPUT_ECHOING
+	    #ifndef ENABLE_ECHO_COMMAND
+		    #define ENABLE_ECHO_COMMAND
+	    #endif
+    #endif
 
     // ENABLE_SET_DR_CHANNEL_COMMAND should be defined if you are implementing the "set dr_channel" command option
     #ifdef DATA_RATE_CHANNEL
@@ -539,22 +608,18 @@
 // Other Options
 
 
-//#ifndef EVAL_0005_NO_REVISION
-//	#define EVAL_0005_NO_REVISION
-//#endif
-
 
 #ifndef DEBUGGING_TOOLS
-    #define DEBUGGING_TOOLS
+   // #define DEBUGGING_TOOLS
 #endif
 
 
-// enable this when you want more ROMDATA or other memory.
+// enable this when you want more ROMDATA or other meemory.
 // Shortens strings to save memory, but the strings won't make
 // much sense (i.e. "zo" instead of "STATUS QUERY".  Generally used for
 // developers.  You need to look at the arrays in "oncli.c" and elsewhere
 // to make sense of the shortens strings.  However, shortening the strings
-// can allow you to use the debugger and use other debugging tools.
+// can allow you to use the ebugger and use other debugging tools.
 
 // TODO  --  shorten some strings in oncli_str.c to save memory / code space.
 #ifndef MINIMIZE_STRING_LENGTHS
@@ -579,11 +644,11 @@
 
 // Use this feature to override any random channel searching and select a
 // particular channel.  See one_net_channel.h.  Selecting this option will
-// override channel setting in the transceiver.  Comment out the
-// "#define _CHANNEL_OVERIDE" line for normal behavior.
+// override channel setting in the transcevier.  Comment out the
+// "#define CHANNEL_OVERRIDE" line for normal behavior.
 // behavior.
 #ifndef CHANNEL_OVERRIDE
-//    #define _CHANNEL_OVERIDE
+    //#define CHANNEL_OVERRIDE
     #ifdef CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2
@@ -592,8 +657,6 @@
 
 // Now test #defines for compatibility
 #include "test_defines.h"
-
-
 
 
 // these aren't configuration options but rather aliases to avoid multiple

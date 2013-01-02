@@ -258,10 +258,10 @@
 // Use this feature to override any random channel searching and select a
 // particular channel.  See one_net_channel.h.  Selecting this option will
 // override channel setting in the transcevier.  Comment out the
-// "#define _CHANNEL_OVERIDE" line for normal behavior.
+// "#define CHANNEL_OVERRIDE" line for normal behavior.
 // behavior.
 #ifndef CHANNEL_OVERRIDE
-//    #define _CHANNEL_OVERIDE
+//    #define CHANNEL_OVERRIDE
     #ifdef CHANNEL_OVERRIDE
         // overriding with US Channel 2.  See one_net_channel.h for options
         #define CHANNEL_OVERRIDE_CHANNEL ONE_NET_US_CHANNEL_2

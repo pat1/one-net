@@ -412,134 +412,160 @@ void one_net_master_condense_client_memory(void)
               too long).  Initialization is reset and the parameters must be
               passed in from the beginning.
 */
-one_net_status_t one_net_master_init(const UInt8 * PARAM,
-  UInt16 PARAM_LEN)
+#ifndef PEER
+one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN)
+#else
+one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
+  memory_type_t memory_type)
+#endif
 {
     UInt8 i;
     one_net_status_t status;
     
     // The number of bytes in the non-volatile parameter buffer that have been
     // initialized so far.
-    static UInt16 nv_param_size_initialized = 0;
-    static UInt16 nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
+    static UInt16 nv_param_size_needed = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     #ifdef PEER
-    static UInt8 peer_memory_size_initialized = 0;
+    static UInt8 peer_memory_size_needed = PEER_STORAGE_SIZE_BYTES;
     #endif
     
-
-    if(PARAM != NULL)
+    // There are several options.  This function may be called with PARAM equal to NULL.
+    // In this case, it is assumed that the application code has already copied the non-volatile
+    // memory to the appropriate buffer.  Therefore this function will NOT attempt to do so.
+    // If PARAM_LEN is equal to 0, it will be assumed that all remaining memory of type
+    // memory_type has been passed to the function.  one_net_master_init will figure out how
+    // much memory is needed.  If PARAM_LEN is non-zero, it will be assumed that the buffer length
+    // passed to this function is PARAM_LEN bytes.  The number of bytes to be copied will be the lesser
+    // of the PARAM_LEN and the number of bytes needed to finish the initialization.
+    
+    // Finally, and this is only relevant when PEER is enabled, memory_type denotes what type of memory
+    // has been passed (peer or non-peer or undistinguished).  If the memory is undistinguished, it is
+    // assumed to represent one big buffer with the non-peer memory first followed by the peer memory.
+    
+    if(PARAM_LEN == 0)
     {
-        // initialization may take place with one call to this function if all
-        // of the bytes needed for non-volatile are passed in at once or it
-        // may take more than one trip to this function.
-        
-        // we'll first check whether we have all of on_base_param and
-        // master_param.  If we have this, we have the client count and we
-        // can do some re-calculating.
-        if(nv_param_size_initialized < MIN_MASTER_NV_PARAM_SIZE_BYTES)
-        {
-            UInt16 needed_to_know_client_count = MIN_MASTER_NV_PARAM_SIZE_BYTES
-              - nv_param_size_initialized;
-
-            if(PARAM_LEN < needed_to_know_client_count)
-            {
-                one_net_memmove(&nv_param[nv_param_size_initialized],
-                  PARAM, PARAM_LEN);
-                nv_param_size_initialized += PARAM_LEN;
-                return ONS_MORE;
-            }
-            
-            // we now have enough information to determine the client count
-            one_net_memmove(&nv_param[nv_param_size_initialized],
-                PARAM, needed_to_know_client_count);
-            PARAM += needed_to_know_client_count;
-            PARAM_LEN -= needed_to_know_client_count;
-            nv_param_size_initialized = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-                
-            if(master_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
-            {
-                // Number of clients is invalid.  Reset and return "invalid"
-                nv_param_size_initialized = 0;
-                nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-                #ifdef PEER
-                peer_memory_size_initialized = 0;
-                #endif
-                return ONS_INVALID_DATA;
-            }
-            
-            nv_param_size_needed += (sizeof(on_client_t) *
-              master_param->client_count);
-        }
-
-        if(nv_param_size_initialized < nv_param_size_needed)
-        {
-            UInt16 more_needed_for_nv_param = nv_param_size_needed -
-              nv_param_size_initialized;
-              
-            if(PARAM_LEN < more_needed_for_nv_param)
-            {
-                one_net_memmove(&nv_param[nv_param_size_initialized],
-                  PARAM, PARAM_LEN);
-                nv_param_size_initialized += PARAM_LEN;
-                return ONS_MORE;
-            }
-            
-            one_net_memmove(&nv_param[nv_param_size_initialized],
-              PARAM, more_needed_for_nv_param);
-            nv_param_size_initialized = nv_param_size_needed;
-            PARAM += more_needed_for_nv_param;
-            PARAM_LEN -= more_needed_for_nv_param;
-        }
-        
-        
-        // we have all of the non-volatile parameters filled in.  Depending
-        // on whether PEER is enabled, we'll start filling that in.
-        #ifdef PEER
-        {
-            UInt16 more_needed_for_peer = PEER_STORAGE_SIZE_BYTES -
-              peer_memory_size_initialized;
-                            
-            if(PARAM_LEN <= more_needed_for_peer)
-            {
-                one_net_memmove(&peer_storage[peer_memory_size_initialized],
-                  PARAM, PARAM_LEN);
-                peer_memory_size_initialized += PARAM_LEN;
-                if(PARAM_LEN < more_needed_for_peer)
-                {
-                    return ONS_MORE;
-                }
-                
-                PARAM_LEN -= more_needed_for_peer;
-            }
-        }
-        #endif
-        
-        
-        // just in case the applciation code needs to reset again for
-        // whatever reason, we'll reset everything here.  If everything
-        // worked OK, this function won't be called again so it won't
-        // matter, but if it IS called again, that should mean that we
-        // are initializing from scratch, so we want to reset some values.
-        nv_param_size_initialized = 0;
-        nv_param_size_needed = MIN_MASTER_NV_PARAM_SIZE_BYTES;
-        #ifdef PEER
-        peer_memory_size_initialized = 0;
-        #endif
-        
-
-        // Last thing to check is the CRC and also make sure that PARAM_LEN
-        // is 0 (if not, we were passed too much data and we need to reject)
         #ifndef PEER
-        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1))
+        PARAM_LEN = nv_param_size_needed;
         #else
-        if(PARAM_LEN != 0 || on_base_param->crc != master_nv_crc(NULL, -1,
-          NULL, -1))
-        #endif
+        switch(memory_type)
         {
-            return ONS_INVALID_DATA;
+            case MEMORY_GENERIC:
+                PARAM_LEN = nv_param_size_needed + peer_memory_size_needed;
+                break;
+            case MEMORY_NON_PEER:
+                PARAM_LEN = nv_param_size_needed;
+                break;
+            case MEMORY_PEER:
+                PARAM_LEN = peer_memory_size_needed;
+                break;
+            default:
+                return ONS_BAD_PARAM;
         }
+        #endif
     }
     
+    #ifdef PEER
+    if(memory_type == MEMORY_GENERIC)
+    {
+        if(nv_param_size_needed == 0)
+        {
+            memory_type = MEMORY_PEER;
+        }
+        else if(nv_param_size_needed <= nv_param_size_needed)
+        {
+            memory_type = MEMORY_NON_PEER;
+        }
+        else
+        {
+            UInt16 temp = nv_param_size_needed;
+            status = one_net_master_init(PARAM, nv_param_size_needed, MEMORY_NON_PEER);
+            if(status != ONS_MORE)
+            {
+                return status;
+            }
+            
+            if(PARAM)
+            {
+                PARAM += temp;
+            }
+            PARAM_LEN -= temp;
+            memory_type = MEMORY_PEER;
+        }
+    }
+    #endif    
+    
+    #ifdef PEER
+    if(memory_type == MEMORY_NON_PEER)
+    {
+        if(PARAM_LEN > nv_param_size_needed)
+        {
+            PARAM_LEN = nv_param_size_needed;
+        }
+
+        if(PARAM && nv_param_size_needed > 0)
+        {
+            one_net_memmove(&nv_param[MAX_MASTER_NV_PARAM_SIZE_BYTES - nv_param_size_needed],
+              PARAM, PARAM_LEN);
+        }
+        nv_param_size_needed -= PARAM_LEN;
+    }
+    else if(memory_type == MEMORY_PEER)
+    {
+        if(PARAM_LEN > peer_memory_size_needed)
+        {
+            PARAM_LEN = peer_memory_size_needed;
+        }
+        
+        if(PARAM && peer_memory_size_needed > 0)
+        {
+            one_net_memmove(&peer_storage[PEER_STORAGE_SIZE_BYTES - peer_memory_size_needed],
+              PARAM, PARAM_LEN);
+        }
+        peer_memory_size_needed -= PARAM_LEN;
+    }
+    else
+    {
+        return ONS_BAD_PARAM;
+    }
+
+    #else
+    
+    if(PARAM_LEN > nv_param_size_needed)
+    {
+        PARAM_LEN = nv_param_size_needed;
+    }
+    
+    if(PARAM && nv_param_size_needed > 0)
+    {
+        one_net_memmove(&nv_param[MAX_MASTER_NV_PARAM_SIZE_BYTES - nv_param_size_needed],
+          PARAM, PARAM_LEN);
+    }
+    nv_param_size_needed -= PARAM_LEN;
+    
+    #endif
+    
+    #ifndef PEER
+    if(nv_param_size_needed)
+    {
+        return ONS_MORE;
+    }
+    #else
+    if(nv_param_size_needed || peer_memory_size_needed)
+    {
+        return ONS_MORE;
+    }
+    #endif    
+
+    // Last thing to check is the CRC
+    #ifndef PEER
+    if(on_base_param->crc != master_nv_crc(NULL))
+    #else
+    if(on_base_param->crc != master_nv_crc(NULL, NULL))
+    #endif
+    {
+        return ONS_INVALID_DATA;
+    }
+
     #ifdef ONE_NET_MULTI_HOP
     // check for repeater
     for(i = 0; i < master_param->client_count; i++)
@@ -765,19 +791,19 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
 one_net_status_t one_net_master_cancel_invite(
   const one_net_xtea_key_t* const KEY)
 {
-    #ifdef COMPILE_WO_WARNINGS
-    if(KEY)
-    {
-        // do nothing!
-    }
-    #endif
-    
     invite_txn.priority = ONE_NET_NO_PRIORITY;
     ont_stop_timer(invite_txn.next_txn_timer);
     ont_stop_timer(ONT_INVITE_TIMER);
     
     // zero out invite_key_for good measure    
     one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
+    
+    #ifdef COMPILE_WO_WARNINGS
+    if(!KEY)
+    {
+        return ONS_SUCCESS;
+    }
+    #endif
     return ONS_SUCCESS;
 } // one_net_master_cancel_invite //
 
@@ -831,7 +857,7 @@ one_net_status_t one_net_master_remove_device(
         return status;
     } // if encoding the dst did failed //
 
-    if(!(client = client_info((const on_encoded_did_t * const)
+    if(!(client = client_info((const on_encoded_did_t*)
       &remove_device_did)))
     {
         return ONS_INCORRECT_ADDR;
@@ -1453,7 +1479,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
         return status;
     } // if encoding the dst did failed //
 
-    if(!client_info((const on_encoded_did_t * const)&dst))
+    if(!client_info((const on_encoded_did_t*)&dst))
     {
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
@@ -1537,7 +1563,7 @@ one_net_status_t one_net_master_change_frag_dly(
         return ONS_SUCCESS;
     } // if the MASTER device //
     
-    client = client_info((const on_encoded_did_t * const)&dst);
+    client = client_info((const on_encoded_did_t*)&dst);
 
     if(!client)
     {
@@ -1590,35 +1616,25 @@ one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
     
     \param[in] param pointer to non-volatile parameters.  If NULL,
                on_base_param is used.
-    \param[in] param_len Length of non-volatile parameters.  If negative, this
-               is disregarded.
     \param[in] peer_param pointer to peer parameters.  If NULL,
                peer is used.
-    \param[in] peer_param_len Length of peer parameters.  If negative, this
-               is disregarded.
     \return 8-bit CRC of the master parameters if valid
             -1 if invalid
 */
 #ifndef PEER
-int master_nv_crc(const UInt8* param, int param_len)
+int master_nv_crc(const UInt8* param)
 #else
-int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len)
+int master_nv_crc(const UInt8* param, const UInt8* peer_param)
 #endif
 {
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
     on_master_param_t* mast_param;
-    UInt16 expected_param_len;
     
     #ifdef PEER
     if(!peer_param)
     {
         peer_param = peer_storage;
-    }
-    if(peer_param_len >= 0 && peer_param_len != PEER_STORAGE_SIZE_BYTES)
-    {
-        return -1;
     }
     #endif
     
@@ -1631,15 +1647,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
 
     if(mast_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
     {
-        return -1;
-    }
-    
-    expected_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES +
-      mast_param->client_count * sizeof(on_client_t);
-      
-    if(param_len >= 0 && expected_param_len != param_len)
-    {
-        return -1;
+        return -1; // error
     }
     
     #ifdef PEER
@@ -1649,7 +1657,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     #endif
     
     return one_net_compute_crc(&param[CRC_LEN],
-      expected_param_len - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
+      MAX_MASTER_NV_PARAM_SIZE_BYTES - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
 } // master_nv_crc //
 
 
@@ -1662,7 +1670,7 @@ int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
     \return The CLIENT information if the information was found
             0 If an error occured.
 */
-on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID)
+on_client_t* client_info(const on_encoded_did_t* CLIENT_DID)
 {
     UInt16 i;
 
@@ -3323,11 +3331,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         {
             UInt32 estimated_time = one_net_byte_stream_to_uint32(&DATA[7]);
             on_client_t* rptr_client = client_info(
-              (const on_encoded_did_t* const) &DATA[1]);
+              (const on_encoded_did_t*) &DATA[1]);
             on_client_t* src_client = client_info(
-              (const on_encoded_did_t* const) &DATA[3]);
+              (const on_encoded_did_t*) &DATA[3]);
             on_client_t* dst_client = client_info(
-              (const on_encoded_did_t* const) &DATA[5]);
+              (const on_encoded_did_t*) &DATA[5]);
             on_encoded_did_t* invalid_device_did = NULL;
             
             // we need to make sure the source and the destinations are clients
@@ -3807,7 +3815,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         
         
         
-        if((add_or_remove_client = client_info((const on_encoded_did_t* const)
+        if((add_or_remove_client = client_info((const on_encoded_did_t*)
           &(msg->payload[1]))) == NULL)
         {
             // internal error.  This message has been corrupted somehow.
@@ -3819,7 +3827,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
 
             for(i = 0; i < master_param->client_count; i++)
             {
-                on_decode(raw_did, client->device.did, ON_ENCODED_DID_LEN);            
+                on_decode(raw_did, client_list[i].device.did, ON_ENCODED_DID_LEN);
                 
                 if(adding)
                 {
@@ -3908,22 +3916,25 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     }
 
     
-    // we may already have a destination queued.  If so, override the
-    // random index with that one.
+    // Pick a random index.  This will be overridden if we find a match when traversing
+    // the client list in the loop below.
     client = NULL;
+    index = one_net_prand(get_tick_count(), master_param->client_count - 1);
+
     if((*recipient_send_list)->num_recipients)
     {
-        client = client_info((const on_encoded_did_t* const)
+        client = client_info((const on_encoded_did_t*)
           &(*recipient_send_list)->recipient_list[0].did);
           
         if(client)
         {
             // iterate through the clients till we find the one we're queued
             // to send.
-            for(index = 0; index < master_param->client_count; index++)
+            for(i = 0; i < master_param->client_count; i++)
             {
-                if(client == &client_list[index])
+                if(client == &client_list[i])
                 {
+                    index = i;
                     break; // found it.
                 }
                 client = NULL;
@@ -3935,13 +3946,6 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     // clear the list.  If there was something on it and it still needs to be
     // sent, we'll add it back in
     (*recipient_send_list)->num_recipients = 0;
-    
-    // if we don't have an index already, pick a random one.
-    if(!client)
-    {
-        index = one_net_prand(get_tick_count(), master_param->client_count - 1);
-    }
-    
     
     for(i = 0; i < master_param->client_count; i++)
     {

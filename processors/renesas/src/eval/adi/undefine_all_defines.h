@@ -144,14 +144,6 @@
     #undef ENABLE_SAVE_COMMAND
 #endif
 
-#ifdef ENABLE_RSINGLE_COMMAND
-	#undef ENABLE_RSINGLE_COMMAND
-#endif
-
-#ifdef ENABLE_RSSI_COMMAND
-	#undef ENABLE_RSSI_COMMAND
-#endif
-
 #ifdef ENABLE_LIST_COMMAND
 	#undef ENABLE_LIST_COMMAND
 #endif

@@ -306,25 +306,23 @@ BOOL eval_save(void)
     #ifdef PEER
     
     #if !defined(ONE_NET_CLIENT)
-    on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
-    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-      * sizeof(on_client_t);
+    on_base_param->crc = master_nv_crc(NULL, NULL);
+    nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     #elif !defined(ONE_NET_MASTER)
-    on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
+    on_base_param->crc = client_nv_crc(NULL, NULL);
     nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     #else
     if(device_is_master)
     {
-        on_base_param->crc = master_nv_crc(NULL, -1, NULL, -1);
-        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-            * sizeof(on_client_t);
+        on_base_param->crc = master_nv_crc(NULL, NULL);
+        nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     }
     else
     {
-        on_base_param->crc = client_nv_crc(NULL, -1, NULL, -1);
+        on_base_param->crc = client_nv_crc(NULL, NULL);
         nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     }
@@ -335,25 +333,23 @@ BOOL eval_save(void)
 
 
     #if !defined(ONE_NET_CLIENT)
-    on_base_param->crc = master_nv_crc(NULL, -1);
-    nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-      * sizeof(on_client_t);
+    on_base_param->crc = master_nv_crc(NULL);
+    nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     #elif !defined(ONE_NET_MASTER)
-    on_base_param->crc = client_nv_crc(NULL, -1);
+    on_base_param->crc = client_nv_crc(NULL);
     nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
     settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     #else
     if(device_is_master)
     {
-        on_base_param->crc = master_nv_crc(NULL, -1);
-        nv_param_len = MIN_MASTER_NV_PARAM_SIZE_BYTES + master_param->client_count
-            * sizeof(on_client_t);
+        on_base_param->crc = master_nv_crc(NULL);
+        nv_param_len = MAX_MASTER_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_MASTER_SETTINGS;
     }
     else
     {
-        on_base_param->crc = client_nv_crc(NULL, -1);
+        on_base_param->crc = client_nv_crc(NULL);
         nv_param_len = CLIENT_NV_PARAM_SIZE_BYTES;
         settings_segment_type = DFI_ST_ONE_NET_CLIENT_SETTINGS;
     }
@@ -397,6 +393,44 @@ BOOL eval_save(void)
 	   
     return TRUE;
 } // eval_save //
+
+
+one_net_status_t one_net_save_mfg_settings(const on_raw_sid_t* raw_sid,
+  const one_net_xtea_key_t* invite_key)
+{
+    UInt8 mfg_data_segment[ON_RAW_SID_LEN + ONE_NET_XTEA_KEY_LEN];
+    
+    //
+    // Make sure there is no manufacturing data segment in data flash.
+    // This command can only be executed once. If you want to change the
+    // SID and invite code, you need to erase data flash using some means
+    // other than the CLI erase command.  For example, using a Renesas HEW.
+    //
+    UInt8* ptr_segment = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
+    if ((UInt8 *) ptr_segment != (UInt8 *) 0)
+    {
+        //
+        // we found manufacturing data, so issue error and
+        // do not complete the command.
+        //
+        return ONS_FAIL;
+    }
+    
+    one_net_memmove(mfg_data_segment, *raw_sid, ON_RAW_SID_LEN);
+    one_net_memmove(&mfg_data_segment[ON_RAW_SID_LEN], *invite_key,
+      ONE_NET_XTEA_KEY_LEN);
+    
+    //
+    // write the manufacturing data segment buffer to data flash
+    //
+    if (dfi_write_segment_of_type(DFI_ST_DEVICE_MFG_DATA, &mfg_data_segment[0],
+      sizeof(mfg_data_segment)) == (UInt8*) 0)
+    {
+        return ONS_FAIL;
+    }
+    
+    return ONS_SUCCESS;
+}
 
 
 

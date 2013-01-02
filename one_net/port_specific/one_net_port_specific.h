@@ -54,6 +54,7 @@
 #include "config_options.h"
 
 #include <stdlib.h>
+#include "one_net_xtea.h"
 #include "one_net_types.h"
 #include "one_net_constants.h"
 #include "one_net_status_codes.h"
@@ -460,6 +461,19 @@ SInt8 one_net_get_alternate_channel(void);
 
 #ifdef __cplusplus
 }
+#endif
+
+
+#ifdef NON_VOLATILE_MEMORY
+/*!
+    \brief Saves ONE-NET Manufacturing Data (6-byte raw NID and 16-byte invite key)
+    to non-volatile memory(i.e. Flash or EEPROM)
+    
+    \return ONS_SUCCESS If Manufacturing data was saved successfully
+            ONS_FAIL Otherwise
+*/
+one_net_status_t one_net_save_mfg_settings(const on_raw_sid_t* raw_sid,
+  const one_net_xtea_key_t* invite_key);
 #endif
 
 

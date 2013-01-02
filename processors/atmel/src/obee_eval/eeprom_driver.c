@@ -26,6 +26,8 @@
  *      Atmel Corporation: http://www.atmel.com \n
  *      Support email: avr@atmel.com
  *
+ *      2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
+ *
  * $Revision: 1569 $
  * $Date: 2008-04-22 13:03:43 +0200 (ti, 22 apr 2008) $  \n
  *
@@ -58,7 +60,7 @@
 
 #include"config_options.h"
 
-#ifdef _ATXMEGA256A3B
+#ifdef ATXMEGA256A3B
 
 #include "eeprom_driver.h"
 #include "one_net_types.h"

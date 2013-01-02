@@ -97,14 +97,6 @@ typedef enum
 } oncli_status_t;
 
 
-//! The different verbosity levels the device can have
-typedef enum
-{
-    ONCLI_QUIET,                    //!< quiet mode
-    ONCLI_VERBOSE                   //!< verbose mode
-} oncli_verbose_t;
-
-
 //! @} oncli_port_typedefs
 //								TYPEDEFS END
 //==============================================================================
@@ -124,19 +116,6 @@ typedef enum
 //! \defgroup oncli_port_pub_func
 //! \ingroup oncli_port
 //! @{
-
-
-/*!
-    \brief Sets the verbosity level.
-    
-    \param[in] VERBOSITY The verbosity level (see oncli_verbose_t).
-    
-    \return ONCLI_SUCCESS if the action was successful
-            ONCLI_BAD_PARAM if the parameter was invalid
-            ONCLI_INVALID_CMD_FOR_NODE if the command is not valid for the node
-              type
-*/
-oncli_status_t oncli_set_verbosity(const UInt8 VERBOSITY);
 
 
 /*!

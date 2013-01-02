@@ -257,9 +257,6 @@ oncli_status_t sniff_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 #endif
 
 #ifdef ENABLE_SINGLE_COMMAND
-static oncli_status_t oncli_send_single(const on_raw_did_t* const dst,
-    const UInt8* const payload, const BOOL send_to_peer_list,
-    const on_priority_t priority);
 static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST);
 static oncli_status_t status_pin_cmd_hdlr(const char * const ASCII_PARAM_LIST);
@@ -1334,13 +1331,13 @@ static oncli_status_t list_cmd_hdlr(void)
 	{
         // print encryption key
 		oncli_send_msg    ("Message key : ");
-	    oncli_print_xtea_key(&(on_base_param->current_key));
+	    oncli_print_xtea_key((const one_net_xtea_key_t*) &(on_base_param->current_key));
         oncli_send_msg("\n");
 		oncli_send_msg    ("Old Message key : ");
-	    oncli_print_xtea_key((one_net_xtea_key_t*) &(on_base_param->old_key));
+	    oncli_print_xtea_key((const one_net_xtea_key_t*) &(on_base_param->old_key));
         oncli_send_msg("\n\n");
         // print the NID and the DID
-        if(oncli_print_sid((on_encoded_sid_t*)(on_base_param->sid)) !=
+        if(oncli_print_sid((const on_encoded_sid_t*)(on_base_param->sid)) !=
           ONCLI_SUCCESS)
         {
             return ONCLI_CMD_FAIL;
@@ -1454,7 +1451,7 @@ static oncli_status_t list_cmd_hdlr(void)
             }
 
             oncli_send_msg("\n\n\n  Client %d : ", i + 1);
-            oncli_print_did(&(client->device.did));
+            oncli_print_did((const on_encoded_did_t*) &(client->device.did));
             oncli_send_msg("\n\n");
             #if DEBUG_VERBOSE_LEVEL > 3
             if(verbose_level > 3)
@@ -1726,9 +1723,9 @@ static oncli_status_t single_cmd_hdlr(const char * const ASCII_PARAM_LIST)
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
       ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef PEER
-          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
+          send_to_peer_list ? NULL : (const on_encoded_did_t*) &enc_dst, send_to_peer_list,  src_unit
       #else
-          &enc_dst
+          (const on_encoded_did_t*) &enc_dst
       #endif
       #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
@@ -1874,9 +1871,9 @@ static oncli_status_t single_txt_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(one_net_send_single(raw_pid, ON_APP_MSG, raw_pld, pld_len,
       ONE_NET_HIGH_PRIORITY, NULL,
       #ifdef PEER
-          send_to_peer_list ? NULL : enc_dst, send_to_peer_list,  src_unit
+          send_to_peer_list ? NULL : (const on_encoded_did_t*) &enc_dst, send_to_peer_list,  src_unit
       #else
-          &enc_dst
+          (const on_encoded_did_t*) &enc_dst
       #endif
       #if SINGLE_QUEUE_LEVEL > MIN_SINGLE_QUEUE_LEVEL
           , 0
@@ -1957,11 +1954,12 @@ static oncli_status_t parse_and_send_pin_msg(
   const char * const ASCII_PARAM_LIST, UInt8 msg_class)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
-    const char * endptr = NULL;
+    char * endptr = NULL;
     on_encoded_did_t enc_dst;
     UInt16 raw_did_int;
     on_raw_did_t raw_dst;
-    UInt8 src_unit, dst_unit, unit, pin_value;
+    UInt8 src_unit, dst_unit, unit;
+    UInt8 pin_value = ONE_NET_NUM_UNITS;
     UInt8 raw_pld[ONA_SINGLE_PACKET_PAYLOAD_LEN];
     
     one_net_memset(raw_pld, 0, sizeof(raw_pld));
@@ -2030,11 +2028,37 @@ static oncli_status_t parse_and_send_pin_msg(
         dst_unit = ONE_NET_DEV_UNIT;
         switch(src_unit)
         {
-            case 0: pin_value = USER_PIN0; break;
-            case 1: pin_value = USER_PIN1; break;
-            case 2: pin_value = USER_PIN2; break;
-            case 3: pin_value = USER_PIN3; break;
+            #ifndef ATXMEGA256A3B
+                // Renesas Pins
+                case 0: pin_value = USER_PIN0; break;
+                case 1: pin_value = USER_PIN1; break;
+                case 2: pin_value = USER_PIN2; break;
+                case 3: pin_value = USER_PIN3; break;
+            #else
+                // Atmel Pins
+                case 0:
+                    pin_value = USER_PIN0_INPUT_PORT_REG & (1 << USER_PIN0_BIT);
+                    break;
+                case 1:
+                    pin_value = USER_PIN1_INPUT_PORT_REG & (1 << USER_PIN1_BIT);
+                    break;
+                case 2:
+                    pin_value = USER_PIN2_INPUT_PORT_REG & (1 << USER_PIN2_BIT);
+                    break;
+                case 3:
+                    pin_value = USER_PIN3_INPUT_PORT_REG & (1 << USER_PIN3_BIT);
+                    break;
+            #endif
+                default:
+                    return ONCLI_PARSE_ERR;  // TODO -- Do we want a parse error or something else here?
         }
+        
+        #ifdef ATXMEGA256A3B
+        if(pin_value != 0)
+        {
+    	    pin_value = 1;
+        }
+        #endif
     }
     
     if(msg_class == ONA_STATUS || msg_class == ONA_COMMAND)
@@ -2049,7 +2073,7 @@ static oncli_status_t parse_and_send_pin_msg(
       
     if(one_net_send_single(ONE_NET_RAW_SINGLE_DATA,
       ON_APP_MSG, raw_pld, ONA_SINGLE_PACKET_PAYLOAD_LEN,
-      ONE_NET_HIGH_PRIORITY, NULL, &enc_dst
+      ONE_NET_HIGH_PRIORITY, NULL, (const on_encoded_did_t*) &enc_dst
       #ifdef PEER
           , FALSE,  src_unit
       #endif
@@ -2278,7 +2302,7 @@ static oncli_status_t invite_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
 
-    switch(one_net_master_invite(&invite_key, (UInt32) timeout))
+    switch(one_net_master_invite((const one_net_xtea_key_t*)&invite_key, (UInt32) timeout))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
         case ONS_DEVICE_LIMIT: return ONCLI_RSRC_UNAVAILABLE;
@@ -2297,7 +2321,7 @@ extern one_net_xtea_key_t invite_key;
 static oncli_status_t cancel_invite_cmd_hdlr(void)
 {
     one_net_master_invite_result(ONS_CANCELED, &invite_key, 0);
-    one_net_master_cancel_invite(&invite_key);
+    one_net_master_cancel_invite((const one_net_xtea_key_t*) &invite_key);
     return ONCLI_SUCCESS;
 }
 #endif
@@ -2349,7 +2373,7 @@ static oncli_status_t rm_dev_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     } // if the data is not formatted correctly //
 
-    switch(one_net_master_remove_device(&dst))
+    switch(one_net_master_remove_device((const on_raw_did_t*)&dst))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
         case ONS_ALREADY_IN_PROGRESS: return ONCLI_ALREADY_IN_PROGRESS;
@@ -2397,12 +2421,8 @@ static oncli_status_t oncli_change_peer_list(BOOL ASSIGN,
   const char * const ASCII_PARAM_LIST)
 {
     const char * PARAM_PTR = ASCII_PARAM_LIST;
-
     char * end_ptr = 0;
-    
     on_raw_did_t peer_did, src_did;
-    on_encoded_did_t enc_peer_did, enc_src_did;
-    
     UInt8 peer_unit, src_unit;
     
     #ifdef ONE_NET_CLIENT
@@ -2467,8 +2487,8 @@ static oncli_status_t oncli_change_peer_list(BOOL ASSIGN,
     
 
     // we're the master and we want to assign a peer to a client
-    switch(one_net_master_peer_assignment(ASSIGN, &src_did, src_unit,
-        &peer_did, peer_unit))
+    switch(one_net_master_peer_assignment(ASSIGN, (const on_raw_did_t*) &src_did, src_unit,
+        (const on_raw_did_t*)&peer_did, peer_unit))
     {
         case ONS_SUCCESS: return ONCLI_SUCCESS;
         case ONS_RSRC_FULL: return ONCLI_RSRC_UNAVAILABLE;
@@ -2592,14 +2612,14 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     UInt8 low_channel = 0;
 	UInt8 high_channel = ONE_NET_MAX_CHANNEL;
     const char * PARAM_PTR = ASCII_PARAM_LIST;
-	const char* END_PTR = 0;
+	char* END_PTR = 0;
 	
     // get the unique invite code for this device
-    invite_key = (one_net_xtea_key_t *) one_net_client_get_invite_key();
+    invite_key = one_net_client_get_invite_key();
 
 	if(*PARAM_PTR == '\n')
     {
-		return (one_net_client_reset_client(one_net_client_get_invite_key(),
+		return (one_net_client_reset_client((const one_net_xtea_key_t*)invite_key,
           low_channel, high_channel, timeout) == ONS_SUCCESS) ? ONCLI_SUCCESS :
           ONCLI_CMD_FAIL;
 	}
@@ -2626,7 +2646,7 @@ oncli_status_t join_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 		high_channel = low_channel;
 	}
 
-	return (one_net_client_reset_client(one_net_client_get_invite_key(),
+	return (one_net_client_reset_client((const one_net_xtea_key_t*)invite_key,
       low_channel, high_channel, timeout) == ONS_SUCCESS) ? ONCLI_SUCCESS :
       ONCLI_CMD_FAIL;
 } // join_cmd_hdlr //
@@ -2715,14 +2735,14 @@ static oncli_status_t set_flags_cmd_hdlr(
     }
     
     #ifdef BLOCK_MESSAGES_ENABLED
-    if(is_master_did(&enc_did))
+    if(is_master_did((const on_encoded_did_t*) &enc_did))
     {
         master_param->block_stream_flags = flags;
         return ONCLI_SUCCESS;
     }
     #endif
     
-    client = client_info(&enc_did);
+    client = client_info((const on_encoded_did_t*)&enc_did);
     if(!client)
     {
         return ONCLI_INVALID_DST;
@@ -2787,7 +2807,7 @@ static oncli_status_t change_keep_alive_cmd_hdlr(
     } // if parsing the data failed //
 
 
-    switch(one_net_master_change_client_keep_alive(&dst, keep_alive))
+    switch(one_net_master_change_client_keep_alive((const on_raw_did_t*) &dst, keep_alive))
     {
         case ONS_SUCCESS:
         {
@@ -2898,7 +2918,7 @@ static oncli_status_t change_frag_dly_cmd_hdlr(
         return ONCLI_PARSE_ERR;
     } // if parsing the data failed //
     
-    switch(one_net_master_change_frag_dly(&did,
+    switch(one_net_master_change_frag_dly((const on_raw_did_t*) &did,
       priority == ONE_NET_LOW_PRIORITY ? delay : 0,
       priority == ONE_NET_HIGH_PRIORITY ? delay : 0))
     {
@@ -2979,14 +2999,14 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     
-    if(is_my_did(&enc_dst_did))
+    if(is_my_did((const on_encoded_did_t*) &enc_dst_did))
     {
         return ONCLI_INVALID_DST;
     }
     
     
     
-    bs_msg.dst = (*get_sender_info)(&enc_dst_did);
+    bs_msg.dst = (*get_sender_info)((const on_encoded_did_t* const) &enc_dst_did);
     if(!bs_msg.dst)
     {
         return ONCLI_INVALID_DST;
@@ -3008,7 +3028,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
-        on_client_t* dst_client = client_info(&enc_dst_did);
+        on_client_t* dst_client = client_info((const on_encoded_did_t*)&enc_dst_did);
         if(!dst_client)
         {
             return ONCLI_INVALID_DST;
@@ -3030,7 +3050,7 @@ static oncli_status_t block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
-        if(on_client_get_default_block_transfer_values(&(bs_msg.dst->did),
+        if(on_client_get_default_block_transfer_values((const on_encoded_did_t*) &(bs_msg.dst->did),
           bs_msg.bs.block.transfer_size, &priority, &bs_msg.bs.block.chunk_size,
           &bs_msg.frag_dly, &chunk_delay_ms, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
@@ -3107,12 +3127,12 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
     
-    if(is_my_did(&enc_dst_did))
+    if(is_my_did((const on_encoded_did_t*) &enc_dst_did))
     {
         return ONCLI_INVALID_DST;
     }
     
-    bs_msg.dst = (*get_sender_info)(&enc_dst_did);    
+    bs_msg.dst = (*get_sender_info)((const on_encoded_did_t*) &enc_dst_did);    
     if(!bs_msg.dst)
     {
         return ONCLI_INVALID_DST;
@@ -3121,7 +3141,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef ONE_NET_MASTER
     if(device_is_master)
     {
-        on_client_t* dst_client = client_info(&enc_dst_did);
+        on_client_t* dst_client = client_info((const on_encoded_did_t*) &enc_dst_did);
         if(!dst_client)
         {
             return ONCLI_INVALID_DST;
@@ -3143,7 +3163,7 @@ static oncli_status_t stream_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     #ifdef ONE_NET_CLIENT
     if(!device_is_master)
     {
-        if(on_client_get_default_stream_transfer_values(&(bs_msg.dst->did),
+        if(on_client_get_default_stream_transfer_values((const on_encoded_did_t*) &(bs_msg.dst->did),
           bs_msg.time, &priority, &bs_msg.frag_dly, &bs_msg.data_rate,
           &bs_msg.channel, &bs_msg.timeout, &ack_nack) != ON_NACK_RSN_NO_ERROR)
         {
@@ -3270,7 +3290,7 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return status;
     } // if parsing the channel was not successful //
     
-    one_net_master_reset_master(one_net_master_get_raw_sid(), channel);
+    one_net_master_reset_master((const on_raw_sid_t*)one_net_master_get_raw_sid(), channel);
     return ONCLI_SUCCESS;
 } // channel_cmd_hdlr //
 #endif
@@ -3303,7 +3323,6 @@ static oncli_status_t channel_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 */
 oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
 {
-
     enum
     {
         SETNI_CMD_NID_OFFSET = 0,
@@ -3318,14 +3337,9 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         SETNI_CMD_TOTAL_LENGTH = SETNI_CMD_NID_NIBBLES+1+SETNI_CMD_INVITE_INPUT_LENGTH+1
     };
 
-    char * end_ptr = 0;
-
-    UInt8 sid;
-    BOOL set_sid_and_invite;
-    UInt8 * ptr_segment;
-    UInt8 * ptr_invite;
     UInt8 i;
-    UInt8 mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*4];
+    on_raw_sid_t raw_sid;
+    one_net_xtea_key_t invite_key;
 
     // delimits the starting address and length
     const char SETNI_CMD_SEPARATOR = ':';
@@ -3348,70 +3362,52 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         return ONCLI_PARSE_ERR;
     }
 
-    //
-    // make sure there is no manufacturing data segment in data flash
-    // this command can only be executed once. if you want to change the
-    // SID and invite code, you need to erase data flash using some means
-    // other than the CLI erase command. for example, using a Renesas HEW.
-    //
-    ptr_segment = dfi_find_last_segment_of_type(DFI_ST_DEVICE_MFG_DATA);
-    if ((UInt8 *) ptr_segment != (UInt8 *) 0)
-    {
-        //
-        // we found manufacturing data, so issue error and
-        // do not complete the command.
-        //
-        return ONCLI_UNSUPPORTED;
-    }
 
     //
     // extract the NID from the parameters, convert the NID to binary,
     // extend it to become an SID, and copy it to the manufacturing data segment buffer.
     //
-    if(ascii_hex_to_byte_stream(ASCII_PARAM_LIST+SETNI_CMD_NID_OFFSET, &mfg_data_segment[0],
-      SETNI_CMD_NID_NIBBLES) !=SETNI_CMD_NID_NIBBLES)
+    if(ascii_hex_to_byte_stream(ASCII_PARAM_LIST + SETNI_CMD_NID_OFFSET,
+      raw_sid, SETNI_CMD_NID_NIBBLES) != SETNI_CMD_NID_NIBBLES)
     {
         return ONCLI_PARSE_ERR;
     }
-
     // a raw SID is 6 bytes (nn nn nn nn nd dd), the setni provides the 9 nibble raw NID
     // (nn nn nn nn n). we need to set the d dd portion of the rae SID to 0 01 so the NID
     // supplied becomes a raw SID of nn nn nn nn n0 01 as we save it to flash,
     // since we always want the master DID to be 001.
-    mfg_data_segment[ON_RAW_NID_LEN] &= 0xf0;
-    mfg_data_segment[ON_RAW_NID_LEN] = 0x01;
+    raw_sid[ON_RAW_NID_LEN] &= 0xF0;
+    raw_sid[ON_RAW_NID_LEN] = 0x01;
 
     //
-    // copy the invite code from the parameter list to the manufacturing data buffer.
+    // copy the invite code from the parameter list.  The second half will be the
+    // same as the first half, so copy it and make a 16-byte key.
     //
-    one_net_memmove(&mfg_data_segment[SETNI_CMD_SID_NIBBLES/2],
-      ASCII_PARAM_LIST+SETNI_CMD_INVITE_OFFSET, SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH);
-    one_net_memmove(&mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH],
-      ASCII_PARAM_LIST+SETNI_CMD_INVITE_SEP_OFFSET+1, SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH);
-    
-    // 
-    // duplicate the 8 byte invite code supplied to give a full 16 byte invite code
-    //
-    one_net_memmove(&mfg_data_segment[(SETNI_CMD_SID_NIBBLES/2)+(SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2)],
-      &mfg_data_segment[SETNI_CMD_SID_NIBBLES/2], SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2);
+    one_net_memmove(invite_key, ASCII_PARAM_LIST + SETNI_CMD_INVITE_OFFSET,
+      ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+    one_net_memmove(&invite_key[ONE_NET_XTEA_KEY_FRAGMENT_SIZE],
+      ASCII_PARAM_LIST + SETNI_CMD_INVITE_OFFSET +
+      ONE_NET_XTEA_KEY_FRAGMENT_SIZE + 1, ONE_NET_XTEA_KEY_FRAGMENT_SIZE);
+      
+    one_net_memmove(&invite_key[ONE_NET_XTEA_KEY_LEN / 2], invite_key,
+      ONE_NET_XTEA_KEY_LEN / 2);
 
     //
     // verify that the invite key characters supplied are valid for an invite key
     //
-    ptr_invite=&mfg_data_segment[SETNI_CMD_SID_NIBBLES/2];
-    for (i=0; i<SETNI_CMD_INVITE_KEY_SEGMENT_LENGTH*2; i++)
+    for (i = 0; i< ONE_NET_XTEA_KEY_LEN; i++)
     {
-        if(!oncli_is_valid_unique_key_ch(ptr_invite[i]))
+        if(!oncli_is_valid_unique_key_ch(invite_key[i]))
         {
             return ONCLI_PARSE_ERR;
         }
     }
     
     //
-    // write the manufacturing data segment buffer to data flash
+    // write the manufacturing data segment buffer to non-volatile memory
     //
-    if (dfi_write_segment_of_type(DFI_ST_DEVICE_MFG_DATA, &mfg_data_segment[0],
-      sizeof(mfg_data_segment)) == (UInt8 *) 0)
+    if (one_net_save_mfg_settings((const on_raw_sid_t*) raw_sid,
+      (const one_net_xtea_key_t*) invite_key) != ONS_SUCCESS)
     {
         return ONCLI_CMD_FAIL;
     }
@@ -3422,7 +3418,7 @@ oncli_status_t setni_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     if(device_is_master)
     {
         one_net_master_erase_settings();
-        one_net_master_reset_master(one_net_master_get_raw_sid(), -1);
+        one_net_master_reset_master((const on_raw_sid_t*)one_net_master_get_raw_sid(), -1);
     }
     #endif
     
@@ -3472,7 +3468,7 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
     BOOL sa = FALSE;
     BOOL mh = FALSE;
     BOOL adjust_array = FALSE;
-    pid_block_criteria_t crit;
+    pid_block_criteria_t crit = PID_ACCEPT;
 
     if(!ASCII_PARAM_LIST)
     {
@@ -3508,7 +3504,6 @@ static oncli_status_t pid_block_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         }
         else if(!strncmp(PARAM_PTR, "all", strlen("all")))
         {
-            crit = PID_ACCEPT;
             PARAM_PTR += strlen("all");
         }
         else
@@ -3727,7 +3722,7 @@ static oncli_status_t range_test_cmd_hdlr(const char * const ASCII_PARAM_LIST)
         {
             oncli_send_msg("Encoded DID : %02X%02X -- Raw ",
               enc_did_array[i][0], enc_did_array[i][1]);
-            oncli_print_did((on_encoded_did_t*) enc_did_array[i]);
+            oncli_print_did((const on_encoded_did_t*) enc_did_array[i]);
             oncli_send_msg("\n");
         }
         return ONCLI_SUCCESS;
@@ -4087,10 +4082,9 @@ static int parse_memory_str(UInt8** mem_ptr,
   const char * const ASCII_PARAM_LIST)
 {
     int i, offset;
-    debug_memory_t memory_type;
+    debug_memory_t memory_type = DEBUG_MEMORY_COUNT;
     const char* ptr = ASCII_PARAM_LIST;
     char* end_ptr;
-    BOOL found = FALSE;
     BOOL has_index; // true for memory that is an array, false otherwise
     int index = -1; // relevant only if has_index is true
     
@@ -4101,21 +4095,16 @@ static int parse_memory_str(UInt8** mem_ptr,
     
     offset = 0;
     
-    for(i = 0; !found && i < DEBUG_MEMORY_COUNT; i++)
+    for(i = 0; i < DEBUG_MEMORY_COUNT; i++)
     {
         if(!strncmp(debug_memory_str[i], ptr, strlen(debug_memory_str[i])))
         {
             memory_type = i;
-            found = TRUE;
             ptr += strlen(debug_memory_str[i]);
+            break;
         }
     }
-    
-    if(!found)
-    {
-        return -1;  // invalid string.
-    }
-    
+
     switch(memory_type)
     {
         case DEBUG_MEMORY_TIMER:
@@ -4127,6 +4116,8 @@ static int parse_memory_str(UInt8** mem_ptr,
         #endif
             has_index = TRUE; // these are arrays.
             break;
+        case DEBUG_MEMORY_COUNT:
+            return -1;  // invalid string.
         default:
             has_index = FALSE; // not an array.
     }
@@ -4354,7 +4345,7 @@ static oncli_status_t oncli_parse_channel(const char * ASCII, UInt8 * const chan
         ONCLI_EUR                   //! European region
     };
     
-    const char * END_PTR = 0;
+    char * END_PTR = 0;
     
     UInt8 region;
 
@@ -4620,7 +4611,7 @@ static const char * parse_ascii_tx_param(const char * PARAM_PTR,
         }
         
         #ifdef PEER
-        if(did_to_u16(&raw_did) == 0)
+        if(did_to_u16((const on_raw_did_t*) &raw_did) == 0)
         {
             *send_to_peer_list = TRUE;
         }

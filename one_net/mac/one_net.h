@@ -103,8 +103,8 @@ enum
 {
     ONE_NET_VERSION_MAJOR =     2,  //! ONE-NET major version number
     ONE_NET_VERSION_MINOR =     3,  //! ONE-NET minor version number
-    ONE_NET_VERSION_REVISION =  0,  //! ONE-NET revision version number
-    ONE_NET_VERSION_BUILD =     107 //! ONE-NET build version number
+    ONE_NET_VERSION_REVISION =  1,  //! ONE-NET revision version number
+    ONE_NET_VERSION_BUILD =     108 //! ONE-NET build version number
 };
 
 
@@ -418,6 +418,14 @@ enum
 };
 
 
+typedef enum
+{
+    MEMORY_GENERIC,  // can refer to either peer or non-peer memory
+    MEMORY_NON_PEER, // memory refers to non-peer memory
+    MEMORY_PEER      // memory referes to peer memory
+} memory_type_t;
+
+
 
 //! Function to retrieve sending device information
 typedef on_sending_device_t* (*one_net_get_sender_info_func_t)
@@ -628,7 +636,7 @@ extern tick_t key_change_request_time;
     #define MIN_ENCODED_BYTES_BUFFER_LEN (2 * ON_MAX_ENCODED_DATA_PKT_SIZE + ON_INVITE_ENCODED_PKT_SIZE)
 #endif
 
-#ifdef ONE_NET_MH_CLIENT_REPEATER
+#if defined(ONE_NET_MH_CLIENT_REPEATER) && defined(BLOCK_MESSAGES_ENABLED)
     #if MIN_ENCODED_BYTES_BUFFER_LEN < ON_BLOCK_ENCODED_PKT_SIZE
         #define ENCODED_BYTES_BUFFER_LEN ON_BLOCK_ENCODED_PKT_SIZE
     #else

@@ -3,7 +3,7 @@
 
 #include "config_options.h"
 
-#include <io.h>
+#include <avr/io.h>
 
 
 //! \defgroup IO_PORT_MAPPING_ADI_EVAL I/O Port Mapping for the Evaluation
@@ -48,7 +48,9 @@
     The specific mapping of i/o ports to other components may vary from board to
     board.  This file contains symbolic names for port functions that are mapped
     to the i/o ports on the ONE-NET Example Boards using an ADI tranceiver and
-    Renesas R8C23 processor.
+	Atxmega256a3b processor.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -80,7 +82,7 @@
 //! @{
 
 
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 
 // define ADI setup registers read/write signals
 //-----------------------------------------------
@@ -202,7 +204,7 @@
 #endif
 
 
-#ifndef _ATXMEGA256A3B_EVAL
+#ifndef ATXMEGA256A3B_EVAL
 // user pins defines as port belong to (OUTPUT or INPUT)
 #define USER_PIN0_OUTPUT_PORT_REG          PORTB.OUT       // DIO0
 #define USER_PIN0_OUTPUT_TOGGLE_PORT_REG   PORTB.OUTTGL    // DIO0

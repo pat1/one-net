@@ -164,7 +164,12 @@ one_net_status_t one_net_master_create_network(
   const on_raw_sid_t * const SID, const one_net_xtea_key_t * const KEY);
 void one_net_master_clear_client_memory(void);
 void one_net_master_condense_client_memory(void);
+#ifndef PEER
 one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN);
+#else
+one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
+  memory_type_t memory_type);
+#endif
 
 
 
@@ -214,16 +219,15 @@ one_net_status_t one_net_master_change_frag_dly(
 one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags);
   
 #ifndef PEER
-int master_nv_crc(const UInt8* param, int param_len);
+int master_nv_crc(const UInt8* param);
 #else
-int master_nv_crc(const UInt8* param, int param_len, const UInt8* peer_param,
-    int peer_param_len);
+int master_nv_crc(const UInt8* param, const UInt8* peer_param);
 #endif
 
 one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did);
   
-on_client_t * client_info(const on_encoded_did_t * const CLIENT_DID);
+on_client_t* client_info(const on_encoded_did_t* CLIENT_DID);
 
 #ifdef BLOCK_MESSAGES_ENABLED
 /*!

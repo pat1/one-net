@@ -33,7 +33,7 @@
 */
 
 #include "config_options.h"
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
     #include "one_net_led.h"
 #endif
 
@@ -43,6 +43,8 @@
 
     This file declares the processor & board specific functionality needed by
     the ADI transceiver.
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -95,14 +97,14 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef HAS_LEDS
+#ifdef ATXMEGA256A3B_EVAL
 #define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; PORTE.INTCTRL = ( PORTE.INTCTRL & ~PORT_INT0LVL_gm ) | PORT_INT0LVL_LO_gc; set_rx_led(TRUE);
 #else
 #define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; PORTF.INTCTRL = ( PORTF.INTCTRL & ~PORT_INT0LVL_gm ) | PORT_INT0LVL_LO_gc; set_rx_led(TRUE);
 #endif
 #else
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 #define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; PORTE.INTCTRL = ( PORTE.INTCTRL & ~PORT_INT0LVL_gm ) | PORT_INT0LVL_MED_gc;
 #else
 #define ENABLE_RX_BIT_INTERRUPTS()   bit_mask = 0x80; PORTF.INTCTRL = ( PORTF.INTCTRL & ~PORT_INT0LVL_gm ) | PORT_INT0LVL_MED_gc;
@@ -119,7 +121,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _ATXMEGA256A3B_EVAL
+#ifdef ATXMEGA256A3B_EVAL
 #define DISABLE_RX_BIT_INTERRUPTS()  PORTE.INTCTRL = PORTE.INTCTRL & ~PORT_INT0LVL_gm;
 #else
 #define DISABLE_RX_BIT_INTERRUPTS()  PORTF.INTCTRL = PORTF.INTCTRL & ~PORT_INT0LVL_gm;
@@ -135,7 +137,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 #define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; TCC1.INTCTRLA = (TCC1.INTCTRLA & ~TC1_OVFINTLVL_gm) | TC_OVFINTLVL_LO_gc; set_tx_led(TRUE)
 #else
 #define ENABLE_TX_BIT_INTERRUPTS()   bit_mask = 0x80; TCC1.INTCTRLA = (TCC1.INTCTRLA & ~TC1_OVFINTLVL_gm) | TC_OVFINTLVL_MED_gc;
@@ -151,7 +153,7 @@ void tal_init_ports(void);
 
     return void
 */
-#ifdef _HAS_LEDS
+#ifdef HAS_LEDS
 #define DISABLE_TX_BIT_INTERRUPTS()  TCC1.INTCTRLA = TCC1.INTCTRLA & ~TC1_OVFINTLVL_gm; set_tx_led(FALSE)
 #else
 #define DISABLE_TX_BIT_INTERRUPTS()  TCC1.INTCTRLA = TCC1.INTCTRLA & ~TC1_OVFINTLVL_gm;

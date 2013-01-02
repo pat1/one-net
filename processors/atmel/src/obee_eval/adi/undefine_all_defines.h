@@ -36,7 +36,8 @@
     \brief Undefine any configuration options that may already be defined in this file.
 
     Undefine any configuration options that may already be defined in this file.
-
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 
@@ -68,68 +69,64 @@
 	#undef ONE_NET_MH_CLIENT_REPEATER
 #endif
 
-#ifdef _RANGE_TESTING
-    #undef _RANGE_TESTING
+#ifdef RANGE_TESTING
+    #undef RANGE_TESTING
 #endif
 
-#ifdef _ONE_NET_SIMPLE_CLIENT
-    #define _ONE_NET_SIMPLE_CLIENT
+#ifdef ONE_NET_SIMPLE_CLIENT
+    #define ONE_NET_SIMPLE_CLIENT
 #endif
 
-#ifdef _IDLE
-    #undef _IDLE
+#ifdef IDLE
+    #undef IDLE
 #endif
 
-#ifdef _ENHANCED_INVITE
-    #undef _ENHANCED_INVITE
+#ifdef ENHANCED_INVITE
+    #undef ENHANCED_INVITE
 #endif
 
-#ifdef _US_CHANNELS
-	#undef _US_CHANNELS
+#ifdef US_CHANNELS
+	#undef US_CHANNELS
 #endif
 
-#ifdef _EUROPE_CHANNELS
-	#undef _EUROPE_CHANNELS
+#ifdef EUROPE_CHANNELS
+	#undef EUROPE_CHANNELS
 #endif
 
-#ifdef _ONE_NET_EVAL
-	#undef _ONE_NET_EVAL
+#ifdef ONE_NET_EVAL
+	#undef ONE_NET_EVAL
 #endif
 
-#ifdef _DEBUG_VERBOSE_LEVEL
-    #undef _DEBUG_VERBOSE_LEVEL
+#ifdef DEBUG_VERBOSE_LEVEL
+    #undef DEBUG_VERBOSE_LEVEL
 #endif
 
-#ifdef _AUTO_MODE
-	#undef _AUTO_MODE
+#ifdef AUTO_MODE
+	#undef AUTO_MODE
 #endif
 
-#ifdef _SNIFFER_MODE
-    #undef _SNIFFER_MODE
+#ifdef SNIFFER_MODE
+    #undef SNIFFER_MODE
 #endif
 
-#ifdef _CHIP_ENABLE
-	#undef _CHIP_ENABLE
-#endif
-
-#ifdef _R8C_TINY
-	#undef _R8C_TINY
+#ifdef CHIP_ENABLE
+	#undef CHIP_ENABLE
 #endif
 
 #ifdef NON_VOLATILE_MEMORY
     #undef NON_VOLATILE_MEMORY
 #endif
 
-#ifdef _DATA_RATE_CHANNEL
-    #undef _DATA_RATE_CHANNEL
+#ifdef DATA_RATE_CHANNEL
+    #undef DATA_RATE_CHANNEL
 #endif
 
 #ifdef ENABLE_CLI
 	#undef ENABLE_CLI
 #endif
 
-#ifdef _AT_LEAST_ONE_COMMAND_ENABLED
-	#undef _AT_LEAST_ONE_COMMAND_ENABLED
+#ifdef AT_LEAST_ONE_COMMAND_ENABLED
+	#undef AT_LEAST_ONE_COMMAND_ENABLED
 #endif
 
 #ifdef ENABLE_SINGLE_COMMAND
@@ -140,8 +137,8 @@
     #undef ENABLE_BLOCK_COMMAND
 #endif
 
-#ifdef ENABLE_BLOCK_TEXT_COMMAND
-    #undef ENABLE_BLOCK_TEXT_COMMAND
+#ifdef _ENABLE_BLOCK_TEXT_COMMAND
+    #undef _ENABLE_BLOCK_TEXT_COMMAND
 #endif
     
 #ifdef ENABLE_ERASE_COMMAND
@@ -150,18 +147,6 @@
 
 #ifdef ENABLE_SAVE_COMMAND
     #undef ENABLE_SAVE_COMMAND
-#endif
-
-#ifdef ENABLE_DUMP_COMMAND
-	#undef ENABLE_DUMP_COMMAND
-#endif
-
-#ifdef ENABLE_RSINGLE_COMMAND
-	#undef ENABLE_RSINGLE_COMMAND
-#endif
-
-#ifdef ENABLE_RSSI_COMMAND
-	#undef ENABLE_RSSI_COMMAND
 #endif
 
 #ifdef ENABLE_LIST_COMMAND
@@ -240,10 +225,6 @@
     #undef ENABLE_SET_DR_CHANNEL_COMMAND
 #endif
 
-#ifdef _EVAL_0005_NO_REVISION
-	#undef _EVAL_0005_NO_REVISION
-#endif
-
 #ifdef DEBUGGING_TOOLS
     #undef DEBUGGING_TOOLS
 #endif
@@ -264,8 +245,8 @@
     #undef HAS_LEDS
 #endif
 
-#ifdef _BLOCKING_UART
-    #undef _BLOCKING_UART
+#ifdef BLOCKING_UART
+    #undef BLOCKING_UART
 #endif
 
 #ifdef CHANNEL_OVERRIDE

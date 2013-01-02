@@ -38,6 +38,8 @@
 
     This file contains the common implementation for some of the port specific
     ONE-NET functionality declared in one_net_port_specific.h
+	
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 #include "one_net_port_specific.h"
@@ -187,77 +189,73 @@ SInt8 one_net_memcmp(const void *vp1, const void *vp2, size_t n)
 }
 
 
-UInt16 one_net_byte_stream_to_int16(const UInt8 * const BYTE_STREAM)
+UInt16 one_net_byte_stream_to_uint16(const UInt8 * const BYTE_STREAM)
 {
     UInt16 val;
-
     val = (((UInt16)BYTE_STREAM[0]) << 8) & 0xFF00;
     val |= ((UInt16)BYTE_STREAM[1]) & 0x00FF;
-
+    
     return val;
-} // one_net_byte_stream_to_int16 //
+} // one_net_byte_stream_to_uint16 //
 
 
-void one_net_int16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
+void one_net_uint16_to_byte_stream(const UInt16 VAL, UInt8 * const byte_stream)
 {
-
     byte_stream[0] = (UInt8)(VAL >> 8);
     byte_stream[1] = (UInt8)VAL;
-} // one_net_int16_to_byte_stream //
+} // one_net_uint16_to_byte_stream //
 
 
-UInt32 one_net_byte_stream_to_int32(const UInt8 * const BYTE_STREAM)
+UInt32 one_net_byte_stream_to_uint32(const UInt8 * const BYTE_STREAM)
 {
     UInt32 val;
-
     val = (((UInt32)BYTE_STREAM[0]) << 24) & 0xFF000000;
     val |= (((UInt32)BYTE_STREAM[1]) << 16) & 0x00FF0000;
     val |= (((UInt32)BYTE_STREAM[2]) << 8) & 0x0000FF00;
     val |= ((UInt32)BYTE_STREAM[3]) & 0x000000FF;
 
     return val;
-} // one_net_byte_stream_to_int32 //
+} // one_net_byte_stream_to_uint32 //
 
 
-void one_net_int32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
+void one_net_uint32_to_byte_stream(const UInt32 VAL, UInt8 * const byte_stream)
 {
-
     byte_stream[0] = (UInt8)(VAL >> 24);
     byte_stream[1] = (UInt8)(VAL >> 16);
     byte_stream[2] = (UInt8)(VAL >> 8);
     byte_stream[3] = (UInt8)VAL;
-} // one_net_int32_to_byte_stream //
+} // one_net_uint32_to_byte_stream //
 
 
 /*!
     \brief Converts a raw did to a U16 value.
-
+    
     \param[in] DID The device id to convert
-
+    
     \return The UInt16 value corresponding to the DID.
 */
 UInt16 did_to_u16(const on_raw_did_t *DID)
 {
-    return one_net_byte_stream_to_int16(*DID) >> RAW_DID_SHIFT;
+    return one_net_byte_stream_to_uint16(*DID) >> RAW_DID_SHIFT;
 } // did_to_u16 //
 
 
 /*!
     \brief converts a U16 value to a raw DID
-
+    
     \param[in] raw_did_int -- the UInt16 representation of the raw DID
-               (0 - 4015 range)
+      (0 - 4015 range)
     \param[out] raw_did -- the converted raw DID
-
+    
     \return True if the conversion was successful, false otherwise
 */
 BOOL u16_to_did(UInt16 raw_did_int, on_raw_did_t* raw_did)
 {
     if(!raw_did || raw_did_int > 0xFFF)
     {
-       return FALSE;
+        return FALSE;
     }
-
+    
     (*raw_did)[1] = ((raw_did_int & 0x0F) << RAW_DID_SHIFT);
     (*raw_did)[0] = (raw_did_int >> RAW_DID_SHIFT);
     return TRUE;

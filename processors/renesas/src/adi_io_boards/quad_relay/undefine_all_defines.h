@@ -265,7 +265,7 @@
 #endif
 
 #ifdef CHANNEL_OVERRIDE
-    #undef CHANNEL_OVERIDE
+    #undef CHANNEL_OVERRIDE
 #endif
 
 #ifdef CHANNEL_OVERRIDE_CHANNEL

@@ -27,6 +27,8 @@
  *      Atmel Corporation: http://www.atmel.com \n
  *      Support email: avr@atmel.com
  *
+ *      2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
+ *
  * $Revision: 1569 $
  * $Date: 2008-04-22 13:03:43 +0200 (ti, 22 apr 2008) $  \n
  *
@@ -59,7 +61,7 @@
 
 #include"config_options.h"
 
-#ifdef _ATXMEGA256A3B
+#ifdef ATXMEGA256A3B
 
 #ifndef EEPROM_DRIVER_H
 #define EEPROM_DRIVER_H
@@ -67,8 +69,8 @@
 #include "one_net_types.h"
 
 #include <inttypes.h>
-#include <io.h>
-#include <interrupt.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 
 //#define MAPPED_EEPROM_START 0x1000
@@ -169,4 +171,4 @@ void EEPROM_EraseAll( void );
 
 #endif
 
-#endif // #ifdef _ATXMEGA256A3B
+#endif // #ifdef ATXMEGA256A3B
