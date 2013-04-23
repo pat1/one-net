@@ -41,10 +41,6 @@
 */
 
 
-// Nov. 28, 2011 -- temporarily reverting JMR's timer changes.  Will
-// re-implement them again when I get more of a chance to look at them
-// and everything else is working.
-
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -92,9 +88,20 @@
 //! @{
 
 //! The number of ticks since the application started.
-// static tick_t tick_count = 0;
 volatile static tick_t tick_count = 0;
 BOOL tick_flag = FALSE;
+
+#ifdef DEBUGGING_TOOLS
+	volatile static tick_t processor_tick_count = 0;
+	UInt8 csdf = 1;
+#else
+	#ifdef CLOCK_SLOW_DOWN_FACTOR
+		#if CLOCK_SLOW_DOWN_FACTOR > 1
+			volatile static tick_t processor_tick_count = 0;
+		#endif
+	#endif
+#endif
+
 
 //! @} TICK_pri_var
 //                              PRIVATE VARIABLES
@@ -122,7 +129,7 @@ BOOL tick_flag = FALSE;
 void init_tick_1(void)
 {
    // Timer is a 1 milli second general timer
-   // The system clock frequency  is 2 Mhz
+   // The system clock frequency  is 2 MHz
    // timer frequency = (2 * 10^6) / prescaler
 
    // timer time = (presaclar / 2) * 10^-6
@@ -176,12 +183,6 @@ void init_tick_1(void)
    // Set the Programmable Interrupt Controller multi level interrupts to LOW
    PMIC.CTRL |= PMIC_LOLVLEN_bm;
 
-#ifdef ATXMEGA256A3B_EVAL
-  // for IO output debug ///////////////////
-  // set the io for output
-//  PORTD.DIR |= (1 << PIN6_bp);
-#endif
-
 } // init_tick_1 //
 
 
@@ -191,7 +192,7 @@ void init_tick(void)
 {
 
    // Timer  is a 1 milli second general timer
-   // The system clock frequency  is 11.0592 Mhz
+   // The system clock frequency  is 11.0592 MHz
    // timer frequency = (11.0592 * 10^6) / prescaler
    // timer time = (presaclar / 11.0592) * 10^-6
    // counter value = (1 msec) /timer time
@@ -242,12 +243,6 @@ void init_tick(void)
    //  Enable timer tick interrupt
    ENABLE_TICK_TIMER();
 
-#ifdef ATXMEGA256A3B_EVAL
-   // for IO output debug ///////////////////
-   // set the IO for output
-//   PORTD.DIRSET |= (1 << PIN6_bp);
-#endif
-
 } // init_tick //
 
 
@@ -283,12 +278,39 @@ void set_tick_count(tick_t new_tick_count)
 {
 
     tick_count = new_tick_count;
+	
+    #ifdef DEBUGGING_TOOLS
+	    processor_tick_count = tick_count * csdf;
+    #else
+		#ifdef CLOCK_SLOW_DOWN_FACTOR
+			#if CLOCK_SLOW_DOWN_FACTOR > 1
+				processor_tick_count = tick_count * CLOCK_SLOW_DOWN_FACTOR;
+			#endif
+		#endif
+    #endif
+	
 }
 
 
 void increment_tick_count(tick_t increment)
 {
     tick_count += increment;
+
+    #ifdef DEBUGGING_TOOLS
+	    processor_tick_count += increment;
+		tick_count = processor_tick_count / csdf;
+    #else
+		#ifdef CLOCK_SLOW_DOWN_FACTOR
+			#if CLOCK_SLOW_DOWN_FACTOR > 1
+				processor_tick_count += increment;
+				tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+		    #else
+				tick_count += increment;
+			#endif
+		#else
+			tick_count += increment;
+		#endif
+    #endif
 }
 
 
@@ -297,12 +319,6 @@ void delay_ms(UInt16 count)
     // Uses machine instructions to simulate delaying (doing nothing) for a
     // specified number of milliseconds.
     UInt16 i;
-
-#ifdef ATXMEGA256A3B_EVAL
-    // output debug IO ///////////////
-//    static UInt8 led_state = 0;
-    //////////////////////////////////
-#endif
 
     while(count-- != 0)
     {
@@ -321,26 +337,7 @@ void delay_ms(UInt16 count)
         } // nop loop //
     } // delay loop //
 
-    // The following replaces the output debug //////
     asm("NOP");
-    /////////////////////////////////////////////////
-
-#ifdef ATXMEGA256A3B_EVAL
-/*
-    // output debug IO ///////////////
-    if(led_state == 0)
-    {
-       led_state = 1;
-       PORTD.OUT |= (1 << PIN6_bp);
-    }
-    else
-    {
-       led_state = 0;
-       PORTD.OUT &= ~(1 << PIN6_bp);
-J   }
-    //////////////////////////////////////////
-*/
-#endif
 
 } // delay_ms //
 
@@ -352,39 +349,13 @@ void delay_100s_us(UInt16 count)
     // specified number of microseconds.
     UInt16 i;
 
-#ifdef ATXMEGA256A3B_EVAL
-    // output debug IO ///////////////
-// static UInt8 led_state = 0;
-    //////////////////////////////////
-#endif
-
     while(count-- != 0)
     {
         i = NOP_COUNT_100S_US;
         while(i--);
     } // delay loop //
 
-
-    // The following replaces the output debug //////
     asm("NOP");
-    /////////////////////////////////////////////////
-
-#ifdef ATXMEGA256A3B_EVAL
-/*
-    // output debug IO ///////////////
-    if(led_state == 0)
-    {
-       led_state = 1;
-       PORTD.OUT |= (1 << PIN6_bp);
-    }
-    else
-    {
-       led_state = 0;
-       PORTD.OUT &= ~(1 << PIN6_bp);
-    }
-    //////////////////////////////////////////
-*/
-#endif
 
 } // delay_100us //
 
@@ -428,31 +399,26 @@ void disable_tick_timer(void)
 // This timer interrupt is the general timer that its tick time is 1 mili second
 ISR(TCC0_OVF_vect)
 {
-#ifdef ATXMEGA256A3B_EVAL
-    // output debug IO ///////////////
-  //  static UInt8 led_state = 0;
-    //////////////////////////////////
-#endif
+//    tick_count++;
+//    tick_flag = TRUE;
 
-    tick_count++;
+    #ifdef DEBUGGING_TOOLS
+	    processor_tick_count++;
+		tick_count = processor_tick_count / csdf;
+    #else
+		#ifdef CLOCK_SLOW_DOWN_FACTOR
+			#if CLOCK_SLOW_DOWN_FACTOR > 1
+				processor_tick_count++;
+				tick_count = processor_tick_count / CLOCK_SLOW_DOWN_FACTOR;
+			#else
+				tick_count++;
+			#endif
+		#else
+			tick_count++;
+			#endif
+    #endif
+
     tick_flag = TRUE;
-
-#ifdef ATXMEGA256A3B_EVAL
-/*
-      // output debug IO ///////////////
-       if(led_state == 0)
-       {
-           led_state = 1;
-           PORTD.OUT |= (1 << PIN6_bp);
-       }
-       else
-       {
-           led_state = 0;
-           PORTD.OUT &= ~(1 << PIN6_bp);
-       }
-      //////////////////////////////////////////
-*/
-#endif
 
 } // tick_timer //
 

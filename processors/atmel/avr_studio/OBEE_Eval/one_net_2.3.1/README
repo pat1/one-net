@@ -1,0 +1,65 @@
+README
+
+Build instructions:
+
+On Windows:
+ Using Atmel Studio 6.0:
+  Download Atmel Studio 6.0 and install it.
+  Open the solution one_net_2.3.1
+
+ On windows XP
+  In the solution explorer on the right of the screen, highlight the "one_net_2.3.1 project"
+  Click the Right button of the mouse 
+  From the drop down list select properties
+  Click on the Toolchain tab on the left of the screen
+  Under the AVR/GNU C Compiler
+  Highlight the Directories item
+  Under the Include Paths (I) scroll down to the end
+  Doble cllick on the last item
+  In the Edit Include paths (-I) pop up window
+  Change the beginning of the text "c:\program files (x86)\" to "c:\program files\"
+  Press the OK button
+  Click on the File item in the main menu
+  In the drop down list, click on Save All
+  Click on the Build item in the main menu, 
+  In the drop down list, click on Rebuild Solution
+
+  On windows 7
+   Click on the Build item in the main menu, 
+   In the drop down list, click on Rebuild Solution
+
+
+
+Using the command line:
+ Download avr toolchain from Atmel's website and install it.
+ In the folder c:\Program Files\atmel\AVR Tools under bin double click on win-bash
+ In the bash shell, go to the folder:  ONE_NET_2_3_1/processors/atmel/avr_studio/OBEE_Eval/one_net_2.3.1
+ 
+ for build type
+   make
+  for clean type
+   make clean
+  for programming the atxmega256a3b flash type
+   make program 
+ 
+ NOTE:
+  If you installed Atmel Studio 6.0 and the CLI toolchain from Atmel or WinAVR and you are using a programming 
+  device plugged into the USB port:
+   You need to install libusb-win32 from http://sourceforge.net/projects/libusb-win32/
+   Use the graphical installer and select the device you wish to use for libusb-win32. 
+   In our case we used the JTAGICE Mk2. 
+   Unplug and plug in the device after the install of libusb-win32 and you should be able
+   to program the device from both Atmel Studio 6 and the command line using "make program".
+
+On Linux:
+ Make sure you have the AVR GCC compiler installed from Atmel's website. 
+ This version of the compiler supports the XMEGA chip used on the OBee.
+
+ Open a terminal and go to the folder: 
+ ONE_NET_2_3_1/processors/atmel/avr_studio/OBEE_Eval/one_net_2.3.1 
+ for build type
+  make
+ for clean type
+  make clean
+ for programming the atxmega256a3b flash type
+  make program 

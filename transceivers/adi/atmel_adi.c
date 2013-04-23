@@ -40,7 +40,7 @@
     ADI ADF7025.  It abstracts the actual processor pin assignments using
     definitions found in io_port_mapping.h.  This file also contains the
     implementation for the transceiver specific functions.
-	
+
 	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
@@ -140,7 +140,7 @@ const UInt8 INIT_REG_VAL[NUM_INIT_REGS][REG_SIZE] =
 #else
     {0x10, 0xBC, 0x91, 0x11},       // configuration before DO_CLOCK_OUT_DIVIDE_BY_TWO was added
 #endif
-    {0x80, 0x59, 0x7E, 0x32},
+    {0x80, 0x59, 0x00, 0x32},   // set the power amplifier to 0
     {0x00, 0xDD, 0x09, 0xA3},
     {0x01, 0x00, 0x04, 0x44},
     {0x55, 0x55, 0x33, 0x35},
@@ -341,6 +341,9 @@ const UInt16 VOLTAGE_THRESHOLD = 0x0028;
 //! The current ONE-NET channel
 UInt8 current_channel = 0;
 
+//! The current data rate
+UInt8 current_data_rate = ONE_NET_DATA_RATE_38_4;
+
 //! number of bytes received that have been requested from ONE-NET code
 UInt16 rx_rf_idx = 0;
 
@@ -481,30 +484,21 @@ void tal_init_transceiver(void)
         } // if this is the calibration register //
     } // for each register (or message) //
 
-
     init_rf_interrupts(ONE_NET_DATA_RATE_38_4); // initialize to lowest data
                      // rate.  It can be changed to something higher later.
-
+					 
 } // tal_init_transceiver //
 
 
 void tal_enable_transceiver(void)
 {
-    #ifndef ATXMEGA256A3B
-    CHIP_ENABLE = 1;
-    #else
     CHIP_ENABLE_PORT_REG |= (1 << CHIP_ENABLE_BIT);
-    #endif
 } // tal_enable_transceiver //
 
 
 void tal_disable_transceiver(void)
 {
-    #ifndef ATXMEGA256A3B
-    CHIP_ENABLE = 0;
-    #else
     CHIP_ENABLE_PORT_REG &= ~(1 << CHIP_ENABLE_BIT);
-    #endif
 } // tal_disable_transceiver //
 
 
@@ -526,41 +520,51 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
     {
         proceed = FALSE;
         synchronize_last_tick();
+		
+        #if DEBUG_VERBOSE_LEVEL > 2
+        if(verbose_level > 2)
+        {
+			oncli_send_msg("\n\n%lu sending %u bytes:\n",
+			TICK_TO_MS(get_tick_count()), len);        
+		}
+        #endif
+		
         #if DEBUG_VERBOSE_LEVEL > 5
         if(verbose_level > 5)
         {
-            oncli_send_msg("\n\nPause : About to write...\n");
-            display_pkt(data, len, NULL, 0, NULL, 0);
+	        display_pkt(data, len, NULL, 0, NULL, 0);
         }
         #endif
         #if DEBUG_VERBOSE_LEVEL > 2
         if(verbose_level <= 5 && verbose_level > 2)
         {
-            oncli_send_msg("\n\nPause : About to write...\n");
-            xdump(data, len);
+	        xdump(data, len);
         }
         #endif
         #if DEBUG_VERBOSE_LEVEL > 1
         if(verbose_level == 2)
         {
-            oncli_send_msg("\n\nWrite PID %02X\n",
-               data[ON_ENCODED_PID_IDX]);
-         }
+	        UInt16 raw_pid;
+	        if(get_raw_pid(&data[ON_ENCODED_PID_IDX], &raw_pid))
+	        {
+		        oncli_send_msg("\n\nWrite Raw PID 0x%02X\n", raw_pid);
+	        }
+        }
         #endif
     }
-
-    while((pausing = (pause || (ratchet && !proceed))))
+    
+    while(pausing = (pause || (ratchet && !proceed)))
     {
         synchronize_last_tick();
         oncli();
     }
     proceed = FALSE;
-
+    
     if(write_pause > 0)
     {
         pausing = TRUE;
         ont_set_timer(WRITE_PAUSE_TIMER, write_pause);
-
+        
         while(!ont_inactive_or_expired(WRITE_PAUSE_TIMER))
         {
             oncli();  // alow the user to enter commands while pausing
@@ -573,8 +577,18 @@ UInt8 tal_write_packet(const UInt8 * data, const UInt8 len)
         #endif
         pausing = FALSE;
     }
+    #endif    
+    
+    #ifdef WRITE_PAUSE
+        #if WRITE_PAUSE_FACTOR > 0
+        {
+            tick_t write_tick = get_tick_count() + MS_TO_TICK(WRITE_PAUSE_FACTOR);
+            while(get_tick_count() < write_tick)
+            {
+            }
+        }
+        #endif
     #endif
-
 
     tx_rf_idx = 0;
     tx_rf_data = data;
@@ -661,12 +675,8 @@ one_net_status_t tal_look_for_packet(tick_t duration)
 
     rx_rf_count = 0;
     rx_rf_idx = 0;
-	
-    #ifndef ATXMEGA256A3B
-    while(!SYNCDET)
-    #else
+
     while(!(SYNCDET_PORT_REG & (1 << SYNCDET_BIT)))
-    #endif
     {
         if(get_tick_count() >= end)
         {
@@ -706,7 +716,7 @@ one_net_status_t tal_look_for_packet(tick_t duration)
 	            #endif
 	            return ONS_BAD_ENCODING;
             }
-            
+
             blks_to_rx = get_encoded_packet_len(raw_pid, FALSE);
             if(blks_to_rx == 0)
             {
@@ -731,43 +741,29 @@ one_net_status_t tal_look_for_packet(tick_t duration)
 one_net_status_t tal_set_data_rate(UInt8 data_rate)
 {
     one_net_status_t status;
-
-    #ifndef DATA_RATE
+    
+    #ifndef DATA_RATE_CHANNEL
     if(data_rate != ONE_NET_DATA_RATE_38_4)
     {
-        return ONS_DEVICE_NOT_CAPABLE;;
+	    return ONS_DEVICE_NOT_CAPABLE;
     }
     #else
-    // all checking for valid data rates occurs BEFORE calling
-    // init_rf_interrupts.  TODO -- should this check happen here
-    // or in the init_rf_interrupts() function?
-    if(data_rate >= ONE_NET_DATA_RATE_LIMIT)
-    {
-        // invalid data rate.
-        return ONS_BAD_PARAM;
-    }
-
-    if(data_rate == ONE_NET_DATA_RATE_153_6 ||
-      data_rate == ONE_NET_DATA_RATE_192_0)
-    {
-        // cannot be achieved by the ADI?
-        // TODO -- confirm this.  Also, is this ALL ADI transceivers or just
-        // one of them?  Perhaps this should not be in adi.c but rather in
-        // tal_adi.c?
-        return ONS_DEVICE_NOT_CAPABLE;
-    }
+    
     if(!features_data_rate_capable(THIS_DEVICE_FEATURES, data_rate))
     {
-        return ONS_DEVICE_NOT_CAPABLE;
+	    return ONS_DEVICE_NOT_CAPABLE;
     }
     #endif
-
-    if((status = init_rf_interrupts(data_rate)) == ONS_SUCCESS)
+    
+    current_data_rate = data_rate;
+    
+    if((status = init_rf_interrupts(current_data_rate)) == ONS_SUCCESS)
     {
-        write_reg(DATA_RATE_SETTING[data_rate], TRUE);
+	    write_reg(DATA_RATE_SETTING[current_data_rate], TRUE);
     } // if the data rate is valid //
-
+    
     return status;
+	
 }
 
 
@@ -879,26 +875,14 @@ static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE)
     UInt8 byte_count;
     UInt8 mask;
 
-    #ifndef ATXMEGA256A3B
-    SCLK = 0;
-    SDATA = 0;
-    SLE = 0;
-    #else
     SCLK_PORT_REG &= ~(1 << SCLK_BIT);
     SDATA_PORT_REG &= ~(1 << SDATA_BIT);
     SLE_PORT_REG &= ~(1 << SLE_BIT);
-    #endif
-
 
     for(byte_count = 0; byte_count < REG_SIZE; byte_count++)
     {
         for(mask = 0x80; mask; mask >>= 1)
         {
-            #ifndef ATXMEGA256A3B
-            SDATA  = ((REG[byte_count] & mask) != 0);
-            SCLK   = 1;
-            SCLK   = 0;
-            #else
             if(REG[byte_count] & mask)
             {
                 SDATA_PORT_REG |= (1 << SDATA_BIT);
@@ -909,24 +893,14 @@ static void write_reg(const UInt8 * const REG, const BOOL CLR_SLE)
             }
             SCLK_PORT_REG |= (1 << SCLK_BIT);
             SCLK_PORT_REG &= ~(1 << SCLK_BIT);
-            #endif
         } // loop through the bits in the byte //
     } // loop through the bytes //
 
-    #ifndef ATXMEGA256A3B
-    SLE = 1;
-    #else
     SLE_PORT_REG |= (1 << SLE_BIT);
-    #endif
 
     if(CLR_SLE)
     {
-      #ifndef ATXMEGA256A3B
-      SLE = 0;
-      #else
       SLE_PORT_REG &= ~(1 << SLE_BIT);
-      #endif
-
     } // if clear the SLE flag //
 } // write_reg //
 
@@ -976,20 +950,13 @@ static UInt16 adi_7025_read(const UInt8 * const MSG)
     UInt8 resp_byte[NUM_RESPONSE_BYTE];
     UInt8 byte_count, bit;
 
-    #ifdef ATXMEGA256A3B
     UInt8 read_bit_value = 0;
-    #endif
 
     write_reg(MSG, FALSE);
 
     // manual ignore the first clock cycle.
-    #ifndef ATXMEGA256A3B
-    SCLK   = 1;
-    SCLK   = 0;
-    #else
     SCLK_PORT_REG |= (1 << SCLK_DIR_BIT);
     SCLK_PORT_REG &= ~(1 << SCLK_DIR_BIT);
-    #endif
 
     // read the 2 byte response
     for(byte_count = 0; byte_count < NUM_RESPONSE_BYTE; byte_count++)
@@ -997,11 +964,6 @@ static UInt16 adi_7025_read(const UInt8 * const MSG)
         resp_byte[byte_count] = 0;
         for(bit = 0; bit < 8; bit++)
         {
-            #ifndef ATXMEGA256A3B
-            SCLK   = 1;
-            SCLK   = 0;
-            resp_byte[byte_count] = (resp_byte[byte_count] << 1) | SREAD;
-            #else
             SCLK_PORT_REG |= (1 << SCLK_DIR_BIT);
             SCLK_PORT_REG &= ~(1 << SCLK_DIR_BIT);
 
@@ -1014,16 +976,11 @@ static UInt16 adi_7025_read(const UInt8 * const MSG)
                read_bit_value = 0;
             }
             resp_byte[byte_count] = (resp_byte[byte_count] << 1) | read_bit_value;
-            #endif
 
         } // loop to read in each bit of the byte //
     } // loop to read the bytes //
 
-    #ifndef ATXMEGA256A3B
-    SLE = 0;
-    #else
     SLE_PORT_REG &= ~(1 << SLE_DIR_BIT);
-    #endif
 
     return (((UInt16)resp_byte[0] << 8) | (UInt16)resp_byte[1]);
 } /* adi_7025_read */
@@ -1087,16 +1044,16 @@ static UInt16 calc_rssi(const UInt16 READBACK_CODE)
 } // calc_rssi //
 
 
-/*!
-    \brief Sets the transceiver to receive mode
-
-    \param void
-
-    \return void
-*/
+// Complies with FCC-Testing
+/////////////////////////////
 static void tal_turn_on_receiver(void)
 {
     UInt8 msg[REG_SIZE];
+
+    // copy register 2 values
+    one_net_memmove(msg, INIT_REG_VAL[2], sizeof(msg));
+    msg[2] &= 0x81;              // setting power bits (9 to 14) to 0 => ~0x7E = 0x81
+    write_reg(msg, TRUE);
 
     // copy register 0 values for the current channel
     one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
@@ -1109,15 +1066,12 @@ static void tal_turn_on_receiver(void)
 
     write_reg(msg, TRUE);
 
-    #ifndef ATXMEGA256A3B
-    RF_DATA_DIR = 0;                // set the data line to an input
-    #else
     RF_DATA_DIR_REG &= ~(1 << RF_DATA_DIR_BIT);         // pin 2
-	#ifndef ATXMEGA256A3B_EVAL
 	RF_DATA_DIR_REG &= ~(1 << RF_DATA_ALT_DIR_BIT);     // pin 3
-	#endif
-    #endif
 } // tal_turn_on_receiver //
+
+
+
 
 
 /*!
@@ -1127,9 +1081,16 @@ static void tal_turn_on_receiver(void)
 
     \return void
 */
-static void tal_turn_on_transmitter(void)
+// Complies with FCC-Testing
+/////////////////////////////
+void tal_turn_on_transmitter(void)
 {
     UInt8 msg[REG_SIZE];
+
+    // Set the Power Amplifier value to zero
+    // The power amplifier is set to 0 during transceiver initialization
+
+    PORTF_PIN2CTRL |= 0x18;  // PULLUP mode
 
     // copy register 0 values for the current channel
     one_net_memmove(msg, CHANNEL_SETTING[current_channel], sizeof(msg));
@@ -1142,28 +1103,43 @@ static void tal_turn_on_transmitter(void)
 
     write_reg(msg, TRUE);
 
-    #ifndef ATXMEGA256A3B
-    RF_DATA_DIR = 1;                // set the data line to an output
-    #else
     RF_DATA_DIR_REG |= (1 << RF_DATA_DIR_BIT);          // pin 2
 
-	// The following does not work the transmission does not work
-//	#ifndef ATXMEGA256A3B_EVAL
-//	RF_DATA_DIR_REG |= (1 << RF_DATA_ALT_DIR_BIT);      // pin 3
-//    #endif
-    #endif  
-/*
-	#ifndef ATXMEGA256A3B_EVAL
-	RF_DATA_DIR_REG |= (1 << (RF_DATA_ALT_DIR_BIT | RF_DATA_DIR_BIT));      // pins 2 and 3
-	#else
-    RF_DATA_DIR_REG |= (1 << RF_DATA_DIR_BIT);          // pin 2
-    #endif
-    #endif
-*/
+
+    PORTF_PIN2CTRL &= 0;  // no PULLUP mode
+
+    // Ramping up power amplifier to maximum ///
+
+    UInt8 PowerMask = 0;
+
+    // Ramping up the POWER OUTPUT by 1, from minimum 0 to 0x3F
+
+    // copy register 2 values
+    one_net_memmove(msg, INIT_REG_VAL[2], sizeof(msg));
+
+    // set power bits (9 to 14)to 0
+    // by clearing the power bits
+    while(PowerMask < 0x3F)
+    {
+	    PowerMask += 64;
+		
+    	// check for max power mask value
+    	if(PowerMask > 0x3F)
+    	{
+	    	PowerMask = 0x3F;
+    	}
+		
+	    msg[2] &= 0x81;              // setting power bits (9 to 14) to 0 => ~0x7E = 0x81
+	    msg[2] |= (PowerMask << 1);  // setting power bits to PowerMask value : left shift 1 so, 0x3E becomes 0x7C
+	    write_reg(msg, TRUE);
+    }
 
     // give the transmitter some time to be ready to transmit.
     delay_100s_us(1);
+
 } // tal_turn_on_transmitter //
+
+
 
 
 

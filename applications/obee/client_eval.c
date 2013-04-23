@@ -363,6 +363,13 @@ one_net_status_t one_net_client_reset_client(const one_net_xtea_key_t* invite_ke
 #endif
 {
     initialize_default_pin_directions(FALSE);
+	
+	// 2-12-13 //////////////////////
+	// set device to be a client
+	device_is_master = FALSE;
+	in_sniffer_mode = FALSE;
+	/////////////////////////////////
+	
     node_loop_func = &client_eval;
     
     #ifdef ENHANCED_INVITE

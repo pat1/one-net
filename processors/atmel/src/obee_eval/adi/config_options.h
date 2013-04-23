@@ -103,10 +103,10 @@
 #endif
 
 
-
 // Peer Assignments.  Some applications need to implement peer assignments.  Some do not.
 // Define PEER if your application implements peer assignments.  Default is PEER assigned
 #ifndef PEER
+    // 4-1-13
 	#define PEER
 #endif
 
@@ -139,6 +139,7 @@
 
     // Multi-Hop
     #ifndef ONE_NET_MULTI_HOP
+        // 4-1-13
 	    #define ONE_NET_MULTI_HOP
     #endif
 
@@ -185,7 +186,9 @@
 #endif
 
 #ifndef PID_BLOCK
+    // 4-1-13 ////////
     #define PID_BLOCK
+    //////////////////
 #endif
 
 
@@ -222,8 +225,9 @@
 	#define US_CHANNELS
 #endif
 
+// we wnat this cimmenetd out for US only
 #ifndef EUROPE_CHANNELS
-	#define EUROPE_CHANNELS
+//	#define EUROPE_CHANNELS
 #endif
 
 
@@ -238,7 +242,7 @@
     #define UART
 #endif
 
-#ifdef UART    
+#ifdef UART
     // define the base baud rate.  Define DEFAULT_BAUD_RATE as 38400 or 115200.
     // If DEFAULT_BAUD_RATE is not defined or id defined to an invalid option,
     // 38400 baud will be used.  The baud rate can also be changed with the "baud"
@@ -246,7 +250,7 @@
     #ifndef DEFAULT_BAUD_RATE
         #define DEFAULT_BAUD_RATE 115200
     #endif
-    
+
     // Binary and linefeed options are listed below.  There are four...
     //
     // 1) UART_CARRIAGE_RETURN_CONVERT
@@ -307,21 +311,21 @@
     //        Note that you can enable this option and still not choose to echo.  This
     //        option merely gives you the option to turn it on and off.
     //
-    
+
     #ifndef UART_CARRIAGE_RETURN_CONVERT
         #define UART_CARRIAGE_RETURN_CONVERT
     #endif
-    
+
     #ifndef HANDLE_UART_BY_LINE
         //#define HANDLE_UART_BY_LINE
     #endif
-    
+
     #ifndef HANDLE_UART_BY_LINE
         #ifndef HANDLE_BACKSPACE
             #define HANDLE_BACKSPACE
         #endif
     #endif
-    
+
     #ifndef ALLOW_INPUT_ECHOING
         #define ALLOW_INPUT_ECHOING
     #endif
@@ -379,14 +383,14 @@
 
 
 #ifdef ATXMEGA256A3B
-   // define eval board or OBE board (when the following ATXMEGA256A3B_EVAL is not defined)
-    #ifndef ATXMEGA256A3B_EVAL
-//     #define ATXMEGA256A3B_EVAL
+   //  OBEE board (when the following USE_EMULATOR is not defined)
+    #ifndef USE_EMULATOR
+//     #define USE_EMULATOR     // not used at the moment
    #endif
 #endif
 
 // Enable this if the device has the ability to save to / load from
-// non-volatile memory (i.e. Flash memory)
+// non-volatile memory (i.e. eeprom)
 #ifndef NON_VOLATILE_MEMORY
     #define NON_VOLATILE_MEMORY
 #endif
@@ -610,7 +614,40 @@
 
 
 #ifndef DEBUGGING_TOOLS
-   // #define DEBUGGING_TOOLS
+//   #define DEBUGGING_TOOLS
+#endif
+
+
+// More debugging below in case you do not want to define DEBUGGING_TOOLS.
+// Note these are compile-time constants.  For more control, you can make these variables and create
+// a CLI option to change the values during runtime.
+#ifndef ONE_NET_SIMPLE_CLIENT
+	#ifndef CLOCK_SLOW_DOWN
+	//    #define CLOCK_SLOW_DOWN
+	#endif
+
+	#ifdef CLOCK_SLOW_DOWN
+	// Must be an integer >= 1
+	// A CLOCK_SLOW_DOWN_FACTOR of 10 would mean that when setting a timer for 50 ms, that timer
+	// will expire (in real time) in 500 ms (10 times as long).  For every tick interrupt (which
+	// occurs every milliseconds, the "tick_count" variable will increment by 1.  That means that
+	// tick_count will increment by 100 in a second, not 1000.  This value can be made large when
+	// debugging so that packets do not fly by too fast for the human eye to register.  A
+	// CLOCK_SLOW_DOWN_FACTOR of 1 should be used under normal circumstances.
+	#define CLOCK_SLOW_DOWN_FACTOR 1
+	#endif
+
+	// not to be confused with write_pause from DEBUGGING_TOOLS.  TA WRITE_PAUSE_FACTOR of 10 will pause
+	// 10 tick counts before writing a message.  This can be useful for debugging so that a sniffer does
+	// not lose any messages.
+	#ifndef WRITE_PAUSE
+	//    #define WRITE_PAUSE
+	#endif
+
+	#ifdef WRITE_PAUSE
+	// Must be an integer >= 0
+	#define WRITE_PAUSE_FACTOR 0
+	#endif
 #endif
 
 

@@ -126,11 +126,11 @@ enum
 //! MASTER specific parameters.  These need to be saved in non-volatile memory.
 on_master_param_t * const master_param =
   (on_master_param_t * const)(&nv_param[0] + sizeof(on_base_param_t));
-  
+
 //! List of the CLIENTS
 on_client_t * const client_list = (on_client_t * const)(&nv_param[0] +
   sizeof(on_base_param_t) + sizeof(on_master_param_t));
-  
+
 //! Unique key of the device being invited into the network
 one_net_xtea_key_t invite_key;
 
@@ -219,8 +219,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
   on_pkt_t* const pkt,  UInt8* raw_pld, UInt8* msg_type,
   const on_message_status_t status, on_ack_nack_t* ack_nack);
-  
-  
+
+
 static void admin_txn_hdlr(const UInt8* const raw_pld,
   const on_raw_did_t* const raw_did, const on_ack_nack_t* const ack_nack,
   on_client_t* client);
@@ -264,7 +264,7 @@ static void check_updates_in_progress(void);
 static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
   const on_encoded_did_t* const did, const UInt8* const pld,
   tick_t send_time_from_now);
-  
+
 static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
   SRC_DID, const UInt8 * const DATA, on_client_t ** client,
   on_ack_nack_t* ack_nack);
@@ -273,7 +273,7 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did);
 static on_client_t* get_invite_client(void);
 static void on_master_adjust_recipient_list(const on_single_data_queue_t*
   const msg, on_recipient_list_t** recipient_send_list);
-  
+
 static void check_clients_for_missed_check_ins(void);
 
 
@@ -316,7 +316,7 @@ one_net_status_t one_net_master_create_network(
     on_base_param->channel = one_net_prand(get_tick_count(),
       ONE_NET_MAX_CHANNEL);
     // randomly pick any channel //
-    
+
     on_base_param->data_rate = ONE_NET_DATA_RATE_38_4;
     one_net_memmove(on_base_param->current_key, *KEY,
       sizeof(on_base_param->current_key));
@@ -328,7 +328,7 @@ one_net_status_t one_net_master_create_network(
     one_net_master_clear_client_memory();
     init_internal();
     new_channel_clear_time_out = ONE_NET_MASTER_NETWORK_CHANNEL_CLR_TIME;
-    
+
     // see comment in the "case ON_JOIN_NETWORK" segment of the
     // one_net_master() loop to explain we are using these timers and what
     // we're doing.
@@ -348,7 +348,7 @@ void one_net_master_clear_client_memory(void)
     one_net_master_condense_client_memory();
     #ifdef PEER
     one_net_reset_peers();
-    #endif    
+    #endif
     #ifdef ONE_NET_MULTI_HOP
     on_base_param->num_mh_devices = 1; // for the master
     on_base_param->num_mh_repeaters = 0; // new network, no clients,
@@ -361,7 +361,7 @@ void one_net_master_condense_client_memory(void)
 {
     SInt16 i;
     UInt16 num_clients_encountered = 0;
-    
+
     for(i = 0; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
     {
         if(num_clients_encountered >= master_param->client_count)
@@ -381,7 +381,7 @@ void one_net_master_condense_client_memory(void)
             num_clients_encountered++;
         }
     }
-    
+
     for(i = master_param->client_count; i < ONE_NET_MASTER_MAX_CLIENTS; i++)
     {
         one_net_memmove(client_list[i].device.did, ON_ENCODED_BROADCAST_DID,
@@ -421,14 +421,14 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
 {
     UInt8 i;
     one_net_status_t status;
-    
+
     // The number of bytes in the non-volatile parameter buffer that have been
     // initialized so far.
     static UInt16 nv_param_size_needed = MAX_MASTER_NV_PARAM_SIZE_BYTES;
     #ifdef PEER
     static UInt8 peer_memory_size_needed = PEER_STORAGE_SIZE_BYTES;
     #endif
-    
+
     // There are several options.  This function may be called with PARAM equal to NULL.
     // In this case, it is assumed that the application code has already copied the non-volatile
     // memory to the appropriate buffer.  Therefore this function will NOT attempt to do so.
@@ -437,11 +437,11 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
     // much memory is needed.  If PARAM_LEN is non-zero, it will be assumed that the buffer length
     // passed to this function is PARAM_LEN bytes.  The number of bytes to be copied will be the lesser
     // of the PARAM_LEN and the number of bytes needed to finish the initialization.
-    
+
     // Finally, and this is only relevant when PEER is enabled, memory_type denotes what type of memory
     // has been passed (peer or non-peer or undistinguished).  If the memory is undistinguished, it is
     // assumed to represent one big buffer with the non-peer memory first followed by the peer memory.
-    
+
     if(PARAM_LEN == 0)
     {
         #ifndef PEER
@@ -463,7 +463,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
         }
         #endif
     }
-    
+
     #ifdef PEER
     if(memory_type == MEMORY_GENERIC)
     {
@@ -483,7 +483,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
             {
                 return status;
             }
-            
+
             if(PARAM)
             {
                 PARAM += temp;
@@ -492,8 +492,8 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
             memory_type = MEMORY_PEER;
         }
     }
-    #endif    
-    
+    #endif
+
     #ifdef PEER
     if(memory_type == MEMORY_NON_PEER)
     {
@@ -515,7 +515,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
         {
             PARAM_LEN = peer_memory_size_needed;
         }
-        
+
         if(PARAM && peer_memory_size_needed > 0)
         {
             one_net_memmove(&peer_storage[PEER_STORAGE_SIZE_BYTES - peer_memory_size_needed],
@@ -529,21 +529,21 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
     }
 
     #else
-    
+
     if(PARAM_LEN > nv_param_size_needed)
     {
         PARAM_LEN = nv_param_size_needed;
     }
-    
+
     if(PARAM && nv_param_size_needed > 0)
     {
         one_net_memmove(&nv_param[MAX_MASTER_NV_PARAM_SIZE_BYTES - nv_param_size_needed],
           PARAM, PARAM_LEN);
     }
     nv_param_size_needed -= PARAM_LEN;
-    
+
     #endif
-    
+
     #ifndef PEER
     if(nv_param_size_needed)
     {
@@ -554,7 +554,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
     {
         return ONS_MORE;
     }
-    #endif    
+    #endif
 
     // Last thing to check is the CRC
     #ifndef PEER
@@ -575,7 +575,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
             on_base_param->num_mh_devices++;
             break;
         } // if client is a multi-hop client //
-        
+
         if(features_mh_repeat_capable(client_list[i].device.features))
         {
             on_base_param->num_mh_repeaters++;
@@ -583,7 +583,7 @@ one_net_status_t one_net_master_init(const UInt8 * PARAM, UInt16 PARAM_LEN,
         } // if client is a multi-hop repeater //
     } // loop to look for Multi-Hop and Multi-Hop repeaters //
     #endif
-    
+
     on_state = ON_LISTEN_FOR_DATA;
     if((status = init_internal()) != ONS_SUCCESS)
     {
@@ -601,7 +601,7 @@ one_net_status_t one_net_master_change_key_fragment(
     {
         return ONS_ALREADY_IN_PROGRESS;
     }
-    
+
     // check to make sure the new key fragment doesn't match any of the old
     // ones.
     if(!new_key_fragment(
@@ -609,18 +609,18 @@ one_net_status_t one_net_master_change_key_fragment(
     {
         return ONS_BAD_KEY_FRAGMENT;
     }
-    
+
     key_update_in_progress = TRUE;
     reset_msg_ids();
     for(i = 0; i < master_param->client_count; i++)
     {
         client_list[i].use_current_key = FALSE;
     }
-    
+
     #ifdef AUTO_SAVE
     save = TRUE;
-    #endif    
-      
+    #endif
+
     return ONS_SUCCESS;
 } // one_net_master_change_key_fragment //
 
@@ -713,19 +713,19 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     {
         return status;
     }
-    
+
     // encode the payload
     if((status = on_encode(&(data_pkt_ptrs.packet_bytes[ON_ENCODED_PLD_IDX]),
       raw_invite, ON_ENCODED_INVITE_SIZE)) != ONS_SUCCESS)
     {
         return status;
     }
-    
+
     // now finish building the packet.
     if((status = on_complete_pkt_build(&data_pkt_ptrs,
       ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT)) != ONS_SUCCESS)
     {
-        return status;                          
+        return status;
     }
 
     // everything worked out fine.  Set the transactions and timers
@@ -734,44 +734,46 @@ one_net_status_t one_net_master_invite(const one_net_xtea_key_t * const KEY,
     invite_txn.priority = ONE_NET_LOW_PRIORITY;
     ont_set_timer(invite_txn.next_txn_timer, 0);
     ont_set_timer(ONT_INVITE_TIMER, MS_TO_TICK(timeout));
-    
-    
+
+
     // now set up the next unused position in client_list for this client
+    // 2-21-13 ///////////////
     client = &client_list[vacant_index];
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
       ON_REJECT_INVALID_MSG_ID : 0);
-      
+
     #ifdef BLOCK_MESSAGES_ENABLED
     #ifdef DATA_RATE_CHANNEL
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
-      ON_BS_ELEVATE_DATA_RATE : 0); 
+      ON_BS_ELEVATE_DATA_RATE : 0);
     #endif
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
-      ON_BS_CHANGE_CHANNEL : 0); 
+      ON_BS_CHANGE_CHANNEL : 0);
     client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
-      ON_BS_HIGH_PRIORITY : 0); 
+      ON_BS_HIGH_PRIORITY : 0);
     client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
-      ON_BS_ALLOWED : 0); 
+      ON_BS_ALLOWED : 0);
     #endif
-      
+
     client->use_current_key = TRUE;
     client->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
     client->device.data_rate = ONE_NET_DATA_RATE_38_4;
     client->device.msg_id = data_pkt_ptrs.msg_id;
+    // 2-21-13 ////////////////////////////////////////////////
     one_net_uint16_to_byte_stream(master_param->next_client_did,
       raw_invite_did);
     on_encode(client->device.did, raw_invite_did,
       ON_ENCODED_DID_LEN);
     client->device.features = FEATURES_UNKNOWN;
-    
+
     one_net_memmove(add_device_did, client->device.did, ON_ENCODED_DID_LEN);
-    
+
     settings_sent = FALSE;
     #ifdef BLOCK_MESSAGES_ENABLED
     fragment_delay_sent = FALSE;
     #endif
-    
+
     return ONS_SUCCESS;
 } // one_net_master_invite //
 
@@ -794,10 +796,10 @@ one_net_status_t one_net_master_cancel_invite(
     invite_txn.priority = ONE_NET_NO_PRIORITY;
     ont_stop_timer(invite_txn.next_txn_timer);
     ont_stop_timer(ONT_INVITE_TIMER);
-    
-    // zero out invite_key_for good measure    
+
+    // zero out invite_key_for good measure
     one_net_memset(invite_key, 0, ONE_NET_XTEA_KEY_LEN);
-    
+
     #ifdef COMPILE_WO_WARNINGS
     if(!KEY)
     {
@@ -823,8 +825,8 @@ one_net_status_t one_net_master_remove_device(
     UInt8 i;
     on_client_t* client;
     UInt8 admin_pld[4];
-    
-    
+
+
     if(remove_device_update_in_progress)
     {
         return ONS_ALREADY_IN_PROGRESS;
@@ -834,7 +836,7 @@ one_net_status_t one_net_master_remove_device(
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
-    
+
     // first check if we're in the middle of a transaction.  If so, we're
     // busy and can't do this.
     // TODO - we want a better solution?
@@ -843,14 +845,14 @@ one_net_status_t one_net_master_remove_device(
     {
         return ONS_BUSY;
     }
-    
+
     #ifdef BLOCK_MESSAGES_ENABLED
     if(bs_txn.priority != ONE_NET_NO_PRIORITY)
     {
         return ONS_BUSY;
     }
     #endif
-    
+
     if((status = on_encode(remove_device_did, *RAW_DID, ON_ENCODED_DID_LEN))
       != ONS_SUCCESS)
     {
@@ -862,7 +864,7 @@ one_net_status_t one_net_master_remove_device(
     {
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
-    
+
     #ifdef ONE_NET_MULTI_HOP
     if(features_mh_capable(client->device.features))
     {
@@ -873,22 +875,23 @@ one_net_status_t one_net_master_remove_device(
         on_base_param->num_mh_repeaters--;
     }
     #endif
-    
+
     remove_device_update_in_progress = TRUE;
     remove_device_start_time = get_tick_count();
 
-    
+
     for(i = 0; i < master_param->client_count; i++)
     {
+        // 2-21-13 //////////////////////////////////////
         client_list[i].send_remove_device_message = TRUE;
     }
-    
+
     #ifdef PEER
     // remove any peers of this device.
     one_net_remove_peer_from_list(ONE_NET_DEV_UNIT, NULL,
       (const on_encoded_did_t* const) &remove_device_did, ONE_NET_DEV_UNIT);
     #endif
-    
+
     admin_pld[0] = remove_device_did[0];
     admin_pld[1] = remove_device_did[1];
     #ifdef ONE_NET_MULTI_HOP
@@ -899,10 +902,10 @@ one_net_status_t one_net_master_remove_device(
     admin_pld[2] = 0;
     admin_pld[3] = 0;
     #endif
-    
+
     #ifdef AUTO_SAVE
     save = TRUE;
-    #endif    
+    #endif
 
     // all client peer assignments to this did are removed.  Now remove the device itself.
     // When that's done, the other devices will also be informed of this deletion.
@@ -927,18 +930,18 @@ one_net_xtea_key_t* master_get_encryption_key(
   const on_encoded_did_t* const did)
 {
     on_client_t* client;
-    
+
     if(!did)
     {
         return NULL;
     }
-    
+
     if(on_encoded_did_equal(did, &MASTER_ENCODED_DID))
     {
         // the device is this master device.  Master is using the current key.
         return (one_net_xtea_key_t*)(on_base_param->current_key);
     }
-    
+
     client = client_info(did);
     if(client == NULL)
     {
@@ -948,7 +951,7 @@ one_net_xtea_key_t* master_get_encryption_key(
         }
         return NULL; // not in the network
     }
-    
+
     return client->use_current_key ?
       (one_net_xtea_key_t*)(on_base_param->current_key) :
       (one_net_xtea_key_t*)(on_base_param->old_key);
@@ -958,7 +961,7 @@ one_net_xtea_key_t* master_get_encryption_key(
 /*! \brief Determines whether a DID is a DID that is currently being
 
     \param[in] encoded_did The did to check
-    
+
     \return TRUE if there is an invite pending and this is the DID
             FALSE if no invite is pending or the DIDs do not match
 */
@@ -980,7 +983,7 @@ static BOOL is_invite_did(const on_encoded_did_t* const encoded_did)
 
 
 /*! \brief Returns a pointer to the client that is currently being invited
-    
+
     \return A pointer to the client that is currently being invited, or NULL
             if no client is being invited.
 */
@@ -1012,7 +1015,7 @@ void one_net_master(void)
     // The current transaction
     static on_txn_t * txn = 0;
     tick_t queue_sleep_time;
-    
+
 
     // Do the appropriate action for the state the device is in.
     switch(on_state)
@@ -1068,7 +1071,7 @@ void one_net_master(void)
             } // else channel is not clear //
             break;
         } // ON_JOIN_NETWORK case //
-        
+
         case ON_LISTEN_FOR_DATA:
         {
             if(invite_txn.priority != ONE_NET_NO_PRIORITY &&
@@ -1077,7 +1080,7 @@ void one_net_master(void)
                 UInt16 raw_pid = ONE_NET_RAW_MASTER_INVITE_NEW_CLIENT |
                   (3 << ONE_NET_RAW_PID_SIZE_SHIFT);
                 on_client_t* invite_client;
-                
+
                 if(ont_expired(ONT_INVITE_TIMER))
                 {
                     one_net_master_invite_result(ONS_TIME_OUT, &invite_key, 0);
@@ -1085,16 +1088,16 @@ void one_net_master(void)
                       (const one_net_xtea_key_t * const)&invite_key);
                     break;
                 } // if trying to add device timed out //
-                
+
                 if((invite_client = get_invite_client()) == NULL)
                 {
                     // should never get here?
                     break;
                 }
 
-                
+
                 txn = &invite_txn;
-                
+
                 #ifdef ONE_NET_MULTI_HOP
                 txn->retry++;
                 if(on_base_param->num_mh_repeaters &&
@@ -1111,7 +1114,7 @@ void one_net_master(void)
                 {
                     break; // we should never get here
                 }
-                
+
                 #ifdef ONE_NET_MULTI_HOP
                 if(raw_pid | ONE_NET_RAW_PID_MH_MASK)
                 {
@@ -1140,7 +1143,7 @@ void one_net_master(void)
             break;
         } // default case //
     } // switch(on_state) //
-    
+
     // one_net() has had a chance to load any messages it wanted from the
     // queue.  If we are in state ON_LISTEN_FOR_DATA and there are no messages
     // ready to send within a second and there is no active message,
@@ -1189,26 +1192,26 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 {
     on_raw_did_t raw_did;
     on_client_t * client;
-    
-    
+
+
     SInt16 vacant_index = find_vacant_client_list_index();
-    
+
     if(vacant_index < 0)
     {
         return ONS_DEVICE_LIMIT;
     }
-    
+
     #ifdef ONE_NET_MULTI_HOP
     if(features_mh_capable(features))
     {
         on_base_param->num_mh_devices++;
     }
-    
+
     if(features_mh_repeat_capable(features))
     {
         on_base_param->num_mh_repeaters++;
     }
-    #endif    
+    #endif
 
     // a device is being added, place it in the next available client_t
     // structure
@@ -1216,7 +1219,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     //
     // initialize the fields in the client_t structure for this new client
-    //    
+    //
     client->device.msg_id = one_net_prand(get_tick_count(), 50);
     client->flags = ONE_NET_MASTER_SEND_TO_MASTER ? ON_SEND_TO_MASTER : 0;
     client->flags |= (ONE_NET_MASTER_REJECT_INVALID_MSG_ID ?
@@ -1226,14 +1229,14 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     {
         #ifdef DATA_RATE_CHANNEL
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_ELEVATE_DATA_RATE ?
-          ON_BS_ELEVATE_DATA_RATE : 0); 
+          ON_BS_ELEVATE_DATA_RATE : 0);
         #endif
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_CHANGE_CHANNEL ?
-          ON_BS_CHANGE_CHANNEL : 0); 
+          ON_BS_CHANGE_CHANNEL : 0);
         client->flags |= (ONE_NET_MASTER_CLIENT_BLOCK_STREAM_HIGH_PRIORITY ?
-          ON_BS_HIGH_PRIORITY : 0); 
+          ON_BS_HIGH_PRIORITY : 0);
         client->flags |= (ONE_NET_MASTER_CLIENT_ALLOW_LONG_BLOCK_STREAM ?
-          ON_BS_ALLOWED : 0); 
+          ON_BS_ALLOWED : 0);
     }
     #endif
     client->flags |= ON_JOINED;
@@ -1245,15 +1248,15 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
     // give it 5 extra seconds.
     client->next_check_in_time = get_tick_count() +
       MS_TO_TICK(5000 + client->keep_alive_interval);
-      
+
     #ifdef ONE_NET_MULTI_HOP
     client->device.max_hops = features_max_hops(features);
     client->device.hops = 0;
     #endif
     one_net_uint16_to_byte_stream(master_param->next_client_did, raw_did);
     on_encode(client->device.did, raw_did, ON_ENCODED_DID_LEN);
-    
-    
+
+
     // if these are not NULL, the master is passing these parameters to the
     // client somehow, most likely as part of a process which is NOT part of
     // a ONE-NET protocol invite (an example of this might be if a device is
@@ -1273,7 +1276,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         // TODO -- what about the number of multi-hop and multi-hop repeaters?
         // The device added possibly needs to know.  Note that this is
         // irrelevant which are added with the wireless ONE-NET invite process.
-        
+
         one_net_memmove(&(out_base_param->sid[ON_ENCODED_NID_LEN]),
           client->device.did, ON_ENCODED_DID_LEN);
         one_net_memmove(out_base_param->sid, on_base_param->sid, ON_ENCODED_NID_LEN);
@@ -1286,7 +1289,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         one_net_memmove(out_master_param->device.did, MASTER_ENCODED_DID,
           ON_ENCODED_DID_LEN);
         one_net_memmove(out_base_param->current_key, on_base_param->current_key,
-          sizeof(one_net_xtea_key_t));    
+          sizeof(one_net_xtea_key_t));
         out_master_param->keep_alive_interval = ONE_NET_MASTER_DEFAULT_KEEP_ALIVE;
         out_base_param->channel = on_base_param->channel;
         #ifdef BLOCK_MESSAGES_ENABLED
@@ -1297,7 +1300,7 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
 
     master_param->client_count++;
     master_param->next_client_did = find_lowest_vacant_did();
-    
+
     if(send_update_to_network)
     {
         UInt8 i;
@@ -1306,24 +1309,24 @@ one_net_status_t one_net_master_add_client(const on_features_t features,
         add_device_did[1] = client->device.did[1];
         add_device_start_time = get_tick_count();
         device_to_update = client; // update the device being added
-                                   // first. 
-        
+                                   // first.
+
         for(i = 0; i < master_param->client_count; i++)
         {
             client_list[i].send_add_device_message = TRUE;
-            
+
             // some clients WILL NOT get updates.
             if(client == &client_list[i])
             {
                 continue; // this is the client being added. It needs one.
             }
-            
+
             if(features_device_sleeps(client_list[i].device.features))
             {
                 // no update if it sleeps.
                 client_list[i].send_add_device_message = FALSE;
             }
-            
+
             // TODO -- what about extended single?  They need to be updated too?
             if(!features_mh_capable(client_list[i].device.features) &&
                !features_block_capable(client_list[i].device.features))
@@ -1369,27 +1372,27 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
     on_encoded_did_t enc_src_did;
     UInt8 pld[ONA_SINGLE_PACKET_PAYLOAD_LEN - 1];
     on_encoded_did_t* enc_dst_did = (on_encoded_did_t*)&pld[ON_PEER_DID_IDX];
-    
+
     // note -- broadcast peer did indicates wildcard
     BOOL src_is_master, dst_is_master, dst_is_broadcast;
-    
+
 
     if(!SRC_DID || !PEER_DID)
     {
         return ONS_BAD_PARAM;
     } // if parameters are invalid //
-    
+
     if(on_encode(enc_src_did, *SRC_DID, sizeof(enc_src_did)) != ONS_SUCCESS
       || on_encode(*enc_dst_did, *PEER_DID, ON_ENCODED_DID_LEN)
       != ONS_SUCCESS)
     {
         return ONS_INCORRECT_ADDR;
     } // if the encode failed //
-    
+
     src_is_master = is_my_did((const on_encoded_did_t*) &enc_src_did);
     dst_is_master = is_my_did((const on_encoded_did_t*) enc_dst_did);
     dst_is_broadcast = is_broadcast_did((const on_encoded_did_t*) enc_dst_did);
-    
+
     // make sure that the devices are both part of the network and are
     // not the same device
     if(!src_is_master && !client_info((const on_encoded_did_t*)
@@ -1410,7 +1413,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         // devices are the same.
         return ONS_INCORRECT_ADDR;
     }
-    
+
     // one last check -- broadcast dids are valid for unassigning but not
     // assigning
     if(dst_is_broadcast && ASSIGN)
@@ -1418,7 +1421,7 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
         return ONS_INCORRECT_ADDR;
     }
 
-    
+
     // first see if we're assigning to ourself, in which case no ONE-NET
     // message will be needed.
     if(src_is_master)
@@ -1433,10 +1436,10 @@ one_net_status_t one_net_master_peer_assignment(const BOOL ASSIGN,
             return one_net_remove_peer_from_list(SRC_UNIT, NULL,
               (const on_encoded_did_t* const) enc_dst_did, PEER_UNIT);
         }
-        
+
         #ifdef AUTO_SAVE
         save = TRUE;
-        #endif        
+        #endif
     }
 
 
@@ -1486,7 +1489,7 @@ one_net_status_t one_net_master_change_client_keep_alive(
 
     one_net_uint32_to_byte_stream(KEEP_ALIVE, pld);
 
-    return send_admin_pkt(ON_CHANGE_KEEP_ALIVE, 
+    return send_admin_pkt(ON_CHANGE_KEEP_ALIVE,
       (const on_encoded_did_t * const)&dst, pld, 0);
 } // one_net_master_change_client_keep_alive //
 
@@ -1516,13 +1519,13 @@ one_net_status_t one_net_master_change_frag_dly(
     one_net_status_t status;
     on_client_t* client;
     UInt8 pld[4];
-    
-    
+
+
     if(!RAW_DST)
     {
         return ONS_BAD_PARAM;
     } // if the parameter is invalid //
-    
+
     if(LOW_DELAY != 0 && HIGH_DELAY != 0 && LOW_DELAY < HIGH_DELAY)
     {
         return ONS_INVALID_DATA; // low priority delay cannot be less than
@@ -1536,7 +1539,7 @@ one_net_status_t one_net_master_change_frag_dly(
 
     if(is_my_did((const on_encoded_did_t * const)&dst))
     {
-        // change the MASTER's fragment delay        
+        // change the MASTER's fragment delay
         UInt16 new_low = on_base_param->fragment_delay_low;
         UInt16 new_high = on_base_param->fragment_delay_high;
 
@@ -1548,13 +1551,13 @@ one_net_status_t one_net_master_change_frag_dly(
         {
             new_high = HIGH_DELAY;
         }
-        
+
         if(new_low < new_high)
         {
             return ONS_INVALID_DATA; // low priority delay cannot be less than
                                      // high priority delay.
         }
-        
+
         on_base_param->fragment_delay_low = new_low;
         on_base_param->fragment_delay_high = new_high;
         #ifdef AUTO_SAVE
@@ -1562,14 +1565,14 @@ one_net_status_t one_net_master_change_frag_dly(
         #endif
         return ONS_SUCCESS;
     } // if the MASTER device //
-    
+
     client = client_info((const on_encoded_did_t*)&dst);
 
     if(!client)
     {
         return ONS_INCORRECT_ADDR;
     } // the CLIENT is not part of the network //
-    
+
     if(!features_block_capable(client->device.features))
     {
         return ONS_DEVICE_NOT_CAPABLE;
@@ -1603,7 +1606,7 @@ one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
     {
         return ONS_BAD_PARAM;
     } // if the parameters are invalid //
-    
+
     client->flags = flags;
     pld[0] = client->flags;
     return send_admin_pkt(ON_CHANGE_SETTINGS,
@@ -1613,7 +1616,7 @@ one_net_status_t one_net_master_set_flags(on_client_t* client, UInt8 flags)
 
 /*!
     \brief Calculate CRC over the master parameters.
-    
+
     \param[in] param pointer to non-volatile parameters.  If NULL,
                on_base_param is used.
     \param[in] peer_param pointer to peer parameters.  If NULL,
@@ -1630,32 +1633,32 @@ int master_nv_crc(const UInt8* param, const UInt8* peer_param)
     UInt16 starting_crc = ON_PLD_INIT_CRC;
     const UInt8 CRC_LEN = sizeof(UInt8);
     on_master_param_t* mast_param;
-    
+
     #ifdef PEER
     if(!peer_param)
     {
         peer_param = peer_storage;
     }
     #endif
-    
+
     if(!param)
     {
         param = nv_param;
     }
-    
+
     mast_param = (on_master_param_t*) (param + sizeof(on_base_param_t));
 
     if(mast_param->client_count > ONE_NET_MASTER_MAX_CLIENTS)
     {
         return -1; // error
     }
-    
+
     #ifdef PEER
     // crc over peer parameters
     starting_crc = one_net_compute_crc(peer_param, PEER_STORAGE_SIZE_BYTES,
       starting_crc, ON_PLD_CRC_ORDER);
     #endif
-    
+
     return one_net_compute_crc(&param[CRC_LEN],
       MAX_MASTER_NV_PARAM_SIZE_BYTES - CRC_LEN, starting_crc, ON_PLD_CRC_ORDER);
 } // master_nv_crc //
@@ -1704,19 +1707,19 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
   on_client_t* src_client, on_client_t* dst_client, UInt32 transfer_size,
   UInt8* priority, UInt8* chunk_size, UInt16* frag_delay, UInt16* chunk_delay,
   UInt8* data_rate, UInt8* channel, UInt16* timeout, on_ack_nack_t* ack_nack)
-{    
+{
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
-    
+
     *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
     *chunk_size = DEFAULT_BS_CHUNK_SIZE;
-    
+
     if(src_client == dst_client)
     {
         *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
         return *nr;
     }
-    
+
     *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
     if(src_client)
     {
@@ -1732,20 +1735,20 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             return *nr;
         }
     }
-    
+
     *priority = ONE_NET_HIGH_PRIORITY;
-    
+
     *nr =  ON_NACK_RSN_NO_ERROR;
-    
+
     *data_rate = ONE_NET_DATA_RATE_38_4;
-    *channel = on_base_param->channel;    
-    
+    *channel = on_base_param->channel;
+
     if(transfer_size > ON_SHORT_BLOCK_TRANSFER_MAX_SIZE)
     {
         // if it's <= 2000 bytes, use the base parameters no matter what
         UInt8 src_flags, dst_flags;
         on_features_t src_features, dst_features;
-        
+
         if(src_client)
         {
             src_flags = src_client->flags;
@@ -1772,14 +1775,14 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             return *nr;
         }
-        
+
         if(!(src_flags & ON_BS_HIGH_PRIORITY))
         {
             *priority = ONE_NET_LOW_PRIORITY;
-        }        
-        
+        }
+
         #ifdef DATA_RATE_CHANNEL
-        if((src_flags & ON_BS_ELEVATE_DATA_RATE) && (dst_flags & 
+        if((src_flags & ON_BS_ELEVATE_DATA_RATE) && (dst_flags &
           ON_BS_ELEVATE_DATA_RATE))
         {
             *data_rate = features_highest_matching_data_rate(src_features,
@@ -1797,7 +1800,7 @@ on_nack_rsn_t on_master_get_default_block_transfer_values(
         }
         #endif
     }
-    
+
     if(!src_client || !dst_client)
     {
         // master is involved, so assign the frag delay.
@@ -1819,13 +1822,13 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     *nr = ON_NACK_RSN_NO_ERROR;
-    
+
     if(!msg->dst)
     {
         *nr = ON_NACK_RSN_INTERNAL_ERR;
         return *nr;
-    }    
-    
+    }
+
     if(bs_msg.transfer_in_progress)
     {
         *nr = ON_NACK_RSN_BUSY;
@@ -1838,27 +1841,27 @@ on_nack_rsn_t on_master_initiate_block_msg(block_stream_msg_t* msg,
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
         }
-        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));    
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));
 
         if(!features_block_capable(client->device.features))
         {
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         }
-        
+
         if(!features_data_rate_capable(THIS_DEVICE_FEATURES,
           bs_msg.data_rate) || !features_data_rate_capable(
           client->device.features, bs_msg.data_rate))
-        { 
+        {
             *nr = ON_NACK_RSN_INVALID_DATA_RATE;
         }
-        
+
         set_bs_transfer_type(&bs_msg.flags, ON_BLK_TRANSFER);
         bs_msg.src = NULL;
         bs_msg.dst = &(client->device);
         bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
-    
+
     if(*nr == ON_NACK_RSN_NO_ERROR)
     {
         bs_msg.transfer_in_progress = TRUE;
@@ -1873,18 +1876,18 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
   const on_client_t* src_client, const on_client_t* dst_client, UInt32 time_ms,
   UInt8* priority, UInt16* frag_delay, UInt8* data_rate, UInt8* channel,
   UInt16* timeout, on_ack_nack_t* ack_nack)
-{    
+{
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
-    ack_nack->handle = ON_ACK;  
-    
+    ack_nack->handle = ON_ACK;
+
     *timeout = DEFAULT_BLOCK_STREAM_TIMEOUT;
-    
+
     if(src_client == dst_client)
     {
         *nr = ON_NACK_RSN_SENDER_AND_DEST_ARE_SAME;
         return *nr;
     }
-    
+
     *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
     if(src_client)
     {
@@ -1899,23 +1902,23 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
         {
             return *nr;
         }
-    }  
-    
+    }
+
     *nr =  ON_NACK_RSN_NO_ERROR;
     *data_rate = ONE_NET_DATA_RATE_38_4;
     *priority = ONE_NET_HIGH_PRIORITY;
     *channel = on_base_param->channel;
-    
+
     if(time_ms > 0 && time_ms < 2000)
     {
         // if it's known and less than 2 seconds, use the base parameters no
-        // matter what        
+        // matter what
     }
     else
     {
         UInt8 src_flags, dst_flags;
         on_features_t src_features, dst_features;
-        
+
         if(src_client)
         {
             src_flags = src_client->flags;
@@ -1942,20 +1945,20 @@ on_nack_rsn_t on_master_get_default_stream_transfer_values(
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             return *nr;
         }
-        
+
         if(!(src_flags & ON_BS_HIGH_PRIORITY))
         {
             *priority = ONE_NET_LOW_PRIORITY;
         }
-        
+
         #ifdef DATA_RATE_CHANNEL
-        if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags & 
+        if(!(src_flags & ON_BS_ELEVATE_DATA_RATE) || !(dst_flags &
           ON_BS_ELEVATE_DATA_RATE))
         {
             *data_rate = features_highest_matching_data_rate(src_features,
               dst_features);
         }
-        
+
         if(!(src_flags & ON_BS_CHANGE_CHANNEL) || !(dst_flags &
           ON_BS_CHANGE_CHANNEL))
         {
@@ -1988,7 +1991,7 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
     on_nack_rsn_t* nr = &ack_nack->nack_reason;
     ack_nack->handle = ON_ACK;
     *nr = ON_NACK_RSN_NO_ERROR;
-    
+
     if(bs_msg.transfer_in_progress)
     {
         *nr = ON_NACK_RSN_BUSY;
@@ -1997,31 +2000,31 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
     {
         on_client_t* client = client_info(
           (const on_encoded_did_t* const) &(msg->dst->did));
-        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));        
+        one_net_memmove(&bs_msg, msg, sizeof(block_stream_msg_t));
         if(!client)
         {
             *nr = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
         }
-        
+
         if(!features_stream_capable(client->device.features))
         {
             *nr = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
         }
-        
+
         if(!features_data_rate_capable(THIS_DEVICE_FEATURES,
           bs_msg.data_rate) || !features_data_rate_capable(
           client->device.features, bs_msg.data_rate))
-        { 
+        {
             *nr = ON_NACK_RSN_INVALID_DATA_RATE;
         }
-        
+
         set_bs_transfer_type(&bs_msg.flags, ON_STREAM_TRANSFER);
         bs_msg.src = NULL;
         bs_msg.dst = &(client->device);
         bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
         ont_set_timer(ONT_BS_TIMER, 0);
     }
-    
+
     if(*nr == ON_NACK_RSN_NO_ERROR)
     {
         bs_msg.transfer_in_progress = TRUE;
@@ -2053,13 +2056,13 @@ on_nack_rsn_t on_master_initiate_stream_msg(block_stream_msg_t* msg,
     \param[in] raw_pld The raw payload bytes in the message
     \param[in] msg_type The type of the datapacket (i.e. admin packet or application packet)
     \param[out] ack_nack The response that should be sent to the sending device
-    
-    \return 
+
+    \return
             ON_MSG_ABORT If the message is to be discarded and the transaction aborted
             ON_MSG_CONTINUE if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
             See on_message_status_t for other options.
-*/ 
+*/
 static on_message_status_t on_master_single_data_hdlr(
   on_txn_t** txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
@@ -2078,30 +2081,30 @@ static on_message_status_t on_master_single_data_hdlr(
       ON_ENCODED_DID_LEN);
     on_decode(raw_repeater_did, &(pkt->packet_bytes[ON_ENCODED_RPTR_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    
+
     msg_hdr.msg_type = *msg_type;
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
-    
+
     // we'll be sending it back to the source
     if(!(device = sender_info((const on_encoded_did_t* const)
       &(pkt->packet_bytes[ON_ENCODED_SRC_DID_IDX]))))
     {
         // I think we should have solved this problem before now, but abort if
         // we have not.
-        
+
         // TODO -- solve this better or confirm it is in fact solved earlier.
         *txn = 0;
         return ON_MSG_ABORT;
     }
-    
+
     if(ack_nack->nack_reason)
     {
         // an error has already been set.  That means we don't need to do
         // anything but build the proper response packet.
         goto omsdh_build_resp;
     }
-    
+
     switch(*msg_type)
     {
         case ON_ADMIN_MSG:
@@ -2119,7 +2122,7 @@ static on_message_status_t on_master_single_data_hdlr(
             one_net_memmove(ack_nack->payload->ack_payload,
               &raw_pld[ON_PLD_DATA_IDX],
               ONA_EXTENDED_SINGLE_PACKET_PAYLOAD_LEN);
-              
+
             if(on_decode(my_raw_did, &on_base_param->sid[ON_ENCODED_NID_LEN],
               ON_ENCODED_DID_LEN) != ONS_SUCCESS)
             {
@@ -2132,8 +2135,8 @@ static on_message_status_t on_master_single_data_hdlr(
             }
             break;
         }
-        #endif            
-        default:   
+        #endif
+        default:
             #ifndef ONE_NET_MULTI_HOP
             msg_status = one_net_master_handle_single_pkt(
               &raw_pld[ON_PLD_DATA_IDX], &msg_hdr, (const on_raw_did_t* const)
@@ -2147,15 +2150,15 @@ static on_message_status_t on_master_single_data_hdlr(
             #endif
             break;
     }
-            
+
 
     if(msg_status != ON_MSG_CONTINUE)
     {
         *txn = 0;
         return msg_status;
     }
-        
-    
+
+
     // if this was a normal query response, we'll send a message in addition
     // to the ACK.
     if(ack_nack->handle == ON_ACK_APP_MSG && get_msg_class(
@@ -2171,15 +2174,15 @@ static on_message_status_t on_master_single_data_hdlr(
             get_src_unit(ack_nack->payload->app_msg)
         #endif
             , 0
-        #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+        #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 	        , 0
         #endif
         );
-        
+
         // now change the handle to ON_ACK
         ack_nack->handle = ON_ACK;
     }
-    
+
 
 // normally we try not to use goto statements but this is embedded programming
 // and it may save us a few bytes?
@@ -2194,10 +2197,10 @@ omsdh_build_resp:
         stay_awake = one_net_master_device_is_awake(FALSE,
           (const on_raw_did_t * const)&raw_src_did);
     }
-    
+
     stay_awake = stay_awake || device_should_stay_awake(
       (const on_encoded_did_t* const) &((*txn)->pkt[ON_ENCODED_SRC_DID_IDX]));
-      
+
     // now check to make sure we're not in the middle of a key change
     if(!(client->use_current_key))
     {
@@ -2215,7 +2218,7 @@ omsdh_build_resp:
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
-    
+
     // the response destination will be the transaction's source
     if(on_build_my_pkt_addresses(&response_pkt_ptrs,
       (const on_encoded_did_t* const)
@@ -2238,30 +2241,30 @@ omsdh_build_resp:
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
-    
+
     if(on_complete_pkt_build(&response_pkt_ptrs, response_pid) != ONS_SUCCESS)
     {
         *txn = 0;
         return ON_MSG_INTERNAL_ERR;
     }
-    
+
     return ON_MSG_RESPOND;
 }
 
-  
+
 /*!
     \brief Handles a response from the recipient of a single transaction to the originator(this device)
-    
+
     \param[in/out] txn The transaction.
     \param[in] pkt The packet structure.
     \param[in] raw_pld The raw payload bytes that are being responded to.
     \param[in] msg_type The type of the message in process (i.e. admin message or applicaiton message)
     \param[in/out] ack_nack The ack or nack atttached to the response.
-           
+
     \return ON_MSG_TIMEOUT if the message should time out.
             ON_MSG_CONTINUE if the message should continue.
             See on_message_status_t structure for more options.
-*/ 
+*/
 static on_message_status_t on_master_handle_single_ack_nack_response(
   on_txn_t* txn, on_pkt_t* const pkt, UInt8* raw_pld, UInt8* msg_type,
   on_ack_nack_t* ack_nack)
@@ -2269,12 +2272,12 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     on_raw_did_t src_did;
     on_message_status_t status = ON_MSG_DEFAULT_BHVR;
     on_msg_hdr_t msg_hdr;
-    
+
     if(!ack_nack || !txn)
     {
         // not sure how we got here, but we can't do anything
         return status;
-    }    
+    }
 
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
@@ -2282,7 +2285,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
 
     on_decode(src_did, &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    
+
     #ifndef ONE_NET_MULTI_HOP
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, &src_did, NULL, &(txn->retry));
@@ -2290,8 +2293,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
     status = one_net_master_handle_ack_nack_response(raw_pld, &msg_hdr, NULL,
       ack_nack, (const on_raw_did_t* const) &src_did, NULL, &(txn->retry),
       pkt->hops, &(pkt->max_hops));
-    #endif    
-    
+    #endif
+
     if(status == ON_MSG_DEFAULT_BHVR || status == ON_MSG_CONTINUE)
     {
         SInt16 new_response_timeout = (SInt16)txn->response_timeout;
@@ -2313,12 +2316,12 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 break;
             #endif
         }
-        
+
         if(new_response_timeout > 0)
         {
             txn->response_timeout = (UInt16)new_response_timeout;
         }
-        
+
         if(txn->retry >= ON_MAX_RETRY)
         {
             #ifdef ONE_NET_MULTI_HOP
@@ -2332,7 +2335,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
             {
                 num_repeat--; // don't count the destination as a repeater.
             }
-            
+
             if(num_repeat > 0 && txn->max_hops < txn->device->max_hops)
             {
                 // we have repeaters available, so we'll give it a shot
@@ -2340,7 +2343,7 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 on_decode(raw_did,
                   &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
                   ON_ENCODED_DID_LEN);
-                
+
                 if(txn->max_hops == 0)
                 {
                     txn->max_hops = 1;
@@ -2349,12 +2352,12 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                 {
                     (txn->max_hops) *= 2;
                 }
-                
+
                 if(txn->max_hops > txn->device->max_hops)
                 {
                     txn->max_hops = txn->device->max_hops;
                 }
-                
+
                 // give the application code a chance to override if it
                 // wants to.
                 switch(one_net_adjust_hops((const on_raw_did_t* const) &raw_did,
@@ -2365,8 +2368,8 @@ static on_message_status_t on_master_handle_single_ack_nack_response(
                     // add default case that does nothing for clean compile
                     default: break;
                     #endif
-                }             
-                
+                }
+
                 txn->hops = 0;
                 txn->retry = 0;
                 pkt->hops = txn->hops;
@@ -2399,7 +2402,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
     one_net_mac_update_t update = ONE_NET_UPDATE_NOTHING;
     on_encoded_did_t enc_did;
     on_encode(enc_did, *raw_did, ON_ENCODED_DID_LEN);
-    
+
     switch(admin_type)
     {
 #ifdef PEER
@@ -2421,11 +2424,11 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
             {
                 client->keep_alive_interval = ack_nack->payload->ack_time_ms;
-            }           
+            }
             update = ONE_NET_UPDATE_KEEP_ALIVE;
             break;
         } // change keep-alive case //
-        
+
         #ifdef BLOCK_MESSAGES_ENABLED
         case ONE_NET_UPDATE_FRAGMENT_DELAY:
         {
@@ -2439,7 +2442,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_SETTINGS;
             break;
         } // change keep-alive case //
-        
+
         case ON_ADD_DEV:
         {
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
@@ -2452,7 +2455,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_ADD_DEVICE;
             break;
         } // add device case //
-        
+
         case ON_RM_DEV:
         {
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
@@ -2465,7 +2468,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
             update = ONE_NET_UPDATE_REMOVE_DEVICE;
             break;
         } // remove device case //
-        
+
         case ON_NEW_KEY_FRAGMENT:
         {
             if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
@@ -2486,7 +2489,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
 
         default: return;
     }
-    
+
     one_net_master_update_result(update, raw_did, ack_nack);
 }
 
@@ -2500,7 +2503,7 @@ static void admin_txn_hdlr(const UInt8* const raw_pld,
     \param[in] msg_type The type of the message that has just completed (i.e. admin message, application message)
     \param[in] status The status of the message that just completed
     \param[out] ack_nack The response attached to the message
-    
+
     \return ON_MSG_FAIL If the message failed
             ON_MSG_SUCCESS If the message succeeded
 */
@@ -2512,20 +2515,20 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     on_raw_did_t dst;
     on_client_t* client = client_info((const on_encoded_did_t* const)
       &(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]));
-    
+
     if(!client)
     {
         return ON_MSG_INTERNAL_ERR;
     }
-    
+
 
     msg_hdr.raw_pid = pkt->raw_pid;
     msg_hdr.msg_id = pkt->msg_id;
     msg_hdr.msg_type = *msg_type;
     on_decode(dst ,&(pkt->packet_bytes[ON_ENCODED_DST_DID_IDX]),
       ON_ENCODED_DID_LEN);
-    
-    
+
+
     if(*msg_type == ON_ADMIN_MSG)
     {
         admin_txn_hdlr(raw_pld, (const on_raw_did_t* const) &dst,
@@ -2539,7 +2542,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
     one_net_master_single_txn_status(status, (*txn)->retry, msg_hdr,
       raw_pld, (const on_raw_did_t*) &dst, ack_nack, pkt->hops);
     #endif
-    
+
     #if defined(BLOCK_MESSAGES_ENABLED) && defined(ONE_NET_MULTI_HOP)
     if(bs_msg.transfer_in_progress)
     {
@@ -2554,7 +2557,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
               &return_hops, &bs_msg.num_repeaters, bs_msg.repeaters))
             {
                 on_message_status_t status = ON_MSG_FAIL;
-                
+
                 // route failed for some reason.
                 ack_nack->nack_reason = ON_NACK_RSN_ROUTE_ERROR;
                 #ifndef STREAM_MESSAGES_ENABLED
@@ -2579,8 +2582,8 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
             }
         }
     }
-    #endif    
-    
+    #endif
+
     if(ack_nack->nack_reason == ON_NACK_RSN_NO_ERROR)
     {
         // device has checked in, so reset the next check-in time
@@ -2590,7 +2593,7 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
         one_net_master_device_is_awake(TRUE,
           (const on_raw_did_t * const)&dst);
     }
-    
+
     return ON_MSG_DEFAULT_BHVR;
 }
 
@@ -2603,13 +2606,13 @@ static on_message_status_t on_master_single_txn_hdlr(on_txn_t ** txn,
 
     \param[in/out] txn The block transaction being carried out
     \param[in/out] bs_msg The stream message in progress
-    \param[in] block_pkt The data packet, including both the payload and some administration information. 
+    \param[in] block_pkt The data packet, including both the payload and some administration information.
     \param[out] ack_nack The response that should be sent to the sending device
-    
+
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
             See on_message_status_t for other options.
-*/ 
+*/
 static on_message_status_t on_master_block_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* block_pkt, on_ack_nack_t* ack_nack)
 {
@@ -2620,13 +2623,13 @@ static on_message_status_t on_master_block_data_hdlr(on_txn_t* txn,
 
 /*!
     \brief Handles a response from the recipient of a block transfer to the originator(this device) of a block transfer
-    
+
     \param[in/out] txn The transaction.
     \param[in/out] bs_msg The block message being responded to.
     \param[in] pkt The packet structure.
     \param[in] raw_payload_bytes The raw payload bytes that are being responded to.
     \param[in/out] ack_nack The ack or nack atttached to the response.
-           
+
     \return ON_MSG_IGNORE to ignore the response.
             ON_MSG_TERMINATE to terminate the transaction
             ON_MSG_ACCEPT_PACKET If packet is good.
@@ -2642,12 +2645,12 @@ static on_message_status_t on_master_handle_block_ack_nack_response(
 
 /*!
     \brief Handles the end of a block transaction.
-    
+
     \param[in] msg The block message that is being terminated.
     \param[in] terminating_device The device that terminated this transaction.
     \param[in/out] status The status of the message that was just completed.
     \param[in/out] ack_nack Any ACK or NACK associated with this termination.
-    
+
     \return ON_MSG_RESPOND if this device should inform the other devices
               of the termination.
             All other return types abort immediately with no further messages.
@@ -2670,13 +2673,13 @@ static on_message_status_t on_master_block_txn_hdlr(
 
     \param[in/out] txn The stream transaction being carried out
     \param[in/out] bs_msg The stream message in progress
-    \param[in] stream_pkt The data packet, including both the payload and some administration information. 
+    \param[in] stream_pkt The data packet, including both the payload and some administration information.
     \param[out] ack_nack The response that should be sent to the sending device
-    
+
     \return ON_MSG_RESPOND if an ACK or a NACK should be sent back.
             ON_MSG_IGNORE if no reponse should occur.
             See on_message_status_t for other options.
-*/ 
+*/
 static on_message_status_t on_master_stream_data_hdlr(on_txn_t* txn,
   block_stream_msg_t* bs_msg, void* stream_pkt, on_ack_nack_t* ack_nack)
 {
@@ -2698,7 +2701,7 @@ static on_message_status_t on_master_stream_data_hdlr(on_txn_t* txn,
             ON_MSG_TERMINATE to terminate the transaction
             ON_MSG_ACCEPT_PACKET If packet is good.
             If packet is rejected, the ack_nack reason and / or payload should be filled in.
-*/ 
+*/
 static on_message_status_t on_master_handle_stream_ack_nack_response(
   on_txn_t* txn, block_stream_msg_t* bs_msg, const on_pkt_t* pkt,
   const UInt8* raw_payload_bytes, on_ack_nack_t* ack_nack)
@@ -2706,7 +2709,7 @@ static on_message_status_t on_master_handle_stream_ack_nack_response(
     return one_net_master_handle_bs_ack_nack_response(txn, bs_msg, pkt,
       raw_payload_bytes, ack_nack);
 }
-  
+
 
 /*!
     \brief Handles the end of a stream transaction.
@@ -2749,44 +2752,44 @@ static one_net_status_t init_internal(void)
       &on_master_handle_single_ack_nack_response;
     pkt_hdlr.single_txn_hdlr = &on_master_single_txn_hdlr;
     pkt_hdlr.adj_recip_list_hdlr = &on_master_adjust_recipient_list;
-    
+
     #ifdef BLOCK_MESSAGES_ENABLED
     pkt_hdlr.block_data_hdlr = &on_master_block_data_hdlr;
     pkt_hdlr.block_ack_nack_hdlr =
       &on_master_handle_block_ack_nack_response;
     pkt_hdlr.block_txn_hdlr = &on_master_block_txn_hdlr;
     #endif
-    
+
     #ifdef STREAM_MESSAGES_ENABLED
     pkt_hdlr.stream_data_hdlr = &on_master_stream_data_hdlr;
     pkt_hdlr.stream_ack_nack_hdlr =
       &on_master_handle_stream_ack_nack_response;
     pkt_hdlr.stream_txn_hdlr = &on_master_stream_txn_hdlr;
-    #endif    
+    #endif
 
     get_sender_info = &sender_info;
     device_is_master = TRUE;
     one_net_init();
-    
+
     #ifdef BLOCK_MESSAGES_ENABLED
     #ifdef DATA_RATE_CHANNEL
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_ELEVATE_DATA_RATE ?
-      ON_BS_ELEVATE_DATA_RATE : 0); 
+      ON_BS_ELEVATE_DATA_RATE : 0);
     #endif
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_CHANGE_CHANNEL ?
-      ON_BS_CHANGE_CHANNEL : 0); 
+      ON_BS_CHANGE_CHANNEL : 0);
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_BLOCK_STREAM_HIGH_PRIORITY ?
-      ON_BS_HIGH_PRIORITY : 0); 
+      ON_BS_HIGH_PRIORITY : 0);
     master_param->block_stream_flags |= (ONE_NET_MASTER_MASTER_ALLOW_LONG_BLOCK_STREAM ?
-      ON_BS_ALLOWED : 0); 
-    #endif    
-    
+      ON_BS_ALLOWED : 0);
+    #endif
+
     return ONS_SUCCESS;
 } // init_internal //
 
 
 /*!
-    \brief Removes the CLIENT from the network (by removing it from the table) 
+    \brief Removes the CLIENT from the network (by removing it from the table)
 
     \param[in] DID The device ID of the CLIENT to remove
 
@@ -2798,7 +2801,7 @@ static one_net_status_t init_internal(void)
 static one_net_status_t rm_client(const on_encoded_did_t * const DID)
 {
     on_client_t* client;
-    
+
     if(!DID)
     {
         return ONS_INVALID_DATA;
@@ -2811,15 +2814,15 @@ static one_net_status_t rm_client(const on_encoded_did_t * const DID)
                                // error or it may just be that the device has
                                // already been deleted.
     }
-    
-    
+
+
     // make this slot vacant
     one_net_memmove(client->device.did, ON_ENCODED_BROADCAST_DID,
       ON_ENCODED_DID_LEN);
-      
+
     // subtract 1 from the count
     (master_param->client_count)--;
-    
+
     // now fill in the next client did to assign
     master_param->next_client_did = find_lowest_vacant_did();
     #ifdef AUTO_SAVE
@@ -2840,7 +2843,7 @@ static void sort_client_list_by_encoded_did(void)
     UInt16 i;
     on_raw_did_t raw_did1;
     on_raw_did_t raw_did2;
-    
+
     // the client list will almost always be in order already.  When it's not,
     // generally only one element will be out of order, so instead of having a
     // nested loop, if we ever find an element out of order, we'll just iterate
@@ -2851,7 +2854,7 @@ static void sort_client_list_by_encoded_did(void)
           ON_ENCODED_DID_LEN);
         on_decode(raw_did2, client_list[i].device.did,
           ON_ENCODED_DID_LEN);
-          
+
         if(one_net_byte_stream_to_uint16(raw_did1) >
           one_net_byte_stream_to_uint16(raw_did2))
         {
@@ -2879,12 +2882,12 @@ static UInt16 find_lowest_vacant_did(void)
     BOOL found;
     on_raw_did_t raw_did;
     UInt16 vacant_did = ONE_NET_INITIAL_CLIENT_DID;
-    
+
     if(master_param->client_count >= ONE_NET_MASTER_MAX_CLIENTS)
     {
         return 0; // list is full.
     }
-    
+
     do
     {
         found = FALSE;
@@ -2899,7 +2902,7 @@ static UInt16 find_lowest_vacant_did(void)
             }
         }
     } while(found);
-    
+
     return vacant_did;
 }
 
@@ -2921,7 +2924,7 @@ static SInt16 find_vacant_client_list_index(void)
             return i;
         }
     }
-    
+
     return -1;
 }
 
@@ -2943,7 +2946,7 @@ static on_sending_device_t * sender_info(const on_encoded_did_t * const DID)
     {
         return NULL;
     }
-    
+
     return &(client->device);
 }
 
@@ -2953,7 +2956,7 @@ static void check_updates_in_progress(void)
     static tick_t last_send_time = 0;
     tick_t time_now = get_tick_count();
     const tick_t SEND_INTERVAL = MS_TO_TICK(5000);
-    
+
     // The time to stop trying to update any devices which have not been updated
     // TODO -- should this be a port constant?  Should it exist at all?
     // Note -- Does NOT apply to devices that sleep with key changes
@@ -2980,10 +2983,10 @@ static void check_updates_in_progress(void)
             {
                 client_list[i].send_remove_device_message = FALSE;
             }
-        }        
-        
+        }
+
         remove_device_update_in_progress = FALSE;
-        
+
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
@@ -3005,7 +3008,7 @@ static void check_updates_in_progress(void)
                 break; // we have one.
             }
         }
-        
+
         if(!remove_device_update_in_progress)
         {
             // we don't have any more updates for this, so notify the
@@ -3029,10 +3032,10 @@ static void check_updates_in_progress(void)
                 client_list[i].send_add_device_message = FALSE;
             }
         }
-        
-        
+
+
         add_device_update_in_progress = FALSE;
-        
+
         // now check if we're done with this update.
         for(i = 0; i < master_param->client_count; i++)
         {
@@ -3080,9 +3083,9 @@ static void check_updates_in_progress(void)
             {
                 key_update_in_progress = TRUE; // at least one device has not
                                                // been updated
-                                               
+
                 // if it doesn't sleep, send it out.  Otherwise we'll have to
-                // wait till it checks in.                
+                // wait till it checks in.
                 if(!features_device_sleeps(client_list[i].device.features))
                 {
                     admin_msg_id = ON_NEW_KEY_FRAGMENT;
@@ -3103,7 +3106,7 @@ static void check_updates_in_progress(void)
             return;
         }
     }
-    
+
     else if(key_change_requested)
     {
         UInt32 rand_num;
@@ -3124,7 +3127,7 @@ static void check_updates_in_progress(void)
     {
         return; // nothing is being updated.
     }
-    
+
     // don't worry about filling in any destination addresses.  This message's
     // recipient list will be adjusted when the message is actually popped.
     if(send_admin_pkt(admin_msg_id, NULL, admin_payload,
@@ -3164,7 +3167,7 @@ static one_net_status_t send_admin_pkt(const UInt8 admin_msg_id,
       ONE_NET_DEV_UNIT
       #endif
       , send_time_from_now
-      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL   
+      #if SINGLE_QUEUE_LEVEL > MED_SINGLE_QUEUE_LEVEL
 	  , 0
       #endif
       ))
@@ -3222,7 +3225,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         #endif
-        
+
         #ifdef BLOCK_MESSAGES_ENABLED
         case ON_TERMINATE_BLOCK_STREAM:
         {
@@ -3233,8 +3236,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             terminate_bs_msg(&bs_msg, (const on_encoded_did_t*) &DATA[1],
               DATA[ON_ENCODED_DID_LEN+1], received_ack_nack);
             break;
-        }        
-        
+        }
+
         case ON_REQUEST_BLOCK_STREAM:
         {
             #ifdef STREAM_MESSAGES_ENABLED
@@ -3247,7 +3250,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             BOOL master_is_recipient = (is_my_did(dst_did));
             block_stream_msg_t proposed_msg;
             block_stream_msg_t* bs_ptr = &bs_msg;
-              
+
             if(!master_is_recipient)
             {
                 bs_ptr = &proposed_msg; // we don't want to write our own
@@ -3258,11 +3261,11 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     break;
                 }
             }
-            
+
             // Check if we are already in the middle of a block transaction.  If
             // we are and the source is NOT the sending device of this message,
             // NACK it.  If the source IS the sending device of this message and
-            // we're still in the setup stage, we're OK.  Otherwise, NACK it.            
+            // we're still in the setup stage, we're OK.  Otherwise, NACK it.
             if(master_is_recipient && bs_msg.transfer_in_progress)
             {
                 if(!bs_msg.src || !on_encoded_did_equal(
@@ -3271,7 +3274,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     ack_nack->nack_reason = ON_NACK_RSN_BUSY;
                     break;
                 }
-                
+
                 #ifdef STREAM_MESSAGES_ENABLED
                 if(!is_block_transfer)
                 {
@@ -3279,7 +3282,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     {
                         // we have already started receiving data
                         ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                        break;                    
+                        break;
                     }
                 }
                 else
@@ -3289,22 +3292,22 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                     {
                         // we have already started receiving data
                         ack_nack->nack_reason = ON_NACK_RSN_ALREADY_IN_PROGRESS;
-                        break;                    
+                        break;
                     }
                 }
             }
-            
+
             admin_msg_to_block_stream_msg_t(&DATA[0], bs_ptr,
               (const on_encoded_did_t*) (*client)->device.did);
-            
+
             if(!ack_nack->nack_reason)
             {
                 one_net_block_stream_transfer_requested(bs_ptr, ack_nack);
             }
-            
+
             // we could check other things like features, but the client
             // device will check that anyway.
-            
+
             if(master_is_recipient && !ack_nack->nack_reason)
             {
                 #ifdef STREAM_MESSAGES_ENABLED
@@ -3317,10 +3320,10 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 {
                     bs_msg.bs.block.byte_idx = 0;
                 }
-                
+
                 bs_msg.transfer_in_progress = TRUE;
                 bs_msg.bs_on_state = ON_LISTEN_FOR_DATA;
-                
+
                 // Set the block / stream timer to the timeout
                 ont_set_timer(ONT_BS_TIMEOUT_TIMER, MS_TO_TICK(bs_msg.timeout));
             }
@@ -3337,16 +3340,16 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             on_client_t* dst_client = client_info(
               (const on_encoded_did_t*) &DATA[5]);
             on_encoded_did_t* invalid_device_did = NULL;
-            
+
             // we need to make sure the source and the destinations are clients
             // in the network and are different and that the repeater is
             // capable.  The destination will eiher be this device, the master,
             // in which case we need to have already set up our block / stream
             // meassage and we are the recipient.  If it's not us, we also want
             // to make sure everyone involved is capable.
-            
+
             // TODO -- there are more things to check too.
-            
+
             if(!rptr_client)
             {
                 ack_nack->nack_reason = ON_NACK_RSN_DEVICE_NOT_IN_NETWORK;
@@ -3410,7 +3413,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             {
                 ack_nack->nack_reason = ON_NACK_RSN_DEVICE_FUNCTION_ERR;
             }
-            
+
             if(ack_nack->nack_reason)
             {
                 ack_nack->handle = ON_NACK_DATA;
@@ -3418,7 +3421,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                   *invalid_device_did, ON_ENCODED_DID_LEN);
                 break;
             }
-            
+
             // So far, so good, now inform / ask the application code and give
             // it a chance to veto this request.
             one_net_master_repeater_requested(src_client, dst_client,
@@ -3428,7 +3431,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
         }
         #endif
         #endif
-        
+
         case ON_REQUEST_KEY_CHANGE:
         {
             if(!key_update_in_progress)
@@ -3437,7 +3440,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             break;
         }
-        
+
         case ON_ADD_DEV_RESP:
         {
             // this is sent when a client has received a message that a device
@@ -3447,14 +3450,14 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
                   (const on_raw_did_t*) &raw_did, ack_nack);
             }
-            
+
             (*client)->send_add_device_message = FALSE;
             #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
         }
-        
+
         case ON_REMOVE_DEV_RESP:
         {
             // this is sent when a client has received a message that a device
@@ -3464,14 +3467,14 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 one_net_master_update_result(ONE_NET_UPDATE_REMOVE_DEVICE,
                   (const on_raw_did_t*) &raw_did, ack_nack);
             }
-            
+
             (*client)->send_remove_device_message = FALSE;
             #ifdef AUTO_SAVE
             save = TRUE;
             #endif
             break;
         }
-        
+
         case ON_CHANGE_SETTINGS_RESP:
         {
             if(is_invite_did(SRC_DID))
@@ -3480,7 +3483,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             }
             break;
         }
-        
+
         #ifdef BLOCK_MESSAGES_ENABLED
         case ON_CHANGE_FRAGMENT_DELAY_RESP:
         {
@@ -3491,7 +3494,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             break;
         }
         #endif
-        
+
         case ON_KEEP_ALIVE_RESP:
         {
             // Several things need to be considered here.
@@ -3512,7 +3515,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // a missed ACK or the timing synchronization was off, or something
             // else occurred.  In any case, in this case it will not replace
             // the key fragment.
-            
+
             // Every time a Keep-Alive message is sent, the last key fragment
             // is sent.  The master compares the key fragments to make sure
             // the client has the current key.  If it does not, an admin
@@ -3521,7 +3524,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // send another keep-alive message containing the current key.
             // The master used this to keep track of when a key change is
             // complete.
-            
+
             // If the device has the right key, the master then makes sure it
             // is informed of any pending additions / removals of devices.
             // when the client is informed of such an occurrence, it will
@@ -3529,12 +3532,12 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // message as confirmation, at which point the master will add the
             // client to the list of devices that have been informed.
             // The client should then send another keep-alive reponse message.
-            
-            
+
+
             // In addition, the device might be in the middle of adding itself
             // to the network.  In that case, it needs to be informed of the
             // following...
-            
+
             // 1. Fragment delays (if block enabled)
             // 2. Settings / Flags
 
@@ -3542,8 +3545,8 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // were included in the invite message.  The keep-alive time is
             // not known yet, but will be known with the first keep-alive
             // message AFTER the device has been fully added.
-            
-            
+
+
             // If there are no more administrative tasks to finish up, the
             // master will send back a new keep-alive interval.  Then and only
             // then may a client go to sleep.  This is regardless of whether
@@ -3552,9 +3555,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             // only when it has received this new keep-alive time.  That
             // signifies that the master has no more messages for this client.
             on_encoded_did_t* device_change_did = NULL;
-            
+
             ack_nack->handle = ON_ACK_ADMIN_MSG;
-            
+
             // the client has attached its key.  We want to make sure it's
             // using the right one.
             if(one_net_memcmp(&DATA[1],
@@ -3582,19 +3585,19 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 save = TRUE;
                 #endif
             }
-            
+
             if(is_invite_did(SRC_DID))
             {
                 // the settings_sent and fragment_delay_sent flags
                 // will be set to true when the joining client sends an
                 // admin message confirming it got these values.
-                
+
                 if(!settings_sent)
                 {
                     ack_nack->payload->admin_msg[0] = ON_CHANGE_SETTINGS;
                     ack_nack->payload->admin_msg[1] = (*client)->flags;
                     break;
-                }                
+                }
                 #ifdef BLOCK_MESSAGES_ENABLED
                 else if(features_block_capable((*client)->device.features)
                   && !fragment_delay_sent)
@@ -3617,7 +3620,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                       (const one_net_xtea_key_t* const) &invite_key);
                     // TODO -- check return value.  What do we do if this
                     // is not a success?
-                    
+
                     // one_net_master_add_client function will figure out
                     // what DID to assign.  It will be the same one as what
                     // is in there now, but we'll need to blank it out to
@@ -3628,21 +3631,21 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                       NULL, NULL, TRUE);
                 }
             }
-            
-            if(remove_device_update_in_progress && 
+
+            if(remove_device_update_in_progress &&
               (*client)->send_remove_device_message)
             {
                 device_change_did = &remove_device_did;
                 ack_nack->payload->admin_msg[0] = ON_RM_DEV;
             }
-            
-            if(add_device_update_in_progress && 
+
+            if(add_device_update_in_progress &&
               (*client)->send_add_device_message)
             {
                 device_change_did = &add_device_did;
                 ack_nack->payload->admin_msg[0] = ON_ADD_DEV;
             }
-            
+
             if(device_change_did)
             {
                 ack_nack->payload->admin_msg[1] = (*device_change_did)[0];
@@ -3658,7 +3661,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
                 #endif
                 break;
             }
-            
+
             // they have the right key and no other admin messages need to
             // go out.  We'll send back the keep-alive interval they should
             // use.
@@ -3667,7 +3670,7 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
             ack_nack->payload->ack_time_ms = (*client)->keep_alive_interval;
             break;
         }
-        
+
         case ON_FEATURES_RESP:
         {
             one_net_memmove(&((*client)->device.features),
@@ -3700,9 +3703,9 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
     from the queue and ready to send.  ONE-NET has set up a list of
     destination dids and destination units that the message will be sent to.
     The destination units are relevant only if the message type is ON_APP_MSG.
-    
+
     This code can do one of four things.
-    
+
     1) Do nothing.  In this instance the list remains unchanged and this will
        be the list that is sent.
     2) Cancel the message.  If this is desired, *recipient_list should be set
@@ -3712,13 +3715,13 @@ static on_message_status_t handle_admin_pkt(const on_encoded_did_t * const
        sent.
     4) The existing list can be used, but the code can add to it,
        remove from it, or reorder it.
-   
+
 
     Lists can be emptied by setting the "num_recipients" field to 0.  Elements
     can be added using the add_recipient_to_recipient_list function.  Elements
     can be removed using the "remove_recipient_from_recipient_list" function.
 
-    
+
     \param[in] msg The message that is to be sent.
     \param[in/out] A pointer to a pointer to a list of recipients.  The list
                    itself can be changed by changing the pointer.  Change the
@@ -3731,12 +3734,12 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     int i, index;
     on_did_unit_t did_unit;
     on_client_t* client;
-    
-    
+
+
     // it's possible that this message was queued at a time when we had
     // clients, but we no longer have any.  If that's the case, cancel this
     // message.
-    
+
     // TODO -- is this really possible?  Perhaps during a deletion?  Is this
     // checked anywhere else?
     if(master_param->client_count == 0)
@@ -3744,7 +3747,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         *recipient_send_list = NULL;
         return;
     }
-    
+
     // first see if this is an admin message of type ON_NEW_KEY_FRAGMENT,
     // ON_ADD_DEV, or ON_RM_DEV.  If not, we aren't interested in it here, but
     // the application code might be.
@@ -3754,10 +3757,10 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         one_net_adjust_recipient_list(msg, recipient_send_list);
         return;
     }
-    
+
     did_unit.unit = ONE_NET_DEV_UNIT; // all of these updates go to the device
                                       // as a whole.
-                                      
+
     // first we'll check to see if this is a message for the addition or
     // removal of a device.  If it is, then the device being added or removed
     // needs to be informed first.  If this is a device that is being ADDED and
@@ -3765,12 +3768,12 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     // informed with an ACK to a message that IT initiates.  Note that
     // the only devices that are informed of a device being added or removed
     // are
-    
+
     // 1) The device being added or removed.
     // 2) Any devices that have block, multi-hop, or extended single capability
     //    AND which do not sleep.  Any devices which sleep and need to know
     //    about a network update can query the master.
-    
+
     // The REMOVAL of a sleeping device is sort of complicated.  We can't hold
     // everything up waiting for a sleeping device to check-in, so we won't
     // bother informing that device when we remove it.  We'll inform everyone
@@ -3778,7 +3781,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     // little complex and very applicaiton dependent, so a client-to-client
     // protocol involving device(s) that sleep will have to be largely dealt
     // with at the application level, not the ONE-NET level.
-    
+
 
     // Jan. 11, 2011 -- Some of the code below might be unnecessary.  However
     // we seem to be getting some collisions.  When we STOP getting collisons,
@@ -3789,7 +3792,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     {
         BOOL adding = (msg->payload[0] == ON_ADD_DEV);
         on_client_t* add_or_remove_client = NULL;
-        
+
         if(adding && !add_device_update_in_progress)
         {
             // looks like we queued a message in the past and since then,
@@ -3812,9 +3815,9 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             *recipient_send_list = NULL;
             return;
         }
-        
-        
-        
+
+
+
         if((add_or_remove_client = client_info((const on_encoded_did_t*)
           &(msg->payload[1]))) == NULL)
         {
@@ -3828,7 +3831,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             for(i = 0; i < master_param->client_count; i++)
             {
                 on_decode(raw_did, client_list[i].device.did, ON_ENCODED_DID_LEN);
-                
+
                 if(adding)
                 {
                     if(client_list[i].send_add_device_message)
@@ -3848,7 +3851,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                     }
                 }
             }
-            
+
             if(adding)
             {
                 one_net_master_update_result(ONE_NET_UPDATE_ADD_DEVICE,
@@ -3861,12 +3864,12 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                     NULL, &ack_nack);
                 remove_device_update_in_progress = FALSE;
             }
-            
+
             // now cancel this message.
             *recipient_send_list = NULL;
             return;
         }
-        
+
         if(adding && add_or_remove_client->send_add_device_message)
         {
             // TODO -- if we get here, I think we have an inefficiency.  The
@@ -3875,7 +3878,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             // Did it need to be?  Can this be improved?  Regardless, this WILL
             // work and until we're sure this is NOT needed and / or desired and
             // working as far as an anti-collision test, we'll keep it in.
-            
+
             // cancel the message.  This client has not been informed yet that
             // it is now a member of the network.  We want to inform it when it
             // checks in with us.
@@ -3889,24 +3892,24 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
                 // this client is not going to be informed of its own removal.
                 // TODO -- see the other TODO comments.  Is this wise /
                 // necessary?
-                
+
                 // set the flag so that we don't send again and inform the
                 // master that this client was not informed of its removal.
                 add_or_remove_client->send_remove_device_message = FALSE;
-                
+
                 // cancel this message.
                 *recipient_send_list = NULL;
-                return;                
+                return;
             }
-            
+
             // the device being removed hasn't been informed yet.  Whoever
             // the original intended recipient of this message was, the device
             // being removed needs to be informed first, so we'll change the
             // recipient.
-            
+
             // first clear the list.
             (*recipient_send_list)->num_recipients = 0;
-            
+
             // now add the new recipient.
             did_unit.did[0] = msg->payload[1];
             did_unit.did[1] = msg->payload[2];
@@ -3915,7 +3918,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         }
     }
 
-    
+
     // Pick a random index.  This will be overridden if we find a match when traversing
     // the client list in the loop below.
     client = NULL;
@@ -3925,7 +3928,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
     {
         client = client_info((const on_encoded_did_t*)
           &(*recipient_send_list)->recipient_list[0].did);
-          
+
         if(client)
         {
             // iterate through the clients till we find the one we're queued
@@ -3941,12 +3944,12 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             }
         }
     }
-    
-    
+
+
     // clear the list.  If there was something on it and it still needs to be
     // sent, we'll add it back in
     (*recipient_send_list)->num_recipients = 0;
-    
+
     for(i = 0; i < master_param->client_count; i++)
     {
         if(index >= master_param->client_count)
@@ -3955,7 +3958,7 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         }
         client = &client_list[index];
         index++;
-        
+
         // see if we need to send this message fo this client.  We don't need
         // to send it if...
         // 1) It's already been sent and the device has verified that it has
@@ -3963,14 +3966,14 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
         // 2) The device sleeps.  Sleeping devices don't receive outgoing
         //    messages for these particular updates.  They get them when they
         //    check in with keep-alive messages.
-        
+
         // TODO -- do we need to check this one?  Presumably it was checked
         //         before it was queued in the first place?
         if(features_device_sleeps(client->device.features))
         {
             continue;
         }
-        
+
         if(msg->payload[0] == ON_NEW_KEY_FRAGMENT && client->use_current_key)
         {
             // already sent
@@ -3988,15 +3991,15 @@ static void on_master_adjust_recipient_list(const on_single_data_queue_t*
             // already sent
             continue;
         }
-        
-        
+
+
         // looks like we should send this one.
         did_unit.did[0] = client->device.did[0];
         did_unit.did[1] = client->device.did[1];
         add_recipient_to_recipient_list(*recipient_send_list, &did_unit);
         return;
     }
-    
+
     // looks like nothing should be sent.  Abort this message.
     *recipient_send_list = NULL;
 }
@@ -4022,7 +4025,7 @@ static void check_clients_for_missed_check_ins(void)
                   (const on_encoded_did_t* const) &(client_list[i].device.did),
                   pld, 0);
             }
-            client_list[i].next_check_in_time = time_now + 
+            client_list[i].next_check_in_time = time_now +
               MS_TO_TICK(5000 + client_list[i].keep_alive_interval);
         }
     }

@@ -420,9 +420,16 @@ void init_serial_master(SInt8 channel)
             #ifdef PEER
             // get peer settings from eeprom
             eeprom_read_block ((UInt8 *)peer_settings, (UInt16)peer_address, DFI_EEPROM_ONE_NET_PEER_SETTINGS_SIZE);
-            #endif
-
+			#endif
+              
+			// 2-14-13 //////////////////////////////////////////////////////////////////////////////////////////
+			// status = one_net_master_init(master_settings, MAX_MASTER_NV_PARAM_SIZE_BYTES, MEMORY_NON_PEER);
+			#ifdef PEER
             status = one_net_master_init(master_settings, MAX_MASTER_NV_PARAM_SIZE_BYTES, MEMORY_NON_PEER);
+			#else
+			status = one_net_master_init(master_settings, MAX_MASTER_NV_PARAM_SIZE_BYTES);
+			#endif
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
             #ifdef PEER
             if(status == ONS_MORE)
             {
@@ -509,6 +516,12 @@ void master_eval(void)
 one_net_status_t one_net_master_reset_master(const on_raw_sid_t* raw_sid,
   SInt8 channel)
 {
+	// 2-12-13 //////////////////////
+	// set device to be a client
+	device_is_master = TRUE;
+	in_sniffer_mode = FALSE;
+	/////////////////////////////////
+	
     node_loop_func = &master_eval;
     initialize_default_pin_directions(TRUE);
     

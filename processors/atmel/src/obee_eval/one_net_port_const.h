@@ -216,7 +216,7 @@ enum
     #define DATA_RATE_38_4_CAPABLE
 #endif
 #ifndef DATA_RATE_76_8_CAPABLE
-    #define DATA_RATE_76_8_CAPABLE
+//    #define DATA_RATE_76_8_CAPABLE
 #endif
 // 115,200 is supposed to be possible, but there is a bug somewhere.
 // TODO - fix

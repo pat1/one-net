@@ -132,19 +132,17 @@ void pal_init_ports(void)
 
 void pal_high_speed_mode(void)
 {
-#ifdef ATXMEGA256A3B_EVAL
     // set PC7 as an output
-    PORTC.DIRSET = PIN7_bm;
+//    PORTC.DIRSET = PIN7_bm;
 
     // set PC7 to be the clock output pin
-    PORTCFG.CLKEVOUT = (PORTCFG.CLKEVOUT & ~PORTCFG_CLKOUT_gm) | PORTCFG_CLKOUT_PC7_gc;
-#endif	
+//    PORTCFG.CLKEVOUT = (PORTCFG.CLKEVOUT & ~PORTCFG_CLKOUT_gm) | PORTCFG_CLKOUT_PC7_gc;
 	
 	/* Enable for external 9-12 MHz crystal with quick startup time
 		* (256CLK). Check if it's stable and set the external
 		* oscillator as the main clock source. Wait for user input
 		* while the LEDs toggle.
-		*/
+	*/
 
 	OSC.XOSCCTRL = (uint8_t) OSC_FRQRANGE_9TO12_gc | 0 | OSC_XOSCSEL_EXTCLK_gc;
 

@@ -92,9 +92,7 @@ extern UInt16 tx_rf_idx;
 extern const UInt8 * tx_rf_data;
 extern UInt8 bit_mask;
 
-//#ifdef ATXMEGA256A3B
 extern BOOL ignore_interrupt;
-//#endif
 
 //! @} HAL_ADI_pub_var
 //                              PUBLIC VARIABLES END
@@ -140,35 +138,32 @@ void tal_init_ports(void)
 
     // pins used to configure registers
 
-//    SCLK_DIR = OUTPUT;
+      // SCLK_DIR is OUTPUT;
       SCLK_DIR_REG |=  (1 << SCLK_DIR_BIT);
 
-//    SDATA_DIR = OUTPUT;
+      // SDATA_DIR is OUTPUT;
       SDATA_DIR_REG |= (1 << SDATA_DIR_BIT);
 
-//    SLE_DIR = OUTPUT;
+      // SLE_DIR is OUTPUT;
       SLE_DIR_REG |= (1 << SLE_DIR_BIT);
 
-//    SREAD_DIR = INPUT;
+      // SREAD_DIR is INPUT;
       SREAD_DIR_REG &= ~(1 << SREAD_DIR_BIT);
 
     // set up data and clock pins
-//    RF_DATA_DIR = INPUT;
+    // RF_DATA_DIR is INPUT;
       RF_DATA_DIR_REG &= ~(1 << RF_DATA_DIR_BIT);         // pin 2
-	  #ifndef ATXMEGA256A3B_EVAL
       RF_DATA_DIR_REG &= ~(1 << RF_DATA_ALT_DIR_BIT);     // pin 3
-	  #endif
-
-//    RX_BIT_CLK_DIR = INPUT;
-//      RX_BIT_CLK_DIR_REG &= ~(1 << RX_BIT_CLK_DIR_BIT);
+      // RX_BIT_CLK_DIR is INPUT;
+      // RX_BIT_CLK_DIR_REG &= ~(1 << RX_BIT_CLK_DIR_BIT);
 
     // set up sync detect pin
-//    SYNCDET_DIR = INPUT;
+    // SYNCDET_DIR is INPUT;
       SYNCDET_DIR_REG &= ~(1 << SYNCDET_DIR_BIT);
 
     // define out compile time if desired
     #ifdef CHIP_ENABLE
-//        CHIP_ENABLE_DIR = OUTPUT;
+      // CHIP_ENABLE_DIR is OUTPUT;
       CHIP_ENABLE_DIR_REG |= (1 << CHIP_ENABLE_DIR_BIT);
     #endif // ifdef SCHIP_ENABLE //
 
@@ -202,10 +197,11 @@ ISR(TCC1_OVF_vect)
 
     if(bit_mask == 0)
     {
-        // reset to first bit of next byte
-        bit_mask = 0x80;
-        tx_rf_idx++;
+	    // reset to first bit of next byte
+	    bit_mask = 0x80;
+	    tx_rf_idx++;
     } // if done with current byte //
+
 
     rf_output_bit_value = ((tx_rf_data[tx_rf_idx] & bit_mask) && 1);
     if(rf_output_bit_value)
@@ -251,73 +247,6 @@ ISR(TCC1_OVF_vect)
     \param void
     \return  void
 */
-
-#ifdef ATXMEGA256A3B_EVAL
-// RF rcv bit isr(void)
-ISR(PORTE_INT0_vect)
-{
-    UInt8 rf_input_bit_value = 0;
-
-    if(ignore_interrupt == TRUE)
-    {
-		ignore_interrupt++;
-		if(ignore_interrupt)
-		{
-			ignore_interrupt = FALSE;
-		}
-		return;
-    }
-
-    // output debug IO ////////////////////////
-/*
-    static UInt8 led_state = 0;
-
-    if(led_state == 0)
-    {
-       led_state = 1;
-       PORTD.OUT |= (1 << PIN6_bp);
-    }
-    else
-    {
-       led_state = 0;
-       PORTD &= ~(1 << PIN6_bp);
-    }
-*/
-
-   // Turn on debug output
-//   PORTD.OUT |= (1 << PIN6_bp);
-
-    rf_input_bit_value = RF_DATA_INPUT_PORT_REG & (1 << RF_DATA_INPUT_BIT);
-    if(rf_input_bit_value)
-    {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
-          bit_mask;
-
-    } // if a 1 was receeived //
-    else
-    {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
-          ~bit_mask;
-    } // else a 0 was received //
-
-
-
-    bit_mask >>= 1;
-    if(bit_mask == 0)
-    {
-        bit_mask = 0x80;
-        if(++rx_rf_count >= ON_MAX_ENCODED_PKT_SIZE)
-        {
-            rx_rf_count = 0;
-        } // if the end of the receive buffer has been passed //
-    } // if done receiving a byte //
-
-
-    // debugging output
-//   PORTD.OUT &= ~(1 << PIN6_bp);
-
-} // dataclk_isr //
-#else
 // RF rcv bit isr(void)
 ISR(PORTF_INT0_vect)
 {
@@ -357,7 +286,6 @@ ISR(PORTF_INT0_vect)
     } // if done receiving a byte //
 
 } // dataclk_isr //
-#endif
 
 
 //! @} HAL_ADI_pri_func

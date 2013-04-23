@@ -677,7 +677,9 @@ tick_t one_net_client(void)
     // soon.
     
     // TODO -- Do we want the sleep time check?
-    if(sleep_time > MS_TO_TICK(1000) && save)
+    //if(sleep_time > MS_TO_TICK(1000) && save)
+	// Just check save flag 
+	if(save)
     {        
         one_net_client_save_settings();
         save = FALSE;
