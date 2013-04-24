@@ -35,6 +35,8 @@
     \file oncli_hdlr.c
     \brief Contains the implementation for handling of ONE-NET Command Line
       Interface commands.
+
+	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 
 #include "config_options.h"
