@@ -252,7 +252,9 @@ ISR(PORTF_INT0_vect)
 {
     UInt8 rf_input_bit_value = 0;
 
-    if(ignore_interrupt == TRUE)
+	// ignore_interrupt is set to TRUE by the application to avoid running the interrupt code for the first
+	// occurence after it has been enabled.
+    if(ignore_interrupt == FALSE)
     {
 		rf_input_bit_value = RF_DATA_INPUT_PORT_REG & (1 << RF_DATA_INPUT_BIT);
 		if(rf_input_bit_value)
@@ -276,6 +278,10 @@ ISR(PORTF_INT0_vect)
 				rx_rf_count = 0;
 			} // if the end of the receive buffer has been passed //
 		} // if done receiving a byte //
+	}
+	else
+	{
+      ignore_interrupt = FALSE;
 	}
 } // dataclk_isr //
 
