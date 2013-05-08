@@ -40,7 +40,7 @@
     transceiver (such as interrupts for the various communication).  This file
     is for atxmega256a3b devices that have the ADI set up to use Timercc1 has the transmit
     bit interrupt, and INT0 as the data clock interrupt for receive mode.
-	
+
 	2012 - By Arie Rechavel at D&H Global Enterprise, LLC., based on the Renesas Evaluation Board Project
 */
 #include "config_options.h"
@@ -254,37 +254,29 @@ ISR(PORTF_INT0_vect)
 
     if(ignore_interrupt == TRUE)
     {
-		ignore_interrupt++;
-		if(ignore_interrupt)
+		rf_input_bit_value = RF_DATA_INPUT_PORT_REG & (1 << RF_DATA_INPUT_BIT);
+		if(rf_input_bit_value)
 		{
-			ignore_interrupt = FALSE;
-		}
-		return;
-    }
+			encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
+			  bit_mask;
 
-    rf_input_bit_value = RF_DATA_INPUT_PORT_REG & (1 << RF_DATA_INPUT_BIT);
-    if(rf_input_bit_value)
-    {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] |=
-          bit_mask;
+		} // if a 1 was receeived //
+		else
+		{
+			encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
+			  ~bit_mask;
+		} // else a 0 was received //
 
-    } // if a 1 was receeived //
-    else
-    {
-        encoded_pkt_bytes[ONE_NET_PREAMBLE_HEADER_LEN + rx_rf_count] &=
-          ~bit_mask;
-    } // else a 0 was received //
-
-    bit_mask >>= 1;
-    if(bit_mask == 0)
-    {
-        bit_mask = 0x80;
-        if(++rx_rf_count >= ON_MAX_ENCODED_PKT_SIZE)
-        {
-            rx_rf_count = 0;
-        } // if the end of the receive buffer has been passed //
-    } // if done receiving a byte //
-
+		bit_mask >>= 1;
+		if(bit_mask == 0)
+		{
+			bit_mask = 0x80;
+			if(++rx_rf_count >= ON_MAX_ENCODED_PKT_SIZE)
+			{
+				rx_rf_count = 0;
+			} // if the end of the receive buffer has been passed //
+		} // if done receiving a byte //
+	}
 } // dataclk_isr //
 
 
